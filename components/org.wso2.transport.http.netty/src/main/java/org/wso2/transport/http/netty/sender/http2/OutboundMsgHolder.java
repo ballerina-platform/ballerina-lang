@@ -163,4 +163,8 @@ public class OutboundMsgHolder {
         return pushResponseFutures.get(promise.getPromisedStreamId());
     }
 
+    public void removePushResponseFuture(Http2PushPromise promise) {
+        pushResponseFutures.remove(promise.getPromisedStreamId());
+    }
+
 }

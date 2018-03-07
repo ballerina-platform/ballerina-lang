@@ -38,7 +38,7 @@ public interface HttpClientConnector {
      * Send httpMessages to the back-end in asynchronous manner.
      *
      * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
-     * @return returns the status of the asynchronous send action.
+     * @return the status of the asynchronous send action.
      */
     HttpResponseFuture send(HTTPCarbonMessage httpCarbonMessage);
 
@@ -53,7 +53,7 @@ public interface HttpClientConnector {
      * Submit httpMessages to the back-end in asynchronous manner
      *
      * @param httpCarbonMessage httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
-     * @return returns the status of the asynchronous submit action.
+     * @return status of the asynchronous submit action.
      */
     HttpResponseFuture submit(HTTPCarbonMessage httpCarbonMessage);
 
@@ -61,7 +61,7 @@ public interface HttpClientConnector {
      * Fetch response related to the {@code ResponseHandle} in asynchronous manner.
      *
      * @param responseHandle Response Handle
-     * @return returns the status of the asynchronous response fetch action
+     * @return the status of the asynchronous response fetch action
      */
     HttpResponseFuture getResponse(ResponseHandle responseHandle);
 
@@ -69,7 +69,7 @@ public interface HttpClientConnector {
      * Get the next available push promise related to the {@code ResponseHandle} in asynchronous manner.
      *
      * @param responseHandle Response Handle
-     * @return returns the status of the asynchronous push promise fetch action
+     * @return the status of the asynchronous push promise fetch action
      */
     HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle);
 
@@ -77,9 +77,17 @@ public interface HttpClientConnector {
      * Check whether a push promise exists in asynchronous manner.
      *
      * @param responseHandle Response Handle
-     * @return returns the status of the asynchronous push promise check action
+     * @return the status of the asynchronous push promise check action
      */
     HttpResponseFuture hasPushPromise(ResponseHandle responseHandle);
+
+    /**
+     * Reject a push promise
+     *
+     * @param responseHandle Response Handle
+     * @param pushPromise    push promise need to be rejected
+     */
+    void rejectPromise(ResponseHandle responseHandle, Http2PushPromise pushPromise);
 
     /**
      * Get the push response in asynchronous manner.

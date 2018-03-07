@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -98,6 +99,15 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     @Override
     public HttpResponseFuture hasPushPromise(ResponseHandle responseHandle) {
         return responseHandle.getOutboundMsgHolder().getPromiseAvailabilityFuture();
+    }
+
+    @Override
+    public void rejectPromise(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+        Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
+        OutboundMsgHolder outboundMsgHolder = responseHandle.getOutboundMsgHolder();
+        pushPromise.reject();
+        outboundMsgHolder.removePushResponseFuture(pushPromise);
+        outboundMsgHolder.getHttp2ClientChannel().getChannel().write(http2Reset);
     }
 
     @Override

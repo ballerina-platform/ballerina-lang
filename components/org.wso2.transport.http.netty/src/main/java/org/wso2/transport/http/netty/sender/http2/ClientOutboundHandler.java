@@ -32,6 +32,7 @@ import io.netty.handler.codec.http2.EmptyHttp2Headers;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2Reset;
 
 import java.util.Locale;
 
@@ -64,6 +66,9 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         if (msg instanceof OutboundMsgHolder) {
             OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
             new Http2RequestWriter(outboundMsgHolder).writeContent(ctx);
+        } else if (msg instanceof Http2Reset) {
+            Http2Reset resetMsg = (Http2Reset) msg;
+            resetStream(ctx, resetMsg.getStreamId(), resetMsg.getError());
         } else {
             ctx.write(msg, promise); // let other types of objects to pass this handler
         }
@@ -201,6 +206,17 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             encoder.flowController().writePendingBytes();
             ctx.flush();
         }
+    }
+
+    /**
+     * Terminate a stream
+     *
+     * @param streamId stream to be terminated
+     * @param http2Error  Error code
+     */
+    private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
+        encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
+        ctx.flush();
     }
 
 }

@@ -26,8 +26,9 @@ import io.netty.handler.codec.http2.Http2Headers;
  */
 public class Http2PushPromise {
 
-    int streamId;
-    int promisedStreamId;
+    private int streamId;
+    private int promisedStreamId;
+    private boolean rejected = false;
     private Http2Headers headers = new DefaultHttp2Headers();
 
     public Http2PushPromise(Http2Headers headers) {
@@ -66,5 +67,13 @@ public class Http2PushPromise {
 
     public String getPath() {
         return String.valueOf(headers.path());
+    }
+
+    public boolean isRejected() {
+        return rejected;
+    }
+
+    public void reject() {
+        this.rejected = true;
     }
 }
