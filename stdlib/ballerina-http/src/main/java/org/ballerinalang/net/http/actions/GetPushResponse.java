@@ -34,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
@@ -106,7 +106,7 @@ public class GetPushResponse extends AbstractHTTPAction {
         return new BStruct(structType);
     }
 
-    private class PushResponseListener implements HttpConnectorListener {
+    private class PushResponseListener implements HttpClientConnectorListener {
 
         ClientConnectorFuture ballerinaFuture;
         Context context;

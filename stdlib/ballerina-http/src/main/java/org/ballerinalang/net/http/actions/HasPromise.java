@@ -31,7 +31,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
@@ -80,7 +80,7 @@ public class HasPromise extends AbstractHTTPAction {
         return ballerinaFuture;
     }
 
-    private static class PromiseAvailabilityCheckListener implements HttpConnectorListener {
+    private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
         ClientConnectorFuture ballerinaFuture;
 
