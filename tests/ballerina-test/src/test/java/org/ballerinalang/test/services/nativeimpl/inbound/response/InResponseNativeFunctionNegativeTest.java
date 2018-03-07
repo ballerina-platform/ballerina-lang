@@ -84,7 +84,7 @@ public class InResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("empty JSON document"));
+        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("empty JSON document"));
     }
 
     @Test(description = "Test method with string payload")
@@ -136,7 +136,7 @@ public class InResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while retrieving " +
+        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("Error occurred while retrieving " +
                 "xml data from entity : Unexpected EOF in prolog\n"));
     }
 

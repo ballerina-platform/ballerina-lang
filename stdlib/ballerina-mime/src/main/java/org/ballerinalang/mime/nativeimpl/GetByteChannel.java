@@ -45,7 +45,7 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
         packageName = "ballerina.mime",
         functionName = "getByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetByteChannel extends AbstractNativeFunction {
@@ -61,14 +61,14 @@ public class GetByteChannel extends AbstractNativeFunction {
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
-                    return this.getBValues(MimeUtil.createEntityError(context,
+                    return this.getBValues(null, MimeUtil.createEntityError(context,
                             "Byte channel is not available but payload can be obtain either as xml, " +
                                     "json, string or blob type"));
                 } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null) {
-                    return this.getBValues(MimeUtil.createEntityError(context,
+                    return this.getBValues(null, MimeUtil.createEntityError(context,
                             "Byte channel is not available since payload contains a set of body parts"));
                 } else {
-                    return this.getBValues(MimeUtil.createEntityError(context,
+                    return this.getBValues(null, MimeUtil.createEntityError(context,
                             "Byte channel is not available as payload"));
                 }
             }
@@ -76,6 +76,6 @@ public class GetByteChannel extends AbstractNativeFunction {
             return this.getBValues(MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
-        return this.getBValues(byteChannelStruct);
+        return this.getBValues(byteChannelStruct, null);
     }
 }
