@@ -48,7 +48,12 @@ public class BLangScheduler {
      */
     public static void executeNow(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.RUNNING;
-        CPU.exec(ctx);
+        try {
+            CPU.exec(ctx);
+        } catch (Throwable e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, null));
+        }
     }
     
     private static void workerCountUp() {

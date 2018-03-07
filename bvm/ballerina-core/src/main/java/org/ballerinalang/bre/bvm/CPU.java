@@ -3515,7 +3515,6 @@ public class CPU {
                 sf.refRegs[j] = null;
                 String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
                         e.getMessage();
-                System.out.println("SSSSS: " + errorMsg);
                 handleTypeConversionError(ctx, sf, k, errorMsg);
                 return;
             }
