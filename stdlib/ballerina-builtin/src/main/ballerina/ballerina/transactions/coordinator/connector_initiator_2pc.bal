@@ -21,9 +21,9 @@ public connector Initiator2pcClient (string coordinatorProtocolAt) {
     endpoint<http:HttpClient> initiatorEP {
         create http:HttpClient(coordinatorProtocolAt, {});
     }
-    action abortTransaction (string transactionId) returns (string msg, error err) {
+    action abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
 
-        AbortRequest abortReq = {transactionId:transactionId, participantId:localParticipantId};
+        AbortRequest abortReq = {transactionId:transactionId, participantId:getParticipantId(transactionBlockId)};
         var j, _ = <json>abortReq;
         http:OutRequest req = {};
         req.setJsonPayload(j);

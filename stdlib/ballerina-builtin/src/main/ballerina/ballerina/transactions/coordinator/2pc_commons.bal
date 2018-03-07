@@ -414,9 +414,13 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
             httpClientCache.put(protocolUrl, client);
         }
         bind client with initiatorEP;
-        message, err = initiatorEP.abortTransaction(transactionId);
+        message, err = initiatorEP.abortTransaction(transactionId, transactionBlockId);
         if (err == null) {
             txn.state = TransactionState.ABORTED;
+            log:printInfo("Local participant aborted transaction: " + participatedTxnId);
+            participatedTransactions.remove(participatedTxnId);
+        } else {
+            log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
         }
     }
     return;
