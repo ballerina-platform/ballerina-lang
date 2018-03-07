@@ -58,6 +58,7 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
             if (byteChannel != null) {
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+                context.setReturnValues(byteChannelStruct, null);
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
                     context.setReturnValues(null, MimeUtil.createEntityError(context,
@@ -75,6 +76,5 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
             context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
-        context.setReturnValues(byteChannelStruct, null);
     }
 }
