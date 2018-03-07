@@ -18,6 +18,7 @@
 package org.ballerinalang.spi;
 
 import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 /**
  * This represents the Java SPI interface for a Ballerina system package repository provider.
@@ -31,6 +32,6 @@ public interface SystemPackageRepositoryProvider {
      * 
      * @return the loaded {@link PackageRepository} object 
      */
-    PackageRepository loadRepository();
+    Repo loadRepository();
     
 }
