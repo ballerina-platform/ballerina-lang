@@ -19,10 +19,12 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -42,7 +45,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -57,6 +62,41 @@ import java.util.List;
  * @since 0.965.0
  */
 class ASTBuilderUtil {
+
+    /**
+     * Prepend generated code to given body.
+     *
+     * @param generatedCode generated code.
+     * @param target        prepend target
+     */
+    static void prependStatements(BLangBlockStmt generatedCode, BLangBlockStmt target) {
+        int index = 0;
+        for (BLangStatement stmt : generatedCode.stmts) {
+            target.stmts.add(index++, stmt);
+        }
+    }
+
+    /**
+     * Append generated code to given body.
+     *
+     * @param generatedCode generated code.
+     * @param target        prepend target
+     */
+    static void appendStatements(BLangBlockStmt generatedCode, BLangBlockStmt target) {
+        int index = 0;
+        if (target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
+            index = target.stmts.size() - 1;
+        }
+        for (BLangStatement stmt : generatedCode.stmts) {
+            target.stmts.add(index++, stmt);
+        }
+    }
+
+    static void defineVariable(BLangVariable variable, BSymbol targetSymbol, Names names) {
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
+                targetSymbol);
+        targetSymbol.scope.define(variable.symbol.name, variable.symbol);
+    }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
@@ -84,9 +124,14 @@ class ASTBuilderUtil {
     }
 
     static BLangVariableDef createVariableDefStmt(DiagnosticPos pos, BLangBlockStmt target) {
+        final BLangVariableDef variableDef = createVariableDef(pos);
+        target.addStatement(variableDef);
+        return variableDef;
+    }
+
+    static BLangVariableDef createVariableDef(DiagnosticPos pos) {
         final BLangVariableDef variableDef = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         variableDef.pos = pos;
-        target.addStatement(variableDef);
         return variableDef;
     }
 
@@ -212,6 +257,13 @@ class ASTBuilderUtil {
         literal.typeTag = type.tag;
         literal.type = type;
         return literal;
+    }
+
+    static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {
+        final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        recordLiteralNode.pos = pos;
+        recordLiteralNode.type = type;
+        return recordLiteralNode;
     }
 
     static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {

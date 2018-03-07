@@ -397,6 +397,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Visit package init function
         genNode(pkgInitFunc, this.env);
 
+        // Visit package start function
+        BLangFunction pkgStartFunc = pkgNode.startFunction;
+        createFunctionInfoEntry(pkgStartFunc);
+        genNode(pkgStartFunc, this.env);
+
         for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
             if (pkgLevelNode.getKind() == NodeKind.VARIABLE || pkgLevelNode.getKind() == NodeKind.XMLNS) {
                 continue;

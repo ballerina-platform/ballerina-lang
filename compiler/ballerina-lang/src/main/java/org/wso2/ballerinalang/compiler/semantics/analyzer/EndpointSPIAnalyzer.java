@@ -34,18 +34,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_GET_CONNECTOR;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_INIT;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_REGISTER;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_START;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_STOP;
+
 /**
  * Analyzer for validating endpoint SPI.
  *
  * @since 0.965.0
  */
 public class EndpointSPIAnalyzer {
-
-    private static final Name EP_SPI_INIT = new Name("init");
-    private static final Name EP_SPI_REGISTER = new Name("register");
-    private static final Name EP_SPI_GET_CONNECTOR = new Name("getConnector");
-    private static final Name EP_SPI_START = new Name("start");
-    private static final Name EP_SPI_STOP = new Name("stop");
 
     private static final List<Name> EP_SPI_FUNCTIONS =
             Lists.of(EP_SPI_INIT, EP_SPI_REGISTER, EP_SPI_GET_CONNECTOR, EP_SPI_START, EP_SPI_STOP);
@@ -130,11 +130,10 @@ public class EndpointSPIAnalyzer {
         boolean isValid = true;
         // validate init function.
         final BStructSymbol.BAttachedFunction init = ep.attachedFunctionMap.get(EP_SPI_INIT);
-        if (init.type.getParameterTypes().size() != 2 || init.type.retTypes.size() != 1
+        if (init.type.getParameterTypes().size() != 2 || init.type.retTypes.size() != 0
                 || init.type.getReceiverType() != ep.structSymbol.type
                 || init.type.getParameterTypes().get(0) != symTable.stringType
-                || init.type.getParameterTypes().get(1).tag != TypeTags.STRUCT
-                || init.type.retTypes.get(0) != symTable.errStructType) {
+                || init.type.getParameterTypes().get(1).tag != TypeTags.STRUCT) {
             isValid = false;
             dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
         }
@@ -149,17 +148,15 @@ public class EndpointSPIAnalyzer {
         }
         // validate start function
         final BStructSymbol.BAttachedFunction start = ep.attachedFunctionMap.get(EP_SPI_START);
-        if (start.type.getParameterTypes().size() != 0 || start.type.retTypes.size() != 1
-                || start.type.getReceiverType() != ep.structSymbol.type
-                || start.type.retTypes.get(0) != symTable.errStructType) {
+        if (start.type.getParameterTypes().size() != 0 || start.type.retTypes.size() != 0
+                || start.type.getReceiverType() != ep.structSymbol.type) {
             isValid = false;
             dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_START);
         }
         // validate stop function
         final BStructSymbol.BAttachedFunction stop = ep.attachedFunctionMap.get(EP_SPI_STOP);
-        if (stop.type.getParameterTypes().size() != 0 || stop.type.retTypes.size() != 1
-                || stop.type.getReceiverType() != ep.structSymbol.type
-                || init.type.retTypes.get(0) != symTable.errStructType) {
+        if (stop.type.getParameterTypes().size() != 0 || stop.type.retTypes.size() != 0
+                || stop.type.getReceiverType() != ep.structSymbol.type) {
             isValid = false;
             dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_STOP);
         }

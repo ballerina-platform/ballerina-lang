@@ -23,11 +23,10 @@ public struct ServiceEndpoint {
 
 // this gets called when the endpoint is being initialized
 // during package init time
-public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) returns (error) {
+public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) {
     h.epName = epName;
     h.config = c;
     // TODO : Write HTTP logic for initializing Service connector, acquiring socket, etc.
-    return null;
 }
 
 // this gets called every time a service attaches itself to this
@@ -47,15 +46,13 @@ function <ServiceEndpoint h> getConnector () returns (ResponseConnector) {
 }
 
 // start
-public function <ServiceEndpoint h> start () returns (error) {
+public function <ServiceEndpoint h> start () {
     // TODO : Make This Native.
-    return null;
 }
 
 // stop
-public function <ServiceEndpoint h> stop () returns (error) {
+public function <ServiceEndpoint h> stop () {
     // TODO : Make This Native.
-    return null;
 }
 
 ////////////////////////////////

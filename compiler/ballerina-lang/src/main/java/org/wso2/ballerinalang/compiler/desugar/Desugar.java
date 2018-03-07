@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -130,6 +129,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -145,9 +145,9 @@ public class Desugar extends BLangNodeVisitor {
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
+    private EndpointDesugar endpointDesugar;
 
     private BLangNode result;
 
@@ -169,12 +169,11 @@ public class Desugar extends BLangNodeVisitor {
 
     private Desugar(CompilerContext context) {
         context.put(DESUGAR_KEY, this);
-
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
+        this.endpointDesugar = EndpointDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -199,7 +198,9 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.services = rewrite(pkgNode.services, env);
         annotationDesugar.rewritePackageAnnotations(pkgNode);
+        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
+        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -216,6 +217,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         addReturnIfNotPresent(funcNode);
+        Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
+        funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -237,6 +240,7 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
         serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
         serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
+        serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
     }
@@ -245,6 +249,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangResource resourceNode) {
         addReturnIfNotPresent(resourceNode);
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
+        Collections.reverse(resourceNode.endpoints); // To preserve endpoint code gen order at resource
+        resourceNode.endpoints = rewrite(resourceNode.endpoints, resourceEnv);
         resourceNode.body = rewrite(resourceNode.body, resourceEnv);
         resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
         result = resourceNode;
@@ -256,6 +262,7 @@ public class Desugar extends BLangNodeVisitor {
         connectorNode.params = rewrite(connectorNode.params, conEnv);
         connectorNode.actions = rewrite(connectorNode.actions, conEnv);
         connectorNode.varDefs = rewrite(connectorNode.varDefs, conEnv);
+        connectorNode.endpoints = rewrite(connectorNode.endpoints, conEnv);
         connectorNode.initFunction = rewrite(connectorNode.initFunction, conEnv);
         connectorNode.initAction = rewrite(connectorNode.initAction, conEnv);
         result = connectorNode;
@@ -265,6 +272,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangAction actionNode) {
         addReturnIfNotPresent(actionNode);
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        Collections.reverse(actionNode.endpoints); // To preserve endpoint code gen order at action.
+        actionNode.endpoints = rewrite(actionNode.endpoints, actionEnv);
         actionNode.body = rewrite(actionNode.body, actionEnv);
         actionNode.workers = rewrite(actionNode.workers, actionEnv);
 
@@ -289,7 +298,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpoint endpointNode) {
+    public void visit(BLangEndpoint endpoint) {
+        endpointDesugar.rewriteEndpoint(endpoint, env);
     }
 
     @Override
