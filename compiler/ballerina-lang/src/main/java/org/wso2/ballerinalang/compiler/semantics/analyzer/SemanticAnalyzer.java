@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttrib
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -116,6 +118,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
+    private EndpointSPIAnalyzer endpointSPIAnalyzer;
     private DiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -141,6 +144,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
+        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = DiagnosticLog.getInstance(context);
     }
 
@@ -210,6 +214,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        funcNode.endpoints.forEach(e -> analyzeDef(e, env));
         analyzeStmt(funcNode.body, funcEnv);
 
         this.processWorkers(funcNode, funcEnv);
@@ -510,7 +515,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-
+        connectorNode.endpoints.forEach(e -> analyzeDef(e, env));
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
         this.analyzeDef(connectorNode.initAction, connectorEnv);
@@ -532,23 +537,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
+        actionNode.endpoints.forEach(e -> analyzeDef(e, env));
         analyzeStmt(actionNode.body, actionEnv);
         this.processWorkers(actionNode, actionEnv);
     }
 
     public void visit(BLangService serviceNode) {
-        BSymbol serviceSymbol = serviceNode.symbol;
+        BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
-        //TODO validate protocol package existance
-        ((BServiceSymbol) serviceSymbol).endpointType = symResolver.resolveTypeNode(serviceNode.endpointType, env);
+        serviceSymbol.endpointType = symResolver.resolveTypeNode(serviceNode.endpointType, env);
+        endpointSPIAnalyzer.isValidEndpointType(serviceNode.endpointType.pos, serviceSymbol.endpointType);
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
             this.analyzeDef(a, serviceEnv);
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
-
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
+        serviceNode.endpoints.forEach(e -> this.analyzeDef(e, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
     }
@@ -564,6 +570,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
 
         resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
+        resourceNode.endpoints.forEach(e -> analyzeDef(e, env));
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
     }
@@ -673,6 +680,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorker workerNode) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
         this.analyzeNode(workerNode.body, workerEnv);
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        BType configType = symTable.errType;
+        endpointSPIAnalyzer.resolveEndpointSymbol(endpointNode.pos, endpointNode.symbol);
+        if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.STRUCT) {
+            configType = endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) endpointNode.symbol.type.tsymbol);
+        }
+        this.typeChecker.checkExpr(endpointNode.configurationExpr, env, Lists.of(configType));
     }
 
     private boolean isInTopLevelWorkerEnv() {

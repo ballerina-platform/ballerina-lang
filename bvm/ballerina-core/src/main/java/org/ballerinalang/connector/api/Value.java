@@ -85,7 +85,8 @@ public interface Value {
         STRUCT(TypeTags.STRUCT_TAG),
         JSON(TypeTags.JSON_TAG),
         XML(TypeTags.XML_TAG),
-        TYPE(TypeTags.TYPE_TAG),;
+        TYPE(TypeTags.TYPE_TAG),
+        ENUM(TypeTags.ENUM_TAG);
 
         int tag;
 

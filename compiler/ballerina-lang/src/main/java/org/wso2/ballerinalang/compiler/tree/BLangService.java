@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -49,6 +50,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
+    public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
 
@@ -57,6 +59,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangService() {
         this.vars = new ArrayList<>();
         this.resources = new ArrayList<>();
+        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
@@ -151,6 +154,11 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
         this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
+    }
+
+    @Override
+    public List<? extends EndpointNode> getEndpointNodes() {
+        return endpoints;
     }
 
     @Override

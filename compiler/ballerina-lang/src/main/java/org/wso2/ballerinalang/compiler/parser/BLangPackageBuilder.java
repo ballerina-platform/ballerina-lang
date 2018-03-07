@@ -64,11 +64,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -217,6 +219,8 @@ public class BLangPackageBuilder {
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
+    private Stack<List<BLangEndpoint>> endpointListStack = new Stack<>();
+
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
@@ -327,7 +331,7 @@ public class BLangPackageBuilder {
 
         BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
         endpointTypeNode.pos = pos;
-        endpointTypeNode.constraint = constraintType;
+        endpointTypeNode.endpointType = constraintType;
         endpointVarWs = removeNthFromStart(ws, 3);
         endpointKeywordWs = removeNthFromStart(ws, 0);
         endpointTypeNode.addWS(ws);
@@ -470,6 +474,29 @@ public class BLangPackageBuilder {
         endFunctionDef(pos, null, false, false, true, false);
     }
 
+    public void startEndpointDecarationScope() {
+        endpointListStack.push(new ArrayList<>());
+    }
+
+    public List<BLangEndpoint> endEndpointDecarationScope() {
+        return endpointListStack.pop();
+    }
+
+    public void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+        final BLangEndpoint endpointNode = (BLangEndpoint) TreeBuilder.createEndpointNode();
+        endpointNode.pos = pos;
+        endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
+        endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();
+        endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
+        endpointNode.addWS(ws);
+        endpointListStack.peek().add(endpointNode);
+    }
+
+    public void markLastEndpointAsPublic() {
+        final List<BLangEndpoint> endpointNodeList = endpointListStack.peek();
+        endpointNodeList.get(endpointNodeList.size() - 1).flagSet.add(Flag.PUBLIC);
+    }
+
     public void addVariableDefStatement(DiagnosticPos pos,
                                         Set<Whitespace> ws,
                                         String identifier,
@@ -477,7 +504,7 @@ public class BLangPackageBuilder {
                                         boolean endpoint) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
-
+        // TODO : Remove endpoint logic from here.
         Set<Whitespace> wsOfSemiColon = null;
         if (endpoint) {
             var.addWS(endpointVarWs);
@@ -512,10 +539,6 @@ public class BLangPackageBuilder {
             connectorInitNode.addWS(commaWsStack.pop());
         }
         this.addExpressionNode(connectorInitNode);
-    }
-
-    public boolean isInsideDefinition() {
-        return !this.blockNodeStack.empty();
     }
 
     private void addStmtToCurrentBlock(StatementNode statement) {
@@ -903,6 +926,7 @@ public class BLangPackageBuilder {
         InvokableNode invokableNode = this.invokableNodeStack.peek();
         invokableNode.addWS(ws);
         invokableNode.setBody(block);
+        ((BLangInvokableNode) invokableNode).endpoints = endEndpointDecarationScope();
     }
 
     public void setPackageDeclaration(DiagnosticPos pos, Set<Whitespace> ws, List<String> nameComps, String version) {
@@ -1046,6 +1070,7 @@ public class BLangPackageBuilder {
         attachDocumentations(connectorNode);
         attachDeprecatedNode(connectorNode);
         this.connectorNodeStack.push(connectorNode);
+        startEndpointDecarationScope();
     }
 
     public void startConnectorBody() {
@@ -1072,7 +1097,7 @@ public class BLangPackageBuilder {
         if (publicCon) {
             connectorNode.flagSet.add(Flag.PUBLIC);
         }
-
+        connectorNode.endpoints = endEndpointDecarationScope();
         this.compUnit.addTopLevelNode(connectorNode);
     }
 
@@ -1489,6 +1514,7 @@ public class BLangPackageBuilder {
         attachDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
+        startEndpointDecarationScope();
     }
 
     public void addServiceBody(Set<Whitespace> ws) {
@@ -1504,6 +1530,7 @@ public class BLangPackageBuilder {
         final BLangNameReference epName = nameReferenceStack.pop();
         serviceNode.setEndpointType(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
                 (BLangIdentifier) epName.name));
+        serviceNode.endpoints = endEndpointDecarationScope();
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
@@ -1784,6 +1811,8 @@ public class BLangPackageBuilder {
     }
 
     public void endCompilationUnit(Set<Whitespace> ws) {
+        final List<BLangEndpoint> globalEndpoints = endEndpointDecarationScope();
+        globalEndpoints.forEach(compUnit::addTopLevelNode);
         compUnit.addWS(ws);
     }
 

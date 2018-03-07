@@ -82,15 +82,14 @@ public class ValueImpl implements Value {
             case FLOAT:
                 val.floatValue = ((BValueType) value).floatValue();
                 break;
-            case STRING:
-                val.stringValue = value.stringValue();
-                break;
             case BOOLEAN:
                 val.booleanValue = ((BValueType) value).booleanValue();
                 break;
             case STRUCT:
                 val.structValue = new StructImpl((BStruct) value);
                 break;
+            default:
+                val.stringValue = value.stringValue();
         }
         return val;
     }

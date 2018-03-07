@@ -675,8 +675,8 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     public void visit(BLangEndpointTypeNode endpointType) {
         setPreviousNode(endpointType);
-        if (endpointType.constraint != null) {
-            acceptNode(endpointType.constraint);
+        if (endpointType.endpointType != null) {
+            acceptNode(endpointType.endpointType);
         }
     }
 
