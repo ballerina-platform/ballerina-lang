@@ -20,6 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
@@ -29,7 +30,6 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetBodyParts extends AbstractNativeFunction {
@@ -68,8 +68,9 @@ public class GetBodyParts extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while extracting body parts from entity: " + e.getMessage());
+            return this.getBValues(null, MimeUtil.createEntityError(context,
+                    "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
-        return this.getBValues(partsArray);
+        return this.getBValues(partsArray, null);
     }
 }
