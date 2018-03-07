@@ -31,7 +31,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -39,7 +38,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -47,7 +46,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["GET"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -60,7 +60,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -68,7 +67,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -76,7 +75,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["POST"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -89,7 +89,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -97,7 +96,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -105,7 +104,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["PUT"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -118,7 +118,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -126,7 +125,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -134,7 +133,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["DELETE"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -147,7 +147,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -155,7 +154,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -163,7 +162,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["OPTIONS"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -176,7 +176,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -184,7 +183,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -192,7 +191,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["HEAD"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -205,7 +205,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -213,7 +212,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -221,7 +220,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["PATCH"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};
@@ -234,7 +234,6 @@ service<http> {{cut info.title " "}} {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
-        deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
@@ -242,7 +241,7 @@ service<http> {{cut info.title " "}} {
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
-                deprecated: {{deprecated}},{{/deprecated}}
+                discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
@@ -250,7 +249,8 @@ service<http> {{cut info.title " "}} {
     @http:resourceConfig {
         methods:["TRACE"],
         path:"{{key}}"
-    }
+    }{{#deprecated}}
+    deprecated {}{{/deprecated}}
     resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:OutResponse resp = {};

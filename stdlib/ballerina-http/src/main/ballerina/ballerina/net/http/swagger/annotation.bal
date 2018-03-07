@@ -108,7 +108,7 @@ public annotation parameterInfo {
     string name;
     string description;
     boolean required;
-    boolean deprecated;
+    boolean discontinued;
     string allowEmptyValue;
     string parameterType;
     string format;
@@ -128,7 +128,6 @@ public annotation resourceInfo attach resource {
     string[] tags;
     string summary;
     string description;
-    boolean deprecated;
     externalDoc externalDocs;
     parameterInfo[] parameters;
 }
