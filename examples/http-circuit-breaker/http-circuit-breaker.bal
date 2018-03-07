@@ -29,7 +29,7 @@ service<http> circuitBreakerDemo {
         // - If it fails though, the circuit goes back to 'open' state, and the above process repeats.<br>
         endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
             create resiliency:CircuitBreaker(create http:HttpClient("http://localhost:8080",
-                                              {endpointTimeout:2000}), circuitBreakerConfig);
+                                                                    {endpointTimeout:2000}), circuitBreakerConfig);
         }
         http:InResponse clientRes;
         http:HttpConnectorError err;
@@ -43,8 +43,16 @@ service<http> circuitBreakerDemo {
                 _ = conn.respond(res);
             }
         } else {
-            io:println(clientRes.getStringPayload());
-            _ = conn.forward(clientRes);
+            var payload, payloadError = clientRes.getStringPayload();
+            if (payloadError == null) {
+                io:println(payload);
+                _ = conn.forward(clientRes);
+            } else {
+                http:OutResponse res = {};
+                res.statusCode = 500;
+                res.setStringPayload(payloadError.message);
+                _ = conn.respond(res);
+            }
         }
     }
 }

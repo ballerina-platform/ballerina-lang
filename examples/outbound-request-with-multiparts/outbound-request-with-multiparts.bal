@@ -25,7 +25,7 @@ service<http> multiparts {
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         xmlFilePart.contentType = contentTypeOfFilePart;
         xmlFilePart.contentDisposition = getContentDispositionForFormData("xml file part");
-        file:File fileHandler = {path:"/home/user/Downloads/test.xml"};
+        file:File fileHandler = {path:"./files/test.xml"};
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
         //Create a xml body part.
