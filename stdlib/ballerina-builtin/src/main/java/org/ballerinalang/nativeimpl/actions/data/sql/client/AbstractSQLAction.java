@@ -766,13 +766,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxID = localTransactionInfo.getGlobalTransactionId();
+        String globalTxId = localTransactionInfo.getGlobalTransactionId();
+        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
         BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
                 XAResource xaResource = xaConn.getXAResource();
-                TransactionResourceManager.getInstance().beginXATransaction(globalTxID, xaResource);
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
                 conn = xaConn.getConnection();
                 txContext = new SQLTransactionContext(conn, xaResource);
             } else {
@@ -781,7 +782,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 txContext = new SQLTransactionContext(conn, null);
             }
             localTransactionInfo.registerTransactionContext(connectorId, txContext);
-            TransactionResourceManager.getInstance().register(globalTxID, txContext);
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }
