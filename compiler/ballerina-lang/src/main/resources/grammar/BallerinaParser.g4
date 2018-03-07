@@ -242,6 +242,7 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   compoundAssignmentStatement
     |   bindStatement
     |   ifElseStatement
     |   foreachStatement
@@ -295,6 +296,15 @@ endpointDefinition
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    ;
+
+compoundAssignmentStatement
+    :   variableReference compoundOperator expression SEMICOLON
+    ;
+
+compoundOperator
+    :   COMPOUND_ADDITION
+    |   COMPOUND_SUBSTRACTION
     ;
 
 bindStatement

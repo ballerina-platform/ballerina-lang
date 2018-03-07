@@ -120,6 +120,11 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 
+// Compound Assignment operators.
+
+COMPOUND_ADDITION      : '+=' ;
+COMPOUND_SUBSTRACTION  : '-=' ;
+
 // §3.10.1 Integer Literals
 IntegerLiteral
     :   DecimalIntegerLiteral
