@@ -17,7 +17,7 @@ public annotation serviceInfo attach service<http> {
     string termsOfService;
     contact contact;
     license license;
-    externalDoc externalDoc;
+    externalDoc externalDocs;
     tag[] tags;
     securityRequirement[] security;
 }
@@ -41,7 +41,7 @@ public annotation externalDoc {
 public annotation tag {
     string name;
     string description;
-    externalDoc externalDoc;
+    externalDoc externalDocs;
 }
 
 public annotation organization {
@@ -129,7 +129,7 @@ public annotation resourceInfo attach resource {
     string summary;
     string description;
     boolean deprecated;
-    externalDoc externalDoc;
+    externalDoc externalDocs;
     parameterInfo[] parameters;
 }
 

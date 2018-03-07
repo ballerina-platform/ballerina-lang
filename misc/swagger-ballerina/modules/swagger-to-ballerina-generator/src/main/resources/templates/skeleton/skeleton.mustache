@@ -12,9 +12,9 @@ import ballerina.net.http.swagger;
     contact: @swagger:contact {name: "{{contact.name}}", email: "{{contact.email}}",url: "{{contact.url}}"},
     license: @swagger:license {name: "{{license.name}}", url: "{{license.url}}"},{{/info}}
     tags: [{{#tags}}
-        @swagger:tag {name: "{{name}}", description: "{{description}}", externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"} }{{#unless @last}},{{/unless}}{{/tags}}
+        @swagger:tag {name: "{{name}}", description: "{{description}}", externalDocs: {{>doc}} }{{#unless @last}},{{/unless}}{{/tags}}
     ],
-    externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"},
+    externalDocs: {{>doc}},
     security: [{{#security}}
         {{>security}}{{/security}}
     ]
@@ -32,6 +32,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -60,6 +61,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -88,6 +90,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -116,6 +119,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -144,6 +148,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -172,6 +177,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -200,6 +206,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
@@ -228,6 +235,7 @@ service<http> {{cut info.title " "}} {
         summary: "{{summary}}",
         description: "{{description}}",
         deprecated: {{#deprecated}}true{{/deprecated}}{{^deprecated}}false{{/deprecated}},
+        externalDocs: {{>doc}},
         parameters: [{{#parameters}}
             @swagger:parameterInfo {
                 name: "{{name}}",
