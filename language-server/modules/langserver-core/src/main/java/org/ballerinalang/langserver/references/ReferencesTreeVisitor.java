@@ -489,8 +489,8 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangEndpointTypeNode endpointType) {
-        if (endpointType.constraint != null) {
-            acceptNode(endpointType.constraint);
+        if (endpointType.endpointType != null) {
+            acceptNode(endpointType.endpointType);
         }
     }
 

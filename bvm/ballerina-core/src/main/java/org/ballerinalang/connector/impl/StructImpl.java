@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.StructField;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
@@ -73,27 +74,27 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public long getIntField(String fieldName) {
-        return value.getIntField(getFiledIndex(fieldName));
+        return value.getIntField(getFieldIndex(fieldName));
     }
 
     @Override
     public double getFloatField(String fieldName) {
-        return value.getFloatField(getFiledIndex(fieldName));
+        return value.getFloatField(getFieldIndex(fieldName));
     }
 
     @Override
     public String getStringField(String fieldName) {
-        return value.getStringField(getFiledIndex(fieldName));
+        return value.getStringField(getFieldIndex(fieldName));
     }
 
     @Override
     public boolean getBooleanField(String fieldName) {
-        return value.getBooleanField(getFiledIndex(fieldName)) == 1;
+        return value.getBooleanField(getFieldIndex(fieldName)) == 1;
     }
 
     @Override
     public Struct getStructField(String fieldName) {
-        final BStruct refField = (BStruct) value.getRefField(getFiledIndex(fieldName));
+        final BStruct refField = (BStruct) value.getRefField(getFieldIndex(fieldName));
         if (refField == null) {
             return null;
         }
@@ -102,7 +103,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public Value[] getArrayField(String fieldName) {
-        final BNewArray refField = (BNewArray) value.getRefField(getFiledIndex(fieldName));
+        final BNewArray refField = (BNewArray) value.getRefField(getFieldIndex(fieldName));
         if (refField == null) {
             return null;
         }
@@ -116,7 +117,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
 
     @Override
     public Map<String, Value> getMapField(String fieldName) {
-        final BMap refField = (BMap) value.getRefField(getFiledIndex(fieldName));
+        final BMap refField = (BMap) value.getRefField(getFieldIndex(fieldName));
         if (refField == null) {
             return null;
         }
@@ -129,7 +130,16 @@ public class StructImpl extends AnnotatableNode implements Struct {
         return valueMap;
     }
 
-    private int getFiledIndex(String fieldName) {
+    @Override
+    public String getEnumField(String fieldName) {
+        final BEnumerator refField = (BEnumerator) value.getRefField(getFieldIndex(fieldName));
+        if (refField == null) {
+            return null;
+        }
+        return refField.getName();
+    }
+
+    private int getFieldIndex(String fieldName) {
         final StructFieldImpl structField = structFields.get(fieldName);
         if (structField == null) {
             throw new RuntimeException(fieldName + " not found");
