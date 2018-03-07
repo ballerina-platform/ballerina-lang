@@ -5,5 +5,3 @@ function testAddHeader (string headerName, string headerValue, string headerName
     entity.addHeader(headerName, headerValue);
     return entity.getHeader(headerNameToBeUsedForRetrieval);
 }
-
-

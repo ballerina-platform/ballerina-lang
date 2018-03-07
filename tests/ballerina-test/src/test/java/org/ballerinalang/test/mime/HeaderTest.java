@@ -24,11 +24,22 @@ public class HeaderTest {
         compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
-    @Test(description = "Test whether the case is ignored when dealing with http headers")
-    public void testToStringOnMediaType() {
+    @Test(description = "Test whether the correct http header value is returned when the header exist as requested")
+    public void testGetHeaderAsIs() {
         BString headerName = new BString("Content-Type");
         BString headerValue = new BString("application/json");
-        BString headerNameToBeUsedForRetrieval = new BString("CONTENT-TYPE");
+        BString headerNameToBeUsedForRetrieval = new BString("Content-Type");
+        BValue[] args = {headerName, headerValue, headerNameToBeUsedForRetrieval};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddHeader", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "application/json");
+    }
+
+    @Test(description = "Test whether the case is ignored when dealing with http headers")
+    public void testCaseInsensitivityOfHeaders() {
+        BString headerName = new BString("content-type");
+        BString headerValue = new BString("application/json");
+        BString headerNameToBeUsedForRetrieval = new BString("ConTeNT-TYpE");
         BValue[] args = {headerName, headerValue, headerNameToBeUsedForRetrieval};
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddHeader", args);
         Assert.assertEquals(returns.length, 1);

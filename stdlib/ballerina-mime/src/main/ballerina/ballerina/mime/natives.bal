@@ -40,7 +40,7 @@ should represent the header name and value will be the 'HeaderValue' struct"}
 public struct Entity {
     MediaType contentType;
     string contentId;
-    private :map headers;
+    map headers;
     int size;
     ContentDisposition contentDisposition;
 }
@@ -278,18 +278,48 @@ public const string DEFAULT_CHARSET = "UTF-8";
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
 
+function useCaseInsensitiveStrategy(string headerNameToLookFor, map headers) (string[]){
+    foreach key, value in headers {
+        var headerKey, _ = (string)key;
+        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
+            var headerVal, _ = (string[])value;
+            return headerVal;
+        }
+    }
+    return null;
+}
+
+public function <Entity entity> getHeader (string headerName) (string) {
+    if (entity.headers == null) {
+        return null;
+    }
+    var headerValue, _ = (string[])entity.headers[headerName];
+    if (headerValue != null) {
+        return headerValue[0];
+    } else {
+        //Ignore case and check existence of header
+        string[] headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
+        return headerValueArray == null ? null : headerValueArray[0];
+    }
+}
+
+public function <Entity entity> getHeaders (string headerName) (string[]) {
+    if (entity.headers == null) {
+        return null;
+    }
+    return useCaseInsensitiveStrategy(headerName, entity.headers);
+}
+
 public function <Entity entity> addHeader (string headerName, string headerValue) {
     if (entity.headers == null) {
         entity.headers = {};
     }
-    string caseInsensitiveHeaderName = headerName.toLowerCase();
-    var existingValues = entity.headers[caseInsensitiveHeaderName];
+    string[] existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
     if (existingValues == null) {
-        entity.setHeader(caseInsensitiveHeaderName, headerValue);
+        entity.setHeader(headerName, headerValue);
     } else {
-        var valueArray, _ = (string[])existingValues;
-        valueArray[lengthof valueArray] = headerValue;
-        entity.headers[caseInsensitiveHeaderName] = valueArray;
+        existingValues[lengthof existingValues] = headerValue;
+        entity.headers[headerName] = existingValues;
     }
 }
 
@@ -297,27 +327,18 @@ public function <Entity entity> setHeader (string headerName, string headerValue
     if (entity.headers == null) {
         entity.headers = {};
     }
-    string caseInsensitiveHeaderName = headerName.toLowerCase();
     string[] valueArray = [headerValue];
-    entity.headers[caseInsensitiveHeaderName] = valueArray;
+    entity.headers[headerName] = valueArray;
 }
 
-public function <Entity entity> getHeader (string headerName) (string) {
-    if (entity.headers == null) {
-        return null;
+public function <Entity entity> removeHeader (string headerName) {
+    if (entity.headers != null) {
+        entity.headers.remove(headerName);
     }
-    string caseInsensitiveHeaderName = headerName.toLowerCase();
-    var headerValue, _ = (string[])entity.headers[caseInsensitiveHeaderName];
-    return headerValue == null?null:headerValue[0];
 }
 
-public function <Entity entity> getHeaders (string headerName) (string[]) {
-    if (entity.headers == null) {
-        return null;
-    }
-    string caseInsensitiveHeaderName = headerName.toLowerCase();
-    var headerValue, _ = (string[])entity.headers[caseInsensitiveHeaderName];
-    return headerValue;
+public function <Entity entity> removeAllHeaders () {
+    entity.headers = {};
 }
 
 public function <Entity entity> getContentLength () (int) {
@@ -331,15 +352,4 @@ public function <Entity entity> getContentLength () (int) {
         }
     }
     return -1;
-}
-
-public function <Entity entity> removeHeader (string headerName) {
-    string caseInsensitiveHeaderName = headerName.toLowerCase();
-    if (entity.headers != null) {
-        entity.headers.remove(caseInsensitiveHeaderName);
-    }
-}
-
-public function <Entity entity> removeAllHeaders () {
-    entity.headers = {};
 }
