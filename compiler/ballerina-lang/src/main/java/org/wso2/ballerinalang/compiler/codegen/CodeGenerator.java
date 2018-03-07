@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -254,7 +253,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
-    private SymbolEnter symEnter;
     private SymbolTable symTable;
 
     private ProgramFile programFile;
@@ -295,8 +293,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public CodeGenerator(CompilerContext context) {
         context.put(CODE_GENERATOR_KEY, this);
-
-        this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
 
@@ -1218,7 +1214,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void genPackage(BPackageSymbol pkgSymbol) {
         // TODO First check whether this symbol is from a BALO file.
-        SymbolEnv pkgEnv = symEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         genNode(pkgEnv.node, pkgEnv);
     }
 

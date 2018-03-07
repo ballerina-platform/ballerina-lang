@@ -29,6 +29,8 @@ public enum CompilerPhase {
     CODE_ANALYZE("codeAnalyze"),
 
     TAINT_ANALYZE("taintAnalyze"),
+  
+    COMPILER_PLUGIN("compilerPlugin"),
 
     DESUGAR("desugar"),
 
@@ -50,6 +52,8 @@ public enum CompilerPhase {
                 return CODE_ANALYZE;
             case "taintAnalyze":
                 return TAINT_ANALYZE;
+            case "annotationProcess":
+                return COMPILER_PLUGIN;
             case "desugar":
                 return DESUGAR;
             case "codeGen":
