@@ -28,7 +28,7 @@ public struct CharacterChannel {
 public struct DelimitedRecordChannel {
 }
 
-@Description {value:"Represents an error which will occur while reading/writing"}
+@Description {value:"Represents an error which will occur while performing I/O operations"}
 public struct IOError {
     string message;
     error cause;
@@ -70,13 +70,13 @@ public struct SocketProperties {
     string sslProtocol;
 }
 
-@Description {value:"Function to return a ByteChannel related to the file. This ByteChannel can then be used to read/write from/to the file."}
-@Param {value:"path: The path of the file"}
-@Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
-@Return {value:"ByteChannel which will allow to perform I/O operations"}
+@Description {value:"Opens a byte channel from a specified file location."}
+@Param {value:"path: path to the file location."}
+@Param {value:"accessMode: whether the file should be opened for read,write or append."}
+@Return {value:"Channel which will allow to source/sink."}
 public native function openFile (string path, string accessMode) (ByteChannel);
 
-@Description {value:"Represents a client socket connection. This can be used to communicate with a remote server"}
+@Description {value:"Opens a socket from a specified network location"}
 @Param {value:"host: Remote server domain/IP"}
 @Param {value:"port: Remote server port"}
 @Param {value:"options: Connection stream that bridge the client and the server"}
@@ -103,7 +103,7 @@ public native function createDelimitedRecordChannel (CharacterChannel channel,
 @Param {value:"numberOfBytes: Number of bytes which should be read"}
 @Return {value:"The bytes which were read"}
 @Return {value:"Number of bytes read"}
-@Return {value:"If an error occurrs while reading bytes"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <ByteChannel channel> read (int numberOfBytes, int offset) (blob, int, IOError);
 
 @Description {value:"Function to write bytes"}
@@ -120,7 +120,7 @@ public native function <ByteChannel channel> write (blob content, int startOffse
 public native function <CharacterChannel channel> readCharacters (int numberOfChars) (string, IOError);
 
 @Description {value:"Function to write characters"}
-@Param {value:"channel: The CharacterChannel to write characters to"}
+@Param {value:"channel: The CharacterChannel which will allow writing characters"}
 @Param {value:"content: Text content which should be written"}
 @Param {value:"startOffset: If the content needs to be written with an offset, the value of that offset"}
 @Return {value:"Number of characters written"}

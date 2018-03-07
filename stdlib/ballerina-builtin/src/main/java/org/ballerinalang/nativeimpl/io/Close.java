@@ -75,7 +75,6 @@ public class Close extends AbstractNativeFunction {
             String message = "Failed to close the channel:" + e.getMessage();
             log.error(message);
             return getBValues(IOUtils.createError(context, message));
-            //throw new BallerinaException(message, context);
         }
         return VOID_RETURN;
     }

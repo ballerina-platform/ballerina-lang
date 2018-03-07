@@ -171,7 +171,6 @@ public class BytesInputOutputBufferTest {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
         Channel channel = new MockByteChannel(byteChannel);
-        //byte[] readBytes = channel.readFull(8);
         int numberOfBytesRead = read(8, channel).getNumberOfBytesRead();
 
         Assert.assertEquals(numberOfBytesRead, numberOfBytesInFile);

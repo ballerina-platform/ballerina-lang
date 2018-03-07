@@ -104,7 +104,7 @@ public class AsyncReadWriteTest {
     public void writeBytes() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
-        Channel channel = new MockByteChannel(byteChannel, 0);
+        Channel channel = new MockByteChannel(byteChannel);
         byte[] bytes = "hello".getBytes();
 
         int numberOfBytesWritten = IOUtils.writeFull(channel, bytes, bytes.length, new EventContext());

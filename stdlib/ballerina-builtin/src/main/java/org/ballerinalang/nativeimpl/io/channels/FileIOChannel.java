@@ -40,7 +40,7 @@ public class FileIOChannel extends Channel {
      */
     private FileChannel channel;
 
-    public FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
+    FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
         super(channel, new BlockingReader(), new BlockingWriter(), size);
         this.channel = channel;
     }
