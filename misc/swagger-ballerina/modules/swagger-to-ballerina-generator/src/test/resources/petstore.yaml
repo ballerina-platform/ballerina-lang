@@ -11,6 +11,13 @@ tags:
     description: Pets Tag
   - name: list
     description: List Tag
+security:
+- petstore_auth:
+  - write:pets
+  - read:pets
+- user_auth:
+  - read:user
+
 paths:
   /pets:
     get:

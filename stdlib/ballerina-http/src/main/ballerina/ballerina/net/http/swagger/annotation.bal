@@ -19,6 +19,7 @@ public annotation serviceInfo attach service<http> {
     license license;
     externalDoc externalDoc;
     tag[] tags;
+    securityRequirement[] security;
 }
 
 public annotation contact {

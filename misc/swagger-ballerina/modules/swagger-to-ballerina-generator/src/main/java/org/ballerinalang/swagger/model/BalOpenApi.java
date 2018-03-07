@@ -45,7 +45,7 @@ public class BalOpenApi {
     private Info info = null;
     private ExternalDocumentation externalDocs = null;
     private List<Server> servers = null;
-    private List<SecurityRequirement> security = null;
+    private Set<Map.Entry<String, String>> security = null;
     private List<Tag> tags = null;
     private Set<Map.Entry<String, PathItem>> paths = null;
     private Set<Map.Entry<String, BalSchema>> schemas = null;
@@ -71,13 +71,13 @@ public class BalOpenApi {
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
         this.servers = openAPI.getServers();
-        this.security = openAPI.getSecurity();
         this.tags = openAPI.getTags();
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
         this.paths = openAPI.getPaths().entrySet();
 
         try {
+            setSecurityRequirements(openAPI);
             setHostInfo(openAPI);
             setSchemas(openAPI);
         } catch (MalformedURLException e) {
@@ -89,6 +89,8 @@ public class BalOpenApi {
 
     /**
      * Populate schemas into a "Set".
+     *
+     * @param openAPI <code>OpenAPI</code> definition object with schema definition
      */
     private void setSchemas(OpenAPI openAPI) {
         this.schemas = new LinkedHashSet<>();
@@ -109,6 +111,8 @@ public class BalOpenApi {
 
     /**
      * Extract host information from OpenAPI server list.
+     *
+     * @param openAPI <code>OpenAPI</code> definition object with host information
      */
     private void setHostInfo(OpenAPI openAPI) throws MalformedURLException {
         List<Server> serverList = openAPI.getServers();
@@ -142,7 +146,26 @@ public class BalOpenApi {
             }
         }
     }
-    
+
+    /**
+     * Extract security requirements as a set.
+     *
+     * @param openAPI <code>OpenAPI</code> definition object with security definition
+     */
+    private void setSecurityRequirements(OpenAPI openAPI) {
+        this.security = new LinkedHashSet<>();
+        List<SecurityRequirement> requirements = openAPI.getSecurity();
+        if (requirements == null) {
+            return;
+        }
+
+        for (SecurityRequirement requirement: requirements) {
+            for (Map.Entry entry: requirement.entrySet()) {
+                security.add(entry);
+            }
+        }
+    }
+
     public String getApiPackage() {
         return apiPackage;
     }
@@ -168,7 +191,7 @@ public class BalOpenApi {
         return servers;
     }
 
-    public List<SecurityRequirement> getSecurity() {
+    public Set<Map.Entry<String, String>> getSecurity() {
         return security;
     }
 

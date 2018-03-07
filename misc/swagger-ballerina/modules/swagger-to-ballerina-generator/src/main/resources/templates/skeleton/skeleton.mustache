@@ -14,7 +14,10 @@ import ballerina.net.http.swagger;
     tags: [{{#tags}}
         @swagger:tag {name: "{{name}}", description: "{{description}}", externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"} }{{#unless @last}},{{/unless}}{{/tags}}
     ],
-    externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"}
+    externalDoc: @swagger:externalDoc {description: "{{externalDocs.description}}", url: "{{externalDocs.url}}"},
+    security: [{{#security}}
+        {{>security}}{{/security}}
+    ]
 }{{#host}}
 @http:configuration {
     host: "{{host}}",{{#port}}
