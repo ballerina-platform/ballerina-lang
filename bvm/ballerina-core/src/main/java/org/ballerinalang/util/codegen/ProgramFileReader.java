@@ -1540,7 +1540,6 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWTABLE:
-                case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.NEWSTREAMLET:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
@@ -1663,6 +1662,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.NEWSTREAM:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
