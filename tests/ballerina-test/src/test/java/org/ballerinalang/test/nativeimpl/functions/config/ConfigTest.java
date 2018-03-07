@@ -216,7 +216,7 @@ public class ConfigTest {
 
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
-        runtimeConfigs.put("ballerina.http.host", "\"10.100.1.201\"");
+        runtimeConfigs.put("ballerina.http.host", "10.100.1.201");
         runtimeConfigs.put("http1.ballerina.http.port", "8082");
         return runtimeConfigs;
     }
