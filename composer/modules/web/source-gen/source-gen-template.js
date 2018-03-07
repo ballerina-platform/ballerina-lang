@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+import _ from 'lodash';
 
 let join;
 const tab = '    ';
@@ -58,6 +59,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         return '';
     }
 
+    /* eslint-disable no-unused-vars */
     const b = a;
 
     function indent() {
@@ -79,6 +81,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         }
         return '';
     }
+    /* eslint-enable no-unused-vars */
 
     if (replaceLambda && node.kind === 'Lambda') {
         return '$ function LAMBDA $';

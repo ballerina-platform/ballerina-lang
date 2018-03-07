@@ -16,6 +16,7 @@
  * under the License.
  *
  */
+import _ from 'lodash';
 
 let join;
 const tab = '    ';
@@ -234,11 +235,11 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'ConnectorInitExpr':
             if (node.connectorType && node.expressions) {
-                return w() + 'create' + b(' ')
+                return dent() + w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '('
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             } else {
-                return w() + 'create' + b(' ')
+                return dent() + w() + 'create' + b(' ')
                  + getSourceOf(node.connectorType, pretty, l, replaceLambda) + w() + '(' + w() + ')';
             }
         case 'ConstrainedType':
