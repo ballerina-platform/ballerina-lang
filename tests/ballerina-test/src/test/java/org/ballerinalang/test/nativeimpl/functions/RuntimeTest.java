@@ -128,9 +128,12 @@ public class RuntimeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "[{callableName:\"getCallStack\", " +
                 "packageName:\"ballerina.runtime\", fileName:\"<native>\", lineNumber:0}," +
-                " {callableName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:12}," +
-                " {callableName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:8}," +
-                " {callableName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\", lineNumber:4}]");
+                " {callableName:\"level2Function\", packageName:\".\", fileName:\"runtime-error.bal\","
+                + " lineNumber:12}," +
+                " {callableName:\"level1Function\", packageName:\".\", fileName:\"runtime-error.bal\","
+                + " lineNumber:8}," +
+                " {callableName:\"testGetCallStack\", packageName:\".\", fileName:\"runtime-error.bal\","
+                + " lineNumber:4}]");
     }
 
     @Test

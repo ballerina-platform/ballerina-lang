@@ -21,12 +21,9 @@ import io.netty.channel.Channel;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugClientHandler;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.Map;
 import java.util.UUID;
