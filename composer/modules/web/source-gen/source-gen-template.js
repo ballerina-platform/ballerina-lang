@@ -43,7 +43,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
      */
     function w(defaultWS) {
         const wsI = ws[i++];
-        if (!shouldIndent && wsI !== undefined) {
+        // Check if whitespces have comments
+        const hasComment = (wsI !== undefined) && wsI.trim().length > 0;
+        if (hasComment || (!shouldIndent && wsI !== undefined)) {
             return wsI;
         }
         return defaultWS || '';
@@ -88,9 +90,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ArrayType':
             return getSourceOf(node.elementType, pretty, l, replaceLambda) +
                 times(node.dimensions, () => w() + '[' + w() + ']');
+
+        /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code
         // auto gen end
+        /* eslint-enable max-len */
+
         default:
             console.error('no source gen for' + node.kind);
             return '';
