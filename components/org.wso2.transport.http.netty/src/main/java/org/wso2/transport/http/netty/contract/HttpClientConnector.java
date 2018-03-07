@@ -50,14 +50,6 @@ public interface HttpClientConnector {
     boolean close();
 
     /**
-     * Submit httpMessages to the back-end in asynchronous manner
-     *
-     * @param httpCarbonMessage httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
-     * @return status of the asynchronous submit action.
-     */
-    HttpResponseFuture submit(HTTPCarbonMessage httpCarbonMessage);
-
-    /**
      * Fetch response related to the {@code ResponseHandle} in asynchronous manner.
      *
      * @param responseHandle Response Handle
@@ -93,8 +85,7 @@ public interface HttpClientConnector {
      * Get the push response in asynchronous manner.
      *
      * @param responseHandle Response Handle
-     * @param pushPromise    push promise related to the push response
      * @return returns the status of the asynchronous push response fetch action
      */
-    HttpResponseFuture getPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise);
+    HttpResponseFuture getPushResponse(ResponseHandle responseHandle);
 }

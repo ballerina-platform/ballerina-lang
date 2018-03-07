@@ -25,6 +25,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -36,18 +37,18 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpConnectorListener responseHandleListener;
     private HttpConnectorListener promiseAvailabilityListener;
     private HttpConnectorListener pushPromiseListener;
-    private HttpConnectorListener pushResponseListener;
+    private ConcurrentHashMap<Integer, HttpConnectorListener> pushResponseListeners;
 
     private HTTPCarbonMessage httpCarbonMessage;
     private ResponseHandle responseHandle;
-    private HTTPCarbonMessage pushResponseMessage;
+    private OutboundMsgHolder outboundMsgHolder;
 
     private Throwable throwable, returnError;
     private Semaphore executionWaitSem;
-    private OutboundMsgHolder outboundMsgHolder;
 
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
+        pushResponseListeners = new ConcurrentHashMap<>();
     }
 
     public DefaultHttpResponseFuture() {
@@ -198,10 +199,10 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId) {
-        this.pushResponseListener = pushResponseListener;
-        if (pushResponseMessage != null) {
-            notifyPushResponse(promiseId, pushResponseMessage);
-            pushResponseMessage = null;
+        this.pushResponseListeners.put(promiseId, pushResponseListener);
+        HTTPCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
+        if (pushResponse != null) {
+            notifyPushResponse(promiseId, pushResponse);
         }
         if (this.throwable != null) {
             notifyHttpListener(this.throwable);
@@ -210,15 +211,15 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void removePushResponseListener() {
-        this.pushResponseListener = null;
+    public void removePushResponseListener(int promisedId) {
+        this.pushResponseListeners.remove(promisedId);
     }
 
     @Override
     public void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse) {
-        this.pushResponseMessage = pushResponse;
-        if (pushResponseListener != null) {
-            pushResponseListener.onPushResponse(promisedId, pushResponse);
+        if (pushResponseListeners.get(promisedId) != null) {
+            pushResponseListeners.get(promisedId).onPushResponse(promisedId, pushResponse);
+            pushResponseListeners.remove(promisedId);
         }
     }
 

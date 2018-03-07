@@ -37,33 +37,21 @@ public class OutboundMsgHolder {
     private HTTPCarbonMessage requestCarbonMessage;
     // Future which is used to notify the response listener upon response receive
     private HttpResponseFuture responseFuture;
-    private HttpResponseFuture pushPromiseFuture;
-    private HttpResponseFuture promiseAvailabilityFuture;
-    private HttpResponseFuture responseHandleFuture;
-    private ConcurrentHashMap<Integer, HttpResponseFuture> pushResponseFutures;
 
     private Http2ClientChannel http2ClientChannel;
 
-    private BlockingQueue<HttpCarbonResponse> pushResponses;
     private BlockingQueue<Http2PushPromise> promises;
     private ConcurrentHashMap<Integer, HttpCarbonResponse> pushResponsesMap;
     private HttpCarbonResponse response;
 
     private boolean allPromisesReceived = false;
-    private int promisesCount = 0;
-    private int pushResponsesCount = 0;
 
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.http2ClientChannel = http2ClientChannel;
-        pushResponses = new LinkedBlockingQueue();
         promises = new LinkedBlockingQueue();
         pushResponsesMap = new ConcurrentHashMap<>();
-        pushResponseFutures = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
-        responseHandleFuture = new DefaultHttpResponseFuture(this);
-        pushPromiseFuture = new DefaultHttpResponseFuture(this);
-        promiseAvailabilityFuture = new DefaultHttpResponseFuture(this);
     }
 
     /**
@@ -84,36 +72,19 @@ public class OutboundMsgHolder {
         return responseFuture;
     }
 
-    public HttpResponseFuture getPushPromiseFuture() {
-        return pushPromiseFuture;
-    }
-
-    public HttpResponseFuture getPromiseAvailabilityFuture() {
-        return promiseAvailabilityFuture;
-    }
-
-    public HttpResponseFuture getResponseHandleFuture() {
-        return responseHandleFuture;
-    }
-
     public Http2ClientChannel getHttp2ClientChannel() {
         return http2ClientChannel;
     }
 
     public void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
-        promisesCount++;
-        HttpResponseFuture pushResponseFuture = new DefaultHttpResponseFuture(this);
-        pushResponseFutures.put(pushPromise.getPromisedStreamId(), pushResponseFuture);
-        promiseAvailabilityFuture.notifyPromiseAvailability();
-        pushPromiseFuture.notifyPushPromise();
+        responseFuture.notifyPromiseAvailability();
+        responseFuture.notifyPushPromise();
     }
 
     public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
-        pushResponses.add(pushResponse);
-        pushResponsesCount++;
-        pushResponseFutures.get(streamId).notifyPushResponse(streamId, pushResponse);
+        responseFuture.notifyPushResponse(streamId, pushResponse);
     }
 
     public boolean isAllPromisesReceived() {
@@ -129,42 +100,17 @@ public class OutboundMsgHolder {
     }
 
     public void setResponse(HttpCarbonResponse response) {
-        allPromisesReceived = true;
-        promiseAvailabilityFuture.notifyPromiseAvailability();
-        responseFuture.notifyHttpListener(response);
         this.response = response;
+        allPromisesReceived = true;
+        responseFuture.notifyPromiseAvailability();      // Response received so no more promises allowed
+        responseFuture.notifyHttpListener(response);
     }
 
     public boolean hasPromise() {
         return !promises.isEmpty();
     }
 
-    public boolean hasPushResponse() {
-        return !pushResponses.isEmpty();
-    }
-
     public Http2PushPromise getNextPromise() {
         return promises.poll();
     }
-
-    public HttpCarbonResponse getNextPushResponse() {
-        return pushResponses.poll();
-    }
-
-    public int getPromisesCount() {
-        return promisesCount;
-    }
-
-    public int getPushResponsesCount() {
-        return pushResponsesCount;
-    }
-
-    public HttpResponseFuture getPushResponseFuture(Http2PushPromise promise) {
-        return pushResponseFutures.get(promise.getPromisedStreamId());
-    }
-
-    public void removePushResponseFuture(Http2PushPromise promise) {
-        pushResponseFutures.remove(promise.getPromisedStreamId());
-    }
-
 }

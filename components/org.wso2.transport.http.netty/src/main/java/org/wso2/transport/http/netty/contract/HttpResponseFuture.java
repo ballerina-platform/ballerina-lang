@@ -119,13 +119,15 @@ public interface HttpResponseFuture {
      * Set the Push Response listener
      *
      * @param pushResponseListener push response listener
+     * @param promiseId            push promise stream id
      */
     void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId);
 
     /**
      * Remove the Push Response listener
+     * @param promisedId push promise stream id
      */
-    void removePushResponseListener();
+    void removePushResponseListener(int promisedId);
 
     /**
      * Notify push response listener when there is a push response
