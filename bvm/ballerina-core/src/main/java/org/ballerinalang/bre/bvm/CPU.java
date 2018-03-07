@@ -444,7 +444,7 @@ public class CPU {
                             break;
                         }
 
-                        BLangVMErrors.attachStackFrame(error, ctx.programFile, ctx, ctx.ip);
+                        BLangVMErrors.attachStackFrame(error, ctx);
                         ctx.setError(error);
                     }
                     handleError(ctx);
@@ -2845,7 +2845,7 @@ public class CPU {
         BType[] retTypes = functionInfo.getRetParamTypes();
         WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(functionInfo.getDefaultWorkerInfo(), parentCtx,
                 argRegs, functionInfo.getParamTypes());
-        Context ctx = new NativeCallContext(parentCtx, caleeSF);
+        Context ctx = new NativeCallContext(parentCtx, functionInfo, caleeSF);
         NativeCallableUnit nativeFunction = functionInfo.getNativeFunction();
         BLangScheduler.switchToWaitForResponse(parentCtx);
         try {
@@ -2858,10 +2858,10 @@ public class CPU {
                 nativeFunction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx, functionInfo));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(functionInfo));
             return;
         } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(parentCtx, functionInfo, e.getMessage()));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(functionInfo, e.getMessage()));
             return;
         }
     }
@@ -2875,7 +2875,7 @@ public class CPU {
         BType[] retTypes = actionInfo.getRetParamTypes();
         WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(actionInfo.getDefaultWorkerInfo(), parentCtx,
                 argRegs, actionInfo.getParamTypes());
-        Context ctx = new NativeCallContext(parentCtx, caleeSF);
+        Context ctx = new NativeCallContext(parentCtx, actionInfo, caleeSF);
         NativeCallableUnit nativeAction = actionInfo.getNativeAction();
 
         if (nativeAction == null) {
@@ -2893,10 +2893,10 @@ public class CPU {
                 nativeAction.execute(ctx, callback);
             }
         } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx, actionInfo));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(actionInfo));
             return;
         } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(parentCtx, actionInfo, e.getMessage()));
+            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(actionInfo, e.getMessage()));
             return;
         }
     }

@@ -88,12 +88,12 @@ function testUncaughtException () {
     _ = testNestedThrow(1);
 }
 
-function testStackTrace () (runtime:CallStackElement[]) {
-    runtime:CallStackElement[] trace;
+function testErrorCallStackFrame () (runtime:CallStackElement) {
+    runtime:CallStackElement trace;
     try {
         testUncaughtException();
     } catch (error e) {
-        trace = runtime:getErrorCallStack(e);
+        trace = runtime:getErrorCallStackFrame(e);
     }
     return trace;
 }

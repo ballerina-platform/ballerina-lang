@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
@@ -37,6 +38,8 @@ import java.util.Map;
 public interface Context {
 
     WorkerExecutionContext getParentWorkerExecutionContext();
+    
+    CallableUnitInfo getCallableUnitInfo();
 
     WorkerData getLocalWorkerData();
 

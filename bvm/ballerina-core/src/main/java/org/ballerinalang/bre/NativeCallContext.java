@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
@@ -38,6 +39,8 @@ import java.util.Map;
 public class NativeCallContext implements Context {
 
     private WorkerExecutionContext parentCtx;
+    
+    private CallableUnitInfo callableUnitInfo;
 
     private WorkerData workerLocal;
 
@@ -45,14 +48,21 @@ public class NativeCallContext implements Context {
 
     private LocalTransactionInfo localTransactionInfo;
 
-    public NativeCallContext(WorkerExecutionContext parentCtx, WorkerData workerLocal) {
+    public NativeCallContext(WorkerExecutionContext parentCtx, CallableUnitInfo callableUnitInfo,
+            WorkerData workerLocal) {
         this.parentCtx = parentCtx;
+        this.callableUnitInfo = callableUnitInfo;
         this.workerLocal = workerLocal;
     }
 
     @Override
     public WorkerExecutionContext getParentWorkerExecutionContext() {
         return parentCtx;
+    }
+    
+    @Override
+    public CallableUnitInfo getCallableUnitInfo() {
+        return callableUnitInfo;
     }
 
     public WorkerData getLocalWorkerData() {
