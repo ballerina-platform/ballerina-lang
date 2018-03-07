@@ -1,32 +1,22 @@
 import ballerina.test;
 
 @test:config{
-    disabled:true
+    enable:false
 }
 function testFunc1 () {
-    test:assertFalse(false, "errorMessage");
+    test:assertTrue(false, "errorMessage");
 }
 
 @test:config{
-    disabled:false
-}
-function testFunc3 () {
-    test:assertFalse(false, "errorMessage");
-}
-
-@test:config{
-    disabled:true
+    enable:true
 }
 function testFunc4 () {
-    test:assertFalse(true, "errorMessage");
+    test:assertTrue(true, "errorMessage");
 }
 
-@test:config{}
-function testFunc5 () {
-    test:assertFalse(false, "errorMessage");
+// test without enable attribute
+@test:config{
 }
-
-//Function without annotations
 function testFunc6 () {
     test:assertFalse(false, "errorMessage");
 }

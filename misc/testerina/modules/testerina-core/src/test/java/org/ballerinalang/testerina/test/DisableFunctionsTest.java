@@ -19,11 +19,13 @@
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 /**
  * Tests disabling of test functions.
@@ -34,10 +36,15 @@ public class DisableFunctionsTest {
 
     @Test
     public void disableFunctionsTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
-        testRunner.runTest(filePaths, null);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 3);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 2);
+        testRunner.runTest(filePaths, new ArrayList<>());
+        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 2);
+        // disabled tests shouldn't count as skipped
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
+    }
+
+    private void cleanup() {
+        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
     }
 }

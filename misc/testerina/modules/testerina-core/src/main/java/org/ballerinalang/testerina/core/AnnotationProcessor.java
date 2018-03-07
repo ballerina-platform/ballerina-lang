@@ -65,7 +65,7 @@ public class AnnotationProcessor {
     private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
-    private static final String TEST_DISABLE_ANNOTATION_NAME = "disabled";
+    private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private static final String DEFAULT_TEST_GROUP_NAME = "default";
     private static PrintStream outStream = System.out;
 
@@ -363,10 +363,10 @@ public class AnnotationProcessor {
                             .Type.TEST);
                     test.setTestFunction(tFunction);
 
-                    // Check if disabled property is present in the annotation
-                    if (attachmentInfo.getAttributeValue(TEST_DISABLE_ANNOTATION_NAME) != null && attachmentInfo
-                            .getAttributeValue(TEST_DISABLE_ANNOTATION_NAME).getBooleanValue()) {
-                        // If disable property is present disable the test, no further processing is needed
+                    // Check if enable property is present in the annotation
+                    if (attachmentInfo.getAttributeValue(TEST_ENABLE_ANNOTATION_NAME) != null && !attachmentInfo
+                            .getAttributeValue(TEST_ENABLE_ANNOTATION_NAME).getBooleanValue()) {
+                        // If enable is false, disable the test, no further processing is needed
                         functionSkipped = true;
                         break;
                     }
