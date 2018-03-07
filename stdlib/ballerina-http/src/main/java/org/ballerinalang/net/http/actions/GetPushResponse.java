@@ -92,7 +92,7 @@ public class GetPushResponse extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-        clientConnector.getPushResponse(responseHandle, http2PushPromise).
+        clientConnector.getPushResponse(responseHandle).
                 setPushResponseListener(new PushResponseListener(ballerinaFuture, context),
                                         http2PushPromise.getPromisedStreamId());
         return ballerinaFuture;

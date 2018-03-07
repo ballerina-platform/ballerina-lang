@@ -235,12 +235,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             outboundRequestMsg.setHeader(CONTENT_TYPE, contentType + "; " + BOUNDARY + "=" + boundaryString);
         }
 
-        HttpResponseFuture future;
+        HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
-            future = clientConnector.submit(outboundRequestMsg);
             future.setResponseHandleListener(httpClientConnectorLister);
         } else {
-            future = clientConnector.send(outboundRequestMsg);
             future.setHttpConnectorListener(httpClientConnectorLister);
         }
         if (isMultipart(contentType)) {
