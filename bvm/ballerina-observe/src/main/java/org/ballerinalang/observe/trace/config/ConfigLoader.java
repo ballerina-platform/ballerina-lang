@@ -23,7 +23,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -48,7 +47,7 @@ public class ConfigLoader {
         File initialFile = new File(configLocation);
         try (InputStream targetStream = new FileInputStream(initialFile)) {
             return new Yaml().loadAs(targetStream, OpenTracingConfig.class);
-        } catch (IOException e) {
+        } catch (Throwable ignored) {
             return null;
         }
     }

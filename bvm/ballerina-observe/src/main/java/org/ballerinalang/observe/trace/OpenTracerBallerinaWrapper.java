@@ -40,11 +40,13 @@ public class OpenTracerBallerinaWrapper {
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
     private SpanStore spanStore;
+    private boolean enabled = false;
 
     public OpenTracerBallerinaWrapper() {
         OpenTracingConfig openTracingConfig = ConfigLoader.load();
         if (openTracingConfig != null) {
             tracerStore = new TracersStore(openTracingConfig);
+            enabled = true;
         }
         spanStore = new SpanStore();
     }
@@ -60,24 +62,26 @@ public class OpenTracerBallerinaWrapper {
      * @return the Id of the span context
      */
     public String extract(Map<String, String> spanHeaders) {
-        String parentSpanId;
-        Map<String, SpanContext> spanContextMap = new HashMap<>();
-        Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
-        boolean hasParent = true;
+        String parentSpanId = null;
+        if (enabled) {
+            Map<String, SpanContext> spanContextMap = new HashMap<>();
+            Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
+            boolean hasParent = true;
 
-        for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
-            spanContextMap.put(tracerEntry.getKey(), tracerEntry.getValue().extract(Format.Builtin.HTTP_HEADERS,
-                    new RequestExtractor(spanHeaders)));
-            if (spanContextMap.get(tracerEntry.getKey()) == null) {
-                hasParent = false;
+            for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
+                spanContextMap.put(tracerEntry.getKey(), tracerEntry.getValue().extract(Format.Builtin.HTTP_HEADERS,
+                        new RequestExtractor(spanHeaders)));
+                if (spanContextMap.get(tracerEntry.getKey()) == null) {
+                    hasParent = false;
+                }
             }
-        }
 
-        if (hasParent) {
-            parentSpanId = UUID.randomUUID().toString();
-            spanStore.addSpanContext(parentSpanId, spanContextMap);
-        } else {
-            parentSpanId = ROOT_CONTEXT;
+            if (hasParent) {
+                parentSpanId = UUID.randomUUID().toString();
+                spanStore.addSpanContext(parentSpanId, spanContextMap);
+            } else {
+                parentSpanId = ROOT_CONTEXT;
+            }
         }
         return parentSpanId;
     }
@@ -91,13 +95,14 @@ public class OpenTracerBallerinaWrapper {
     public Map<String, String> inject(String spanId) {
         HashMap<String, String> carrierMap = new HashMap<>();
         Map<String, Span> activeSpanMap = spanStore.getSpan(spanId);
-
-        for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
-            Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
-            Tracer tracer = tracers.get(activeSpanEntry.getKey());
-            if (tracer != null && activeSpanEntry.getValue() != null) {
-                tracer.inject(activeSpanEntry.getValue().context(),
-                        Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
+        if (enabled) {
+            for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
+                Map<String, Tracer> tracers = tracerStore.getTracers(DEFAULT_TRACER);
+                Tracer tracer = tracers.get(activeSpanEntry.getKey());
+                if (tracer != null && activeSpanEntry.getValue() != null) {
+                    tracer.inject(activeSpanEntry.getValue().context(),
+                            Format.Builtin.HTTP_HEADERS, new RequestInjector(carrierMap));
+                }
             }
         }
         return carrierMap;
@@ -116,36 +121,39 @@ public class OpenTracerBallerinaWrapper {
      */
     public String startSpan(String invocationId, String serviceName, String spanName, Map<String, String> tags,
                             ReferenceType referenceType, String parentSpanId) {
+        if (enabled) {
+            Map<String, Span> spanMap = new HashMap<>();
+            Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
 
-        Map<String, Span> spanMap = new HashMap<>();
-        Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
+            final Map parentSpanContext;
+            if (ROOT_CONTEXT.equals(parentSpanId) || parentSpanId == null) {
+                parentSpanContext = new HashMap<>();
+            } else {
+                parentSpanContext = spanStore.getParent(parentSpanId);
+            }
 
-        final Map parentSpanContext;
-        if (ROOT_CONTEXT.equals(parentSpanId) || parentSpanId == null) {
-            parentSpanContext = new HashMap<>();
+            tracers.forEach((tracerName, tracer) -> {
+                Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
+                for (Map.Entry<String, String> tag : tags.entrySet()) {
+                    spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
+                }
+
+                if (parentSpanContext != null && !parentSpanContext.isEmpty()) {
+                    spanBuilder = setParent(referenceType, parentSpanContext, spanBuilder, tracerName);
+                }
+
+                Span span = spanBuilder.start();
+                tracer.scopeManager().activate(span, false);
+                span.setBaggageItem(Constants.INVOCATION_ID_PROPERTY, String.valueOf(invocationId));
+                spanMap.put(tracerName, span);
+            });
+
+            String spanId = UUID.randomUUID().toString();
+            spanStore.addSpan(spanId, spanMap);
+            return spanId;
         } else {
-            parentSpanContext = spanStore.getParent(parentSpanId);
+            return null;
         }
-
-        tracers.forEach((tracerName, tracer) -> {
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
-            for (Map.Entry<String, String> tag : tags.entrySet()) {
-                spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
-            }
-
-            if (parentSpanContext != null && !parentSpanContext.isEmpty()) {
-                spanBuilder = setParent(referenceType, parentSpanContext, spanBuilder, tracerName);
-            }
-
-            Span span = spanBuilder.start();
-            tracer.scopeManager().activate(span, false);
-            span.setBaggageItem(Constants.INVOCATION_ID_PROPERTY, String.valueOf(invocationId));
-            spanMap.put(tracerName, span);
-        });
-
-        String spanId = UUID.randomUUID().toString();
-        spanStore.addSpan(spanId, spanMap);
-        return spanId;
     }
 
     private Tracer.SpanBuilder setParent(ReferenceType referenceType, Map parentSpanContext,
@@ -176,11 +184,12 @@ public class OpenTracerBallerinaWrapper {
      * @param spanId the id of the span to finish
      */
     public void finishSpan(String spanId) {
-        Map<String, Span> spanMap = spanStore.closeSpan(spanId);
-        if (spanMap != null) {
-            spanMap.forEach((tracerName, span) -> span.finish());
+        if (enabled) {
+            Map<String, Span> spanMap = spanStore.closeSpan(spanId);
+            if (spanMap != null) {
+                spanMap.forEach((tracerName, span) -> span.finish());
+            }
         }
-
     }
 
     /**
@@ -191,9 +200,11 @@ public class OpenTracerBallerinaWrapper {
      * @param tagValue the value of the tag
      */
     public void addTags(String spanId, String tagKey, String tagValue) {
-        Map<String, Span> spanList = spanStore.getSpan(spanId);
-        if (spanList != null) {
-            spanList.forEach((tracerName, span) -> span.setTag(tagKey, tagValue));
+        if (enabled) {
+            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            if (spanList != null) {
+                spanList.forEach((tracerName, span) -> span.setTag(tagKey, tagValue));
+            }
         }
     }
 
@@ -204,7 +215,9 @@ public class OpenTracerBallerinaWrapper {
      * @param logs   the map (event, message) to be logged
      */
     public void log(String spanId, Map<String, String> logs) {
-        Map<String, Span> spanList = spanStore.getSpan(spanId);
-        spanList.forEach((tracerName, span) -> span.log(logs));
+        if (enabled) {
+            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            spanList.forEach((tracerName, span) -> span.log(logs));
+        }
     }
 }

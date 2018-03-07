@@ -39,7 +39,7 @@ import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
 public class TraceManagerWrapper {
     private static TraceManagerWrapper instance = new TraceManagerWrapper();
     private TraceManager manager;
-    private boolean enabled;
+    private boolean enabled = true;
 
     private TraceManagerWrapper() {
         try {
@@ -47,7 +47,6 @@ public class TraceManagerWrapper {
                     .forName(TRACER_MANAGER_CLASS)
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
-            enabled = true;
         } catch (Exception t) {
             enabled = false;
         }
