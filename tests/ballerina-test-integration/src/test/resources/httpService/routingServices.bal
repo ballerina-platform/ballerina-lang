@@ -15,7 +15,7 @@ service<http> contentBasedRouting {
             create http:HttpClient("http://localhost:9090/nyseStocks", {});
         }
         string nyseString = "nyse";
-        json jsonMsg = req.getJsonPayload();
+        var jsonMsg, _ = req.getJsonPayload();
         var nameString, _ = (string)jsonMsg.name;
 
         http:OutRequest clientRequest = {};

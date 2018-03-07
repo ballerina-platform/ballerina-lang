@@ -180,7 +180,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (lhsType.tag == TypeTags.NULL &&
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
-                        rhsType.tag == TypeTags.ENUM)) {
+                        rhsType.tag == TypeTags.ENUM ||
+                        rhsType.tag == TypeTags.INVOKABLE)) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);
             BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
@@ -189,7 +190,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if ((lhsType.tag == TypeTags.STRUCT ||
                 lhsType.tag == TypeTags.CONNECTOR ||
-                lhsType.tag == TypeTags.ENUM)
+                lhsType.tag == TypeTags.ENUM ||
+                lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NULL) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);

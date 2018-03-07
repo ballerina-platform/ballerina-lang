@@ -44,7 +44,7 @@ service<http> echo {
     }
     resource setString (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        serviceLevelStr = req.getStringPayload();
+        serviceLevelStr, _ = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
         _ = conn.respond(res);
     }
@@ -102,7 +102,7 @@ service<http> echo {
         methods:["POST"]
     }
     resource getFormParams (http:Connection conn, http:InRequest req) {
-        map params = req.getFormParams();
+        var params, _ = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
         string team;
