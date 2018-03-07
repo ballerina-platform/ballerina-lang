@@ -21,8 +21,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
-import org.ballerinalang.net.ws.BallerinaWsServerConnectorListener;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -214,7 +212,7 @@ public class HttpConnectionManager {
         HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
         WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
         connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
-        connectorFuture.setWSConnectorListener(new BallerinaWsServerConnectorListener(webSocketServicesRegistry));
+        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
         connectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
     }
