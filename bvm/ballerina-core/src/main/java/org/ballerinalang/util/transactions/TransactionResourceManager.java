@@ -84,9 +84,11 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(combinedId);
                     if (xaResource != null) {
+                        Xid xid = xidRegistry.get(combinedId);
                         xaResource.prepare(xid);
+                    } else {
+                        log.info("not an xa resource : " + combinedId);
                     }
                 } catch (Throwable e) {
                     log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
@@ -113,8 +115,8 @@ public class TransactionResourceManager {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(combinedId);
                     if (xaResource != null) {
+                        Xid xid = xidRegistry.get(combinedId);
                         xaResource.commit(xid, false);
                     } else {
                         ctx.commit();
