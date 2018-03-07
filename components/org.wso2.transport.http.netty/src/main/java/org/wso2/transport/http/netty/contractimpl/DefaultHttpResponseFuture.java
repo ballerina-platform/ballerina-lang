@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
+import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -34,8 +35,8 @@ import java.util.concurrent.Semaphore;
 public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     private HttpConnectorListener httpConnectorListener;
-    private HttpConnectorListener responseHandleListener;
-    private HttpConnectorListener promiseAvailabilityListener;
+    private HttpClientConnectorListener responseHandleListener;
+    private HttpClientConnectorListener promiseAvailabilityListener;
     private HttpConnectorListener pushPromiseListener;
     private ConcurrentHashMap<Integer, HttpConnectorListener> pushResponseListeners;
 
@@ -116,7 +117,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void setResponseHandleListener(HttpConnectorListener responseHandleListener) {
+    public void setResponseHandleListener(HttpClientConnectorListener responseHandleListener) {
         this.responseHandleListener = responseHandleListener;
         if (responseHandle != null) {
             notifyResponseHandle(responseHandle);
@@ -143,7 +144,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener) {
+    public void setPromiseAvailabilityListener(HttpClientConnectorListener promiseAvailabilityListener) {
         this.promiseAvailabilityListener = promiseAvailabilityListener;
         notifyPromiseAvailability();
         if (this.throwable != null) {
@@ -160,7 +161,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     @Override
     public void notifyPromiseAvailability() {
         if (promiseAvailabilityListener != null) {
-            HttpConnectorListener listener = promiseAvailabilityListener;
+            HttpClientConnectorListener listener = promiseAvailabilityListener;
             if (outboundMsgHolder.hasPromise()) {
                 removePromiseAvailabilityListener();
                 listener.onPushPromiseAvailability(true);

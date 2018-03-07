@@ -67,7 +67,7 @@ public interface HttpResponseFuture {
      *
      * @param responseHandleListener listener that receives events related to the handle.
      */
-    void setResponseHandleListener(HttpConnectorListener responseHandleListener);
+    void setResponseHandleListener(HttpClientConnectorListener responseHandleListener);
 
     /**
      * Remove the handle listener set to the future.
@@ -86,7 +86,7 @@ public interface HttpResponseFuture {
      *
      * @param promiseAvailabilityListener listener that receives events related to the promise availability.
      */
-    void setPromiseAvailabilityListener(HttpConnectorListener promiseAvailabilityListener);
+    void setPromiseAvailabilityListener(HttpClientConnectorListener promiseAvailabilityListener);
 
     /**
      * Remove the promise availability listener
