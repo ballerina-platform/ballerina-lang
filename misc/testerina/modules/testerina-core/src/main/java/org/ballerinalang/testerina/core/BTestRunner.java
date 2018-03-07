@@ -22,6 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BIterator;
+import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
@@ -156,23 +160,66 @@ public class BTestRunner {
                     }
                 }
                 // run the test
+                TesterinaResult functionResult = null;
                 String errorMsg = null;
                 boolean isTestPassed = false;
                 try {
                     if (!shouldSkip.get()) {
-                        test.getTestFunction().invoke();
+                        BValue[] valueSets = null;
+                        if (test.getDataProviderFunction() != null) {
+                            valueSets = test.getDataProviderFunction().invoke();
+                        }
+                        if (valueSets == null) {
+                            test.getTestFunction().invoke();
+                            // report the test result
+                            functionResult = new TesterinaResult(test.getTestFunction().getName(), true,
+                                    shouldSkip.get(), errorMsg);
+                            tReport.addFunctionResult(functionResult);
+                        } else {
+                            for (BValue value : valueSets) {
+                                if (value instanceof BRefValueArray) {
+                                    BRefValueArray array = (BRefValueArray) value;
+                                    for (BIterator it = array.newIterator(); it.hasNext(); ) {
+                                        BValue[] vals = it.getNext(0);
+                                        if (vals[1] instanceof BNewArray) {
+                                            BNewArray bNewArray = (BNewArray) vals[1];
+                                            BValue[] args = new BValue[(int) bNewArray.size()];
+                                            for (int j = 0; j < bNewArray.size(); j++) {
+                                                args[j] = bNewArray.getBValue(j);
+                                            }
+                                            test.getTestFunction().invoke(args);
+                                            functionResult = new TesterinaResult(test.getTestFunction().getName(),
+                                                    true, shouldSkip.get(), errorMsg);
+                                            tReport.addFunctionResult(functionResult);
+                                        }
+                                    }
+//                                        test.getTestFunction().invoke(array.getBValue());
+                                } else {
+                                    test.getTestFunction().invoke(new BValue[]{value});
+                                    // report the test result
+                                    functionResult = new TesterinaResult(test.getTestFunction().getName(), true,
+                                            shouldSkip.get(), errorMsg);
+                                    tReport.addFunctionResult(functionResult);
+                                }
+                            }
+                        }
                         isTestPassed = true;
+                    } else {
+                        // report the test result
+                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false,
+                                shouldSkip.get(), errorMsg);
+                        tReport.addFunctionResult(functionResult);
                     }
                 } catch (BallerinaException e) {
                     errorMsg = String.format("Failed to execute the test function [%s] of test suite package [%s]. "
                                              + "Cause: %s", test.getTestFunction().getName(), packageName,
                             e.getMessage());
                     outStream.println(errorMsg);
+                    // report the test result
+                    functionResult = new TesterinaResult(test.getTestFunction().getName(), false,
+                            shouldSkip.get(), errorMsg);
+                    tReport.addFunctionResult(functionResult);
                 }
-                // report the test result
-                TesterinaResult functionResult = new TesterinaResult(test.getTestFunction().getName(), isTestPassed,
-                        shouldSkip.get(), errorMsg);
-                tReport.addFunctionResult(functionResult);
 
                 // run the after tests
                 String error;

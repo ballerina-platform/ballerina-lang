@@ -44,7 +44,8 @@ function testService () {
     resp, _ = httpEndpoint.get("/events", req);
 
     io:println("GET request:");
-    io:println(resp.getJsonPayload());
+    var jsonRes, _ = resp.getJsonPayload();
+    io:println(jsonRes);
     json expected = {"a":"b"};
-    test:assertEquals(resp.getJsonPayload(), expected, "failed");
+    test:assertEquals(jsonRes, expected, "failed");
 }

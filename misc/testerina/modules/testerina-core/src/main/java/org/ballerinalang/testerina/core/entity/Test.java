@@ -49,6 +49,25 @@ public class Test {
     TesterinaFunction afterTestFunctionObj;
     String afterTestFunction;
 
+    public String getDataProvider() {
+        return dataProvider;
+    }
+
+    public void setDataProvider(String dataProvider) {
+        this.dataProvider = dataProvider;
+    }
+
+    String dataProvider;
+
+    public TesterinaFunction getDataProviderFunction() {
+        return dataProviderFunction;
+    }
+
+    public void setDataProviderFunction(TesterinaFunction dataProviderFunction) {
+        this.dataProviderFunction = dataProviderFunction;
+    }
+
+    TesterinaFunction dataProviderFunction;
 
     List<String> dependsOnTestFunctions = new ArrayList<>();
     List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();

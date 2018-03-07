@@ -12,6 +12,6 @@ public function getEvents () (json resPl) {
     http:OutRequest req = {};
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/", req);
-    resPl = resp.getJsonPayload();
+    resPl, _ = resp.getJsonPayload();
     return;
 }

@@ -18,6 +18,9 @@
 
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaAnnotation;
@@ -35,7 +38,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,7 @@ public class AnnotationProcessor {
     private static final String PACKAGE = "packageName";
     private static final String FUNCTION = "functionName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
-    private static final String VALUE_SET_ANNOTATION_NAME = "valueSets";
+    private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_DISABLE_ANNOTATION_NAME = "disabled";
     private static final String DEFAULT_TEST_GROUP_NAME = "default";
     private static PrintStream outStream = System.out;
@@ -137,6 +139,31 @@ public class AnnotationProcessor {
                 //TODO handle missing func case
                 test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
                         .getAfterTestFunction())).findFirst().get());
+            }
+
+            if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
+                // TODO handle missing func case
+                String dataProvider = test.getDataProvider();
+                test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
+                )).findFirst().map(func -> {
+                    if (func.getbFunction().getRetParamTypes().length == 1) {
+                        BType bType = func.getbFunction().getRetParamTypes()[0];
+                        if (bType.getTag() == TypeTags.ARRAY_TAG) {
+                            BArrayType bArrayType = (BArrayType) bType;
+                            if (bArrayType.getElementType().getTag() != TypeTags.ARRAY_TAG) {
+                                throw new BallerinaException(String.format("Data provider function [%s] should " +
+                                        "return an array of arrays.", dataProvider));
+                            }
+                        } else {
+                            throw new BallerinaException(String.format("Data provider function [%s] should return" +
+                                    " an array of arrays.", dataProvider));
+                        }
+                    } else {
+                        throw new BallerinaException(String.format("Data provider function [%s] should have only" +
+                                " one return type.", dataProvider));
+                    }
+                    return func;
+                }).get());
             }
             for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                 //TODO handle missing func case
@@ -364,12 +391,9 @@ public class AnnotationProcessor {
 //                            break;
 //                        }
 //                    }
-                    // Check the availability of value sets
                     if (attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME) != null) {
-                        // extracts the value sets
-                        tFunction.setValueSet(Arrays.stream(attachmentInfo.getAttributeValue
-                                (VALUE_SET_ANNOTATION_NAME).getAttributeValueArray()).map(f -> f.getStringValue()
-                                .split(",")).collect(Collectors.toList()));
+                        test.setDataProvider(attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME)
+                                .getStringValue());
                     }
 
                     if (attachmentInfo.getAttributeValue(BEFORE_FUNCTION) != null) {

@@ -41,8 +41,8 @@ public class FunctionMockTest {
 
     @Test
     public void testBefore2() {
+        cleanup();
         new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/functionmocktest/pkg/")}, new
                 ArrayList<>());
-        cleanup();
     }
 }

@@ -26,6 +26,9 @@ under the License.
         <classes>
             <class name="org.ballerinalang.testerina.test.AssertTest"/>
             <class name="org.ballerinalang.testerina.test.ConfigAnnotationTest"/>
+            <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
+            <class name="org.ballerinalang.testerina.test.FunctionMockTest"/>
+            <class name="org.ballerinalang.testerina.test.ServiceTest"/>
             <!--<class name="org.ballerinalang.testerina.test.GroupFilterTest"/>-->
             <!--<class name="org.ballerinalang.testerina.test.DataDrivenTests"/>-->
             <!--<class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>-->
