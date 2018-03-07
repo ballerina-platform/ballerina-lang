@@ -57,6 +57,10 @@ public class LocalTransactionInfo {
         return transactionBlockIdStack.peek();
     }
 
+    public boolean hasTransactionBlock() {
+        return !transactionBlockIdStack.empty();
+    }
+
     public String getURL() {
         return this.url;
     }

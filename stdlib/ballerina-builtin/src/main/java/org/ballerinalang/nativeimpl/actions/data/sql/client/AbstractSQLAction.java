@@ -762,6 +762,13 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         if (!isInTransaction) {
             conn = datasource.getSQLConnection();
             return conn;
+        } else {
+            //This is when there is an infected transaction block. But this is not participated to the transaction
+            //since the action call is outside of the transaction block.
+            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
+                conn = datasource.getSQLConnection();
+                return conn;
+            }
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
