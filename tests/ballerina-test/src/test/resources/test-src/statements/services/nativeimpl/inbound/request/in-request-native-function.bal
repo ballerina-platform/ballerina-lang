@@ -156,4 +156,28 @@ service<http> helloServer {
         res.setByteChannel(byteChannel);
         _ = conn.respond(res);
     }
+
+    @http:resourceConfig {
+        path:"/remoteAddress",
+        methods:["GET"]
+    }
+    resource remoteAddress (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        string remoteAddr = req.getRemoteAddress();
+        json remoteAddressJson = {remoteAddress:remoteAddr};
+        res.setJsonPayload(remoteAddressJson);
+        _ = conn.respond(res);
+    }
+
+    @http:resourceConfig {
+        path:"/localAddress",
+        methods:["GET"]
+    }
+    resource localAddress (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        string localAddr = req.getLocalAddress();
+        json remoteAddressJson = {localAddress:localAddr};
+        res.setJsonPayload(remoteAddressJson);
+        _ = conn.respond(res);
+    }
 }
