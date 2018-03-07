@@ -280,7 +280,7 @@ public struct HttpConnectorError {
 @Field {value:"statusCode: HTTP status code."}
 public struct HttpTimeoutError {
     string message;
-    error cause;
+    error[] cause;
     int statusCode;
 }
 
