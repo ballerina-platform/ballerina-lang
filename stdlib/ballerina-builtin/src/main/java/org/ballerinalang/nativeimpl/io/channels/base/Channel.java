@@ -159,6 +159,8 @@ public abstract class Channel {
     public int read(ByteBuffer buffer) throws IOException {
         int readBytes = reader.read(buffer, channel);
         if (readBytes <= 0) {
+            //Since we're counting the bytes if a value < 0 is returned, this will be re-set
+            readBytes = 0;
             hasReachedToEnd = true;
         }
         return readBytes;

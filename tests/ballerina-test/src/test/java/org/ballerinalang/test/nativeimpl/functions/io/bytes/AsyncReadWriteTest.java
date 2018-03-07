@@ -68,7 +68,7 @@ public class AsyncReadWriteTest {
         IOUtils.readFull(channel, content, offset, new EventContext());
         Assert.assertEquals(expected, content);
 
-        int expectedNumberOfBytes = -1;
+        int expectedNumberOfBytes = 0;
         content = new byte[2];
         expected = new byte[]{0, 0};
         int numberOfBytesRead = IOUtils.readFull(channel, content, offset, new EventContext());
