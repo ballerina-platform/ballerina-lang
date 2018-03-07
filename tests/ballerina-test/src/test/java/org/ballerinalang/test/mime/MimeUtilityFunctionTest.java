@@ -379,7 +379,9 @@ public class MimeUtilityFunctionTest {
         BValue[] args = {byteChannelStruct};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
         Assert.assertEquals(returns.length, 2);
-        BStruct errorStruct = (BStruct) returns[0];
+        BStruct byteChannel = (BStruct) returns[0];
+        Assert.assertNull(byteChannel);
+        BStruct errorStruct = (BStruct) returns[1];
         Assert.assertEquals(errorStruct.getStringField(0),
                 "Byte channel is not available as payload");
     }
@@ -391,7 +393,9 @@ public class MimeUtilityFunctionTest {
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonAndGetByteChannel", args);
         Assert.assertEquals(returns.length, 2);
-        BStruct errorStruct = (BStruct) returns[0];
+        BStruct byteChannel = (BStruct) returns[0];
+        Assert.assertNull(byteChannel);
+        BStruct errorStruct = (BStruct) returns[1];
         Assert.assertEquals(errorStruct.getStringField(0), "Byte channel is not available but payload " +
                 "can be obtain either as xml, json, string or blob type");
     }
@@ -412,7 +416,6 @@ public class MimeUtilityFunctionTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextDataSource", args);
             Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "");
-
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
@@ -433,10 +436,10 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
             Assert.assertEquals(returns.length, 2);
-            BStruct errorStruct = (BStruct) returns[0];
+            Assert.assertNull(returns[0]);
+            BStruct errorStruct = (BStruct) returns[1];
             Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
                     "data from entity: failed to create json: empty JSON document"));
-
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }

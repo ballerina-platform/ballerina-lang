@@ -17,6 +17,7 @@
 package ballerina.auth.jwtAuth;
 
 import ballerina.net.http;
+import ballerina.log;
 
 @Description {value:"Authentication header name"}
 const string AUTH_HEADER = "Authorization";
@@ -55,7 +56,15 @@ public function <HttpJwtAuthnHandler authnHandler> handle (http:InRequest req) (
     if (authenticator == null) {
         authenticator = createAuthenticator();
     }
-    return authenticator.authenticate(jwtToken);
+    var isAuthenticated, err = authenticator.authenticate(jwtToken);
+    if (isAuthenticated) {
+        return true;
+    } else {
+        if (err != null) {
+            log:printErrorCause("Error while validating JWT token ", err);
+        }
+        return false;
+    }
 }
 
 function extractJWTToken (http:InRequest req) (string) {

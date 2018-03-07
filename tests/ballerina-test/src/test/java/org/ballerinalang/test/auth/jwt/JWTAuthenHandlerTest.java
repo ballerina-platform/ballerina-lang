@@ -25,18 +25,27 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.jwt.crypto.JWSSigner;
+import org.ballerinalang.nativeimpl.jwt.crypto.RSASigner;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Test Http JWT authentication handler.
@@ -72,86 +81,41 @@ public class JWTAuthenHandlerTest {
      * trustStorePassword=<trustStore password>
      */
 
-    private static final String KEY_STORE_CONFIG = "keyStore";
-    private static final String KEY_STORE_LOCATION = "location";
-    private static final String KEY_STORE_TYPE = "type";
-    private static final String KEY_STORE_PASSWORD = "keyStorePassword";
-    private static final String TRUST_STORE_CONFIG = "trustStore";
-    private static final String TRUST_STORE_LOCATION = "location";
-    private static final String TRUST_STORE_TYPE = "type";
-    private static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-
-    private static final String JWT_AUTHENTICATOR_CONFIG = "authenticator_jwt";
-    private static final String ISSUER = "issuer";
-    private static final String AUDIENCE = "audience";
-    private static final String CERTIFICATE_ALIAS = "certificateAlias";
-    private static final String JWT_AUTH_CACHE_CONFIG = "jwt_auth_cache";
-    private static final String ENABLED = "enabled";
-    private static final String EXPIRY_TIME = "expiryTime";
-    private static final String CAPACITY = "capacity";
-    private static final String EVICTION_FACTOR = "evictionFactor";
-
-    private ConfigRegistry initialConfigRegistry;
+    private Path ballerinaConfCopyPath;
+    private Path ballerinaKeyStoreCopyPath;
+    private Path ballerinaTrustStoreCopyPath;
     private CompileResult compileResult;
+    private String resourceRoot;
     private String jwtToken;
+    private static final String BALLERINA_CONF = "ballerina.conf";
+    private static final String KEY_STORE = "ballerinaKeystore.p12";
+    private static final String TRUST_SORE = "ballerinaTruststore.p12";
 
     @BeforeClass
     public void setup() throws Exception {
-        initialConfigRegistry = ConfigRegistry.getInstance();
-
-        ConfigRegistry configRegistry = mock(ConfigRegistry.class);
-        //KeyStore configurations
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
-                        "datafiles/security/keyStore/ballerinaKeystore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(KEY_STORE_CONFIG, KEY_STORE_TYPE))
-                .thenReturn("pkcs12");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_LOCATION))
-                .thenReturn(getClass().getClassLoader().getResource(
-                        "datafiles/security/keyStore/ballerinaTruststore.p12").getPath());
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_PASSWORD))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(TRUST_STORE_CONFIG, TRUST_STORE_TYPE))
-                .thenReturn("pkcs12");
-        //Authenticator configurations
-        when(configRegistry.getInstanceConfigValue(JWT_AUTHENTICATOR_CONFIG, ISSUER))
-                .thenReturn("wso2");
-        when(configRegistry.getInstanceConfigValue(JWT_AUTHENTICATOR_CONFIG, AUDIENCE))
-                .thenReturn("ballerina");
-        when(configRegistry.getInstanceConfigValue(JWT_AUTHENTICATOR_CONFIG, CERTIFICATE_ALIAS))
-                .thenReturn("ballerina");
-        //Authenticator cache configurations
-        when(configRegistry.getInstanceConfigValue(JWT_AUTH_CACHE_CONFIG, ENABLED))
-                .thenReturn("true");
-        when(configRegistry.getInstanceConfigValue(JWT_AUTH_CACHE_CONFIG, EXPIRY_TIME))
-                .thenReturn("10000");
-        when(configRegistry.getInstanceConfigValue(JWT_AUTH_CACHE_CONFIG, CAPACITY))
-                .thenReturn("100");
-        when(configRegistry.getInstanceConfigValue(JWT_AUTH_CACHE_CONFIG, EVICTION_FACTOR))
-                .thenReturn("0.25");
-
-        Field field = ConfigRegistry.class.getDeclaredField("configRegistry");
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(ConfigRegistry.class, configRegistry);
-        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-        modifiersField.setAccessible(false);
-        field.setAccessible(false);
-
-        String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authn-handler-test.bal").toString());
+        Path ballerinaConfPath = Paths
+                .get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF);
+        ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
+        Path ballerinaKeyStorePath = Paths
+                .get(resourceRoot, "datafiles", "security", "keyStore", KEY_STORE);
+        ballerinaKeyStoreCopyPath = sourceRoot.resolve(KEY_STORE);
+        Path ballerinaTrustStorePath = Paths
+                .get(resourceRoot, "datafiles", "security", "keyStore", TRUST_SORE);
+        ballerinaTrustStoreCopyPath = sourceRoot.resolve(TRUST_SORE);
+        // Copy test resources to source root before starting the tests
+        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[]{REPLACE_EXISTING});
+        Files.copy(ballerinaKeyStorePath, ballerinaKeyStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
+        Files.copy(ballerinaTrustStorePath, ballerinaTrustStoreCopyPath, new CopyOption[]{REPLACE_EXISTING});
 
-        //Generate a JWT token
-        Path jwtIssuerSourceRoot = Paths.get(resourceRoot, "test-src", "jwt");
-        CompileResult jwtIssuerCompileResult = BCompileUtil.compile(
-                jwtIssuerSourceRoot.resolve("jwt-test.bal").toString());
-        BValue[] returns = BRunUtil.invoke(jwtIssuerCompileResult, "testIssueJwt");
-        jwtToken = returns[0].stringValue();
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-authn-handler-test.bal").toString());
+        // load configs
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
+        registry.loadConfigurations();
+
+        jwtToken = generateJWT();
     }
 
     @Test(description = "Test case for JWT auth interceptor canHandle method, without the bearer header")
@@ -168,7 +132,7 @@ public class JWTAuthenHandlerTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for JWT auth interceptor authentication success")
+    //TODO Enable this test after config api get the capability to set new properties.
     public void testHandleHttpJwtAuth() {
         BValue[] inputBValues = {new BString(jwtToken)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuth", inputBValues);
@@ -178,14 +142,59 @@ public class JWTAuthenHandlerTest {
 
     @AfterClass
     public void tearDown() throws Exception {
-        Field field = ConfigRegistry.class.getDeclaredField("configRegistry");
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(ConfigRegistry.class, initialConfigRegistry);
-        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-        modifiersField.setAccessible(false);
-        field.setAccessible(false);
+        Files.deleteIfExists(ballerinaConfCopyPath);
+        Files.deleteIfExists(ballerinaKeyStoreCopyPath);
+        Files.deleteIfExists(ballerinaTrustStoreCopyPath);
     }
+
+    String generateJWT() throws Exception {
+        String header = buildHeader();
+        String jwtHeader = new String(Base64.getUrlEncoder().encode(header.getBytes()));
+        String body = buildBody();
+        String jwtBody = new String(Base64.getUrlEncoder().encode(body.getBytes()));
+        String assertion = jwtHeader + "." + jwtBody;
+        String algorithm = "RS256";
+        PrivateKey privateKey = getPrivateKey();
+        JWSSigner signer = new RSASigner(privateKey);
+        String signature = signer.sign(assertion, algorithm);
+        return assertion + "." + signature;
+    }
+
+    private PrivateKey getPrivateKey() throws Exception {
+        KeyStore keyStore;
+        InputStream file = new FileInputStream(new File(getClass().getClassLoader().getResource(
+                "datafiles/security/keyStore/ballerinaKeystore.p12").getPath()));
+        keyStore = java.security.KeyStore.getInstance("pkcs12");
+        keyStore.load(file, "ballerina".toCharArray());
+        KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("ballerina", new KeyStore
+                .PasswordProtection("ballerina".toCharArray()));
+        return pkEntry.getPrivateKey();
+    }
+
+    String buildHeader() {
+        return "{\n" +
+                "  \"alg\": \"RS256\",\n" +
+                "  \"typ\": \"JWT\"\n" +
+                "}";
+    }
+
+    String buildBody() {
+        long time = System.currentTimeMillis() + 10000000;
+        return "{\n" +
+                "  \"sub\": \"John\",\n" +
+                "  \"iss\": \"wso2\",\n" +
+                "  \"aud\": \"ballerina\",\n" +
+                "  \"scope\": \"John test Doe\",\n" +
+                "  \"roles\": [\"admin\",\"admin2\"],\n" +
+                "  \"exp\": " + time + "\n" +
+                "}";
+    }
+
+    private Map<String, String> getRuntimeProperties() {
+        Map<String, String> runtimeConfigs = new HashMap<>();
+        runtimeConfigs.put(BALLERINA_CONF,
+                Paths.get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF).toString());
+        return runtimeConfigs;
+    }
+
 }

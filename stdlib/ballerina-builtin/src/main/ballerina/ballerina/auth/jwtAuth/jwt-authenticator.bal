@@ -68,14 +68,15 @@ public function createAuthenticator () (JWTAuthenticator) {
 @Description {value:"Authenticate with a jwt token"}
 @Param {value:"jwtToken: Jwt token extracted from the authentication header"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <JWTAuthenticator authenticator> authenticate (string jwtToken) (boolean) {
+@Return {value:"error: If error occured in authentication"}
+public function <JWTAuthenticator authenticator> authenticate (string jwtToken) (boolean, error) {
     boolean isAuthenticated = false;
     boolean isCacheHit = false;
     JWTAuthContext authContext;
     if (authenticator.authCache != null) {
         isCacheHit, isAuthenticated, authContext = authenticator.authenticateFromCache(jwtToken);
         if (isCacheHit) {
-            return isAuthenticated;
+            return isAuthenticated, null;
         }
     }
     var isValid, payload, err = jwt:validate(jwtToken, authenticator.jwtValidatorConfig);
@@ -84,12 +85,9 @@ public function <JWTAuthenticator authenticator> authenticate (string jwtToken) 
         if (authenticator.authCache != null) {
             authenticator.addToAuthenticationCache(jwtToken, payload.exp, authContext);
         }
-        return true;
+        return true, null;
     } else {
-        if (err != null) {
-            log:printErrorCause("Error while validating JWT token ", err);
-        }
-        return false;
+        return false, err;
     }
 }
 
