@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -33,11 +33,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BallerinaParserErrorListener extends BaseErrorListener {
 
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private BDiagnosticSource diagnosticSrc;
 
     public BallerinaParserErrorListener(CompilerContext context, BDiagnosticSource diagnosticSrc) {
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.diagnosticSrc = diagnosticSrc;
     }
 

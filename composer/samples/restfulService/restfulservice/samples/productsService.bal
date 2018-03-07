@@ -26,11 +26,15 @@ service<http> productmgt {
         path:"/"
     }
     resource addProduct (http:Connection conn, http:InRequest req) {
-        json jsonReq = req.getJsonPayload();
-        var productId, _ = (string)jsonReq.Product.ID;
-        productsMap[productId] = jsonReq;
-        json payload = {"Status":"Product is successfully added."};
-
+        var jsonReq, payloadError = req.getJsonPayload();
+        json payload;
+        if (payloadError == null) {
+            var productId, _ = (string)jsonReq.Product.ID;
+            productsMap[productId] = jsonReq;
+            payload = {"Status":"Product is successfully added."};
+        } else {
+            payload = {"Status":"An error occurred while retrieving json payload."};
+        }
         http:OutResponse res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);

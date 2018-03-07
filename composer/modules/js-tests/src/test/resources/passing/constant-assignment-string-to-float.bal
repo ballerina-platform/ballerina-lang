@@ -1,1 +1,0 @@
-const float variableEx = "not a float";
