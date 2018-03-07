@@ -71,6 +71,15 @@ public class StreamingRuntimeManager {
         siddhiAppRuntime.start();
     }
 
+    public void registerSubscriberForTopics(Map<String, InputHandler> streamSpecificInputHandlerMap,
+                                            String streamIdsAsString) {
+        String[] streamIds = streamIdsAsString.trim().split(",");
+        for (String streamId : streamIds) {
+            BStream streamReference = StreamingRuntimeManager.getInstance().getStreamReference(streamId);
+            streamReference.subscribe(streamSpecificInputHandlerMap.get(streamId));
+        }
+    }
+
     public List<InputHandler> getStreamSpecificInputHandlerList(String streamId) {
         List<InputHandler> inputHandlerList = new ArrayList<>();
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {

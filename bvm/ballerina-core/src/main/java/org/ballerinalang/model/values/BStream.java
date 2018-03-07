@@ -24,7 +24,6 @@ import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
 import org.ballerinalang.bre.bvm.WorkerContext;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
@@ -65,11 +64,12 @@ public class BStream implements BRefType<Object> {
 
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
-            throw  new BallerinaException("A stream cannot be created without a constraint");
+            throw new BallerinaException("A stream cannot be created without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                        + name;
+                + name;
+        this.streamId = name;
     }
 
     @Override
@@ -117,9 +117,9 @@ public class BStream implements BRefType<Object> {
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
     }
 
-    public void subscribe(Context context, BStreamlet streamlet) {
+    public void subscribe(InputHandler inputHandler) {
         String queueName = String.valueOf(UUID.randomUUID());
-        BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, context, streamlet));
+        BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
 
     public void addCallback(BStreamlet streamlet) {
@@ -202,14 +202,12 @@ public class BStream implements BRefType<Object> {
     private class InternalStreamSubscriber extends Consumer {
         private final String topic;
         private final String queueName;
-        private final Context context;
-        private final BStreamlet streamlet;
+        private final InputHandler inputHandler;
 
-        InternalStreamSubscriber(String topic, String queueName, Context context, BStreamlet streamlet) {
+        InternalStreamSubscriber(String topic, String queueName, InputHandler inputHandler) {
             this.topic = topic;
             this.queueName = queueName;
-            this.context = context;
-            this.streamlet = streamlet;
+            this.inputHandler = inputHandler;
         }
 
         @Override
@@ -220,12 +218,12 @@ public class BStream implements BRefType<Object> {
                 chunk.getBytes().getBytes(0, bytes);
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
-            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType,
-                    context.getProgramFile().getEntryPackage());
+            BStruct data = null;
+//            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType,
+//                    context.getProgramFile().getEntryPackage());
             Object[] event = createEvent(data);
-            InputHandler handler = streamlet.getStreamSpecificInputHandlerMap().get(topic);
             try {
-                handler.send(event);
+                inputHandler.send(event);
             } catch (InterruptedException e) {
                 throw new BallerinaException("Error while sending events to stream: " + topic + ": " + e.getMessage()
                         , e);

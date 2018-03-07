@@ -96,18 +96,6 @@ structBody
     :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
     ;
 
-streamletDefinition
-    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
-    ;
-
-streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
-    ;
-
-streamingQueryDeclaration
-    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
-    ;
-
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
@@ -640,6 +628,8 @@ reservedWord
     |   TYPE_MAP
     ;
 
+
+//Siddhi Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?
@@ -651,6 +641,22 @@ aggregationQuery
         selectClause?
         orderByClause?
 
+    ;
+
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
+    ;
+
+queryStatement
+    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
     ;
 
 streamingQueryStatement
@@ -709,6 +715,36 @@ joinStreamingInput
     :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
     ;
 
+outputRate
+    : OUTPUT outputRateType? EVERY ( timeValue | IntegerLiteral EVENTS )
+    | OUTPUT SNAPSHOT EVERY timeValue
+    ;
+
+patternStreamingInput
+    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH patternStreamingInput
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
+    |   patternStreamingEdgeInput
+    ;
+
+patternStreamingEdgeInput
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
+    ;
+
 outputEventType
     : ALL EVENTS | EXPIRED EVENTS | CURRENT? EVENTS
     ;
@@ -719,11 +755,6 @@ joinType
     | FULL OUTER JOIN
     | OUTER JOIN
     | INNER? JOIN
-    ;
-
-outputRate
-    : OUTPUT outputRateType? EVERY ( timeValue | IntegerLiteral EVENTS )
-    | OUTPUT SNAPSHOT EVERY timeValue
     ;
 
 outputRateType
@@ -774,32 +805,3 @@ secondValue
 millisecondValue
     : IntegerLiteral MILLISECONDS
     ;
-
-patternStreamingInput
-    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
-    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH patternStreamingInput
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
-    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
-    |   patternStreamingEdgeInput
-    ;
-
-patternStreamingEdgeInput
-    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
-    ;
-
-whereClause
-    :   WHERE expression
-    ;
-
-functionClause
-    :   FUNCTION functionInvocation
-    ;
-
-windowClause
-    :   WINDOW functionInvocation
-    ;
-
-queryStatement
-     :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
-     ;

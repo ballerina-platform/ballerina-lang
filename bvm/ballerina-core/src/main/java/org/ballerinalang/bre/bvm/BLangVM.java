@@ -692,7 +692,9 @@ public class BLangVM {
                     cpIndex = operands[1];
                     typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
                     StringCPEntry name = (StringCPEntry) constPool[operands[2]];
-                    sf.refRegs[i] = new BStream(typeRefCPEntry.getType(), name.getValue());
+                    BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
+                    StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
+                    sf.refRegs[i] = stream;
                     break;
                 case InstructionCodes.NEWSTREAMLET:
                     createNewStreamlet(operands, sf);
@@ -2703,6 +2705,8 @@ public class BLangVM {
         streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
         streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
         StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
+        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
+                streamletInfo.getStreamIdsAsString());
         sf.refRegs[i] = streamlet;
     }
 
