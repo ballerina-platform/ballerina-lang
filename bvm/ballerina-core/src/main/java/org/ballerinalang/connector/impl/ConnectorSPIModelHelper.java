@@ -60,7 +60,7 @@ public class ConnectorSPIModelHelper {
 
     public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo) {
         ServiceImpl service = new ServiceImpl(serviceInfo.getName(), serviceInfo.getPackagePath(),
-                serviceInfo.getProtocolPkgPath());
+                serviceInfo.getEndpointName());
         processAnnotations(serviceInfo.getPackagePath(), programFile, service);
         Arrays.stream(serviceInfo.getResourceInfoEntries()).forEach(resourceInfo -> {
             ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), resourceInfo);

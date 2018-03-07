@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -62,7 +62,7 @@ public class EndpointSPIAnalyzer {
     }
 
     private SymbolTable symTable;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     // Cached Valid SPIs.
     private Map<BStructSymbol, EndPoint> validSPIs = new HashMap<>();
@@ -71,7 +71,7 @@ public class EndpointSPIAnalyzer {
     private EndpointSPIAnalyzer(CompilerContext context) {
         context.put(ENDPOINT_SPI_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public void resolveEndpointSymbol(DiagnosticPos pos, BEndpointVarSymbol endpointVarSymbol) {

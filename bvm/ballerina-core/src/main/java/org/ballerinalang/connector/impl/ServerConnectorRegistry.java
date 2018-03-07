@@ -71,12 +71,12 @@ public class ServerConnectorRegistry {
      * @param serviceInfo to be registered.
      */
     public void registerService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
+        if (!serverConnectorMap.containsKey(serviceInfo.getEndpointName())) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getProtocolPkgPath());
+                    serviceInfo.getEndpointName());
         }
         Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
+        serverConnectorMap.get(serviceInfo.getEndpointName()).serviceRegistered(service);
     }
 
     /**
@@ -90,7 +90,7 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        return new ServiceImpl(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getProtocolPkgPath());
+        return new ServiceImpl(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getEndpointName());
     }
 
 

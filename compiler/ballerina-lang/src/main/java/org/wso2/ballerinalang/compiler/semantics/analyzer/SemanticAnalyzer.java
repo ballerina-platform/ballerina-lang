@@ -91,7 +91,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -119,7 +119,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private TypeChecker typeChecker;
     private Types types;
     private EndpointSPIAnalyzer endpointSPIAnalyzer;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
     private BType expType;
@@ -145,7 +145,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -160,7 +160,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
             return;
         }
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         // Visit all the imported packages
         pkgNode.imports.forEach(importNode -> analyzeDef(importNode, pkgEnv));
@@ -175,7 +175,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         if (pkgEnv == null) {
             return;
         }
