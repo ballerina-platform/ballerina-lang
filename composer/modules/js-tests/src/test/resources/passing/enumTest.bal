@@ -1,3 +1,0 @@
-
-enum verb{GET,PUT,POST,DELETE,HEAD,OPTIONS
-}

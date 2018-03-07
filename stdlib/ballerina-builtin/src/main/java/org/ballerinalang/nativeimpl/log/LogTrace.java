@@ -43,7 +43,7 @@ public class LogTrace extends AbstractLogFunction {
                                                     .getCallableUnitInfo().getPackageInfo().getPkgPath();
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.TRACE.value()) {
-            getLogger(pkg).trace(getStringArgument(ctx, 0));
+            getLogger(pkg).trace(getLogMessage(ctx, 0));
         }
         return VOID_RETURN;
     }

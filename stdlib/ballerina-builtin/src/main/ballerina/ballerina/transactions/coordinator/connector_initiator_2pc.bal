@@ -29,7 +29,8 @@ public connector Initiator2pcClient () {
         req.setJsonPayload(j);
         var res, commErr = coordinatorEP.post("", req);
         if (commErr == null) {
-            var abortRes, transformErr = <AbortResponse>res.getJsonPayload();
+            var payload, _ = res.getJsonPayload();
+            var abortRes, transformErr = <AbortResponse>payload;
             if (transformErr != null) {
                 msg = abortRes.message;
             } else {
