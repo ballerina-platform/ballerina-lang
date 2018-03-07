@@ -72,9 +72,7 @@ struct RegistrationRequest {
     Protocol[] participantProtocols;
 }
 
-// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
-function regRequestToJson (RegistrationRequest req) returns (json) {
-    json j = {};
+transformer <RegistrationRequest req, json j> regRequestToJson() {
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
     json[] protocols = req.participantProtocols.map(
@@ -83,14 +81,13 @@ function regRequestToJson (RegistrationRequest req) returns (json) {
                                                    return j2;
                                                });
     j.participantProtocols = protocols;
-    return j;
 }
 
-// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
-function jsonToRegRequest (json j) returns (RegistrationRequest req) {
+transformer <json j, RegistrationRequest req> jsonToRegRequest() {
     var transactionId, _ = (string)j.transactionId;
     var participantId, _ = (string)j.participantId;
-    req = {transactionId:transactionId, participantId:participantId};
+    req.transactionId = transactionId;
+    req.participantId = participantId;
     Protocol[] protocols = j.participantProtocols.map(
                                                  function (json proto) returns (Protocol p) {
                                                      var name, _ = (string)proto.name;
@@ -99,7 +96,6 @@ function jsonToRegRequest (json j) returns (RegistrationRequest req) {
                                                      return;
                                                  });
     req.participantProtocols = protocols;
-    return;
 }
 
 struct RegistrationResponse {
@@ -107,9 +103,7 @@ struct RegistrationResponse {
     Protocol[] coordinatorProtocols;
 }
 
-// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
-function regResposeToJson (RegistrationResponse res) returns (json) {
-    json j = {};
+transformer <RegistrationResponse res, json j> regResposeToJson () {
     j.transactionId = res.transactionId;
     json[] protocols = res.coordinatorProtocols.map(
                                                function (Protocol proto) returns (json) {
@@ -117,13 +111,11 @@ function regResposeToJson (RegistrationResponse res) returns (json) {
                                                    return j2;
                                                });
     j.coordinatorProtocols = protocols;
-    return j;
 }
 
-// TODO: Make this function into a transformer once https://github.com/ballerina-lang/ballerina/issues/5002 is fixed
-function jsonToRegResponse (json j) returns (RegistrationResponse res) {
+transformer <json j, RegistrationResponse res> jsonToRegResponse () {
     var transactionId, _ = (string)j.transactionId;
-    res = {transactionId:transactionId};
+    res.transactionId = transactionId;
     Protocol[] protocols = j.coordinatorProtocols.map(
                                                  function (json proto) returns (Protocol p) {
                                                      var name, _ = (string)proto.name;
@@ -132,7 +124,6 @@ function jsonToRegResponse (json j) returns (RegistrationResponse res) {
                                                      return;
                                                  });
     res.coordinatorProtocols = protocols;
-    return;
 }
 
 struct RequestError {

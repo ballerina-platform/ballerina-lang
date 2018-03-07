@@ -55,7 +55,7 @@ connector InitiatorClient (string registerAtURL) {
         Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
         regReq.participantProtocols = protocols;
 
-        json j = regRequestToJson(regReq);
+        json j = <json, regRequestToJson()>regReq;
         http:OutRequest req = {};
         req.setJsonPayload(j);
         var res, e = initiatorEP.post("", req);
@@ -64,7 +64,7 @@ connector InitiatorClient (string registerAtURL) {
             var payload, payloadError = res.getJsonPayload();
             if (payloadError == null) {
                 if (statusCode == 200) {
-                    registrationRes = jsonToRegResponse(payload);
+                    registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
                 } else {
                     if (payload == null) {
                         var stringPayload, _ = res.getStringPayload();

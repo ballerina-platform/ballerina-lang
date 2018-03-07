@@ -87,7 +87,7 @@ service<http> InitiatorService {
                 log:printErrorCause("Sending response to Bad Request for register request failed", (error)connError);
             }
         } else {
-            RegistrationRequest regReq = jsonToRegRequest(payload);
+            RegistrationRequest regReq = <RegistrationRequest, jsonToRegRequest()>(payload);
             string participantId = regReq.participantId;
             string txnId = regReq.transactionId;
             var txn, _ = (Transaction)initiatedTransactions[txnId];
@@ -132,7 +132,7 @@ service<http> InitiatorService {
 
                 RegistrationResponse regRes = {transactionId:txnId,
                                                   coordinatorProtocols:coordinatorProtocols};
-                json resPayload = regResposeToJson(regRes);
+                json resPayload = <json, regResposeToJson()>(regRes);
                 res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connError = conn.respond(res);
