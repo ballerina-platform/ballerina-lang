@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Used in taint analysis to maintains tainted status of return parameters or any taint checking related errors.
+ *
+ * @since 0.965.0
  */
 public class TaintRecord {
     public List<Boolean> retParamTaintdStatus;

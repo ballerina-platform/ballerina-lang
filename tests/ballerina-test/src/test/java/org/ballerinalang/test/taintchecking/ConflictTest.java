@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 /**
  * Test conflicting conditions such as recursions and cyclic invocations of functions, that will be addressed by the
  * the conflict resolution mechanism of taint analyzer.
+ *
+ * @since 0.965.0
  */
 public class ConflictTest {
 

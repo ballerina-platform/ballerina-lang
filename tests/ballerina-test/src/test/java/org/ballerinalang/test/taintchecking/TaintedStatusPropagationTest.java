@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test tainted status propagation with different types of statements and expressions.
+ *
+ * @since 0.965.0
  */
 public class TaintedStatusPropagationTest {
 

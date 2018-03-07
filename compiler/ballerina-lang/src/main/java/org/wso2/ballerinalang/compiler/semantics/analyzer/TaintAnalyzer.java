@@ -134,6 +134,8 @@ import javax.xml.XMLConstants;
  * Evaluate invocations and generate errors if:
  * (*) Tainted value has been passed to a sensitive parameter.
  * (*) Tainted value has been passed to a global variable.
+ *
+ * @since 0.965.0
  */
 public class TaintAnalyzer  extends BLangNodeVisitor {
     private static final CompilerContext.Key<TaintAnalyzer> TAINT_ANALYZER_KEY =

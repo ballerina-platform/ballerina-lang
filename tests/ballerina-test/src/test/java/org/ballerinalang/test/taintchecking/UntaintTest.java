@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test the "untaint" unary expressions.
+ *
+ * @since 0.965.0
  */
 public class UntaintTest {
 

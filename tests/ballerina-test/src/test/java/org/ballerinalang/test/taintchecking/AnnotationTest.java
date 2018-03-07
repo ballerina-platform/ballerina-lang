@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test taint checking related annotations (sensitive / tainted / untainted).
+ *
+ * @since 0.965.0
  */
 public class AnnotationTest {
 
