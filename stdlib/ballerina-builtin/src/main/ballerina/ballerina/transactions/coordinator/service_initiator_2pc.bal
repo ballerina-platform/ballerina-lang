@@ -24,13 +24,17 @@ import ballerina.net.http;
     host:coordinatorHost,
     port:coordinatorPort
 }
+documentation {
+    Service on the initiator which handles protocol messages related to the 2-phase commit (2PC) coordination type.
+}
 service<http> Initiator2pcService {
 
-    // This resource is on the initiator's coordinator. When a participant wants to abort a transaction, it will make
-    // a call to this resource
     @http:resourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/abort"
+    }
+    documentation {
+        When a participant wants to abort a transaction, it will make a call to this resource.
     }
     resource abortTransaction (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;

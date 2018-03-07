@@ -23,13 +23,17 @@ import ballerina.util;
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
-// The participant ID of this participant
+documentation {
+    ID of the local participant used when registering with the initiator.
+}
 string localParticipantId = util:uuid();
 
 map initiatedTransactions = {};
 map participatedTransactions = {};
 
-// This cache is used for caching HTTP connectors against the URL, since creating connectors is expecsive.
+documentation {
+    This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
+}
 caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 3600000, 10, 0.1);
 
 struct Transaction {
@@ -52,15 +56,18 @@ public struct TransactionContext {
     string registerAtURL;
 }
 
+documentation {
+    This represents the protocol associated with the coordination type.
+
+    F{{name}} - protocol name
+    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
+                the `protocolFn` will be called
+    F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
+}
 struct Protocol {
     string name;
-
-    // This URL will have a value only if the participant is remote. If the participant is local, the protocolFn will
-    // be called
     string url;
     int transactionBlockId;
-
-    // This function will be called only if the participant is local
     function (string transactionId,
               int transactionBlockId,
               string protocolAction) returns (boolean successful) protocolFn;
@@ -265,8 +272,15 @@ function localParticipantProtocolFn (string transactionId,
     return;
 }
 
-// Registers a participant with the initiator's coordinator
-// This function will be called by the participant
+documentation {
+    Registers a participant with the initiator's coordinator. This function will be called by the participant
+
+    P{{transactionId}} - ID of the transaction to which this participant is registering with
+    P{{transactionBlockId}} - The local ID of the transaction block on the participant
+    P{{registerAtURL}} - The URL of the initiator to which this participant will register with
+    R{{txnCtx}} - The transaction context which will be created on successfully registering with the initiator
+    R{{err}} - The error which will be returned if registration fails
+}
 function registerParticipantWithRemoteInitiator (string transactionId,
                                                  int transactionBlockId,
                                                  string registerAtURL) returns (TransactionContext txnCtx, error err) {

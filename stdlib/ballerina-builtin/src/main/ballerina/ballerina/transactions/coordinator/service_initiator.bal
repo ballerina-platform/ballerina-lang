@@ -36,10 +36,14 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
+
 @http:configuration {
     basePath:initiatorCoordinatorBasePath,
     host:coordinatorHost,
     port:coordinatorPort
+}
+documentation {
+    Service on the initiator which is independent from the coordination type and handles registration of remote participants.
 }
 service<http> InitiatorService {
 
@@ -47,31 +51,33 @@ service<http> InitiatorService {
         methods:["POST"],
         path:registrationPathPattern
     }
+    documentation {
+        register(in: Micro-Transaction-Registration,
+        out: Micro-Transaction-Coordination?,
+        fault: ( Invalid-Protocol |
+        Already-Registered |
+        Cannot-Register |
+        Micro-Transaction-Unknown )? )
+
+        If the registering participant specified a protocol name not matching the coordination type of the micro-transaction,
+        the following fault is returned:
+
+        Invalid-Protocol
+
+                If the registering participant is already registered to the micro-transaction,
+        the following fault is returned:
+
+        Already-Registered
+
+                If the coordinator already started the end-of-transaction processing for participants of the Durable
+         protocol (see section 3.1.2) of the micro-transaction, the following fault is returned. Note explicitly,
+         that registration for the Durable protocol is allowed while the coordinator is running the end-of-transaction
+         processing for participants of the Volatile protocol (see section 3.1.3).
+
+         Cannot-Register
+        If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
+    }
     resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        //register(in: Micro-Transaction-Registration,
-        //out: Micro-Transaction-Coordination?,
-        //fault: ( Invalid-Protocol |
-        //Already-Registered |
-        //Cannot-Register |
-        //Micro-Transaction-Unknown )? )
-
-        //If the registering participant specified a protocol name not matching the coordination type of the micro-transaction,
-        //the following fault is returned:
-        //
-        //Invalid-Protocol
-        //
-        //        If the registering participant is already registered to the micro-transaction,
-        //the following fault is returned:
-        //
-        //Already-Registered
-        //
-        //        If the coordinator already started the end-of-transaction processing for participants of the Durable
-        // protocol (see section 3.1.2) of the micro-transaction, the following fault is returned. Note explicitly,
-        // that registration for the Durable protocol is allowed while the coordinator is running the end-of-transaction
-        // processing for participants of the Volatile protocol (see section 3.1.3).
-
-        // Cannot-Register
-        //If the registering participant specified an unknown micro-transaction identifier, the following fault is returned:
 
         // Micro-Transaction-Unknown
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;

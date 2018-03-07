@@ -24,14 +24,23 @@ import ballerina.net.http;
     host:coordinatorHost,
     port:coordinatorPort
 }
+documentation {
+    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
+}
 service<http> Participant2pcService {
 
-    // This resource is on the participant's coordinator. When the initiator's coordinator sends "prepare"
-    // this resource on the participant will get called. This participant's coordinator will in turn call
-    // prepare on all the resource managers registered with the respective transaction.
     @http:resourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/prepare"
+    }
+    documentation {
+        When the initiator sends "prepare" this resource on the participant will get called.
+        This participant will in turn call prepare on all its resource managers registered with the respective
+        transaction.
+
+        P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
+                                  participant as part of the participant protocol endpoint. The initiator isn't aware
+                                  of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     resource prepare (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;
@@ -83,13 +92,18 @@ service<http> Participant2pcService {
         }
     }
 
-    // This resource is on the participant's coordinator. When the initiator's coordinator sends
-    // "notify(commit | abort)" this resource on the participant will get called.
-    // This participant's coordinator will in turn call "commit" or "abort" on
-    // all the resource managers registered with the respective transaction.
     @http:resourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/notify"
+    }
+    documentation {
+        When the initiator sends "notify(commit | abort)" this resource on the participant will get called.
+        This participant will in turn call "commit" or "abort" on all the resource managers registered with the
+        respective transaction.
+
+        P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
+                                  participant as part of the participant protocol endpoint. The initiator isn't aware
+                                  of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     resource notify (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;

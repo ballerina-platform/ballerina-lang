@@ -379,23 +379,30 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
     return;
 }
 
-// The participant should notify the initiator that it aborted
-// This function is called by the participant.
-// The initiator is remote.
-function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
+documentation {
+    The participant should notify the initiator that it aborted. This function is called by the participant.
+    The initiator is remote.
+
+    P{{transactionId}} - Transaction ID
+    P{{transactionBlockId}} - Transaction block ID. Each transaction block in a process will have a unique ID.
+    R{{message}} - The message returned from the initiator which informs the state of the abort request.
+    R{{err}} - Error if an error occurred while aborting.
+}
+function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns (string message,
+                                                                                                  error err) {
     endpoint<Initiator2pcClient> initiatorEP {
     }
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     boolean successful = abortResourceManagers(transactionId, transactionBlockId);
     if (!successful) {
-        e = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+        err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
         return;
     }
     var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
-        e = {message:msg};
+        err = {message:msg};
     } else {
         string protocolUrl = txn.coordinatorProtocols[0].url;
         var client, cacheErr = (Initiator2pcClient)httpClientCache.get(protocolUrl);
@@ -407,16 +414,32 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
             httpClientCache.put(protocolUrl, client);
         }
         bind client with initiatorEP;
-        message, e = initiatorEP.abortTransaction(transactionId);
-        if (e == null) {
+        message, err = initiatorEP.abortTransaction(transactionId);
+        if (err == null) {
             txn.state = TransactionState.ABORTED;
         }
     }
     return;
 }
 
-// If this is a new transaction, then this instance will become the initiator and will create a context
-// If this is part of an existing transaction, this this instance will register as a participant
+documentation {
+    When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
+    If this is a new transaction (transactionId == null), then this instance will become the initiator and will
+    create a new transaction context.
+    If the participant and initiator are in the same process, this transaction block will register with the local
+    initiator via a local function call.
+    If the participant and initiator are in different processes, this transaction block will register with the remote
+    initiator via a network call.
+
+    P{{transactionId}} - Globally unique transaction ID. If this is a new transaction which is initiated, then this
+                         will be null.
+                         If this is a participant in an existing transaction, then it will have a value.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    P{{registerAtUrl}} - The URL of the initiator
+    P{{coordinationType}} - Coordination type of this transaction
+    R{{txnCtx}} - Transaction context corresponding to this transaction block
+    R{{err}} - Error if something fails during beginning a transaction
+}
 function beginTransaction (string transactionId, int transactionBlockId, string registerAtUrl,
                            string coordinationType) returns (TransactionContext txnCtx, error err) {
     if (transactionId == null) {
@@ -430,9 +453,18 @@ function beginTransaction (string transactionId, int transactionBlockId, string 
     return;
 }
 
-// Depending on the state of the transaction, and whether this instance is the initiator or participant,
-// decide to commit or abort the transaction
-function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
+documentation {
+    When a transaction block in Ballerina code ends, it will call this function to end a transaction.
+    Ending a transaction by a participant has no effect because it is the initiator who can decide whether to
+    commit or abort a transaction.
+    Depending on the state of the transaction, the initiator decides to commit or abort the transaction.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    R{{msg}} - Outcome of the transaction
+    R{{err}} - Error if something fails during beginning a transaction
+}
+function endTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
@@ -440,8 +472,8 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
     if (participatedTransactions[participatedTxnId] == null && initiatedTransactions.hasKey(transactionId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
         if (txn.state != TransactionState.ABORTED) {
-            msg, e = commitTransaction(transactionId, transactionBlockId);
-            if (e == null) {
+            msg, err = commitTransaction(transactionId, transactionBlockId);
+            if (err == null) {
                 initiatedTransactions.remove(transactionId);
             }
         }
@@ -449,7 +481,20 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
     return;
 }
 
-function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error e) {
+documentation {
+    When an abort statement is executed, this function gets called. Depending on whether the transaction block
+    is an initiator or participant the flow will be different. An initiator will start the abort protocol. A participant
+    will notify the initiator that it aborted, which will prompt the initiator to start the abort protocol.
+
+    The initiator and participant being in the same process
+    has also been handled as a special case in order to avoid a network call in that case.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    R{{msg}} - Transaction context corresponding to this transaction block
+    R{{err}} - Error if something fails during beginning a transaction
+}
+function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (participatedTransactions[participatedTxnId] != null) {
@@ -458,33 +503,54 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             var txn, _ = (Transaction)initiatedTransactions[transactionId];
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
-                e = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+                err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
                 return;
             }
             string participantId = getParticipantId(transactionBlockId);
             txn.participants.remove(participantId);
             participatedTransactions.remove(participatedTxnId);
             txn.participants.remove(participantId);
-            msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
+            msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
         } else {
-            msg, e = abortInitiatorTransaction(transactionId, transactionBlockId);
+            msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
-        msg, e = abortLocalParticipantTransaction(transactionId, transactionBlockId);
+        msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }
-    if (e == null) {
+    if (err == null) {
         initiatedTransactions.remove(transactionId);
     }
 
     return;
 }
 
+documentation {
+    Prepare local resource managers.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    R{{prepareSuccessful}} - Indicates whether the outcome was successful
+}
 native function prepareResourceManagers (string transactionId,
                                          int transactionBlockId) returns (boolean prepareSuccessful);
 
+documentation {
+    Commit local resource managers.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    R{{commitSuccessful}} - Indicates whether the outcome was successful
+}
 native function commitResourceManagers (string transactionId,
                                         int transactionBlockId) returns (boolean commitSuccessful);
 
+documentation {
+    Abort local resource managers.
+
+    P{{transactionId}} - Globally unique transaction ID.
+    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
+    R{{abortSuccessful}} - Indicates whether the outcome was successful
+}
 native function abortResourceManagers (string transactionId,
                                        int transactionBlockId) returns (boolean abortSuccessful);
 
