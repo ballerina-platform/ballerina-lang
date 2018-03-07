@@ -359,7 +359,7 @@ public class ProgramFileWriter {
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
-        dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
+        dataOutStream.writeInt(serviceInfo.endpointNameCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,

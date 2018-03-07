@@ -563,12 +563,12 @@ public class ProgramFileReader {
             int flags = dataInStream.readInt();
 
             // Read connector signature cp index;
-            int serviceProtocolCPIndex = dataInStream.readInt();
-            UTF8CPEntry serviceProtocolUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(serviceProtocolCPIndex);
+            int endpointNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry endpointNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(endpointNameCPIndex);
 
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags,
-                    serviceProtocolCPIndex, serviceProtocolUTF8Entry.getValue());
+                    endpointNameCPIndex, endpointNameUTF8Entry.getValue());
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
             serviceInfo.setType(new BServiceType(serviceInfo.getName(), packageInfo.getPkgPath()));

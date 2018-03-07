@@ -53,10 +53,10 @@ public class BallerinaHttpServerConnector implements BallerinaServerConnector {
 
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
-        if (service.getProtocolPackage().equals(PROTOCOL_PACKAGE_HTTP)) {
+        if (service.getEndpointName().equals(PROTOCOL_PACKAGE_HTTP)) {
             HttpService httpService = new HttpService(service);
             httpServicesRegistry.registerService(httpService);
-        } else if (service.getProtocolPackage().equals(PROTOCOL_PACKAGE_WS)) {
+        } else if (service.getEndpointName().equals(PROTOCOL_PACKAGE_WS)) {
             WebSocketService wsService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(wsService);
         }

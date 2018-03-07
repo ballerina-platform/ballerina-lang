@@ -33,15 +33,15 @@ import java.util.Map;
 public class ServiceImpl extends AnnotatableNode implements Service {
     private String name;
     private String packagePath;
-    private String protocolPackage;
+    private String endPointName;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    ServiceImpl(String name, String packagePath, String protocolPackage) {
+    ServiceImpl(String name, String packagePath, String endPointName) {
         this.name = name;
         this.packagePath = packagePath;
-        this.protocolPackage = protocolPackage;
+        this.endPointName = endPointName;
     }
 
     public void addResource(String name, Resource resource) {
@@ -59,8 +59,8 @@ public class ServiceImpl extends AnnotatableNode implements Service {
     }
 
     @Override
-    public String getProtocolPackage() {
-        return protocolPackage;
+    public String getEndpointName() {
+        return endPointName;
     }
 
     @Override
