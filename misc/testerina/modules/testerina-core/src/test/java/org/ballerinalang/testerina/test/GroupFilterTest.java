@@ -19,6 +19,7 @@
 package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,82 +33,64 @@ import java.util.List;
  */
 public class GroupFilterTest {
 
-    private Path[] filePaths = { Paths.get("src/test/resources/annotations-test/groups-test.bal") };
+    private Path[] filePaths = {Paths.get("src/test/resources/annotations-test/groups-test.bal")};
 
     @Test
     public void singleGroupFilterTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g1");
         testRunner.runTest(filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 3);
+        // disabled tests won't be counted as skipped
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
     }
 
     @Test
     public void multipleGroupFilterTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g2");
         groupList.add("g4");
         testRunner.runTest(filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 3);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 3);
-    }
-
-    @Test
-    public void multipleGroupFilterWithDefaultGroupTest() {
-        BTestRunner testRunner = new BTestRunner();
-        List<String> groupList = new ArrayList<>();
-        groupList.add("g2");
-        groupList.add("g3");
-        groupList.add("default");
-        testRunner.runTest(filePaths, groupList);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 5);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 1);
-    }
-
-    @Test
-    public void defaultGroupFilterTest() {
-        BTestRunner testRunner = new BTestRunner();
-        List<String> groupList = new ArrayList<>();
-        groupList.add("default");
-        testRunner.runTest(filePaths, groupList);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 4);
     }
 
     @Test
     public void specifyNonExistingGroupTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
         testRunner.runTest(filePaths, groupList);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 6);
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
     }
 
     @Test
     public void groupFilterWithFailuresTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
-        testRunner.runTest(filePaths, groupList);
+        try {
+            testRunner.runTest(filePaths, groupList);
+        } catch (RuntimeException e) {
+        }
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 5);
     }
 
     @Test
     public void noGroupFiltersTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         testRunner.runTest(filePaths, null);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 5);
+        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
     }
@@ -115,58 +98,42 @@ public class GroupFilterTest {
     // Tests group exclude filters
     @Test
     public void excludeSingleGroupTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
         testRunner.runTest(filePaths, groupList, true);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 5);
+        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 1);
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
     }
 
     @Test
     public void excludeMultipleGroupsTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g4");
         groupList.add("g5");
         testRunner.runTest(filePaths, groupList, true);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 2);
-    }
-
-    @Test
-    public void excludeDefaultGroupTest() {
-        BTestRunner testRunner = new BTestRunner();
-        List<String> groupList = new ArrayList<>();
-        groupList.add("default");
-        testRunner.runTest(filePaths, groupList, true);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 3);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 2);
-    }
-
-    @Test
-    public void excludeDefaultAndUserDefinedGroupTest() {
-        BTestRunner testRunner = new BTestRunner();
-        List<String> groupList = new ArrayList<>();
-        groupList.add("default");
-        groupList.add("g1");
-        testRunner.runTest(filePaths, groupList, true);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 5);
+        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
+        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
     }
 
     @Test
     public void excludeNonExistingGroupTest() {
+        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
         testRunner.runTest(filePaths, groupList, true);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 5);
+        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
+    }
+
+    private void cleanup() {
+        TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
     }
 }

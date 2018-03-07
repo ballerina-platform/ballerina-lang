@@ -38,6 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -324,9 +325,7 @@ public class AnnotationProcessor {
      * @return @{@link TesterinaAnnotation} object containing annotation information
      */
     private static void process(TesterinaContext ctxt, FunctionInfo functionInfo, AnnAttachmentInfo[] annotations,
-                                ProgramFile
-            programFile,
-                                TestSuite suite, List<String> groups, boolean excludeGroups) {
+                                ProgramFile programFile, TestSuite suite, List<String> groups, boolean excludeGroups) {
         boolean functionAdded = false, functionSkipped = false;
         for (AnnAttachmentInfo attachmentInfo : annotations) {
             if (attachmentInfo.getName().equals(BEFORE_SUITE_ANNOTATION_NAME)) {
@@ -371,26 +370,37 @@ public class AnnotationProcessor {
                         break;
                     }
                     // Check whether user has provided a group list
-//                    if (groups != null) {
-//                        // check if groups attribute is present in the annotation
-//                        if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
-//                            // Check whether function is included in group filter
-//                            // against the user provided flag to include or exclude groups
-//                            if (isGroupAvailable(groups, Arrays.stream(attachmentInfo.getAttributeValue
-//                                    (GROUP_ANNOTATION_NAME).getAttributeValueArray()).map
-//                                    (AnnAttributeValue::getStringValue).collect(Collectors.toList())) ==
-//                                    excludeGroups) {
-//                                functionSkipped = true;
-//                                break;
-//                            }
-//                            // If groups are not present this belongs to default group
-//                            // check whether user provided groups has default group
-//                        } else if (isGroupAvailable(groups, Arrays.asList(DEFAULT_TEST_GROUP_NAME)) ==
-// excludeGroups) {
-//                            functionSkipped = true;
-//                            break;
-//                        }
-//                    }
+                    if (groups != null && !groups.isEmpty()) {
+                        // check if groups attribute is present in the annotation
+                        if (attachmentInfo.getAttributeValue(GROUP_ANNOTATION_NAME) != null) {
+                            if (!excludeGroups) {
+                                // include only if the test belong to one of these groups
+                                if (!isGroupAvailable(groups, Arrays.stream(attachmentInfo.getAttributeValue
+                                        (GROUP_ANNOTATION_NAME).getAttributeValueArray()).map
+                                        (AnnAttributeValue::getStringValue).collect(Collectors.toList()))) {
+                                    // skip the test if this group is not defined in this test
+                                    functionSkipped = true;
+                                    break;
+                                }
+                            } else {
+                                // exclude only if the test belong to one of these groups
+                                if (isGroupAvailable(groups, Arrays.stream(attachmentInfo.getAttributeValue
+                                        (GROUP_ANNOTATION_NAME).getAttributeValueArray()).map
+                                        (AnnAttributeValue::getStringValue).collect(Collectors.toList()))) {
+                                    // skip if this test belongs to one of the excluded groups
+                                    functionSkipped = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            // if this test has no group
+                            if (!excludeGroups) {
+                                // skip only if asks to run a selected set of test groups
+                                functionSkipped = true;
+                                break;
+                            }
+                        }
+                    }
                     if (attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME) != null) {
                         test.setDataProvider(attachmentInfo.getAttributeValue(VALUE_SET_ANNOTATION_NAME)
                                 .getStringValue());
@@ -428,21 +438,21 @@ public class AnnotationProcessor {
 
     }
 
-//    /**
-//     * Check whether there is a common element in two Lists.
-//     *
-//     * @param inputGroups    String @{@link List} to match
-//     * @param functionGroups String @{@link List} to match agains
-//     * @return true if a match is found
-//     */
-//    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
-//        for (String group : inputGroups) {
-//            for (String funcGroup : functionGroups) {
-//                if (group.equals(funcGroup)) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
+    /**
+     * Check whether there is a common element in two Lists.
+     *
+     * @param inputGroups    String @{@link List} to match
+     * @param functionGroups String @{@link List} to match agains
+     * @return true if a match is found
+     */
+    private static boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
+        for (String group : inputGroups) {
+            for (String funcGroup : functionGroups) {
+                if (group.equals(funcGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

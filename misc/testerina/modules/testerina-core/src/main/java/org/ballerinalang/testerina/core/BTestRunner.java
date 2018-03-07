@@ -199,7 +199,7 @@ public class BTestRunner {
                                 shouldSkip.get(), errorMsg);
                         tReport.addFunctionResult(functionResult);
                     }
-                } catch (BallerinaException e) {
+                } catch (Exception e) {
                     errorMsg = String.format("Failed to execute the test function [%s] of test suite package [%s]. "
                                              + "Cause: %s", test.getTestFunction().getName(), packageName,
                             e.getMessage());
@@ -208,6 +208,7 @@ public class BTestRunner {
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false,
                             shouldSkip.get(), errorMsg);
                     tReport.addFunctionResult(functionResult);
+                    return;
                 }
 
                 // run the after tests

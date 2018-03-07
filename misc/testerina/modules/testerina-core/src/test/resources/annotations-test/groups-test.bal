@@ -32,8 +32,3 @@ function testFunc4 () {
 function testFunc5 () {
     test:assertFalse(false, "errorMessage");
 }
-
-//Function without annotations
-function testFunc6 () {
-    test:assertFalse(false, "errorMessage");
-}
