@@ -14,11 +14,14 @@ SLASH : '/';
 APOSTROPHE : '\'';
 EQUALS : '=';
 HASH : '#';
+LEFT_BRACKET : '[';
+RIGHT_BRACKET : ']';
 
 expression
            : ws
            | ws keyval ws
-           | ws table ws;
+           | ws table ws
+           ;
 
 // Whitespace
 
@@ -57,13 +60,13 @@ string : mlBasicString | basicString | mlLiteralString | literalString;
 
 basicString : QUOTATION_MARK basicChar* QUOTATION_MARK;
 
-basicChar : escaped | alpha | BASICUNESCPAED | SPACE | PLUS | HYPHEN | PERIOD | UNDERSCORE | COLON | COMMA
-            | SLASH | APOSTROPHE| EQUALS | HASH | digit;
+basicChar : escaped | alpha | BASICUNESCAPED | SPACE | PLUS | HYPHEN | PERIOD | UNDERSCORE | COLON | COMMA
+            | SLASH | APOSTROPHE| EQUALS | HASH | LEFT_BRACKET | RIGHT_BRACKET | digit;
 
 DIGIT19 : [1-9] ;
 digit: '0' | DIGIT19;
 
-BASICUNESCPAED : '\u0021' | '\u0023'..'\u005B' | '\u005D'..'\u007E' | '\u0080'..'\u10FF';
+BASICUNESCAPED : '\u0021' | '\u0023'..'\u005B' | '\u005D'..'\u007E' | '\u0080'..'\u10FF';
 
 escaped : escapeSeqChar;
 
@@ -83,7 +86,6 @@ MLBASICUNESCAPED :   '\u0020'..'\u005B' |'\u005D'..'\u10FF';
 // Literal String
 
 literalString : APOSTROPHE LITERALCHAR* APOSTROPHE;
-
 
 LITERALCHAR :  '\u0009' |'\u0020'..'\u0026'| '\u0028'..'\u10FF';
 

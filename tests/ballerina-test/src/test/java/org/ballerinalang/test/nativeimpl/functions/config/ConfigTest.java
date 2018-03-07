@@ -18,26 +18,20 @@
 package org.ballerinalang.test.nativeimpl.functions.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.config.utils.ConfigFileParserException;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Test Native functions in ballerina.config.
@@ -49,30 +43,28 @@ public class ConfigTest {
     private String resourceRoot;
     private Path sourceRoot;
     private Path ballerinaConfPath;
-    private Path ballerinaConfCopyPath;
+    private String customConfigFilePath;
 
     @BeforeClass
     public void setup() throws IOException {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "nativeimpl", "functions");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "default", BALLERINA_CONF);
-        ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
-
-        // Copy the ballerina.conf to the source root before starting the tests
-        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[]{REPLACE_EXISTING});
+        customConfigFilePath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF).toString();
 
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config.bal").toString());
     }
 
     @Test(description = "test global method with runtime and custom config file properties")
-    public void testGetGlobalValuesWithRuntime() throws IOException {
-
+    public void testGetAsStringWithRuntime() throws IOException {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
+
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -80,14 +72,15 @@ public class ConfigTest {
     }
 
     @Test(description = "test global method with default config file properties")
-    public void testGetGlobalValuesWithDefaultConfigFile() throws IOException {
-
+    public void testGetAsStringWithDefaultConfigFile() throws IOException {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
+
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(new HashMap<>(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -95,14 +88,15 @@ public class ConfigTest {
     }
 
     @Test(description = "test global method with runtime, custom config and default file properties")
-    public void testGetGlobalValuesWithAllProperties() throws IOException {
-
+    public void testGetAsStringWithAllProperties() throws IOException {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
+
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -110,14 +104,15 @@ public class ConfigTest {
     }
 
     @Test(description = "test get global method with unavailable config")
-    public void testGetGlobalValuesNegative() throws IOException {
-
+    public void testGetAsStringNegative() throws IOException {
         BString key = new BString("ballerina.wso2");
         BValue[] inputArg = {key};
+
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(new HashMap<>(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetGlobalValues", inputArg);
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -126,14 +121,14 @@ public class ConfigTest {
 
     @Test(description = "test instance method with runtime and custom config file properties")
     public void testGetInstanceValuesWithRuntime() throws IOException {
+        BString key = new BString("http1.ballerina.http.port");
+        BValue[] inputArg = {key};
 
-        BString id = new BString("http1");
-        BString key = new BString("ballerina.http.port");
-        BValue[] inputArg = {id, key};
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -142,14 +137,14 @@ public class ConfigTest {
 
     @Test(description = "test instance method with default config file properties")
     public void testGetInstanceValuesWithDefaultConfigFile() throws IOException {
+        BString key = new BString("http1.ballerina.http.port");
+        BValue[] inputArg = {key};
 
-        BString id = new BString("http1");
-        BString key = new BString("ballerina.http.port");
-        BValue[] inputArg = {id, key};
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(new HashMap<>(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -158,14 +153,14 @@ public class ConfigTest {
 
     @Test(description = "test instance method with runtime, custom and default config file properties")
     public void testGetInstanceValuesWithAllProperties() throws IOException {
+        BString key = new BString("http1.ballerina.http.port");
+        BValue[] inputArg = {key};
 
-        BString id = new BString("http1");
-        BString key = new BString("ballerina.http.port");
-        BValue[] inputArg = {id, key};
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -174,14 +169,14 @@ public class ConfigTest {
 
     @Test(description = "test get Instance method with unavailable config")
     public void testGetInstanceValuesNegative() throws IOException {
+        BString key = new BString("http1.ballerina.wso2");
+        BValue[] inputArg = {key};
 
-        BString id = new BString("http1");
-        BString key = new BString("ballerina.wso2");
-        BValue[] inputArg = {id, key};
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(new HashMap<>(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetInstanceValues", inputArg);
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
@@ -189,30 +184,40 @@ public class ConfigTest {
     }
 
     @Test(description = "Test config entries with trailing whitespaces")
-    public void testEntriesWithTrailingWhitespace() throws ConfigFileParserException {
-        BString id = new BString("http3");
-        BString key = new BString("ballerina.http.port");
-        BValue[] inputArg = {id, key};
+    public void testEntriesWithTrailingWhitespace() throws IOException {
+        BString key = new BString("http3.ballerina.http.port");
+        BValue[] inputArg = {key};
+
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(new HashMap<>(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testConfigsWithWhitespace", inputArg);
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "7070");
     }
 
-    private Map<String, String> getRuntimeProperties() {
-        Map<String, String> runtimeConfigs = new HashMap<>();
-        runtimeConfigs.put(BALLERINA_CONF, Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF).toString());
-        runtimeConfigs.put("ballerina.http.host", "10.100.1.201");
-        runtimeConfigs.put("[http1].ballerina.http.port", "8082");
-        return runtimeConfigs;
+    @Test(description = "Test setting configs from Ballerina source code")
+    public void testSetConfig() throws IOException {
+        BString key = new BString("ballerina.http.host");
+        BString value = new BString("ballerinalang.org");
+        BValue[] inputArgs = {key, value};
+
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BRunUtil.invoke(compileResult, "testSetConfig", inputArgs);
+
+        // The config we set in Ballerina code should overwrite the configs set from other sources
+        Assert.assertEquals(registry.getConfiguration(key.stringValue()), value.stringValue());
     }
 
-    @AfterClass
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(ballerinaConfCopyPath);
+    private Map<String, String> getRuntimeProperties() {
+        Map<String, String> runtimeConfigs = new HashMap<>();
+        runtimeConfigs.put("ballerina.http.host", "\"10.100.1.201\"");
+        runtimeConfigs.put("http1.ballerina.http.port", "8082");
+        return runtimeConfigs;
     }
 }

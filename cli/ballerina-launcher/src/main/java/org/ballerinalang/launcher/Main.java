@@ -24,7 +24,6 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -213,8 +212,11 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
         private String javaDebugPort;
 
+        @Parameter(names = {"--config"}, description = "path to the Ballerina config file")
+        private String configFilePath;
+
         @DynamicParameter(names = "-B", description = "collects dynamic parameters")
-        private Map<String, String> configRuntimeParams = new HashMap<>();
+        private Map<String, String> runtimeParams = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -233,7 +235,6 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, sourceRootPath.resolve("ballerina.conf"));
 
             // Start all services, if the services flag is set.
             if (runServices) {
@@ -241,7 +242,8 @@ public class Main {
                     throw LauncherUtils.createUsageException("too many arguments");
                 }
 
-                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, new String[0]);
+                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams, configFilePath,
+                                         new String[0]);
                 return;
             }
 
@@ -255,7 +257,7 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, programArgs);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath, programArgs);
         }
 
         @Override

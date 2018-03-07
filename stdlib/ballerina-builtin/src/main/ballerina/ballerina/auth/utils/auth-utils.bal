@@ -60,7 +60,7 @@ public function createCache (string cacheName) (caching:Cache) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"boolean: true of the cache is enabled, else false"}
 function isCacheEnabled (string cacheName) (boolean) {
-    string isCacheEnabled = config:getInstanceValue(cacheName, CACHE_ENABLED);
+    string isCacheEnabled = config:getAsString(cacheName + "." + CACHE_ENABLED);
     if (isCacheEnabled == null) {
         // by default we enable the cache
         return CACHE_ENABLED_DEFAULT_VALUE;
@@ -88,7 +88,7 @@ function getCacheConfigurations (string cacheName) (int, int, float) {
 @Return {value:"int: cache expiry time read from ballerina.conf, default value if no configuration entry found"}
 function getExpiryTime (string cacheName) (int) {
     // expiry time
-    string expiryTime = config:getInstanceValue(cacheName, CACHE_EXPIRY_TIME);
+    string expiryTime = config:getAsString(cacheName + "." + CACHE_EXPIRY_TIME);
     if (expiryTime == null) {
         // set the default
         return CACHE_EXPIRY_DEFAULT_VALUE;
@@ -105,7 +105,7 @@ function getExpiryTime (string cacheName) (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"int: cache capacity read from ballerina.conf, default value if no configuration entry found"}
 function getCapacity (string cacheName) (int) {
-    string capacity = config:getInstanceValue(cacheName, CACHE_CAPACITY);
+    string capacity = config:getAsString(cacheName + "." + CACHE_CAPACITY);
     if (capacity == null) {
         return CACHE_CAPACITY_DEFAULT_VALUE;
     } else {
@@ -121,7 +121,7 @@ function getCapacity (string cacheName) (int) {
 @Param {value:"cacheName: cache name"}
 @Return {value:"float: cache eviction factor read from ballerina.conf, default value if no configuration entry found"}
 function getEvictionFactor (string cacheName) (float) {
-    string evictionFactor = config:getInstanceValue(cacheName, CACHE_EVICTION_FACTOR);
+    string evictionFactor = config:getAsString(cacheName + "." + CACHE_EVICTION_FACTOR);
     if (evictionFactor == null) {
         return CACHE_EVICTION_FACTOR_DEFAULT_VALUE;
     } else {

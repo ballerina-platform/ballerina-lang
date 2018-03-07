@@ -16,13 +16,12 @@
 
 package ballerina.config;
 
-@Description { value:"Retrieve the specified global configuration value" }
-@Param { value:"property: The configuration to be retrieved" }
-@Return { value:"Configuration value of property" }
-public native function getGlobalValue(string property)(string);
+@Description { value:"Retrieve the specified configuration value as a string" }
+@Param { value:"configKey: The configuration to be retrieved" }
+@Return { value:"Configuration value of mapped by the configKey" }
+public native function getAsString(string configKey)(string);
 
-@Description { value:"Retrieve the specified configuration value for the named instance" }
-@Param { value:"instanceId: The ID of the instance" }
-@Param { value:"property: The configuration to be retrieved" }
-@Return { value:"Configuration value of the property of the instance denoted by instanceId" }
-public native function getInstanceValue(string instanceId, string property)(string);
+@Description { value:"Sets the specified key/value pair as a configuration" }
+@Param { value:"configKey: The key of the configuration value to be set" }
+@Param { value:"configValue: The configuration value to be set" }
+public native function setConfig(string configKey, string configValue);

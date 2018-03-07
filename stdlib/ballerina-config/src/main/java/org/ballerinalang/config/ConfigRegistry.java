@@ -18,8 +18,7 @@
 
 package org.ballerinalang.config;
 
-import org.ballerinalang.config.utils.ConfigFileParserException;
-
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,15 +32,9 @@ public class ConfigRegistry {
 
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
 
-    private static final String STRING_NULL_VALUE = null;
-
-    private Map<String, String> globalConfigs = new HashMap<>();
-    private Map<String, Map<String, String>> instanceConfigs = new HashMap<>();
-
-    private ConfigProcessor confProcessor;
+    private Map<String, String> configEntries = new HashMap<>();
 
     private ConfigRegistry() {
-        confProcessor = new ConfigProcessor(this);
     }
 
     public static ConfigRegistry getInstance() {
@@ -50,72 +43,134 @@ public class ConfigRegistry {
 
     /**
      * Prepares for parsing and loading the configurations by initializing the config processor.
-     *
-     * @param runtimeParams The Ballerina runtime parameters (-B params)
+     * @param runtimeParams     The Ballerina runtime parameters (-B params)
+     * @param configFilePath    The path to the user provided Ballerina config file
      * @param ballerinaConfPath Path to the default ballerina.conf file
      */
-    public void initRegistry(Map<String, String> runtimeParams, Path ballerinaConfPath) {
-        confProcessor.setRuntimeConfiguration(runtimeParams);
-        confProcessor.setBallerinaConfDefaultPath(ballerinaConfPath);
+    public void initRegistry(Map<String, String> runtimeParams, String configFilePath, Path ballerinaConfPath)
+            throws IOException {
+        configEntries = ConfigProcessor.processConfiguration(runtimeParams, configFilePath, ballerinaConfPath);
     }
 
     /**
-     * Prompts the config processor to process and load the configurations to the config registry.
+     * Add the specified key/value pair as a configuration entry.
      *
-     * @throws ConfigFileParserException Thrown if the config parsing failed
+     * @param key   The configuration key
+     * @param value The configuration value
      */
-    public void loadConfigurations() throws ConfigFileParserException {
-        confProcessor.processConfiguration();
+    public void addConfiguration(String key, String value) {
+        configEntries.put(key, value);
     }
 
     /**
-     * Sets global config properties as a map.
+     * Add the specified key/value pair as a configuration entry. Here, the key will be derived using the tableHeader
+     * and tableField parameters.
      *
-     * @param globalConfigMap Processed map of key value pairs.
+     * @param tableHeader The name of the TOML table to which the config will be added
+     * @param tableField  The config key under which the config value will be mapped in the table
+     * @param value       The configuration value
      */
-    protected void setGlobalConfigs(Map<String, String> globalConfigMap) {
-        globalConfigs.putAll(globalConfigMap);
+    public void addConfiguration(String tableHeader, String tableField, String value) {
+        configEntries.put(getConfigKey(tableHeader, tableField), value);
     }
 
     /**
-     * Returns global config value based on config name.
+     * Retrieve the configuration value mapped by the specified key.
      *
-     * @param configKey The key used to look up a configuration
-     * @return The corresponding config value
+     * @param key          The key of the configuration value
+     * @param defaultValue The value to be used if the key is not in the registry
+     * @return The configuration value as a string
      */
-    public String getGlobalConfigValue(String configKey) {
-        if (globalConfigs.isEmpty() || (globalConfigs.get(configKey) == null)) {
-            return STRING_NULL_VALUE;
-        }
-        return globalConfigs.get(configKey);
+    public String getConfigOrDefault(String key, String defaultValue) {
+        return configEntries.getOrDefault(key, defaultValue);
     }
 
     /**
-     * Sets instance config properties as a map.
+     * Retrieve the configuration value mapped by the specified table header and table field.
      *
-     * @param instanceConfigMap The final, resolved map of key value pairs.
+     * @param tableHeader  The name of the TOML table which contains the configuration
+     * @param tableField   The config key under which the config value is mapped in the table
+     * @param defaultValue The value to be used if the key is not in the registry
+     * @return The configuration value as a string
      */
-    protected void setInstanceConfigs(Map<String, Map<String, String>> instanceConfigMap) {
-        instanceConfigs.putAll(instanceConfigMap);
+    public String getConfigOrDefault(String tableHeader, String tableField, String defaultValue) {
+        return configEntries.getOrDefault(getConfigKey(tableHeader, tableField), defaultValue);
     }
 
     /**
-     * Returns instance config value based on instance id and config name.
+     * Retrieve the configuration value mapped by the specified key as a char array.
      *
-     * @param instanceId The ID of the instance whose configurations which need to be looked up
-     * @param configKey The key for the configuration to be looked up
-     * @return The config value
+     * @param key          The key of the configuration value
+     * @param defaultValue The value to be used if the key is not in the registry
+     * @return The configuration value as a char array
      */
-    public String getInstanceConfigValue(String instanceId, String configKey) {
-        if (instanceConfigs.isEmpty() || (instanceConfigs.get(instanceId) == null)) {
-            return STRING_NULL_VALUE;
-        }
+    public char[] getConfigOrDefaultAsCharArray(String key, String defaultValue) {
+        String configValue = configEntries.getOrDefault(key, defaultValue);
+        return configValue != null ? configValue.toCharArray() : null;
+    }
 
-        Map<String, String> instanceConfig = instanceConfigs.get(instanceId);
-        String configValue = instanceConfig.get(configKey);
-        if (configValue == null) {
-            return STRING_NULL_VALUE;
-        }
-        return configValue;
+    /**
+     * Retrieve the configuration value mapped by the specified key.
+     *
+     * @param key The key of the configuration value
+     * @return The configuration value as a string
+     */
+    public String getConfiguration(String key) {
+        return configEntries.get(key);
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified table header and table field.
+     *
+     * @param tableHeader The name of the TOML table which contains the configuration
+     * @param tableField  The config key under which the config value is mapped in the table
+     * @return The configuration value as a string
+     */
+    public String getConfiguration(String tableHeader, String tableField) {
+        return configEntries.get(getConfigKey(tableHeader, tableField));
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified key as a char array.
+     *
+     * @param key The key of the configuration value
+     * @return The configuration value as a char array
+     */
+    public char[] getConfigAsCharArray(String key) {
+        String configValue = configEntries.get(key);
+        return configValue != null ? configValue.toCharArray() : null;
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified table header and table field as a char array.
+     *
+     * @param tableHeader The name of the TOML table which contains the configuration
+     * @param tableField  The config key under which the config value is mapped in the table
+     * @return The configuration value as a char array
+     */
+    public char[] getConfigAsCharArray(String tableHeader, String tableField) {
+        String configValue = configEntries.get(getConfigKey(tableHeader, tableField));
+        return configValue != null ? configValue.toCharArray() : null;
+    }
+
+    /**
+     * Removes the specified key from the Config Registry.
+     *
+     * @param key The key for the configuration value to be removed
+     * @return The removed configuration value
+     */
+    public String removeConfiguration(String key) {
+        return configEntries.remove(key);
+    }
+
+    /**
+     * Removes all the entries in the Config Registry.
+     */
+    public void resetRegistry() {
+        configEntries.clear();
+    }
+
+    private String getConfigKey(String tableHeader, String tableField) {
+        return tableHeader + "." + tableField;
     }
 }

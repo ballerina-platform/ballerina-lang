@@ -45,14 +45,14 @@ function readPasswordHash (string username) (string) {
         return null;
     }
     // read the hashed password from the userstore file, using the user id
-    return config:getInstanceValue(userid, "password");
+    return config:getAsString(userid + "." + "password");
 }
 
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) (string) {
-    return config:getInstanceValue("userids", username);
+    return config:getAsString("userids" + "." + username);
 }
 
 @Description {value:"Reads the groups for a user"}
@@ -65,6 +65,6 @@ public function <FilebasedUserstore userstore> readGroupsOfUser (string username
         return null;
     }
     // reads the groups for the userid
-    return config:getInstanceValue(userid, "groups");
+    return config:getAsString(userid + "." + "groups");
 }
 

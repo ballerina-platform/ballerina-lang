@@ -1,13 +1,9 @@
 import ballerina.config;
 
-function testGetGlobalValues(string key) (string) {
-    return config:getGlobalValue(key);
+function testGetAsString(string key) (string) {
+    return config:getAsString(key);
 }
 
-function testGetInstanceValues(string id, string key) (string) {
-    return config:getInstanceValue(id, key);
-}
-
-function testConfigsWithWhitespace(string id, string key) (string) {
-    return config:getInstanceValue(id, key);
+function testSetConfig(string key, string value) {
+    config:setConfig(key, value);
 }

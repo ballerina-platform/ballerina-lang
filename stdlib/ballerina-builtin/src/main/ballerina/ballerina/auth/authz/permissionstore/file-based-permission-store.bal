@@ -53,7 +53,7 @@ public function <FileBasedPermissionStore permissionStore> isAuthorized (string 
 @Return {value:"string: comma separated groups specified for the scopename"}
 public function <FileBasedPermissionStore permissionStore> readGroupsOfScope (string scopeName) (string) {
     // reads the groups for the provided scope
-    return config:getInstanceValue(scopeName, PERMISSIONSTORE_GROUPS_ENTRY);
+    return config:getAsString(scopeName + "." + PERMISSIONSTORE_GROUPS_ENTRY);
 }
 
 @Description {value:"Matches the groups passed"}
@@ -95,12 +95,12 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (str
         return null;
     }
     // reads the groups for the userid
-    return config:getInstanceValue(userid, PERMISSIONSTORE_GROUPS_ENTRY);
+    return config:getAsString(userid + "." + PERMISSIONSTORE_GROUPS_ENTRY);
 }
 
 @Description {value:"Reads the user id for the given username"}
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) (string) {
-    return config:getInstanceValue(PERMISSIONSTORE_USERIDS_ENTRY, username);
+    return config:getAsString(PERMISSIONSTORE_USERIDS_ENTRY + "." + username);
 }
