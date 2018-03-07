@@ -36,7 +36,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * {@code Execute} action can be used to invoke execute a http/2 call with any httpVerb.
+ * {@code Execute} action can be used to get the next available push promise message associated with
+ * a previous asynchronous invocation
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",

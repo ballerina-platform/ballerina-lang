@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
- * {@code Execute} action can be used to invoke execute a http/2 call with any httpVerb.
+ * {@code Execute} action can be used to invoke execute a http/2 call with any httpVerb in asynchronous manner
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
