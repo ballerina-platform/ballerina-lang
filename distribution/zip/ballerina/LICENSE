@@ -15,18 +15,17 @@ Name                                                                            
 ---------------------------------------------------------------------------------------------------------
 antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767
 apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112
-atomikos-3.8.0.wso2v1.jar                                                       bundle         apache2   12348
 axiom-api-1.2.20.jar                                                            bundle         apache2   2111
 axiom-dom-1.2.20.jar                                                            bundle         apache2   2219
 axiom-impl-1.2.20.jar                                                           bundle         apache2   2110
-ballerina-builtin-0.963.0.jar                                                   jar            apache2   2912
-ballerina-config-0.963.0.jar                                                    jar            apache2   2911
-ballerina-core-0.963.0.jar                                                      jar            apache2   2910
-ballerina-http-0.963.0.jar                                                      jar            apache2   2909
-ballerina-lang-0.963.0.jar                                                      jar            apache2   2908
-ballerina-launcher-0.963.0.jar                                                  jar            apache2   2907
-ballerina-logging-0.963.0.jar                                                   jar            apache2   2906
-ballerina-mime-0.963.0.jar                                                      jar            cddl+gpl  2905
+ballerina-builtin-0.964.0.jar                                                   jar            apache2   2930
+ballerina-config-0.964.0.jar                                                    jar            apache2   2929
+ballerina-core-0.964.0.jar                                                      jar            apache2   2928
+ballerina-http-0.964.0.jar                                                      jar            apache2   2927
+ballerina-lang-0.964.0.jar                                                      jar            apache2   2926
+ballerina-launcher-0.964.0.jar                                                  jar            apache2   2925
+ballerina-logging-0.964.0.jar                                                   jar            apache2   2924
+ballerina-mime-0.964.0.jar                                                      jar            apache2   2923
 commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
@@ -49,7 +48,7 @@ netty-resolver-4.1.19.Final.jar                                                 
 netty-transport-4.1.19.Final.jar                                                bundle         apache2   2762
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373
-org.wso2.transport.http.netty-6.0.90.jar                                        bundle         apache2   16568
+org.wso2.transport.http.netty-6.0.97.jar                                        bundle         apache2   16837
 quartz-2.3.0.jar                                                                bundle         apache2   2337
 quartz-jobs-2.3.0.jar                                                           jar            apache2   2338
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756

@@ -194,11 +194,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.transformers = rewrite(pkgNode.transformers, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.services = rewrite(pkgNode.services, env);
-        pkgNode.transformers = rewrite(pkgNode.transformers, env);
-
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);

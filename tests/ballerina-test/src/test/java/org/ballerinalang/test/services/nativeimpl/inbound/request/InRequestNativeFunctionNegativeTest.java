@@ -99,13 +99,10 @@ public class InRequestNativeFunctionNegativeTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        String error = null;
-        try {
-            BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
-        } catch (Throwable e) {
-            error = e.getMessage();
-        }
-        Assert.assertTrue(error.contains("error occurred while extracting json data from entity"));
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        Assert.assertNull(returnVals[0]);
+        Assert.assertTrue(((BStruct) returnVals[1]).getStringField(0).contains("Error occurred while" +
+                " extracting json data from entity: failed to create json: unrecognized token 'ballerina'"));
     }
 
     @Test
@@ -117,16 +114,6 @@ public class InRequestNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertNull(returnVals[0].stringValue());
-    }
-
-    @Test(description = "Test getEntity method on a inRequest without a entity")
-    public void testGetEntityNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
-        BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNotNull(returnVals[0]);
     }
 
     @Test(description = "Test getStringPayload method without a paylaod")
