@@ -27,6 +27,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
@@ -64,6 +65,11 @@ public class ExtractSpanContext extends AbstractNativeFunction {
 
         String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
 
-        return getBValues(new BString(spanId));
+        if (spanId != null) {
+            return getBValues(new BString(spanId));
+        } else {
+            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
+                    "Check tracing configurations and dependencies.");
+        }
     }
 }
