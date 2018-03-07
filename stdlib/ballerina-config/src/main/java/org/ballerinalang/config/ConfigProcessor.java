@@ -126,7 +126,12 @@ public class ConfigProcessor {
 
     private static Map<String, String> parseRuntimeParams(Map<String, String> runtimeParams) {
         StringBuilder stringBuilder = new StringBuilder();
-        runtimeParams.forEach((key, val) -> stringBuilder.append(key).append('=').append(val).append('\n'));
+        runtimeParams.forEach(
+                (key, val) -> stringBuilder.append(key)
+                                            .append('=')
+                                            // TODO: need to handle this in a better way
+                                            .append('\"').append(val).append('\"')
+                                            .append('\n'));
         ANTLRInputStream runtimeConfigsStream = new ANTLRInputStream(stringBuilder.toString());
         Map<String, String> runtimeConfigEntries = new HashMap<>();
         ParseTreeWalker treeWalker = new ParseTreeWalker();

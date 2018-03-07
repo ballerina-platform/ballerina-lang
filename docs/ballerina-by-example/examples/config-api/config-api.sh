@@ -4,10 +4,13 @@
 $ ballerina run config-api.bal -Bballerina.conf=path/to/conf/file/custom-config-file-name.conf
 john has RW access
 peter has R access
+Before changing sum.limit in code: 15
+After changing sum.limit: 55
 
-# The same configs given through a config file can also be given through CLI parameters as shown.
-# Notice how the instance config keys are prefixed with the instance tag. <br>
-# i.e: [john].access.rights
-$ ballerina run config-api.bal -Busername.instances=john,peter -B[john].access.rights=RW -B[peter].access.rights=R
+# The same configs given through a config file can also be given through CLI parameters as shown. <br>
+# i.e: john.access.rights
+$ ballerina run config-api.bal -Busername.instances=john,peter -Bjohn.access.rights=RW -Bpeter.access.rights=R -Bsum.limit=5
 john has RW access
 peter has R access
+Before changing sum.limit in code: 15
+After changing sum.limit: 55
