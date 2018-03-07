@@ -224,6 +224,10 @@ public class HttpConstants {
     public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int OUT_RESPONSE_REASON_PHRASE_INDEX = 0;
 
+    //PushPromise struct indexes
+    public static final int PUSH_PROMISE_PATH_INDEX = 0;
+    public static final int PUSH_PROMISE_METHOD_INDEX = 1;
+
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
     public static final int PROXY_HOST_INDEX = 0;

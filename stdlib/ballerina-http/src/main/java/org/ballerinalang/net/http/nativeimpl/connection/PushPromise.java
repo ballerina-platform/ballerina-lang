@@ -58,8 +58,7 @@ public class PushPromise extends ConnectionAction {
 
         BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise());
-
+                                                                    HttpUtil.createHttpPushPromise(pushPromiseStruct));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         return handleResponseStatus(context, outboundRespStatusFuture);
     }

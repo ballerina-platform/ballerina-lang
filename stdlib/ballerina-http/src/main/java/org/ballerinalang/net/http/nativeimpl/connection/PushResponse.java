@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -63,8 +64,11 @@ public class PushResponse extends ConnectionAction {
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise());
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
+        if (http2PushPromise == null) {
+            throw new BallerinaException("invalid push promise");
+        }
+
         BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 2);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));

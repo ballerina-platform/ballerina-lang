@@ -405,6 +405,12 @@ public class HttpUtil {
         struct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
+    public static void populatePushPromiseStruct(BStruct pushPromiseStruct, Http2PushPromise pushPromise) {
+        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX, pushPromise.getPath());
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX, pushPromise.getMethod());
+    }
+
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundRequestMsg);
@@ -887,8 +893,16 @@ public class HttpUtil {
         }
     }
 
-    public static Http2PushPromise createHttpPushPromise() {
-        return new Http2PushPromise(null);
+    public static Http2PushPromise createHttpPushPromise(BStruct struct) {
+        String method = HttpConstants.HTTP_METHOD_GET;
+        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX).isEmpty()) {
+            method = struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX);
+        }
+        String path = HttpConstants.DEFAULT_BASE_PATH;
+        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX).isEmpty()) {
+            path = struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX);
+        }
+        return new Http2PushPromise(method, path);
     }
 
     public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {

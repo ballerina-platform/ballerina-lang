@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -109,7 +110,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         public void onPushPromise(Http2PushPromise pushPromise) {
             BStruct pushPromiseStruct = createStruct(this.context, HttpConstants.PUSH_PROMISE,
                                                      HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+            HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
             ballerinaFuture.notifyReply(pushPromiseStruct);
         }
 

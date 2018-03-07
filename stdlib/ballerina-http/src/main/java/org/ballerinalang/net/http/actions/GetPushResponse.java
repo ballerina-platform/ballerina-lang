@@ -84,8 +84,10 @@ public class GetPushResponse extends AbstractHTTPAction {
             throw new BallerinaException("invalid handle");
         }
         BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 2);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise());
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
+        if (http2PushPromise == null) {
+            throw new BallerinaException("invalid push promise");
+        }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
