@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
@@ -32,11 +33,16 @@ import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorte
 import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Parser Rule based item resolver for Type Name Context.
@@ -45,20 +51,26 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
     
     private static final String CONNECTOR_KIND = "CONNECTOR";
     
+    private static final String CATCH_KEY_WORD = "catch";
+    
     @Override
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        CompletionItemSorter itemSorter;
-        if (tokenStream.get(completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText().equals(":")) {
+        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        CompletionItemSorter itemSorter = ItemSorters.getSorterByClass(DefaultItemSorter.class);
+
+        if (parserRuleContext.getParent() instanceof BallerinaParser.CatchClauseContext
+                && CommonUtil.isWithinBrackets(completionContext, Collections.singletonList(CATCH_KEY_WORD))) {
+            this.populateCompletionItemList(filterCatchConditionSymbolInfo(completionContext), completionItems);
+        } else if (tokenStream.get(completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText().equals(":")) {
             /*
             TODO: ATM, this particular condition becomes true only when try to access packages' items in the 
             endpoint definition context
              */
-            this.populateCompletionItemList(filterSymbolInfo(completionContext), completionItems);
-            itemSorter = ItemSorters.getSorterByClass(DefaultItemSorter.class);
+            this.populateCompletionItemList(filterEndpointContextSymbolInfo(completionContext), completionItems);
         } else {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
@@ -68,10 +80,11 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
                     ItemSorters.getSorterByClass(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
         }
         itemSorter.sortItems(completionContext, completionItems);
+
         return completionItems;
     }
-    
-    private static List<SymbolInfo> filterSymbolInfo(TextDocumentServiceContext context) {
+
+    private static List<SymbolInfo> filterEndpointContextSymbolInfo(TextDocumentServiceContext context) {
         List<SymbolInfo> symbolInfos = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY) - 1;
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
@@ -99,5 +112,37 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
         }
         
         return returnList;
+    }
+
+    private static List<SymbolInfo> filterCatchConditionSymbolInfo(TextDocumentServiceContext context) {
+        List<SymbolInfo> symbolInfos = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+
+        return symbolInfos.stream().filter(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+            return bSymbol.getType() instanceof BStructType
+                    && checkErrorStructEquivalence((BStructType) bSymbol.getType());
+        }).collect(Collectors.toList());
+    }
+    
+    private static boolean checkErrorStructEquivalence(BStructType bStructType) {
+        List<BStructType.BStructField> fields = bStructType.getFields();
+        String errorField = "cause";
+        String errorType = "error";
+        String msgField = "message";
+        String msgType = "string";
+        int fieldCounter = 0;
+
+        for (BStructType.BStructField field : fields) {
+            if ((field.getName().getValue().equals(errorField) && field.getType().toString().equals(errorType))
+                    || (field.getName().getValue().equals(msgField) && field.getType().toString().equals(msgType))) {
+                fieldCounter++;
+            }
+
+            if (fieldCounter == 2) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
