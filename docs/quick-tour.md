@@ -17,16 +17,18 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 Let's take a look at what the sample looks like in the Ballerina programming language:
 
 ```
+import ballerina.io;
 function main (string[] args) {
-  println("Hello, World!");
+    io:println("Hello, World!");
+}
 ``` 
 
 The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
 
 At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
 
-```bash
-ballerina run helloworld.bal
+```
+$ ballerina run hello-world.bal
 ```
 
 You will see the following response:
