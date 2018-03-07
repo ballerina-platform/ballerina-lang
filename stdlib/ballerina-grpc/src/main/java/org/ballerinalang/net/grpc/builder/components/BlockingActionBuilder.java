@@ -45,12 +45,12 @@ public class BlockingActionBuilder {
         String actionTemplate =
                 "    action %s (%s req) (%s, error) {" + NEW_LINE_CHARACTER +
                         "        var res, err1 = ep.blockingExecute(\"%s\", req);" + NEW_LINE_CHARACTER +
-                        "        if (err1 != null) {" + NEW_LINE_CHARACTER +
+                        "        if (err1 != null && err1.message != null) {" + NEW_LINE_CHARACTER +
                         "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        var response, err2 = (%s)res;" + NEW_LINE_CHARACTER +
-                        "        if (err2 != null) {" + NEW_LINE_CHARACTER +
+                        "        if (err2 != null && err2.message != null) {" + NEW_LINE_CHARACTER +
                         "            error e = {message:err2.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +

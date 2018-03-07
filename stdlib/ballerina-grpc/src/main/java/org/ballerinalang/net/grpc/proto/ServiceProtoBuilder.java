@@ -47,8 +47,13 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
+            if ("messageListener".equals(annotationNode.getAnnotationName().getValue())) {
+                return;
+            }
+        }
         try {
-            File fileDefinition =  ServiceProtoUtils.generateProtoDefinition(serviceNode);
+            File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
             ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue());
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.WARNING, serviceNode.getPosition(), e.getMessage());
