@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -151,6 +152,7 @@ public class Desugar extends BLangNodeVisitor {
     private IterableCodeDesugar iterableCodeDesugar;
     private SqlQueryBuilder sqlQueryBuilder;
     private SiddhiQueryBuilder siddhiQueryBuilder;
+    public BLangIdentifier name; //Temporary workaround - TODO move where appropriate/proper access
 
     private BLangNode result;
 
@@ -324,12 +326,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
+        this.name = varDefNode.var.name;
         varDefNode.var = rewrite(varDefNode.var);
         result = varDefNode;
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        if (assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
+            this.name = ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
+        }
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -524,7 +530,7 @@ public class Desugar extends BLangNodeVisitor {
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
             result = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
-            result = new BLangStreamLiteral(recordLiteral.type);
+            result = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
             result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {

@@ -52,8 +52,6 @@ public class BStream implements BRefType<Object> {
 
     private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
 
-    private static int streamTopicId;
-
     private BStructType constraintType;
 
     private String streamId = "";
@@ -65,13 +63,13 @@ public class BStream implements BRefType<Object> {
      */
     private String topicName;
 
-    public BStream(BType type) {
+    public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
-            throw new BallerinaException("A stream cannot be created without a constraint");
+            throw  new BallerinaException("A stream cannot be created without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                + streamTopicId++;
+                        + name;
     }
 
     @Override
@@ -100,11 +98,6 @@ public class BStream implements BRefType<Object> {
      * @param data the data to publish to the stream
      */
     public void publish(BStruct data) {
-
-        if (inputHandlerList != null) {
-            inputHandlerList = StreamingRuntimeManager.getInstance().getStreamSpecificInputHandlerList(streamId);
-        }
-
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("Incompatible Types: struct of type:" + data.getType().getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
