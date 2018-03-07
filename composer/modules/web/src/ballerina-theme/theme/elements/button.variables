@@ -2,20 +2,24 @@
     User Variable Overrides
 *******************************/
 
-@backgroundColor    : @defaultColor;
-@textColor          : @gray-100;
-@fontWeight         : 400;
+@backgroundColor        : @defaultColor;
+@textColor              : @gray-100;
+@fontWeight             : 400;
+
 /*-------------------
       Variations
 --------------------*/
 
-@borderRadius       :0;
+@borderRadius           :0;
+@secondaryTextColor     : @gray-700;
+@lineHeight             : 1.42857;
+@horizontalMargin       : 0em;
+@verticalMargin         : 0em;
+@verticalPadding        : 6px;
+@horizontalPadding      : 12px;
+@fontWeight             : normal;
+@verticalAlign          : middle;
+@iconMargin             : 0;
+@rightIconMargin        : 0;
 
-@secondaryTextColor : @gray-700;
-@lineHeight: 1.42857;
-@horizontalMargin: 0em;
-@verticalMargin: 0em;
-@verticalPadding: 6px;
-@horizontalPadding: 12px;
-@fontWeight: normal;
-@verticalAlign: middle;
+

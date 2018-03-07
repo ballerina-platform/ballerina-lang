@@ -27,6 +27,7 @@ public class Constants {
     public static final String FILE = "File";
     public static final String MEDIA_TYPE = "MediaType";
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
+    public static final String ENTITY_ERROR = "EntityError";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
     public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
     public static final String PROTOCOL_PACKAGE_IO = "ballerina.io";
@@ -36,7 +37,7 @@ public class Constants {
      * Content type HTTP header.
      */
 
-    public static final String CONTENT_ID = "Content-Id";
+    public static final String CONTENT_ID = "content-id";
 
     /**
      * Content-type application/json.

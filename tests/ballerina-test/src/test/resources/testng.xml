@@ -51,6 +51,7 @@ under the License.
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.collections.*"/>
             <package name="org.ballerinalang.test.security.*"/>
+            <package name="org.ballerinalang.test.jwt.*"/>
         </packages>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
