@@ -1,64 +1,72 @@
 import ballerina.net.http;
 import ballerina.mime;
 import ballerina.io;
-import ballerina.file;
 
-@http:configuration {basePath:"/foo"}
-service<http> echo {
+service<http> multiparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/receivableParts"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
-        //Extract multiparts from the inbound request
-        mime:Entity[] bodyParts = req.getMultiparts();
-        int i = 0;
-
-        io:println("CONTENT TYPE OF TOP LEVEL ENTITY > " + req.getHeader("Content-Type"));
-        //Loop through body parts
-        while (i < lengthof bodyParts) {
-            mime:Entity part = bodyParts[i];
-            io:println("============================PART "+ i +"================================");
-            io:println("---------Content Type-------");
-            io:println(part.contentType.toString());
-            io:println("----------Part Name---------");
-            io:println(part.contentDisposition.name);
-            io:println("------Body Part Content-----");
-            handleContent(part);
-            i = i + 1;
-        }
+    resource receiveMultiparts (http:Connection conn, http:InRequest req) {
+        //Extract multiparts from the inbound request.
+        var bodyParts, payloadError = req.getMultiparts();
         http:OutResponse res = {};
-        res.setStringPayload("Multiparts Received!");
+        if (payloadError == null) {
+            int i = 0;
+            io:println("Content-Type of top level entity > " + req.getHeader("content-type"));
+            //Loop through body parts
+            while (i < lengthof bodyParts) {
+                mime:Entity part = bodyParts[i];
+                io:println("Part " + i);
+                io:println("---------Content Type-------");
+                io:println(part.contentType.toString());
+                io:println("----------Part Name---------");
+                io:println(part.contentDisposition.name);
+                io:println("------Body Part Content-----");
+                handleContent(part);
+                i = i + 1;
+            }
+            res.setStringPayload("Multiparts Received!");
+        } else {
+            res = {statusCode:500};
+            res.setStringPayload(payloadError.message);
+        }
+
         _ = conn.respond(res);
     }
 }
 
-//Handling body part content logic varies according to user's requirement
+//Handling body part content logic varies according to user's requirement.
 function handleContent (mime:Entity bodyPart) {
     string contentType = bodyPart.contentType.toString();
     if (mime:APPLICATION_XML == contentType || mime:TEXT_XML == contentType) {
-        //Extract xml data from body part and print
-        io:println(bodyPart.getXml());
+        //Extract xml data from body part and print.
+        var xmlContent, _ = bodyPart.getXml();
+        io:println(xmlContent);
     } else if (mime:APPLICATION_JSON == contentType) {
-        //Extract json data from body part and print
-        io:println(bodyPart.getJson());
-    } else if (mime:TEXT_PLAIN == contentType){
-        //Extract text data from body part and print
-        io:println(bodyPart.getText());
+        //Extract json data from body part and print.
+        var jsonContent, _ = bodyPart.getJson();
+        io:println(jsonContent);
+    } else if (mime:TEXT_PLAIN == contentType) {
+        //Extract text data from body part and print.
+        var textContent, _ = bodyPart.getText();
+        io:println(textContent);
     } else if ("application/vnd.ms-powerpoint" == contentType) {
-        //Get a byte channel from body part and write content to a file
-        writeToFile(bodyPart.getByteChannel());
+        //Get a byte channel from body part and write content to a file.
+        var byteChannel, _ = bodyPart.getByteChannel();
+        writeToFile(byteChannel);
+        byteChannel.close();
         io:println("Content saved to file");
     }
 }
 
-function writeToFile(io:ByteChannel byteChannel) {
+function writeToFile (io:ByteChannel byteChannel) {
     string dstFilePath = "./files/savedFile.ppt";
     io:ByteChannel destinationChannel = getByteChannel(dstFilePath, "w");
     blob readContent;
     int numberOfBytesRead = 1;
     while (numberOfBytesRead != 0) {
-        readContent,numberOfBytesRead = byteChannel.readBytes(10000);
+        readContent, numberOfBytesRead = byteChannel.readBytes(10000);
         int numberOfBytesWritten = destinationChannel.writeBytes(readContent, 0);
     }
 }

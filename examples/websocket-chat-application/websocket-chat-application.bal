@@ -11,7 +11,7 @@ service<ws> ChatApp {
 
     resource onOpen(ws:Connection conn, string name) {
         consMap[conn.getID()] = conn;
-        map params = conn.getQueryParams();
+        var params = conn.getQueryParams();
         var age, err = (string)params.age;
         string msg;
         if (err == null) {
