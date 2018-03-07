@@ -149,8 +149,8 @@ public class BallerinaFile {
             String balPayload = filePackageData + blockingConnectorList + NEW_LINE_CHARACTER +
                     streamingConnectorList + structList + NEW_LINE_CHARACTER + descriptorKey +
                     String.format("map descriptorMap ={%s};", descriptorMapString) + NEW_LINE_CHARACTER;
-            boolean generateBlocking = !blockingActionList.toString().equals(EMPTY_STRING);
-            boolean generateNonBlocking = !nonBlockingActionList.toString().equals(EMPTY_STRING);
+            boolean generateBlocking = !blockingActionList.toString().equals(NEW_LINE_CHARACTER);
+            boolean generateNonBlocking = !nonBlockingActionList.toString().equals(NEW_LINE_CHARACTER);
             String samplePayload = new SampleClientGenerator(packageName, fileDescriptorSet
                     .getService(SERVICE_INDEX).getName(), generateBlocking, generateNonBlocking).build();
             if (this.balOutPath == null) {
