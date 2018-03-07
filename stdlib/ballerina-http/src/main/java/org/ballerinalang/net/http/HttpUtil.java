@@ -161,10 +161,9 @@ public class HttpUtil {
      * @param isEntityBodyRequired   boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
-                                     boolean isEntityBodyRequired) {
+    public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
         try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+            BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
             BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
             boolean isByteChannelAlreadySet = false;
 
@@ -177,29 +176,11 @@ public class HttpUtil {
             if (entity == null) {
                 entity = createNewEntity(context, httpMessageStruct);
             }
-            return abstractNativeFunction.getBValues(entity);
+            return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return abstractNativeFunction.getBValues(MimeUtil.createEntityError(context,
-                    "Error occurred during entity construction: " + throwable.getMessage()));
+            return new BValue[]{MimeUtil.createEntityError(context,
+                    "Error occurred during entity construction: " + throwable.getMessage())};
         }
-    }
-
-    //TODO merge below and above methods(below one is the new bvm one)
-    public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
-        BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
-        BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-        boolean isByteChannelAlreadySet = false;
-
-        if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-            isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-        }
-        if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
-            populateEntityBody(context, httpMessageStruct, entity, isRequest);
-        }
-        if (entity == null) {
-            entity = createNewEntity(context, httpMessageStruct);
-        }
-        return new BValue[] { entity };
     }
 
     /**

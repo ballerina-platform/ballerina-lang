@@ -50,7 +50,7 @@ public class GetXml extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BXML result;
+        BXML result = null;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
@@ -68,7 +68,7 @@ public class GetXml extends BlockingNativeCallableUnit {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
         context.setReturnValues(result);

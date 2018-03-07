@@ -66,7 +66,7 @@ public class GetText extends BlockingNativeCallableUnit {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
         context.setReturnValues(result);

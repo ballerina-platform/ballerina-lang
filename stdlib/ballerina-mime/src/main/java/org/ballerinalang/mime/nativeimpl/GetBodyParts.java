@@ -49,7 +49,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BRefValueArray partsArray;
+        BRefValueArray partsArray = null;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             //Get the body parts from entity's multipart data field, if they've been already been decoded
@@ -67,7 +67,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
         context.setReturnValues(partsArray);

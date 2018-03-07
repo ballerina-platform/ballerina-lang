@@ -20,13 +20,12 @@ package org.ballerinalang.nativeimpl.jwt.signature;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jwt.crypto.JWSVerifier;
 import org.ballerinalang.nativeimpl.jwt.crypto.RSAVerifier;
 import org.ballerinalang.nativeimpl.security.KeyStore;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,23 +49,23 @@ import java.security.interfaces.RSAPublicKey;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class Verify extends AbstractNativeFunction {
+public class Verify extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String data = getStringArgument(context, 0);
-        String signature = getStringArgument(context, 1);
-        String algorithm = getStringArgument(context, 2);
-        String keyAlias = getStringArgument(context, 3);
-        Boolean validSignature;
+    public void execute(Context context) {
+        String data = context.getStringArgument(0);
+        String signature = context.getStringArgument(1);
+        String algorithm = context.getStringArgument(2);
+        String keyAlias = context.getStringArgument(3);
+        Boolean validSignature = null;
         RSAPublicKey publicKey;
         try {
             publicKey = (RSAPublicKey) KeyStore.getKeyStore().getTrustedPublicKey(keyAlias);
             JWSVerifier verifier = new RSAVerifier(publicKey);
             validSignature = verifier.verify(data, signature, algorithm);
         } catch (Exception e) {
-            return getBValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
         }
-        return getBValues(new BBoolean(validSignature));
+        context.setReturnValues(new BBoolean(validSignature));
     }
 }

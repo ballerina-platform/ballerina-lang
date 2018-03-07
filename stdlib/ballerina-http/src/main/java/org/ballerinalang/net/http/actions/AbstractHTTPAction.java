@@ -202,12 +202,13 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                     context.getProperty(HttpConstants.REMOTE_ADDRESS));
         }
         outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST, context.getProperty(HttpConstants.ORIGIN_HOST));
-        sendOutboundRequest(context, outboundRequestMsg);
+        sendOutboundRequest(context, outboundRequestMsg, connectorCallback);
     }
 
-    private ClientConnectorFuture sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg) {
+    private void sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg,
+                                     CallableUnitCallback connectorCallback) {
         try {
-            return send(context, outboundRequestMsg);
+            send(context, outboundRequestMsg, connectorCallback);
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
@@ -226,7 +227,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @return connector future for this particular request
      * @throws Exception When an error occurs while sending the outbound request via client connector
      */
-    private void send(Context context, HTTPCarbonMessage outboundRequestMsg) throws Exception {
+    private void send(Context context, HTTPCarbonMessage outboundRequestMsg,
+                      CallableUnitCallback connectorCallback) throws Exception {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
@@ -236,12 +238,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
         }
 
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         RetryConfig retryConfig = getRetryConfiguration(context);
         HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(context,
-                ballerinaFuture, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
+                connectorCallback, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
@@ -256,7 +257,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             // the error though the listener
             logger.warn("couldn't serialize the message", serializerException);
         }
-        return ballerinaFuture;
     }
 
     /**
@@ -382,8 +382,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             if (checkRetryState(throwable)) {
                 return;
             }
-
-            sendOutboundRequest(context, outboundReqMsg);
+            sendOutboundRequest(context, outboundReqMsg, connectorCallback);
         }
 
         private boolean checkRetryState(Throwable throwable) {

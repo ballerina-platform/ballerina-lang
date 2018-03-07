@@ -50,7 +50,7 @@ public class GetBlob extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BlobDataSource result;
+        BlobDataSource result = null;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
@@ -63,7 +63,7 @@ public class GetBlob extends BlockingNativeCallableUnit {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError
+            context.setReturnValues(null, MimeUtil.createEntityError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
         context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));

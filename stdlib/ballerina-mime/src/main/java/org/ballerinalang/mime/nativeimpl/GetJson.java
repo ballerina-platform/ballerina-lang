@@ -49,7 +49,7 @@ public class GetJson extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BJSON result;
+        BJSON result = null;
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
@@ -67,7 +67,7 @@ public class GetJson extends BlockingNativeCallableUnit {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
         context.setReturnValues(result);

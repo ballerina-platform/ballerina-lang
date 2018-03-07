@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.logging.BLogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
     }
 
     protected String getLogMessage(Context context, int index) {
-        return String.valueOf(context.getControlStack().getCurrentFrame().getStringRegs()[index]);
+        return String.valueOf(context.getStringArgument(index));
     }
 
     //TODO merge below and above methods(below one new bvm)
