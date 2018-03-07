@@ -35,6 +35,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * The {@code BStream} represents a stream in Ballerina.
@@ -102,7 +103,7 @@ public class BStream implements BRefType<Object> {
      *                          messages
      */
     public void subscribe(Context context, BFunctionPointer functionPointer) {
-        String queueName = String.valueOf(System.currentTimeMillis());
+        String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
     }
 
