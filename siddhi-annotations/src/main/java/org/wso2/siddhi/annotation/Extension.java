@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.annotation;
 
-import org.atteo.classindex.IndexAnnotated;
+import org.wso2.siddhi.annotation.classindex.IndexAnnotated;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

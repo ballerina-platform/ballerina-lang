@@ -105,10 +105,6 @@
                     <basedir>${project.build.outputDirectory}/org/wso2/siddhi/query/compiler</basedir>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 

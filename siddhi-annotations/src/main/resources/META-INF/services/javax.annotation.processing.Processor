@@ -17,4 +17,4 @@
 #
 
 org.wso2.siddhi.annotation.processor.SiddhiAnnotationProcessor
-org.atteo.classindex.processor.ClassIndexProcessor
+org.wso2.siddhi.annotation.classindex.processor.ClassIndexProcessor

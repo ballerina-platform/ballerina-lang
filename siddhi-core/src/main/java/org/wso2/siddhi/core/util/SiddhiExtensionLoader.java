@@ -18,20 +18,14 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.atteo.classindex.ClassIndex;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.wiring.BundleWiring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.classindex.ClassIndex;
 import org.wso2.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
 import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
 import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,22 +42,6 @@ public class SiddhiExtensionLoader {
      */
     public static void loadSiddhiExtensions(Map<String, Class> siddhiExtensionsMap) {
         loadLocalExtensions(siddhiExtensionsMap);
-        BundleContext bundleContext = ReferenceHolder.getInstance().getBundleContext();
-        if (bundleContext != null) {
-            loadExtensionOSGI(bundleContext, siddhiExtensionsMap);
-        }
-    }
-
-    /**
-     * Load Extensions in OSGi environment.
-     *
-     * @param bundleContext       OSGi bundleContext
-     * @param siddhiExtensionsMap reference map for the Siddhi extension
-     */
-    private static void loadExtensionOSGI(BundleContext bundleContext, Map<String, Class> siddhiExtensionsMap) {
-        ExtensionBundleListener extensionBundleListener = new ExtensionBundleListener(siddhiExtensionsMap);
-        bundleContext.addBundleListener(extensionBundleListener);
-        extensionBundleListener.loadAllExtensions(bundleContext);
     }
 
     /**
@@ -144,54 +122,6 @@ public class SiddhiExtensionLoader {
         if (previousClass != null) {
             log.warn("Dropping extension '" + extensionClass + "' as '" + previousClass + "' was already " +
                     "loaded with the same namespace and name '" + fqExtensionName + "'");
-        }
-    }
-
-    /**
-     * Class to listen to Bundle changes to update available extensions.
-     */
-    private static class ExtensionBundleListener implements BundleListener {
-
-        private Map<Class, Integer> bundleExtensions = new HashMap<Class, Integer>();
-        private Map<String, Class> siddhiExtensionsMap;
-
-        ExtensionBundleListener(Map<String, Class> siddhiExtensionsMap) {
-            this.siddhiExtensionsMap = siddhiExtensionsMap;
-        }
-
-        @Override
-        public void bundleChanged(BundleEvent bundleEvent) {
-            if (bundleEvent.getType() == BundleEvent.STARTED) {
-                addExtensions(bundleEvent.getBundle());
-            } else {
-                removeExtensions(bundleEvent.getBundle());
-            }
-        }
-
-        private void addExtensions(Bundle bundle) {
-            ClassLoader classLoader = bundle.adapt(BundleWiring.class).getClassLoader();
-            Iterable<Class<?>> extensions = ClassIndex.getAnnotated(Extension.class, classLoader);
-            for (Class extension : extensions) {
-                addExtensionToMap(extension, siddhiExtensionsMap);
-                bundleExtensions.put(extension, (int) bundle.getBundleId());
-            }
-        }
-
-        private void removeExtensions(Bundle bundle) {
-            bundleExtensions.entrySet().stream().filter(entry -> entry.getValue() ==
-                    bundle.getBundleId()).forEachOrdered(entry -> {
-                siddhiExtensionsMap.remove(entry.getKey());
-            });
-            bundleExtensions.entrySet().removeIf(entry -> entry.getValue() ==
-                    bundle.getBundleId());
-        }
-
-        void loadAllExtensions(BundleContext bundleContext) {
-            for (Bundle b : bundleContext.getBundles()) {
-                if (b.getState() == Bundle.ACTIVE) {
-                    addExtensions(b);
-                }
-            }
         }
     }
 }
