@@ -30,7 +30,8 @@ connector Participant2pcClient (string participantURL) {
         req.setJsonPayload(j);
         var res, communicationErr = participantEP.post("/prepare", req);
         if (communicationErr == null) {
-            var prepareRes, transformErr = <PrepareResponse>res.getJsonPayload();
+            var payload, _ = res.getJsonPayload();
+            var prepareRes, transformErr = <PrepareResponse>payload;
             if (transformErr == null) {
                 int statusCode = res.statusCode;
                 string msg = prepareRes.message;
@@ -59,7 +60,8 @@ connector Participant2pcClient (string participantURL) {
         req.setJsonPayload(j);
         var res, commErr = participantEP.post("/notify", req);
         if (commErr == null) {
-            var notifyRes, transformErr = <NotifyResponse>res.getJsonPayload();
+            var payload, _ = res.getJsonPayload();
+            var notifyRes, transformErr = <NotifyResponse>payload;
             if (transformErr == null) {
                 int statusCode = res.statusCode;
                 string msg = notifyRes.message;

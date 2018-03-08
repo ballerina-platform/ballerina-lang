@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.composer.service.ballerina.langserver.service;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.jsonrpc.json.MessageJsonHandler;
 import org.eclipse.lsp4j.jsonrpc.messages.Message;
@@ -54,9 +53,10 @@ public class WSRPCMessageConsumer implements MessageConsumer {
 
     protected String getHeader(int contentLength) {
         StringBuilder headerBuilder = new StringBuilder();
-        this.appendHeader(headerBuilder, HttpHeaderNames.CONTENT_LENGTH.toString(), contentLength).append("\r\n");
+        // TODO: Use HTTpHeaderNames constants instead
+        this.appendHeader(headerBuilder, "Content-Length", contentLength).append("\r\n");
         if (!StandardCharsets.UTF_8.name().equals(this.encoding)) {
-            this.appendHeader(headerBuilder, HttpHeaderNames.CONTENT_TYPE.toString(), "application/json");
+            this.appendHeader(headerBuilder, "Content-Type", "application/json");
             headerBuilder.append("; charset=").append(this.encoding).append("\r\n");
         }
 
