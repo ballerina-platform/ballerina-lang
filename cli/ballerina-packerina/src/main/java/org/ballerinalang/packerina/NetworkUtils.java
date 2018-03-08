@@ -19,10 +19,6 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.toml.model.Manifest;
-import org.ballerinalang.launcher.toml.model.Settings;
-import org.ballerinalang.launcher.toml.parser.ManifestProcessor;
-import org.ballerinalang.launcher.toml.parser.SettingsProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,15 +29,12 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
@@ -114,64 +107,14 @@ public class NetworkUtils {
 
             String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
             String resourcePath = ballerinaCentralURL + pkgPath;
-            String[] proxyConfigs = readProxyConfigurations();
             String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
                     pkgVersion};
-            arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                    .toArray(String[]::new);
             BRunUtil.invoke(compileResult, "pull", new BValue[]{buildStringArray(arguments)});
             // TODO: Pull the dependencies of the pulled package
             // if (((BBoolean) returns[0]).booleanValue()) { }
             Runtime.getRuntime().exit(0);
         } else {
             outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
-        }
-    }
-
-    /**
-     * Push/Uploads packages to the central repository.
-     *
-     * @param packageName         path of the package folder to be pushed
-     * @param ballerinaCentralURL URL of ballerina central
-     */
-    public static void pushPackages(String packageName, String installToRepo, String ballerinaCentralURL) {
-        compileResult = compileBalFile("ballerina.push");
-        String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
-        if (accessToken != null) {
-            // Get the org-name and version by reading Ballerina.toml inside the project
-            Manifest manifest = readManifestConfigurations();
-            if (manifest.getName() != null && manifest.getVersion() != null) {
-                String orgName = removeQuotationsFromValue(manifest.getName());
-                String version = removeQuotationsFromValue(manifest.getVersion());
-                String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
-                        .resolve(version);
-
-                Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-                // Construct the package name along with the version and check if it exists
-                Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
-                        .resolve(packageName).resolve(version);
-                if (Files.notExists(pkgPath)) {
-                    outStream.println("Package " + packageName + " with version " + version + " does not exist");
-                } else {
-                    // Default push to the remote repository
-                    if (installToRepo == null) {
-                        String[] proxyConfigs = readProxyConfigurations();
-                        String[] arguments = new String[]{accessToken, resourcePath, pkgPath.toString()};
-                        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
-                                .toArray(String[]::new);
-                        BRunUtil.invoke(compileResult, "push", new BValue[]{buildStringArray(arguments)});
-                        Runtime.getRuntime().exit(0);
-                    }
-                }
-            } else {
-                outStream.println("An org-name and package version is required when pushing. This is not specified " +
-                        "in Ballerina.toml inside the project");
-            }
-        } else {
-            outStream.println("You have not specified an access-token for the central in your Settings.toml\n" +
-                    "Please login to central if you are already registered using 'central.ballerina.io/login' to get" +
-                    " a valid access-token. \nIf you are new to the site please register using " +
-                    "'central.ballerina.io/register'");
         }
     }
 
@@ -198,89 +141,6 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
         }
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
-    }
-
-    /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    private static Settings readSettings() {
-        String tomlFilePath = UserRepositoryUtils.initializeUserRepository().resolve("Settings.toml").toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
-        }
-    }
-
-    /**
-     * Read proxy configurations from the SettingHeaders.toml file.
-     *
-     * @return array with proxy configurations
-     */
-    private static String[] readProxyConfigurations() {
-        String host = "", port = "", username = "", password = "";
-        String proxyConfigArr[] = new String[]{host, port, username, password};
-        Settings settings = readSettings();
-        if (settings.getProxy() != null) {
-            if (settings.getProxy().getHost() != null) {
-                host = removeQuotationsFromValue(settings.getProxy().getHost());
-                proxyConfigArr[0] = host;
-            }
-            if (settings.getProxy().getPort() != null) {
-                port = removeQuotationsFromValue(settings.getProxy().getPort());
-                proxyConfigArr[1] = port;
-            }
-            if (settings.getProxy().getUserName() != null) {
-                username = removeQuotationsFromValue(settings.getProxy().getUserName());
-                proxyConfigArr[2] = username;
-            }
-            if (settings.getProxy().getPassword() != null) {
-                password = removeQuotationsFromValue(settings.getProxy().getPassword());
-                proxyConfigArr[3] = password;
-            }
-        }
-        return proxyConfigArr;
-    }
-
-    /**
-     * Read the access token generated for the CLI.
-     *
-     * @return access token for generated for the CLI
-     */
-    private static String getAccessTokenOfCLI() {
-        Settings settings = readSettings();
-        if (settings != null) {
-            if (settings.getCentral() != null) {
-                return settings.getCentral().getAccessToken();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Remove enclosing quotation from the string value.
-     *
-     * @param value string value with enclosing quotations
-     * @return string value after removing the enclosing quotations
-     */
-    private static String removeQuotationsFromValue(String value) {
-        return value.replace("\"", "");
     }
 
     /**

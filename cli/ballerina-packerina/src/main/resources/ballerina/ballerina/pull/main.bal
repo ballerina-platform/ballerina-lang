@@ -9,10 +9,9 @@ import ballerina.runtime;
 const string FileSeparator = "/";
 
 function pullPackage (string url, string homeRepoDirPath, string pkgName, string projectRepoDirPath,
-                      string fullPkgPath, string pkgVersion, string proxyHost, string proxyPort, string proxyUsername,
-                      string proxyPassword) (boolean) {
+                      string fullPkgPath, string pkgVersion) (boolean) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
+        create http:HttpClient(url, {});
     }
     http:OutRequest req = {};
     req.addHeader("Accept-Encoding", "identity");
@@ -88,30 +87,7 @@ function ifFileExists (string filePath) (boolean) {
 }
 
 function pull (string[] args) (boolean) {
-    return pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
-}
-
-function getConnectorConfigs (string proxyHost, string proxyPort, string proxyUsername, string proxyPassword)
-(http:Options) {
-    http:Options option;
-    int portInt = 0;
-    if (proxyHost != "") {
-        if (proxyPort != "") {
-            var portI, _ = <int>proxyPort;
-            portInt = portI;
-        }
-        option = {
-                     proxy:{
-                               host:proxyHost,
-                               port:portInt,
-                               userName:proxyUsername,
-                               password:proxyPassword
-                           }
-                 };
-    } else {
-        option = {};
-    }
-    return option;
+    return pullPackage(args[0], args[1], args[2], args[3], args[4], args[5]);
 }
 
 function createDirectories (string directoryPath) {
