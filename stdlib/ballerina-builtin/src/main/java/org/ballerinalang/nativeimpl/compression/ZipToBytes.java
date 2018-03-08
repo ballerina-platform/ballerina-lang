@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -51,54 +50,78 @@ import java.util.zip.ZipOutputStream;
 public class ZipToBytes extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(ZipToBytes.class);
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 
     /**
-     * @param dirPath file content as a byte array.
+     * Default buffer size.
      */
-    private static byte[] zipToByte(String dirPath) {
-        ByteArrayOutputStream bos = null;
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
+    /**
+     * Zip file/folder to bytes.
+     *
+     * @param fileToZip               file/folder to be zipped
+     * @param excludeContainingFolder excludes the containing folder if true, else it does not
+     * @return bytes of the zipped file/fodler
+     */
+    private byte[] zipToByte(String fileToZip, boolean excludeContainingFolder) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zipOut = new ZipOutputStream(baos);
+        Path srcFile = Paths.get(fileToZip);
+        if (excludeContainingFolder && Files.isDirectory(srcFile)) {
+            for (String fileName : srcFile.toFile().list()) {
+                try {
+                    addToZip("", Paths.get(fileToZip).resolve(fileName).toString(), zipOut);
+                } catch (IOException e) {
+                    log.error("Error occured when adding files inside the folder to be zipped " + e.getMessage());
+                }
+            }
+        } else {
+            try {
+                addToZip("", fileToZip, zipOut);
+            } catch (IOException e) {
+                log.error("Error occured when adding files to be zipped " + e.getMessage());
+            }
+        }
+
         try {
-            Stream<Path> list = Files.list(Paths.get(dirPath));
-            bos = new ByteArrayOutputStream();
-            ZipOutputStream zos = new ZipOutputStream(bos);
-            byte[] buffer = new byte[4096];
-            list.forEach(p -> addEntry(zos, buffer, p.toString()));
-            zos.close();
+            zipOut.flush();
+            zipOut.close();
         } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
-            log.error("I/O Exception when processing files " + e.getMessage());
+            log.error("Error occured when flushing/closing the ZipOutputStream");
         }
-        if (bos != null) {
-            return bos.toByteArray();
-        }
-        return new byte[0];
+        return baos.toByteArray();
     }
 
     /**
-     * Add file inside the src directory to the ZipOutputStream.
+     * Add file to zip.
      *
-     * @param zos      ZipOutputStream
-     * @param buffer   byte buffer
-     * @param filePath file path of each file inside the driectory
+     * @param path    path of the file inside the folder
+     * @param srcFile source folder path
+     * @param zipOut  ZipOutput stream
+     * @throws IOException exception thrown when handling files
      */
-    private static void addEntry(ZipOutputStream zos, byte[] buffer, String filePath) {
-        try {
-            ZipEntry ze = new ZipEntry(filePath);
-            zos.putNextEntry(ze);
-            try (FileInputStream fis = new FileInputStream(filePath)) {
-                int len;
-                while ((len = fis.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
+    private void addToZip(String path, String srcFile, ZipOutputStream zipOut) throws IOException {
+        Path file = Paths.get(srcFile);
+        String filePath = "".equals(path) ? file.getFileName().toString() : Paths.get(path).resolve(file.getFileName())
+                .toString();
+        if (Files.isDirectory(file)) {
+            if (file.toFile().list() != null) {
+                for (String fileName : file.toFile().list()) {
+                    addToZip(filePath, Paths.get(srcFile).resolve(fileName).toString(), zipOut);
                 }
-                zos.closeEntry();
-                fis.close();
             }
-        } catch (IOException e) {
-            log.debug("I/O Exception when processing files ", e);
-            log.error("I/O Exception when processing files " + e.getMessage());
+        } else {
+            zipOut.putNextEntry(new ZipEntry(filePath));
+            FileInputStream in = new FileInputStream(srcFile);
+
+            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                zipOut.write(buffer, 0, len);
+            }
         }
     }
 
@@ -106,7 +129,7 @@ public class ZipToBytes extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BBlob readByteBlob;
         String dirPath = getStringArgument(context, SRC_PATH_FIELD_INDEX);
-        byte[] compressedBytes = zipToByte(dirPath);
+        byte[] compressedBytes = zipToByte(dirPath, true);
         readByteBlob = new BBlob(compressedBytes);
         return getBValues(readByteBlob);
     }
