@@ -1211,10 +1211,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        Integer integerObject;
-        if ((integerObject = getJointCount(ctx)) != null) {
+        Long longObject;
+        if ((longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             try {
-                joinCount = integerObject;
+                joinCount = longObject.intValue();
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1807,7 +1807,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
 
-        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx)) != null) {
+        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
@@ -2074,7 +2074,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return node == null ? null : node.getText();
     }
 
-    private String getNodeValue(BallerinaParser.SimpleLiteralContext ctx, TerminalNode node) {
+    private String getNodeValue(ParserRuleContext ctx, TerminalNode node) {
         String op = ctx.getChild(0).getText();
         String value = node.getText();
         if (op != null && "-".equals(op)) {
@@ -2083,8 +2083,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return value;
     }
 
-    private Long getIntegerLiteral(BallerinaParser.SimpleLiteralContext simpleLiteralContext) {
-        BallerinaParser.IntegerLiteralContext integerLiteralContext = simpleLiteralContext.integerLiteral();
+    private Long getIntegerLiteral(ParserRuleContext simpleLiteralContext,
+                                   BallerinaParser.IntegerLiteralContext integerLiteralContext) {
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
             return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
@@ -2096,23 +2096,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
             return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
                     .toLowerCase().replace("0b", ""), 2);
-        }
-        return null;
-    }
-
-    private Integer getJointCount(BallerinaParser.AnyJoinConditionContext anyJoinConditionContext) {
-        BallerinaParser.IntegerLiteralContext integerLiteralContext = anyJoinConditionContext.integerLiteral();
-        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
-            return Integer.parseInt(integerLiteralContext.DecimalIntegerLiteral().getText());
-        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
-            return Integer.parseInt(integerLiteralContext.HexIntegerLiteral().getText().toLowerCase()
-                    .replace("0x", ""), 16);
-        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
-            return Integer.parseInt(integerLiteralContext.OctalIntegerLiteral().getText()
-                    .replace("0_", ""), 8);
-        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            return Integer.parseInt(integerLiteralContext.BinaryIntegerLiteral().getText().toLowerCase()
-                    .replace("0b", ""), 2);
         }
         return null;
     }
