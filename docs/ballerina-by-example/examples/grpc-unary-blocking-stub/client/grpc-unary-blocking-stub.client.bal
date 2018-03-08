@@ -7,7 +7,7 @@ function main (string[] args) {
         create helloWorldBlockingStub("localhost", 9090);
     }
 
-    var res, err = helloWorldStubBlocking.hello("IBM");
+    var res, err = helloWorldStubBlocking.hello("WSO2");
     if (err != null) {
         io:println("Error from Connector: " + err.message);
     } else {

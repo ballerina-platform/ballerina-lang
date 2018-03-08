@@ -5,11 +5,11 @@ import ballerina.net.grpc;
                      clientStreaming:true}
 service<grpc> helloWorld {
     resource onOpen (grpc:ServerConnection conn) {
-        io:println("Connnection has established sucessfully.");
+        io:println("connected sucessfully.");
     }
 
     resource onMessage (grpc:ServerConnection conn, string name) {
-        io:println("Server received request: " + name);
+        io:println("greet received: " + name);
     }
 
     resource onError (grpc:ServerConnection conn, grpc:ServerError err) {
@@ -20,7 +20,7 @@ service<grpc> helloWorld {
 
     resource onComplete (grpc:ServerConnection conn) {
         io:println("Server Response");
-        grpc:ConnectorError err = conn.send("complete");
+        grpc:ConnectorError err = conn.send("Ack");
         if (err != null) {
             io:println("Error at onComplete send message : " + err.message);
         }

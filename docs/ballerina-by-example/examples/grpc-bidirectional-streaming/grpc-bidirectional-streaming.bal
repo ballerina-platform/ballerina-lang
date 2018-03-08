@@ -1,35 +1,52 @@
 import ballerina.io;
 import ballerina.net.grpc;
 
-@grpc:serviceConfig {rpcEndpoint:"LotsOfGreetings",
+@grpc:serviceConfig {rpcEndpoint:"chat",
                      clientStreaming:true,
                      serverStreaming:true,
                      generateClientConnector:false}
-service<grpc> helloWorld {
+service<grpc> chatServer {
+    map consMap = {};
+
     resource onOpen (grpc:ServerConnection conn) {
-        io:println("Connnection has established sucessfully.");
+        consMap[<string>conn.id] = conn;
     }
 
-    resource onMessage (grpc:ServerConnection conn, string name) {
-        string[] greets = ["WSO2", "IBM", "Apache"];
-        foreach greet in greets {
-            grpc:ConnectorError err = conn.send(greet + " " + name);
-            io:println("Sending replies: " + name);
-            if (err != null) {
-                io:println("Error occured at sending replies : " + err.message);
-            }
+    resource onMessage (grpc:ServerConnection conn, ChatMessage chat) {
+        string msg = string `{{chat.from}}: {{chat.message}}`;
+        io:println(msg);
+
+        string[] conKeys = consMap.keys();
+        int len = lengthof conKeys;
+        int i = 0;
+        while (i < len) {
+           var con, _ = (grpc:ServerConnection) consMap[conKeys[i]];
+           _ = con.send(msg);
+           i = i + 1;
         }
-        // Once all messages are sent, server send complete message to notify the client, I’m done.
-        _ = conn.complete();
     }
 
     resource onError (grpc:ServerConnection conn, grpc:ServerError err) {
-        if (err != null) {
-            io:println("Something unexpected happens at server : " + err.message);
-        }
+        // code to execute when error receive from client.
     }
 
     resource onComplete (grpc:ServerConnection conn) {
-        io:println("Client has completed Sending Requests.");
+        string msg = string `{{conn.id}} left the chat`;
+        io:println(msg);
+        consMap.remove(<string>conn.id);
+
+        string[] conKeys = consMap.keys();
+        int len = lengthof conKeys;
+        int i = 0;
+        while (i < len) {
+           var con, _ = (grpc:ServerConnection) consMap[conKeys[i]];
+           _ = con.send(msg);
+           i = i + 1;
+        }
     }
+}
+
+struct ChatMessage {
+    string from;
+    string message;
 }

@@ -15,47 +15,31 @@ function main (string[] args) {
     if (err != null) {
         io:println(err.message);
     } else {
-        log:printInfo("Client initial connection sucessfully.");
+        log:printInfo("Initialized connection sucessfully.");
     }
 
-    grpc:ConnectorError errr = conn.send("Hi from WSO2");
-    if (errr != null) {
-        io:println(err.message);
-    } else {
-        log:printInfo("Client say : Hi from WSO2");
+    string[] greets = ["Hi", "Hey", "GM"];
+    var name = "John";
+    foreach greet in greets {
+        log:printInfo("send greeting: " + greet + " " + name);
+        grpc:ConnectorError connErr = conn.send(greet + " " + name);
+        if (connErr != null) {
+           io:println("Error at LotsOfGreetings : " + connErr.message);
+        }
     }
 
-    errr = conn.send("Hi from IBM");
-    if (errr != null) {
-        io:println(err.message);
-    } else {
-        log:printInfo("Client say : Hi from IBM");
-    }
-
-    errr = conn.send("Hi from Apache");
-    if (errr != null) {
-        io:println(err.message);
-    } else {
-        log:printInfo("Client say : Hi from Apache");
-    }
-
-    errr = conn.complete();
-    if (errr != null) {
-        io:println(err.message);
-    } else {
-        log:printInfo("Client say I'm done.");
-    }
+    _ = conn.complete();
 
     while (total == 0) {}
 
-    io:println("Client got all responses successfully.");
+    io:println("completed successfully");
 }
 
 @grpc:messageListener {}
 service<grpc> ServerMessageListener {
 
     resource onMessage (grpc:ClientConnection conn, string message) {
-        io:println("Responce received from server: " + message);
+        io:println("Response received from server: " + message);
         total = 1;
     }
 
@@ -66,6 +50,5 @@ service<grpc> ServerMessageListener {
     }
 
     resource onComplete (grpc:ClientConnection conn) {
-        log:printInfo("Server has completed Sending Responces.");
     }
 }

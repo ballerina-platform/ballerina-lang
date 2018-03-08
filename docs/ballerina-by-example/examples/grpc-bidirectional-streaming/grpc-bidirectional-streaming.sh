@@ -1,4 +1,6 @@
-# To run the program, put the code in "hello-world.bal"
-# and use "ballerina run" command.
-$ ballerina run hello-world.bal
-Hello, World!
+#Run the service
+$ ballerina run grpc-bidirectional-streaming.bal
+ballerina: deploying service(s) in 'grpc-bidirectional-streaming.bal'
+
+#Run client connector
+ballerina run client
