@@ -6,7 +6,7 @@ import ballerina.mime;
 import ballerina.net.http;
 
 function pushPackage (string accessToken, string url, string baloFilePath, string proxyHost, string proxyPort, string proxyUsername,
-                      string proxyPassword) {
+                      string proxyPassword) (boolean) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
@@ -18,23 +18,26 @@ function pushPackage (string accessToken, string url, string baloFilePath, strin
     mime:Entity[] bodyParts = [filePart];
 
     http:OutRequest request = {};
-    request.addHeader("authorization", "Bearer " + accessToken);
+    request.addHeader("Authorization", "Bearer " + accessToken);
     request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
     var resp, errRes = httpEndpoint.post("", request);
     if (errRes != null) {
         error err = {message:errRes.message};
         throw err;
+        return false;
     }
     if (resp.statusCode != 200) {
         json jsonResponse = resp.getJsonPayload();
         io:println(jsonResponse.msg.toString());
+        return false;
     } else {
         io:println("Ballerina package pushed successfully");
+        return true;
     }
 }
 
-function main (string[] args) {
-    pushPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+function push (string[] args) (boolean) {
+    return pushPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
 }
 
 function getConnectorConfigs (string proxyHost, string proxyPort, string proxyUsername, string proxyPassword)

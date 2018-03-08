@@ -10,7 +10,7 @@ const string FileSeparator = "/";
 
 function pullPackage (string url, string homeRepoDirPath, string pkgName, string projectRepoDirPath,
                       string fullPkgPath, string pkgVersion, string proxyHost, string proxyPort, string proxyUsername,
-                      string proxyPassword ){
+                      string proxyPassword) (boolean) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
     }
@@ -20,10 +20,12 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
     if (errRes != null) {
         error err = {message: errRes.message};
         throw err;
+        return false;
     }
     if (resp.statusCode != 200) {
         json jsonResponse = resp.getJsonPayload();
         io:println(jsonResponse.msg.toString());
+        return false;
     } else {
         // If there is no version in the requested package
         if (pkgVersion == "*") {
@@ -69,6 +71,7 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
            homeDirChannel.close();
         }
         sourceChannel.close();
+        return true;
     }
 }
 
@@ -77,8 +80,8 @@ function ifFileExists(string filePath) (boolean) {
     return fileDir.exists();
 }
 
-function main (string[] args) {
-    pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+function pull (string[] args) (boolean){
+    return pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 }
 
 function getConnectorConfigs(string proxyHost, string proxyPort, string proxyUsername, string proxyPassword )

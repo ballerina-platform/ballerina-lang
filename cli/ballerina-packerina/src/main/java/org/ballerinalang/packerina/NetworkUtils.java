@@ -19,13 +19,16 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.toml.model.Manifest;
 import org.ballerinalang.launcher.toml.model.Settings;
 import org.ballerinalang.launcher.toml.parser.ManifestProcessor;
 import org.ballerinalang.launcher.toml.parser.SettingsProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -119,34 +122,14 @@ public class NetworkUtils {
                     pkgVersion};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                     .toArray(String[]::new);
-            LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+            BValue[] returns = BRunUtil.invoke(compileResult, "pull",
+                    new BValue[]{buildStringArray(arguments)});
+            if (((BBoolean) returns[0]).booleanValue()) {
+                // TODO: Pull the dependencies of the pulled package
+            }
+            Runtime.getRuntime().exit(0);
         } else {
             outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
-        }
-    }
-
-    /**
-     * Check if Ballerina.toml exists in the current directory that the pull command is executed, to
-     * verify that its from a project directory
-     *
-     * @param currentDirPath path of the current directory
-     * @return true if Ballerina.toml exists, else false
-     */
-    private static boolean ballerinaTomlExists(Path currentDirPath) {
-        return Files.isRegularFile(currentDirPath.resolve("Ballerina.toml"));
-    }
-
-    /**
-     * Extract the host name from ballerina central URL.
-     *
-     * @param ballerinaCentralURL URL of ballerina central
-     * @return host
-     */
-    private static String getHost(String ballerinaCentralURL) {
-        try {
-            return new URL(ballerinaCentralURL).getHost();
-        } catch (MalformedURLException e) {
-            return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
         }
     }
 
@@ -182,7 +165,8 @@ public class NetworkUtils {
                         String[] arguments = new String[]{accessToken, resourcePath, baloFilePath.toString()};
                         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                                 .toArray(String[]::new);
-                        LauncherUtils.runMain(compileResult.getProgFile(), arguments);
+                        BRunUtil.invoke(compileResult, "push", new BValue[]{buildStringArray(arguments)});
+                        Runtime.getRuntime().exit(0);
                     } else {
                         // Check if the package should be installed into the home repository
                         if (installToRepo.equals("home")) {
@@ -218,6 +202,31 @@ public class NetworkUtils {
                     "Please login to central if you are already registered using 'central.ballerina.io/login' to get" +
                     " a valid access-token. \nIf you are new to the site please register using " +
                     "'central.ballerina.io/register'");
+        }
+    }
+
+    /**
+     * Check if Ballerina.toml exists in the current directory that the pull command is executed, to
+     * verify that its from a project directory
+     *
+     * @param currentDirPath path of the current directory
+     * @return true if Ballerina.toml exists, else false
+     */
+    private static boolean ballerinaTomlExists(Path currentDirPath) {
+        return Files.isRegularFile(currentDirPath.resolve("Ballerina.toml"));
+    }
+
+    /**
+     * Extract the host name from ballerina central URL.
+     *
+     * @param ballerinaCentralURL URL of ballerina central
+     * @return host
+     */
+    private static String getHost(String ballerinaCentralURL) {
+        try {
+            return new URL(ballerinaCentralURL).getHost();
+        } catch (MalformedURLException e) {
+            return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
         }
     }
 
@@ -302,5 +311,21 @@ public class NetworkUtils {
      */
     private static String removeQuotationsFromValue(String value) {
         return value.replace("\"", "");
+    }
+
+    /**
+     * Build BString array from string array.
+     *
+     * @param args string array
+     * @return BString array
+     */
+    private static BStringArray buildStringArray(String[] args) {
+        BStringArray valueArray = new BStringArray();
+
+        for (int i = 0; i < args.length; i++) {
+            valueArray.add(i, args[i]);
+        }
+
+        return valueArray;
     }
 }
