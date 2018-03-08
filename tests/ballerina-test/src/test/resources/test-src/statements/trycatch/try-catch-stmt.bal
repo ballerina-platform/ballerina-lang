@@ -88,14 +88,16 @@ function testUncaughtException () {
     _ = testNestedThrow(1);
 }
 
-function testErrorCallStackFrame () (runtime:CallStackElement) {
-    runtime:CallStackElement trace;
+function testErrorCallStackFrame () (runtime:CallStackElement, runtime:CallStackElement) {
+    runtime:CallStackElement trace1; 
+    runtime:CallStackElement trace2;
     try {
         testUncaughtException();
     } catch (error e) {
-        trace = runtime:getErrorCallStackFrame(e);
+        trace1 = runtime:getErrorCallStackFrame(e); 
+        trace2 = runtime:getErrorCallStackFrame(e.cause[0]);
     }
-    return trace;
+    return trace1, trace2;
 }
 
 function mockFunction () (string) {
