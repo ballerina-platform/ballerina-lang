@@ -27,8 +27,13 @@ function pushPackage (string accessToken, string url, string baloFilePath, strin
         return false;
     }
     if (resp.statusCode != 200) {
-        json jsonResponse = resp.getJsonPayload();
-        io:println(jsonResponse.msg.toString());
+        var jsonResponse, errJson = resp.getJsonPayload();
+        if (errJson != null) {
+            error err = {message: errJson.message};
+            throw err;
+        } else {
+            io:println(jsonResponse.msg.toString());
+        }
         return false;
     } else {
         io:println("Ballerina package pushed successfully");

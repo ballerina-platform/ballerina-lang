@@ -3,7 +3,6 @@ package ballerina.pull;
 import ballerina.net.http;
 import ballerina.io;
 import ballerina.file;
-import ballerina.mime;
 import ballerina.runtime;
 
 const string FileSeparator = "/";
@@ -23,8 +22,13 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         return false;
     }
     if (resp.statusCode != 200) {
-        json jsonResponse = resp.getJsonPayload();
-        io:println(jsonResponse.msg.toString());
+        var jsonResponse, errJson = resp.getJsonPayload();
+        if (errJson != null) {
+            error err = {message: errJson.message};
+            throw err;
+        } else {
+            io:println(jsonResponse.msg.toString());
+        }
         return false;
     } else {
         // If there is no version in the requested package
@@ -39,8 +43,12 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         var pkgSize, conversionErr = <int> resp.getHeader("Content-Length");
 
         boolean homeDirExists = ifFileExists(homeRepoDirPath);
-        mime:Entity entity = resp.getEntity();
-        io:ByteChannel sourceChannel = entity.getByteChannel();
+        var sourceChannel, sourceChannelErr = resp.getByteChannel();
+        if (sourceChannelErr != null) {
+            error err = {message: sourceChannelErr.message};
+            throw err;
+            return false;
+        }
         string fileName = pkgName + "-" + pkgVersion + ".balo";
         io:ByteChannel homeDirChannel = null;
         string toAndFrom;
