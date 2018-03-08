@@ -206,7 +206,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
          * @param http2Headers Http2 headers
          * @return a HTTPCarbonMessage
          */
-        private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) {
+        private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
             return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId));
         }
     }

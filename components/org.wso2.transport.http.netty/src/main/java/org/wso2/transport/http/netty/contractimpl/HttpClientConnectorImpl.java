@@ -92,7 +92,7 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     }
 
     @Override
-    public void rejectPromise(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+    public void rejectPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
         Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
         OutboundMsgHolder outboundMsgHolder = responseHandle.getOutboundMsgHolder();
         pushPromise.reject();

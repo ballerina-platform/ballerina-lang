@@ -177,30 +177,34 @@ public class Util {
         setTransferEncodingHeader(httpOutboundRequest);
     }
 
-    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId) {
+    /**
+     * Creates a {@link HttpRequest} using a {@link Http2Headers} received over a particular HTTP/2 stream.
+     *
+     * @param http2Headers the Http2Headers received over a HTTP/2 stream
+     * @param streamId     the stream id
+     * @return the HttpRequest formed using the HttpHeaders
+     * @throws Http2Exception if an error occurs while converting headers from HTTP/2 to HTTP
+     */
+    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId)
+            throws Http2Exception {
         String method = Constants.HTTP_GET_METHOD;
         if (http2Headers.method() != null) {
             method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
         }
-        String path = "";
+        String path = Constants.DEFAULT_BASE_PATH;
         if (http2Headers.path() != null) {
             path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
         }
         // Remove PseudoHeaderNames from headers
         http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
         http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
-
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
 
         // Construct new HTTP Carbon Request
         HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
-
-        try {
-            HttpConversionUtil.addHttp2ToHttpHeaders(
-                    streamId, http2Headers, httpRequest.headers(), version, false, true);
-        } catch (Http2Exception e) {
-            log.error("Error while setting http headers", e);
-        }
+        // Convert Http2Headers to HttpHeaders
+        HttpConversionUtil.addHttp2ToHttpHeaders(
+                streamId, http2Headers, httpRequest.headers(), version, false, true);
         return httpRequest;
     }
 
