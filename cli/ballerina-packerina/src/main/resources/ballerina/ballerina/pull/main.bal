@@ -40,7 +40,7 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
             fullPkgPath = fullPkgPath + ":" + pkgVersion;
             homeRepoDirPath = homeRepoDirPath.replace("*", pkgVersion);
         }
-        var pkgSize, conversionErr = <int>resp.getHeader("Content-Length");
+        var pkgSize, conversionErr = <int>resp.getHeader("content-length");
 
         boolean homeDirExists = ifFileExists(homeRepoDirPath);
         var sourceChannel, sourceChannelErr = resp.getByteChannel();
@@ -50,15 +50,14 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
             return false;
         }
         io:ByteChannel homeDirChannel = null;
-        string toAndFrom;
+        string toAndFrom = " [central.ballerina.io -> home repo]";
         string fileName = pkgName + ".zip";
-        if (!homeDirExists) {
-            // Create directories of the home repo
-            createDirectories(homeRepoDirPath);
-            string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
-            homeDirChannel = getFileChannel(homeRepoFilePath, "w");
-            toAndFrom = " [central.ballerina.io -> home repo]";
-        }
+
+        // Create directories of the home repo
+        createDirectories(homeRepoDirPath);
+        string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
+        homeDirChannel = getFileChannel(homeRepoFilePath, "w");
+
         io:ByteChannel projectDirChannel = null;
         if (projectRepoDirPath != null) {
             projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
