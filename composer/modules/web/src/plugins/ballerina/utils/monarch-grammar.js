@@ -15,7 +15,7 @@ export default {
     ],
 
     typeKeywords: [
-        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'blob',
+        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'table', 'blob',
         'map', 'exception', 'json', 'xml', 'xmlns', 'error', 'type',
     ],
 

@@ -184,7 +184,7 @@
             <key>name</key>
             <string>keyword.control.ballerina</string>
             <key>match</key>
-            <string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b</string>
+            <string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|foreach|in|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -196,7 +196,7 @@
             <key>name</key>
             <string>storage.type.ballerina</string>
             <key>match</key>
-            <string>\b(boolean|int|float|string|var|any|datatable|blob)\b</string>
+            <string>\b(boolean|int|float|string|var|any|datatable|table|blob)\b</string>
           </dict>
           <dict>
             <key>name</key>
