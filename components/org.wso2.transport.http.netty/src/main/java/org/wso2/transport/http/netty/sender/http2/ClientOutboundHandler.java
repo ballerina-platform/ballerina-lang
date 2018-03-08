@@ -128,11 +128,12 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                                                     try {
                                                         writeOutboundRequest(
                                                                 ctx, httpContent, streamId);
-                                                    } catch (Exception exception) {
+                                                    } catch (Exception ex) {
                                                         String errorMsg = "Failed to send the request : " +
-                                                                          exception.getMessage().
+                                                                          ex.getMessage().
                                                                                   toLowerCase(Locale.ENGLISH);
-                                                        log.error(errorMsg, exception);
+                                                        log.error(errorMsg, ex);
+                                                        outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                                                     }
                                                 })));
         }

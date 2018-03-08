@@ -28,6 +28,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 public interface HttpResponseFuture {
     /**
      * Set listener for the connector future.
+     *
      * @param connectorListener that receive http message events related to the connector.
      */
     void setHttpConnectorListener(HttpConnectorListener connectorListener);
@@ -38,13 +39,15 @@ public interface HttpResponseFuture {
     void removeHttpListener();
 
     /**
-     * Notify the http message listener when there is an event
-     * @param httpMessage contains the data related to the event.
+     * Notify the http message listener when there is an event.
+     *
+     * @param httpMessage contains the data related to the event
      */
     void notifyHttpListener(HTTPCarbonMessage httpMessage);
 
     /**
-     * Notify the listener when there is an event
+     * Notify the listener when there is an event.
+     *
      * @param throwable contains the data related to the error.
      */
     void notifyHttpListener(Throwable throwable);
@@ -63,7 +66,7 @@ public interface HttpResponseFuture {
     HttpResponseFuture sync() throws InterruptedException;
 
     /**
-     * Set response handle listener
+     * Set response handle listener.
      *
      * @param responseHandleListener listener that receives events related to the handle.
      */
@@ -75,14 +78,21 @@ public interface HttpResponseFuture {
     void removeResponseHandleListener();
 
     /**
-     * Notify the response handle listener when there is an event
+     * Notify the response handle listener when there is an event.
      *
      * @param responseHandle contains the data related to the event.
      */
     void notifyResponseHandle(ResponseHandle responseHandle);
 
     /**
-     * Set listener for the promise availability future
+     * Notify the response handle listener when there is an error
+     *
+     * @param throwable data related to the error
+     */
+    void notifyResponseHandle(Throwable throwable);
+
+    /**
+     * Set listener for the promise availability future.
      *
      * @param promiseAvailabilityListener listener that receives events related to the promise availability.
      */
@@ -116,7 +126,7 @@ public interface HttpResponseFuture {
     void notifyPushPromise();
 
     /**
-     * Set the Push Response listener
+     * Set the Push Response listener.
      *
      * @param pushResponseListener push response listener
      * @param promiseId            push promise stream id
@@ -124,17 +134,26 @@ public interface HttpResponseFuture {
     void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId);
 
     /**
-     * Remove the Push Response listener
+     * Remove the Push Response listener.
+     *
      * @param promisedId push promise stream id
      */
     void removePushResponseListener(int promisedId);
 
     /**
-     * Notify push response listener when there is a push response
+     * Notify push response listener when there is a push response.
      *
      * @param promisedId   promised stream id
      * @param pushResponse push response message
      */
     void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse);
+
+    /**
+     * Notify the Push Response Listener when there is an error.
+     *
+     * @param promisedId promised stream id
+     * @param throwable data related to the error
+     */
+    void notifyPushResponse(int promisedId, Throwable throwable);
 
 }

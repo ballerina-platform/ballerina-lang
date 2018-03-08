@@ -36,7 +36,7 @@ public interface HttpClientConnectorListener extends HttpConnectorListener {
      *
      * @param isPromiseAvailable whether promise is available
      */
-    default void onPushPromiseAvailability(boolean isPromiseAvailable){
+    default void onPushPromiseAvailability(boolean isPromiseAvailable) {
     }
 
     /**
