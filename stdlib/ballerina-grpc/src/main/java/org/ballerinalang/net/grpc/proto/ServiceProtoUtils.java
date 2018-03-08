@@ -90,7 +90,7 @@ public class ServiceProtoUtils {
     }
 
     static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
-        int port = 0;
+        long port = 0;
         String rpcEndpoint = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
@@ -110,7 +110,7 @@ public class ServiceProtoUtils {
 
                 switch (attributeName) {
                     case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
-                        port = attributeValue != null ? (Integer) attributeValue : 0;
+                        port = attributeValue != null ? (Long) attributeValue : 0;
                         break;
                     }
                     case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
