@@ -37,7 +37,7 @@ public class ServiceProtoConstants {
     public static final int CONNECTION_INDEX = 0;
 
     // dot symbol for generate full class path
-    public static final char CLASSPATH_SYMBOL = '.';
+    public static final String CLASSPATH_SYMBOL = ".";
     // Proto contract directory.
     public static final String PROTO_BUF_DIRECTORY = "proto-def";
     // Invalid wire type.

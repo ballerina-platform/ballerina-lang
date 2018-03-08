@@ -88,7 +88,7 @@ public class ServiceProtoUtils {
         return fileBuilder.build();
     }
     
-    private static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
+    static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
         ServiceConfig serviceConfig = null;
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
             if (!"serviceConfig".equals(annotationNode.getAnnotationName().getValue())) {
@@ -97,6 +97,7 @@ public class ServiceProtoUtils {
             String rpcEndpoint = null;
             boolean clientStreaming = false;
             boolean serverStreaming = false;
+            boolean generateClientStreaming = false;
             for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
                 String attributeName = attributeNode.getName().getValue();
                 Node attributeValueNode = attributeNode.getValue() != null ? attributeNode.getValue().getValue() : null;
@@ -118,13 +119,18 @@ public class ServiceProtoUtils {
                         serverStreaming = attributeValue != null ? (Boolean) attributeValue : false;
                         break;
                     }
+                    case "generateClientConnector": {
+                        generateClientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
+                        break;
+                    }
                     default: {
                         break;
                     }
                 }
             }
             if (rpcEndpoint != null && (clientStreaming || serverStreaming)) {
-                serviceConfig = new ServiceConfig(rpcEndpoint, clientStreaming, serverStreaming);
+                serviceConfig = new ServiceConfig(rpcEndpoint, clientStreaming, serverStreaming,
+                        generateClientStreaming);
             }
         }
         return serviceConfig;
@@ -429,7 +435,8 @@ public class ServiceProtoUtils {
      * @param filename            filename
      * @throws GrpcServerException when error occur while writing content to file.
      */
-    public static void writeServiceFiles(File protoFileDefinition, String filename) throws GrpcServerException {
+    public static void writeServiceFiles(File protoFileDefinition, String filename, boolean generateClientConnector)
+            throws GrpcServerException {
         try {
             // write the proto string to the file in protobuf contract directory
             Path protoFilePath = Paths.get(filename + ServiceProtoConstants.PROTO_FILE_EXTENSION);
@@ -440,13 +447,16 @@ public class ServiceProtoUtils {
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
-            List<byte[]> dependentDescriptorsList = new ArrayList<>();
-            dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
-                    ().toProto().toByteArray());
-            //Path path = Paths.get("");
-            BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList);
-            ballerinaFile.setRootDescriptor(fileDescriptor);
-            ballerinaFile.build();
+
+            if (generateClientConnector) {
+                List<byte[]> dependentDescriptorsList = new ArrayList<>();
+                dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
+                        ().toProto().toByteArray());
+                //Path path = Paths.get("");
+                BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList);
+                ballerinaFile.setRootDescriptor(fileDescriptor);
+                ballerinaFile.build();
+            }
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }

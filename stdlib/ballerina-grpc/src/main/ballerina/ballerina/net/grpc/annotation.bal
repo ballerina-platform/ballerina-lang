@@ -17,6 +17,7 @@ public annotation serviceConfig attach service {
     string rpcEndpoint;
     boolean clientStreaming;
     boolean serverStreaming;
+    boolean generateClientConnector;
 }
 
 @Description { value:"Identify the service as server message listener"}

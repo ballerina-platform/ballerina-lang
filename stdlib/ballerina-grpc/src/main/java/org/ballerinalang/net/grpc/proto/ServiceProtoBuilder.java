@@ -52,9 +52,12 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
                 return;
             }
         }
+
         try {
             File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-            ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue());
+            ServiceConfig serviceConfig = ServiceProtoUtils.getServiceConfiguration(serviceNode);
+            ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue(), serviceConfig
+                    .isGenerateClientConnector());
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.WARNING, serviceNode.getPosition(), e.getMessage());
         }

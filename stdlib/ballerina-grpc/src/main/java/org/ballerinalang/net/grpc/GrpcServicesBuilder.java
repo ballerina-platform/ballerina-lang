@@ -162,7 +162,12 @@ public class GrpcServicesBuilder {
     private ServerServiceDefinition getStreamingServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
-        final String serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        final String serviceName;
+        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage()))  {
+            serviceName = service.getName();
+        } else {
+            serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+        }
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         
