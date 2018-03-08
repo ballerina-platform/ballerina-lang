@@ -44,8 +44,24 @@ public struct Socket {
 
 @Description {value:"SocketProperties structs represents the properties which are used to configure TCP connection"}
 @Field {value:"localPort: Client side port that open for the communication"}
+@Field {value:"keyStoreFile: File path to keystore file"}
+@Field {value:"keyStorePassword: The keystore password"}
+@Field {value:"trustStoreFile: File path to truststore file"}
+@Field {value:"trustStorePassword: The truststore password"}
+@Field {value:"certPassword: The certificate password"}
+@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
+@Field {value:"ciphers: List of ciphers to be used"}
+@Field {value:"sslProtocol: The SSL protocol version"}
 public struct SocketProperties {
     int localPort;
+    string keyStoreFile;
+    string keyStorePassword;
+    string trustStoreFile;
+    string trustStorePassword;
+    string certPassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
 }
 
 @Description {value:"Function to create a CharacterChannel from ByteChannel"}
@@ -138,6 +154,13 @@ public native function openFile (string path, string accessMode) (ByteChannel);
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 public native function openSocket (string host, int port, SocketProperties options) (Socket);
+
+@Description {value:"Open a secure socket connection with a remote server"}
+@Param {value:"host: Remote server domain/IP"}
+@Param {value:"port: Remote server port"}
+@Param {value:"options: Connection stream that bridge the client and the server"}
+@Return {value:"Socket which will allow to communicate with a remote server"}
+public native function openSecureSocket (string host, int port, SocketProperties options) (Socket);
 
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}

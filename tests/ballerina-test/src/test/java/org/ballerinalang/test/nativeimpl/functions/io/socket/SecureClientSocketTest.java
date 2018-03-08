@@ -38,30 +38,36 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Unit tests for client socket.
+ * Test class for secure client socket related actions.
  */
-public class ClientSocketTest {
+@Test
+public class SecureClientSocketTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
+    private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
 
     private CompileResult socketClient;
     private Process server;
+    private int port;
 
     @BeforeClass
     public void setup() {
-        socketClient = BCompileUtil.compile("test-src/io/clientsocketio.bal");
+        port = ThreadLocalRandom.current().nextInt(47000, 55000);
+        socketClient = BCompileUtil.compile("test-src/io/secureclientsocketio.bal");
         boolean connectionStatus;
         int numberOfRetryAttempts = 10;
         try {
-            server = MockSocketServer.start();
-            connectionStatus = isConnected(MockSocketServer.SERVER_HOST, numberOfRetryAttempts);
+            server = MockSecureSocketServer.start(String.valueOf(port));
+            connectionStatus = isConnected(port, numberOfRetryAttempts);
             if (!connectionStatus) {
                 Assert.fail("Unable to open connection with the test TCP server");
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             log.error("Unable to open Socket Server: " + e.getMessage(), e);
             Assert.fail(e.getMessage());
         }
@@ -83,7 +89,7 @@ public class ClientSocketTest {
     /**
      * Will enforce to sleep the thread for the provided time.
      *
-     * @param retryInterval the time in milliseconds the thread should sleep
+     * @param retryInterval the time in milliseconds the thread should sleep.
      */
     private void sleep(int retryInterval) {
         try {
@@ -96,11 +102,11 @@ public class ClientSocketTest {
     /**
      * Attempts to establish a connection with the test server.
      *
-     * @param hostName        hostname of the server.
+     * @param port            port of the server.
      * @param numberOfRetries number of retry attempts.
      * @return true if the connection is established successfully.
      */
-    private boolean isConnected(String hostName, int numberOfRetries) {
+    private boolean isConnected(int port, int numberOfRetries) {
         Socket temporarySocketConnection = null;
         boolean isConnected = false;
         final int retryInterval = 1000;
@@ -108,7 +114,7 @@ public class ClientSocketTest {
         for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
             try {
                 //Attempts to establish a connection with the server
-                temporarySocketConnection = new Socket(hostName, MockSocketServer.SERVER_PORT);
+                temporarySocketConnection = new Socket("localhost", port);
                 isConnected = true;
             } catch (IOException e) {
                 log.error("Error occurred while establishing a connection with test server", e);
@@ -128,16 +134,25 @@ public class ClientSocketTest {
         server.destroy();
     }
 
-    @Test(description = "Open client socket connection to the remote server that started in 9999")
-    public void testOpenClientSocket() {
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
+    @Test(description = "Test connection open with properties")
+    public void testOpenSecureClientSocket() throws URISyntaxException {
+        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
+        StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
+        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
+        URL resource = getClass().getClassLoader().
+                getResource("datafiles/security/keyStore/ballerinaTruststore.p12");
+        Assert.assertNotNull(resource, "Unable to find TrustStore.");
+        propertyStruct.setStringField(2, Paths.get(resource.toURI()).toFile().getAbsolutePath());
+        propertyStruct.setStringField(3, "ballerina");
+        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenClientSocket",
+    @Test(dependsOnMethods = "testOpenSecureClientSocket",
           description = "Test content read/write")
     public void testWriteReadContent() {
-        String content = "Hello World\n";
+        final String newline = System.lineSeparator();
+        String content = "Hello World" + newline;
         BValue[] args = { new BBlob(content.getBytes()) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
@@ -146,7 +161,6 @@ public class ClientSocketTest {
         final BValue[] readReturns = BRunUtil.invoke(socketClient, "read", args);
         final BBlob readContent = (BBlob) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
-
         Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
@@ -155,20 +169,5 @@ public class ClientSocketTest {
           description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invoke(socketClient, "closeSocket");
-    }
-
-    @Test(dependsOnMethods = "testClosure",
-          description = "Test connection open with properties")
-    public void testOpenWithProperties() {
-        int port = ThreadLocalRandom.current().nextInt(33000, 46000);
-        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
-        StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
-        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), propertyStruct };
-        final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
-        final BStruct socket = (BStruct) returns[0];
-        Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
-        args = new BValue[] { socket };
-        BRunUtil.invoke(socketClient, "close", args);
     }
 }
