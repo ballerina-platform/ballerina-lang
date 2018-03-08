@@ -23,6 +23,9 @@ import org.ballerinalang.model.tree.clauses.TableQuery;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The Implementation of {@link TableQueryExpression}.
  */
@@ -32,6 +35,7 @@ public class BLangTableQueryExpression extends BLangExpression implements TableQ
 
     //This will be generated in desugar phase
     private String sqlQuery;
+    private List<BLangExpression> params = new ArrayList<>();
 
     @Override
     public void setTableQuery(TableQuery tableQuery) {
@@ -59,5 +63,13 @@ public class BLangTableQueryExpression extends BLangExpression implements TableQ
 
     public void setSqlQuery(String sqlQuery) {
         this.sqlQuery = sqlQuery;
+    }
+
+    public List<BLangExpression> getParams() {
+        return params;
+    }
+
+    public void addParams(List<BLangExpression> params) {
+        this.params.addAll(params);
     }
 }

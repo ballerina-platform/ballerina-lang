@@ -22,13 +22,14 @@ import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -72,13 +73,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                             HttpResource httpResource) {
-        Map<String, Object> properties = null;
-        //TODO below should be fixed properly
-        //basically need to find a way to pass information from server connector side to client connector side
-        if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
-            Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
-            properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
-        }
+        Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
+        properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
+        properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams;
         signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
         ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
@@ -88,5 +85,20 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
+    }
+
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
+        Map<String, Object> properties = new HashMap<>();
+        if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
+            Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);
+            properties.put(HttpConstants.SRC_HANDLER, srcHandler);
+        }
+        if (httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID) == null ||
+                httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL) == null) {
+            return properties;
+        }
+        properties.put(Constants.GLOBAL_TRANSACTION_ID, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_XID));
+        properties.put(Constants.TRANSACTION_URL, httpCarbonMessage.getHeader(HttpConstants.HEADER_X_REGISTER_AT_URL));
+        return properties;
     }
 }

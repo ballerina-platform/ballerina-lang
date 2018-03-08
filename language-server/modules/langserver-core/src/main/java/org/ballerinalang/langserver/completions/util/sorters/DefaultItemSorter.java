@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Default Item Sorter.
  */
-class DefaultItemSorter extends CompletionItemSorter {
+public class DefaultItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(TextDocumentServiceContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);

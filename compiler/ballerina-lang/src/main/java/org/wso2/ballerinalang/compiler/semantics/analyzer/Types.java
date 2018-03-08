@@ -51,7 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
@@ -91,7 +91,7 @@ public class Types {
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -107,7 +107,7 @@ public class Types {
 
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -328,10 +328,7 @@ public class Types {
         //RHS type should have at least all the fields as well attached functions of LHS type.
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
-
-        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                ((BStructSymbol) lhsStructType.tsymbol).attachedFuncs.size() >
-                        ((BStructSymbol) rhsStructType.tsymbol).attachedFuncs.size()) {
+        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
             return false;
         }
 
@@ -991,9 +988,19 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
         List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
@@ -1026,9 +1033,19 @@ public class Types {
             }
         }
 
-        List<BAttachedFunction> lhsFuncs = ((BStructSymbol) lhsType.tsymbol).attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
         List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             if (Symbols.isPrivate(lhsFunc.symbol)) {
                 return false;
             }

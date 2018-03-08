@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -30,40 +31,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
-    private WhereNode beforeStreamingCondition;
+    private List<WhereNode> streamingConditions = new ArrayList<>();
     private WindowClauseNode windowClause;
-    private WhereNode afterStreamingCondition;
-    private String identifier, alias;
-    private boolean isWindowTraversedAfterWhere;
-
+    private ExpressionNode tableReference;
+    private String alias;
     @Override
-    public void setBeforeStreamingCondition(WhereNode where) {
-        this.beforeStreamingCondition = where;
+    public void addStreamingCondition(WhereNode where) {
+        this.streamingConditions.add(where);
     }
 
     @Override
-    public WhereNode getBeforeStreamingCondition() {
-        return this.beforeStreamingCondition;
-    }
-
-    @Override
-    public void setAfterStreamingCondition(WhereNode where) {
-        this.afterStreamingCondition = where;
-    }
-
-    @Override
-    public WhereNode getAfterStreamingCondition() {
-        return afterStreamingCondition;
-    }
-
-    @Override
-    public boolean isWindowTraversedAfterWhere() {
-        return isWindowTraversedAfterWhere;
-    }
-
-    @Override
-    public void setWindowTraversedAfterWhere(boolean windowTraversedAfterWhere) {
-        isWindowTraversedAfterWhere = windowTraversedAfterWhere;
+    public List<? extends WhereNode> getStreamingConditions() {
+        return this.streamingConditions;
     }
 
     @Override
@@ -76,14 +55,12 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
         return this.windowClause;
     }
 
-    @Override
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public ExpressionNode getTableReference() {
+        return tableReference;
     }
 
-    @Override
-    public String getIdentifier() {
-        return this.identifier;
+    public void setTableReference(ExpressionNode tableReference) {
+        this.tableReference = tableReference;
     }
 
     @Override

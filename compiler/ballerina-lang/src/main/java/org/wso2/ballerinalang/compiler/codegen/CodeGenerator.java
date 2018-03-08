@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -259,7 +258,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
-    private SymbolEnter symEnter;
     private SymbolTable symTable;
 
     private ProgramFile programFile;
@@ -301,8 +299,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public CodeGenerator(CompilerContext context) {
         context.put(CODE_GENERATOR_KEY, this);
-
-        this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
 
@@ -310,7 +306,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         programFile = new ProgramFile();
         // TODO: Fix this. Added temporally for codegen. Load this from VM side.
         genPackage(this.symTable.builtInPackageSymbol);
-        genPackage(this.symTable.runtimePackageSymbol);
 
         // Normal Flow.
         BPackageSymbol pkgSymbol = pkgNode.symbol;
@@ -719,6 +714,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
+        // Invoke the struct initializer here.
+        if (structLiteral.initializer != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(1);
+            operands[2] = structRegIndex;
+            operands[3] = getOperand(0);
+            emit(InstructionCodes.CALL, operands);
+        }
+
+        // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
             BLangRecordKey key = keyValue.key;
             Operand fieldIndex = key.fieldSymbol.varIndex;
@@ -728,20 +736,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
         }
-
-        // Invoke the struct initializer here.
-        if (structLiteral.initializer == null) {
-            return;
-        }
-
-        int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
-        // call funcRefCPIndex 1 structRegIndex 0
-        Operand[] operands = new Operand[4];
-        operands[0] = getOperand(funcRefCPIndex);
-        operands[1] = getOperand(1);
-        operands[2] = structRegIndex;
-        operands[3] = getOperand(0);
-        emit(InstructionCodes.CALL, operands);
     }
 
     @Override
@@ -1220,12 +1214,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         genNode(unaryExpr.expr, this.env);
         if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
-            if (unaryExpr.expr.type.tag == TypeTags.ANY || unaryExpr.expr.type.tag == TypeTags.JSON) {
-                opcode = unaryExpr.opSymbol.opcode;
+            opcode = unaryExpr.opSymbol.opcode;
+            if (opcode == InstructionCodes.TYPEOF) {
                 emit(opcode, unaryExpr.expr.regIndex, exprIndex);
             } else {
                 Operand typeCPIndex = getTypeCPIndex(unaryExpr.expr.type);
-                opcode = unaryExpr.opSymbol.opcode;
                 emit(opcode, typeCPIndex, exprIndex);
             }
         } else if (OperatorKind.LENGTHOF.equals(unaryExpr.operator)) {
@@ -1255,7 +1248,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void genPackage(BPackageSymbol pkgSymbol) {
         // TODO First check whether this symbol is from a BALO file.
-        SymbolEnv pkgEnv = symEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         genNode(pkgEnv.node, pkgEnv);
     }
 
@@ -2699,7 +2692,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtEndAddr);
+        Operand transStmtAbortEndAddr = getOperand(-1);
+        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
@@ -2715,7 +2709,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         //end the transaction
         int transBlockEndAddr = nextIP();
-        this.emit(InstructionCodes.TR_END, getOperand(TransactionStatus.SUCCESS.value()));
+        this.emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
 
@@ -2723,22 +2717,25 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.FAILED.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
         retryInsAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
                 transBlockEndAddr, errorTargetIP, 0, -1);
         errorTable.addErrorTableEntry(errorTableEntry);
 
+        transStmtAbortEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.ABORTED.value()));
+
         transStmtEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {

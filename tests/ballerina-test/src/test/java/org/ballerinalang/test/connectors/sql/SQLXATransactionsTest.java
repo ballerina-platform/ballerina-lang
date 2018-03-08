@@ -79,7 +79,5 @@ public class SQLXATransactionsTest {
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_1));
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_2));
-        SQLDBUtils.deleteFiles(new File("."), "tmlog");
-        SQLDBUtils.deleteFiles(new File("."), "epoch");
     }
 }

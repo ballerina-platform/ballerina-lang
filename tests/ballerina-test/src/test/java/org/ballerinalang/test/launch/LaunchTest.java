@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class LaunchTest {
 
     @Test(expectedExceptions = {IllegalArgumentException.class }, 
-            expectedExceptionsMessageRegExp = "valid package not available at 'xxxx'")
+            expectedExceptionsMessageRegExp = "cannot resolve package 'xxxx'")
     public void testRunNonExistingPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/launch/", "xxxx");
         Assert.assertEquals(result.getErrorCount(), 0);

@@ -1,5 +1,22 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.net.http.resiliency;
 
+import ballerina.log;
 import ballerina.net.http;
 import ballerina.time;
 
@@ -13,20 +30,42 @@ struct CircuitHealth {
     time:Time lastErrorTime;
 }
 
-@Description {value:"A Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors"}
-@Param {value:"httpClient: The HTTP client connector to be wrapped with the circuit breaker"}
-@Param {value:"failureThreshold: The threshold for request failures. When this threshold is crossed, the circuit will trip. The threshold should be a value between 0 and 1."}
-@Param {value:"resetTimeout: The time period to wait before attempting to make another request to the upstream service"}
-// TODO: need to find a way to validate the arguments passed here
-public connector CircuitBreaker (http:HttpClient httpClient, float failureThreshold, int resetTimeout) {
+@Description {value:"Represents Circuit Breaker connector configuration."}
+@Field {value:"failureThreshold: The threshold for request failures. When this threshold is crossed, the circuit will trip. The threshold should be a value between 0 and 1."}
+@Field {value:"resetTimeout: The time period to wait before attempting to make another request to the upstream service."}
+@Field {value:"httpStatusCodes: Array of http response status codes which considered as failure responses."}
+public struct CircuitBreakerConfig {
+    float failureThreshold;
+    int resetTimeout;
+    int [] httpStatusCodes;
+}
+
+struct CircuitBreakerInferredConfig {
+    float failureThreshold;
+    int resetTimeout;
+    boolean [] httpStatusCodes;
+}
+
+CircuitHealth circuitHealth = {};
+CircuitState currentCircuitState;
+
+@Description {value:"Circuit Breaker implementation for to be used with the HTTP client connector to gracefully handle network errors."}
+@Param {value:"circuitBreakerConfig: Circuit Breaker configuration struct which contains the circuit handling options."}
+public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfig circuitBreakerConfig) {
 
     endpoint<http:HttpClient> httpEP {
         httpClient;
     }
 
-    CircuitHealth circuitHealth = {};
-    // TODO: once enum init inside a struct is do-able, move this inside circuitHealth (issue #4340)
-    CircuitState currentState = CircuitState.CLOSED;
+    boolean [] httpStatusCodes = populateErrorCodeIndex(circuitBreakerConfig.httpStatusCodes);
+
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:circuitBreakerConfig.failureThreshold,
+                                                                    resetTimeout:circuitBreakerConfig.resetTimeout,
+                                                                    httpStatusCodes:httpStatusCodes
+                                                                };
+
+    //TODO: do the arguments validation inside connector init
+    boolean isValidThreshold = validateCircuitBreakerConfiguration(circuitBreakerConfig);
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
@@ -34,19 +73,18 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.post(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.post(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
-
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The HEAD action implementation of the Circuit Breaker. Protects the invocation of the HEAD action of the underlying HTTP client connector."}
@@ -55,19 +93,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action head (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.head(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.head(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The PUT action implementation of the Circuit Breaker. Protects the invocation of the PUT action of the underlying HTTP client connector."}
@@ -76,19 +114,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.put(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.put(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"Protects the invocation of the Execute action of the underlying HTTP client connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
@@ -98,19 +136,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.execute(httpVerb, path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.execute(httpVerb, path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The PATCH action implementation of the Circuit Breaker. Protects the invocation of the PATCH action of the underlying HTTP client connector."}
@@ -119,19 +157,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.patch(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.patch(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The DELETE action implementation of the Circuit Breaker. Protects the invocation of the DELETE action of the underlying HTTP client connector."}
@@ -140,19 +178,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.delete(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.delete(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The OPTIONS action implementation of the Circuit Breaker. Protects the invocation of the OPTIONS action of the underlying HTTP client connector."}
@@ -161,19 +199,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action options (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.options(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.options(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"Protects the invocation of the Forward action of the underlying HTTP client connector. The Forward action can be used to forward an incoming request to an upstream service as it is."}
@@ -182,19 +220,19 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.forward(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.forward(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 
     @Description {value:"The GET action implementation of the Circuit Breaker. Protects the invocation of the GET action of the underlying HTTP client connector."}
@@ -203,72 +241,97 @@ public connector CircuitBreaker (http:HttpClient httpClient, float failureThresh
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
     action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        currentState = updateCircuitState(circuitHealth, currentState, failureThreshold, resetTimeout);
+        currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:InResponse response;
-        http:HttpConnectorError err;
+        http:HttpConnectorError httpConnectorError;
 
-        if (currentState == CircuitState.OPEN) {
+        if (currentCircuitState == CircuitState.OPEN) {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-            err = handleOpenCircuit(circuitHealth, resetTimeout);
+            httpConnectorError = handleOpenCircuit(circuitHealth, circuitBreakerInferredConfig);
         } else {
-            response, err = httpEP.get(path, request);
-            updateCircuitHealth(circuitHealth, err);
+            response, httpConnectorError = httpEP.get(path, request);
+            updateCircuitHealth(circuitHealth, response, httpConnectorError, circuitBreakerInferredConfig);
         }
 
-        return response, err;
+        return response, httpConnectorError;
     }
 }
 
-function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, float failureThreshold,
-                             int resetTimeout) (CircuitState) {
-    if (currentState == CircuitState.OPEN) {
-        time:Time currentT = time:currentTime();
-        int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
+function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (CircuitState) {
 
-        if (elapsedTime > resetTimeout) {
-            circuitHealth.errorCount = 0;
-            circuitHealth.requestCount = 0;
-            currentState = CircuitState.HALF_OPEN;
-        }
-    } else if (currentState == CircuitState.HALF_OPEN) {
-        if (circuitHealth.errorCount > 0) {
-            // If the trial run has failed, trip the circuit again
-            currentState = CircuitState.OPEN;
+    lock {
+        if (currentState == CircuitState.OPEN) {
+            time:Time currentT = time:currentTime();
+            int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
+
+            if (elapsedTime > circuitBreakerInferredConfig.resetTimeout) {
+                circuitHealth.errorCount = 0;
+                circuitHealth.requestCount = 0;
+                currentState = CircuitState.HALF_OPEN;
+                log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.");
+            }
+
+        } else if (currentState == CircuitState.HALF_OPEN) {
+            if (circuitHealth.errorCount > 0) {
+                // If the trial run has failed, trip the circuit again
+                currentState = CircuitState.OPEN;
+                log:printInfo("CircuitBreaker trial run has failed. Circuit switched from HALF_OPEN to OPEN state.");
+            } else {
+                // If the trial run was successful reset the circuit
+                currentState = CircuitState.CLOSED;
+                log:printInfo("CircuitBreaker trial run  was successful. Circuit switched from HALF_OPEN to CLOSE state.");
+            }
         } else {
-            // If the trial run was successful reset the circuit
-            currentState = CircuitState.CLOSED;
-        }
-    } else {
-        float currentFailureRate = 0;
+            float currentFailureRate = 0;
 
-        if (circuitHealth.requestCount > 0) {
-            currentFailureRate = ((float) circuitHealth.errorCount / circuitHealth.requestCount);
-        }
+            if (circuitHealth.requestCount > 0) {
+                currentFailureRate = ((float)circuitHealth.errorCount / circuitHealth.requestCount);
+            }
 
-        if (currentFailureRate > failureThreshold) {
-            currentState = CircuitState.OPEN;
+            if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
+                currentState = CircuitState.OPEN;
+                log:printInfo("CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.");
+            }
         }
     }
-
     return currentState;
 }
 
-function updateCircuitHealth(CircuitHealth circuitHealth, http:HttpConnectorError err) {
-    circuitHealth.requestCount = circuitHealth.requestCount + 1;
-
-    if (err != null) {
-        circuitHealth.errorCount = circuitHealth.errorCount + 1;
-        circuitHealth.lastErrorTime = time:currentTime();
+function updateCircuitHealth(CircuitHealth circuitHealth, http:InResponse inResponse,
+               http:HttpConnectorError httpConnectorError, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
+    lock {
+        circuitHealth.requestCount = circuitHealth.requestCount + 1;
+        if ((inResponse != null && circuitBreakerInferredConfig.httpStatusCodes[inResponse.statusCode] == true) || httpConnectorError != null) {
+            circuitHealth.errorCount = circuitHealth.errorCount + 1;
+            circuitHealth.lastErrorTime = time:currentTime();
+        }
     }
 }
 
-function handleOpenCircuit (CircuitHealth circuitHealth, int resetTimeout) (http:HttpConnectorError) {
+// Handles open circuit state.
+function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (http:HttpConnectorError) {
     time:Time currentT = time:currentTime();
     int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
-    int timeRemaining = resetTimeout - timeDif;
-
-    http:HttpConnectorError err = {};
-    err.message = "Upstream service unavailable. Requests to upstream service will be suspended for "
+    int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;
+    http:HttpConnectorError httpConnectorError = {};
+    httpConnectorError.message = "Upstream service unavailable. Requests to upstream service will be suspended for "
               + timeRemaining + " milliseconds.";
-    return err;
+    return httpConnectorError;
+}
+
+// Validates the struct configurations passed to create circuit breaker.
+function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreakerConfig) (boolean isValidThreshold){
+    float failureThreshold = circuitBreakerConfig.failureThreshold;
+     if (failureThreshold < 0 || failureThreshold > 1) {
+         string errorMessage = "Invalid failure threshold. Failure threshold value"
+                                                +  " should between 0 to 1, found "+ failureThreshold;
+         error circuitBreakerConfigError = {message:errorMessage};
+         throw circuitBreakerConfigError;
+     }
+    return true;
+}
+
+// CircuitHealth struct initializer. Sets the initial circuit state.
+function <CircuitHealth circuitHealth> CircuitHealth() {
+    currentCircuitState = CircuitState.CLOSED;
 }

@@ -18,7 +18,7 @@ function testConnectionPoolProperties () (string firstName) {
     testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -35,7 +35,7 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
                                                             "TEST_SQL_CONNECTOR", "SA", "", null);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -54,7 +54,7 @@ function testConnectorWithDirectUrl () (string firstName) {
     testDB = create sql:ClientConnector("", "", 0, "", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -74,7 +74,7 @@ function testConnectorWithDataSourceClass () (string firstName) {
     testDB = create sql:ClientConnector("", "", 0, "", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -93,7 +93,7 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
                                         "TEST_SQL_CONNECTOR", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -114,7 +114,7 @@ function testConnectorWithDataSourceClassURLPriority () (string firstName) {
                                         "INVALID_DB_NAME", "SA", "", properties);
 
     sql:Parameter[] parameters = [];
-    datatable dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = testDB.selectQuery("SELECT  FirstName from Customers where registrationID = 1", parameters);
     TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
@@ -131,7 +131,7 @@ function testInvalidDBType () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
-    testDB.update("Insert into Customers(firstName) values ('James')", parameters);
+    testDB.updateQuery("Insert into Customers(firstName) values ('James')", parameters);
     testDB.close();
     return;
 }

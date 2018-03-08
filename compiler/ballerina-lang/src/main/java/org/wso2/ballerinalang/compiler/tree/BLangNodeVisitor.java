@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -211,6 +212,18 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangDocumentationAttribute docAttribute) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangDocumentation doc) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangDeprecatedNode deprecatedNode) {
+        throw new AssertionError();
+    }
+
     // Statements
     public void visit(BLangBlockStmt blockNode) {
         throw new AssertionError();
@@ -351,6 +364,14 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
         throw new AssertionError();
     }
+    public void visit(BLangWorkerSend workerSendNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        throw new AssertionError();
+    }
+
 
 
     // Expressions
@@ -444,14 +465,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWorkerSend workerSendNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWorkerReceive workerReceiveNode) {
         throw new AssertionError();
     }
 

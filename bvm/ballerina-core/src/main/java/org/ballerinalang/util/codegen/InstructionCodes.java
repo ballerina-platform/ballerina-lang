@@ -197,6 +197,7 @@ public interface InstructionCodes {
     int JSON2XML = 157;
     int S2XML = 158;
     int XML2S = 159;
+    int ANY2SCONV = 175;
 
     // Type cast
     int I2ANY = 160;

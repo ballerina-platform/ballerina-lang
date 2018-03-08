@@ -2,6 +2,24 @@
      User Global Variables
 *******************************/
 
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus,
+html:focus, body:focus, input[readonly]:focus{
+  outline: none;
+}
+
+/*-------------------
+       Fonts
+--------------------*/
+
+@fontName          : 'Roboto';
+@fontSmoothing     : antialiased;
+
+@headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont          : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
 /*-------------------
       Colors
 --------------------*/
@@ -9,7 +27,7 @@
 @primaryColor               : @orange;
 @secondaryColor             : @gray-100;
 @defaultColor               : #626262;
-@invertedBackgroundColor    : #222;
+
 @red                        : #f44336;
 @orange                     : #F1772A;
 @yellow                     : #FFEB3B;
@@ -38,10 +56,23 @@
 @gray-800   : #343a40;
 @gray-900   : #212529;
 
+/*---- Inverted Colors  ----*/
 
-@fontName           : @fontFamily: Roboto, Arial, Helvetica, sans-serif;
-@pageBackground     : @off-white;
+@invertedBackgroundColor        : #252525;
+@invertedInputBackgroundColor   : #3a3a3a;
+@selectionInvertedBorderColor   : @orange;
+@selectionInvertedTextColor     : @off-white;
+@selectionInvertItemDivider     : @defaultColor;
 
-@placeholderBackgroundOpacity: 0.7;
+@pageBackground                 : @off-white;
 
-@highlightBackground : @orange;
+@placeholderBackgroundOpacity   : 0.7;
+
+@highlightBackground            : @orange;
+
+@selectionBorderRadius          : 0;
+@noBorderRadius                 : 0;
+
+@inputHeight                    : 40px;
+
+@paragraphLineHeight            : 1em;

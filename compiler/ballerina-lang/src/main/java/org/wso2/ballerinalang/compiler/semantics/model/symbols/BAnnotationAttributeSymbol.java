@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -31,6 +32,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
 public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
     public BLangExpression expr;
+    public DocTag docTag;
 
     public BAnnotationAttributeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(ANNOTATION_ATTRIBUTE, 0, name, pkgID, type, owner);

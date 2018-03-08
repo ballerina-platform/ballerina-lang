@@ -1,22 +1,21 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.model;
-
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
@@ -56,7 +55,9 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -66,8 +67,7 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
-
+    public static final PackageID BUILTIN = new PackageID(Names.ANON_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -88,7 +88,6 @@ public class SymbolTable {
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType nullType = new BNullType();
-    public final BType voidType = new BNoType(TypeTags.VOID);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType streamletType = new BStreamletType(null, null);
@@ -100,9 +99,11 @@ public class SymbolTable {
     public BStructType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
-    public BPackageSymbol runtimePackageSymbol;
 
     private Names names;
+
+    public Map<PackageID, BPackageSymbol> pkgSymbolMap = new HashMap<>();
+    public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -365,6 +366,7 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define conversion operators
+        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
         defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);

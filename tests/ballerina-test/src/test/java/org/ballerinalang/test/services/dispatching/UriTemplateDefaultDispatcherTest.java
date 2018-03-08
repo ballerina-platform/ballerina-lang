@@ -77,4 +77,28 @@ public class UriTemplateDefaultDispatcherTest {
         Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a service without an annotation"
                 , "Resource dispatched to wrong template");
     }
+
+    @Test(description = "Test dispatching with Service name when annotation is not available")
+    public void testPureProxyService() {
+        String path = "/";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a proxy service"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with default resource")
+    public void testDispatchingToDefault() {
+        String path = "/hello";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a proxy service"
+                , "Resource dispatched to wrong template");
+    }
 }
