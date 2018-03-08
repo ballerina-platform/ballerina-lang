@@ -65,8 +65,8 @@ public class WebSocketService implements Service {
     }
 
     @Override
-    public String getProtocolPackage() {
-        return service.getProtocolPackage();
+    public String getEndpointName() {
+        return service.getEndpointName();
     }
 
     @Override

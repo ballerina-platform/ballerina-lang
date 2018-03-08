@@ -42,11 +42,11 @@ public interface Service {
     String getPackage();
 
     /**
-     * This method returns the package of the protocol bound to the service.
+     * This method returns the package qualified endpoint name that bound to the service.
      *
-     * @return package of the protocol bound to the service.
+     * @return the package qualified endpoint name that bound to the service.
      */
-    String getProtocolPackage();
+    String getEndpointName();
 
     /**
      * This method will return the list of annotations for the given package path and annotation name.

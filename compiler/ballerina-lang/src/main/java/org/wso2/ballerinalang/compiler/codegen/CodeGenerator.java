@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
@@ -252,7 +251,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
-    private SymbolEnter symEnter;
     private SymbolTable symTable;
 
     private ProgramFile programFile;
@@ -293,8 +291,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public CodeGenerator(CompilerContext context) {
         context.put(CODE_GENERATOR_KEY, this);
-
-        this.symEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
     }
 
@@ -1188,7 +1184,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void genPackage(BPackageSymbol pkgSymbol) {
         // TODO First check whether this symbol is from a BALO file.
-        SymbolEnv pkgEnv = symEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         genNode(pkgEnv.node, pkgEnv);
     }
 
@@ -1842,13 +1838,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        // TODO : Fix me.
         if (((BServiceSymbol) serviceNode.symbol).endpointType != null) {
-            PackageID protocolPkgId = ((BServiceSymbol) serviceNode.symbol).endpointType.tsymbol.pkgID;
-            String protocolPkg = protocolPkgId.getName().value;
-            int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
+            String endPointQName = ((BServiceSymbol) serviceNode.symbol).endpointType.tsymbol.toString();
+            int epNameCPIndex = addUTF8CPEntry(currentPkgInfo, endPointQName);
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
-                    serviceNode.symbol.flags, protocolPkgCPIndex);
+                    serviceNode.symbol.flags, epNameCPIndex);
             // Add service level variables
             int localVarAttNameIndex = addUTF8CPEntry(currentPkgInfo,
                     AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());

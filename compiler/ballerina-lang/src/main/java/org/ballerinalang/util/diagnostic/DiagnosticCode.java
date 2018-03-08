@@ -158,6 +158,10 @@ public enum DiagnosticCode {
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
 
+    //Error code related to annotation processors
+    COMPILER_PLUGIN_NO_PACKAGE_FOUND("compiler.plugin.no.package.found"),
+    COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE("compiler.plugin.no.annotations.found.in.package"),
+
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
     MISSING_TOKEN("missing.token"),

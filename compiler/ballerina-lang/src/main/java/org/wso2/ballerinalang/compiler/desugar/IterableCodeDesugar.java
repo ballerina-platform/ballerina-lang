@@ -202,7 +202,7 @@ public class IterableCodeDesugar {
         }
 
         final BPackageSymbol packageSymbol = firstOperation.env.enclPkg.symbol;
-        final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
+        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
         ctx.iteratorFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);
@@ -420,7 +420,7 @@ public class IterableCodeDesugar {
         funcNode.retParams.addAll(retParmVars);
 
         final BPackageSymbol packageSymbol = ctx.getFirstOperation().env.enclPkg.symbol;
-        final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
+        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
         ctx.streamFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);

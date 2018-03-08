@@ -189,7 +189,7 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-        SymbolEnv env = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
@@ -207,7 +207,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         rewrite(pkgEnv.node, pkgEnv);
         result = importPkgNode;
     }
