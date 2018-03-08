@@ -32,7 +32,6 @@ import java.util.Map;
  */
 public class BalGenerationUtils {
     
-    
     /**
      * Convert byte array to readable byte string.
      *
@@ -172,5 +171,4 @@ public class BalGenerationUtils {
             }
         }
     }
-    
 }

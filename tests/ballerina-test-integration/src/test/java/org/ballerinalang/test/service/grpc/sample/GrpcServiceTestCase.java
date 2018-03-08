@@ -39,8 +39,6 @@ public class GrpcServiceTestCase extends IntegrationTestCase {
     @BeforeClass
     private void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
-        
-        
     }
     
     @Test

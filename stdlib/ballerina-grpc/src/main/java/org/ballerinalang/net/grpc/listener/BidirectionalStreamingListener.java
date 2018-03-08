@@ -56,7 +56,6 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         Executor.execute(onOpen, null, signatureParams);
 
         return new StreamObserver<Message>() {
-
             @Override
             public void onNext(Message value) {
                 List<ParamDetail> paramDetails = resource.getParamDetails();

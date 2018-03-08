@@ -46,7 +46,6 @@ abstract class AbstractExecute extends AbstractNativeAction {
      * @return .
      */
     BType getBalType(String protoType, Context context) {
-
         if (protoType.equalsIgnoreCase("DoubleValue") || protoType
                 .equalsIgnoreCase("FloatValue")) {
             return BTypes.typeFloat;
@@ -87,7 +86,6 @@ abstract class AbstractExecute extends AbstractNativeAction {
     }
 
     BStruct createStruct(Context context, String structName) {
-
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);

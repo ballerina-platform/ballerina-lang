@@ -666,11 +666,6 @@
                 <artifactId>mimepull</artifactId>
                 <version>${mimepull.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jvnet.mimepull</groupId>
-                <artifactId>mimepull</artifactId>
-                <version>${mimepull.version}</version>
-            </dependency>
             <!-- gRPC support for ballerina -->
             <dependency>
                 <groupId>io.grpc</groupId>

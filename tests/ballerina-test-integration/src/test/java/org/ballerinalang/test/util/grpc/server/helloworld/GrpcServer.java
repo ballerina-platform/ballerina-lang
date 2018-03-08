@@ -45,7 +45,6 @@ public final class GrpcServer implements Runnable {
         
     }
     
-    
     /**
      * Start this gRPC server. This will startup all the gRPC services.
      *

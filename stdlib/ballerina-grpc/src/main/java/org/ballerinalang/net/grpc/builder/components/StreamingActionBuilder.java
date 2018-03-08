@@ -30,12 +30,10 @@ public class StreamingActionBuilder {
     private String methodName;
     private String methodID;
     
-    
     public StreamingActionBuilder(String methodName, String methodID) {
         this.methodName = methodName;
         this.methodID = methodID;
     }
-    
     
     public String build() {
         String actionTemplate =

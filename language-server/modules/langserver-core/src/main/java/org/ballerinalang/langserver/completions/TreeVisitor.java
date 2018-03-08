@@ -177,8 +177,8 @@ public class TreeVisitor extends BLangNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                node.getPosition().getSource().getCompilationUnitName().equals(fileName)
-        ).collect(Collectors.toList());
+                    node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+            ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);

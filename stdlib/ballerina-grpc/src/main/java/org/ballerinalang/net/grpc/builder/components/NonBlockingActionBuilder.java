@@ -32,14 +32,12 @@ public class NonBlockingActionBuilder {
     private String resMessageName;
     private String methodID;
     
-    
     public NonBlockingActionBuilder(String methodName, String reqMessageName, String resMessageName, String methodID) {
         this.methodName = methodName;
         this.reqMessageName = reqMessageName;
         this.resMessageName = resMessageName;
         this.methodID = methodID;
     }
-    
     
     public String build() {
         String actionTemplate =

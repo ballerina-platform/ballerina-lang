@@ -53,13 +53,13 @@ public class UserDefinedMessage extends Message {
             throw new GrpcServerException("Error while initializing the builder, message type cannot be null");
         }
         // message type is coming as <package_name>:<name>.
-        String fullName = "";
+        String fullName;
         String name;
         if (messageType.contains(":")) {
             name = messageType.split(":")[1];
             fullName = messageType.replace(':', '.');
         } else {
-            name = messageType;
+            fullName = name = messageType;
         }
         return new UserDefinedMessage.Builder(fullName, name);
     }
