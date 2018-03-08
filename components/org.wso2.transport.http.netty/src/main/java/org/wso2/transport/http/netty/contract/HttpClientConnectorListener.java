@@ -31,6 +31,10 @@ public interface HttpClientConnectorListener extends HttpConnectorListener {
     default void onMessage(HTTPCarbonMessage httpMessage) {
     }
 
+    @Override
+    default void onError(Throwable throwable) {
+    }
+
     /**
      * Events on promise availability ends up here
      *
