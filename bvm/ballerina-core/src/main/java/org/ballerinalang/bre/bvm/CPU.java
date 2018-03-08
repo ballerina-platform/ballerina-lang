@@ -18,10 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.BLangCallableUnitCallback;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.NativeCallContext;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -67,7 +63,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
@@ -100,20 +95,14 @@ import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BLangNullReferenceException;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.logging.ErrorManager;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -136,6 +125,20 @@ public class CPU {
     }
 
     public static void exec(WorkerExecutionContext ctx) {
+        while (true) {
+            try {
+                tryExec(ctx);
+            } catch (HandleErrorException e) {
+                ctx = e.ctx;
+                if (ctx != null && !ctx.isRootContext()) {
+                    continue;
+                }
+            }
+            break;
+        }
+    }
+    
+    private static void tryExec(WorkerExecutionContext ctx) {
         int i;
         int j;
         int cpIndex; // Index of the constant pool
@@ -144,7 +147,6 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
         FunctionInfo functionInfo;
         InstructionCALL callIns;
-        WorkerExecutionContext runInCallerCtx;
 
         boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 
@@ -158,7 +160,7 @@ public class CPU {
                     break;
                 }
             }
-            //TODO
+
             Instruction instruction = ctx.code[ctx.ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
@@ -353,9 +355,9 @@ public class CPU {
                     break;
                 case InstructionCodes.HALT:
                     BLangScheduler.workerDone(ctx);
-                    runInCallerCtx = handleHalt(ctx);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
+                    ctx = handleHalt(ctx);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.IGT:
@@ -383,36 +385,33 @@ public class CPU {
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
-                    runInCallerCtx = invokeCallableUnit(ctx, callIns.functionInfo,
-                            callIns.argRegs, callIns.retRegs);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs, 
+                            callIns.retRegs, false);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
-                    runInCallerCtx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
+                    ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
                             vcallIns.argRegs, vcallIns.retRegs);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    runInCallerCtx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                    runInCallerCtx = invokeCallableUnit(ctx, tcallIns.transformerInfo, tcallIns.argRegs, tcallIns.retRegs);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs, 
+                            tcallIns.retRegs, false);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.TR_BEGIN:
@@ -430,14 +429,15 @@ public class CPU {
                     break;
                 case InstructionCodes.WRKRECEIVE:
                     InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                    handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs);
+                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs)) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.FORKJOIN:
                     InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
-                    runInCallerCtx = invokeForkJoin(ctx, forkJoinIns);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    ctx = invokeForkJoin(ctx, forkJoinIns);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.THROW:
@@ -470,10 +470,10 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    runInCallerCtx = invokeCallableUnit(ctx, functionInfo, funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
-                        ctx.state = WorkerState.RUNNING;
+                    ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(), 
+                            funcCallCPEntry.getRetRegs(), false);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.FPLOAD:
@@ -669,9 +669,9 @@ public class CPU {
                     callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
                     break;
                 case InstructionCodes.RET:
-                    runInCallerCtx = handleReturn(ctx);
-                    if (runInCallerCtx != null) {
-                        ctx = runInCallerCtx;
+                    ctx = handleReturn(ctx);
+                    if (ctx == null) {
+                        return;
                     }
                     break;
                 case InstructionCodes.XMLATTRSTORE:
@@ -2617,16 +2617,6 @@ public class CPU {
 //        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
     }
 
-    private static WorkerExecutionContext invokeCallableUnit(WorkerExecutionContext ctx,
-                                                             CallableUnitInfo callableUnitInfo, int[] argRegs,
-                                                             int[] retRegs) {
-        if (callableUnitInfo.isNative()) {
-            invokeNativeFunction(ctx, (FunctionInfo) callableUnitInfo, argRegs, retRegs);
-            return null;
-        }
-        return BLangFunctions.invokeCallable(callableUnitInfo, ctx, argRegs, retRegs, false);
-    }
-
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
                                                                 int[] retRegs) {
@@ -2640,7 +2630,7 @@ public class CPU {
         StructInfo structInfo = structVal.getType().structInfo;
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
-        return invokeCallableUnit(ctx, concreteFuncInfo, argRegs, retRegs);
+        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
@@ -2655,12 +2645,8 @@ public class CPU {
         BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-
-        if (actionInfo.isNative()) {
-            invokeNativeAction(ctx, actionInfo, argRegs, retRegs);
-            return null;
-        }
-        return invokeCallableUnit(ctx, actionInfo, argRegs, retRegs);
+        
+        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
     }
 
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
@@ -2708,13 +2694,16 @@ public class CPU {
                 forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
     }
 
-    private static void handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
+    private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
             BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValues != null) {
             WorkerData currentFrame = ctx.workerLocal;
             copyArgValuesForWorkerReceive(currentFrame, regs, types, passedInValues);
+            return true;
+        } else {
+            return false;
         }
     }
     
@@ -2847,75 +2836,6 @@ public class CPU {
             sb.append(operands[i]);
         }
         return sb.toString();
-    }
-
-    private static void invokeNativeFunction(WorkerExecutionContext parentCtx, FunctionInfo functionInfo,
-                                             int[] argRegs, int[] retRegs) {
-        WorkerData parentLocalData = parentCtx.workerLocal;
-        BType[] retTypes = functionInfo.getRetParamTypes();
-        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(functionInfo.getDefaultWorkerInfo(), parentCtx,
-                argRegs, functionInfo.getParamTypes());
-        Context ctx = new NativeCallContext(parentCtx, functionInfo, caleeSF);
-        NativeCallableUnit nativeFunction = functionInfo.getNativeFunction();
-        BLangScheduler.switchToWaitForResponse(parentCtx);
-        try {
-            if (nativeFunction.isBlocking()) {
-                nativeFunction.execute(ctx, null);
-                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
-                BLangScheduler.resume(parentCtx, true);
-            } else {
-                BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
-                nativeFunction.execute(ctx, callback);
-            }
-        } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(functionInfo));
-            return;
-        } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(functionInfo, e.getMessage()));
-            return;
-        }
-    }
-
-    /*
-     * TODO: Below is same as {@link #invokeNativeFunction()}. Refactor this code to reuse a single method.
-     */
-    private static void invokeNativeAction(WorkerExecutionContext parentCtx, ActionInfo actionInfo, int[] argRegs,
-                                           int[] retRegs) {
-        WorkerData parentLocalData = parentCtx.workerLocal;
-        BType[] retTypes = actionInfo.getRetParamTypes();
-        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(actionInfo.getDefaultWorkerInfo(), parentCtx,
-                argRegs, actionInfo.getParamTypes());
-        Context ctx = new NativeCallContext(parentCtx, actionInfo, caleeSF);
-        NativeCallableUnit nativeAction = actionInfo.getNativeAction();
-
-        if (nativeAction == null) {
-            return;
-        }
-
-        BLangScheduler.switchToWaitForResponse(parentCtx);
-        try {
-            if (nativeAction.isBlocking()) {
-                nativeAction.execute(ctx, null);
-                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
-                BLangScheduler.resume(parentCtx, true);
-            } else {
-                BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
-                nativeAction.execute(ctx, callback);
-            }
-        } catch (BLangNullReferenceException e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(actionInfo));
-            return;
-        } catch (Throwable e) {
-            handleNativeInvocationError(parentCtx, BLangVMErrors.createError(actionInfo, e.getMessage()));
-            return;
-        }
-    }
-
-    private static void handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
-        Map<String, BStruct> errors = new HashMap<>();
-        errors.put(parentCtx.workerInfo.getWorkerName(), error);
-        parentCtx.setError(BLangVMErrors.createCallFailedException(parentCtx, errors));
-        handleError(parentCtx);
     }
 
     private static boolean checkCast(BValue sourceValue, BType targetType) {
@@ -3555,30 +3475,17 @@ public class CPU {
         handleError(ctx);
     }
 
-    /**
-     * Handles an error that is set to the given context. This will look up the
-     * error table, and if there are any catch/finally blocks, it will set the
-     * target IP that the CPU should go to next. This will also says, whether it
-     * hit any exception handlers (i.e. catch/finally blocks), or else, that there
-     * are no valid instructions to be executed in this context, but rather should
-     * just propagate the error to the caller.
-     * @param ctx the execution context
-     * @return true if hits a catch/finally block, false, otherwise
-     */
-    public static boolean handleError(WorkerExecutionContext ctx) {
+    public static void handleError(WorkerExecutionContext ctx) {
         int ip = ctx.ip;
-        if (ip == -1) {
-            ip = ctx.backupIP;
-        }
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,
                 ctx.getError());
         if (match != null) {
             ctx.ip = match.getIpTarget();
-            return true;
         } else {
-            ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult));
-            return false;
+            BLangScheduler.workerExcepted(ctx);
+            throw new HandleErrorException(
+                    ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
         }
     }
 
@@ -3637,4 +3544,21 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
+    
+    /**
+     * This is used to propagate the results of {@link CPU#handleError(WorkerExecutionContext)} to the
+     * main CPU instruction loop.
+     */
+    public static class HandleErrorException extends BallerinaException {
+        
+        private static final long serialVersionUID = 1L;
+        
+        public WorkerExecutionContext ctx;
+        
+        public HandleErrorException(WorkerExecutionContext ctx) {
+            this.ctx = ctx;
+        }
+        
+    }
+    
 }

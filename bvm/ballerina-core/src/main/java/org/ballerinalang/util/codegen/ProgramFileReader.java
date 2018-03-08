@@ -551,7 +551,7 @@ public class ProgramFileReader {
                                 actionInfo.getPkgPath() + ":" + actionInfo
                                 .getConnectorInfo().getName() + "." + actionName);
                     }
-                    actionInfo.setNativeAction(nativeActionObj);
+                    actionInfo.setNativeCallableUnit(nativeActionObj);
                 }
 
                 // Read attributes of the struct info
@@ -743,7 +743,7 @@ public class ProgramFileReader {
                 throw new BLangRuntimeException("native function not available " +
                         functionInfo.getPkgPath() + ":" + uniqueFuncName);
             }
-            functionInfo.setNativeFunction(nativeFunction);
+            functionInfo.setNativeCallableUnit(nativeFunction);
         }
 
         // Read attributes

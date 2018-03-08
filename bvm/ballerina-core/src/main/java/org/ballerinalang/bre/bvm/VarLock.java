@@ -50,7 +50,7 @@ public class VarLock {
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
             WorkerExecutionContext ctx = waitingForLock.removeFirst();
-            BLangScheduler.resume(ctx, ctx.backupIP - 1, false);
+            BLangScheduler.resume(ctx, ctx.ip - 1, false);
         }
     }
 

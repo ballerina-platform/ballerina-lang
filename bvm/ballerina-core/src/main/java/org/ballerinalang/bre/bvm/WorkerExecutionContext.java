@@ -46,9 +46,7 @@ public class WorkerExecutionContext {
     public Map<String, Object> localProps = new HashMap<>();
     
     public int ip;
-    
-    public int backupIP;
-    
+        
     public ProgramFile programFile;
     
     public ConstantPoolEntry[] constPool;
@@ -150,16 +148,6 @@ public class WorkerExecutionContext {
         }
         this.programFile.getDebugger().addWorkerContext(this);
     }
-
-    public void backupIP() {
-        this.backupIP = this.ip;
-    }
-    
-    public void checkAndRestoreIP() {
-        if (this.ip < 0) {
-            this.ip = this.backupIP;
-        }
-    }
     
     public void setError(BStruct error) {
         this.error = error;
@@ -213,7 +201,6 @@ public class WorkerExecutionContext {
         builder.append("STATE: " + this.state + "\n");
         builder.append("Run In Caller: " + this.runInCaller + "\n");
         builder.append("IP: " + this.ip + "\n");
-        builder.append("Backup IP: " + this.backupIP + "} \n");
         return builder.toString();
     }
     

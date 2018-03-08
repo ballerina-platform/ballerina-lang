@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.HashMap;
@@ -80,8 +79,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     public WorkerExecutionContext signal(WorkerSignal signal) {
         switch (signal.getType()) {
         case ERROR:
-            this.onError(signal);
-            break;
+            return this.onError(signal);
         case MESSAGE:
             this.onMessage(signal);
             break;
@@ -119,9 +117,10 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
                 signal.getSourceContext().callableUnitInfo + "'.");
     }
     
-    protected void propagateErrorToTarget(WorkerExecutionContext sourceCtx) {
-        this.onFinalizedError(BLangVMErrors.createCallFailedException(
-                sourceCtx, this.getWorkerErrors()));
+    protected WorkerExecutionContext propagateErrorToTarget() {
+        this.notifyResponseChecker();
+        return this.onFinalizedError(BLangVMErrors.createCallFailedException(
+                this.targetCtx, this.getWorkerErrors()));
     }
 
     protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
@@ -132,7 +131,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         if (this.isReturnable()) {
             if (!this.isFulfilled() && this.isWorkersDone()) {
                 this.setCurrentSignal(signal);
-                this.propagateErrorToTarget(sourceCtx);
+                this.propagateErrorToTarget();
             }
         } else {
             if (!this.isFulfilled()) {
@@ -172,25 +171,25 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return workerErrors;
     }
     
-    protected synchronized void onError(WorkerSignal signal) {
+    protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
         this.initWorkerErrors();
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
-        BLangScheduler.workerExcepted(sourceCtx);
         if (this.isFulfilled()) {
             printError(sourceCtx.getError());
         } else {
             this.storeError(sourceCtx, sourceCtx.getError());
             this.setCurrentSignal(signal);
             if (this.isWorkersDone()) {
-                this.propagateErrorToTarget(sourceCtx);
+                return this.propagateErrorToTarget();
             }
         }
+        return null;
     }
     
-    protected void onFinalizedError(BStruct error) {
+    protected WorkerExecutionContext onFinalizedError(BStruct error) {
         this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
-        BLangScheduler.errorThrown(this.targetCtx, error);
-        this.notifyResponseChecker();
+        WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(this.targetCtx, error);
+        return runInCallerCtx;
     }
     
     protected void notifyResponseChecker() {

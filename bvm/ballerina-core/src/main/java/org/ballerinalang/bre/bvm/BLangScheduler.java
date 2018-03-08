@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
@@ -51,6 +52,7 @@ public class BLangScheduler {
         try {
             CPU.exec(ctx);
         } catch (Throwable e) {
+            e.printStackTrace();
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
             ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, null));
         }
@@ -89,8 +91,10 @@ public class BLangScheduler {
     }
     
     public static WorkerExecutionContext resume(WorkerExecutionContext ctx, boolean runInCaller) {
+        if (ctx == null) {
+            return null;
+        }
         ctx.state = WorkerState.READY;
-        ctx.checkAndRestoreIP();
         if (runInCaller) {
             return ctx;
         } else {
@@ -100,60 +104,39 @@ public class BLangScheduler {
     }
 
     public static WorkerExecutionContext resume(WorkerExecutionContext ctx, int targetIp, boolean runInCaller) {
-        ctx.backupIP = targetIp;
+        ctx.ip = targetIp;
         return resume(ctx, runInCaller);
     }
     
-    public static void errorThrown(WorkerExecutionContext ctx, BStruct error) {
+    public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BStruct error) {
         ctx.setError(error);
-        /* we will handle the error on behalf of the target worker context here,
-         * where it will check if the handle error logic returned a valid IP to
-         * continue, that is, if it hit a valid error handler, so this worker
-         * context can continue. Or else, it would mean, it didn't hit an error
-         * handler, and that worker context would be excepted, and cannot be
-         * resumed anymore */
         if (!ctx.isRootContext()) {
-            boolean validResume = CPU.handleError(ctx);
-            if (validResume) {
-                resume(ctx, false);
+            try {
+                CPU.handleError(ctx);
+                return ctx;
+            } catch (HandleErrorException e) {
+                return e.ctx;
             }
+        } else {
+            return null;
         }
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
-        ctx.ip = -1;
         ctx.state = WorkerState.DONE;
         workerCountDown();
     }
 
     public static void workerPaused(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.PAUSED;
-        ctx.backupIP();
-        /* the setting to -1 is needed, specially in situations like worker receive scenarios,
-         * where you need to return the current executing thread, where this is not critical
-         * in function call scenario, where the calling thread is continued as the first callee
-         * worker */
-        ctx.ip = -1;
     }
     
     public static void switchToWaitForResponse(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.WAITING_FOR_RESPONSE;
-        ctx.backupIP();
-        /* the setting to -1 is needed, specially in situations like worker receive scenarios,
-         * where you need to return the current executing thread, where this is not critical 
-         * in function call scenario, where the calling thread is continued as the first callee
-         * worker */
-        ctx.ip = -1;
     }
 
     public static void workerWaitForLock(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.WAITING_FOR_LOCK;
-        ctx.backupIP();
-        /* the setting to -1 is needed, specially in situations like worker receive scenarios,
-         * where you need to return the current executing thread, where this is not critical
-         * in function call scenario, where the calling thread is continued as the first callee
-         * worker */
-        ctx.ip = -1;
     }
     
     public static void waitForWorkerCompletion() {
@@ -164,7 +147,6 @@ public class BLangScheduler {
     }
     
     public static void workerExcepted(WorkerExecutionContext ctx) {
-        ctx.ip = -1;
         ctx.state = WorkerState.EXCEPTED;
         workerCountDown();
     }
