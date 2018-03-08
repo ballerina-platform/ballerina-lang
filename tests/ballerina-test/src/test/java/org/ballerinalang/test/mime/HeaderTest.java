@@ -9,14 +9,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-
 public class HeaderTest {
 
     private CompileResult compileResult;
-    private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
-    private final String entityStruct = ENTITY;
 
     @BeforeClass
     public void setup() {
@@ -71,9 +66,30 @@ public class HeaderTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeader", args);
         Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "{\"HeADEr2\":[\"totally different value\"]}");
+        Assert.assertNull(returns[1]);
+        Assert.assertEquals(returns[2].stringValue(), "totally different value");
+    }
+
+    @Test(description = "Test set header after add header")
+    public void testSetHeaderAfterAddheader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterAddHeader", args);
+        Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\", \"value2\", \"value3\"], " +
-                "\"hEader2\":[\"totally different value\"]}");
+                "\"HeADEr2\":[\"totally different value\"]}");
         Assert.assertEquals(returns[1].stringValue(), "[\"value1\", \"value2\", \"value3\"]");
+        Assert.assertEquals(returns[2].stringValue(), "totally different value");
+    }
+
+    @Test(description = "Test add header after set header")
+    public void testAddHeaderAfterSetheader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddHeaderAfterSetHeader", args);
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\", \"value2\", \"value3\"], " +
+                "\"HeADEr2\":[\"totally different value\", \"value4\"]}");
+        Assert.assertEquals(returns[1].stringValue(), "[\"totally different value\", \"value4\"]");
         Assert.assertEquals(returns[2].stringValue(), "totally different value");
     }
 
@@ -82,12 +98,12 @@ public class HeaderTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveHeader", args);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "{\"hEader2\":[\"totally different value\"]}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"HeADEr2\":[\"totally different value\"]}");
         Assert.assertNull(returns[1]);
         Assert.assertEquals(returns[2].stringValue(), "totally different value");
     }
 
-    @Test(description = "Test getting non existence header")
+    @Test(description = "Test getting a value out of a non existence header")
     public void testNonExistenceHeader() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader", args);

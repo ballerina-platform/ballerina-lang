@@ -26,6 +26,12 @@ function testAddingMultipleValuesToSameHeader () (map, string[], string) {
 
 function testSetHeader () (map, string[], string) {
     mime:Entity entity = {};
+    entity.setHeader("HeADEr2", "totally different value");
+    return entity.getAllHeaders(), entity.getHeaders("header1"), entity.getHeader("header2");
+}
+
+function testSetHeaderAfterAddHeader () (map, string[], string) {
+    mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
     entity.addHeader("header1", "value3");
@@ -35,7 +41,19 @@ function testSetHeader () (map, string[], string) {
     return entity.getAllHeaders(), entity.getHeaders("header1"), entity.getHeader("header2");
 }
 
-function testRemoveHeader() (map, string[], string) {
+
+function testAddHeaderAfterSetHeader () (map, string[], string) {
+    mime:Entity entity = {};
+    entity.addHeader("heAder1", "value1");
+    entity.addHeader("header1", "value2");
+    entity.addHeader("header1", "value3");
+    entity.addHeader("hEader2", "value3");
+    entity.setHeader("HeADEr2", "totally different value");
+    entity.addHeader("headeR2", "value4");
+    return entity.getAllHeaders(), entity.getHeaders("header2"), entity.getHeader("header2");
+}
+
+function testRemoveHeader () (map, string[], string) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -48,7 +66,7 @@ function testRemoveHeader() (map, string[], string) {
     return entity.getAllHeaders(), entity.getHeaders("header1"), entity.getHeader("header2");
 }
 
-function testNonExistenceHeader() (string) {
+function testNonExistenceHeader () (string) {
     mime:Entity entity = {};
     entity.addHeader("heAder1", "value1");
     return entity.getHeader("header2");

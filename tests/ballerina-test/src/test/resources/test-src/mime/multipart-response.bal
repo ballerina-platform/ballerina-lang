@@ -53,7 +53,7 @@ service<http> multipart {
     resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
 
         var bodyParts, _ = request.getMultiparts();
-        string contentType = request.getHeader("content-type");
+        string contentType = request.getHeader("Content-Type");
         http:OutResponse outResponse = {};
         outResponse.setMultiparts(bodyParts, contentType);
         _ = conn.respond(outResponse);

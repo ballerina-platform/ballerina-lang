@@ -18,9 +18,6 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
-@Description {value:"Represent 'content-length' header name"}
-public const string CONTENT_LENGTH = "content-length";
-
 @Description {value:"Represents the HTTP server connector connection"}
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
