@@ -17,6 +17,7 @@
 package ballerina.jwt;
 
 //JOSH header parameters
+const string JWT = "jwt";
 const string ALG = "alg";
 const string TYP = "typ";
 const string CTY = "cty";
