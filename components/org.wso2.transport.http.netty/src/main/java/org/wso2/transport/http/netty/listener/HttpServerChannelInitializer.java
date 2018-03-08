@@ -47,7 +47,6 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -145,7 +144,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 this.interfaceId, this.chunkConfig, this.serverName, this.allChannels));
     }
 
-    /* Configure HTTP/2 ClearText pipeline */
+    /**
+     * Configures HTTP/2 clear text pipeline.
+     *
+     * @param pipeline the channel pipeline
+     */
     private void configureH2cPipeline(ChannelPipeline pipeline) {
         // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec();
@@ -159,11 +162,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         };
         pipeline.addLast("encoder", sourceCodec);
-        pipeline.addLast("http2-upgrade",
+        pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
-        // Max size of the upgrade request is limited to 2GB. Need to see whether there is better approach to handle
-        // large upgrade requests
-        //Requests will be propagated to next handlers if no upgrade has been attempted
+        /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
+           large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
         configureHTTPPipeline(pipeline);
     }
 
@@ -217,7 +219,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Set whether HTTP/2.0 is enabled for the connection
+     * Sets whether HTTP/2.0 is enabled for the connection.
      *
      * @param http2Enabled whether HTTP/2.0 is enabled
      */
@@ -225,16 +227,16 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         isHttp2Enabled = http2Enabled;
     }
 
-    /* Handler which handles ALPN */
+    /**
+     * Handler which handles ALPN.
+     */
     class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
 
         public H2PipelineConfigurator() {
             super(ApplicationProtocolNames.HTTP_1_1);
         }
 
-        /**
-         *  Configure pipeline after SSL handshake
-         */
+        @Override
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
@@ -242,7 +244,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                         addLast(Constants.HTTP2_SOURCE_HANDLER,
                                 new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
-                // handles pipeline for HTTP/1 requests after SSL handshake
+                // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHTTPPipeline(ctx.pipeline());
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);

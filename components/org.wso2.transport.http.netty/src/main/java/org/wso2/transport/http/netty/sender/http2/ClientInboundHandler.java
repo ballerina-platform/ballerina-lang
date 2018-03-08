@@ -56,7 +56,6 @@ public class ClientInboundHandler extends Http2EventAdapter {
     @Override
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding,
                           boolean endOfStream) throws Http2Exception {
-
         log.debug("Http2FrameListenAdapter.onDataRead()");
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
@@ -101,7 +100,6 @@ public class ClientInboundHandler extends Http2EventAdapter {
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
                               int padding, boolean endStream) throws Http2Exception {
-
         log.debug("Http2FrameListenAdapter.onHeadersRead()");
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
@@ -115,10 +113,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
                 return;
             }
         }
-
         // Create response carbon message
         HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId, headers, outboundMsgHolder);
-
         if (isServerPush) {
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
             if (endStream) {
@@ -146,18 +142,27 @@ public class ClientInboundHandler extends Http2EventAdapter {
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
         log.debug("Http2FrameListenAdapter.onPushPromiseRead()");
+
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
             log.warn("Push promised received over invalid stream");
             return;
         }
-
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
         Http2PushPromise pushPromise =
                 new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId), outboundMsgHolder);
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
         outboundMsgHolder.addPromise(pushPromise);
+    }
+
+    /**
+     * Sets the {@code TargetChannel} associated with the ClientInboundHandler.
+     *
+     * @param http2ClientChannel the associated TargetChannel
+     */
+    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
+        this.http2ClientChannel = http2ClientChannel;
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
@@ -182,7 +187,6 @@ public class ClientInboundHandler extends Http2EventAdapter {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
-
         // Create HTTP Carbon Response
         HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse);
 
@@ -192,21 +196,11 @@ public class ClientInboundHandler extends Http2EventAdapter {
                                       org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
-        //copy required properties for service chaining from incoming carbon message to the response carbon message
-        //copy shared worker pool
+        /* copy required properties for service chaining from incoming carbon message to the response carbon message
+        copy shared worker pool */
         responseCarbonMsg.setProperty(Constants.EXECUTOR_WORKER_POOL,
                                       outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
-
         return responseCarbonMsg;
     }
-
-    /**
-     * Set the {@code TargetChannel} associated with the ClientInboundHandler
-     *
-     * @param http2ClientChannel associated TargetChannel
-     */
-    public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
-        this.http2ClientChannel = http2ClientChannel;
-    }
-
 }
+

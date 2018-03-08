@@ -43,7 +43,9 @@ import java.io.File;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-/* This contains basic test cases for HTTP2 Client connector */
+/**
+ * This contains basic test cases for HTTP2 Client connector.
+ */
 public class Http2ClientConnectorBasicTestCase {
 
     private HttpServer http2Server;
@@ -92,6 +94,4 @@ public class Http2ClientConnectorBasicTestCase {
             TestUtil.handleException("Failed to shutdown the test server", e);
         }
     }
-
 }
-

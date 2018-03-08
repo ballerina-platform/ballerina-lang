@@ -77,6 +77,7 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
         httpConnectorListener.onMessage(httpMessage);
     }
 
+    @Override
     public void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException {
         if (httpConnectorListener == null) {
@@ -85,6 +86,7 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
         httpConnectorListener.onPushResponse(pushPromise.getPromisedStreamId(), httpMessage);
     }
 
+    @Override
     public void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException("HTTP connector listener is not set");

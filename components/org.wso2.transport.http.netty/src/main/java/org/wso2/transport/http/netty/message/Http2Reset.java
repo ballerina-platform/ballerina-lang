@@ -21,27 +21,49 @@ package org.wso2.transport.http.netty.message;
 import io.netty.handler.codec.http2.Http2Error;
 
 /**
- * {@code Http2Reset} represents a Htt2 Reset stream message
+ * {@code Http2Reset} represents a HTTP/2 RST_STREAM frame.
  */
 public class Http2Reset {
 
     private int streamId;
     private Http2Error error;
 
+    /**
+     * Constructor to create a {@code Http2Reset} with stream id need to reset and the error.
+     *
+     * @param streamId id of the stream need to be reset
+     * @param error error to be written as the cause for reset
+     */
     public Http2Reset(int streamId, Http2Error error) {
         this.streamId = streamId;
         this.error = error;
     }
 
+    /**
+     * Constructor to create {@code Http2Reset} with stream id.
+     * REFUSED_STREAM is used as the error code.
+     *
+     * @param streamId id of the stream need to be reset
+     */
     public Http2Reset(int streamId) {
         this.streamId = streamId;
         this.error = Http2Error.REFUSED_STREAM;
     }
 
+    /**
+     * Gets the id of the stream to be reset.
+     *
+     * @return id of the stream to be reset
+     */
     public int getStreamId() {
         return streamId;
     }
 
+    /**
+     * Gets the cause of the stream reset.
+     *
+     * @return the cause of the stream reset
+     */
     public Http2Error getError() {
         return error;
     }

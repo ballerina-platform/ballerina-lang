@@ -41,7 +41,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 /**
  * For requests with entity bodies this will send a echo response and for non entity body requests this
- * will simply send a "Hello" as the response
+ * will simply send a "Hello" as the response.
  */
 public class Http2EchoServerInitializer extends Http2ServerInitializer {
 
@@ -106,6 +106,6 @@ public class Http2EchoServerInitializer extends Http2ServerInitializer {
             ctx.write(new DefaultHttp2DataFrame(payload, true).stream(stream));
         }
     }
-
 }
+
 

@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A utility class which sends HTTP/2.0 requests
+ * A utility class which sends HTTP/2.0 requests.
  */
 public class MessageSender {
 

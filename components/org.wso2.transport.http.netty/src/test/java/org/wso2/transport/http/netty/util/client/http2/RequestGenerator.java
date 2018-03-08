@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
- * A utility class which generates HTTP/2.0 requests
+ * A utility class which generates HTTP/2.0 requests.
  */
 public class RequestGenerator {
 
@@ -53,5 +53,4 @@ public class RequestGenerator {
         }
         return httpCarbonMessage;
     }
-
 }

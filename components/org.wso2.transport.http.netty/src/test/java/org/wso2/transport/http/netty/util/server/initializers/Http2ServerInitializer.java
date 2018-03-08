@@ -31,7 +31,7 @@ import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.util.AsciiString;
 
 /**
- * An initializer class for a Http2 Server
+ * An initializer class for a Http2 Server.
  */
 public abstract class Http2ServerInitializer extends ChannelInitializer<SocketChannel> {
 

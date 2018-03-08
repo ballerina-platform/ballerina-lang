@@ -53,8 +53,10 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
- * {@code HTTP2SourceHandler} read the Http2 binary frames sent from client through the channel
- * and build carbon messages deliver to the listener.
+ * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.
+ *
+ * This is also responsible for building the {@link HttpCarbonRequest} and forward to the listener
+ * interested in request messages.
  */
 public final class Http2SourceHandler extends Http2ConnectionHandler {
 
@@ -104,7 +106,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * Handles the cleartext HTTP upgrade event. If an upgrade occurred, message needs to be dispatched to
+     * Handles the cleartext HTTP upgrade event.
+     *
+     * If an upgrade occurred, message needs to be dispatched to
      * the correct service/resource and response should be delivered over stream 1
      * (the stream specifically reserved for cleartext HTTP upgrade).
      */
@@ -126,22 +130,21 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * Get the listener which listen to the HTTP/2 frames
+     * Gets the listener which listen to the HTTP/2 frames.
      *
-     * @return the {@code Http2FrameListener}
+     * @return the {@code Http2FrameListener} which listens for the HTTP/2 frames
      */
     Http2FrameListener getHttp2FrameListener() {
         return http2FrameListener;
     }
 
     /**
-     * Notify the registered listeners which listen for the incoming carbon messages
+     * Notifies the registered listeners which listen for the incoming carbon messages.
      *
-     * @param httpRequestMsg http request message
-     * @param streamId stream id
+     * @param httpRequestMsg the http request message
+     * @param streamId the id of the stream
      */
     private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, int streamId) {
-
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
@@ -157,17 +160,17 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * listener which listen to the HTTP/2 frames
+     * listener which listen to the HTTP/2 frames.
      */
     private class Http2FrameListener extends Http2EventAdapter {
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
                                   Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
-
             HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headers, streamId);
 
-            if (endOfStream) {  // Add empty last http content if no data frames available in the http request
+            if (endOfStream) {
+                // Add empty last http content if no data frames available in the http request
                 sourceReqCMsg.addHttpContent(new EmptyLastHttpContent());
             } else {
                 streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
@@ -185,7 +188,6 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         @Override
         public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream)
                 throws Http2Exception {
-
             HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
             if (sourceReqCMsg != null) {
                 if (endOfStream) {
@@ -201,9 +203,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         }
 
         /**
-         * Setup carbon message for HTTP2 request
+         * Creates a carbon message for HTTP/2 request.
          *
-         * @param http2Headers Http2 headers
+         * @param http2Headers the Http2 headers
          * @return a HTTPCarbonMessage
          */
         private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
@@ -212,17 +214,15 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * Setup CarbonRequest from HttpRequest
+     * Creates a {@code HttpCarbonRequest} from HttpRequest.
      *
-     * @param httpRequest HTTPRequest message
-     * @return CarbonRequest Message created from given HttpRequest
+     * @param httpRequest the HTTPRequest message
+     * @return the CarbonRequest Message created from given HttpRequest
      */
     private HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest) {
-
         HttpCarbonRequest sourceReqCMsg = new HttpCarbonRequest(httpRequest);
         sourceReqCMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        //sourceReqCMsg.setProperty(Constants.SRC_HANDLER, this);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
         sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
                                   protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
@@ -236,9 +236,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         sourceReqCMsg.setProperty(Constants.LOCAL_ADDRESS, localAddress);
         sourceReqCMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
         sourceReqCMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
-
         sourceReqCMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-
         String uri = httpRequest.uri();
         sourceReqCMsg.setProperty(Constants.REQUEST_URL, uri);
         sourceReqCMsg.setProperty(Constants.TO, uri);

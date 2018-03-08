@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * {@code TargetChannel} encapsulate the Channel associate with a particular connection.
+ * {@code Http2ClientChannel} encapsulates the Channel associated with a particular connection.
  * <p>
  * This shouldn't have anything related to a single message.
  */
@@ -45,7 +45,6 @@ public class Http2ClientChannel {
     private Http2ConnectionManager http2ConnectionManager;
     // Whether channel is operates with maximum number of allowed streams
     private AtomicBoolean isExhausted = new AtomicBoolean(false);
-
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
 
@@ -59,7 +58,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Get the netty channel associated with this TargetChannel
+     * Gets the netty channel associated with this {@code Http2ClientChannel}.
      *
      * @return channel which represent the connection
      */
@@ -67,12 +66,17 @@ public class Http2ClientChannel {
         return channel;
     }
 
+    /**
+     * Sets the netty channel associated with this {@code Http2ClientChannel}.
+     *
+     * @param channel channel which represent the connection
+     */
     public void setChannel(Channel channel) {
         this.channel = channel;
     }
 
     /**
-     * Get the HTTP/2 connection associated with this TargetChannel
+     * Gets the HTTP/2 connection associated with this {@code Http2ClientChannel}.
      *
      * @return associated HTTP/2 connection
      */
@@ -81,7 +85,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Get the {@code ChannelFuture} associated with this TargetChannel
+     * Gets the {@code ChannelFuture} associated with this {@code Http2ClientChannel}.
      *
      * @return associated ChannelFuture
      */
@@ -89,22 +93,27 @@ public class Http2ClientChannel {
         return channelFuture;
     }
 
+    /**
+     * Sets the {@code ChannelFuture} associated with this {@code Http2ClientChannel}.
+     *
+     * @param  channelFuture associated ChannelFuture
+     */
     public void setChannelFuture(ChannelFuture channelFuture) {
         this.channelFuture = channelFuture;
     }
 
     /**
-     * Add a in-flight message
+     * Adds a in-flight message.
      *
      * @param streamId        stream id
-     * @param inFlightMessage {@code OutboundMsgHolder} which holds the in-flight message
+     * @param inFlightMessage {@link OutboundMsgHolder} which holds the in-flight message
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
         inFlightMessages.put(streamId, inFlightMessage);
     }
 
     /**
-     * Get the in-flight message associated with the a particular stream id
+     * Gets the in-flight message associated with the a particular stream id.
      *
      * @param streamId stream id
      * @return in-flight message associated with the a particular stream id
@@ -114,7 +123,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Remove in-flight message
+     * Removes a in-flight message.
      *
      * @param streamId stream id
      */
@@ -123,7 +132,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Add a promised message
+     * Adds a promised message.
      *
      * @param streamId        stream id
      * @param promisedMessage {@code OutboundMsgHolder} which holds the promised message
@@ -133,7 +142,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Get the promised message associated with the a particular stream id
+     * Gets the promised message associated with the a particular stream id.
      *
      * @param streamId stream id
      * @return promised message associated with the a particular stream id
@@ -143,7 +152,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Remove promised message
+     * Removes a promised message.
      *
      * @param streamId stream id
      */
@@ -152,7 +161,7 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Increment and get the active streams count
+     * Increments and gets the active streams count.
      *
      * @return number of active streams count
      */
@@ -161,14 +170,14 @@ public class Http2ClientChannel {
     }
 
     /**
-     * Mark the TargetChannel has reached the maximum number of active streams
+     * Marks the channel has reached the maximum number of active streams.
      */
     void markAsExhausted() {
         isExhausted.set(true);
     }
 
     /**
-     * Listener which listen to the stream closure event
+     * Listener which listen to the stream closure event.
      */
     private class StreamCloseListener extends Http2EventAdapter {
 
@@ -179,10 +188,10 @@ public class Http2ClientChannel {
         }
 
         public void onStreamClosed(Http2Stream stream) {
-            // TargetChannel is no longer exhausted, so we can return it back to the pool
+            // Channel is no longer exhausted, so we can return it back to the pool
             activeStreams.decrementAndGet();
             if (isExhausted.getAndSet(false)) {
-                http2ConnectionManager.returnTargetChannel(httpRoute, http2ClientChannel);
+                http2ConnectionManager.returnClientChannel(httpRoute, http2ClientChannel);
             }
         }
     }

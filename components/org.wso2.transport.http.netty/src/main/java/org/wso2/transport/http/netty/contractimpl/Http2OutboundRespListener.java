@@ -43,8 +43,8 @@ import java.nio.channels.ClosedChannelException;
 import java.util.Locale;
 
 /**
- * {@code Http2OutboundRespListener} is responsible for listening for
- * outbound response messages and delivering them to the client
+ * {@code Http2OutboundRespListener} is responsible for listening for outbound response messages
+ * and delivering them to the client.
  */
 public class Http2OutboundRespListener implements HttpConnectorListener {
 
@@ -53,7 +53,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private HTTPCarbonMessage inboundRequestMsg;
     private ChannelHandlerContext ctx;
     private Http2ConnectionEncoder encoder;
-    private int originalStreamId;
+    private int originalStreamId;   // stream id of the request received from the client
     private Http2Connection conn;
     private String serverName;
     private HttpResponseFuture outboundRespStatusFuture;
@@ -87,10 +87,13 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 // Update streamIds
                 pushPromise.setPromisedStreamId(promisedStreamId);
                 pushPromise.setStreamId(originalStreamId);
+                // Construct http request
                 HttpRequest httpRequest = pushPromise.getHttpRequest();
                 httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
+                // A push promise is a server initiated request, hence it should contain request headers
                 Http2Headers http2Headers =
                         HttpConversionUtil.toHttp2Headers(httpRequest, true);
+                // Write the push promise to the wire
                 ChannelFuture channelFuture = encoder.writePushPromise(
                         ctx, originalStreamId, promisedStreamId, http2Headers, 0, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
@@ -111,7 +114,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private void writeMessage(HTTPCarbonMessage outboundResponseMsg, int streamId) {
         ResponseWriter writer = new ResponseWriter(streamId);
-
         ctx.channel().eventLoop().execute(() -> outboundResponseMsg.getHttpContentAsync().setMessageListener(
                 httpContent -> ctx.channel().eventLoop().execute(() -> {
                     try {
@@ -125,6 +127,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 })));
     }
 
+    //TODO: Remove duplicates
     private void checkForWriteStatus(HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
@@ -163,13 +166,11 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             this.streamId = streamId;
         }
 
-        public void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent)
+        private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent)
                 throws Http2Exception {
-
             if (!isHeaderWritten) {
                 writeHeaders(outboundResponseMsg);
             }
-
             if (Util.isLastHttpContent(httpContent)) {
                 writeData(httpContent, true);
             } else {
@@ -180,11 +181,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         private void writeHeaders(HTTPCarbonMessage outboundResponseMsg) throws Http2Exception {
             outboundResponseMsg.getHeaders().
                     add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
-            HttpMessage httpMessage;
-
-            httpMessage =
+            HttpMessage httpMessage =
                     Util.createHttpResponse(outboundResponseMsg, Constants.HTTP2_VERSION, serverName, true);
-
             // Construct Http2 headers
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
 
@@ -212,5 +210,5 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private synchronized int getNextStreamId() {
         return conn.local().incrementAndGetNextStreamId();
     }
-
 }
+
