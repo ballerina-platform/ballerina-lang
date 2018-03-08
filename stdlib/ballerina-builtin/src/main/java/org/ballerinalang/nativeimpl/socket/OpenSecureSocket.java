@@ -59,20 +59,14 @@ import javax.net.ssl.TrustManagerFactory;
  *
  * @since 0.964.0
  */
-@BallerinaFunction(packageName = "ballerina.io",
-                   functionName = "openSecureSocket",
-                   args = {
-                           @Argument(name = "host", type = TypeKind.STRING),
-                           @Argument(name = "port", type = TypeKind.INT),
-                           @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
-                                     structPackage = "ballerina.io")
-                   },
-                   returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
-                                       structType = "Socket",
-                                       structPackage = "ballerina.io")
-                   },
-                   isPublic = true)
+@BallerinaFunction(
+        packageName = "ballerina.io", functionName = "openSecureSocket",
+        args = { @Argument(name = "host", type = TypeKind.STRING),
+                 @Argument(name = "port", type = TypeKind.INT),
+                 @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
+                           structPackage = "ballerina.io") },
+        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io") },
+        isPublic = true)
 public class OpenSecureSocket extends AbstractNativeFunction {
 
     private static final String SEPARATOR = ",";
@@ -141,7 +135,9 @@ public class OpenSecureSocket extends AbstractNativeFunction {
         return socketStruct;
     }
 
-    private SSLContext getSslContext(BStruct options) {
+    private SSLContext getSslContext(BStruct options)
+            throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
+            IOException, KeyManagementException {
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
         if (algorithm == null) {
             algorithm = "SunX509";
@@ -155,16 +151,11 @@ public class OpenSecureSocket extends AbstractNativeFunction {
         String sslProtocol = (protocol == null || protocol.isEmpty()) ?
                 SocketConstants.DEFAULT_SSL_PROTOCOL :
                 options.getStringField(SocketConstants.SSL_PROTOCOL_OPTION_FIELD_INDEX);
-        try {
-            KeyManager[] keyManagers = getKeyManagers(certPassword, keyStorePath, keyStorePass, algorithm);
-            TrustManager[] trustManagers = getTrustManagers(trustStorePath, trustStorePass, algorithm);
-            SSLContext sslContext = SSLContext.getInstance(sslProtocol);
-            sslContext.init(keyManagers, trustManagers, null);
-            return sslContext;
-        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException
-                | UnrecoverableKeyException | CertificateException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        KeyManager[] keyManagers = getKeyManagers(certPassword, keyStorePath, keyStorePass, algorithm);
+        TrustManager[] trustManagers = getTrustManagers(trustStorePath, trustStorePass, algorithm);
+        SSLContext sslContext = SSLContext.getInstance(sslProtocol);
+        sslContext.init(keyManagers, trustManagers, null);
+        return sslContext;
     }
 
     private TrustManager[] getTrustManagers(String trustStore, String trustStorePass, String algorithm)

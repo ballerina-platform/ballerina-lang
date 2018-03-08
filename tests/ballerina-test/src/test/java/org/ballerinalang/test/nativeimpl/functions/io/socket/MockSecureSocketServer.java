@@ -43,14 +43,13 @@ public class MockSecureSocketServer {
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         try (ServerSocket sslServerSocket = sslServerSocketFactory.createServerSocket(Integer.valueOf(args[0]))) {
             while (true) {
-                try (Socket socket = sslServerSocket.accept()) {
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    try (BufferedReader bufferedReader = new BufferedReader(
-                            new InputStreamReader(socket.getInputStream()))) {
-                        String line;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            out.println(line);
-                        }
+                try (Socket socket = sslServerSocket.accept();
+                        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                        BufferedReader bufferedReader = new BufferedReader(
+                                new InputStreamReader(socket.getInputStream()))) {
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        out.println(line);
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
