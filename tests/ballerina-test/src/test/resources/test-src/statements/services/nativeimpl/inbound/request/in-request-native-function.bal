@@ -1,5 +1,20 @@
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina.net.http;
-import ballerina.io;
 import ballerina.mime;
 
 function testGetContentLength (http:InRequest req) (int) {
@@ -24,11 +39,6 @@ function testGetMethod (http:InRequest req) (string) {
     return method;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
-    string payload = req.getProperty(propertyName);
-    return payload;
-}
-
 function testGetStringPayload (http:InRequest req) (string, mime:EntityError) {
     return req.getStringPayload();
 }
@@ -43,6 +53,16 @@ function testGetXmlPayload (http:InRequest req) (xml, mime:EntityError) {
 
 @http:configuration {basePath:"/hello"}
 service<http> helloServer {
+
+    @http:resourceConfig {
+        path:"/getProtocol"
+    }
+    resource GetProtocol (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
+        string protocol = req.protocol;
+        res.setJsonPayload({protocol:protocol});
+        _ = conn.respond(res);
+    }
 
     @http:resourceConfig {
         path:"/11"
@@ -102,16 +122,6 @@ service<http> helloServer {
         var value, _ = req.getJsonPayload();
         json lang = value.lang;
         res.setJsonPayload(lang);
-        _ = conn.respond(res);
-    }
-
-    @http:resourceConfig {
-        path:"/GetProperty"
-    }
-    resource GetProperty (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
-        string property = req.getProperty("wso2");
-        res.setJsonPayload({value:property});
         _ = conn.respond(res);
     }
 

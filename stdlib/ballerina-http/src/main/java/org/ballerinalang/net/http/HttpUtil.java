@@ -402,17 +402,19 @@ public class HttpUtil {
     }
 
     private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
-                                                     HTTPCarbonMessage inboundRequestMsg) {
+            HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_RAW_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_VERSION_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
-        Map<String, String> resourceArgValues =
-                (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
+        Map<String, String> resourceArgValues = (Map<String, String>) inboundRequestMsg
+                .getProperty(HttpConstants.RESOURCE_ARGS);
         inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_EXTRA_PATH_INFO_INDEX,
                 resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+        inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_PROTOCOL_INDEX,
+                (String) inboundRequestMsg.getProperty(HttpConstants.PROTOCOL));
     }
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
@@ -421,6 +423,10 @@ public class HttpUtil {
                 ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
         connection.setIntField(HttpConstants.CONNECTION_PORT_INDEX,
                 (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
+        if (cMsg.getProperty(HttpConstants.REMOTE_ADDRESS) != null) {
+            connection.setStringField(HttpConstants.CONNECTION_REMOTE_ADDRESS_INDEX,
+                    ((InetSocketAddress) cMsg.getProperty(HttpConstants.REMOTE_ADDRESS)).getAddress().toString());
+        }
     }
 
     /**

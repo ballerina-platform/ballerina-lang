@@ -105,17 +105,6 @@ public class InRequestNativeFunctionNegativeTest {
                 " extracting json data from entity: failed to create json: unrecognized token 'ballerina'"));
     }
 
-    @Test
-    public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
-        BString propertyName = new BString("wso2");
-        BValue[] inputArg = {inRequest, propertyName};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertNull(returnVals[0].stringValue());
-    }
-
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
@@ -161,8 +150,8 @@ public class InRequestNativeFunctionNegativeTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined function 'setStatusCode' in struct 'ballerina.net.http:InRequest'", 4, 5);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:InRequest'", 20, 5);
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'statusCode' in struct 'ballerina.net.http:InRequest'", 5, 5);
+                "undefined field 'statusCode' in struct 'ballerina.net.http:InRequest'", 21, 5);
     }
 }
