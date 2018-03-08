@@ -28,14 +28,18 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 /**
  * Test command for ballerina launcher.
@@ -43,19 +47,14 @@ import java.util.logging.LogManager;
 @Parameters(commandNames = "test", commandDescription = "test Ballerina program")
 public class TestCmd implements BLauncherCmd {
 
-    private static final PrintStream outStream = System.err;
+    private static final PrintStream errStream = System.err;
+    private static final PrintStream outStream = System.out;
 
 
     private JCommander parentCmdParser;
 
-    @Parameter(names = "--mock", hidden = true, description = "Is mock enabled")
-    private boolean mock = true;
-
-    @Parameter(arity = 1, description = "arguments")
+    @Parameter(arity = 1, description = "ballerina package/s to be tested")
     private List<String> sourceFileList;
-
-    @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
-    private String serviceRootPath;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
@@ -69,7 +68,7 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--groups", description = "test groups to be executed")
     private List<String> groupList;
 
-    @Parameter(names = "--disable-groups", description = "test groups to be excluded from executed")
+    @Parameter(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
     @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
@@ -84,12 +83,16 @@ public class TestCmd implements BLauncherCmd {
             return;
         }
 
-        if (sourceFileList == null || sourceFileList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program or directory given to run tests");
-        }
-
-        if (mock) {
-            TesterinaUtils.setMockEnabled(mock);
+        if (sourceFileList == null || sourceFileList.isEmpty()) {
+            sourceFileList = new ArrayList<>();
+            Path userDir = Paths.get(System.getProperty("user.dir"));
+            try {
+                sourceFileList = Files.walk(userDir, 1).filter(Files::isDirectory).filter(file ->
+                        file != userDir).map(path -> path.getFileName().toString()).collect(Collectors.toList());
+            } catch (IOException e) {
+                throw LauncherUtils.createUsageException("Failed to load the ballerina package/s from " + userDir);
+            }
+//            throw LauncherUtils.createUsageException("no ballerina program or directory given to run tests");
         }
 
         if (groupList != null && disableGroupList != null) {
@@ -104,15 +107,15 @@ public class TestCmd implements BLauncherCmd {
             ConfigRegistry.getInstance().loadConfigurations();
             ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
         } catch (ConfigFileParserException e) {
-            throw new RuntimeException("failed to start ballerina runtime: " + e.getMessage(), e);
+            outStream.println("[WARN] Failed to load configurations: " + e.getMessage());
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 
         if (disableGroupList != null) {
-            excludeGroupsAndRunTests(paths);
+            runTests(paths, disableGroupList, false);
         } else {
-            includeGroupsAndRunTests(paths);
+            runTests(paths, groupList, true);
         }
         Runtime.getRuntime().exit(0);
     }
@@ -153,7 +156,7 @@ public class TestCmd implements BLauncherCmd {
         }
 
         printFlags(jCommander.getParameters(), out);
-        outStream.println(out.toString());
+        errStream.println(out.toString());
     }
 
     private static void printCommandList(JCommander cmdParser, StringBuilder out) {
@@ -219,12 +222,8 @@ public class TestCmd implements BLauncherCmd {
         }
     }
 
-    private void includeGroupsAndRunTests(Path [] paths) {
-        new BTestRunner().runTest(paths, groupList);
-    }
-
-    private void excludeGroupsAndRunTests(Path [] paths) {
-        new BTestRunner().runTest(paths, disableGroupList, true);
+    private void runTests(Path [] paths, List<String> groups, boolean shouldIncludeGroups) {
+        new BTestRunner().runTest(paths, groups, shouldIncludeGroups);
     }
 
     @Override

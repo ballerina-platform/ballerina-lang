@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.testerina.core.AnnotationProcessor;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,18 +45,12 @@ public class TesterinaContext {
      */
     private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
 
-    private List<String> groups;
-    private boolean excludeGroups = false;
+//    private List<String> groups;
+//    private boolean excludeGroups = false;
 
     public TesterinaContext(List<String> groups, boolean excludeGroups) {
-        this.groups = groups;
-        this.excludeGroups = excludeGroups;
-//        assert groups == null;
-//        assert excludeGroups == true;
-    }
-
-    public void process(Collection<ProgramFile> programFiles) {
-        programFiles.forEach(this::processProgramFiles);
+//        this.groups = groups;
+//        this.excludeGroups = excludeGroups;
     }
 
     /**
@@ -109,7 +101,7 @@ public class TesterinaContext {
     //        if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST) && !nameUpperCase
     //                .endsWith(TesterinaFunction.INIT_SUFFIX)) {
     //
-    //            TesterinaFunction tFunction = AnnotationProcessor
+    //            TesterinaFunction tFunction = TAnnotationProcessor
     //                    .processAnnotations(programFile, functionInfo, groups, excludeGroups);
     //
     //            this.testFunction.add(tFunction);
@@ -126,7 +118,7 @@ public class TesterinaContext {
     //        }
     //    }
 
-    private void processProgramFiles(ProgramFile programFile) {
+    public void process(ProgramFile programFile) {
         for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
             if (packageInfo.getPkgPath().startsWith("ballerina")) {
                 // skip this
@@ -136,8 +128,8 @@ public class TesterinaContext {
                     testSuites.put(packageInfo.getPkgPath(), new TestSuite(packageInfo.getPkgPath()));
                     //processTestSuites
                 }
-                AnnotationProcessor.processAnnotations(this, programFile, packageInfo, testSuites.get(packageInfo
-                        .getPkgPath()), groups, excludeGroups);
+//                TAnnotationProcessor.processAnnotations(this, programFile, packageInfo, testSuites.get(packageInfo
+//                        .getPkgPath()), groups, excludeGroups);
             }
         }
     }

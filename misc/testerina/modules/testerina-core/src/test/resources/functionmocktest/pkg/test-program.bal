@@ -4,7 +4,7 @@ import ballerina.test;
 import ballerina.io;
 
 @test:mock {
-    packageName : "src.test.resources.functionmocktest.pkg.sub1" ,
+    packageName : "src.test.resources.functionmocktest2.pkg" ,
     functionName : "intAdd"
 }
 public function mockIntAdd (int a, int b) (int c) {

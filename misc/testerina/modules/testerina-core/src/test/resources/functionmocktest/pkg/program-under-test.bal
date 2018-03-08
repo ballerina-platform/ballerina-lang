@@ -1,6 +1,6 @@
 package src.test.resources.functionmocktest.pkg;
 
-import src.test.resources.functionmocktest.pkg.sub1 as sub1;
+import src.test.resources.functionmocktest2.pkg as sub1;
 
 public function intAdd (int a, int b) (int) {
     return sub1:intAdd(a, b);
