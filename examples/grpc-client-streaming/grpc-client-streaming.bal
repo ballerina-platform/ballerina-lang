@@ -3,7 +3,8 @@ import ballerina.net.grpc;
 
 @grpc:serviceConfig {rpcEndpoint:"LotsOfGreetings",
                      clientStreaming:true,
-                     serverStreaming:true}
+                     serverStreaming:true,
+                     generateClientConnector:false}
 service<grpc> helloWorld {
     resource onOpen (grpc:ServerConnection conn) {
         io:println("Connnection has established sucessfully.");

@@ -2,7 +2,8 @@ import ballerina.io;
 import ballerina.log;
 import ballerina.net.grpc;
 
-@grpc:serviceConfig {port:9090}
+@grpc:serviceConfig {port:9090,
+                     generateClientConnector:false}
 service<grpc> helloWorld {
 
     @grpc:resourceConfig {streaming:true}

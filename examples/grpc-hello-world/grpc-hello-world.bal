@@ -1,7 +1,8 @@
 import ballerina.io;
 import ballerina.net.grpc;
 
-@grpc:serviceConfig {port:9090}
+@grpc:serviceConfig {port:9090,
+                     generateClientConnector:false}
 service<grpc> helloWorld {
     resource hello (grpc:ServerConnection conn, HelloRequest req) {
         io:println("Receive hello from : " + req.name);
