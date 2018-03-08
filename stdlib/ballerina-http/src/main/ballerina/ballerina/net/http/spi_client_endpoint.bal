@@ -41,9 +41,8 @@ public function <ClientEndpoint h> init (string epName, ClientEndpointConfigurat
 // endpoint - also happens at package init time. If the service
 // has annotations then the registration code has to go get them
 // and do whatever it wants with those
-public function <ClientEndpoint h> register (type serviceType) returns (error) {
+public function <ClientEndpoint h> register (type serviceType) {
     // TODO : Make This Native.
-    return null;
 }
 
 // returns the connector that client code uses
@@ -79,8 +78,8 @@ function <SimpleClientEndpoint h> init (string epName, TargetService c){
     h.config = c;
 }
 
-function <SimpleClientEndpoint h> register (type serviceType) returns (error) {
-    return h.ep.register(serviceType);
+function <SimpleClientEndpoint h> register (type serviceType) {
+    h.ep.register(serviceType);
 }
 
 function <SimpleClientEndpoint h> getConnector () returns (HttpClient) {

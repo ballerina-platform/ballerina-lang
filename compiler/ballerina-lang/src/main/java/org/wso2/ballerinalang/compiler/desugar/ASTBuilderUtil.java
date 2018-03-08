@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -166,6 +167,12 @@ class ASTBuilderUtil {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
+    }
+
+    static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos) {
+        final BLangUnaryExpr typeOfExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        typeOfExpr.pos = pos;
+        return typeOfExpr;
     }
 
     static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {

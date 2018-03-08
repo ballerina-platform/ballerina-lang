@@ -199,6 +199,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.services = rewrite(pkgNode.services, env);
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
+        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -301,6 +302,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangEndpoint endpoint) {
         endpointDesugar.rewriteEndpoint(endpoint, env);
+        result = endpoint;
     }
 
     @Override

@@ -141,10 +141,9 @@ public class EndpointSPIAnalyzer {
         }
         // validate register function
         final BStructSymbol.BAttachedFunction register = ep.attachedFunctionMap.get(EP_SPI_REGISTER);
-        if (register.type.getParameterTypes().size() != 1 || register.type.retTypes.size() != 1
+        if (register.type.getParameterTypes().size() != 1 || register.type.retTypes.size() != 0
                 || register.type.getReceiverType() != ep.structSymbol.type
-                || register.type.getParameterTypes().get(0).tag != TypeTags.TYPE
-                || register.type.retTypes.get(0) != symTable.errStructType) {
+                || register.type.getParameterTypes().get(0).tag != TypeTags.TYPE) {
             isValid = false;
             dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_REGISTER);
         }
