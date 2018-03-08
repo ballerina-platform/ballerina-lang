@@ -87,16 +87,12 @@ public class TransactionResourceManager {
                     if (xaResource != null) {
                         Xid xid = xidRegistry.get(combinedId);
                         xaResource.prepare(xid);
-                    } else {
-                        log.info("not an xa resource : " + combinedId);
                     }
                 } catch (Throwable e) {
                     log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
                     return false;
                 }
             }
-        } else {
-            log.info("no transacted actions registered for prepare : " + combinedId);
         }
         return true;
     }
@@ -128,8 +124,6 @@ public class TransactionResourceManager {
                     ctx.close();
                 }
             }
-        } else {
-            log.info("no transacted actions registered for commit : " + combinedId);
         }
         removeContextsFromRegistry(combinedId);
         return commitSuccess;
@@ -161,8 +155,6 @@ public class TransactionResourceManager {
                     ctx.close();
                 }
             }
-        } else {
-            log.info("no transacted actions registered for rollback : " + combinedId);
         }
         removeContextsFromRegistry(combinedId);
         return abortSuccess;
@@ -210,12 +202,9 @@ public class TransactionResourceManager {
                         }
                     } catch (Throwable e) {
                         throw new BallerinaException(
-                                "error in ending the XA transaction: id: " + combinedId + " error:" + e
-                                        .getMessage());
+                                "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                     }
                 }
-            } else {
-                log.info("no transacted actions registered for rollback : " + combinedId);
             }
         }
     }
