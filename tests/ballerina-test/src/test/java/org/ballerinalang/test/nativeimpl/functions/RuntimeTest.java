@@ -140,7 +140,7 @@ public class RuntimeTest {
     public void testErrorStackFrame() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"level1Error\", packageName:\".\","
-                + " fileName:\"runtime-error.bal\", lineNumber:25}");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"testErrorStackFrame\", packageName:\".\","
+                + " fileName:\"runtime-error.bal\", lineNumber:17}");
     }
 }
