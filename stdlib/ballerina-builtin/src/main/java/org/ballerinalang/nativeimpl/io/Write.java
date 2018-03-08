@@ -120,7 +120,7 @@ public class Write extends AbstractNativeFunction {
 //            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(new BInteger(numberOfBytesWritten), errorStruct);

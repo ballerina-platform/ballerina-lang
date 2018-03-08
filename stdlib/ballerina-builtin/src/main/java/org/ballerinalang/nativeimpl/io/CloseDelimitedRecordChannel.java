@@ -84,7 +84,7 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
             }
         } catch (Throwable e) {
             String message = "Failed to close the text record channel:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(errorStruct);

@@ -82,7 +82,7 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
             }
         } catch (Throwable e) {
             String message = "Failed to close the character channel:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(errorStruct);

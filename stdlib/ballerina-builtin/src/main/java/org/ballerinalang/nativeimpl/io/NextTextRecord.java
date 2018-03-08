@@ -127,7 +127,7 @@ public class NextTextRecord extends AbstractNativeFunction {
             record = new BStringArray(recordValue);
         } catch (Throwable e) {
             String message = "Error occurred while reading text records:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(record, errorStruct);

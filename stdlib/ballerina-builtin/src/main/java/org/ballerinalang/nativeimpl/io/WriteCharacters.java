@@ -137,7 +137,7 @@ public class WriteCharacters extends AbstractNativeFunction {
             numberOfCharactersWritten = writeCharacters(characterChannel, content, (int) startOffset, eventContext);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(new BInteger(numberOfCharactersWritten), errorStruct);

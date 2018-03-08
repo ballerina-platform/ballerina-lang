@@ -126,7 +126,7 @@ public class WriteTextRecord extends AbstractNativeFunction {
             writeTextRecord(delimitedRecordChannel, content, eventContext);
         } catch (Throwable e) {
             String message = "Error occurred while writing text record:" + e.getMessage();
-            log.error(message);
+            log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
         return getBValues(errorStruct);
