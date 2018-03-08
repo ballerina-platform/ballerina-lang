@@ -45,7 +45,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.net.ws.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;

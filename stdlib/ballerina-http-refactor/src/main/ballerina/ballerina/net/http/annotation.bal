@@ -1,8 +1,5 @@
 package ballerina.net.http;
 
-@Description {value:"HTTP Configuration for service"}
-public annotation <service> httpServiceConfig HttpServiceConfiguration;
-
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
@@ -57,6 +54,9 @@ public enum HttpServiceLifeTime {
     SESSION,
     SINGLETON
 }
+
+@Description {value:"HTTP Configuration for service"}
+public annotation <service> httpServiceConfig HttpServiceConfiguration;
 
 @Description {value:"WebSocket Configuration for service"}
 public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;

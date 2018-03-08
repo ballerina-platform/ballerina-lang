@@ -21,14 +21,14 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.ws.WebSocketService;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.ws.WebSocketConstants.PROTOCOL_PACKAGE_WS;
+import static org.ballerinalang.net.http.WebSocketConstants.PROTOCOL_PACKAGE_WS;
 
 /**
  * {@code HttpServerConnector} This is the http implementation for the {@code BallerinaServerConnector} API.

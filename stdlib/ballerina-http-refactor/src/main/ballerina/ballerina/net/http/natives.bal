@@ -187,6 +187,50 @@ public connector WebSocketConnector (map attributes){
     @Return {value:"The map of query params" }
     native action getQueryParams () (map);
 }
+@Description {value:"Represents a WebSocket text frame in Ballerina."}
+@Field {value: "text: Text in the text frame"}
+@Field {value: "isFinalFragment: Check whether this is the final frame. True if the frame is final frame."}
+public struct TextFrame {
+    string text;
+    boolean isFinalFragment;
+}
+
+@Description {value:"Represents a WebSocket binary frame in Ballerina."}
+@Field {value: "data: Binary data of the frame"}
+@Field {value: "isFinalFragment: Check whether this is the final frame. True if the frame is final frame."}
+public struct BinaryFrame {
+    blob data;
+    boolean isFinalFragment;
+}
+
+
+@Description {value:"Represents a WebSocket close frame in Ballerina."}
+@Field {value: "statusCode: Status code for the reason of the closure of the connection"}
+@Field {value: "reason: Reason to close the connection"}
+public struct CloseFrame {
+    int statusCode;
+    string reason;
+}
+
+@Description {value:"Represents a WebSocket ping frame in Ballerina."}
+@Field {value: "data: Data of the frame"}
+public struct PingFrame {
+    blob data;
+}
+
+@Description {value:"Represents a WebSocket pong frame in Ballerina."}
+@Field {value: "data: Data of the frame"}
+public struct PongFrame {
+    blob data;
+}
+
+@Description {value: "Error struct for WebSocket connection errors"}
+@Field {value:"message:  An error message explaining the error"}
+@Field {value:"cause: The error that caused HttpConnectorError to be returned"}
+public struct WebSocketConnectorError {
+    string message;
+    error cause;
+}
 
 @Description { value:"Represents an HTTP inbound request message"}
 @Field {value:"path: Resource path of request URI"}
@@ -569,4 +613,44 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The inbound response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
 	native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
+
+    @Description {value:"Configuration struct for WebSocket client connection"}
+    @Field {value: "subProtocols: Negotiable sub protocols for the client"}
+    @Field {value: "parentConnectionID: Connection ID of the parent connection to which it should be bound to when connecting"}
+    @Field {value: "customHeaders: Custom headers which should be sent to the server"}
+    @Field {value: "idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
+    public struct WebSocketClientEndpoint {
+        string url;
+        type callbackService;
+        string [] subProtocols;
+        string parentConnectionID;
+        map<string> customHeaders;
+        int idleTimeoutInSeconds = -1;
+    }
+
+    @Description { value:"Gets called when the endpoint is being initialize during package init time"}
+    @Param { value:"epName: The endpoint name" }
+    @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+    @Return { value:"Error occured during initialization" }
+    public native function <WebSocketClientEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
+
+    @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"res: The outbound response message" }
+    @Return { value:"Error occured during registration" }
+    public native function <WebSocketClientEndpoint h> register (type serviceType)
+
+    @Description { value:"Starts the registered service"}
+    @Return { value:"Error occured during registration" }
+    public native function <WebSocketClientEndpoint h> start ();
+
+    @Description { value:"Returns the connector that client code uses"}
+    @Return { value:"The connector that client code uses" }
+    @Return { value:"Error occured during registration" }
+    public native function <WebSocketClientEndpoint h> getConnector () returns (ResponseConnector repConn);
+
+    @Description { value:"Stops the registered service"}
+    @Return { value:"Error occured during registration" }
+    public native function <WebSocketClientEndpoint h> stop ();
+
 }
