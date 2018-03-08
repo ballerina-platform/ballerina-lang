@@ -63,7 +63,7 @@ import java.util.List;
  * Utility class providing utility methods.
  */
 public class ServiceProtoUtils {
-    
+
     public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         String packageName = serviceNode.getPosition().getSource().getPackageName();
@@ -78,7 +78,8 @@ public class ServiceProtoUtils {
         }
         ServiceConfig serviceConfig = getServiceConfiguration(serviceNode);
         Service serviceDefinition;
-        if (serviceConfig != null) {
+        if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming() || serviceConfig
+                .isServerStreaming())) {
             serviceDefinition = getStreamingServiceDefinition(serviceNode, serviceConfig, fileBuilder);
         } else {
             serviceDefinition = getUnaryServiceDefinition(serviceNode, fileBuilder);
@@ -87,17 +88,18 @@ public class ServiceProtoUtils {
         fileBuilder.setService(serviceDefinition);
         return fileBuilder.build();
     }
-    
+
     static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
-        ServiceConfig serviceConfig = null;
+        int port = 0;
+        String rpcEndpoint = null;
+        boolean clientStreaming = false;
+        boolean serverStreaming = false;
+        boolean generateClientStreaming = false;
+
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
-            if (!"serviceConfig".equals(annotationNode.getAnnotationName().getValue())) {
+            if (!ServiceProtoConstants.ANN_SERVICE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
                 continue;
             }
-            String rpcEndpoint = null;
-            boolean clientStreaming = false;
-            boolean serverStreaming = false;
-            boolean generateClientStreaming = false;
             for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
                 String attributeName = attributeNode.getName().getValue();
                 Node attributeValueNode = attributeNode.getValue() != null ? attributeNode.getValue().getValue() : null;
@@ -105,21 +107,25 @@ public class ServiceProtoUtils {
                 if (attributeValueNode instanceof BLangLiteral) {
                     attributeValue = ((BLangLiteral) attributeValueNode).getValue();
                 }
-                
+
                 switch (attributeName) {
-                    case "rpcEndpoint": {
-                        rpcEndpoint = (String) attributeValue;
+                    case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
+                        port = attributeValue != null ? (Integer) attributeValue : 0;
                         break;
                     }
-                    case "clientStreaming": {
+                    case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
+                        rpcEndpoint = attributeValue instanceof String ? (String) attributeValue : null;
+                        break;
+                    }
+                    case ServiceProtoConstants.SERVICE_CONFIG_CLIENT_STREAMING: {
                         clientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
                         break;
                     }
-                    case "serverStreaming": {
+                    case ServiceProtoConstants.SERVICE_CONFIG_SERVER_STREAMING: {
                         serverStreaming = attributeValue != null ? (Boolean) attributeValue : false;
                         break;
                     }
-                    case "generateClientConnector": {
+                    case ServiceProtoConstants.SERVICE_CONFIG_GENERATE_CLIENT: {
                         generateClientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
                         break;
                     }
@@ -128,12 +134,10 @@ public class ServiceProtoUtils {
                     }
                 }
             }
-            if (rpcEndpoint != null && (clientStreaming || serverStreaming)) {
-                serviceConfig = new ServiceConfig(rpcEndpoint, clientStreaming, serverStreaming,
-                        generateClientStreaming);
-            }
         }
-        return serviceConfig;
+
+        return new ServiceConfig(port, rpcEndpoint, clientStreaming, serverStreaming,
+                generateClientStreaming);
     }
     
     private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws
@@ -413,15 +417,14 @@ public class ServiceProtoUtils {
 
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
-        
         try {
             Path path = Paths.get(service.getName() + ServiceProtoConstants.DESC_FILE_EXTENSION);
             byte[] descriptor = Files.readAllBytes(path);
-            
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
-            return Descriptors.FileDescriptor.buildFrom(proto, new com.google.protobuf.Descriptors.FileDescriptor[] {
-                    com.google.protobuf.WrappersProto.getDescriptor(),
-            });
+            Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto, new com.google
+                    .protobuf.Descriptors.FileDescriptor[]{com.google.protobuf.WrappersProto.getDescriptor()});
+            Files.delete(path);
+            return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new RuntimeException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);

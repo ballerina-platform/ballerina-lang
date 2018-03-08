@@ -25,9 +25,11 @@ public class ServiceConfig {
     private final boolean clientStreaming;
     private final boolean serverStreaming;
     private final boolean generateClientConnector;
+    private final int port;
 
-    public ServiceConfig(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming, boolean
+    public ServiceConfig(int port, String rpcEndpoint, boolean clientStreaming, boolean serverStreaming, boolean
             generateClientConnector) {
+        this.port = port;
         this.rpcEndpoint = rpcEndpoint;
         this.clientStreaming = clientStreaming;
         this.serverStreaming = serverStreaming;
@@ -49,5 +51,9 @@ public class ServiceConfig {
 
     public boolean isGenerateClientConnector() {
         return generateClientConnector;
+    }
+
+    public int getPort() {
+        return port;
     }
 }

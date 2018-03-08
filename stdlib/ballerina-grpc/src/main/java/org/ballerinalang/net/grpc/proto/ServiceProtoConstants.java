@@ -48,6 +48,13 @@ public class ServiceProtoConstants {
     // New line character constant.
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
 
+    public static final String ANN_SERVICE_CONFIG = "serviceConfig";
+    public static final String SERVICE_CONFIG_PORT = "port";
+    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "rpcEndpoint";
+    public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
+    public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
+    public static final String SERVICE_CONFIG_GENERATE_CLIENT = "generateClientConnector";
+
 
     // proto wrapper message constants
     public static final String WRAPPER_DOUBLE_MESSAGE = "DoubleValue";
