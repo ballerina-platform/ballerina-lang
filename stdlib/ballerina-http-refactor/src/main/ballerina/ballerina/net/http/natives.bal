@@ -86,6 +86,13 @@ public native function <ServiceEndpoint h> getConnector () returns (ResponseConn
 @Return { value:"Error occured during registration" }
 public native function <ServiceEndpoint h> stop ();
 
+
+public struct HttpService {
+}
+
+public struct WsService{
+}
+
 @Description {value:"Represent 'content-length' header name"}
 public const string CONTENT_LENGTH = "content-length";
 

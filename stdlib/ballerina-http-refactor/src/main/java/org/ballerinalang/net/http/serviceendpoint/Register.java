@@ -19,15 +19,18 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.ws.WebSocketConstants;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpService;
+import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketService;
 
 /**
  * Get the ID of the connection.
@@ -43,9 +46,22 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class Register extends AbstractNativeFunction {
+public class Register extends AbstractHttpNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
+        Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+        // TODO: Need to change protocol package to relevant structs.
+        if (HttpConstants.PROTOCOL_PACKAGE_HTTP.equals(service.getPackage())) {
+            getHttpServicesRegistry(connectorEndpoint).registerService(new HttpService(service));
+        }
+
+        if (WebSocketConstants.PROTOCOL_PACKAGE_WS.equals(service.getPackage())) {
+            getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
+        }
+
+        return new BValue[]{null};
     }
 }

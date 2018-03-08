@@ -19,12 +19,15 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.wso2.transport.http.netty.contract.ServerConnector;
 
 /**
  * Get the ID of the connection.
@@ -39,9 +42,12 @@ import org.ballerinalang.natives.annotations.Receiver;
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Start extends AbstractNativeFunction {
+public class Start extends AbstractHttpNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+
     }
 }

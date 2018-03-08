@@ -57,7 +57,7 @@ import java.util.List;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class Init extends AbstractNativeFunction {
+public class Init extends AbstractHttpNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
