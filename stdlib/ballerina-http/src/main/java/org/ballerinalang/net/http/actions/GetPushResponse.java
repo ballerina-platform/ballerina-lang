@@ -125,11 +125,5 @@ public class GetPushResponse extends AbstractHTTPAction {
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
             ballerinaFuture.notifyReply(inboundResponse);
         }
-
-        @Override
-        public void onError(Throwable throwable) {
-
-        }
     }
-
 }

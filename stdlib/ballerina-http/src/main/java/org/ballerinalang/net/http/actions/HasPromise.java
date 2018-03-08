@@ -92,9 +92,5 @@ public class HasPromise extends AbstractHTTPAction {
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
             ballerinaFuture.notifyReply(new BBoolean(isPromiseAvailable));
         }
-
-        @Override
-        public void onError(Throwable throwable) {
-        }
     }
 }

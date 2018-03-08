@@ -311,7 +311,7 @@ public class HttpUtil {
                                                   Http2PushPromise pushPromise) {
         HttpResponseFuture responseFuture;
         try {
-            responseFuture = requestMsg.respond(responseMsg, pushPromise);
+            responseFuture = requestMsg.pushResponse(responseMsg, pushPromise);
         } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
@@ -321,7 +321,7 @@ public class HttpUtil {
     public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
         HttpResponseFuture responseFuture;
         try {
-            responseFuture = requestMsg.respond(pushPromise);
+            responseFuture = requestMsg.pushPromise(pushPromise);
         } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }

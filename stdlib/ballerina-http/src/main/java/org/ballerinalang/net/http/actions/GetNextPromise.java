@@ -113,11 +113,5 @@ public class GetNextPromise extends AbstractHTTPAction {
             HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
             ballerinaFuture.notifyReply(pushPromiseStruct);
         }
-
-        @Override
-        public void onError(Throwable throwable) {
-        }
-
     }
-
 }

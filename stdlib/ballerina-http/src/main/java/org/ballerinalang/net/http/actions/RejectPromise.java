@@ -82,7 +82,7 @@ public class RejectPromise extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-        clientConnector.rejectPromise(responseHandle, http2PushPromise);
+        clientConnector.rejectPushResponse(responseHandle, http2PushPromise);
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         ballerinaFuture.notifyReply(new BBoolean(true));  // TODO: Implement a listener to see the progress
