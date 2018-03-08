@@ -78,22 +78,22 @@ public class BTestRunner {
      */
     public void runTest(Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
         // compile
-        CompileResult[] compileResults = Arrays.stream(sourceFilePaths).map(k -> k.toString()).map(k -> BCompileUtil
-                .compile(programDirPath.toString(), k, CompilerPhase.CODE_GEN)).toArray(CompileResult[]::new);
-        // traverse through compile results
-        Arrays.stream(compileResults).forEachOrdered(compileResult -> {
+        Arrays.stream(sourceFilePaths).forEach(k -> {
+            CompileResult compileResult = BCompileUtil.compile(programDirPath.toString(), k.toString(), CompilerPhase
+                    .CODE_GEN);
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                errStream.println(diagnostic.getMessage());
+                errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
+                        .getMessage());
             }
             if (compileResult.getDiagnostics().length > 0) {
-                errStream.println("Compilation failed for package: " + compileResult.getProgFile().getEntryPkgName());
+                throw new BallerinaException("Compilation failure in: " + k.toString());
             }
             outStream.println("Processing compiled result of package: " + compileResult.getProgFile().getEntryPkgName
                     ());
             TesterinaRegistry.getInstance().addProgramFile(compileResult.getProgFile());
             // process the compiled files
             PackageInfo packageInfo = compileResult.getProgFile().getEntryPackage();
-            testSuites.computeIfAbsent(packageInfo.getPkgPath(), k -> new TestSuite(packageInfo.getPkgPath()));
+            testSuites.computeIfAbsent(packageInfo.getPkgPath(), func -> new TestSuite(packageInfo.getPkgPath()));
             AnnotationProcessor.processAnnotations(packageInfo, testSuites.get(packageInfo.getPkgPath()),
                     mockFunctionsMap, groups, shouldIncludeGroups);
 
