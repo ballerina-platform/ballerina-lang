@@ -24,6 +24,7 @@ import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
 import org.ballerinalang.bre.bvm.WorkerContext;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructType;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.util.BrokerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -54,8 +56,6 @@ public class BStream implements BRefType<Object> {
     private BStructType constraintType;
 
     private String streamId = "";
-
-    private List<InputHandler> inputHandlerList;
 
     /**
      * The name of the underlying broker topic representing the stream object.
@@ -115,6 +115,11 @@ public class BStream implements BRefType<Object> {
     public void subscribe(Context context, BFunctionPointer functionPointer) {
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
+
+        List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().getSiddhiAppRuntimeList();
+        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
+            addCallback(siddhiAppRuntime);
+        }
     }
 
     public void subscribe(InputHandler inputHandler) {
@@ -122,8 +127,8 @@ public class BStream implements BRefType<Object> {
         BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
 
-    public void addCallback(BStreamlet streamlet) {
-        streamlet.getSiddhiAppRuntime().addCallback(topicName, new StreamCallback() {
+    public void addCallback(SiddhiAppRuntime siddhiAppRuntime) {
+        siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 int intVarIndex = -1;
@@ -170,8 +175,7 @@ public class BStream implements BRefType<Object> {
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
 //            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType); TODO: replace with rebase
-            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType,
-                    context.getProgramFile().getEntryPackage());
+            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             BValue[] args = {data};
             Context workerContext = new WorkerContext(context.getProgramFile(), context);
             BLangFunctions.invokeFunction(context.getProgramFile(), functionPointer.value().getFunctionInfo(), args,
@@ -199,6 +203,7 @@ public class BStream implements BRefType<Object> {
         }
     }
 
+    //Class which handles the subscription internally
     private class InternalStreamSubscriber extends Consumer {
         private final String topic;
         private final String queueName;
@@ -218,9 +223,7 @@ public class BStream implements BRefType<Object> {
                 chunk.getBytes().getBytes(0, bytes);
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
-            BStruct data = null;
-//            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType,
-//                    context.getProgramFile().getEntryPackage());
+            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             Object[] event = createEvent(data);
             try {
                 inputHandler.send(event);
@@ -278,7 +281,7 @@ public class BStream implements BRefType<Object> {
 
         @Override
         public boolean isReady() {
-            return false;
+            return true;
         }
     }
 

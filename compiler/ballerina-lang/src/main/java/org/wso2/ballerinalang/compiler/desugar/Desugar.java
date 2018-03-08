@@ -1039,7 +1039,7 @@ public class Desugar extends BLangNodeVisitor {
         JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
         BLangSimpleVarRef joinTable = null;
         if (joinStreamingInput != null) {
-            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getTableReference();
+            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
             joinTable = new BLangLocalVarRef(joinTable.symbol);
         }
         return joinTable;
@@ -1047,7 +1047,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangLocalVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
         BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
-                .getTableReference();
+                .getStreamReference();
         return new BLangLocalVarRef(fromTable.symbol);
     }
 

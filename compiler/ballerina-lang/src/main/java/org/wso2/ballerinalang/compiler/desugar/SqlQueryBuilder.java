@@ -189,16 +189,15 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamingInput streamingInput) {
         streamingInputClause = new StringBuilder();
-        BLangExpression tableReference = (BLangExpression) streamingInput.getTableReference();
+        BLangExpression tableReference = (BLangExpression) streamingInput.getStreamReference();
         tableReference.accept(this);
         streamingInputClause.append("{{").append(exprStack.pop()).append("}}");
-        List<? extends WhereNode> whereNodes = streamingInput.getStreamingConditions();
+        WhereNode where = streamingInput.getBeforeStreamingCondition();
 
         /* for tables there can only be one whereClause and there is no windowClause.
          So we don't care about the windowClause. */
-        if (whereNodes != null && !whereNodes.isEmpty()) {
-            BLangWhere where = (BLangWhere) whereNodes.get(0);
-            where.accept(this);
+        if (where != null) {
+            ((BLangWhere) where).accept(this);
             streamingInputClause.append(" ").append(whereClause);
         }
         if (streamingInput.getAlias() != null) {
@@ -295,7 +294,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> varList = groupBy.getVariables();
-        Iterator<? extends  ExpressionNode> iterator = varList.iterator();
+        Iterator<? extends ExpressionNode> iterator = varList.iterator();
         groupByClause = new StringBuilder("group by ");
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) iterator.next();
         simpleVarRef.accept(this);
@@ -333,7 +332,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         BLangExpression expr = (BLangExpression) selectExpression.getExpression();
         selectExpr = new StringBuilder();
         addParametrizedSQL(expr, selectExpr, selectExprParams);
-        String identifier  = selectExpression.getIdentifier();
+        String identifier = selectExpression.getIdentifier();
         if (identifier != null) {
             selectExpr.append(" as ").append(identifier);
         }
@@ -342,12 +341,13 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     /**
      * This function will append the parametrized SQL query to given String Builder and at the same time, this
      * function will add the parametrized params to the given list and finally clears the temporary param list.
-     * @param expr expression on which the SQL query is built
+     *
+     * @param expr             expression on which the SQL query is built
      * @param sqlStringBuilder StringBuilder to which the SQL query is appended
-     * @param params List to which the parameters are added
+     * @param params           List to which the parameters are added
      */
     private void addParametrizedSQL(BLangExpression expr, StringBuilder sqlStringBuilder,
-            List<BLangExpression> params) {
+                                    List<BLangExpression> params) {
         expr.accept(this);
         sqlStringBuilder.append(exprStack.pop());
         params.addAll(exprParams);

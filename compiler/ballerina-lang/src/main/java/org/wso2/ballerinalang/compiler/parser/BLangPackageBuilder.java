@@ -2189,7 +2189,7 @@ public class BLangPackageBuilder {
         this.streamingInputStack.push(streamingInput);
     }
 
-    public void endStreamingInputNode(String identifier, String alias, DiagnosticPos pos,
+    public void endStreamingInputNode(String alias, DiagnosticPos pos,
                                       Set<Whitespace> ws) {
         BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
         streamingInput.pos = pos;
@@ -2209,7 +2209,7 @@ public class BLangPackageBuilder {
         if (!this.windowClausesStack.isEmpty()) {
             streamingInput.setWindowClause(this.windowClausesStack.pop());
         }
-        streamingInput.setTableReference(this.exprNodeStack.pop());
+        streamingInput.setStreamReference(this.exprNodeStack.pop());
         streamingInput.setAlias(alias);
     }
 

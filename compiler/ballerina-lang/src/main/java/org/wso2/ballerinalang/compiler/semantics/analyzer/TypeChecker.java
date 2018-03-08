@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -922,8 +923,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
-        BLangExpression varRef = (BLangExpression) streamingInput.getTableReference();
+        BLangExpression varRef = (BLangExpression) streamingInput.getStreamReference();
         varRef.accept(this);
+    }
+
+    public void visit(BLangStreamlet streamletNode){
+
     }
 
     // Private methods

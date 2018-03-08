@@ -114,10 +114,6 @@
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.atomikos.wso2</groupId>
-            <artifactId>atomikos</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.ballerina.messaging</groupId>
             <artifactId>broker-common</artifactId>
         </dependency>

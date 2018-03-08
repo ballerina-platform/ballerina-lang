@@ -169,7 +169,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamingInput streamingInput) {
         streamingInputClause = new StringBuilder();
-        streamingInputClause.append(streamingInput.getIdentifier());
+        streamingInputClause.append(((BLangSimpleVarRef) streamingInput.getStreamReference()).getVariableName().value);
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
         WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
@@ -333,6 +333,17 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
             siddhiQuery.append(" ").append(streamingInputClause);
+
+            ExpressionNode streamReference = streamingInput.getStreamReference();
+            if (streamReference != null) {
+                ((BLangSimpleVarRef) streamReference).accept(this);
+                if (streamIdsAsString.length() == 0) {
+                    streamIdsAsString.append(varRef);
+                } else {
+                    streamIdsAsString.append(",").append(varRef);
+                }
+                varRef = "";
+            }
         }
 
         PatternStreamingInputNode patternStreamingInput = streamingQueryStatement.getPatternStreamingInput();
@@ -462,11 +473,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varNode.name).append("( ");
-        if (streamIdsAsString.length() == 0) {
-            streamIdsAsString.append(varNode.name);
-        } else {
-            streamIdsAsString.append(",").append(varNode.name);
-        }
         List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) ((BLangVariable) varNode).type).
                 constraint).fields;
         generateStreamDefinition(structFieldList, streamDefinition);
@@ -478,11 +484,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangVariableDef varDefNode) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varDefNode.var.name).append("( ");
-        if (streamIdsAsString.length() == 0) {
-            streamIdsAsString.append(varDefNode.var.name);
-        } else {
-            streamIdsAsString.append(",").append(varDefNode.var.name);
-        }
         List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) varDefNode.var.type).
                 constraint).fields;
         generateStreamDefinition(structFieldList, streamDefinition);

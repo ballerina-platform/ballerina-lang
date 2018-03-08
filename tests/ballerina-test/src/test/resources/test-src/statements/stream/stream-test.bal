@@ -8,8 +8,8 @@ struct Person {
 }
 
 struct Office {
-    string address;
-    string phone;
+    string name;
+    int age;
 }
 
 stream<Employee> s1 = {};
@@ -22,10 +22,10 @@ streamlet smohan() {
     query q1 {
 
     from testStream
-    where age < 0
-    select name, 10 as mo, age
+    where age > 0
+    select name, age
     group by name
-    insert into test1
+    insert into officeStream
     }
 }
 
@@ -39,22 +39,32 @@ function test () (int) {
     Employee e2 = {name:"Aysha", employeeNumber:12344};
     io:println("Created struct 'e2' for Employee: " + e2.name);
 
+    officeStream.subscribe(printName);
+    io:println("Subscribed to stream 's1' with function printName");
 
-    io:println("Created stream 's1' accepting Employees");
+    Person p1 = {name:"Mohan", age:29, status:"Hello"};
+    testStream.publish(p1);
 
 
-    io:println("Created stream 's2' accepting Employees");
+
+
+    //io:println("Created stream 's1' accepting Employees");
+    //
+    //
+    //io:println("Created stream 's2' accepting Employees");
     //
     //s1.subscribe(printName);
     //io:println("Subscribed to stream 's1' with function printName");
     //
     //s2.subscribe(printEmployeeNumber);
     //io:println("Subscribed to stream 's2' with function printEmployeeNumber\n************************************************************");
+    //
+    //s1.publish(e1);
+    //io:println("Published 'e1' to stream 's1'");
+    runtime:sleepCurrentWorker(500000000);
+    //s2.publish(e2);
 
-    s1.publish(e1);
-    io:println("Published 'e1' to stream 's1'");
-    runtime:sleepCurrentWorker(1000);
-    s2.publish(e2);
+
     io:println("Published 'e2' to stream 's2'");
     runtime:sleepCurrentWorker(1000);
 
@@ -66,8 +76,8 @@ struct Employee {
     int employeeNumber;
 }
 
-function printName (Employee e) {
-    io:println("printName function invoked for Employee event for Employee name: " + e.name);
+function printName (Office e) {
+    io:println("printName function invoked for Employee event for Employee name: " + e.name  + e.age);
 }
 
 function printEmployeeNumber (Employee e) {

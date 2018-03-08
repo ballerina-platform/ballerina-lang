@@ -34,6 +34,10 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  */
 public interface StreamingInput extends Node {
 
+    ExpressionNode getStreamReference();
+
+    void setStreamReference(ExpressionNode streamReference);
+
     void setBeforeStreamingCondition(WhereNode where);
 
     WhereNode getBeforeStreamingCondition();
@@ -49,10 +53,6 @@ public interface StreamingInput extends Node {
     void setWindowClause(WindowClauseNode windowClause);
 
     WindowClauseNode getWindowClause();
-
-    ExpressionNode getTableReference();
-
-    void setTableReference(ExpressionNode tableReference);
 
     void setAlias(String alias);
 
