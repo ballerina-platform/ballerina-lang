@@ -1,8 +1,9 @@
 package ballerina.pull;
 
-import ballerina.net.http;
-import ballerina.io;
+import ballerina.compression;
 import ballerina.file;
+import ballerina.io;
+import ballerina.net.http;
 import ballerina.runtime;
 
 const string FileSeparator = "/";
@@ -17,14 +18,14 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
     req.addHeader("Accept-Encoding", "identity");
     var resp, errRes = httpEndpoint.get("", req);
     if (errRes != null) {
-        error err = {message: errRes.message};
+        error err = {message:errRes.message};
         throw err;
         return false;
     }
     if (resp.statusCode != 200) {
         var jsonResponse, errJson = resp.getJsonPayload();
         if (errJson != null) {
-            error err = {message: errJson.message};
+            error err = {message:errJson.message};
             throw err;
         } else {
             io:println(jsonResponse.msg.toString());
@@ -40,19 +41,18 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
             fullPkgPath = fullPkgPath + ":" + pkgVersion;
             homeRepoDirPath = homeRepoDirPath.replace("*", pkgVersion);
         }
-        var pkgSize, conversionErr = <int> resp.getHeader("Content-Length");
+        var pkgSize, conversionErr = <int>resp.getHeader("Content-Length");
 
         boolean homeDirExists = ifFileExists(homeRepoDirPath);
         var sourceChannel, sourceChannelErr = resp.getByteChannel();
         if (sourceChannelErr != null) {
-            error err = {message: sourceChannelErr.message};
+            error err = {message:sourceChannelErr.message};
             throw err;
             return false;
         }
-        string fileName = pkgName + "-" + pkgVersion + ".balo";
         io:ByteChannel homeDirChannel = null;
         string toAndFrom;
-
+        string fileName = pkgName + ".zip";
         if (!homeDirExists) {
             // Create directories of the home repo
             createDirectories(homeRepoDirPath);
@@ -60,9 +60,8 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
             homeDirChannel = getFileChannel(homeRepoFilePath, "w");
             toAndFrom = " [central.ballerina.io -> home repo]";
         }
-
         io:ByteChannel projectDirChannel = null;
-        if (projectRepoDirPath != null){
+        if (projectRepoDirPath != null) {
             projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
             string projectRepoFilePath = projectRepoDirPath + FileSeparator + fileName;
             projectDirChannel = getFileChannel(projectRepoFilePath, "w");
@@ -73,63 +72,63 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
                 toAndFrom = " [central.ballerina.io -> home repo -> project repo]";
             }
         }
-
-        copy(pkgSize, sourceChannel, homeDirChannel, projectDirChannel, fullPkgPath, toAndFrom);
-        if (homeDirChannel != null){
-           homeDirChannel.close();
+        copy(pkgSize, sourceChannel, homeDirChannel, projectDirChannel, fullPkgPath, toAndFrom, pkgName,
+             homeRepoDirPath, projectRepoDirPath);
+        if (homeDirChannel != null) {
+            homeDirChannel.close();
         }
         sourceChannel.close();
         return true;
     }
 }
 
-function ifFileExists(string filePath) (boolean) {
-    file:File fileDir = {path: filePath};
+function ifFileExists (string filePath) (boolean) {
+    file:File fileDir = {path:filePath};
     return fileDir.exists();
 }
 
-function pull (string[] args) (boolean){
+function pull (string[] args) (boolean) {
     return pullPackage(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 }
 
-function getConnectorConfigs(string proxyHost, string proxyPort, string proxyUsername, string proxyPassword )
+function getConnectorConfigs (string proxyHost, string proxyPort, string proxyUsername, string proxyPassword)
 (http:Options) {
     http:Options option;
     int portInt = 0;
-    if (proxyHost != ""){
-      if (proxyPort != ""){
-          var portI, _ = <int> proxyPort;
-          portInt = portI;
-      }
-      option = {
-         proxy:{
-           host:proxyHost,
-           port:portInt,
-           userName:proxyUsername,
-           password:proxyPassword
-         }
-      };
+    if (proxyHost != "") {
+        if (proxyPort != "") {
+            var portI, _ = <int>proxyPort;
+            portInt = portI;
+        }
+        option = {
+                     proxy:{
+                               host:proxyHost,
+                               port:portInt,
+                               userName:proxyUsername,
+                               password:proxyPassword
+                           }
+                 };
     } else {
         option = {};
     }
     return option;
 }
 
-function createDirectories(string directoryPath) {
+function createDirectories (string directoryPath) {
     file:AccessDeniedError adError;
     file:IOError ioError;
     boolean folderCreated;
 
-    file:File folder = { path: directoryPath };
-    if (!folder.exists()){
-       folderCreated, adError, ioError = folder.mkdirs();
+    file:File folder = {path:directoryPath};
+    if (!folder.exists()) {
+        folderCreated, adError, ioError = folder.mkdirs();
     }
     if (folderCreated) {
         if (adError != null) {
-            error err = { message: "Error occurred while creating the directories", cause: adError.cause };
+            error err = {message:"Error occurred while creating the directories", cause:adError.cause};
             throw err;
         } else if (ioError != null) {
-            error err = { message: "I/O error occurred while creating the directories", cause: ioError.cause };
+            error err = {message:"I/O error occurred while creating the directories", cause:ioError.cause};
             throw err;
         }
     }
@@ -154,9 +153,9 @@ function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int
     return numberOfBytesWritten;
 }
 
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel homeDst, io:ByteChannel projectDst, string packageName,
-string toAndFrom) {
-    string truncatedFullPkgPath = truncateString(packageName);
+function copy (int pkgSize, io:ByteChannel src, io:ByteChannel homeDst, io:ByteChannel projectDst, string fullPkgPath,
+               string toAndFrom, string packageName, string homeDirPath, string projectDirPath) {
+    string truncatedFullPkgPath = truncateString(fullPkgPath);
     string msg = truncatedFullPkgPath + toAndFrom;
     int bytesChunk = 8;
     blob readContent;
@@ -178,14 +177,31 @@ string toAndFrom) {
         float percentage = totalCount / pkgSize;
         runtime:sleepCurrentWorker(100);
         noOfBytesRead = totalCount + "/" + pkgSize;
-        string bar = equals.subString(0, <int> (percentage * 10));
-        string spaces = tabspaces.subString(0, 10 - <int> (percentage * 10));
-        io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int> totalCount + "/" + pkgSize);
+        string bar = equals.subString(0, <int>(percentage * 10));
+        string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
+        io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
     }
-    io:print("\r" +rightPad( packageName + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
+
+    if (readCount == 0) {
+        if (homeDst != null) {
+            uncompressFile(homeDirPath, packageName);
+        }
+        if (projectDst != null) {
+            uncompressFile(projectDirPath, packageName);
+        }
+
+    }
+    io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
 }
 
-function rightPad(string msg, int length) (string ) {
+function uncompressFile (string dirPath, string packageName) {
+    string packageZipFilePath = dirPath + FileSeparator + packageName + ".zip";
+    compression:unzipFile(packageZipFilePath, dirPath, packageName);
+    file:File tmpFile = {path:packageZipFilePath};
+    tmpFile.delete();
+}
+
+function rightPad (string msg, int length) (string) {
     int i = -1;
     length = length - msg.length();
     string char = " ";
@@ -196,7 +212,7 @@ function rightPad(string msg, int length) (string ) {
     return msg;
 }
 
-function truncateString (string text) (string){
+function truncateString (string text) (string) {
     int indexOfVersion = text.lastIndexOf(":");
     string withoutVersion = text.subString(0, indexOfVersion);
     string versionOfPkg = text.subString(indexOfVersion, text.length());

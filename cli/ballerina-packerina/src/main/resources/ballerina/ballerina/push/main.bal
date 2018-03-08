@@ -1,11 +1,11 @@
 package ballerina.push;
 
-import ballerina.file;
 import ballerina.io;
 import ballerina.mime;
 import ballerina.net.http;
+import ballerina.compression;
 
-function pushPackage (string accessToken, string url, string baloFilePath, string proxyHost, string proxyPort, string proxyUsername,
+function pushPackage (string accessToken, string url, string dirPath, string proxyHost, string proxyPort, string proxyUsername,
                       string proxyPassword) (boolean) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(url, getConnectorConfigs(proxyHost, proxyPort, proxyUsername, proxyPassword));
@@ -13,8 +13,8 @@ function pushPackage (string accessToken, string url, string baloFilePath, strin
     mime:Entity filePart = {};
     mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
     filePart.contentType = contentTypeOfFilePart;
-    file:File fileHandler = {path:baloFilePath};
-    filePart.setFileAsEntityBody(fileHandler);
+    blob compressedContent = compression:zipToBytes(dirPath);
+    filePart.setBlob(compressedContent);
     mime:Entity[] bodyParts = [filePart];
 
     http:OutRequest request = {};

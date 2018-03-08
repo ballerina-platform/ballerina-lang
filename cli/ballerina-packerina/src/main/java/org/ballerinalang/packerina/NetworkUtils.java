@@ -26,10 +26,8 @@ import org.ballerinalang.launcher.toml.parser.SettingsProcessor;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -42,7 +40,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -122,11 +119,9 @@ public class NetworkUtils {
                     pkgVersion};
             arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                     .toArray(String[]::new);
-            BValue[] returns = BRunUtil.invoke(compileResult, "pull",
-                    new BValue[]{buildStringArray(arguments)});
-            if (((BBoolean) returns[0]).booleanValue()) {
-                // TODO: Pull the dependencies of the pulled package
-            }
+            BRunUtil.invoke(compileResult, "pull", new BValue[]{buildStringArray(arguments)});
+            // TODO: Pull the dependencies of the pulled package
+            // if (((BBoolean) returns[0]).booleanValue()) { }
             Runtime.getRuntime().exit(0);
         } else {
             outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
@@ -155,42 +150,17 @@ public class NetworkUtils {
                 // Construct the package name along with the version and check if it exists
                 Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                         .resolve(packageName).resolve(version);
-                Path baloFilePath = pkgPath.resolve(packageName + "-" + version + ".balo");
                 if (Files.notExists(pkgPath)) {
                     outStream.println("Package " + packageName + " with version " + version + " does not exist");
                 } else {
                     // Default push to the remote repository
                     if (installToRepo == null) {
                         String[] proxyConfigs = readProxyConfigurations();
-                        String[] arguments = new String[]{accessToken, resourcePath, baloFilePath.toString()};
+                        String[] arguments = new String[]{accessToken, resourcePath, pkgPath.toString()};
                         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                                 .toArray(String[]::new);
                         BRunUtil.invoke(compileResult, "push", new BValue[]{buildStringArray(arguments)});
                         Runtime.getRuntime().exit(0);
-                    } else {
-                        // Check if the package should be installed into the home repository
-                        if (installToRepo.equals("home")) {
-                            // Directory path to .ballerina/artifacts
-                            Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
-                                    .resolve(BLangConstants.USER_REPO_ARTIFACTS_DIRNAME).resolve(orgName)
-                                    .resolve(packageName).resolve(version);
-                            if (!Files.exists(targetDirectoryPath)) {
-                                try {
-                                    Files.createDirectories(targetDirectoryPath);
-                                } catch (IOException e) {
-                                    outStream.println("Error when occured when creating directories in " +
-                                            "./ballerina/artifacts/ to install the package locally");
-                                }
-                            }
-                            //copy balo file to the user repository
-                            try {
-                                Path dstBaloFile = targetDirectoryPath.resolve(baloFilePath.getFileName());
-                                Files.copy(baloFilePath, dstBaloFile, StandardCopyOption.REPLACE_EXISTING);
-                                outStream.println("Ballerina package pushed successfully to the user repository");
-                            } catch (IOException e) {
-                                outStream.println("Error occured when copying the balo file to the user repository");
-                            }
-                        }
                     }
                 }
             } else {
