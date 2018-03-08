@@ -27,7 +27,12 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
+import org.ballerinalang.net.http.BallerinaWebSocketServerConnectorListener;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 /**
  * Get the ID of the connection.
@@ -47,7 +52,14 @@ public class Start extends AbstractHttpNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-
-
+        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
+        serverConnectorFuture
+                .setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
+        // TODO: set startup server port binder. Do we really need it with new design?
+        return new BValue[]{null};
     }
 }

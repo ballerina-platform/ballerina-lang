@@ -19,6 +19,8 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -38,9 +40,12 @@ import org.ballerinalang.natives.annotations.Receiver;
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Stop extends AbstractNativeFunction {
+public class Stop extends AbstractHttpNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        getServerConnector(serverEndpoint).stop();
+        return new BValue[]{null};
     }
 }
