@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
@@ -36,13 +37,15 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.LogManager;
+
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
+import static org.ballerinalang.logging.util.Constants.LOG_TO;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -67,11 +70,7 @@ public class HttpConnectionManager {
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (isHTTPTraceLoggerEnabled()) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Error in configuring HTTP trace log");
-            }
+            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
         }
     }
 
@@ -104,6 +103,9 @@ public class HttpConnectionManager {
 
         if (isHTTPTraceLoggerEnabled()) {
             listenerConfig.setHttpTraceLogEnabled(true);
+        }
+        if (getHttpAccessLoggerConfig() != null) {
+            listenerConfig.setHttpAccessLogEnabled(true);
         }
 
         serverBootstrapConfiguration = HTTPConnectorUtil
@@ -243,6 +245,14 @@ public class HttpConnectionManager {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+    }
+
+    /**
+     * Gets the access logto value if available.
+     * @return the access logto value from the ConfigRegistry
+     */
+    public String getHttpAccessLoggerConfig() {
+        return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private String makeFirstLetterLowerCase(String str) {
