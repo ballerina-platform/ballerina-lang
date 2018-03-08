@@ -278,16 +278,8 @@ public const string DEFAULT_CHARSET = "UTF-8";
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
 
-function useCaseInsensitiveStrategy(string headerNameToLookFor, map headers) (string[]){
-    foreach key, value in headers {
-        var headerKey, _ = (string)key;
-        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
-            var headerVal, _ = (string[])value;
-            return headerVal;
-        }
-    }
-    return null;
-}
+@Description {value:"Represent Content-Length header"}
+const string CONTENT_LENGTH = "content-length";
 
 public function <Entity entity> getHeader (string headerName) (string) {
     if (entity.headers == null) {
@@ -310,6 +302,13 @@ public function <Entity entity> getHeaders (string headerName) (string[]) {
     return useCaseInsensitiveStrategy(headerName, entity.headers);
 }
 
+public function <Entity entity> getAllHeaders () (map) {
+    if (entity.headers == null) {
+        return null;
+    }
+    return entity.headers;
+}
+
 public function <Entity entity> addHeader (string headerName, string headerValue) {
     if (entity.headers == null) {
         entity.headers = {};
@@ -319,7 +318,8 @@ public function <Entity entity> addHeader (string headerName, string headerValue
         entity.setHeader(headerName, headerValue);
     } else {
         existingValues[lengthof existingValues] = headerValue;
-        entity.headers[headerName] = existingValues;
+        string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
+        entity.headers[existingHeaderName] = existingValues;
     }
 }
 
@@ -328,12 +328,20 @@ public function <Entity entity> setHeader (string headerName, string headerValue
         entity.headers = {};
     }
     string[] valueArray = [headerValue];
-    entity.headers[headerName] = valueArray;
+    string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
+    if (existingHeaderName == null) {
+        entity.headers[headerName] = valueArray;
+    } else {
+        entity.headers[existingHeaderName] = valueArray;
+    }
 }
 
 public function <Entity entity> removeHeader (string headerName) {
     if (entity.headers != null) {
-        entity.headers.remove(headerName);
+        string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
+        if (existingHeaderName != null) {
+            entity.headers.remove(existingHeaderName);
+        }
     }
 }
 
@@ -342,7 +350,7 @@ public function <Entity entity> removeAllHeaders () {
 }
 
 public function <Entity entity> getContentLength () (int) {
-    string strContentLength = entity.getHeader("content-length");
+    string strContentLength = entity.getHeader(CONTENT_LENGTH);
     if (strContentLength != null) {
         var contentLength, conversionErr = <int>strContentLength;
         if (conversionErr != null) {
@@ -352,4 +360,25 @@ public function <Entity entity> getContentLength () (int) {
         }
     }
     return -1;
+}
+
+function useCaseInsensitiveStrategy(string headerNameToLookFor, map headers) (string[]){
+    foreach key, value in headers {
+        var headerKey, _ = (string)key;
+        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
+            var headerVal, _ = (string[])value;
+            return headerVal;
+        }
+    }
+    return null;
+}
+
+function getCaseInsensitiveHeaderName(string headerNameToLookFor, map headers) (string){
+    foreach key, value in headers {
+        var headerKey, _ = (string)key;
+        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
+            return headerKey;
+        }
+    }
+    return null;
 }
