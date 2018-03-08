@@ -6,7 +6,7 @@ import ballerina.net.grpc;
 service<grpc> helloWorld {
     resource hello (grpc:ServerConnection conn, string name) {
         io:println("Received hello from : " + name);
-        string message = "Hello " + name;
+        string message = "Hello from " + name;
         grpc:ConnectorError err = conn.send(message);
         io:println("Server send responce : " + message );
         if (err != null) {
