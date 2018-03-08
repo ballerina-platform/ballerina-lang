@@ -114,7 +114,7 @@ public class PackageLoader {
         }
 
         // Add runtime and transaction packages.
-        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value, true);
 
         // Define Package
         definePackage(pkgId, bLangPackage);
@@ -176,7 +176,7 @@ public class PackageLoader {
         return this.parser.parse(pkgSource);
     }
 
-    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName) {
+    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName, boolean injected) {
         List<Name> nameComps = getPackageNameComps(sourcePkgName);
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(comp -> {
@@ -194,6 +194,7 @@ public class PackageLoader {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = orgNameNode;
         importDcl.version = versionNode;
+        importDcl.injected = injected;
         BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         alias.setValue(names.merge(Names.DOT, nameComps.get(nameComps.size() - 1)).value);
         importDcl.alias = alias;

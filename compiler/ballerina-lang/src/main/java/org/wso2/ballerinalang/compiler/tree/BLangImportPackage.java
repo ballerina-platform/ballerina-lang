@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  */
 public class BLangImportPackage extends BLangNode implements ImportPackageNode {
 
+    public boolean injected;
     public List<BLangIdentifier> pkgNameComps;
     public BLangIdentifier version;
     public BLangIdentifier alias;
@@ -76,6 +77,16 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public boolean isInjected() {
+        return injected;
+    }
+
+    @Override
+    public void setInjected(boolean injected) {
+        this.injected = injected;
     }
 
     @Override
