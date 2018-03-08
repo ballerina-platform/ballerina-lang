@@ -658,9 +658,9 @@ function testCallProcedureWithResultSet () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
-    table dt = testDB.call("{call SelectPersonData()}", null, typeof ResultCustomers);
-    while (dt.hasNext()) {
-        var rs, err = (ResultCustomers)dt.getNext();
+    table[] dtArray = testDB.call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    while (dtArray[0].hasNext()) {
+        var rs, err = (ResultCustomers)dtArray[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB.close();

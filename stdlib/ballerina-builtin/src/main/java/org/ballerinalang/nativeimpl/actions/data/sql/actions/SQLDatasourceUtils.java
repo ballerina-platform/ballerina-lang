@@ -71,6 +71,9 @@ import java.util.TimeZone;
  */
 public class SQLDatasourceUtils {
 
+    private static final String ORACLE_DATABASE_NAME = "oracle";
+    private static final int ORACLE_CURSOR_TYPE = -10;
+
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = null;
         if (value != null) {
@@ -604,6 +607,27 @@ public class SQLDatasourceUtils {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
+            String databaseName) {
+        try {
+            if (Constants.QueryParamDirection.OUT == direction) {
+                if (ORACLE_DATABASE_NAME.equals(databaseName)) {
+                    // Since oracle does not support general java.sql.Types.REF_CURSOR in manipulating ref cursors it
+                    // is required to use oracle.jdbc.OracleTypes.CURSOR here. In order to avoid oracle driver being
+                    // a runtime dependency always, we have directly used the value(-10) of general oracle.jdbc
+                    // .OracleTypes.CURSOR here.
+                    ((CallableStatement) stmt).registerOutParameter(index + 1, ORACLE_CURSOR_TYPE);
+                } else {
+                    ((CallableStatement) stmt).registerOutParameter(index + 1, Types.REF_CURSOR);
+                }
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in setting ref cursor value to statement: " + e.getMessage(), e);
         }
     }
 
