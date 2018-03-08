@@ -17,10 +17,10 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.guava.util.concurrent.ThreadFactoryBuilder;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
