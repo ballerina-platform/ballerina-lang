@@ -61,7 +61,7 @@ function test () (int) {
     //
     //s1.publish(e1);
     //io:println("Published 'e1' to stream 's1'");
-    runtime:sleepCurrentWorker(500000000);
+    runtime:sleepCurrentWorker(1000);
     //s2.publish(e2);
 
 

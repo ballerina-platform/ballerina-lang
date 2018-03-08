@@ -34,6 +34,8 @@ import java.util.List;
  *      update testTable set x == 20
  *      delete testTable on symbol="WSO2"
  * </pre>
+ *
+ * @since @since 0.955.0
  */
 
 public interface StreamActionNode extends Node {

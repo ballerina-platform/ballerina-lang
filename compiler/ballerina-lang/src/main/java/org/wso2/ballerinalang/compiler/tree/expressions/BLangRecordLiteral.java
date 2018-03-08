@@ -224,7 +224,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     /**
      * This class represents a streamlet type literal expression.
      *
-     * @since 0.963.0
+     * @since 0.955.0
      */
     public static class BLangStreamletLiteral extends BLangRecordLiteral {
 

@@ -32,6 +32,8 @@ import java.util.Set;
 
 /**
  * This class responsible on holding Siddhi App runtimes and related stream objects.
+ *
+ * @since 0.955.0
  */
 public class StreamingRuntimeManager {
 

@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of {@link SetAssignmentNode}.
+ *
+ * @since 0.955.0
  */
 public class BLangSetAssignment extends BLangNode implements SetAssignmentNode {
 

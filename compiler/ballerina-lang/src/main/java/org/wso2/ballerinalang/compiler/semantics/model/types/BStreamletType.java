@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.List;
 
 /**
- * @since 0.94
+ * @since 0.955.0
  */
 public class BStreamletType extends BType implements StreamletType {
     public List<BType> paramTypes;

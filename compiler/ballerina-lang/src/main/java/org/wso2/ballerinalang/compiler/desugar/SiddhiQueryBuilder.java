@@ -68,6 +68,8 @@ import java.util.List;
 
 /**
  * This class will generate the Siddhi query for stream SQLish grammar for different classes.
+ *
+ * @since @since 0.955.0
  */
 
 public class SiddhiQueryBuilder extends BLangNodeVisitor {
@@ -458,7 +460,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         if (alias != null) {
             patternStreamingClause.append(" ").append("as").append(" ").append(alias);
         }
-
     }
 
     @Override

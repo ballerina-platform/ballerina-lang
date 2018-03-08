@@ -2101,7 +2101,6 @@ public class BLangPackageBuilder {
     public void endSelectExpressionList(Set<Whitespace> ws, int selectExprCount) {
         List<SelectExpressionNode> selectExprList = this.selectExpressionsListStack.peek();
         addSelectExprToSelectExprNodeList(selectExprList, selectExprCount);
-
     }
 
     private void addSelectExprToSelectExprNodeList(List<SelectExpressionNode> selectExprList, int n) {
@@ -2348,7 +2347,6 @@ public class BLangPackageBuilder {
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).addWS(ws);
 
-
         if (!exprNodeStack.isEmpty()) {
             patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
         }
@@ -2386,7 +2384,6 @@ public class BLangPackageBuilder {
         patternStreamingInputNode.setFollowedBy(isFollowedBy);
         patternStreamingInputNode.setLeftParenthesisEnabled(leftParenthesisEnabled);
         patternStreamingInputNode.setRightParenthesisEnabled(rightParenthesisEnabled);
-
     }
 
     public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {

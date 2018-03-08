@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  * E.g
  *      window time(20min)
  * </pre>
+ *
+ * @since @since 0.955.0
  */
 
 public interface WindowNode extends Node {

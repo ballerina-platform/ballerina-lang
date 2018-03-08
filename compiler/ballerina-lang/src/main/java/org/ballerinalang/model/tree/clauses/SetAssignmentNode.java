@@ -30,6 +30,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      symbol = "IBM"
  *      symbol = companyName
  * </pre>
+ *
+ * @since @since 0.955.0
  */
 
 public interface SetAssignmentNode extends Node {

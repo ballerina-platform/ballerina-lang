@@ -29,6 +29,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  * E.g.
  *      TempStream where e1.roomNo==roomNo [1..5) as e2
  * </pre>
+ *
+ * @since @since 0.955.0
  */
 
 public interface PatternStreamingEdgeInputNode extends Node {

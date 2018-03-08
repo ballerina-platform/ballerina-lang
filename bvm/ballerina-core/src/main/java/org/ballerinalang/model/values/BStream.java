@@ -47,7 +47,7 @@ import java.util.UUID;
 /**
  * The {@code BStream} represents a stream in Ballerina.
  *
- * @since 0.964.0
+ * @since 0.955.0
  */
 public class BStream implements BRefType<Object> {
 
@@ -284,6 +284,5 @@ public class BStream implements BRefType<Object> {
             return true;
         }
     }
-
 
 }

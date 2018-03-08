@@ -32,6 +32,8 @@ package org.ballerinalang.model.tree.statements;
  *          insert into test1
  *      }
  * </pre>
+ *
+ * @since @since 0.955.0
  */
 
 public interface QueryStatementNode extends StatementNode {

@@ -53,8 +53,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
 
-    int count = 0;
-
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -2317,21 +2315,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     @Override
     public void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
         if (ctx.exception != null) {
-            System.out.printf("XXXXXXXXXX");
             return;
         }
-        System.out.printf("AAAA" + ++count + "\n");
+
         this.pkgBuilder.startPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
     public void exitPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
         if (ctx.exception != null) {
-            System.out.printf("XXXXXXXXXX");
             return;
-
         }
-        System.out.printf("BBBB" + count + "\n");
+
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), ctx.FOLLOWED() != null,
                 ctx.LEFT_PARENTHESIS() != null, ctx.RIGHT_PARENTHESIS() != null);
     }

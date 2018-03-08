@@ -31,6 +31,8 @@ import java.util.Map;
 
 /**
  * Implementation of {@link StreamActionNode}.
+ *
+ * @since 0.955.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
 

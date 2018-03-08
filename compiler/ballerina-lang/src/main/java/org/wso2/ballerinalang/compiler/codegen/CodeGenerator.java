@@ -272,7 +272,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private WorkerInfo currentWorkerInfo;
     private ServiceInfo currentServiceInfo;
     private ConnectorInfo currentConnectorInfo;
-    private StreamletInfo currentStreamletInfo;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -751,7 +750,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new streamlet.
         RegIndex streamletRegIndex = calcAndGetExprRegIndex(streamletLiteral);
         emit(InstructionCodes.NEWSTREAMLET, streamletCPIndex, streamletRegIndex);
-
     }
 
     @Override
@@ -2467,7 +2465,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamlet streamletNode) {
-        currentStreamletInfo = currentPkgInfo.getStreamletInfo(streamletNode.getName().getValue());
+        StreamletInfo currentStreamletInfo = currentPkgInfo.getStreamletInfo(streamletNode.getName().getValue());
         currentStreamletInfo.setSiddhiQuery(streamletNode.getSiddhiQuery());
         currentStreamletInfo.setStreamIdsAsString(streamletNode.getStreamIdsAsString());
     }

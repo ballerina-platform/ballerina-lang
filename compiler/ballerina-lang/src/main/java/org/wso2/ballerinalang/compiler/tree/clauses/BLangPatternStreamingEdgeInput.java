@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * Implementation of {@link PatternStreamingEdgeInputNode}.
+ *
+ * @since 0.955.0
  */
 public class BLangPatternStreamingEdgeInput extends BLangNode implements PatternStreamingEdgeInputNode {
 

@@ -24,12 +24,12 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.94
+ * @since 0.955.0
  */
 public class BLangQueryStatement extends BLangStatement implements QueryStatementNode {
 
-    String queryIdentifier;
-    StreamingQueryStatementNode streamingQueryStatementNode;
+    private String queryIdentifier;
+    private StreamingQueryStatementNode streamingQueryStatementNode;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

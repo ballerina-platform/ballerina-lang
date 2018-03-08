@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction;
 
 /**
- * @since 0.94
+ * @since 0.955.0
  */
 public class BStreamletSymbol extends BTypeSymbol {
 

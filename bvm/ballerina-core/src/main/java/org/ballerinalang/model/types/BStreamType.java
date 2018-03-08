@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * {@code BStreamType} represents streaming data in Ballerina.
  *
- * @since 0.964.0
+ * @since 0.955.0
  */
 public class BStreamType extends BType {
 
