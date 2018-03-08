@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -465,6 +466,15 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"home\":\"SriLanka\"}");
     }
 
+    @Test(description = "Test casting a any to table")
+    public void testAnyToTable() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyToTable", new BValue[]{});
+        Assert.assertNull(returns[1]);
+        Assert.assertTrue(returns[0] instanceof BTable);
+        Assert.assertEquals(returns[0].stringValue(), "{data: [{id:1, name:\"Jane\"}, {id:2, "
+                + "name:\"Anne\"}]}");
+    }
+
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson", new BValue[]{});
@@ -826,6 +836,17 @@ public class TypeCastExprTest {
         BStruct error = (BStruct) returns[1];
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
+    }
+
+    @Test(description = "Test error scenario in casting any to table")
+    public void testAnyToTableWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyToTableWithErrors", new BValue[] {});
+
+        Assert.assertNull(returns[0]);
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'table'");
     }
 
     // TODO:
