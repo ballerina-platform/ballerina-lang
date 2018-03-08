@@ -86,6 +86,8 @@ import java.util.Stack;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
+import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
 
 /**
@@ -675,9 +677,9 @@ public class ProgramFileReader {
             readFunctionInfo(dataInStream, packageInfo);
         }
 
-        FunctionInfo pkgIniFunInfo = packageInfo.getFunctionInfo(
-                packageInfo.getPkgPath() + INIT_FUNCTION_SUFFIX);
-        packageInfo.setInitFunctionInfo(pkgIniFunInfo);
+        packageInfo.setInitFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + INIT_FUNCTION_SUFFIX));
+        packageInfo.setStartFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + START_FUNCTION_SUFFIX));
+        packageInfo.setStopFunctionInfo(packageInfo.getFunctionInfo(packageInfo.getPkgPath() + STOP_FUNCTION_SUFFIX));
 
         // TODO Improve this. We should be able to this in a single pass.
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();

@@ -32,19 +32,17 @@ public struct ClientEndpoint {
     ClientEndpointConfiguration config;
 }
 
-public function <ClientEndpoint h> init (string epName, ClientEndpointConfiguration c) returns (error) {
+public function <ClientEndpoint h> init (string epName, ClientEndpointConfiguration c) {
     h.epName = epName;
     h.config = c;
-    return null;
 }
 
 // this gets called every time a service attaches itself to this
 // endpoint - also happens at package init time. If the service
 // has annotations then the registration code has to go get them
 // and do whatever it wants with those
-public function <ClientEndpoint h> register (type serviceType) returns (error) {
+public function <ClientEndpoint h> register (type serviceType) {
     // TODO : Make This Native.
-    return null;
 }
 
 // returns the connector that client code uses
@@ -53,13 +51,11 @@ public function <ClientEndpoint h> getConnector () returns (HttpClient) {
 }
 
 // start
-public function <ClientEndpoint h> start () returns (error) {
-    return null;
+public function <ClientEndpoint h> start () {
 }
 
 // stop
-public function <ClientEndpoint h> stop () returns (error) {
-    return null;
+public function <ClientEndpoint h> stop () {
 }
 
 // add a filter
@@ -75,16 +71,15 @@ public struct SimpleClientEndpoint {
     TargetService config;
 }
 
-function <SimpleClientEndpoint h> init (string epName, TargetService c) returns (error) {
+function <SimpleClientEndpoint h> init (string epName, TargetService c){
     h.ep = {};
-    _ = h.ep.init(epName, {targets:[c]});
+    h.ep.init(epName, {targets:[c]});
     h.epName = epName;
     h.config = c;
-    return null;
 }
 
-function <SimpleClientEndpoint h> register (type serviceType) returns (error) {
-    return h.ep.register(serviceType);
+function <SimpleClientEndpoint h> register (type serviceType) {
+    h.ep.register(serviceType);
 }
 
 function <SimpleClientEndpoint h> getConnector () returns (HttpClient) {
@@ -92,13 +87,11 @@ function <SimpleClientEndpoint h> getConnector () returns (HttpClient) {
 }
 
 // start
-public function <SimpleClientEndpoint h> start () returns (error) {
-    return null;
+public function <SimpleClientEndpoint h> start () {
 }
 
 // stop
-public function <SimpleClientEndpoint h> stop () returns (error) {
-    return null;
+public function <SimpleClientEndpoint h> stop () {
 }
 
 function <SimpleClientEndpoint h> addFilter (Filter f) {

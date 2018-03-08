@@ -1,5 +1,6 @@
 package ballerina.net.http;
 
+import ballerina.io;
 ///////////////////////////////
 // HTTP Service Endpoint SPI.
 ///////////////////////////////
@@ -23,20 +24,20 @@ public struct ServiceEndpoint {
 
 // this gets called when the endpoint is being initialized
 // during package init time
-public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) returns (error) {
+public function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c) {
     h.epName = epName;
     h.config = c;
+    io:println("init called ServiceEndpoint");
     // TODO : Write HTTP logic for initializing Service connector, acquiring socket, etc.
-    return null;
 }
 
 // this gets called every time a service attaches itself to this
 // endpoint - also happens at package init time. If the service
 // has annotations then the registration code has to go get them
 // and do whatever it wants with those
-public function <ServiceEndpoint h> register (type serviceType) returns (error) {
+public function <ServiceEndpoint h> register (type serviceType) {
     // TODO : Make This Native.
-    return null;
+    io:println("register called ServiceEndpoint");
 }
 
 // returns the connector that client code uses
@@ -47,15 +48,15 @@ function <ServiceEndpoint h> getConnector () returns (ResponseConnector) {
 }
 
 // start
-public function <ServiceEndpoint h> start () returns (error) {
+public function <ServiceEndpoint h> start () {
+    io:println("start called ServiceEndpoint");
     // TODO : Make This Native.
-    return null;
 }
 
 // stop
-public function <ServiceEndpoint h> stop () returns (error) {
+public function <ServiceEndpoint h> stop () {
+    io:println("stop called ServiceEndpoint");
     // TODO : Make This Native.
-    return null;
 }
 
 ////////////////////////////////

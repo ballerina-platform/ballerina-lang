@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -53,6 +54,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public List<BEndpointVarSymbol> attachedEndpoints;
 
     public BSymbol symbol;
 
@@ -64,6 +66,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
+        this.attachedEndpoints = new ArrayList<>();
     }
 
     @Override

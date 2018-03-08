@@ -21,7 +21,6 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -124,13 +123,10 @@ public class AnnotationDesugar {
     private BLangVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
         DiagnosticPos pos = pkgNode.pos;
         BLangVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
-        defineVariable(annotationMap, pkgNode.symbol);
+        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
 
-        final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        recordLiteralNode.pos = pos;
-        recordLiteralNode.type = symTable.mapType;
-
+        final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
         final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
         annMapAssignment.expr = recordLiteralNode;
         annMapAssignment.addVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
@@ -140,13 +136,12 @@ public class AnnotationDesugar {
     private BLangVariable createAnnotationMapEntryVar(String key, BLangVariable annotationMapVar,
                                                       BLangBlockStmt target, BSymbol parentSymbol) {
         // create: map key = {};
-        final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        recordLiteralNode.pos = target.pos;
-        recordLiteralNode.type = symTable.mapType;
+        final BLangRecordLiteral recordLiteralNode =
+                ASTBuilderUtil.createEmptyRecordLiteral(target.pos, symTable.mapType);
 
         BLangVariable entryVariable = ASTBuilderUtil.createVariable(target.pos, key, recordLiteralNode.type);
         entryVariable.expr = recordLiteralNode;
-        defineVariable(entryVariable, parentSymbol);
+        ASTBuilderUtil.defineVariable(entryVariable, parentSymbol, names);
         ASTBuilderUtil.createVariableDefStmt(target.pos, target).var = entryVariable;
 
         // create: annotationMapVar["key"] = key;
@@ -170,7 +165,7 @@ public class AnnotationDesugar {
             annotationVar = ASTBuilderUtil.createVariable(attachment.pos,
                     attachment.annotationName.value, attachment.annotationSymbol.attachedType.type);
             annotationVar.expr = attachment.expr;
-            defineVariable(annotationVar, parentSymbol);
+            ASTBuilderUtil.defineVariable(annotationVar, parentSymbol, names);
             ASTBuilderUtil.createVariableDefStmt(attachment.pos, target).var = annotationVar;
         }
 
@@ -189,12 +184,4 @@ public class AnnotationDesugar {
         indexAccessNode.type = annotationMapEntryVar.symbol.type;
         assignmentStmt.varRefs.add(indexAccessNode);
     }
-
-
-    private void defineVariable(BLangVariable variable, BSymbol targetSymbol) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.type,
-                targetSymbol);
-        targetSymbol.scope.define(variable.symbol.name, variable.symbol);
-    }
-
 }
