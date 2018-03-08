@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-@Test
+@Test(enabled = false)
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
@@ -134,7 +134,7 @@ public class SecureClientSocketTest {
         server.destroy();
     }
 
-    @Test(description = "Test connection open with properties")
+//    @Test(description = "Test connection open with properties")
     public void testOpenSecureClientSocket() throws URISyntaxException {
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
@@ -148,8 +148,8 @@ public class SecureClientSocketTest {
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
-    @Test(dependsOnMethods = "testOpenSecureClientSocket",
-          description = "Test content read/write")
+//    @Test(dependsOnMethods = "testOpenSecureClientSocket",
+//          description = "Test content read/write")
     public void testWriteReadContent() {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
@@ -165,8 +165,8 @@ public class SecureClientSocketTest {
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
-    @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
+//    @Test(dependsOnMethods = "testWriteReadContent",
+//          description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invoke(socketClient, "closeSocket");
     }
