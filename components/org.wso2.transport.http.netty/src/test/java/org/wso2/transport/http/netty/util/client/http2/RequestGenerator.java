@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -49,7 +48,7 @@ public class RequestGenerator {
             ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
             httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
         } else {
-            httpCarbonMessage.addHttpContent(new EmptyLastHttpContent());
+            httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         return httpCarbonMessage;
     }

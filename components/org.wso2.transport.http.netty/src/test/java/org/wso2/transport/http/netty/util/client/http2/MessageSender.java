@@ -20,7 +20,6 @@ package org.wso2.transport.http.netty.util.client.http2;
 
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -40,10 +39,7 @@ public class MessageSender {
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
             HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
             responseFuture.setHttpConnectorListener(listener);
-            if (!latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS)) {
-                String errorMsg = "Request timed-out";
-                TestUtil.handleException(errorMsg, new EndpointTimeOutException(errorMsg));
-            }
+            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
             return listener.getHttpResponseMessage();
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while sending a message", e);
