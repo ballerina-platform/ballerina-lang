@@ -35,12 +35,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         packageName = "ballerina.builtin",
-        functionName = "xml.selectElements",
+        functionName = "xml.select",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class SelectElements extends AbstractNativeFunction {
+public class Select extends AbstractNativeFunction {
 
     private static final String OPERATION = "select elements from xml";
 

@@ -33,13 +33,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * {@code BatchUpdateQuery} is the Batch update action implementation of the SQL Connector.
+ * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
  *
  * @since 0.8.6
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "batchUpdateQuery",
+        actionName = "batchUpdate",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
@@ -53,7 +53,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class BatchUpdateQuery extends AbstractSQLAction {
+public class BatchUpdate extends AbstractSQLAction {
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);

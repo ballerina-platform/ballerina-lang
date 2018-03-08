@@ -8,12 +8,12 @@ function main (string[] args) {
     }
     //Create a DB table using updateQuery action.If the DDL
     //statement execution is success updateQuery action returns 0.
-    int ret = testDB.updateQuery("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
+    int ret = testDB.update("CREATE TABLE STUDENT(ID INT AUTO_INCREMENT, AGE INT,
                                 NAME VARCHAR(255), PRIMARY KEY (ID))", null);
     io:println("Table creation status:" + ret);
 
     //Create a stored procedure using updateQuery action.
-    ret = testDB.updateQuery("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
+    ret = testDB.update("CREATE PROCEDURE GETCOUNT (IN pAge INT, OUT pCount INT,
                          INOUT pInt INT)
                          BEGIN SELECT COUNT(*) INTO pCount FROM STUDENT
                               WHERE AGE = pAge; SELECT COUNT(*) INTO pInt FROM
@@ -27,7 +27,7 @@ function main (string[] args) {
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:8};
     sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"Sam"};
     params = [para1, para2];
-    ret = testDB.updateQuery("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
+    ret = testDB.update("INSERT INTO STUDENT (AGE,NAME) VALUES (?,?)", params);
     io:println("Inserted row count:" + ret);
 
     //Column values generated during the updateQuery can be retrieved via
@@ -44,7 +44,7 @@ function main (string[] args) {
     //Select data using select action. Select action returns a datatable
     //and see datatables section for more details on how to access data.
     params = [para1];
-    table dt = testDB.selectQuery("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
+    table dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;
     io:println(jsonRes);
 
@@ -57,7 +57,7 @@ function main (string[] args) {
     sql:Parameter p4 = {sqlType:sql:Type.VARCHAR, value:"John"};
     sql:Parameter[] item2 = [p3, p4];
     sql:Parameter[][] bPara = [item1, item2];
-    int[] c = testDB.batchUpdateQuery("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
+    int[] c = testDB.batchUpdate("INSERT INTO STUDENT (AGE,NAME) VALUES (?, ?)", bPara);
     io:println("Batch item 1 status:" + c[0]);
     io:println("Batch item 2 status:" + c[1]);
 
@@ -74,11 +74,11 @@ function main (string[] args) {
     io:println("Id 1 count:" + idValue);
 
     //Drop the STUDENT table.
-    ret = testDB.updateQuery("DROP TABLE STUDENT", null);
+    ret = testDB.update("DROP TABLE STUDENT", null);
     io:println("Table drop status:" + ret);
 
     //Drop the GETCOUNT procedure.
-    ret = testDB.updateQuery("DROP PROCEDURE GETCOUNT", null);
+    ret = testDB.update("DROP PROCEDURE GETCOUNT", null);
     io:println("Procedure drop status:" + ret);
 
     //Finally close the connection pool.
