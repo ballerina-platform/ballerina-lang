@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.connector.api;
 
+import org.ballerinalang.model.values.BValue;
+
 import java.util.List;
 import java.util.Map;
 
@@ -121,4 +123,11 @@ public interface Struct {
      * @return matching annotations list.
      */
     List<Annotation> getAnnotationList(String pkgPath, String name);
+
+    /**
+     * returns VM value.
+     *
+     * @return BValue instance.
+     */
+    BValue getVMValue();
 }
