@@ -227,7 +227,8 @@
     "before expressions": "",
     "after expressions": "",
     "before )": "",
-    "after )": ""
+    "after )": "",
+    "dent": true
   },
   "ConstrainedType": {
     "before type": "",

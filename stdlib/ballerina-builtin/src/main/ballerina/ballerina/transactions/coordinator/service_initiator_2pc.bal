@@ -24,44 +24,62 @@ import ballerina.net.http;
     host:coordinatorHost,
     port:coordinatorPort
 }
+documentation {
+    Service on the initiator which handles protocol messages related to the 2-phase commit (2PC) coordination type.
+}
 service<http> Initiator2pcService {
 
-    // This resource is on the initiator's coordinator. When a participant wants to abort a transaction, it will make
-    // a call to this resource
     @http:resourceConfig {
         methods:["POST"],
-        path:"/abort"
+        path:"{transactionBlockId}/abort"
     }
-    resource abortTransaction (http:Connection conn, http:InRequest req) {
+    documentation {
+        When a participant wants to abort a transaction, it will make a call to this resource.
+    }
+    resource abortTransaction (http:Connection conn, http:InRequest req, string transactionBlockId) {
         http:OutResponse res;
-        var abortReq, _ = <AbortRequest>req.getJsonPayload();
-        string transactionId = abortReq.transactionId;
-        string participantId = abortReq.participantId;
-        log:printInfo("Abort received for transaction: " + transactionId + " from participant:" + participantId);
-        AbortResponse abortRes;
-        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
-        if (txn == null) {
-            res = {statusCode:404};
-            abortRes = {message:"Transaction-Unknown"};
-        } else {
-            // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
-            // participant
-            txn.participants.remove(participantId);
-            var msg, err = abortInitiatorTransaction(transactionId);
-            if (err == null) {
-                res = {statusCode:500};
-                abortRes = {message:"Abort-Failed"};
-            } else {
-                res = {statusCode:200};
-                abortRes = {message:msg};
+        var payload, payloadError = req.getJsonPayload();
+        var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
+
+        if (payloadError != null || txnBlockIdConversionErr != null) {
+            res = {statusCode:400};
+            RequestError err = {errorMessage:"Bad Request"};
+            var resPayload, _ = <json>err;
+            res.setJsonPayload(resPayload);
+            var connError = conn.respond(res);
+            if (connError != null) {
+                log:printErrorCause("Sending response to Bad Request for abort transaction request failed", (error)connError);
             }
-        }
-        var j, _ = <json>abortRes;
-        res.setJsonPayload(j);
-        error e = (error)conn.respond(res);
-        if (e != null) {
-            log:printErrorCause("Cannot respond to abort request for transaction: " + transactionId + " from participant:" +
-                                participantId, e);
+        } else {
+            var abortReq, _ = <AbortRequest>payload;
+            string transactionId = abortReq.transactionId;
+            string participantId = abortReq.participantId;
+            log:printInfo("Abort received for transaction: " + transactionId + " from participant:" + participantId);
+            AbortResponse abortRes;
+            var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+            if (txn == null) {
+                res = {statusCode:404};
+                abortRes = {message:"Transaction-Unknown"};
+            } else {
+                // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
+                // participant
+                txn.participants.remove(participantId);
+                var msg, err = abortInitiatorTransaction(transactionId, txnBlockId);
+                if (err == null) {
+                    res = {statusCode:500};
+                    abortRes = {message:"Abort-Failed"};
+                } else {
+                    res = {statusCode:200};
+                    abortRes = {message:msg};
+                }
+            }
+            var j, _ = <json>abortRes;
+            res.setJsonPayload(j);
+            error e = (error)conn.respond(res);
+            if (e != null) {
+                log:printErrorCause("Cannot respond to abort request for transaction: " + transactionId + " from participant:" +
+                                    participantId, e);
+            }
         }
     }
 }

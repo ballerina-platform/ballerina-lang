@@ -103,22 +103,21 @@
         overflow: visible;
         background: #E2E2E5;
         width: 187px;
-        position: absolute
+        position: absolute;
     }
 }
 
 .http-client-wrapper {
     height: 100%;
-    border-top: 1px solid #575757;
+    border-top: 1px solid #333;
     margin-top: 20px;
     clear: both;
 }
 
 .http-client-main-wrapper.segment{
     background-color: #333;
-    padding:10px 20px 10px 15px;
+    padding:20px 20px 10px;
     width:auto;
-    margin-left: 5px;
     margin-bottom: 15px;
     max-width: 900px;
     .main-wrapper-top {
@@ -241,9 +240,9 @@
     }
     input[type=text].header-input{
         margin-left: 5px;
-        border: 0.5px solid #333333;
-        height: 22px;
-        background-color: #333333;
+        border: 0.5px solid #333;
+        height: 40px;
+        background-color: #333;
         margin-bottom: 3px;
         width: 46%;
         margin-right: 2px;
@@ -254,13 +253,17 @@
     }
 }
 
- .http-client-request {
-     padding: 20px;
-     height: 100%;
-     width: 100%;
-     background: #232322;
-     border-top: 1px solid #333;
-     margin-right: 20px;
+.http-client-request {
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    background: #252525;
+    border-top: 1px solid #333;
+    margin-right: 20px;
+
+    .content{
+        overflow: hidden;
+    }
 
     .header{
         width: 73px;
@@ -279,7 +282,7 @@
 
     input[type=text]{
         color: #fff;
-        height: 31px;
+        height: 40px;
         padding: 6px;
         background-color: #434343;
         border: none;
@@ -346,7 +349,6 @@
     }
 }
 
-
 .http-client-response {
     padding-left: 20px;
     margin-top: 15px;
@@ -383,14 +385,13 @@
 .http-client-headers-wrapper, .http-client-body-wrapper {
     padding-top: 10px;
     margin-bottom: 30px;
-    width: 98%
 }
 
-.http-client-body-wrapper{
-    .ACE-editor-wrapper{
+.http-client-body-wrapper, .http-client-response-attributes {
+    .ACE-editor-wrapper, .body-content{
         width: 96%;
         .ace-monokai{
-            background: #252525;
+            background: #222;
         }
         .ace_gutter-cell{
             background: #272727;
@@ -416,53 +417,32 @@
     }
 }
 
-.http-client-response-content {
-    padding-top: 10px;
-    .header-wrapper {
-        overflow: auto;
-        background-color: #333;
-        padding: 0 14px 10px 14px;
-        margin-right: 20px;
-        .header-title {
-            padding-bottom: 10px;
-        }
-        .header-content {
-            white-space: pre-wrap;
-            @mixin header-attribute() {
-                .header-attribute {
-                    padding-bottom: 5px;
-                    .key {
-                        display: inline-block;
-                        min-width: 150px;
-                    }
-                    .value {
-                        display: inline-block;
-                        padding-left: 20px;
-                    }
-                }
-            }
-            .response-headers, .request-headers {
-                float: left;
-                > div {
-                    padding-top: 10px;
-                    @include header-attribute;
-                }
-            }
-            .response-headers {
-                margin-right: 30px;
-            }
-            .response-header-title, .request-headers-title {
-                font-size: 14px;
-                font-weight: bold;
-                text-decoration: underline;
-            }
-        }
+.header-content {
+    white-space: pre-wrap;
+    @mixin header-attribute() {
+
     }
-    .response-body-wrapper {
-        .body-content {
-            padding-right: 19px;
-            padding-bottom: 15px;
+        .header-attribute {
+            padding-bottom: 5px;
+            .key, .value {
+                display: inline-flex;
+                min-width: 150px;
+                padding-left: 10px;
+                font-weight: 300;
+            }
         }
+    .response-headers {
+        margin-right: 30px;
+    }
+    .h4 {
+        font-weight: 400;
+    }
+}
+
+.response-body-wrapper {
+    .body-content {
+        padding-right: 19px;
+        padding-bottom: 15px;
     }
 }
 
@@ -510,19 +490,18 @@ hr{
     border: 1px solid rgba(241, 123, 49, 0.41);
 }
 
-    .try-it-message {
+.try-it-message {
     background: #333;
-        > .message-warning, p{
-            color: #f0ad4e;
-        }
-        > .message-warning, .icon{
-            margin-top: 0;
-            margin-right: 10px;
-            line-height: 12px;
-            font-size: 13px;
-        }
+    .message-warning, p{
+        color: #f0ad4e;
+    }
+    .message-warning, .icon{
+        margin-top: 0;
+        margin-right: 10px;
+        line-height: 12px;
+        font-size: 13px;
+    }
 }
-
 
 .response-header-input{
     margin-left: 5px;
