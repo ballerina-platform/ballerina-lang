@@ -60,22 +60,23 @@ public abstract class Node<DataType, InboundMsgType> {
         return node;
     }
 
-    public DataElement<DataType, InboundMsgType> matchAll(String uriFragment, Map<String, String> variables,
-                                                          int start) {
+    public boolean matchAll(String uriFragment, Map<String, String> variables,
+                                                          int start, InboundMsgType inboundMsg,
+                                                          DataReturnAgent<DataType> dataReturnAgent) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
-            return null;
+            return false;
         }
         if (matchLength == uriFragment.length()) {
-            return dataElement;
+            return dataElement.getData(inboundMsg, dataReturnAgent);
         }
         if (matchLength >= uriFragment.length()) {
-            return null;
+            return false;
         }
         String subUriFragment = nextURIFragment(uriFragment, matchLength);
         String subPath = nextSubPath(subUriFragment);
 
-        DataElement<DataType, InboundMsgType> dataElement;
+        boolean isFound;
         for (Node<DataType, InboundMsgType> childNode : childNodesList) {
             if (childNode instanceof Literal) {
                 String regex = childNode.getToken();
@@ -84,28 +85,31 @@ public abstract class Node<DataType, InboundMsgType> {
                     if (!subPath.matches(regex)) {
                         continue;
                     }
-                    dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                    if (hasDataElement(dataElement)) {
+                    isFound = childNode.matchAll(subUriFragment, variables, start + matchLength, inboundMsg,
+                                                 dataReturnAgent);
+                    if (isFound) {
                         setUriPostFix(variables, subUriFragment);
-                        return dataElement;
+                        return true;
                     }
                     continue;
                 }
                 if (!subPath.contains(regex)) {
                     continue;
                 }
-                dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-                if (hasDataElement(dataElement)) {
-                    return dataElement;
+                isFound = childNode.matchAll(subUriFragment, variables, start + matchLength, inboundMsg,
+                                             dataReturnAgent);
+                if (isFound) {
+                    return true;
                 }
                 continue;
             }
-            dataElement = childNode.matchAll(subUriFragment, variables, start + matchLength);
-            if (hasDataElement(dataElement)) {
-                return dataElement;
+            isFound = childNode.matchAll(subUriFragment, variables, start + matchLength, inboundMsg,
+                                         dataReturnAgent);
+            if (isFound) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     private boolean hasDataElement(DataElement<DataType, InboundMsgType> dataElement) {

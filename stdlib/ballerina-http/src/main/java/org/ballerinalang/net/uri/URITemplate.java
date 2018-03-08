@@ -20,6 +20,7 @@ package org.ballerinalang.net.uri;
 
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataElementFactory;
+import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.ballerinalang.net.uri.parser.Node;
 import org.ballerinalang.net.uri.parser.URITemplateParser;
 
@@ -41,11 +42,12 @@ public class URITemplate<DataType, InboundMsgType> {
     }
 
     public DataType matches(String uri, Map<String, String> variables, InboundMsgType inboundMsg) {
-        DataElement<DataType, InboundMsgType> dataElement = syntaxTree.matchAll(uri, variables, 0);
-        if (dataElement == null) {
+        DataReturnAgent<DataType> dataReturnAgent = new DataReturnAgent<>();
+        boolean isFound = syntaxTree.matchAll(uri, variables, 0, inboundMsg, dataReturnAgent);
+        if (!isFound) {
             return null;
         }
-        return dataElement.getData(inboundMsg);
+        return dataReturnAgent.getData();
     }
 
     public void parse(String uriTemplate, DataType resource,

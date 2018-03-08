@@ -21,6 +21,7 @@ package org.ballerinalang.net.http;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -78,17 +79,18 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     @Override
-    public HttpResource getData(HTTPCarbonMessage carbonMessage) {
+    public boolean getData(HTTPCarbonMessage carbonMessage, DataReturnAgent<HttpResource> dataReturnAgent) {
         if (this.resource == null) {
-            return null;
+            return false;
         }
         HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
         if (resource == null) {
-            return null;
+            return false;
         }
         validateConsumes(resource, carbonMessage);
         validateProduces(resource, carbonMessage);
-        return resource;
+        dataReturnAgent.setData(resource);
+        return true;
     }
 
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
