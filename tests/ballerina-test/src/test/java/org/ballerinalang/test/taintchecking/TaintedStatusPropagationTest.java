@@ -234,7 +234,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/lambda-negative.bal");

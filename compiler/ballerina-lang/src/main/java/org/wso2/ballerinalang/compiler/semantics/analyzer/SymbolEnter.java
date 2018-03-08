@@ -676,7 +676,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableNode.symbol = funcSymbol;
         defineSymbol(invokableNode.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
-        funcSymbol.node = invokableNode;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
     }
 

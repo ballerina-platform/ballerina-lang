@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.model.elements;
+package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;

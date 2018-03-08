@@ -64,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -558,9 +557,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 symbolEnter.defineNode(varNode, env);
-                if (varNode.expr instanceof BLangLambdaFunction) {
-                    varNode.symbol.node = ((BLangLambdaFunction) varNode.expr).function;
-                }
             }
         }
 
