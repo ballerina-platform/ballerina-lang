@@ -7,11 +7,9 @@ import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
 
 import java.nio.file.Path;
 
-public class ProjectObjRepo implements Repo<Path> {
-    private final PathResolver resolver;
-
-    public ProjectObjRepo(PathResolver resolver) {
-        this.resolver = resolver;
+public class ProjectObjRepo extends NonSysRepo<Path> {
+    public ProjectObjRepo(Resolver<Path> resolver) {
+        super(resolver);
     }
 
     public ProjectObjRepo(Path path) {
@@ -19,7 +17,8 @@ public class ProjectObjRepo implements Repo<Path> {
     }
 
     @Override
-    public Patten calculate(PackageID pkg) {
+    public Patten calculateNonSysPkg(PackageID pkg) {
+
         String orgName = pkg.getOrgName().value;
         String pkgName = pkg.getName().value;
         String pkgVersion = pkg.version.value;
@@ -33,8 +32,4 @@ public class ProjectObjRepo implements Repo<Path> {
                                       pkgName + ".balo"));
     }
 
-    @Override
-    public Resolver<Path> getResolverInstance() {
-        return resolver;
-    }
 }

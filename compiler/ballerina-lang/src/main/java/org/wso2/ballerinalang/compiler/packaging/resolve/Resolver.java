@@ -2,8 +2,6 @@ package org.wso2.ballerinalang.compiler.packaging.resolve;
 
 
 import java.nio.file.Path;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface Resolver<T> {

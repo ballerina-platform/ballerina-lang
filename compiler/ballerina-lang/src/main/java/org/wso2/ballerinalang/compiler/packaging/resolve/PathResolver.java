@@ -14,8 +14,8 @@ public class PathResolver implements Resolver<Path> {
         this.root = root;
     }
 
-    private static boolean isBal(Path path, BasicFileAttributes attrib) {
-        return !(attrib.isDirectory() || attrib.isOther())
+    private static boolean isBal(Path path, BasicFileAttributes attributes) {
+        return !(attributes.isDirectory() || attributes.isOther())
                 && path.getFileName().toString().endsWith(".bal");
     }
 

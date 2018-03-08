@@ -10,6 +10,14 @@ import java.util.stream.Stream;
 public class Patten {
     public static final Part WILDCARD_DIR = new Part();
     public static final Part WILDCARD_BAL = new Part();
+    public static final Part WILDCARD_BAL_WITH_TEST = new Part();
+    public static final Patten NULL = new Patten() {
+        @Override
+        public <T> Stream<T> convert(Resolver<T> resolver) {
+            return Stream.of();
+        }
+    };
+
     private static final Resolver<String> STRING_RESOLVER = new StringResolver();
 
     private final Part[] parts;
@@ -28,6 +36,8 @@ public class Patten {
             if (part == WILDCARD_DIR) {
                 aggregate = aggregate.flatMap(resolver::expand);
             } else if (part == WILDCARD_BAL) {
+                aggregate = aggregate.flatMap(resolver::expandBal);
+            } else if (part == WILDCARD_BAL_WITH_TEST) {
                 aggregate = aggregate.flatMap(resolver::expandBal);
             } else {
                 aggregate = aggregate.map(t -> callReduceForEach(t, part.values, resolver));

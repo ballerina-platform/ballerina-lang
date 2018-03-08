@@ -3,16 +3,13 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
 
 import java.nio.file.Path;
 
-public class ProjectSourceRepo implements Repo<Path> {
-
-    private final PathResolver resolver;
+public class ProjectSourceRepo extends NonSysRepo<Path> {
 
     public ProjectSourceRepo(PathResolver resolver) {
-        this.resolver = resolver;
+        super(resolver);
     }
 
     public ProjectSourceRepo(Path projectRoot) {
@@ -20,13 +17,8 @@ public class ProjectSourceRepo implements Repo<Path> {
     }
 
     @Override
-    public Patten calculate(PackageID pkg) {
+    public Patten calculateNonSysPkg(PackageID pkg) {
         return new Patten(Patten.path(pkg.getName().value),
                           Patten.WILDCARD_BAL);
-    }
-
-    @Override
-    public Resolver<Path> getResolverInstance() {
-        return resolver;
     }
 }

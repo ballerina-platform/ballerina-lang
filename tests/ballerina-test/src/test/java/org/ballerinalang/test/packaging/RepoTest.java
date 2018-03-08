@@ -4,9 +4,12 @@ import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -37,9 +40,35 @@ public class RepoTest {
         PackageID pkg = newPackageID("my_org", "my.pkg", "10.2.3");
         HomeRepo subject = new HomeRepo((PathResolver) null);
 
-        Patten prospect = subject.calculate(pkg);
+        Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(prospect.toString(), "$/repo/my_org/my.pkg/10.2.3/src/**~test~resources/*.bal");
+        Assert.assertEquals(patten.toString(), "$/repo/my_org/my.pkg/10.2.3/src/**~test~resources/*.bal");
+    }
+
+    @Test
+    public void testCacheRepo() {
+        PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
+        CacheRepo subject = new CacheRepo((PathResolver) null);
+
+        Patten patten = subject.calculate(pkg);
+
+        Assert.assertEquals(patten.toString(), "$/caches/*/nice_org/any.pkg/10.2.3/src/**~test~resources/*.bal");
+    }
+
+    @Test
+    public void testSystemOrgIsReserved() {
+        PackageID pkg = newPackageID("ballerina", "any.pkg", "10.2.3");
+        Repo subject = new NonSysRepo<String>(null) {
+            @Override
+            public Patten calculateNonSysPkg(PackageID pkg) {
+                Assert.fail("Tried to calculate path for system packages");
+                return null;
+            }
+        };
+
+        Patten patten = subject.calculate(pkg);
+
+        Assert.assertEquals(patten, Patten.NULL);
     }
 
     private PackageID newPackageID(String org, String pkg, String version) {
