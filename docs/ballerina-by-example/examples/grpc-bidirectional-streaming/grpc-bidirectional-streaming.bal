@@ -16,7 +16,7 @@ service<grpc> helloWorld {
             grpc:ConnectorError err = conn.send(greet + " " + name);
             io:println("Sending replies: " + name);
             if (err != null) {
-                io:println("Error at lotsOfReplies : " + err.message);
+                io:println("Error occured at sending replies : " + err.message);
             }
         }
         // Once all messages are sent, server send complete message to notify the client, I’m done.
