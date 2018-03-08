@@ -67,7 +67,7 @@ public class BLangPostIncrement extends BLangStatement implements PostIncrementN
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.COMPOUND_ASSIGNMENT;
+        return NodeKind.POST_INCREMENT;
     }
 
     @Override
