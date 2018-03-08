@@ -94,31 +94,35 @@ public class HTTPServicesRegistry {
         String basePath = discoverBasePathFrom(service, annotation);
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
-        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
+//        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
+//
+//        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
+//            String entryListenerInterface = listenerConfiguration.getId();
+//            Map<String, HttpService> servicesOnInterface = servicesInfoMap
+//                    .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
+//
+//            HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
+//            // Assumption : this is always sequential, no two simultaneous calls can get here
+//            if (servicesOnInterface.containsKey(basePath)) {
+//                throw new BallerinaConnectorException(
+//                        "service with base path :" + basePath + " already exists in listener : "
+//                                + entryListenerInterface);
+//            }
+//            servicesOnInterface.put(basePath, service);
+//
+//            // If WebSocket upgrade path is available, then register the name of the WebSocket service.
+//            if (annotation != null) {
+//                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET);
+//                if (webSocketAttr != null) {
+//                    Annotation webSocketAnn = webSocketAttr.getAnnotation();
+//                    registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
+//                }
+//            }
+//        }
 
-        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-            String entryListenerInterface = listenerConfiguration.getId();
-            Map<String, HttpService> servicesOnInterface = servicesInfoMap
-                    .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
+        // TODO: Add websocket services to the service registry when service creation get available.
 
-            HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-            // Assumption : this is always sequential, no two simultaneous calls can get here
-            if (servicesOnInterface.containsKey(basePath)) {
-                throw new BallerinaConnectorException(
-                        "service with base path :" + basePath + " already exists in listener : "
-                                + entryListenerInterface);
-            }
-            servicesOnInterface.put(basePath, service);
 
-            // If WebSocket upgrade path is available, then register the name of the WebSocket service.
-            if (annotation != null) {
-                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET);
-                if (webSocketAttr != null) {
-                    Annotation webSocketAnn = webSocketAttr.getAnnotation();
-                    registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
-                }
-            }
-        }
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
         postProcessService(service);
     }

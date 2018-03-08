@@ -53,12 +53,12 @@ public class Register extends AbstractHttpNativeFunction {
         Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
         Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
-        // TODO: Need to change protocol package to relevant structs.
-        if (HttpConstants.PROTOCOL_PACKAGE_HTTP.equals(service.getPackage())) {
+        // TODO: Check if this is valid.
+        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
             getHttpServicesRegistry(connectorEndpoint).registerService(new HttpService(service));
         }
 
-        if (WebSocketConstants.PROTOCOL_PACKAGE_WS.equals(service.getPackage())) {
+        if (WebSocketConstants.WEBSOCKET_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
             getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
         }
 

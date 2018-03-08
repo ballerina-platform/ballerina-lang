@@ -44,5 +44,9 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+
+        // TODO: Create and return ballerina connector.
+
+        return new BValue[]{null};
     }
 }
