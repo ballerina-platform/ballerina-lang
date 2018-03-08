@@ -38,29 +38,27 @@ class TagInput extends React.Component {
         this.handleRemoveItem = this.handleRemoveItem.bind(this);
     }
 
-    render() {
+    render(){
         return (
-            <label >
-                <ul id='ulContainer'>
-                    {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
-                        (<li
-                            key={i}
-                            className='tagItems'
-                            onClick={() => { this.handleRemoveItem(i); }}
-                        >
-                            {item}
-                            <span className='deleteSpan'><i className='fw fw-cancel iconDelete' /></span>
-                        </li>))
-                    }
-                    <input
-                        className='tagInput'
-                        placeholder={this.props.placeholder}
-                        value={this.state.input}
-                        onChange={this.handleInputChange}
-                        onKeyDown={this.handleInputKeyDown}
-                    />
-                </ul>
-            </label>
+            <ul id='ulContainer'className='sixteen wide field'>
+                {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
+                    (<li
+                        key={i}
+                        className='tagItems'
+                        onClick={() => { this.handleRemoveItem(i); }}
+                    >
+                        {item}
+                        <span className='deleteSpan'><i className='fw fw-cancel iconDelete' /></span>
+                    </li>))
+                }
+                <input
+                    className='tagInput'
+                    placeholder={this.props.placeholder}
+                    value={this.state.input}
+                    onChange={this.handleInputChange}
+                    onKeyDown={this.handleInputKeyDown}
+                />
+            </ul>
         );
     }
 

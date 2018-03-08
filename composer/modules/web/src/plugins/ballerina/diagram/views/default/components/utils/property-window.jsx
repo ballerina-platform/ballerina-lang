@@ -447,7 +447,7 @@ class PropertyWindow extends React.Component {
      */
     renderNumericInputs(key) {
         return (
-            <Form.Group inline fluid>
+            <Form.Group inline fluid tiny>
                 <Form.Field width={5}>
                     <label htmlFor={key.identifier}>{_.startCase(key.identifier)}</label>
                 </Form.Field>
@@ -474,28 +474,26 @@ class PropertyWindow extends React.Component {
      */
     renderSelectBox(key) {
         return (
-            <Grid key={key.identifier}>
-                <Grid.Row>
-                    <Grid.Column width={6}>
-                        <label
-                            htmlFor={key.identifier}
-                        >
-                            {_.startCase(key.identifier)}
-                        </label>
-                    </Grid.Column>
-                    <Grid.Column width={10}>
-                        <select
-                            value={key.value}
-                            onChange={event => this.onChange(event, key)}
-                        >
-                            <option value='null'>Select {key.identifier}</option>
-                            {key.fields.map((option) => {
-                                return <option value={option} key={option}>{option}</option>;
-                            })}
-                        </select>
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>);
+            <Form.Group key={key.identifier}>
+                <Form.Field width={6}>
+                    <label
+                        htmlFor={key.identifier}
+                    >
+                        {_.startCase(key.identifier)}
+                    </label>
+                </Form.Field>
+                <Form.Field width={10}>
+                    <select
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
+                    >
+                        <option value='null'>Select {key.identifier}</option>
+                        {key.fields.map((option) => {
+                            return <option value={option} key={option}>{option}</option>;
+                        })}
+                    </select>
+                </Form.Field>
+            </Form.Group>);
     }
 
     /**
@@ -514,59 +512,54 @@ class PropertyWindow extends React.Component {
             }
         }
         return (
-            <div className='propWindowStruct'>
-                <div id='optionGroup' key={key.identifier}>
+            <Form.Group id='optionGroup' key={key.identifier} className='inline'>
+                <Form.Field width={5}>
                     <label
                         htmlFor={key.identifier}
-                        className='col-sm-4 property-dialog-label'
                     >
                         {_.startCase(key.identifier)}</label>
-                    <div className='col-sm-7'>
-                        <div className='input-group'>
-                            {wrongInput &&
-                                <div className='errorMsgDiv'>
-                                    <i
-                                        className='fw fw-error errorIcon'
-                                        onClick={() => {
-                                            this.clearStructFieldValues(key, key.fields);
-                                        }}
-                                    />
-                                    <span className='errorMsg'> Configure properties </span></div>
-                            }
-                            <input
-                                className={['property-dialog-form-control',
-                                    disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
-                                id={key.identifier}
-                                name={key.identifier}
-                                type='text'
-                                placeholder='Defined option object or a method'
-                                value={key.value}
-                                onChange={event => this.onChange(event, key)}
-                                disabled={disabled}
-                            />
-                            <span className='input-group-btn'>
-                                {(disabled && !wrongInput) &&
-                                    <input
-                                        id='viewOptionParams'
-                                        type='button'
-                                        value='x'
-                                        onClick={() => {
-                                            this.clearStructFieldValues(key, key.fields);
-                                        }}
-                                    />}
-                                <input
-                                    id='viewOptionParams'
-                                    type='button'
-                                    value='+'
-                                    onClick={() => {
-                                        this.toggleStructProperties(key.identifier, key.fields);
-                                    }}
-                                />
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>);
+                </Form.Field>
+                <Form.Field width={11}>
+                    {wrongInput &&
+                    <div className='errorMsgDiv'>
+                        <i
+                            className='fw fw-error errorIcon'
+                            onClick={() => {
+                                this.clearStructFieldValues(key, key.fields);
+                            }}
+                        />
+                        <span className='errorMsg'> Configure properties </span></div>
+                        }
+                    <Input
+                        className={[disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
+                        id={key.identifier}
+                        name={key.identifier}
+                        type='text'
+                        placeholder='Defined option object or a method'
+                        value={key.value}
+                        onChange={event => this.onChange(event, key)}
+                        disabled={disabled}
+                    />
+                    <span>
+                        {(disabled && !wrongInput) &&
+                        <input
+                            id='viewOptionParams'
+                            value='x'
+                            onClick={() => {
+                                this.clearStructFieldValues(key, key.fields);
+                            }}
+                        />}
+                        <Button
+                            id='viewOptionParams'
+                            type='button'
+                            value='+'
+                            onClick={() => {
+                                this.toggleStructProperties(key.identifier, key.fields);
+                            }}
+                        />
+                    </span>
+                </Form.Field>
+            </Form.Group >);
     }
 
     /**
@@ -639,38 +632,36 @@ class PropertyWindow extends React.Component {
     renderVariableReferenceSection(key) {
         const label = 'Variable Reference';
         return (
-            <Grid key='vardef'>
-                <Grid.Row>
-                    <Grid.Column width={6}>
-                        <label
-                            htmlFor='varRefEnable'
-                        >
-                            <input
-                                type='checkbox'
-                                name='varRefEnable'
-                                id='varRefEnable'
-                                value='variable ref'
-                                onClick={event => this.clickVarDefCheck(event)}
-                                checked={this.isVarDefEnabled}
-                            />
-                            <span>&nbsp;</span>
-                            {label}
-                        </label>
-                    </Grid.Column>
-                    <Grid.Column
-                        width={(this.isVarDefEnabled ? '' : ' content-disabled ten')}
+            <Form.Group inline fluid key='vardef'>
+                <Form.Field width={5}>
+                    <label
+                        htmlFor='varRefEnable'
                     >
                         <input
-                            id='vardef'
-                            name='vardef'
-                            type='text'
-                            placeholder='var1'
-                            value={this.isVarDefEnabled ? this.varDefInitRef.value : ''}
-                            onChange={event => this.onChange(event, key)}
+                            type='checkbox'
+                            name='varRefEnable'
+                            id='varRefEnable'
+                            value='variable ref'
+                            onClick={event => this.clickVarDefCheck(event)}
+                            checked={this.isVarDefEnabled}
                         />
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
+                        <span>&nbsp;</span>
+                        {label}
+                    </label>
+                </Form.Field>
+                <Form.Field
+                    width={(this.isVarDefEnabled ? '' : ' content-disabled eleven ')}
+                >
+                    <input
+                        id='vardef'
+                        name='vardef'
+                        type='text'
+                        placeholder='var1'
+                        value={this.isVarDefEnabled ? this.varDefInitRef.value : ''}
+                        onChange={event => this.onChange(event, key)}
+                    />
+                </Form.Field>
+            </Form.Group>
         );
     }
 
