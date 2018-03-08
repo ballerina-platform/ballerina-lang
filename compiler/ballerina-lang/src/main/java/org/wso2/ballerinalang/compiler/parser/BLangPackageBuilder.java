@@ -118,12 +118,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1339,6 +1341,29 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addCompoundAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
+        BLangCompoundAssignment assignmentNode =
+                (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
+        assignmentNode.setExpression(exprNodeStack.pop());
+        assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
+        assignmentNode.pos = pos;
+        assignmentNode.addWS(ws);
+        assignmentNode.opKind = OperatorKind.valueFrom(operator);
+        addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addPostIncrementStatement(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
+        BLangPostIncrement postIncrement =
+                (BLangPostIncrement) TreeBuilder.createPostIncrementNode();
+        postIncrement.setVariable((BLangVariableReference) exprNodeStack.pop());
+        postIncrement.pos = pos;
+        postIncrement.addWS(ws);
+        addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong("1"));
+        postIncrement.increment = (BLangExpression) exprNodeStack.pop();
+        postIncrement.opKind = OperatorKind.valueFrom(operator);
+        addStmtToCurrentBlock(postIncrement);
     }
 
     public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws, String varName) {

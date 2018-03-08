@@ -700,6 +700,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#postIncrementStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#postIncrementStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#postArithmeticOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#postArithmeticOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#bindStatement}.
 	 * @param ctx the parse tree
 	 */

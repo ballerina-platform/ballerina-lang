@@ -80,6 +80,7 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     ASSIGNMENT,
+    COMPOUND_ASSIGNMENT,
     BIND,
     BLOCK,
     BREAK,

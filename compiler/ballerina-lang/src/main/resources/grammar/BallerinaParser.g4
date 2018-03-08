@@ -243,6 +243,7 @@ statement
     :   variableDefinitionStatement
     |   assignmentStatement
     |   compoundAssignmentStatement
+    |   postIncrementStatement
     |   bindStatement
     |   ifElseStatement
     |   foreachStatement
@@ -303,8 +304,19 @@ compoundAssignmentStatement
     ;
 
 compoundOperator
-    :   COMPOUND_ADDITION
-    |   COMPOUND_SUBSTRACTION
+    :   COMPOUND_ADD
+    |   COMPOUND_SUB
+    |   COMPOUND_MUL
+    |   COMPOUND_DIV
+    ;
+
+postIncrementStatement
+    :   variableReference postArithmeticOperator SEMICOLON
+    ;
+
+postArithmeticOperator
+    :   POST_INCREMENT
+    |   POST_DECREMENT
     ;
 
 bindStatement
