@@ -42,6 +42,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpBodyPart;
@@ -69,8 +70,9 @@ public class MultipartTestCase {
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(new HttpResponseDecoder());
         channel.pipeline().addLast(new HttpRequestEncoder());
-        channel.pipeline().addLast(new SourceHandler(httpWsServerConnectorFuture,
-                null, ChunkConfig.ALWAYS, null, null));
+        channel.pipeline().addLast(
+                new SourceHandler(httpWsServerConnectorFuture, null, ChunkConfig.ALWAYS, KeepAliveConfig.AUTO, null,
+                                  null));
         listener = new MultipartContentListener();
         httpWsServerConnectorFuture.setHttpConnectorListener(listener);
     }

@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -213,7 +214,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     private void handleErrorIdleScenarios(String channelID) {
         if (targetRespMsg == null) {
-            httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
+            httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                     Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         } else {

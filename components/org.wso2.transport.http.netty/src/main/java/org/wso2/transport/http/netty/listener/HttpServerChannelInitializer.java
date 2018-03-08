@@ -41,6 +41,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
@@ -59,7 +60,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private boolean httpAccessLogEnabled;
     private ChunkConfig chunkConfig;
+    private KeepAliveConfig keepAliveConfig;
     private String interfaceId;
     private String serverName;
     private SSLConfig sslConfig;
@@ -131,7 +134,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                              new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
-
+        if (httpAccessLogEnabled) {
+            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+        }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
             serverPipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
@@ -140,8 +145,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
-        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
-                this.interfaceId, this.chunkConfig, this.serverName, this.allChannels));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                               new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
+                                                 keepAliveConfig, this.serverName, this.allChannels));
     }
 
     /**
@@ -186,6 +192,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
+    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+        this.httpAccessLogEnabled = httpAccessLogEnabled;
+    }
+
     void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
     }
@@ -202,7 +212,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    void setValidateCertEnabled(boolean validateCertEnabled) {
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
 

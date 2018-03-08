@@ -104,6 +104,7 @@ public class SenderConfiguration {
     private int cacheSize = 50;
     private int cacheValidityPeriod = 15;
     private boolean hostNameVerificationEnabled = true;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
 
     public SenderConfiguration() {
         this.poolConfiguration = new PoolConfiguration();
@@ -319,5 +320,13 @@ public class SenderConfiguration {
 
     public void setPoolConfiguration(PoolConfiguration poolConfiguration) {
         this.poolConfiguration = poolConfiguration;
+    }
+
+    public ForwardedExtensionConfig getForwardedExtensionConfig() {
+        return forwardedExtensionConfig;
+    }
+
+    public void setForwardedExtensionConfig(ForwardedExtensionConfig forwardedExtensionEnabled) {
+        this.forwardedExtensionConfig = forwardedExtensionEnabled;
     }
 }
