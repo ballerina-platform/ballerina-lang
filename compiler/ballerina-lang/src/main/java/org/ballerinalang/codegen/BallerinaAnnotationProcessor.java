@@ -152,11 +152,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         String interfaceName;
         for (Element element : elements) {
             interfaceName = element.getAnnotation(JavaSPIService.class).value();
-            List<String> implClasses = entries.get(interfaceName);
-            if (implClasses == null) {
-                implClasses = new ArrayList<>();
-                entries.put(interfaceName, implClasses);
-            }
+            List<String> implClasses = entries.computeIfAbsent(interfaceName, k -> new ArrayList<>());
             implClasses.add(this.extractClassName(element));
         }
         if (!entries.isEmpty()) {

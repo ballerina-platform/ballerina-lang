@@ -47,7 +47,7 @@ service<http> Ecommerce {
     }
     resource productMgt (http:Connection conn, http:InRequest req) {
         http:OutRequest clientRequest = {};
-        json jsonReq = req.getJsonPayload();
+        var jsonReq, _ = req.getJsonPayload();
         clientRequest.setJsonPayload(jsonReq);
         var clientResponse, _ = productsService.post("/productsservice", clientRequest);
         _ = conn.forward(clientResponse);
@@ -138,7 +138,7 @@ service<http> productmgt {
         path:"/"
     }
     resource addProduct (http:Connection conn, http:InRequest req) {
-        json jsonReq = req.getJsonPayload();
+        var jsonReq, _ = req.getJsonPayload();
         var productId, _ = (string)jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};

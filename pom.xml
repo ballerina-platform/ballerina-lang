@@ -800,6 +800,7 @@
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -828,6 +829,7 @@
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>

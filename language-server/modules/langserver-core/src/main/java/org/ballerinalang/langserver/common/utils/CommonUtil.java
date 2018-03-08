@@ -26,6 +26,8 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.BLangPackageContext;
+import org.ballerinalang.langserver.DocumentServiceKeys;
+import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
@@ -42,6 +44,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -80,6 +83,8 @@ public class CommonUtil {
     private static final String INVOCATION_TYPE = "invocationType";
 
     private static final String UNESCAPED_VALUE = "unescapedValue";
+
+    private static final String OPEN_BRACKET_KEY_WORD = "(";
     
     /**
      * Get the package URI to the given package name.
@@ -474,5 +479,48 @@ public class CommonUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Check whether the given cursor position is within the brackets.
+     * @param context           Text document context
+     * @param terminalTokens    List of terminal tokens
+     * @return {@link Boolean}  Whether the cursor is within the brackets or not
+     */
+    public static boolean isWithinBrackets(TextDocumentServiceContext context, List<String> terminalTokens) {
+        int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
+        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        Token previousToken = tokenStream.get(currentTokenIndex);
+        Token currentToken;
+        while (true) {
+            if (currentTokenIndex < 0) {
+                break;
+            }
+            currentToken = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
+            if (terminalTokens.contains(currentToken.getText())) {
+                break;
+            }
+            previousToken = currentToken;
+            currentTokenIndex = currentToken.getTokenIndex();
+        }
+
+        if (previousToken != null && previousToken.getText().equals(OPEN_BRACKET_KEY_WORD)) {
+            Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+            Token closeBracket = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY)
+                    .get(context.get(DocumentServiceKeys.TOKEN_INDEX_KEY));
+            int cursorLine = position.getLine();
+            int cursorCol = position.getCharacter();
+            int startBracketLine = previousToken.getLine() - 1;
+            int startBracketCol = previousToken.getCharPositionInLine();
+            int closeBracketLine = closeBracket.getLine() - 1;
+            int closeBracketCol = closeBracket.getCharPositionInLine();
+
+            return (cursorLine >= startBracketLine && cursorLine < closeBracketLine)
+                    || (cursorLine > startBracketLine && cursorLine <= closeBracketLine)
+                    || (cursorLine == startBracketLine && cursorLine == closeBracketLine
+                    && cursorCol > startBracketCol && cursorCol <= closeBracketCol);
+        }
+
+        return false;
     }
 }

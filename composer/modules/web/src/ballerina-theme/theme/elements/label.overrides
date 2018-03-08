@@ -6,3 +6,14 @@
         color: #c7c7c7!important;
     }
 }
+
+.ui.label {
+    background-color : @invertedInputBackgroundColor;
+    border-radius    : @noBorderRadius;
+    height           : 40px;
+    color            : @off-white;
+    font-weight      : @fontWeight;
+    display          : inline-block;
+    padding          : 13px;
+    border-left      : 1px solid @orange;
+}
