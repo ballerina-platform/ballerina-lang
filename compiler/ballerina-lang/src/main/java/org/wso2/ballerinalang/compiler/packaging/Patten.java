@@ -2,18 +2,15 @@ package org.wso2.ballerinalang.compiler.packaging;
 
 
 import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.StringResolver;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class Patten {
-    public static final Part WILDCARD = new Part();
-    public static final Part BAL_SANS_TEST_AND_RES = new Part();
-    private static final Resolver<String> STRING_RESOLVER =
-            Resolver.build("$",
-                           (a, b) -> (a + "/" + b),
-                           t -> Stream.of(t + "/*"),
-                           t -> Stream.of(t + "/**~test~resources/*.bal"));
+    public static final Part WILDCARD_DIR = new Part();
+    public static final Part WILDCARD_BAL = new Part();
+    private static final Resolver<String> STRING_RESOLVER = new StringResolver();
 
     private final Part[] parts;
 
@@ -28,9 +25,9 @@ public class Patten {
     public <T> Stream<T> convert(Resolver<T> resolver) {
         Stream<T> aggregate = Stream.of(resolver.start());
         for (Part part : parts) {
-            if (part == WILDCARD) {
+            if (part == WILDCARD_DIR) {
                 aggregate = aggregate.flatMap(resolver::expand);
-            } else if (part == BAL_SANS_TEST_AND_RES) {
+            } else if (part == WILDCARD_BAL) {
                 aggregate = aggregate.flatMap(resolver::expandBal);
             } else {
                 aggregate = aggregate.map(t -> callReduceForEach(t, part.values, resolver));
@@ -47,22 +44,6 @@ public class Patten {
     public String toString() {
         return convert(STRING_RESOLVER).findFirst()
                                        .orElse("#");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        // Only used for testing, so only an
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Patten patten = (Patten) o;
-
-        return toString().equals(patten.toString());
-    }
-
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
     }
 
     //TODO: replace with Stream#combine(U, BiFunction<U,? super T,U>, BinaryOperator<U>) ?

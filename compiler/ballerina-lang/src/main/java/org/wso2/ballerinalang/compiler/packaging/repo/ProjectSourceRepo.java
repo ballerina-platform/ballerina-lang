@@ -7,22 +7,26 @@ import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
 
 import java.nio.file.Path;
 
-public class ProjectSourceRepo implements Repo {
+public class ProjectSourceRepo implements Repo<Path> {
 
     private final PathResolver resolver;
 
+    public ProjectSourceRepo(PathResolver resolver) {
+        this.resolver = resolver;
+    }
+
     public ProjectSourceRepo(Path projectRoot) {
-        this.resolver = new PathResolver(projectRoot);
+        this(new PathResolver(projectRoot));
     }
 
     @Override
     public Patten calculate(PackageID pkg) {
         return new Patten(Patten.path(pkg.getName().value),
-                          Patten.BAL_SANS_TEST_AND_RES);
+                          Patten.WILDCARD_BAL);
     }
 
     @Override
-    public Resolver getResolverInstance() {
+    public Resolver<Path> getResolverInstance() {
         return resolver;
     }
 }

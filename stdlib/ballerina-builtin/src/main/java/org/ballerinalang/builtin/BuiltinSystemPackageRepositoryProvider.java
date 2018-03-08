@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,14 +49,8 @@ public class BuiltinSystemPackageRepositoryProvider implements SystemPackageRepo
         }
         try {
             URI thisClassLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            boolean isJar = thisClassLocation.getPath().endsWith(".jar");
-            if (isJar) {
-                this.repo = new JarRepo(thisClassLocation);
-            } else {
-                this.repo = new JarRepo(Paths.get(thisClassLocation));
-            }
-        } catch (URISyntaxException e) {
-            //TODO
+            this.repo = new JarRepo(thisClassLocation);
+        } catch (URISyntaxException ignore) {
         }
         return this.repo;
     }

@@ -19,19 +19,19 @@ public class JarRepo implements Repo<Path> {
     private final PathResolver resolver;
 
     public JarRepo(URI jarLocation) {
-        resolver = new PathResolver(pathWithinJar(jarLocation));
-    }
-
-
-    public JarRepo(Path explodedPath) {
-        resolver = new PathResolver(explodedPath);
+        boolean isJar = jarLocation.getPath().endsWith(".jar");
+        if (isJar) {
+            this.resolver = new PathResolver(pathWithinJar(jarLocation));
+        } else {
+            this.resolver = new PathResolver(Paths.get(jarLocation));
+        }
     }
 
     private static Path pathWithinJar(URI pathToJar) {
         try {
             URI pathInJar = new URI("jar:" + pathToJar.getScheme(),
                                     pathToJar.getUserInfo(), pathToJar.getHost(), pathToJar.getPort(),
-                                    pathToJar.getPath() + "!/META-INF/",
+                                    pathToJar.getPath() + "!/",
                                     pathToJar.getQuery(), pathToJar.getFragment());
             initFS(pathInJar);
             return Paths.get(pathInJar);
@@ -53,9 +53,9 @@ public class JarRepo implements Repo<Path> {
 
     @Override
     public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("ballerina",
+        return new Patten(Patten.path("META-INF", "ballerina",
                                       pkg.getName().value.replace('.', '/')),
-                          Patten.BAL_SANS_TEST_AND_RES);
+                          Patten.WILDCARD_BAL);
     }
 
     @Override
