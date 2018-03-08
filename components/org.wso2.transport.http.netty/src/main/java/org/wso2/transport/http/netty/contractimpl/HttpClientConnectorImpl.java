@@ -63,12 +63,17 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private boolean keepAlive;
+    private boolean isHttp2;
 
     public HttpClientConnectorImpl(ConnectionManager connectionManager, SenderConfiguration senderConfiguration) {
         this.connectionManager = connectionManager;
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
+        String httpVersion = senderConfiguration.getHttpVersion();
+        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+            isHttp2 = true;
+        }
     }
 
     @Override
@@ -129,19 +134,21 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
              * in case of the connection get upgraded to a HTTP/2 connection.
              */
             final HttpRoute route = getTargetRoute(httpOutboundRequest);
-            // See whether an already upgraded HTTP/2 connection is available
-            Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
+            if (isHttp2) {
+                // See whether an already upgraded HTTP/2 connection is available
+                Http2ClientChannel activeHttp2ClientChannel = http2ConnectionManager.borrowChannel(route);
 
-            if (activeHttp2ClientChannel != null) {
-                OutboundMsgHolder outboundMsgHolder =
-                        new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
+                if (activeHttp2ClientChannel != null) {
+                    OutboundMsgHolder outboundMsgHolder =
+                            new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
 
-                activeHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
-                    activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
-                });
-                httpResponseFuture = outboundMsgHolder.getResponseFuture();
-                httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                return httpResponseFuture;
+                    activeHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
+                        activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
+                    });
+                    httpResponseFuture = outboundMsgHolder.getResponseFuture();
+                    httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    return httpResponseFuture;
+                }
             }
 
             // Look for the connection from http connection manager

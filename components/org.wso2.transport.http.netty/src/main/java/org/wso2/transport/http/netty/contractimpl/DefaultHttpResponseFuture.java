@@ -83,10 +83,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
             executionWaitSem.release();
         }
         if (httpConnectorListener != null) {
-            HttpConnectorListener listener = httpConnectorListener;
-            removeHttpListener();
-            this.httpCarbonMessage = null;
-            listener.onMessage(httpCarbonMessage);
+            httpConnectorListener.onMessage(httpCarbonMessage);
         }
     }
 
@@ -97,10 +94,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
             executionWaitSem.release();
         }
         if (httpConnectorListener != null) {
-            HttpConnectorListener listener = httpConnectorListener;
-            removeHttpListener();
-            this.throwable = null;
-            listener.onError(throwable);
+            httpConnectorListener.onError(throwable);
         }
     }
 
