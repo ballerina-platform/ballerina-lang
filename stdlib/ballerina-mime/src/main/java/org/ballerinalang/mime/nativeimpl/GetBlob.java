@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getBlob",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.BLOB)},
+        returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetBlob extends AbstractNativeFunction {
@@ -64,9 +64,9 @@ public class GetBlob extends AbstractNativeFunction {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError
+            return this.getBValues(null, MimeUtil.createEntityError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
-        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]));
+        return this.getBValues(new BBlob(result != null ? result.getValue() : new byte[0]), null);
     }
 }

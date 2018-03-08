@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getBodyParts",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetBodyParts extends AbstractNativeFunction {
@@ -68,9 +68,9 @@ public class GetBodyParts extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            return this.getBValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
-        return this.getBValues(partsArray);
+        return this.getBValues(partsArray, null);
     }
 }

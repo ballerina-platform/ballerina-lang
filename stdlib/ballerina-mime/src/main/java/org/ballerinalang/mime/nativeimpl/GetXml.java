@@ -44,7 +44,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         packageName = "ballerina.mime",
         functionName = "getXml",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetXml extends AbstractNativeFunction {
@@ -69,9 +69,9 @@ public class GetXml extends AbstractNativeFunction {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            return this.getBValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
-        return this.getBValues(result);
+        return this.getBValues(result, null);
     }
 }
