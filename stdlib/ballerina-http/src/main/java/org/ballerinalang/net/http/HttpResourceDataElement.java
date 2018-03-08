@@ -80,17 +80,22 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
 
     @Override
     public boolean getData(HTTPCarbonMessage carbonMessage, DataReturnAgent<HttpResource> dataReturnAgent) {
-        if (this.resource == null) {
+        try {
+            if (this.resource == null) {
+                return false;
+            }
+            HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
+            if (resource == null) {
+                return false;
+            }
+            validateConsumes(resource, carbonMessage);
+            validateProduces(resource, carbonMessage);
+            dataReturnAgent.setData(resource);
+            return true;
+        } catch (BallerinaException e) {
+            dataReturnAgent.setError(e);
             return false;
         }
-        HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
-        if (resource == null) {
-            return false;
-        }
-        validateConsumes(resource, carbonMessage);
-        validateProduces(resource, carbonMessage);
-        dataReturnAgent.setData(resource);
-        return true;
     }
 
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {

@@ -1,6 +1,8 @@
 package org.ballerinalang.net.uri.parser;
 
 
+import org.ballerinalang.util.exceptions.BallerinaException;
+
 /**
  * This class is use to set and return data in the template tree.
  * @param <DataType> Type of data which should be set and returned.
@@ -8,6 +10,7 @@ package org.ballerinalang.net.uri.parser;
 public class DataReturnAgent<DataType> {
 
     private DataType data;
+    private BallerinaException ballerinaException;
 
     /**
      * Set data.
@@ -23,5 +26,21 @@ public class DataReturnAgent<DataType> {
      */
     public DataType getData() {
         return data;
+    }
+
+    /**
+     * Set Error.
+     * @param ballerinaException the error to be set.
+     */
+    public void setError(BallerinaException ballerinaException) {
+        this.ballerinaException = ballerinaException;
+    }
+
+    /**
+     * Get Error.
+     * @return the Throwable which caused the error.
+     */
+    public BallerinaException getError() {
+        return ballerinaException;
     }
 }

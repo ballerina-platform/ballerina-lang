@@ -44,10 +44,13 @@ public class URITemplate<DataType, InboundMsgType> {
     public DataType matches(String uri, Map<String, String> variables, InboundMsgType inboundMsg) {
         DataReturnAgent<DataType> dataReturnAgent = new DataReturnAgent<>();
         boolean isFound = syntaxTree.matchAll(uri, variables, 0, inboundMsg, dataReturnAgent);
-        if (!isFound) {
-            return null;
+        if (isFound) {
+            return dataReturnAgent.getData();
         }
-        return dataReturnAgent.getData();
+        if (dataReturnAgent.getError() != null) {
+            throw dataReturnAgent.getError();
+        }
+        return null;
     }
 
     public void parse(String uriTemplate, DataType resource,
