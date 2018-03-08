@@ -42,7 +42,7 @@ public class CloseDelimitedRecordEvent implements Event {
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(WriteCharactersEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(CloseDelimitedRecordEvent.class);
 
     public CloseDelimitedRecordEvent(DelimitedRecordChannel channel) {
         this.channel = channel;

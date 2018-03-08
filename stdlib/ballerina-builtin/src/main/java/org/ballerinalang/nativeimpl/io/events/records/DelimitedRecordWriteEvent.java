@@ -46,7 +46,7 @@ public class DelimitedRecordWriteEvent implements Event {
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(DelimitedRecordReadEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(DelimitedRecordWriteEvent.class);
 
     public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, BStringArray content) {
         this.channel = channel;
