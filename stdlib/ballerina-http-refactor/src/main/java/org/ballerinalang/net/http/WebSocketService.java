@@ -26,6 +26,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.List;
 import java.util.Map;

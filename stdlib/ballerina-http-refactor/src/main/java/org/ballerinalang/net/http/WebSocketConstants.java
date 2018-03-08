@@ -70,6 +70,8 @@ public class WebSocketConstants {
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
-    public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
+    public static final String WEBSOCKET_CONNECTOR = "WebSocketConnectorError";
+    public static final String CLIENT_URL_CONFIG = "url";
+    public static final String CLIENT_SERVICE_CONFIG = "callbackService";
 
 }
