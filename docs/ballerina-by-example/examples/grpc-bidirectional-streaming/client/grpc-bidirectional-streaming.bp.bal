@@ -5,16 +5,12 @@ public connector chatServerBlockingStub(string host, int port){
  endpoint<grpc:GRPCConnector> ep {
         create grpc:GRPCConnector(host, port, "blocking", descriptorKey, descriptorMap);
     }
-
-
-
 }
 
 public connector chatServerNonBlockingStub(string host, int port){
  endpoint<grpc:GRPCConnector> ep {
         create grpc:GRPCConnector(host, port, "non-blocking", descriptorKey, descriptorMap);
     }
-
 
     action chat (string serviceName) (grpc:ClientConnection, error) {
         var res, err1 = ep.streamingExecute("chatServer/chat", serviceName);
@@ -31,12 +27,10 @@ public connector chatServerNonBlockingStub(string host, int port){
     }
 }
 
-
 struct ChatMessage {  
   string from;
   string message;
 }
-
 
 const string descriptorKey = ".chatServer.proto";
 map descriptorMap ={
