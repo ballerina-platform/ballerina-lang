@@ -153,7 +153,8 @@ public class ClientInboundHandler extends Http2EventAdapter {
         }
 
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
-        Http2PushPromise pushPromise = new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
+        Http2PushPromise pushPromise =
+                new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId), outboundMsgHolder);
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
         outboundMsgHolder.addPromise(pushPromise);

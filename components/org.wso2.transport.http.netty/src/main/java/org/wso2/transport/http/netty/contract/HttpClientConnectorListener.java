@@ -23,7 +23,12 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * Allows to get notifications of connectors.
+ * {@code HttpClientConnectorListener} is the interface for Http ClientConnector event listeners.
+ *
+ * This is an extension of {@link HttpConnectorListener} contains additional capability which are specific only for
+ * {@link HttpClientConnector}.
+ * <p>
+ * Implementors of this interface can implement only what they prefer to listen for.
  */
 public interface HttpClientConnectorListener extends HttpConnectorListener {
 
@@ -36,19 +41,18 @@ public interface HttpClientConnectorListener extends HttpConnectorListener {
     }
 
     /**
-     * Events on promise availability ends up here
+     * Gets notified for events related to promise availability.
      *
-     * @param isPromiseAvailable whether promise is available
+     * @param isPromiseAvailable the parameter which tells whether a promise is available
      */
     default void onPushPromiseAvailability(boolean isPromiseAvailable) {
     }
 
     /**
-     * Events related to Response Handle will end up here
+     * Gets notified for events related to {@link ResponseHandle}.
      *
-     * @param responseHandle Response Handle
+     * @param responseHandle the Response Handle
      */
     default void onResponseHandle(ResponseHandle responseHandle) {
     }
-
 }

@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.List;
 
@@ -35,9 +36,11 @@ public class Http2PushPromise {
     private int promisedStreamId;
     private boolean rejected = false;
     private HttpRequest httpRequest;
+    private OutboundMsgHolder outboundMsgHolder;
 
-    public Http2PushPromise(HttpRequest httpRequest) {
+    public Http2PushPromise(HttpRequest httpRequest, OutboundMsgHolder outboundMsgHolder) {
         this.httpRequest = httpRequest;
+        this.outboundMsgHolder = outboundMsgHolder;
     }
 
     public Http2PushPromise(String method, String uri) {
@@ -105,5 +108,9 @@ public class Http2PushPromise {
 
     public void reject() {
         this.rejected = true;
+    }
+
+    public OutboundMsgHolder getOutboundMsgHolder() {
+        return outboundMsgHolder;
     }
 }
