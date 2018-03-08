@@ -2639,7 +2639,8 @@ public class CPU {
         return new LocalTransactionInfo(transactionId, url, protocol);
     }
 
-    private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url, String protocol) {
+    private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
+            String protocol) {
         BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
         return invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
     }
