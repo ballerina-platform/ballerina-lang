@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,8 +104,9 @@ public class Read extends AbstractNativeFunction {
         BStruct channel;
         int numberOfBytes;
         int offset;
-        BBlob readByteBlob;
-        BInteger numberOfReadBytes;
+        BBlob readByteBlob = null;
+        BInteger numberOfReadBytes = null;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
@@ -122,8 +122,8 @@ public class Read extends AbstractNativeFunction {
         } catch (Throwable e) {
             String message = "Error occurred while reading bytes:" + e.getMessage();
             log.error(message);
-            throw new BallerinaException(message, context);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(readByteBlob, numberOfReadBytes, null);
+        return getBValues(readByteBlob, numberOfReadBytes, errorStruct);
     }
 }

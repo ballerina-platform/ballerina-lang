@@ -23,15 +23,18 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -67,6 +70,7 @@ public class ReadCharacters extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+    private static final Logger log = LoggerFactory.getLogger(ReadCharacters.class);
 
     /*
      * Callback method of the read characters response.
@@ -92,15 +96,20 @@ public class ReadCharacters extends AbstractNativeFunction {
      *
      * @param numberOfCharacters number of characters which should be read.
      * @param characterChannel   the channel which the characters will be read.
+     * @param context            context of the event.
      * @return the content which is read.
      * @throws ExecutionException   if an error occurs in the async framework.
      * @throws InterruptedException during interrupt.
      */
-    private String asyncReadCharacters(int numberOfCharacters, CharacterChannel characterChannel) throws
+    private String readCharacter(int numberOfCharacters, CharacterChannel characterChannel, EventContext context) throws
             ExecutionException, InterruptedException {
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters, context);
         CompletableFuture<EventResult> future = eventManager.publish(event);
         EventResult eventResult = future.get();
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
         return (String) eventResult.getResponse();
     }
 
@@ -115,20 +124,22 @@ public class ReadCharacters extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct channel;
         long numberOfCharacters;
-        BString content;
+        BString content = null;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(context);
             // IOUtils.read(characterChannel,numberOfCharacters,ReadCharacters::readCharactersResponse);
-            String readCharacters = asyncReadCharacters((int) numberOfCharacters, characterChannel);
+            String readCharacters = readCharacter((int) numberOfCharacters, characterChannel, eventContext);
             content = new BString(readCharacters);
         } catch (Throwable e) {
             String message = "Error occurred while reading characters:" + e.getMessage();
-            throw new BallerinaException(message, context);
-
+            log.error(message);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(content, null);
+        return getBValues(content, errorStruct);
     }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.CloseByteChannelEvent;
@@ -65,17 +66,23 @@ public class Close extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel);
+            EventContext eventContext = new EventContext(context);
+            CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
             CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
-            future.get();
+            EventResult eventResult = future.get();
+            Throwable error = ((EventContext) eventResult.getContext()).getError();
+            if (null != error) {
+                errorStruct = IOUtils.createError(context, error.getMessage());
+            }
         } catch (Throwable e) {
             String message = "Failed to close the channel:" + e.getMessage();
             log.error(message);
-            return getBValues(IOUtils.createError(context, message));
+            errorStruct = IOUtils.createError(context, message);
         }
-        return VOID_RETURN;
+        return getBValues(errorStruct);
     }
 }

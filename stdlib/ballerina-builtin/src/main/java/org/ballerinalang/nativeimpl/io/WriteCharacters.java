@@ -23,15 +23,18 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -72,6 +75,8 @@ public class WriteCharacters extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+    private static final Logger log = LoggerFactory.getLogger(WriteCharacters.class);
+
 /*
     private static EventResult readCharactersResponse(EventResult<Integer, EventContext> result) {
         BStruct errorStruct;
@@ -92,16 +97,20 @@ public class WriteCharacters extends AbstractNativeFunction {
      * @param characterChannel channel the characters should be written.
      * @param text             the content which should be written.
      * @param offset           the index the characters should be written.
+     * @param context          context of the event.
      * @return the number of characters which was written.
      * @throws ExecutionException   errors which occur during execution.
      * @throws InterruptedException during interrupt exception.
      */
-    private int asyncWriteCharacters(CharacterChannel characterChannel, String text, int offset) throws
-            ExecutionException,
-            InterruptedException {
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset);
+    private int writeCharacters(CharacterChannel characterChannel, String text, int offset, EventContext context)
+            throws ExecutionException, InterruptedException {
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset, context);
         CompletableFuture<EventResult> future = eventManager.publish(event);
         EventResult eventResult = future.get();
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
         return (int) eventResult.getResponse();
     }
 
@@ -115,19 +124,22 @@ public class WriteCharacters extends AbstractNativeFunction {
         BStruct channel;
         String content;
         long startOffset;
-        int numberOfCharactersWritten;
+        int numberOfCharactersWritten = 0;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
             content = getStringArgument(context, CONTENT_INDEX);
             startOffset = getIntArgument(context, START_OFFSET_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(context);
 //            IOUtils.write(characterChannel,content,startOffset,WriteCharacters::readCharactersResponse);
-            numberOfCharactersWritten = asyncWriteCharacters(characterChannel, content, (int) startOffset);
+            numberOfCharactersWritten = writeCharacters(characterChannel, content, (int) startOffset, eventContext);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(new BInteger(numberOfCharactersWritten), null);
+        return getBValues(new BInteger(numberOfCharactersWritten), errorStruct);
     }
 }

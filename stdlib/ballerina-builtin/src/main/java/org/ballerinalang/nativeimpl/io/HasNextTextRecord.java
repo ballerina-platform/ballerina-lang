@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.HasNextDelimitedRecordEvent;
@@ -66,7 +67,9 @@ public class HasNextTextRecord extends AbstractNativeFunction {
             if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
                 DelimitedRecordChannel textRecordChannel =
                         (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-                HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel);
+                EventContext eventContext = new EventContext(context);
+                HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
+                        eventContext);
                 CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
                 EventResult eventResult = event.get();
                 boolean value = (boolean) eventResult.getResponse();

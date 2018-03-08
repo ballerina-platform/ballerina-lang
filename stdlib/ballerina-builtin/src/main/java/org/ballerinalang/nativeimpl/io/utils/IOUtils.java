@@ -100,6 +100,10 @@ public class IOUtils {
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
         EventResult eventResponse = future.get();
         offset = offset + (Integer) eventResponse.getResponse();
+        Throwable error = ((EventContext) eventResponse.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
         return offset;
     }
 
@@ -146,9 +150,10 @@ public class IOUtils {
      * @param characterChannel   channel the characters should be read.
      * @param numberOfCharacters the number of characters to read.
      * @param function           the callback function which will be triggered after reading characters.
+     * @param context            context of the event.
      */
     public static void read(CharacterChannel characterChannel, int numberOfCharacters,
-                            Function<EventResult, EventResult> function) {
+                            Function<EventResult, EventResult> function, EventContext context) {
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
@@ -161,10 +166,11 @@ public class IOUtils {
      * @param content          the content which will be written.
      * @param offset           if an offset should be specified while writing.
      * @param function         callback function which should be triggered
+     * @param context          context of the event.
      */
     public static void write(CharacterChannel characterChannel, String content, int offset,
-                             Function<EventResult, EventResult> function) {
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, offset);
+                             Function<EventResult, EventResult> function, EventContext context) {
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
@@ -191,6 +197,10 @@ public class IOUtils {
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         EventResult eventResponse = future.get();
         offset = (Integer) eventResponse.getResponse();
+        Throwable error = ((EventContext) eventResponse.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
         return offset;
     }
 

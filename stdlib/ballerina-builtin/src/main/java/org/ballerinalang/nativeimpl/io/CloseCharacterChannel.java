@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.CloseCharacterChannelEvent;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#closeCharacterChannel.
@@ -66,17 +68,23 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-            CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel);
+            EventContext eventContext = new EventContext(context);
+            CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
             CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
-            future.get();
+            EventResult eventResult = future.get();
+            Throwable error = ((EventContext) eventResult.getContext()).getError();
+            if (null != error) {
+                throw new ExecutionException(error);
+            }
         } catch (Throwable e) {
             String message = "Failed to close the character channel:" + e.getMessage();
             log.error(message);
-            return getBValues(IOUtils.createError(context, message));
+            errorStruct = IOUtils.createError(context, message);
         }
-        return VOID_RETURN;
+        return getBValues(errorStruct);
     }
 }

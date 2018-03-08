@@ -31,7 +31,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.lo#writeBytes.
@@ -71,6 +72,8 @@ public class Write extends AbstractNativeFunction {
      */
     private static final int NUMBER_OF_BYTES_INDEX = 1;
 
+    private static final Logger log = LoggerFactory.getLogger(Write.class);
+
     /*
      * Function which will be notified on the response obtained after the async operation.
      *
@@ -104,7 +107,8 @@ public class Write extends AbstractNativeFunction {
         byte[] content;
         int numberOfBytes;
         int offset;
-        int numberOfBytesWritten;
+        int numberOfBytesWritten = 0;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             content = getBlobArgument(context, CONTENT_INDEX);
@@ -116,8 +120,9 @@ public class Write extends AbstractNativeFunction {
 //            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(new BInteger(numberOfBytesWritten), null);
+        return getBValues(new BInteger(numberOfBytesWritten), errorStruct);
     }
 }

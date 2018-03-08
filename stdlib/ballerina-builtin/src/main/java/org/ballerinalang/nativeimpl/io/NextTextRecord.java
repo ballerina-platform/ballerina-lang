@@ -23,14 +23,17 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -61,6 +64,8 @@ public class NextTextRecord extends AbstractNativeFunction {
      */
     private EventManager eventManager = EventManager.getInstance();
 
+    private static final Logger log = LoggerFactory.getLogger(NextTextRecord.class);
+
     /*
      * Response obtained after reading record.
      *
@@ -85,16 +90,22 @@ public class NextTextRecord extends AbstractNativeFunction {
      * Reads bytes asynchronously.
      *
      * @param recordChannel channel the bytes should be read from.
+     * @param context       event context.
      * @return the fields which were read.
      * @throws ExecutionException   errors which occur during execution.
      * @throws InterruptedException during interrupt error.
      */
-    private String[] asyncReadRecord(DelimitedRecordChannel recordChannel) throws ExecutionException,
+    private String[] readRecord(DelimitedRecordChannel recordChannel, EventContext context) throws ExecutionException,
             InterruptedException {
-        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel);
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel, context
+        );
         CompletableFuture<EventResult> future = eventManager.publish(event);
         //future.thenApply(NextTextRecord::readRecordResponse);
         EventResult eventResult = future.get();
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
         return (String[]) eventResult.getResponse();
     }
 
@@ -104,18 +115,21 @@ public class NextTextRecord extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
-        BStringArray record;
+        BStringArray record = null;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
 
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            String[] recordValue = asyncReadRecord(delimitedRecordChannel);
+            EventContext eventContext = new EventContext(context);
+            String[] recordValue = readRecord(delimitedRecordChannel, eventContext);
             record = new BStringArray(recordValue);
         } catch (Throwable e) {
             String message = "Error occurred while reading text records:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(record, null);
+        return getBValues(record, errorStruct);
     }
 }

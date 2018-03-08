@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
@@ -68,18 +69,24 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct channel;
+        BStruct errorStruct = null;
         try {
             channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel);
+            EventContext eventContext = new EventContext(context);
+            CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
             CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
-            future.get();
+            EventResult eventResult = future.get();
+            Throwable error = ((EventContext) eventResult.getContext()).getError();
+            if (null != error) {
+                errorStruct = IOUtils.createError(context, error.getMessage());
+            }
         } catch (Throwable e) {
             String message = "Failed to close the text record channel:" + e.getMessage();
             log.error(message);
-            return getBValues(IOUtils.createError(context, message));
+            errorStruct = IOUtils.createError(context, message);
         }
-        return VOID_RETURN;
+        return getBValues(errorStruct);
     }
 }
