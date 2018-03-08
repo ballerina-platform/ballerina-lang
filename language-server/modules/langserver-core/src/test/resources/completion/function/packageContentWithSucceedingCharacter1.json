@@ -6,19 +6,19 @@
   "source": "function/source/packageContentWithSucceedingCharacter1.bal",
   "items": [
     {
-      "label":"getGlobalValue(string property)(string)",
+      "label":"getAsString(string configKey)(string)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"119",
-      "insertText":"getGlobalValue(${1:property})",
+      "insertText":"getAsString(${1:configKey})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getInstanceValue(string instanceId, string property)(string)",
+      "label":"setConfig(string configKey, string configValue)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"119",
-      "insertText":"getInstanceValue(${1:instanceId}, ${2:property})",
+      "insertText":"setConfig(${1:configKey}, ${2:configValue})",
       "insertTextFormat":"Snippet"
     }
   ]
