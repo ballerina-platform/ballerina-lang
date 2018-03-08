@@ -38,7 +38,7 @@ class TagInput extends React.Component {
         this.handleRemoveItem = this.handleRemoveItem.bind(this);
     }
 
-    render() {
+    render(){
         return (
             <ul id='ulContainer'className='sixteen wide field'>
                 {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
