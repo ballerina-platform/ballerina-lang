@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
