@@ -3,7 +3,7 @@
 *******************************/
 
 .ui.form .fields .field .ui.input input, .ui.form .field .ui.input input, .ui.form textarea{
-    background      : @off-white;
+    background      : #fdfdfd;
 }
 
 .ui.form input[type="text"]:focus{
@@ -38,6 +38,16 @@
   border-color    : @orange ;
 }
 
+/* Inline Label */
+.ui.form .inline.fields > label,
+.ui.form .inline.fields .field > label,
+.ui.form .inline.fields .field > p,
+.ui.form .inline.field > label,
+.ui.form .inline.field > p {
+  font-weight: 300;
+}
+
+
 .inverted{
 
 /* Inverted Field */
@@ -60,7 +70,12 @@
 }
 .wide.field:last-child{
         padding-right: 0 !important;
-    }
+}
+
+.ui.tiny.form{
+    font-size   : 1em;
+    font-weight : 300;
+}
 
 
 
