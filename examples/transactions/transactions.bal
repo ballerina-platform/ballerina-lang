@@ -7,9 +7,9 @@ function main (string[] args) {
         sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create the tables required for the transaction.
-    int updatedRows = testDB.updateQuery("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT,
+    int updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS CUSTOMER (ID INT,
         NAME VARCHAR(30))", null);
-    updatedRows = testDB.updateQuery("CREATE TABLE IF NOT EXISTS SALARY (ID INT,
+    updatedRows = testDB.update("CREATE TABLE IF NOT EXISTS SALARY (ID INT,
         MON_SALARY FLOAT)", null);
     //Here is the transaction block. You can use a Try catch here since updateQuery action can
     //throw errors due to SQL errors, connection pool errors etc. The retry count is the
@@ -19,9 +19,9 @@ function main (string[] args) {
     boolean transactionSuccess = false;
     transaction with retries(4){
         //This is the first action participate in the transaction.
-        int c = testDB.updateQuery("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
+        int c = testDB.update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
         //This is the second action participate in the transaction.
-        c = testDB.updateQuery("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
+        c = testDB.update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
 
         io:println("Inserted count:" + c);
         //Anytime the transaction can be forcefully aborted using the abort keyword.
