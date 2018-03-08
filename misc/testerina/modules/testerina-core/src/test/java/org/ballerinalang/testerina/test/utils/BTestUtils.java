@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Utility methods for unit tests.
@@ -136,7 +136,7 @@ public class BTestUtils {
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
@@ -169,7 +169,7 @@ public class BTestUtils {
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
+        options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 

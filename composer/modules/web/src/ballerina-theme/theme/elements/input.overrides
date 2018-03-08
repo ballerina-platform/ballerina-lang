@@ -1,3 +1,22 @@
 /*******************************
          Site Overrides
 *******************************/
+
+.ui.labeled.input > .label:not(.corner),
+.ui.action.input:not([class*="left action"]) > .dropdown:last-child,
+.ui.action.input:not([class*="left action"]) > .button:last-child,
+.ui.action.input:not([class*="left action"]) > .buttons:last-child > .button  {
+    border-radius   :@border-radius-none;
+    height          : @inputHeight;
+}
+
+.ui.labeled.input{
+     .label{
+            font-weight : 300 !important;
+            background  : #2f2f2f;
+            padding-top : 14px !important;
+            color       : @off-white;
+            height      : @inputHeight;
+     }
+}
+

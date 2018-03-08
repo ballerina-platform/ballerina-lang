@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TARGET_BINARY_PATH;
 import static org.ballerinalang.util.BLangConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -51,7 +51,7 @@ public class BuilderUtils {
                                        Path targetPath, boolean buildCompiledPkg) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, sourceRootPath.toString());
+        options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));

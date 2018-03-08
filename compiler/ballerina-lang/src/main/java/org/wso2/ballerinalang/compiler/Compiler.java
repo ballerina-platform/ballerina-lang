@@ -28,13 +28,14 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 /**
  * @since 0.94
@@ -48,12 +49,12 @@ public class Compiler {
     private ProjectDirectory projectDirectory;
     private CompilerDriver compilerDriver;
     private BinaryFileWriter binaryFileWriter;
-
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private PackageLoader pkgLoader;
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private CompilerPluginRunner annotationProcessor;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
 
@@ -76,15 +77,21 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.projectDirectory = ProjectDirectory.getInstance(context);
+
+        // TODO Hack FIX this soon
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        if (options.get(CompilerOptionName.PROJECT_DIR) != null) {
+            this.projectDirectory = ProjectDirectory.getInstance(context);
+        }
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
 
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.annotationProcessor = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
@@ -97,6 +104,9 @@ public class Compiler {
         // 3) Dump the balx
 
         // 4) Once all the entry points are resolved, then write all the compiled package as BALOs.
+
+        // TODO Consider situation where the project directory is virtual.
+
 
         this.projectDirectory.list()
                 .peek(pkgNode -> this.compilerDriver.compilePackage(pkgNode))
@@ -128,9 +138,15 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        pkgNode = annotationProcess(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
+
         // TODO : Improve this.
         desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
@@ -173,6 +189,10 @@ public class Compiler {
         return codeAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage annotationProcess(BLangPackage pkgNode) {
+        return annotationProcessor.runPlugins(pkgNode);
+    }
+
     private BLangPackage desugar(BLangPackage pkgNode) {
         return desugar.perform(pkgNode);
     }
@@ -204,7 +224,7 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.DESUGAR ||
+        return (phase == CompilerPhase.COMPILER_PLUGIN || phase == CompilerPhase.DESUGAR ||
                 phase == CompilerPhase.CODE_GEN) &&
                 (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }

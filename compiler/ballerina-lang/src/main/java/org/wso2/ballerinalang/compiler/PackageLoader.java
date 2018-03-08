@@ -46,7 +46,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * This class contains methods to load a given package symbol.
@@ -266,7 +266,7 @@ public class PackageLoader {
         PackageRepository programRepo = context.get(PackageRepository.class);
         if (programRepo == null) {
             // create the default program repo
-            String sourceRoot = options.get(SOURCE_ROOT);
+            String sourceRoot = options.get(PROJECT_DIR);
             // TODO: replace by the org read form TOML.
             programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
         }

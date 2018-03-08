@@ -93,14 +93,12 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -119,13 +117,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Names names;
     private SymbolResolver symResolver;
-    private DiagnosticLog dlog;
-
-    private BLangPackage rootPkgNode;
+    private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
-    public Map<BPackageSymbol, SymbolEnv> packageEnvs = new HashMap<>();
-
     private BLangPackageDeclaration currentPkgDecl = null;
 
     private final boolean skipPkgValidation;
@@ -146,10 +140,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
 
-        this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgNode.symbol = symTable.rootPkgSymbol;
+        BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        rootPkgNode.symbol = symTable.rootPkgSymbol;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         this.skipPkgValidation = Boolean.parseBoolean(options.get(CompilerOptionName.SKIP_PACKAGE_VALIDATION));
@@ -164,6 +158,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         populatePackageNode(pkgNode, pkgNode.packageID);
         defineNode(pkgNode, null);
         return pkgNode;
+//        symTable.pkgSymbolMap.put(pkgId, pkgNode.symbol);
+//        return pkgNode.symbol;
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -184,9 +180,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Create PackageSymbol.
         BPackageSymbol pSymbol = createPackageSymbol(pkgNode);
-        SymbolEnv builtinEnv = this.packageEnvs.get(symTable.builtInPackageSymbol);
+        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
-        packageEnvs.put(pSymbol, pkgEnv);
+        this.symTable.pkgEnvMap.put(pSymbol, pkgEnv);
 
         createPackageInitFunction(pkgNode);
         // visit the package node recursively and define all package level symbols.

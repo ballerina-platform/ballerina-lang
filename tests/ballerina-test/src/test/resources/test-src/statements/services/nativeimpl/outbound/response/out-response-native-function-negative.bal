@@ -19,14 +19,12 @@ function testGetHeader (http:OutResponse res, string key) (string) {
     return contentType;
 }
 
-function testGetEntity (http:OutResponse response) (mime:Entity) {
-    mime:Entity entity = response.getEntity();
-    return entity;
+function testGetEntity (http:OutResponse response) (mime:Entity, mime:EntityError) {
+    return response.getEntity();
 }
 
-function testGetJsonPayload (http:OutResponse res) (json) {
-    json payload = res.getJsonPayload();
-    return payload;
+function testGetJsonPayload (http:OutResponse res) (json, mime:EntityError) {
+    return res.getJsonPayload();
 }
 
 function testGetProperty (http:OutResponse res, string propertyName) (string) {
@@ -34,19 +32,16 @@ function testGetProperty (http:OutResponse res, string propertyName) (string) {
     return payload;
 }
 
-function testGetStringPayload (http:OutResponse res) (string) {
-    string payload = res.getStringPayload();
-    return payload;
+function testGetStringPayload (http:OutResponse res) (string, mime:EntityError) {
+    return res.getStringPayload();
 }
 
-function testGetBinaryPayload (http:OutResponse res) (blob) {
-    blob payload = res.getBinaryPayload();
-    return payload;
+function testGetBinaryPayload (http:OutResponse res) (blob, mime:EntityError) {
+    return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:OutResponse res) (xml) {
-    xml payload = res.getXmlPayload();
-    return payload;
+function testGetXmlPayload (http:OutResponse res) (xml, mime:EntityError) {
+    return res.getXmlPayload();
 }
 
 function testRemoveHeader (http:OutResponse res, string key) (http:OutResponse) {

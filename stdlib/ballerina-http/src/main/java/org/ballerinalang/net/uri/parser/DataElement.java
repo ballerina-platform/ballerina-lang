@@ -34,6 +34,13 @@ public interface DataElement<DataType, InboundMsgType> {
     void setData(DataType data);
 
     /**
+     * Check data availability.
+     *
+     * @return true if data available.
+     */
+    boolean hasData();
+
+    /**
      * Get the stored data.
      *
      * @param inboundMessage Checker for extra checks of the item.

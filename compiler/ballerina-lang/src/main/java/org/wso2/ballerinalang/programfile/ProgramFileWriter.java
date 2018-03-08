@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.programfile;
 
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.CompiledBinaryFile.ProgramFile;
 
 import java.io.BufferedOutputStream;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ServiceLoader;
 
 /**
  * Dump Ballerina program file model (BALX) to a file.
@@ -36,6 +38,13 @@ public class ProgramFileWriter {
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
         writeProgram(programFile, bos);
+
+        // TODO Fix this properly. Load and invoke compiler plugins
+        // TODO This will get properly fixed with the new packerina
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            plugin.codeGenerated(execFilePath);
+        });
     }
 
     public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {

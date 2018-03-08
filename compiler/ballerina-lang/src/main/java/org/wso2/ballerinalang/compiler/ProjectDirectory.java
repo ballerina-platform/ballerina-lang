@@ -76,7 +76,11 @@ public class ProjectDirectory {
 
         this.options = CompilerOptions.getInstance(context);
         this.packageLoader = PackageLoader.getInstance(context);
-        this.projectDirPath = Paths.get(options.get(CompilerOptionName.PROJECT_DIR));
+        String projectDirPathName = options.get(CompilerOptionName.PROJECT_DIR);
+        if (projectDirPathName == null || projectDirPathName.isEmpty()) {
+            throw new IllegalArgumentException("invalid project directory path");
+        }
+        this.projectDirPath = Paths.get(projectDirPathName);
         this.packagesInProjectDir = new ArrayList<>();
     }
 

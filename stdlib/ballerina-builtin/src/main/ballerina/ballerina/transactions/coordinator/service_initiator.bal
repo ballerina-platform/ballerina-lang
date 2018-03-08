@@ -76,7 +76,8 @@ service<http> InitiatorService {
 
         // Micro-Transaction-Unknown
 
-        var registrationReq, e = <RegistrationRequest>req.getJsonPayload();
+        var payload, _ = req.getJsonPayload();
+        var registrationReq, e = <RegistrationRequest>payload;
         http:OutResponse res;
         if (e != null || registrationReq == null) {
             res = {statusCode:400};

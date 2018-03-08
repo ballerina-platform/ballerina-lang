@@ -259,7 +259,7 @@ public class BallerinaDocGenerator {
         for (Path path : packagePaths) {
             CompilerContext context = new CompilerContext();
             CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(CompilerOptionName.SOURCE_ROOT, sourceRoot);
+            options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
             options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
             options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
 

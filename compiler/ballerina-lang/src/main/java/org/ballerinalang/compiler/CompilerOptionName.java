@@ -26,8 +26,6 @@ public enum CompilerOptionName {
 
     PROJECT_DIR("projectDirectory"),
 
-    SOURCE_ROOT("-sourceroot"),
-
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
     COMPILER_PHASE("compilerPhase"),

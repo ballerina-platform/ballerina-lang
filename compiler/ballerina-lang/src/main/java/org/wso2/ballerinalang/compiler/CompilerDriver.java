@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -44,7 +44,7 @@ public class CompilerDriver {
             new CompilerContext.Key<>();
 
     private CompilerOptions options;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private PackageLoader pkgLoader;
     private SymbolTable symbolTable;
     private SymbolEnter symbolEnter;
@@ -66,7 +66,7 @@ public class CompilerDriver {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
