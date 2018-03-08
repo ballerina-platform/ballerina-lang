@@ -21,11 +21,14 @@ package ballerina.builtin;
 @Param {value:"fromTable: The table on which the query is executed"}
 @Param {value:"joinTable: The table which is joined with 'fromTable'"}
 @Param {value:"parameters: liternal parameters to be passed to prepared statement 'sqlQuery'"}
-public native function queryTableWithJoinClause (string sqlQuery, table fromTable, table joinTable, any parameters)
-(table);
+@Param {value:"retType: return type of the resultant table instance"}
+public native function queryTableWithJoinClause (string sqlQuery, table fromTable, table joinTable, any parameters,
+                                                 any retType) (table);
 
 @Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
 @Param {value:"sqlQuery: The query to execute"}
 @Param {value:"fromTable: The table on which the query is executed"}
 @Param {value:"parameters: literal parameters to be passed to prepared statement 'sqlQuery'"}
-public native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, any parameters) (table);
+@Param {value:"retType: return type of the resultant table instance"}
+public native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, any parameters,
+                                                    any retType) (table);

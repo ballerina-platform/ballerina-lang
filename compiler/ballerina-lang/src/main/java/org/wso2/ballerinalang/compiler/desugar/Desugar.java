@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -939,20 +940,25 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();
+        List<BType> retTypes = new ArrayList<>();
         String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
         //Order matters, because these are the args for a function invocation.
         args.add(getSQLPreparedStatement(tableQueryExpression));
         args.add(getFromTableVarRef(tableQueryExpression));
+       // BLangTypeofExpr
+        retTypes.add(tableQueryExpression.type);
         BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
             args.add(joinTable);
             functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
         }
         args.add(getSQLStatementParameters(tableQueryExpression));
-        return createQueryTableInvocation(functionName, args);
+        args.add(getReturnType(tableQueryExpression));
+        return createQueryTableInvocation(functionName, args, retTypes);
     }
 
-    private BLangInvocation createQueryTableInvocation(String functionName, List<BLangExpression> args) {
+    private BLangInvocation createQueryTableInvocation(String functionName, List<BLangExpression> args, List<BType>
+            retTypes) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         name.setLiteral(false);
@@ -962,8 +968,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // TODO: 2/28/18 need to find a good way to refer to symbols
         invocationNode.symbol = symTable.rootScope.lookup(new Name(functionName)).symbol;
-        invocationNode.types.add(new BTableType(invocationNode.symbol.tag, null,
-                invocationNode.symbol.type.tsymbol));
+        invocationNode.types = retTypes;
         invocationNode.argExprs = args;
         return invocationNode;
     }
@@ -980,6 +985,14 @@ public class Desugar extends BLangNodeVisitor {
         return sqlQueryLiteral;
     }
 
+    private BLangStructLiteral getReturnType(BLangTableQueryExpression
+                                                         tableQueryExpression) {
+        //create a literal to represent the sql query.
+        BTableType tableType = (BTableType) tableQueryExpression.type;
+        BStructType structType = (BStructType) tableType.constraint;
+        return new BLangStructLiteral(new ArrayList<>(), structType);
+    }
+
     private BLangArrayLiteral getSQLStatementParameters(BLangTableQueryExpression tableQueryExpression) {
         BLangArrayLiteral expr = createArrayLiteralExprNode();
         List<BLangExpression> params = tableQueryExpression.getParams();
@@ -993,6 +1006,10 @@ public class Desugar extends BLangNodeVisitor {
                 type = TypeTags.FLOAT;
             } else if (value instanceof Boolean) {
                 type = TypeTags.BOOLEAN;
+            } else if (value instanceof Byte[]) {
+                type = TypeTags.BLOB;
+            } else if (value instanceof Object[]) {
+                type = TypeTags.ARRAY;
             }
             literal.type = symTable.getTypeFromTag(type);
             types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
