@@ -17,7 +17,7 @@ service<http> ATMLocator {
 
         http:OutRequest backendServiceReq = {};
         http:HttpConnectorError err;
-        json jsonLocatorReq = req.getJsonPayload();
+        var jsonLocatorReq, _ = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonLocatorReq["ATMLocator"]["ZipCode"];
         io:println("Zip Code " + zipCode);
@@ -27,7 +27,7 @@ service<http> ATMLocator {
 
         http:InResponse locatorResponse = {};
         locatorResponse, err = branchLocatorService.post("", backendServiceReq);
-        json branchLocatorRes = locatorResponse.getJsonPayload();
+        var branchLocatorRes, _ = locatorResponse.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)branchLocatorRes.ABCBank.BranchCode;
         io:println("Branch Code " + branchCode);
@@ -48,7 +48,7 @@ service<http> Bankinfo {
         methods:["POST"]
     }
     resource product (http:Connection conn, http:InRequest req) {
-        json jsonRequest = req.getJsonPayload();
+        var jsonRequest, _ = req.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;
         json payload = {};
@@ -71,7 +71,7 @@ service<http> Banklocator {
         methods:["POST"]
     }
     resource product (http:Connection conn, http:InRequest req) {
-        json jsonRequest = req.getJsonPayload();
+        var jsonRequest, _ = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;
         json payload = {};
