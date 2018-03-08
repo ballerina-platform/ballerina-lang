@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}
@@ -35,15 +37,47 @@ public class CodeGeneratorTest {
         testResourceRoot = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     }
 
-    @Test(description = "Test Ballerina skeleton generation when destination path is provided")
-    public void generateSkeletonWithDestination() {
-        String outPath = testResourceRoot;
+    @Test(description = "Test Ballerina skeleton generation")
+    public void generateSkeleton() {
+        String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
         String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
-        generator.setApiPackage("org.wso2.ballerina.api");
+        generator.setApiPackage("org.ballerina.api");
 
         try {
-            generator.generate(GenType.SKELETON, definitionPath, outPath);
+            generator.generate(GenType.SKELETON, definitionPath, testResourceRoot);
+            File genFile = new File(outFile);
+
+            if (genFile.exists()) {
+                String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
+                Assert.assertTrue(result != null && result.contains("resource listPets"));
+            } else {
+                Assert.fail("Service was not generated");
+            }
+        } catch (IOException e) {
+            Assert.fail("Error while generating the service. " + e.getMessage());
+        } catch (BalOpenApiException e) {
+            Assert.fail("Error while generating the service. " + e.getMessage());
+        }
+    }
+
+    @Test(description = "Test Ballerina connector generation")
+    public void generateConnector() {
+        String outFile = testResourceRoot + File.separator + "SwaggerPetstore.bal";
+        String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
+        CodeGenerator generator = new CodeGenerator();
+        generator.setApiPackage("org.ballerina.api");
+
+        try {
+            generator.generate(GenType.CONNECTOR, definitionPath, testResourceRoot);
+            File genFile = new File(outFile);
+
+            if (genFile.exists()) {
+                String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
+                Assert.assertTrue(result != null && result.contains("action listPets"));
+            } else {
+                Assert.fail("Service was not generated");
+            }
         } catch (IOException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         } catch (BalOpenApiException e) {
