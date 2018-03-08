@@ -94,6 +94,15 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     }
 
     /**
+     * Gets the {@link Http2ClientChannel}.
+     *
+     * @return the Http2ClientChannel
+     */
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
+    }
+
+    /**
      * Gets the next available stream id in the connection.
      *
      * @return next available stream id

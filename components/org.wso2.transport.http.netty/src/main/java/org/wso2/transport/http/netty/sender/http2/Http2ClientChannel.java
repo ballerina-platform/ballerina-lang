@@ -47,6 +47,7 @@ public class Http2ClientChannel {
     private AtomicBoolean isExhausted = new AtomicBoolean(false);
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
+    private boolean upgradedToHttp2 = false;
 
     public Http2ClientChannel(Http2ConnectionManager http2ConnectionManager, Http2Connection connection,
                               HttpRoute httpRoute, Channel channel) {
@@ -149,6 +150,24 @@ public class Http2ClientChannel {
      */
     public OutboundMsgHolder getPromisedMessage(int streamId) {
         return promisedMessages.get(streamId);
+    }
+
+    /**
+     * Checks whether associated connection is upgraded to http2.
+     *
+     * @return whether associated connection is upgraded to http2
+     */
+    public boolean isUpgradedToHttp2() {
+        return upgradedToHttp2;
+    }
+
+    /**
+     * Sets whether associated connection is upgraded to http2.
+     *
+     * @param upgradedToHttp2 whether upgraded to http2 or not
+     */
+    public void setUpgradedToHttp2(boolean upgradedToHttp2) {
+        this.upgradedToHttp2 = upgradedToHttp2;
     }
 
     /**

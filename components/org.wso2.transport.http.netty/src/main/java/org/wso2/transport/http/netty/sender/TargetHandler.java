@@ -204,6 +204,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private void executePostUpgradeActions(ChannelHandlerContext ctx) {
         ctx.pipeline().remove(this);
         ctx.pipeline().addLast(http2ClientOutboundHandler);
+        http2ClientOutboundHandler.getHttp2ClientChannel().setUpgradedToHttp2(true);
         handoverChannelToHttp2ConnectionManager();
     }
 
