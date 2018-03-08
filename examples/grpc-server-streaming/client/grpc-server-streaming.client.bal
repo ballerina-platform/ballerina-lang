@@ -8,7 +8,7 @@ function main (string[] args) {
         create helloWorldNonBlockingStub("localhost", 9090);
     }
 
-    _ = helloWorldStubNonBlocking.lotsOfReplies("Sri Lanka", "ServerMessageListener");
+    _ = helloWorldStubNonBlocking.lotsOfReplies("Sam", "ServerMessageListener");
 
     while (total == 0) {}
 
@@ -19,7 +19,7 @@ function main (string[] args) {
 service<grpc> ServerMessageListener {
 
     resource onMessage (grpc:ClientConnection conn, string message) {
-        io:println("Responce received from server: " + message + " server.");
+        io:println("Responce received from server: " + message);
     }
 
     resource onError (grpc:ClientConnection conn, grpc:ServerError err) {
@@ -30,7 +30,7 @@ service<grpc> ServerMessageListener {
 
     resource onComplete (grpc:ClientConnection conn) {
         total = 1;
-        io:println("Server Complete Sending Responces.");
+        io:println("Server Complete Sending Responses.");
     }
 }
 

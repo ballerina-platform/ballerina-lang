@@ -9,7 +9,7 @@ function main (string[] args) {
         create helloWorldNonBlockingStub("localhost", 9090);
     }
 
-    error err = helloWorldStubNonBlocking.hello("Hi from WSO2", "ServerMessageListener");
+    error err = helloWorldStubNonBlocking.hello("WSO2", "ServerMessageListener");
 
     if (err != null) {
         io:println("Error occured while sending event " + err.message);
@@ -17,7 +17,7 @@ function main (string[] args) {
 
     while (total == 0) {}
 
-    io:println("Client got responses successfully.");
+    io:println("Client got response successfully.");
 }
 
 
@@ -25,17 +25,17 @@ function main (string[] args) {
 service<grpc> ServerMessageListener {
 
     resource onMessage (grpc:ClientConnection conn, string message) {
-        io:println("Responce received from server: " + message);
+        io:println("Response received from server: " + message);
     }
 
     resource onError (grpc:ClientConnection conn, grpc:ServerError err) {
         if (err != null) {
-            io:println("Error repoted from server " + err.message);
+            io:println("Error reported from server " + err.message);
         }
     }
 
     resource onComplete (grpc:ClientConnection conn) {
-        log:printInfo("Server Complete Sending Responces.");
+        log:printInfo("Server Complete Sending Response.");
         total = 1;
     }
 }

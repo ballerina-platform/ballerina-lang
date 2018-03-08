@@ -5,7 +5,7 @@ import ballerina.net.grpc;
                      generateClientConnector:false}
 service<grpc> helloWorld {
     resource hello (grpc:ServerConnection conn, string name) {
-        io:println("Received hello from : " + name);
+        io:println("Received message from : " + name);
         string message = "Hello " + name; // response message
         grpc:ConnectorError err = conn.send(message);
         if (err != null) {
