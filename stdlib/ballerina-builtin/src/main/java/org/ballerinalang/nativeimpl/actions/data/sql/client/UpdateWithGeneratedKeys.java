@@ -33,6 +33,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
@@ -45,10 +48,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter"),
+                        structType = "Parameter"),
                 @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        returnType = { @ReturnType(type = TypeKind.INT),
-                       @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING) },
+        returnType = {@ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
@@ -68,6 +71,12 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("db.statement", query);
+        tags.put("db.type", "sql");
+        context.getActiveBTracer().addTags(tags);
+
         executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();

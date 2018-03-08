@@ -32,6 +32,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.
  *
@@ -44,8 +47,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.INT) },
+                        structType = "Parameter")},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
@@ -64,6 +67,12 @@ public class Update extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("db.statement", query);
+        tags.put("db.type", "sql");
+        context.getActiveBTracer().addTags(tags);
+
         executeUpdate(context, datasource, query, parameters);
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();

@@ -33,6 +33,9 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code Call} is the Call action implementation of the SQL Connector.
  *
@@ -45,8 +48,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) },
+                        structType = "Parameter")},
+        returnType = {@ReturnType(type = TypeKind.TABLE)},
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
@@ -66,6 +69,12 @@ public class Call extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("db.statement", query);
+        tags.put("db.type", "sql");
+        context.getActiveBTracer().addTags(tags);
+
         executeProcedure(context, datasource, query, parameters, structType);
         ClientConnectorFuture future = new ClientConnectorFuture();
         future.notifySuccess();
