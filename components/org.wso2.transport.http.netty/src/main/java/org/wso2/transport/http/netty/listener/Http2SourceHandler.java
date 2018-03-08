@@ -44,7 +44,6 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -171,7 +170,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
 
             if (endOfStream) {
                 // Add empty last http content if no data frames available in the http request
-                sourceReqCMsg.addHttpContent(new EmptyLastHttpContent());
+                sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
             } else {
                 streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
             }

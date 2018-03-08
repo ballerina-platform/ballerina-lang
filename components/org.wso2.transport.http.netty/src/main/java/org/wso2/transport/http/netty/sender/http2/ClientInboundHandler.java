@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
-import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -118,12 +117,12 @@ public class ClientInboundHandler extends Http2EventAdapter {
         if (isServerPush) {
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
             if (endStream) {
-                responseMessage.addHttpContent(new EmptyLastHttpContent());
+                responseMessage.addHttpContent(new DefaultLastHttpContent());
                 http2ClientChannel.removePromisedMessage(streamId);
             }
         } else {
             if (endStream) {
-                responseMessage.addHttpContent(new EmptyLastHttpContent());
+                responseMessage.addHttpContent(new DefaultLastHttpContent());
                 http2ClientChannel.removeInFlightMessage(streamId);
             }
             outboundMsgHolder.setResponse(responseMessage);
