@@ -1,8 +1,7 @@
-package sample.client;
+package client;
 
 import ballerina.io;
 import ballerina.log;
-
 int total = 0;
 function main (string[] args) {
 
@@ -46,10 +45,10 @@ function main (string[] args) {
     } else {
         log:printInfo("Client say I'm done.");
     }
+
     while (total == 0) {}
 
     io:println("Client got all responses successfully.");
-
 }
 
 @grpc:messageListener {}
@@ -57,6 +56,7 @@ service<grpc> ServerMessageListener {
 
     resource onMessage (grpc:ClientConnection conn, string message) {
         io:println("Responce received from server: " + message);
+        total = 1;
     }
 
     resource onError (grpc:ClientConnection conn, grpc:ServerError err) {
@@ -67,6 +67,5 @@ service<grpc> ServerMessageListener {
 
     resource onComplete (grpc:ClientConnection conn) {
         log:printInfo("Server has completed Sending Responces.");
-        total = 1;
     }
 }
