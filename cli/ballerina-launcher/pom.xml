@@ -72,6 +72,7 @@
     </build>
 
     <properties>
+        <maven.checkstyleplugin.excludes>**/antlr4/**</maven.checkstyleplugin.excludes>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
 </project>
