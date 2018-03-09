@@ -14,8 +14,8 @@ Abort
    ;
 
 Action
-   : <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <annotationAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* action <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* action <name.value> ( <parameters-joined-by,>* )                                    { <body.source> <workers>* }
    ;
 
 Annotation
@@ -82,8 +82,8 @@ Comment
    ;
 
 Connector
-   : <annotationAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
-   | <annotationAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <variableDefs>* <actions>* }
+   | <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> connector <name.value> ( <parameters-joined-by,>* ) { <actions>* }
    ;
 
 ConnectorInitExpr
@@ -93,6 +93,14 @@ ConnectorInitExpr
 
 ConstrainedType
    : <type.source> < <constraint.source> >
+   ;
+
+Documentation
+   : documentation { <documentationText> }
+   ;
+
+Deprecated
+   : deprecated { <documentationText> }
    ;
 
 EndpointType
@@ -129,12 +137,12 @@ ForkJoin
    ;
 
 Function
-   : <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   | <lambda?> <annotationAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
-   |           <annotationAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <lambda?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   | <lambda?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* function              ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) ( <returnParameters-joined-by,>+ ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> > <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 FunctionType
@@ -182,7 +190,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* resource <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
    ;
 
 Return
@@ -190,7 +198,7 @@ Return
    ;
 
 Service
-   : <annotationAttachments>* service < <protocolPackageIdentifier.value> > <name.value> { <variables>* <resources>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <protocolPackageIdentifier.value> > <name.value> { <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -205,7 +213,7 @@ StringTemplateLiteral
 
 Struct
    : <anonStruct?>                          <public?public> struct              { <fields-suffixed-by-;>* }
-   |                <annotationAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
+   |                <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> struct <name.value> { <fields-suffixed-by-;>* }
    ;
 
 TernaryExpr
@@ -267,13 +275,13 @@ ValueType
    ;
 
 Variable
-   : <endpoint?>                                             endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
-   | <endpoint?>                                             endpoint <typeNode.source> <name.value> { }
-   | <global?> <annotationAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
-   | <global?> <annotationAttachments>*                               <typeNode.source> <name.value>                              ;
-   |                                                                  <typeNode.source> <name.value> = <initialExpression.source>
-   |           <annotationAttachments>*                               <typeNode.source> <name.value>
-   |                                                                  <typeNode.source>
+   : <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
+   | <endpoint?>                                                                                                  endpoint <typeNode.source> <name.value> { }
+   | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <typeNode.source> <name.value> = <initialExpression.source> ;
+   | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                               <typeNode.source> <name.value>                              ;
+   |                                                                                                                       <typeNode.source> <name.value> = <initialExpression.source>
+   |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                               <typeNode.source> <name.value>
+   |                                                                                                                       <typeNode.source>
    ;
 
 VariableDef
