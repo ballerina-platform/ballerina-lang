@@ -78,7 +78,7 @@ service<http> Participant2pcService {
                 } else {
                     res = {statusCode:500};
                     prepareRes = {message:"aborted"};
-                    //participatedTransactions.remove(participatedTxnId); //TODO: do not remove since we may get a msg from the initiator
+                    // do not remove the transaction since we may get a msg from the initiator
                     txn.state = TransactionState.ABORTED;
                     log:printInfo("Aborted transaction: " + transactionId);
                 }
@@ -162,7 +162,7 @@ service<http> Participant2pcService {
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-                //participatedTransactions.remove(participatedTxnId);// TODO: do not remove since we may get a msg from the initiator
+                // do not remove the transaction since we may get a msg from the initiator
             }
             var j, _ = <json>notifyRes;
             res.setJsonPayload(j);

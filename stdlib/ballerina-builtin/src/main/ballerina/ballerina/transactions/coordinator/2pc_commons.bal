@@ -418,7 +418,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         if (err == null) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            //participatedTransactions.remove(participatedTxnId);// TODO: do not remove since we may get a msg from the initiator
+            // do not remove the transaction since we may get a msg from the initiator
         } else {
             log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
         }
@@ -478,7 +478,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
         if (txn.state != TransactionState.ABORTED) {
             msg, err = commitTransaction(transactionId, transactionBlockId);
             if (err == null) {
-                //initiatedTransactions.remove(transactionId); // TODO Do not remove because we may receive an abort later
+                // do not remove the transaction since we may get a msg from the initiator
                 txn.state = TransactionState.COMMITTED;
             }
         }
@@ -512,7 +512,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 return;
             }
             string participantId = getParticipantId(transactionBlockId);
-            //participatedTransactions.remove(participatedTxnId); // TODO: Do not remove since we may get a message from initiator
+            // do not remove the transaction since we may get a msg from the initiator
             txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
             if(err == null) {
@@ -524,10 +524,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
     } else {
         msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }
-    //if (err == null) {
-    //    initiatedTransactions.remove(transactionId); // TODO: Do not remove since we may get a message from a participant
-    //}
-
+    // do not remove the transaction since we may get a msg from the initiator
     return;
 }
 
