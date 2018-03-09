@@ -31,18 +31,37 @@ public class PattenTest {
     }
 
     @Test
-    public void testExpansion() {
-        Patten subject = new Patten(Patten.WILDCARD_DIR);
+    public void testDirExpansion() {
         Converter<String> mock = mockResolver("root-dir",
                                               null,
-                                             s -> Stream.of(s + " > cache1",
-                                                            s + " > cache2",
-                                                            s + " > cache3"),
+                                              s -> Stream.of(s + " > cache1",
+                                                             s + " > cache2",
+                                                             s + " > cache3"),
                                               null);
+        Patten subject = new Patten(Patten.WILDCARD_DIR);
+
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
+
         Assert.assertEquals(strings, Arrays.asList("root-dir > cache1",
                                                    "root-dir > cache2",
                                                    "root-dir > cache3"));
+    }
+
+    @Test
+    public void testBalExpansion() {
+        Converter<String> mock = mockResolver("project-dir",
+                                              null,
+                                              null,
+                                              s -> Stream.of(s + " > dir1 > x.bal",
+                                                             s + " > y.bal",
+                                                             s + " > dir2 > dir3 > f.bal"));
+        Patten subject = new Patten(Patten.WILDCARD_SOURCE);
+
+        List<String> strings = subject.convert(mock).collect(Collectors.toList());
+
+        Assert.assertEquals(strings, Arrays.asList("project-dir > dir1 > x.bal",
+                                                   "project-dir > y.bal",
+                                                   "project-dir > dir2 > dir3 > f.bal"));
     }
 
     /**
@@ -51,33 +70,44 @@ public class PattenTest {
      */
     @Test(enabled = false)
     public void testLazy() {
-        Patten subject = new Patten(Patten.WILDCARD_DIR);
         Converter<String> mock = mockResolver("root-dir",
                                               null,
-                                             s -> Stream.concat(Stream.of("", ""),
-                                                                Stream.generate(() -> {
-                                                                    Assert.fail("method called. Hence not lazy.");
-                                                                    return "";
-                                                                })),
+                                              s -> Stream.concat(Stream.of("", ""),
+                                                                 Stream.generate(() -> {
+                                                                     Assert.fail("method called. Hence not lazy.");
+                                                                     return "";
+                                                                 })),
                                               null);
+        Patten subject = new Patten(Patten.WILDCARD_DIR);
 
         List<String> strings = subject.convert(mock).limit(1).collect(Collectors.toList());
+
         Assert.assertTrue(strings.isEmpty());
     }
 
     @Test
     public void testReductionAndExpansion() {
-        Patten subject = new Patten(path("hello"), Patten.WILDCARD_DIR, path("world"));
-        Converter<String> mock = mockResolver("root-dir",
+        Converter<String> mock = mockResolver("my-dir",
                                               (a, b) -> a + " > " + b,
-                                             s -> Stream.of(s + " > cache1",
-                                                            s + " > cache2",
-                                                            s + " > cache3"),
-                                              null);
+                                              s -> Stream.of(s + " > cache1",
+                                                             s + " > cache2",
+                                                             s + " > cache3"),
+                                              q -> Stream.of(q + " > dir1 > x.bal",
+                                                             q + " > y.bal",
+                                                             q + " > dir2 > dir3 > f.bal"));
+        Patten subject = new Patten(path("hello"), Patten.WILDCARD_DIR, path("world"), Patten.WILDCARD_SOURCE);
+
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
-        Assert.assertEquals(strings, Arrays.asList("root-dir > hello > cache1 > world",
-                                                   "root-dir > hello > cache2 > world",
-                                                   "root-dir > hello > cache3 > world"));
+
+        Assert.assertEquals(strings, Arrays.asList("my-dir > hello > cache1 > world > dir1 > x.bal",
+                                                   "my-dir > hello > cache1 > world > y.bal",
+                                                   "my-dir > hello > cache1 > world > dir2 > dir3 > f.bal",
+                                                   "my-dir > hello > cache2 > world > dir1 > x.bal",
+                                                   "my-dir > hello > cache2 > world > y.bal",
+                                                   "my-dir > hello > cache2 > world > dir2 > dir3 > f.bal",
+                                                   "my-dir > hello > cache3 > world > dir1 > x.bal",
+                                                   "my-dir > hello > cache3 > world > y.bal",
+                                                   "my-dir > hello > cache3 > world > dir2 > dir3 > f.bal"));
     }
 
     private static <I> Converter<I> mockResolver(I start,

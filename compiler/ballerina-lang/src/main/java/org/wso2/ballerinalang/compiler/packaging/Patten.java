@@ -51,6 +51,7 @@ public class Patten {
             } else if (part == WILDCARD_SOURCE) {
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {
+                //TODO: add test patten converter
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else {
                 aggregate = aggregate.map(t -> callReduceForEach(t, part.values, converter));
