@@ -21,7 +21,9 @@ package org.ballerinalang.testerina.core.entity;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entity class to hold a test suite.
@@ -30,25 +32,60 @@ import java.util.List;
 public class TestSuite {
 
     private String suiteName;
+    private TesterinaFunction initFunction;
     private List<Test> tests = new ArrayList<>();
+    private List<ProgramFile> programFiles = new ArrayList<>();
+    private List<String> beforeSuiteFunctionNames = new ArrayList<>();
+    private List<String> afterSuiteFunctionNames = new ArrayList<>();
+    private List<String> beforeEachFunctionNames = new ArrayList<>();
+    private List<String> afterEachFunctionNames = new ArrayList<>();
+    private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
+    private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
+    private List<TesterinaFunction> testUtilityFunctions = new ArrayList<>();
+    private List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
+    private List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
+
+    public Map<String, String> getMockFunctionNamesMap() {
+        return mockFunctionNamesMap;
+    }
+
+    public void setMockFunctionNamesMap(Map<String, String> mockFunctionNamesMap) {
+        this.mockFunctionNamesMap = mockFunctionNamesMap;
+    }
+
+    public Map<String, TesterinaFunction> getMockFunctionsMap() {
+        return mockFunctionsMap;
+    }
+
+    public void setMockFunctionsMap(Map<String, TesterinaFunction> mockFunctionsMap) {
+        this.mockFunctionsMap = mockFunctionsMap;
+    }
+
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - name of the mock function
+     */
+    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - a @{@link TesterinaFunction} mock function.
+     */
+    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
+
+    public TestSuite(String suiteName) {
+        this.suiteName = suiteName;
+    }
 
     public List<ProgramFile> getProgramFiles() {
         return programFiles;
     }
 
-    private List<ProgramFile> programFiles = new ArrayList<>();
-    private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
-    private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
-
     public TesterinaFunction getInitFunction() {
         return initFunction;
     }
-
     public void setInitFunction(TesterinaFunction initFunction) {
         this.initFunction = initFunction;
     }
-
-    private TesterinaFunction initFunction;
 
     public List<TesterinaFunction> getTestUtilityFunctions() {
         return testUtilityFunctions;
@@ -66,21 +103,12 @@ public class TestSuite {
         this.afterEachFunctions = afterEachFunctions;
     }
 
-    private List<TesterinaFunction> testUtilityFunctions = new ArrayList<>();
-
     public List<TesterinaFunction> getBeforeEachFunctions() {
         return beforeEachFunctions;
     }
 
     public List<TesterinaFunction> getAfterEachFunctions() {
         return afterEachFunctions;
-    }
-
-    private List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
-    private List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
-
-    public TestSuite(String suiteName) {
-        this.suiteName = suiteName;
     }
 
     public String getSuiteName() {
@@ -107,41 +135,47 @@ public class TestSuite {
         return beforeSuiteFunctions;
     }
 
-    public void setBeforeSuiteFunctions(
-            List<TesterinaFunction> beforeSuiteFunctions) {
+    public void setBeforeSuiteFunctions(List<TesterinaFunction> beforeSuiteFunctions) {
         this.beforeSuiteFunctions = beforeSuiteFunctions;
     }
 
-    public void addBeforeSuiteFunction(TesterinaFunction function) {
-        this.beforeSuiteFunctions.add(function);
+    public void addBeforeSuiteFunction(String function) {
+        this.beforeSuiteFunctionNames.add(function);
     }
 
-    public void addAfterSuiteFunction(TesterinaFunction function) {
-        this.afterSuiteFunctions.add(function);
+    public void addAfterSuiteFunction(String function) {
+        this.afterSuiteFunctionNames.add(function);
     }
 
-    public void addBeforeEachFunction(TesterinaFunction function) {
-        this.beforeEachFunctions.add(function);
+    public void addBeforeEachFunction(String function) {
+        this.beforeEachFunctionNames.add(function);
     }
 
-    public void addAfterEachFunction(TesterinaFunction function) {
-        this.afterEachFunctions.add(function);
+    public void addAfterEachFunction(String function) {
+        this.afterEachFunctionNames.add(function);
     }
 
     public void addTestUtilityFunction(TesterinaFunction function) {
         this.testUtilityFunctions.add(function);
     }
 
+    public void addMockFunction(String id, String function) {
+        this.mockFunctionNamesMap.put(id, function);
+    }
+
+    public void addMockFunctionObj(String id, TesterinaFunction function) {
+        this.mockFunctionsMap.put(id, function);
+    }
+
     public List<TesterinaFunction> getAfterSuiteFunctions() {
         return afterSuiteFunctions;
     }
 
-    public void setAfterSuiteFunctions(
-            List<TesterinaFunction> afterSuiteFunctions) {
+    public void setAfterSuiteFunctions(List<TesterinaFunction> afterSuiteFunctions) {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void addProgramFile (ProgramFile programFile) {
+    public void addProgramFile(ProgramFile programFile) {
         this.programFiles.add(programFile);
     }
 

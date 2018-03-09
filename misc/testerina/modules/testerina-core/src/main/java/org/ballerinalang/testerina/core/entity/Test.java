@@ -22,12 +22,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by yasassri on 2/27/18.
+ * Holds a Ballerina test info.
  */
 public class Test {
 
-    String beforeTestFunction;
+    String testName;
     TesterinaFunction testFunction;
+    String beforeTestFunction;
+    TesterinaFunction beforeTestFunctionObj;
+    String afterTestFunction;
+    TesterinaFunction afterTestFunctionObj;
+    String dataProvider;
+    TesterinaFunction dataProviderFunction;
+    List<String> dependsOnTestFunctions = new ArrayList<>();
+    List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();
+
+    public String getTestName() {
+        return testName;
+    }
+
+    public void setTestName(String testName) {
+        this.testName = testName;
+    }
 
     public TesterinaFunction getBeforeTestFunctionObj() {
         return beforeTestFunctionObj;
@@ -45,9 +61,6 @@ public class Test {
         this.afterTestFunctionObj = afterTestFunctionObj;
     }
 
-    TesterinaFunction beforeTestFunctionObj;
-    TesterinaFunction afterTestFunctionObj;
-    String afterTestFunction;
 
     public String getDataProvider() {
         return dataProvider;
@@ -57,7 +70,6 @@ public class Test {
         this.dataProvider = dataProvider;
     }
 
-    String dataProvider;
 
     public TesterinaFunction getDataProviderFunction() {
         return dataProviderFunction;
@@ -67,10 +79,6 @@ public class Test {
         this.dataProviderFunction = dataProviderFunction;
     }
 
-    TesterinaFunction dataProviderFunction;
-
-    List<String> dependsOnTestFunctions = new ArrayList<>();
-    List<TesterinaFunction> dependsOnTestFunctionObjs = new ArrayList<>();
 
     public List<String> getDependsOnTestFunctions() {
         return dependsOnTestFunctions;
@@ -100,8 +108,7 @@ public class Test {
         return afterTestFunction;
     }
 
-    public void setAfterTestFunction(
-            String afterTestFunction) {
+    public void setAfterTestFunction(String afterTestFunction) {
         this.afterTestFunction = afterTestFunction;
     }
 

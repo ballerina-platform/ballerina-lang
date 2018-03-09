@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -102,7 +103,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
-        testRunner.runTest(filePaths, groupList, true);
+        testRunner.runTest(filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
@@ -115,7 +116,7 @@ public class GroupFilterTest {
         List<String> groupList = new ArrayList<>();
         groupList.add("g4");
         groupList.add("g5");
-        testRunner.runTest(filePaths, groupList, true);
+        testRunner.runTest(filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
@@ -127,7 +128,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
-        testRunner.runTest(filePaths, groupList, true);
+        testRunner.runTest(filePaths, groupList, false);
         Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
@@ -135,5 +136,6 @@ public class GroupFilterTest {
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
+        TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
 }

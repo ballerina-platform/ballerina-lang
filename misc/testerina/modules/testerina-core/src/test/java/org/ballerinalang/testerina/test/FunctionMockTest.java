@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Test cases for ballerina.test package.
@@ -37,12 +38,14 @@ public class FunctionMockTest {
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
+        TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
 
     @Test
     public void testBefore2() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/functionmocktest/pkg/")}, new
+        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/functionmocktest/pkg/"), Paths.get
+                ("src/test/resources/functionmocktest2/pkg/")}, new
                 ArrayList<>());
     }
 }

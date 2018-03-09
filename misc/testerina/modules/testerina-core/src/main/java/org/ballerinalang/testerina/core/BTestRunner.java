@@ -19,6 +19,7 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
@@ -26,11 +27,8 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -41,7 +39,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * BTestRunner entity class.
@@ -53,11 +53,6 @@ public class BTestRunner {
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
     private Map<String, TestSuite> testSuites = new HashMap<>();
-    /**
-     * Key - unique identifier for a function.
-     * Value - a @{@link TesterinaFunction}
-     */
-    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
 
     /**
      * Executes a given set of ballerina program files.
@@ -66,7 +61,7 @@ public class BTestRunner {
      * @param groups          List of groups to be included
      */
     public void runTest(Path[] sourceFilePaths, List<String> groups) {
-        runTest(sourceFilePaths, groups, false);
+        runTest(sourceFilePaths, groups, true);
     }
 
     /**
@@ -77,6 +72,8 @@ public class BTestRunner {
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
      */
     public void runTest(Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
+        TesterinaRegistry.getInstance().setGroups(groups);
+        TesterinaRegistry.getInstance().setShouldIncludeGroups(shouldIncludeGroups);
         // compile
         Arrays.stream(sourceFilePaths).forEach(k -> {
             CompileResult compileResult = BCompileUtil.compile(programDirPath.toString(), k.toString(), CompilerPhase
@@ -85,17 +82,23 @@ public class BTestRunner {
                 errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
                         .getMessage());
             }
-            if (compileResult.getDiagnostics().length > 0) {
+            if (Arrays.stream(compileResult.getDiagnostics()).collect(Collectors.toList()).size() > 0) {
                 throw new BallerinaException("Compilation failure in: " + k.toString());
             }
             outStream.println("Processing compiled result of package: " + compileResult.getProgFile().getEntryPkgName
                     ());
             TesterinaRegistry.getInstance().addProgramFile(compileResult.getProgFile());
             // process the compiled files
-            PackageInfo packageInfo = compileResult.getProgFile().getEntryPackage();
-            testSuites.computeIfAbsent(packageInfo.getPkgPath(), func -> new TestSuite(packageInfo.getPkgPath()));
-            AnnotationProcessor.processAnnotations(packageInfo, testSuites.get(packageInfo.getPkgPath()),
-                    mockFunctionsMap, groups, shouldIncludeGroups);
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            processorServiceLoader.forEach(plugin -> {
+                if (plugin instanceof TestAnnotationProcessor) {
+                    ((TestAnnotationProcessor) plugin).packageProcessed(compileResult.getProgFile());
+                }
+            });
+//            PackageInfo packageInfo = compileResult.getProgFile().getEntryPackage();
+//            testSuites.computeIfAbsent(packageInfo.getPkgPath(), func -> new TestSuite(packageInfo.getPkgPath()));
+//            AnnotationProcessor.processAnnotations(packageInfo, testSuites.get(packageInfo.getPkgPath()),
+//                    mockFunctionsMap, groups, shouldIncludeGroups);
 
         });
         // execute the test programs
@@ -121,6 +124,7 @@ public class BTestRunner {
 //    }
 
     private void execute() {
+        testSuites = TesterinaRegistry.getInstance().getTestSuites();
         if (testSuites.isEmpty()) {
             throw new BallerinaException("No test functions found in the provided ballerina files.");
         }
@@ -131,9 +135,9 @@ public class BTestRunner {
             suite.getInitFunction().invoke();
 
             outStream.println("Executing test suite for package: " + packageName);
-            for (ProgramFile programFile : suite.getProgramFiles()) {
-                AnnotationProcessor.injectMocks(mockFunctionsMap, programFile);
-            }
+//            for (ProgramFile programFile : suite.getProgramFiles()) {
+//                AnnotationProcessor.injectMocks(mockFunctionsMap, programFile);
+//            }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;

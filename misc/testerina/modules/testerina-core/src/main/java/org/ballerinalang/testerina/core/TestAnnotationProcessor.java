@@ -21,9 +21,30 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.testerina.core.entity.Test;
+import org.ballerinalang.testerina.core.entity.TestSuite;
+import org.ballerinalang.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.util.codegen.Instruction;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  *  Test annotation processor.
@@ -32,6 +53,23 @@ import java.util.List;
         value = "ballerina.test"
 )
 public class TestAnnotationProcessor extends AbstractCompilerPlugin {
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private static final String TEST_ANNOTATION_NAME = "config";
+    private static final String BEFORE_SUITE_ANNOTATION_NAME = "beforeSuite";
+    private static final String AFTER_SUITE_ANNOTATION_NAME = "afterSuite";
+    private static final String BEFORE_EACH_ANNOTATION_NAME = "beforeEach";
+    private static final String AFTER_EACH_ANNOTATION_NAME = "afterEach";
+    private static final String MOCK_ANNOTATION_NAME = "mock";
+    private static final String BEFORE_FUNCTION = "before";
+    private static final String AFTER_FUNCTION = "after";
+    private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
+    private static final String PACKAGE = "packageName";
+    private static final String FUNCTION = "functionName";
+    private static final String GROUP_ANNOTATION_NAME = "groups";
+    private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
+    private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private TestSuite suite;
+    private boolean packageInit;
 //    DiagnosticLog dlog;
 
     @Override
@@ -40,8 +78,337 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
-//        for (AnnotationAttachmentNode attachmentNode : annotations) {
-//        }
+    public void process(PackageNode packageNode) {
+        if (!packageInit) {
+            String packageName = packageNode.getPackageDeclaration() == null ? "." : packageNode
+                    .getPackageDeclaration().getPackageName().stream().map(pkg -> pkg.getValue()).collect(Collectors
+                            .joining("."));
+
+            suite = registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+            packageInit = true;
+        }
     }
+
+    @Override
+    public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
+            return;
+        }
+        for (AnnotationAttachmentNode attachmentNode : annotations) {
+            String annotationName = attachmentNode.getAnnotationName().getValue();
+            String functionName = functionNode.getName().getValue();
+
+            if (BEFORE_SUITE_ANNOTATION_NAME.equals(annotationName)) {
+                suite.addBeforeSuiteFunction(functionName);
+            } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
+                suite.addAfterSuiteFunction(functionName);
+            } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
+                suite.addBeforeEachFunction(functionName);
+            } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
+                suite.addAfterEachFunction(functionName);
+            } else {
+                if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                    String[] vals = new String[2];
+                    attachmentNode.getAttributes().stream().forEach(attributeNode -> {
+                        IdentifierNode name = attributeNode.getName();
+                        if (PACKAGE.equals(name.getValue())) {
+                            vals[0] = attributeNode.getValue().getValue().toString();
+                        } else if (FUNCTION.equals(name.getValue())) {
+                            vals[1] = attributeNode.getValue().getValue().toString();
+                        }
+                    });
+                    suite.addMockFunction(vals[0] + "#" + vals[1], functionName);
+                } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
+                    Test test = new Test();
+                    test.setTestName(functionName);
+                    AtomicBoolean shouldSkip = new AtomicBoolean();
+                    AtomicBoolean groupsFound = new AtomicBoolean();
+                    List<String> groups = registry.getGroups();
+                    boolean shouldIncludeGroups = registry.shouldIncludeGroups();
+
+                    attachmentNode.getAttributes().forEach(attributeNode -> {
+                        String name = attributeNode.getName().getValue();
+                        // Check if enable property is present in the annotation
+                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
+                                .getValue().toString())) {
+                            // If enable is false, disable the test, no further processing is needed
+                            shouldSkip.set(true);
+                            return;
+                        }
+                        // Check whether user has provided a group list
+                        if (groups != null && !groups.isEmpty()) {
+                            // check if groups attribute is present in the annotation
+                            if (GROUP_ANNOTATION_NAME.equals(name)) {
+                                boolean isGroupPresent = isGroupAvailable(groups, attributeNode.getValue()
+                                        .getValueArray().stream().map
+                                                (AnnotationAttachmentAttributeValueNode::getValue).map(v -> v
+                                                .toString()).collect(Collectors.toList()));
+                                if (shouldIncludeGroups) {
+                                    // include only if the test belong to one of these groups
+                                    if (!isGroupPresent) {
+                                        // skip the test if this group is not defined in this test
+                                        shouldSkip.set(true);
+                                        return;
+                                    }
+                                } else {
+                                    // exclude only if the test belong to one of these groups
+                                    if (isGroupPresent) {
+                                        // skip if this test belongs to one of the excluded groups
+                                        shouldSkip.set(true);
+                                        return;
+                                    }
+                                }
+                                groupsFound.set(true);
+                            }
+                        }
+                        if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
+                            test.setDataProvider(attributeNode.getValue().getValue().toString());
+                        }
+
+                        if (BEFORE_FUNCTION.equals(name)) {
+                            test.setBeforeTestFunction(attributeNode.getValue().getValue().toString());
+                        }
+
+                        if (AFTER_FUNCTION.equals(name)) {
+                            test.setAfterTestFunction(attributeNode.getValue().getValue().toString());
+                        }
+
+                        if (DEPENDS_ON_FUNCTIONS.equals(name)) {
+                            attributeNode.getValue().getValueArray().stream().map(node -> node.getValue().toString())
+                                    .forEach(test::addDependsOnTestFunction);
+                        }
+                    });
+                    if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
+                        // if the user has asked to run only a specific list of groups and this test doesn't have
+                        // that group, we should skip the test
+                        shouldSkip.set(true);
+                    }
+                    if (!shouldSkip.get()) {
+                        suite.addTests(test);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
+     * @param programFile
+     */
+    public void packageProcessed(ProgramFile programFile) {
+        packageInit = false;
+        suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
+        suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
+                TesterinaFunction.Type.INIT));
+        Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
+            suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
+        });
+        int[] sortedElts = checkCyclicDependencies(suite.getTests());
+        resolveFunctions(suite);
+        List<Test> sortedTests = orderTests(suite.getTests(), sortedElts);
+        injectMocks(suite.getMockFunctionsMap(), programFile);
+        suite.setTests(sortedTests);
+        suite.addProgramFile(programFile);
+    }
+
+    public static void injectMocks(Map<String, TesterinaFunction> mockFunctions, ProgramFile programFile) {
+        mockFunctions.forEach((k, v) -> {
+            String[] info = k.split("#");
+            if (info.length != 2) {
+                return;
+            }
+
+            for (PackageInfo packageInfo: programFile.getPackageInfoEntries()) {
+                for (Instruction ins : packageInfo.getInstructions()) {
+                    if (ins instanceof Instruction.InstructionCALL) {
+                        Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
+                        if (call.functionInfo.getName().equals(info[1])) {
+                            call.functionInfo = v.getbFunction();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private static List<Test> orderTests(List<Test> tests, int[] sortedElts) {
+        List<Test> sortedTests = new ArrayList<>();
+//        outStream.println("Test execution order: ");
+        for (int idx : sortedElts) {
+            sortedTests.add(tests.get(idx));
+//            outStream.println(sortedTests.get(sortedTests.size() - 1).getTestFunction().getName());
+        }
+//        outStream.println("**********************");
+        return sortedTests;
+    }
+
+    private static void resolveFunctions(TestSuite suite) {
+        List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
+        List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
+                (Collectors.toList());
+        for (Test test : suite.getTests()) {
+            if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
+                //TODO handle missing func case
+                test.setTestFunction(functions.stream().filter(e -> e.getName().equals(test
+                        .getTestName())).findFirst().get());
+            }
+
+            if (test.getBeforeTestFunction() != null && functionNames.contains(test.getBeforeTestFunction())) {
+                //TODO handle missing func case
+                test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+                        .getBeforeTestFunction())).findFirst().get());
+            }
+
+            if (test.getAfterTestFunction() != null && functionNames.contains(test.getAfterTestFunction())) {
+                //TODO handle missing func case
+                test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+                        .getAfterTestFunction())).findFirst().get());
+            }
+
+            if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
+                // TODO handle missing func case
+                String dataProvider = test.getDataProvider();
+                test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
+                )).findFirst().map(func -> {
+                    if (func.getbFunction().getRetParamTypes().length == 1) {
+                        BType bType = func.getbFunction().getRetParamTypes()[0];
+                        if (bType.getTag() == TypeTags.ARRAY_TAG) {
+                            BArrayType bArrayType = (BArrayType) bType;
+                            if (bArrayType.getElementType().getTag() != TypeTags.ARRAY_TAG) {
+                                throw new BallerinaException(String.format("Data provider function [%s] should " +
+                                        "return an array of arrays.", dataProvider));
+                            }
+                        } else {
+                            throw new BallerinaException(String.format("Data provider function [%s] should return" +
+                                    " an array of arrays.", dataProvider));
+                        }
+                    } else {
+                        throw new BallerinaException(String.format("Data provider function [%s] should have only" +
+                                " one return type.", dataProvider));
+                    }
+                    return func;
+                }).get());
+            }
+            for (String dependsOnFn : test.getDependsOnTestFunctions()) {
+                //TODO handle missing func case
+                test.addDependsOnTestFunction(suite.getTests().stream().filter(e -> e.getTestFunction().getName()
+                        .equals(dependsOnFn)).findFirst().get().getTestFunction());
+            }
+        }
+
+        // resolve mock functions
+        suite.getMockFunctionNamesMap().forEach((id, functionName) -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addMockFunctionObj(id, function);
+        });
+
+    }
+
+    private static int[] checkCyclicDependencies(List<Test> tests) {
+        int numberOfNodes = tests.size();
+        int[] indegrees = new int[numberOfNodes];
+        int[] sortedElts = new int[numberOfNodes];
+
+        List<Integer> dependencyMatrix[] = new ArrayList[numberOfNodes];
+        for (int i = 0; i < numberOfNodes; i++) {
+            dependencyMatrix[i] = new ArrayList<>();
+        }
+//        for (int i=0; i<tests.size();i++) {
+//            for (int j = 0; j < tests.size(); j++) {
+//                dependencyMatrix[i][j] = 0;
+//            }
+//        }
+        List<String> testNames = tests.stream().map(k -> k.getTestName()).collect(Collectors.toList());
+
+        int i = 0;
+        for (Test test : tests) {
+            if (!test.getDependsOnTestFunctions().isEmpty()) {
+                for (String dependsOnFn : test.getDependsOnTestFunctions()) {
+                    int idx = testNames.indexOf(dependsOnFn);
+                    if (idx == -1) {
+                        throw new BallerinaException(String.format("Test [%s] depends on function [%s], but it " +
+                                "couldn't be found.", test.getTestFunction().getName(), dependsOnFn));
+                    }
+                    dependencyMatrix[i].add(idx);
+                }
+            }
+            i++;
+        }
+
+        // fill in degrees
+        for (int j = 0; j < numberOfNodes; j++) {
+            List<Integer> dependencies = dependencyMatrix[j];
+            for (int node : dependencies) {
+                indegrees[node]++;
+            }
+
+        }
+
+        // Create a queue and enqueue all vertices with indegree 0
+        Queue<Integer> q = new LinkedList<Integer>();
+        for (i = 0; i < numberOfNodes; i++) {
+            if (indegrees[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        // Initialize count of visited vertices
+        int cnt = 0;
+
+        // Create a vector to store result (A topological
+        // ordering of the vertices)
+        Vector<Integer> topOrder = new Vector<Integer>();
+        while (!q.isEmpty()) {
+            // Extract front of queue (or perform dequeue)
+            // and add it to topological order
+            int u = q.poll();
+            topOrder.add(u);
+
+            // Iterate through all its neighbouring nodes
+            // of dequeued node u and decrease their in-degree
+            // by 1
+            for (int node : dependencyMatrix[u]) {
+                // If in-degree becomes zero, add it to queue
+                if (--indegrees[node] == 0) {
+                    q.add(node);
+                }
+            }
+            cnt++;
+        }
+
+        // Check if there was a cycle
+        if (cnt != numberOfNodes) {
+            throw new BallerinaException("Cyclic test dependency detected");
+        }
+
+        i = numberOfNodes - 1;
+        for (int elt : topOrder) {
+            sortedElts[i] = elt;
+            i--;
+        }
+
+        return sortedElts;
+
+    }
+
+    /**
+     * Check whether there is a common element in two Lists.
+     *
+     * @param inputGroups    String @{@link List} to match
+     * @param functionGroups String @{@link List} to match agains
+     * @return true if a match is found
+     */
+    private boolean isGroupAvailable(List<String> inputGroups, List<String> functionGroups) {
+        for (String group : inputGroups) {
+            for (String funcGroup : functionGroups) {
+                if (group.equals(funcGroup)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
 }

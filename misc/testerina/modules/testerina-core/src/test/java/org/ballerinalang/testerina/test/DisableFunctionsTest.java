@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Tests disabling of test functions.
@@ -46,5 +47,6 @@ public class DisableFunctionsTest {
 
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
+        TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }
 }
