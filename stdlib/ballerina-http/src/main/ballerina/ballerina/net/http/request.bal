@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
+import ballerina.mime;
 
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
@@ -13,7 +13,7 @@ const string HEADER_KEY_EXPECT = "Expect";
 @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
 public function <InRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getFirstHeaderFromEntity(entity, headerName);
+    return entity.getHeader(headerName);
 }
 
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
@@ -22,7 +22,7 @@ public function <InRequest req> getHeader (string headerName) (string) {
 @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
 public function <OutRequest req> getHeader (string headerName) (string) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getFirstHeaderFromEntity(entity, headerName);
+    return entity.getHeader(headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound request"}
@@ -31,7 +31,7 @@ public function <OutRequest req> getHeader (string headerName) (string) {
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> addHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    addHeaderToEntity(entity, headerName, headerValue);
+    entity.addHeader(headerName, headerValue);
 }
 
 @Description {value:"Gets transport headers from the inbound request"}
@@ -40,7 +40,7 @@ public function <OutRequest req> addHeader (string headerName, string headerValu
 @Return {value:"The header values struct array for a given header name"}
 public function <InRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getHeadersFromEntity(entity, headerName);
+    return entity.getHeaders(headerName);
 }
 
 @Description {value:"Gets transport headers from the outbound request"}
@@ -49,7 +49,7 @@ public function <InRequest req> getHeaders (string headerName) (string[]) {
 @Return {value:"The header values struct array for a given header name"}
 public function <OutRequest req> getHeaders (string headerName) (string[]) {
     mime:Entity entity = req.getEntityWithoutBody();
-    return getHeadersFromEntity(entity, headerName);
+    return entity.getHeaders(headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}
@@ -58,7 +58,7 @@ public function <OutRequest req> getHeaders (string headerName) (string[]) {
 @Param {value:"headerValue: The header value"}
 public function <OutRequest req> setHeader (string headerName, string headerValue) {
     mime:Entity entity = req.getEntityWithoutBody();
-    setHeaderToEntity(entity, headerName, headerValue);
+    entity.setHeader(headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the outbound request"}
@@ -66,14 +66,14 @@ public function <OutRequest req> setHeader (string headerName, string headerValu
 @Param {value:"key: The header name"}
 public function <OutRequest req> removeHeader (string key) {
     mime:Entity entity = req.getEntityWithoutBody();
-    entity.headers.remove(key);
+    entity.removeHeader(key);
 }
 
 @Description {value:"Removes all transport headers from the message"}
 @Param {value:"req: The outbound request message"}
 public function <OutRequest req> removeAllHeaders () {
     mime:Entity entity = req.getEntityWithoutBody();
-    entity.headers = {};
+    entity.removeAllHeaders();
 }
 
 @Description {value:"Checks whether the client expects a 100-continue response."}
@@ -91,22 +91,16 @@ public function <InRequest req> expects100Continue () (boolean) {
 @Param {value:"req: The inbound request message"}
 @Return {value:"length of the message"}
 public function <InRequest request> getContentLength () (int) {
-    if (request.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = request.getHeader(CONTENT_LENGTH);
-        return getContentLengthIntValue(strContentLength);
-    }
-    return -1;
+    mime:Entity entity = request.getEntityWithoutBody();
+    return entity.getContentLength();
 }
 
 @Description {value:"Gets the Content-Length header from the Outbound request"}
 @Param {value:"req: The Outbound request message"}
 @Return {value:"length of the message"}
 public function <OutRequest request> getContentLength () (int) {
-    if (request.getHeader(CONTENT_LENGTH) != null) {
-        string strContentLength = request.getHeader(CONTENT_LENGTH);
-        return getContentLengthIntValue(strContentLength);
-    }
-    return -1;
+    mime:Entity entity = request.getEntityWithoutBody();
+    return entity.getContentLength();
 }
 
 @Description {value:"Gets the inbound request payload in JSON format"}
@@ -283,8 +277,7 @@ public function <OutRequest request> getMultiparts () (mime:Entity[], mime:Entit
 public function <OutRequest request> setJsonPayload (json payload) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setJson(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_JSON);
     request.setEntity(entity);
 }
 
@@ -294,8 +287,7 @@ public function <OutRequest request> setJsonPayload (json payload) {
 public function <OutRequest request> setXmlPayload (xml payload) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setXml(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_XML);
     request.setEntity(entity);
 }
 
@@ -305,8 +297,7 @@ public function <OutRequest request> setXmlPayload (xml payload) {
 public function <OutRequest request> setStringPayload (string payload) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setText(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromRequest(request, mime:TEXT_PLAIN);
     request.setEntity(entity);
 }
 
@@ -316,8 +307,7 @@ public function <OutRequest request> setStringPayload (string payload) {
 public function <OutRequest request> setBinaryPayload (blob payload) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setBlob(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromRequest(request, mime:APPLICATION_OCTET_STREAM);
     request.setEntity(entity);
 }
 
@@ -327,7 +317,7 @@ public function <OutRequest request> setBinaryPayload (blob payload) {
 @Param {value:"contentType: Content type of the top level message"}
 public function <OutRequest request> setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = request.getEntityWithoutBody();
-    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    mime:MediaType mediaType = getMediaTypeFromRequest(request, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
@@ -349,10 +339,23 @@ public function <OutRequest request> setFileAsPayload (file:File fileHandler, st
 }
 
 @Description {value:"Set a byte channel as the outbound request payload"}
-@Param {value:"request: outbound request message"}
+@Param {value:"request: The outbound request message"}
 @Param {value:"payload: The byte channel representation of the message payload"}
 public function <OutRequest request> setByteChannel (io:ByteChannel payload) {
     mime:Entity entity = request.getEntityWithoutBody();
     entity.setByteChannel(payload);
     request.setEntity(entity);
+}
+
+@Description {value:"Construct MediaType struct from the content-type header value"}
+@Param {value:"request: The outbound request message"}
+@Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
+@Return {value:"Return 'MediaType' struct"}
+function getMediaTypeFromRequest (OutRequest request, string defaultContentType) (mime:MediaType) {
+    mime:MediaType mediaType = mime:getMediaType(defaultContentType);
+    string contentType = request.getHeader(mime:CONTENT_TYPE);
+    if (contentType != null && contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
+    return mediaType;
 }

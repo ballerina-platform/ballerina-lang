@@ -73,7 +73,7 @@ public class GetByteChannel extends AbstractNativeFunction {
                 }
             }
         } catch (Throwable e) {
-            return this.getBValues(MimeUtil.createEntityError(context,
+            return this.getBValues(null, MimeUtil.createEntityError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
         return this.getBValues(byteChannelStruct, null);

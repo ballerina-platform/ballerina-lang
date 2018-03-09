@@ -277,3 +277,130 @@ public const string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
+
+@Description {value:"Represent 'content-length' header name"}
+public const string CONTENT_LENGTH = "content-length";
+
+@Description {value:"Represent 'content-type' header name"}
+public const string CONTENT_TYPE = "content-type";
+
+@Description {value:"Get the header value associated with the given header name"}
+@Param {value:"entity: Represent the MIME entity"}
+@Param {value:"headerName: Represent header name"}
+@Return {value:"Return header value associated with the given header name. If multiple header values are present,
+then the first value will be returned"}
+public function <Entity entity> getHeader (string headerName) (string) {
+    if (entity.headers == null) {
+        return null;
+    }
+    var headerValue, _ = (string[])entity.headers[headerName];
+    if (headerValue != null) {
+        return headerValue[0];
+    } else {
+        //Ignore case and check existence of header
+        var existingHeaderName, headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
+        return headerValueArray == null ? null : headerValueArray[0];
+    }
+}
+
+@Description {value:"Get all the header values associated with the given header name"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Return {value:"Return all the header values associated with the given header name as a string of arrays"}
+public function <Entity entity> getHeaders (string headerName) (string[]) {
+    if (entity.headers == null) {
+        return null;
+    }
+    var existingHeaderName, headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
+    return headerValueArray;
+}
+
+@Description {value:"Get all the headers"}
+@Param {value:"entity: Represent a MIME entity"}
+@Return {value:"Return all the headers in the entity"}
+public function <Entity entity> getAllHeaders () (map) {
+    if (entity.headers == null) {
+        return null;
+    }
+    return entity.headers;
+}
+
+@Description {value:"Add the given header value against the given header"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Param {value:"headerValue: Represent the header value to be added"}
+public function <Entity entity> addHeader (string headerName, string headerValue) {
+    if (entity.headers == null) {
+        entity.headers = {};
+    }
+    var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
+    if (existingValues == null) {
+        entity.setHeader(headerName, headerValue);
+    } else {
+        existingValues[lengthof existingValues] = headerValue;
+        entity.headers[existingHeaderName] = existingValues;
+    }
+}
+
+@Description {value:"Set the given header value against the given header. If a header already exist, its value will be
+replaced with the given header value"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Param {value:"headerValue: Represent the header value"}
+public function <Entity entity> setHeader (string headerName, string headerValue) {
+    if (entity.headers == null) {
+        entity.headers = {};
+    }
+    string[] valueArray = [headerValue];
+    var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
+    if (existingHeaderName == null) {
+        entity.headers[headerName] = valueArray;
+    } else {
+        entity.headers.remove(existingHeaderName);
+        entity.headers[headerName] = valueArray;
+    }
+}
+
+@Description {value:"Remove the given header from the entity"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+public function <Entity entity> removeHeader (string headerName) {
+    if (entity.headers != null) {
+        var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
+        if (existingHeaderName != null) {
+            entity.headers.remove(existingHeaderName);
+        }
+    }
+}
+
+@Description {value:"Remove all headers associated with the entity"}
+@Param {value:"entity: Represent a MIME entity"}
+public function <Entity entity> removeAllHeaders () {
+    entity.headers = {};
+}
+
+@Description {value:"Get the content length"}
+@Param {value:"entity: Represent a MIME entity"}
+@Return {value:"Return content length as an int"}
+public function <Entity entity> getContentLength () (int) {
+    string strContentLength = entity.getHeader(CONTENT_LENGTH);
+    if (strContentLength != null) {
+        var contentLength, conversionErr = <int>strContentLength;
+        if (conversionErr != null) {
+            throw conversionErr;
+        } else {
+            return contentLength;
+        }
+    }
+    return -1;
+}
+
+function useCaseInsensitiveStrategy (string headerNameToLookFor, map headers) (string, string[]) {
+    foreach key, value in headers {
+        if (key.toLowerCase() == headerNameToLookFor.toLowerCase()) {
+            var headerVal, _ = (string[])value;
+            return key, headerVal;
+        }
+    }
+    return null, null;
+}
