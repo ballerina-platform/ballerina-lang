@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,7 +50,7 @@ public class CloseSocket extends AbstractNativeFunction {
             socket = (BStruct) getRefArgument(context, 0);
             ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
-            AbstractChannel channel = (AbstractChannel) byteChannelStruct
+            Channel channel = (Channel) byteChannelStruct
                     .getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byteChannel.close();
             channel.close();

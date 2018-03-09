@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.TempFileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -159,13 +160,17 @@ public class EntityBodyHandler {
      * @return BJSON data source which is kept in memory
      */
     public static BJSON constructJsonDataSource(BStruct entityStruct) {
-        Channel byteChannel = getByteChannel(entityStruct);
-        if (byteChannel == null) {
-            return null;
+        try {
+            Channel byteChannel = getByteChannel(entityStruct);
+            if (byteChannel == null) {
+                return null;
+            }
+            BJSON jsonData = new BJSON(byteChannel.getInputStream());
+            byteChannel.close();
+            return jsonData;
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while closing connection", e);
         }
-        BJSON jsonData = new BJSON(byteChannel.getInputStream());
-        byteChannel.close();
-        return jsonData;
     }
 
     /**
@@ -175,13 +180,17 @@ public class EntityBodyHandler {
      * @return BXML data source which is kept in memory
      */
     public static BXML constructXmlDataSource(BStruct entityStruct) {
-        Channel byteChannel = getByteChannel(entityStruct);
-        if (byteChannel == null) {
-            return null;
+        try {
+            Channel byteChannel = getByteChannel(entityStruct);
+            if (byteChannel == null) {
+                return null;
+            }
+            BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+            byteChannel.close();
+            return xmlContent;
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while closing the channel", e);
         }
-        BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
-        byteChannel.close();
-        return xmlContent;
     }
 
     /**
@@ -191,13 +200,17 @@ public class EntityBodyHandler {
      * @return StringDataSource which represent the entity body which is kept in memory
      */
     public static StringDataSource constructStringDataSource(BStruct entityStruct) {
-        Channel byteChannel = getByteChannel(entityStruct);
-        if (byteChannel == null) {
-            return null;
+        try {
+            Channel byteChannel = getByteChannel(entityStruct);
+            if (byteChannel == null) {
+                return null;
+            }
+            String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+            byteChannel.close();
+            return new StringDataSource(textContent);
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while closing the channel", e);
         }
-        String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
-        byteChannel.close();
-        return new StringDataSource(textContent);
     }
 
     /**
