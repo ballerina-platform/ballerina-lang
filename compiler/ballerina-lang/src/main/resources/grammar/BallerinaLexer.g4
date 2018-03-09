@@ -127,11 +127,6 @@ COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
 
-// Post arithmentic operators.
-
-POST_INCREMENT  : '++' ;
-POST_DECREMENT  : '--' ;
-
 // §3.10.1 Integer Literals
 IntegerLiteral
     :   DecimalIntegerLiteral

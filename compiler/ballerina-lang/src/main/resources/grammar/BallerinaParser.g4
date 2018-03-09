@@ -315,8 +315,8 @@ postIncrementStatement
     ;
 
 postArithmeticOperator
-    :   POST_INCREMENT
-    |   POST_DECREMENT
+    :   ADD ADD
+    |   SUB SUB
     ;
 
 bindStatement
