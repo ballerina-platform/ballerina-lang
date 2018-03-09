@@ -1,5 +1,8 @@
 package ballerina.net.http;
 
+///////////////////////////
+/// Service Annotations ///
+///////////////////////////
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value: "endpoints: array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
@@ -61,6 +64,10 @@ public annotation <service> httpServiceConfig HttpServiceConfiguration;
 @Description {value:"WebSocket Configuration for service"}
 public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;
 
+
+////////////////////////////
+/// Resource Annotations ///
+////////////////////////////
 @Description {value:"Configuration for HTTP resource"}
 @Field {value:"methods: The array of allowed HTTP methods"}
 @Field {value:"path: The path of resource"}

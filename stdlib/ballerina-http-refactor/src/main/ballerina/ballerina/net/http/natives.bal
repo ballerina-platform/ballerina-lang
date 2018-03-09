@@ -34,10 +34,15 @@ public struct ServiceEndpoint {
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
-    KeepAlive keepAlive = KeepAlive.AUTO;
+    KeepAlive keepAlive;
     string transferEncoding;
-    Chunking chunking = Chunking.AUTO;
+    Chunking chunking;
     SslConfiguration ssl;
+}
+
+function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
+    config.keepAlive = KeepAlive.AUTO;
+    config.chunking = Chunking.AUTO;
 }
 
 public struct SslConfiguration {
@@ -74,7 +79,7 @@ public native function <ServiceEndpoint ep> init (string epName, ServiceEndpoint
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public native function <ServiceEndpoint ep> register (type serviceType)
+public native function <ServiceEndpoint ep> register (type serviceType);
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
@@ -96,7 +101,11 @@ public native function <ServiceEndpoint ep> stop ();
 public struct HttpService {
     string epName;
     ServiceEndpointConfiguration config;
-    ServiceEndpoint serviceEndpoint = {};
+    ServiceEndpoint serviceEndpoint;
+}
+
+function <HttpService ep> HttpService() {
+    ep.serviceEndpoint = {};
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
@@ -140,7 +149,11 @@ public function <HttpService ep> stop () {
 public struct WsService{
     string epName;
     ServiceEndpointConfiguration config;
-    ServiceEndpoint serviceEndpoint = {};
+    ServiceEndpoint serviceEndpoint;
+}
+
+function <WsService ep> WsService() {
+    ep.serviceEndpoint = {};
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
@@ -648,106 +661,105 @@ public struct ConnectionThrottling {
 @Param { value:"connectorOptions: connector options" }
 public connector HttpClient (string serviceUri, Options connectorOptions) {
 
-	@Description { value:"The POST action implementation of the HTTP Connector."}
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"The POST action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"The HEAD action implementation of the HTTP Connector."}
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"The HEAD action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"The PUT action implementation of the HTTP Connector."}
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"The PUT action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"Invokes an HTTP call with the specified HTTP verb."}
-	@Param { value:"httpVerb: HTTP verb value" }
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
+    @Param {value:"httpVerb: HTTP verb value"}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"The PATCH action implementation of the HTTP Connector."}
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"The PATCH action implementation of the HTTP Connector."}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"The DELETE action implementation of the HTTP connector"}
-	@Param { value:"path: Resource path " }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"The DELETE action implementation of the HTTP connector"}
+    @Param {value:"path: Resource path "}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"GET action implementation of the HTTP Connector"}
-	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"GET action implementation of the HTTP Connector"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"OPTIONS action implementation of the HTTP Connector"}
-	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP outbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
+    @Description {value:"OPTIONS action implementation of the HTTP Connector"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP outbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
 
-	@Description { value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
-	@Param { value:"path: Request path" }
-	@Param { value:"req: An HTTP inbound request message" }
-	@Return { value:"The inbound response message" }
-	@Return { value:"Error occured during HTTP client invocation" }
-	native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
-
-    @Description {value:"Configuration struct for WebSocket client connection"}
-    @Field {value: "subProtocols: Negotiable sub protocols for the client"}
-    @Field {value: "parentConnectionID: Connection ID of the parent connection to which it should be bound to when connecting"}
-    @Field {value: "customHeaders: Custom headers which should be sent to the server"}
-    @Field {value: "idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
-    public struct WebSocketClientEndpoint {
-        string url;
-        type callbackService;
-        string [] subProtocols;
-        map<string> customHeaders;
-        int idleTimeoutInSeconds = -1;
-    }
-
-    @Description { value:"Gets called when the endpoint is being initialize during package init time"}
-    @Param { value:"epName: The endpoint name" }
-    @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-    @Return { value:"Error occured during initialization" }
-    public native function <WebSocketClientEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
-
-    @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-    @Param { value:"conn: The server connector connection" }
-    @Param { value:"res: The outbound response message" }
-    @Return { value:"Error occured during registration" }
-    public native function <WebSocketClientEndpoint h> register (type serviceType)
-
-    @Description { value:"Starts the registered service"}
-    @Return { value:"Error occured during registration" }
-    public native function <WebSocketClientEndpoint h> start ();
-
-    @Description { value:"Returns the connector that client code uses"}
-    @Return { value:"The connector that client code uses" }
-    @Return { value:"Error occured during registration" }
-    public native function <WebSocketClientEndpoint h> getConnector () returns (ResponseConnector repConn);
-
-    @Description { value:"Stops the registered service"}
-    @Return { value:"Error occured during registration" }
-    public native function <WebSocketClientEndpoint h> stop ();
-
+    @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
+    @Param {value:"path: Request path"}
+    @Param {value:"req: An HTTP inbound request message"}
+    @Return {value:"The inbound response message"}
+    @Return {value:"Error occured during HTTP client invocation"}
+    native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
 }
+
+@Description {value:"Configuration struct for WebSocket client connection"}
+@Field {value: "subProtocols: Negotiable sub protocols for the client"}
+@Field {value: "parentConnectionID: Connection ID of the parent connection to which it should be bound to when connecting"}
+@Field {value: "customHeaders: Custom headers which should be sent to the server"}
+@Field {value: "idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
+public struct WebSocketClientEndpoint {
+    string url;
+    type callbackService;
+    string [] subProtocols;
+    map<string> customHeaders;
+    int idleTimeoutInSeconds = -1;
+}
+
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
+public native function <WebSocketClientEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
+
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during registration" }
+public native function <WebSocketClientEndpoint h> register (type serviceType);
+
+@Description { value:"Starts the registered service"}
+@Return { value:"Error occured during registration" }
+public native function <WebSocketClientEndpoint h> start ();
+
+@Description { value:"Returns the connector that client code uses"}
+@Return { value:"The connector that client code uses" }
+@Return { value:"Error occured during registration" }
+public native function <WebSocketClientEndpoint h> getConnector () returns (ResponseConnector repConn);
+
+@Description { value:"Stops the registered service"}
+@Return { value:"Error occured during registration" }
+public native function <WebSocketClientEndpoint h> stop ();
