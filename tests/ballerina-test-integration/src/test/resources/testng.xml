@@ -22,7 +22,7 @@
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
     </listeners>
 
-    <!-- Below tests should run sequentially since it will use same port in each test -->
+     <!--Below tests should run sequentially since it will use same port in each test-->
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
@@ -34,6 +34,14 @@
         <classes>
             <class name="org.ballerinalang.test.service.websocket.sample.WebSocketPassThroughTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.sample.WebSocketAutoPingPongTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-sample-grpc-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.MutualSSLTestCase"/>-->
         </classes>
     </test>
 </suite>

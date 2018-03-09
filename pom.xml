@@ -666,6 +666,62 @@
                 <artifactId>mimepull</artifactId>
                 <version>${mimepull.version}</version>
             </dependency>
+            <!-- gRPC support for ballerina -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-context</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-core</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf-lite</artifactId>
+                <version>${io.grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${google.guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opencensus</groupId>
+                <artifactId>opencensus-api</artifactId>
+                <version>${io.opencensus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opencensus</groupId>
+                <artifactId>opencensus-contrib-grpc-metrics</artifactId>
+                <version>${io.opencensus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${com.google.protobuf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -757,6 +813,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -771,7 +828,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
-
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -792,6 +849,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -821,6 +879,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
+                <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -836,7 +895,7 @@
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
-
+                <module>misc/protobuf-ballerina</module>
                 <module>composer</module>
 
                 <module>distribution/docker</module>
@@ -1274,6 +1333,13 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+
+        <!-- gRPC support for microservice -->
+        <io.grpc.version>1.8.0</io.grpc.version>
+        <com.google.protobuf.version>3.4.0</com.google.protobuf.version>
+        <io.opencensus.version>0.8.0</io.opencensus.version>
+        <google.guava.version>19.0</google.guava.version>
+        <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
     </properties>
 
 </project>

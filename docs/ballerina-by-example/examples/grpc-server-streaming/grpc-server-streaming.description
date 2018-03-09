@@ -1,0 +1,2 @@
+// The gRPC Server Connector can be used to expose service gRPC service over http2.
+// This sample is to demonstrate gRPC server streaming service interacting with gRPC non-blocking client. 
