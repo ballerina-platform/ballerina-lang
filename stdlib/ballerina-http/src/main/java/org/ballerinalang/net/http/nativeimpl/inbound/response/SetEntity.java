@@ -38,7 +38,7 @@ import org.ballerinalang.net.http.HttpUtil;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "entity", type = TypeKind.STRUCT)},
-        isPublic = true
+        isPublic = false
 )
 public class SetEntity extends AbstractNativeFunction {
 

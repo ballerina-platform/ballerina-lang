@@ -80,7 +80,7 @@ native function <InRequest req> getEntityWithoutBody () (mime:Entity);
 
 @Description {value:"Set the entity to inbound request"}
 @Param {value:"req: The inbound request message"}
-@Return {value:"Entity of the request"}
+@Param {value:"entity: Entity to be set to the response"}
 public native function <InRequest req> setEntity (mime:Entity entity);
 
 @Description {value:"Gets the query parameters from the HTTP request as a map"}
@@ -119,7 +119,7 @@ native function <OutRequest req> getEntityWithoutBody () (mime:Entity);
 
 @Description {value:"Set the entity to outbound request"}
 @Param {value:"req: The outbound request message"}
-@Return {value:"Entity of the request"}
+@Param {value:"entity: Entity to be set to the response"}
 public native function <OutRequest req> setEntity (mime:Entity entity);
 
 @Description {value:"Sets a request property"}
@@ -157,6 +157,11 @@ public struct InResponse {
 @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
 native function <InResponse res> getEntity () (mime:Entity, mime:EntityError);
 
+@Description {value:"Set the entity to inbound response"}
+@Param {value:"res: The inbound response message"}
+@Param {value:"entity: Entity to be set to the response"}
+native function <InResponse res> setEntity (mime:Entity entity);
+
 @Description {value:"Get the entity from the inbound response without the body. This function is to be used only internally."}
 @Param {value:"req: The inbound response message"}
 @Return {value:"Entity of the response"}
@@ -191,7 +196,7 @@ native function <OutResponse res> getEntityWithoutBody () (mime:Entity);
 
 @Description {value:"Set the entity to outbound response"}
 @Param {value:"res: The outbound response message"}
-@Return {value:"Entity of the response"}
+@Param {value:"entity: Entity to be set to the response"}
 public native function <OutResponse res> setEntity (mime:Entity entity);
 
 @Description {value:"Sets a response property"}

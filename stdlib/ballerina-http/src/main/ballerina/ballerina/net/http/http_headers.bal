@@ -26,7 +26,7 @@ public const string CACHE_CONTROL = "Cache-Control";
 @Description {value:"HTTP header key 'Date'. The timestamp at the time the response was generated/received."}
 public const string DATE = "Date";
 @Description {value:"HTTP header key 'Etag'. A finger print for a resource which is used by HTTP caches to identify whether a resource representation has changed."}
-public const string ETAG = "Etag";
+public const string ETAG = "ETag";
 @Description {value:"HTTP header key 'Expires'. Specifies the time at which the response becomes stale."}
 public const string EXPIRES = "Expires";
 @Description {value:"HTTP header key 'If-Match'"}

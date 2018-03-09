@@ -384,12 +384,12 @@ function handle304Response (InResponse validationResponse, InResponse cachedResp
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.4
-function invalidateResponses (HttpCache cache, InResponse inboundResponse, string path) {
+function invalidateResponses (HttpCache httpCache, InResponse inboundResponse, string path) {
     // TODO: Improve this logic in accordance with the spec
     if (inboundResponse != null && (isCacheableStatusCode(inboundResponse.statusCode) &&
                                     inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400)) {
-        cache.cache.remove(getCacheKey(HTTP_GET, path));
-        cache.cache.remove(getCacheKey(HTTP_HEAD, path));
+        httpCache.cache.remove(getCacheKey(HTTP_GET, path));
+        httpCache.cache.remove(getCacheKey(HTTP_HEAD, path));
     }
 }
 

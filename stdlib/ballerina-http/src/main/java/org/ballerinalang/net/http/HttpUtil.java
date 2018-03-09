@@ -381,8 +381,7 @@ public class HttpUtil {
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct
-                .getNativeData(TRANSPORT_MESSAGE);
+        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -559,12 +558,12 @@ public class HttpUtil {
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
         if (isInboundRequestStruct(struct)) {
             if (!struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
-                transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
+                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(),
                                      struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
             }
         } else {
             if (!struct.getStringField(IN_RESPONSE_SERVER_INDEX).isEmpty()) {
-                transportHeaders.add(HttpHeaderNames.SERVER.toString(),
+                transportHeaders.set(HttpHeaderNames.SERVER.toString(),
                                      struct.getStringField(IN_RESPONSE_SERVER_INDEX));
             }
         }

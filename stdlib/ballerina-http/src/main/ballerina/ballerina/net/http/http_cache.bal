@@ -47,6 +47,9 @@ function <HttpCache httpCache> put (string key, RequestCacheControl requestCache
         isCacheableStatusCode(inboundResponse.statusCode) ||
         !inboundResponse.cacheControl.isPrivate) {
 
+        // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream will
+        // be read by the client and the response will be after the first cache hit.
+        _, _ = inboundResponse.getBinaryPayload();
         addEntry(httpCache.cache, key, inboundResponse);
     }
 }
