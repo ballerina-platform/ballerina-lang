@@ -45,8 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "retType",
                         type = TypeKind.TYPE)
         },
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
-        isPublic = true)
+        returnType = {@ReturnType(type = TypeKind.TABLE)})
 public class QueryTableWithoutJoinClause extends AbstractNativeFunction {
     /**
      * Where Native Function logic is implemented.

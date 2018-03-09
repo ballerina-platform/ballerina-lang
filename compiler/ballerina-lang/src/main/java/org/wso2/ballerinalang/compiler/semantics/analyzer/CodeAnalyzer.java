@@ -746,7 +746,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-
+        /* ignore */
     }
 
     private <E extends BLangExpression> void analyzeExpr(E node) {

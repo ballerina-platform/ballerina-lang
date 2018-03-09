@@ -77,7 +77,7 @@ Ballerina allows you to have transactions within a transaction.  All internal tr
 
 ## Example
 
-The following is an example of a local transaction where the transaction gets aborted if any of the `updateQuery` actions fail.
+The following is an example of a local transaction where the transaction gets aborted if any of the `update` actions fail.
 
 ```ballerina
     import ballerina.data.sql;

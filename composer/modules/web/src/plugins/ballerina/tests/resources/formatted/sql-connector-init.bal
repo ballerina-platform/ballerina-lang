@@ -131,7 +131,7 @@ function testInvalidDBType () (string firstName) {
                                                             0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
 
     sql:Parameter[] parameters = [];
-    testDB.udpate("Insert into Customers(firstName) values ('James')", parameters);
+    testDB.update("Insert into Customers(firstName) values ('James')", parameters);
     testDB.close();
     return;
 }

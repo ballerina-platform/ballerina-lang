@@ -2069,16 +2069,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2121,20 +2111,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
-    @Override
-    public void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
     }
 
     @Override
@@ -2189,9 +2165,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isSelectAll = ctx.MUL() == null ? false : true;
-        boolean isGroupByClauseAvailable = ctx.groupByClause() == null ? false : true;
-        boolean isHavingClauseAvailable = ctx.havingClause() == null ? false : true;
+        boolean isSelectAll = ctx.MUL() != null;
+        boolean isGroupByClauseAvailable = ctx.groupByClause() != null;
+        boolean isHavingClauseAvailable = ctx.havingClause() != null;
         this.pkgBuilder.endSelectClauseNode(isSelectAll, isGroupByClauseAvailable, isHavingClauseAvailable,
                 getCurrentPos(ctx), getWS(ctx));
     }
@@ -2265,18 +2241,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isWindowAvailable = false;
-        boolean isfirstWhereClauseAvailable = false;
-        boolean isSecondWhereClauseAvailable = false;
-        isWindowAvailable = ctx.windowClause() == null ? false : true;
-        isfirstWhereClauseAvailable = ctx.whereClause(0) == null ? false : true;
-        isSecondWhereClauseAvailable = ctx.whereClause(1) == null ? false : true;
+        boolean isWindowAvailable;
+        boolean isFirstWhereClauseAvailable;
+        boolean isSecondWhereClauseAvailable;
+        isWindowAvailable = ctx.windowClause() != null;
+        isFirstWhereClauseAvailable = ctx.whereClause(0) != null;
+        isSecondWhereClauseAvailable = ctx.whereClause(1) != null;
         String alias = null;
         if (ctx.alias != null) {
             alias = ctx.alias.getText();
         }
 
-        this.pkgBuilder.endStreamingInputNode(isfirstWhereClauseAvailable, isSecondWhereClauseAvailable,
+        this.pkgBuilder.endStreamingInputNode(isFirstWhereClauseAvailable, isSecondWhereClauseAvailable,
                 isWindowAvailable, alias, getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -2312,9 +2288,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean isSelectClauseAvailable = ctx.selectClause() == null ? false : true;
-        boolean isOrderByClauseAvailable = ctx.orderByClause() == null ? false : true;
-        boolean isJoinClauseAvailable = ctx.joinStreamingInput() == null ? false : true;
+        boolean isSelectClauseAvailable = ctx.selectClause() != null;
+        boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
+        boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
                 getCurrentPos(ctx), getWS(ctx));
     }

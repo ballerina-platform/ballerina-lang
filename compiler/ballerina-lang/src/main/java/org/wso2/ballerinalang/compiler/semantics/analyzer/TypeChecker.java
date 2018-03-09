@@ -857,16 +857,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (joinStreamingInput != null) {
             joinStreamingInput.accept(this);
         }
-
-        /*
-        BLangSelectClause selectClause = (BLangSelectClause) tableQuery.getSelectClauseNode();
-        selectClause.accept(this);
-
-        BLangOrderBy orderBy = (BLangOrderBy) tableQuery.getOrderByNode();
-        if (orderBy != null) {
-            orderBy.accept(this);
-        }
-        */
     }
 
     @Override

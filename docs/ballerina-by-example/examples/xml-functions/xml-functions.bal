@@ -34,7 +34,7 @@ function main (string[] args) {
     io:println(x);
 
     // An element with a particular name can also be retrieved.
-    x = content.select(("name");
+    x = content.select("name");
     io:println(x);
 
     // Set the children of an XML.
