@@ -30,8 +30,6 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This represents a Ballerina worker execution context.

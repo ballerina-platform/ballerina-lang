@@ -324,7 +324,8 @@ public class Debugger {
      * @param workerId          Current thread id.
      * @return  message         To be sent.
      */
-    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String workerId) {
+    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, 
+            String workerId) {
         MessageDTO message = new MessageDTO(DebugConstants.CODE_HIT, DebugConstants.MSG_HIT);
         message.setThreadId(workerId);
 

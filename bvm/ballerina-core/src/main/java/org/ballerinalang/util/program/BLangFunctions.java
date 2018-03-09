@@ -24,16 +24,16 @@ import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
-import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
+import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
@@ -203,8 +203,10 @@ public class BLangFunctions {
             if (error != null) {
                 handleError(parentCtx);
             }
+            return null;
+        } else {
+            return runInCallerCtx;
         }
-        return runInCallerCtx;
     }
     
     private static WorkerExecutionContext invokeNativeCallable(CallableUnitInfo callableUnitInfo, 

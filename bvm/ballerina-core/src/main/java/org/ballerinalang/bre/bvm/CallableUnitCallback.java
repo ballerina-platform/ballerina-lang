@@ -20,7 +20,7 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BStruct;
 
 /**
- * @since 0.964
+ * @since 0.965.0
  */
 public interface CallableUnitCallback {
 

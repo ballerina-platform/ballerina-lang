@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents asynchronous timer functionality.
+ * 
+ * @since 0.965.0
  */
 public class AsyncTimer {
     

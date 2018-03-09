@@ -63,9 +63,9 @@ public class Verify extends BlockingNativeCallableUnit {
             publicKey = (RSAPublicKey) KeyStore.getKeyStore().getTrustedPublicKey(keyAlias);
             JWSVerifier verifier = new RSAVerifier(publicKey);
             validSignature = verifier.verify(data, signature, algorithm);
+            context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
             context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
-        }
-        context.setReturnValues(new BBoolean(validSignature));
+        }        
     }
 }

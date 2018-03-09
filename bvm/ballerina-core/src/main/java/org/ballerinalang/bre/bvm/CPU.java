@@ -113,7 +113,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 /**
  * This class executes Ballerina instruction codes by acting as a CPU.
  *
- * @since 0.963.0
+ * @since 0.965.0
  */
 public class CPU {
 
@@ -440,7 +440,8 @@ public class CPU {
                     break;
                 case InstructionCodes.WRKRECEIVE:
                     InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs)) {
+                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, 
+                            wrkReceiveIns.regs)) {
                         return;
                     }
                     break;
@@ -705,7 +706,9 @@ public class CPU {
                     break;
                 case InstructionCodes.LOCK:
                     InstructionLock instructionLock = (InstructionLock) instruction;
-                    handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs);
+                    if (!handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs)) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.UNLOCK:
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
@@ -2330,7 +2333,7 @@ public class CPU {
         }
     }
 
-    private static void handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
+    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
         boolean lockAcquired = true;
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
@@ -2355,6 +2358,7 @@ public class CPU {
                     lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockRefField(ctx, regIndex);
             }
         }
+        return lockAcquired;
     }
 
     private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
@@ -2492,13 +2496,14 @@ public class CPU {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String sourceTypeName,
-            String targetTypeName) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+            String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String errorMessage) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, 
+            int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {

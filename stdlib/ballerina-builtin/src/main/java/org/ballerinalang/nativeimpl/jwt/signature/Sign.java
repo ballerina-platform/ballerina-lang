@@ -67,9 +67,9 @@ public class Sign extends BlockingNativeCallableUnit {
             }
             JWSSigner signer = new RSASigner(privateKey);
             signature = signer.sign(data, algorithm);
+            context.setReturnValues(new BString(signature));
         } catch (Exception e) {
             context.setReturnValues(new BString(null), BLangVMErrors.createError(context, 0, e.getMessage()));
-        }
-        context.setReturnValues(new BString(signature));
+        }        
     }
 }

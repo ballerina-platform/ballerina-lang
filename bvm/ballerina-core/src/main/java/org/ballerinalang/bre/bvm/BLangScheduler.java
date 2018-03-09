@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
- * @since 0.964.0
+ * 
+ * @since 0.965.0
  */
 public class BLangScheduler {
 
@@ -41,10 +42,12 @@ public class BLangScheduler {
     }
     
     /**
-     * This method executes a scheduled worker execution context which is in CREATED state,
-     * which means, it is not yet ready for executing. This method will immediately execute
-     * the worker in the current thread. This method must be called after a call to the 
-     * {@link BLangScheduler#schedule(WorkerExecutionContext) method. 
+     * This method executes a scheduled worker execution context which is in
+     * CREATED state, which means, it is not yet ready for executing. This
+     * method will immediately execute the worker in the current thread. This
+     * method must be called after a call to the 
+     * BLangScheduler#schedule(WorkerExecutionContext method.
+     * 
      * @param ctx the worker execution context
      */
     public static void executeNow(WorkerExecutionContext ctx) {
