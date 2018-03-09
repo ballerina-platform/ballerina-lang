@@ -92,7 +92,11 @@ public final class BLangConnectorSPIUtil {
      * @return created struct
      */
     public static BStruct createBStruct(Context context, String pkgPath, String structName, Object... values) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(pkgPath);
+        return createBStruct(context.getProgramFile(), pkgPath, structName, values);
+    }
+
+    public static BStruct createBStruct(ProgramFile programFile, String pkgPath, String structName, Object... values) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
@@ -116,14 +120,15 @@ public final class BLangConnectorSPIUtil {
     /**
      * Creates a VM connector value.
      *
-     * @param context       current context
+     * @param programFile   program file
      * @param pkgPath       package path of the connector
      * @param connectorName name of the connector
      * @param args          args of the connector in the defined order
      * @return created struct
      */
-    public static BConnector createBConnector(Context context, String pkgPath, String connectorName, Object... args) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(pkgPath);
+    public static BConnector createBConnector(ProgramFile programFile, String pkgPath, String connectorName,
+                                              Object... args) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
@@ -134,8 +139,8 @@ public final class BLangConnectorSPIUtil {
         final BConnector bConnector = BLangVMStructs.createBConnector(connectorInfo, args);
         final FunctionInfo initFunction = packageInfo.getFunctionInfo(connectorName + INIT_FUNCTION_SUFFIX);
         if (initFunction != null) {
-            Context initContext = new Context(context.getProgramFile());
-            BLangFunctions.invokeFunction(context.getProgramFile(), initFunction, initContext);
+            Context initContext = new Context(programFile);
+            BLangFunctions.invokeFunction(programFile, initFunction, initContext);
         }
         return bConnector;
     }
