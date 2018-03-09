@@ -570,6 +570,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.B2JSON:
@@ -2692,7 +2693,7 @@ public class BLangVM {
         sf.refRegs[i] = bStruct;
     }
 
-    private void beginTransaction(int transactionId, int retryCountRegIndex) {
+    private void beginTransaction(int transactionBlockId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
@@ -2705,56 +2706,51 @@ public class BLangVM {
             }
         }
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        boolean isInitiator = true;
         if (localTransactionInfo == null) {
-            localTransactionInfo = createTransactionInfo();
+            BValue[] returns = notifyTransactionBegin(null,  null, transactionBlockId,
+                    TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+            BStruct txDataStruct = (BStruct) returns[0];
+            String globalTransactionId = txDataStruct.getStringField(1);
+            String protocol = txDataStruct.getStringField(2);
+            String url = txDataStruct.getStringField(3);
+            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
             context.setLocalTransactionInfo(localTransactionInfo);
         } else {
-            notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(), localTransactionInfo.getURL(),
-                    localTransactionInfo.getProtocol());
+            isInitiator = false;
+            notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(),
+                    localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(), isInitiator);
         }
-        localTransactionInfo.beginTransactionBlock(transactionId, retryCount);
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private LocalTransactionInfo createTransactionInfo() {
-        BValue[] returns = notifyTransactionBegin(null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
-        //Check if error occurs during registration
-        if (returns[1] != null) {
-            throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
-        }
-        BStruct txDataStruct = (BStruct) returns[0];
-        String transactionId = txDataStruct.getStringField(1);
-        String protocol = txDataStruct.getStringField(2);
-        String url = txDataStruct.getStringField(3);
-        return new LocalTransactionInfo(transactionId, url, protocol);
-    }
-
-    private void retryTransaction(int transactionId, int startOfAbortIP) {
+    private void retryTransaction(int transactionBlockId, int startOfAbortIP) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        if (localTransactionInfo.isRetryPossible(transactionId)) {
+        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
             ip = startOfAbortIP;
         }
-        localTransactionInfo.incrementCurrentRetryCount(transactionId);
+        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
 
-    private void endTransaction(int transactionId, int status) {
+    private void endTransaction(int transactionBlockId, int status) {
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        boolean notifyCoorinator = false;
+        boolean notifyCoorinator;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionId);
+                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
                 if (notifyCoorinator) {
-                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
                 notifyCoorinator = localTransactionInfo.onTransactionAbort();
                 if (notifyCoorinator) {
-                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                notifyCoorinator = localTransactionInfo.onTransactionEnd();
+                notifyCoorinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
                 if (notifyCoorinator) {
-                    notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                     context.setLocalTransactionInfo(null);
                 }
             }
@@ -2764,21 +2760,31 @@ public class BLangVM {
         }
     }
 
-    private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, String protocol) {
-        BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
-        return invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+    private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, int transactionBlockId,
+            String protocol, boolean isInitiator) {
+        BValue[] args = {
+                new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
+                new BString(protocol)
+        };
+        BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+        if (isInitiator) {
+            if (returns[1] != null) {
+                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
+            }
+        }
+        return returns;
     }
 
-    private void notifyTransactionEnd(String globalTransactionId) {
-        BValue[] args = { new BString(globalTransactionId) };
+    private void notifyTransactionEnd(String globalTransactionId, int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         if (returns[1] != null) {
             throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
         }
     }
 
-    private void notifyTransactionAbort(String globalTransactionId) {
-        BValue[] args = { new BString(globalTransactionId) };
+    private void notifyTransactionAbort(String globalTransactionId, int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
         invokeCoordinatorFunction(TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 

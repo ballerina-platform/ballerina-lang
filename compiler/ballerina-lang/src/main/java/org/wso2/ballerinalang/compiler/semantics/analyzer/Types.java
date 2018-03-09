@@ -729,6 +729,10 @@ public class Types {
 
         @Override
         public BSymbol visit(BTableType t, BType s) {
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2DT);
+            }
+
             return symTable.notFoundSymbol;
         }
 

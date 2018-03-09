@@ -8,6 +8,35 @@ function jsonReturnFunction()(json) {
   return val;
 }
 
+function tableReturnTestAsAny () (any) {
+    any abc = tableReturnFunction();
+    return abc;
+}
+
+function inputAnyAsTableTest () (table) {
+    return anyToTableCastFunction(tableReturnFunction());
+}
+
+function anyToTableCastFunction (any aTable) (table) {
+    var casted, err = (table) aTable;
+    return casted;
+}
+
+function tableReturnFunction () (table) {
+    table < Employee> tb = {};
+    Employee e1 = {id:1, name:"Jane"};
+    Employee e2 = {id:2, name:"Anne"};
+    tb.add(e1);
+    tb.add(e2);
+
+    return tb;
+}
+
+struct Employee {
+    int id;
+    string name;
+}
+
 
 function anyMethodParameter() (any) {
   int i = 9;
