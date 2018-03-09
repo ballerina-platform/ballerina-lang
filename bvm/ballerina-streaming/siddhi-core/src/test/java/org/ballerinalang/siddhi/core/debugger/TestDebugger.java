@@ -625,7 +625,7 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
 
-        Thread.sleep(100);
+        Thread.sleep(3000);
 
         AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
