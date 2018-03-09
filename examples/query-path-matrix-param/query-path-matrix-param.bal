@@ -25,7 +25,7 @@ service<http> sample {
 
         // Create json payload with the extracted values.
         json responseJson = {"pathParam":foo, "queryParam":bar, "matrix":matrixJson};
-        http:OutResponse res = {};
+        http:Response res = {};
         // A util method to set the json payload to the response message.
         res.setJsonPayload(responseJson);
         // Send a response to the client.

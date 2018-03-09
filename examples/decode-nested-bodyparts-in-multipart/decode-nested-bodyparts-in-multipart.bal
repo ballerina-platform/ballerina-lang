@@ -11,7 +11,7 @@ service<http> nestedparts {
     resource nestedPartReceiver (http:Connection conn, http:Request req) {
         //Extract multiparts from the inbound request.
         var parentParts, payloadError = req.getMultiparts();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             int i = 0;
             //Loop through parent parts.

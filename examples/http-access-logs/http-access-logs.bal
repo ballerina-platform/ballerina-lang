@@ -9,7 +9,7 @@ service<http> helloService {
         path:"/"
     }
     resource aGetRequest (http:Connection conn, http:Request requ) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
     }

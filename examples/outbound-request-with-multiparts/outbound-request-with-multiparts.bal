@@ -45,7 +45,7 @@ service<http> multiparts {
         //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
-        http:InResponse resp1 = {};
+        http:Response resp1 = {};
         resp1, _ = httpEndpoint.post("/multiparts/receivableParts", request);
 
         _ = conn.forward(resp1);

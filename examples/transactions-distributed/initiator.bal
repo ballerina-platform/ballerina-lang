@@ -15,7 +15,7 @@ service<http> InitiatorService {
         path:"/"
     }
     resource init (http:Connection conn, http:Request req) {
-        http:OutResponse res;
+        http:Response res;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context will be created.

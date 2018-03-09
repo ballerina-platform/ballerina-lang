@@ -29,7 +29,7 @@ service<http> failoverService {
                      errorCode);
         }
 
-        http:InResponse inResponse = {};
+        http:Response inResponse = {};
         http:HttpConnectorError err;
 
         http:Request outRequest = {};
@@ -37,7 +37,7 @@ service<http> failoverService {
         outRequest.setJsonPayload(requestPayload);
         inResponse, err = endPoint.post("/", outRequest);
 
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         if (err != null) {
             outResponse.statusCode = err.statusCode;
             outResponse.setStringPayload(err.message);
@@ -57,7 +57,7 @@ service<http> echo {
         path:"/"
     }
     resource echoResource (http:Connection conn, http:Request req) {
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         runtime:sleepCurrentWorker(30000);
         outResponse.setStringPayload("Resource is invoked");
         _ = conn.respond(outResponse);
@@ -70,7 +70,7 @@ service<http> mock {
         path:"/"
     }
     resource mockResource (http:Connection conn, http:Request req) {
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock Resource is Invoked.");
         _ = conn.respond(outResponse);
     }

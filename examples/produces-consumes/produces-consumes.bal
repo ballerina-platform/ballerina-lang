@@ -14,7 +14,7 @@ service<http> infoService {
     resource student (http:Connection conn, http:Request req) {
         //Get JSON payload from the request message.
         var jsonMsg, payloadError = req.getJsonPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             //Get the string value relevant to the key "name".
             string nameString;
