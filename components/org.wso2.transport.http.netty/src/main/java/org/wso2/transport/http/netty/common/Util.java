@@ -37,9 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -558,5 +561,48 @@ public class Util {
         outboundRespFuture.addListener(
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
         ctx.channel().close();
+    }
+
+    /**
+     * Checks for status of the response write operation.
+     *
+     * @param inboundRequestMsg        request message received from the client
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+                                           HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+            }
+        });
+    }
+
+    /**
+     * Adds a listener to notify the outbound response future if an error occurs while writing the response message.
+     *
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
+                                                       ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
     }
 }
