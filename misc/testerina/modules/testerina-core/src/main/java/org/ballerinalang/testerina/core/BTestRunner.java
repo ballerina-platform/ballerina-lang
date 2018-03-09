@@ -29,6 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -85,21 +87,18 @@ public class BTestRunner {
             if (Arrays.stream(compileResult.getDiagnostics()).collect(Collectors.toList()).size() > 0) {
                 throw new BallerinaException("Compilation failure in: " + k.toString());
             }
-            outStream.println("Processing compiled result of package: " + compileResult.getProgFile().getEntryPkgName
-                    ());
-            TesterinaRegistry.getInstance().addProgramFile(compileResult.getProgFile());
+            ProgramFile programFile = compileResult.getProgFile();
+            Debugger debugger = new Debugger(programFile);
+            programFile.setDebugger(debugger);
+            outStream.println("Processing compiled result of package: " + programFile.getEntryPkgName());
+            TesterinaRegistry.getInstance().addProgramFile(programFile);
             // process the compiled files
             ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
             processorServiceLoader.forEach(plugin -> {
                 if (plugin instanceof TestAnnotationProcessor) {
-                    ((TestAnnotationProcessor) plugin).packageProcessed(compileResult.getProgFile());
+                    ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                 }
             });
-//            PackageInfo packageInfo = compileResult.getProgFile().getEntryPackage();
-//            testSuites.computeIfAbsent(packageInfo.getPkgPath(), func -> new TestSuite(packageInfo.getPkgPath()));
-//            AnnotationProcessor.processAnnotations(packageInfo, testSuites.get(packageInfo.getPkgPath()),
-//                    mockFunctionsMap, groups, shouldIncludeGroups);
-
         });
         // execute the test programs
         execute();

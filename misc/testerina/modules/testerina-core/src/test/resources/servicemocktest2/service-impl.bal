@@ -1,4 +1,4 @@
-package src.test.resources.servicemocktest;
+package src.test.resources.servicemocktest2;
 
 import ballerina.io;
 import ballerina.net.http;

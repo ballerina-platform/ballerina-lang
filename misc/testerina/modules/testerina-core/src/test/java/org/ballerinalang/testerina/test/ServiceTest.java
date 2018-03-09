@@ -39,7 +39,8 @@ public class ServiceTest {
     @Test
     public void testBefore() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/servicemocktest/")}, new
+        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/servicemocktest/"), Paths.get
+                ("src/test/resources/servicemocktest2")}, new
                 ArrayList<>());
     }
 

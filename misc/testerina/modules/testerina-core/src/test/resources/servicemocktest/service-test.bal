@@ -4,6 +4,7 @@ import ballerina.net.http;
 import ballerina.io;
 import ballerina.test;
 import ballerina.config;
+import src.test.resources.servicemocktest2;
 
 string url1;
 string url2;
