@@ -22,6 +22,7 @@
     "lintfile": "eslint",
     "precommit": "lint-staged",
     "gen-source-gen": "cross-env NODE_PATH=src babel-node ./source-gen/gen-source-gen.js",
+    "gen-source-gen-java": "cross-env NODE_PATH=src babel-node ./source-gen/gen-source-gen-java.js",
     "gen-default-nodes": "cross-env NODE_PATH=src babel-node ./tools/gen-default-nodes/gen-default-nodes",
     "check": "npm outdated -depth 0"
   },

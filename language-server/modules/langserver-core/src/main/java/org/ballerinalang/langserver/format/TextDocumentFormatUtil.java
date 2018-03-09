@@ -51,7 +51,8 @@ public class TextDocumentFormatUtil {
         String documentUri = params.getTextDocument().getUri();
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
-        final BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, documentManager);
+        final BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, documentManager,
+                true);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -67,7 +68,7 @@ public class TextDocumentFormatUtil {
             JsonElement modelElement = CommonUtil.generateJSON(compilationUnit, new HashMap<>());
             result.add("model", modelElement);
         }
-        
+
         return result;
     }
 }
