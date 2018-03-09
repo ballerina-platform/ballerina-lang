@@ -254,7 +254,7 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         log:printInfo("Remote participant: " + participantId + " failed or aborted");
         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
         // participant
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
         successful = false;
     } else if (status == "committed") {
         log:printInfo("Remote participant: " + participantId + " committed");
@@ -262,11 +262,11 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         // report a mixed-outcome to the initiator
         txn.possibleMixedOutcome = true;
         // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
     } else if (status == "read-only") {
         log:printInfo("Remote participant: " + participantId + " read-only");
         // Don't send notify to this participant because it is read-only. We can forget about this participant.
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
     } else {
         log:printInfo("Remote participant: " + participantId + ", status: " + status);
     }
@@ -418,7 +418,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         if (err == null) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            participatedTransactions.remove(participatedTxnId);
+            _ = participatedTransactions.remove(participatedTxnId);
         } else {
             log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
         }
@@ -478,7 +478,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
         if (txn.state != TransactionState.ABORTED) {
             msg, err = commitTransaction(transactionId, transactionBlockId);
             if (err == null) {
-                initiatedTransactions.remove(transactionId);
+                _ = initiatedTransactions.remove(transactionId);
             }
         }
     } // Nothing to do on endTransaction if you are a participant
@@ -511,9 +511,9 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
                 return;
             }
             string participantId = getParticipantId(transactionBlockId);
-            txn.participants.remove(participantId);
-            participatedTransactions.remove(participatedTxnId);
-            txn.participants.remove(participantId);
+            _ = txn.participants.remove(participantId);
+            _ = participatedTransactions.remove(participatedTxnId);
+            _ = txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
         } else {
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
@@ -522,7 +522,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
         msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }
     if (err == null) {
-        initiatedTransactions.remove(transactionId);
+        _ = initiatedTransactions.remove(transactionId);
     }
 
     return;

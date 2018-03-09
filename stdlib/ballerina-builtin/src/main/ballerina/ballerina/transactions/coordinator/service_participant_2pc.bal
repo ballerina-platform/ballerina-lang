@@ -78,7 +78,7 @@ service<http> Participant2pcService {
                 } else {
                     res = {statusCode:500};
                     prepareRes = {message:"aborted"};
-                    participatedTransactions.remove(participatedTxnId);
+                    _ = participatedTransactions.remove(participatedTxnId);
                     log:printInfo("Aborted transaction: " + transactionId);
                 }
             }
@@ -159,7 +159,7 @@ service<http> Participant2pcService {
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-                participatedTransactions.remove(participatedTxnId);
+                _ = participatedTransactions.remove(participatedTxnId);
             }
             var j, _ = <json>notifyRes;
             res.setJsonPayload(j);

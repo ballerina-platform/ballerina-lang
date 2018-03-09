@@ -63,7 +63,7 @@ service<http> Initiator2pcService {
             } else {
                 // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                 // participant
-                txn.participants.remove(participantId);
+                _ = txn.participants.remove(participantId);
                 var msg, err = abortInitiatorTransaction(transactionId, txnBlockId);
                 if (err == null) {
                     res = {statusCode:500};
