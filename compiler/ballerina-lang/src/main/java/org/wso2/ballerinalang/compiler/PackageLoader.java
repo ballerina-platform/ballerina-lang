@@ -21,10 +21,9 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.repository.PackageEntity;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.wso2.ballerinalang.compiler.packaging.PathListPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
@@ -41,8 +40,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -179,66 +176,7 @@ public class PackageLoader {
     }
 
     private PackageEntity pathToEntity(PackageID pkgId, Resolution resolution) {
-        return new PackageSource() {
-            @Override
-            public Kind getKind() {
-                return null;
-            }
-
-            @Override
-            public String getName() {
-                return pkgId.getName().value;
-            }
-
-            @Override
-            public PackageRepository getPackageRepository() {
-                return null;
-            }
-
-            @Override
-            public PackageID getPackageId() {
-                return pkgId;
-            }
-
-            @Override
-            public List<String> getEntryNames() {
-                return null;
-            }
-
-            @Override
-            public RepoHierarchy getRepoDag() {
-                return resolution.resolvedBy;
-            }
-
-            @Override
-            public PackageSourceEntry getPackageSourceEntry(String name) {
-                return null;
-            }
-
-            @Override
-            public List<PackageSourceEntry> getPackageSourceEntries() {
-                return resolution.paths.stream().map(p -> new PackageSourceEntry() {
-                    @Override
-                    public PackageID getPackageID() {
-                        return pkgId;
-                    }
-
-                    @Override
-                    public String getEntryName() {
-                        return p.getName(p.getNameCount() - 1).toString();
-                    }
-
-                    @Override
-                    public byte[] getCode() {
-                        try {
-                            return Files.readAllBytes(p);
-                        } catch (IOException e) {
-                            return new byte[]{};
-                        }
-                    }
-                }).collect(Collectors.toList());
-            }
-        };
+        return new PathListPackageSource(pkgId, resolution.paths, resolution.resolvedBy);
     }
 
     public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
@@ -384,4 +322,5 @@ public class PackageLoader {
         this.packageCache.put(pkgId, bLangPackage);
         return bLangPackage;
     }
+
 }

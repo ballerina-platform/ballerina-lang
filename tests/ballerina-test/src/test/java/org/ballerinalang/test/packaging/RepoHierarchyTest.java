@@ -157,7 +157,7 @@ public class RepoHierarchyTest {
 
         RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo);
         return RepoHierarchy.build(node(projectSource,
-                                        node(projectRepo,/* null nodes should be ignored */ null,
+                                        node(projectRepo, null /* null nodes should be ignored */,
                                              node(projectCacheRepo, homeCacheNode),
                                              node(homeRepo, homeCacheNode))));
     }

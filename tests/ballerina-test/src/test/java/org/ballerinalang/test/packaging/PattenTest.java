@@ -17,6 +17,38 @@ import java.util.stream.Stream;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 public class PattenTest {
+    private static <I> Converter<I> mockResolver(I start,
+                                                 BiFunction<I, String, I> combine,
+                                                 Function<I, Stream<I>> expand,
+                                                 Function<I, Stream<I>> expandBal) {
+        return new Converter<I>() {
+            @Override
+            public I combine(I i, String pathPart) {
+                return combine.apply(i, pathPart);
+            }
+
+            @Override
+            public Stream<I> expand(I i) {
+                return expand.apply(i);
+            }
+
+            @Override
+            public Stream<I> expandBal(I i) {
+                return expandBal.apply(i);
+            }
+
+            @Override
+            public I start() {
+                return start;
+            }
+
+            @Override
+            public Stream<Path> finalize(I i) {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
     @Test
     public void testReduction() {
         Converter<String> mock = mockResolver("root-dir",
@@ -108,37 +140,5 @@ public class PattenTest {
                                                    "my-dir > hello > cache3 > world > dir1 > x.bal",
                                                    "my-dir > hello > cache3 > world > y.bal",
                                                    "my-dir > hello > cache3 > world > dir2 > dir3 > f.bal"));
-    }
-
-    private static <I> Converter<I> mockResolver(I start,
-                                                 BiFunction<I, String, I> combine,
-                                                 Function<I, Stream<I>> expand,
-                                                 Function<I, Stream<I>> expandBal) {
-        return new Converter<I>() {
-            @Override
-            public I combine(I i, String pathPart) {
-                return combine.apply(i, pathPart);
-            }
-
-            @Override
-            public Stream<I> expand(I i) {
-                return expand.apply(i);
-            }
-
-            @Override
-            public Stream<I> expandBal(I i) {
-                return expandBal.apply(i);
-            }
-
-            @Override
-            public I start() {
-                return start;
-            }
-
-            @Override
-            public Stream<Path> finalize(I i) {
-                throw new UnsupportedOperationException();
-            }
-        };
     }
 }

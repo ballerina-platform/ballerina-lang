@@ -91,6 +91,7 @@ public class RepoHierarchy {
                 out.println("\t skipping " + repo);
             }
         }
+        out.println("\t could not find");
         return Resolution.NOT_FOUND;
     }
 

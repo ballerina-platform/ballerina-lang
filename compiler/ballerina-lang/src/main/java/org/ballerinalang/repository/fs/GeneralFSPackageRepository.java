@@ -241,7 +241,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public RepoHierarchy getRepoDag() {
+        public RepoHierarchy getRepoHierarchy() {
             return null;
         }
 

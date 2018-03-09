@@ -21,8 +21,8 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 public class JarIntegrationTest {
 
-    private Path tempJar;
     private static final byte[] BAL_CONTENT = "good bal".getBytes(StandardCharsets.UTF_8);
+    private Path tempJar;
 
     @BeforeClass
     public void setup() throws IOException {
