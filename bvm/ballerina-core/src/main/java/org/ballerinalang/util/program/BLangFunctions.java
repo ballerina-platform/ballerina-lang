@@ -234,8 +234,7 @@ public class BLangFunctions {
         } catch (BLangNullReferenceException e) {
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
-            WorkerExecutionContext x = handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
-            return x;
+            return handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
         }
     }
 

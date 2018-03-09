@@ -114,7 +114,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
         BLangVMUtils.log("error: worker '" + sourceCtx.workerInfo.getWorkerName() + 
                 "' trying to return on already returned callable '" + 
-                signal.getSourceContext().callableUnitInfo + "'.");
+                signal.getSourceContext().callableUnitInfo.getName() + "'.");
     }
     
     protected WorkerExecutionContext propagateErrorToTarget() {

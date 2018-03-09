@@ -128,6 +128,7 @@ public class CPU {
         while (ctx != null && !ctx.isRootContext()) {
             try {
                 tryExec(ctx);
+                break;
             } catch (HandleErrorException e) {
                 ctx = e.ctx;
             } catch (Throwable e) {
@@ -138,7 +139,6 @@ public class CPU {
                     ctx = e2.ctx;
                 }
             }
-            break;
         }
     }
     
