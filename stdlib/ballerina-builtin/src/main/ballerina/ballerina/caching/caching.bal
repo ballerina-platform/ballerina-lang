@@ -84,6 +84,10 @@ public function createCache (string name, int expiryTimeMillis, int capacity, fl
     return cache;
 }
 
+public function <Cache cache> hasKey (string key) returns (boolean) {
+    return cache.entries.hasKey(key);
+}
+
 @Description {value:"Returns the size of the cache."}
 @Return {value:"int: The size of the cache"}
 public function <Cache cache> size () returns (int) {
@@ -121,7 +125,7 @@ function <Cache cache> evictCache () {
 
 @Description {value:"Returns the cached value associated with the given key. Returns null if the provided key does not exist in the cache."}
 @Param {value:"key: key which is used to retrieve the cached value"}
-@Return { value:"The cached value associated with the given key" }
+@Return {value:"The cached value associated with the given key"}
 public function <Cache cache> get (string key) returns (any) {
     any value = cache.entries[key];
     if (value == null) {
