@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -90,6 +90,7 @@ public class OpenSecureSocket extends AbstractNativeFunction {
         }
         SSLSocket sslSocket;
         ByteChannel channel;
+        BStruct socketStruct;
         try {
             if (socket instanceof SSLSocket) {
                 sslSocket = (SSLSocket) socket;
@@ -107,19 +108,19 @@ public class OpenSecureSocket extends AbstractNativeFunction {
             }
             sslSocket.startHandshake();
             channel = new SocketByteChannel(sslSocket.getInputStream(), sslSocket.getOutputStream());
+            socketStruct = createReturnStruct(context, sslSocket, channel);
         } catch (Throwable e) {
             String msg = "Failed to start handshake with remote server [" + host + ":" + port + "] : " + e.getMessage();
             throw new BallerinaException(msg, e, context);
         }
-        BStruct socketStruct = createReturnStruct(context, sslSocket, channel);
         return getBValues(socketStruct);
     }
 
-    private BStruct createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) {
+    private BStruct createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) throws IOException {
         PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
         // Create ByteChannel Struct
         StructInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-        AbstractChannel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
+        Channel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
         BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 

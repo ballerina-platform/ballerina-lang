@@ -67,19 +67,23 @@ public class MockSecureSocketServer {
             throw new Exception("Unable to find the keystore file.");
         }
         String keystorePath = Paths.get(resource.toURI()).toFile().getAbsolutePath();
+        log.info("Keystore Path: " + keystorePath);
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
         String classpath = System.getProperty("java.class.path");
         String className = MockSecureSocketServer.class.getCanonicalName();
-        String[] commands = new String[7];
+        String[] commands = new String[8];
         commands[0] = javaBin;
         commands[1] = "-cp";
         commands[2] = classpath;
         commands[3] = "-Djavax.net.ssl.keyStore=" + keystorePath;
         commands[4] = "-Djavax.net.ssl.keyStorePassword=ballerina";
-        commands[5] = className;
-        commands[6] = port;
+        commands[5] = "-Djavax.net.ssl.keyStoreType=PKCS12";
+        commands[6] = className;
+        commands[7] = port;
         ProcessBuilder builder = new ProcessBuilder(commands);
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         return builder.start();
     }
 }
