@@ -25,10 +25,9 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-import org.wso2.ballerinalang.compiler.packaging.RepoDAG;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -47,11 +46,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchy.node;
 
 /**
  * This class contains methods to load a given package symbol.
@@ -63,7 +65,7 @@ public class PackageLoader {
 
     private static final CompilerContext.Key<PackageLoader> PACKAGE_LOADER_KEY =
             new CompilerContext.Key<>();
-    private final RepoDAG repos;
+    private final RepoHierarchy repos;
 
     private CompilerOptions options;
     private Parser parser;
@@ -96,21 +98,22 @@ public class PackageLoader {
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        Path projectDir = Paths.get(options.get(PROJECT_DIR));
+        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
 
-        ServiceLoader<SystemPackageRepositoryProvider> loader =
-                ServiceLoader.load(SystemPackageRepositoryProvider.class);
+        System.out.println(this.repos);
+    }
 
-        RepoDAG system = null;
-        for (SystemPackageRepositoryProvider systemPackageRepositoryProvider : loader) {
-            Repo repo = systemPackageRepositoryProvider.loadRepository();
-            if (repo != null) {
-                system = new RepoDAG(repo, system);
-            }
-        }
+    private RepoHierarchy genRepoHierarchy(Path projectDir) {
+        ServiceLoader<SystemPackageRepositoryProvider> loader
+                = ServiceLoader.load(SystemPackageRepositoryProvider.class);
+        List<RepoHierarchy.RepoNode> systemList = StreamSupport.stream(loader.spliterator(), false)
+                                                               .map(SystemPackageRepositoryProvider::loadRepository)
+                                                               .filter(Objects::nonNull)
+                                                               .map(r -> node(r))
+                                                               .collect(Collectors.toList());
+        RepoHierarchy.RepoNode[] systemArr = systemList.toArray(new RepoHierarchy.RepoNode[systemList.size()]);
         ProjectSourceRepo project = new ProjectSourceRepo(projectDir);
-        this.repos = new RepoDAG(project, system);
-//        loadPackageRepository(context);
+        return RepoHierarchy.build(node(project, systemArr));
     }
 
     public BLangPackage loadPackage(String source, PackageRepository packageRepo) {
@@ -154,7 +157,7 @@ public class PackageLoader {
 
     private PackageEntity loadPackageEntity(PackageID pkgId, String source) {
         Resolution resolution = repos.resolve(pkgId);
-        if (resolution == Resolution.EMPTY) {
+        if (resolution == Resolution.NOT_FOUND) {
             throw new RuntimeException("Package not found " + pkgId);
         }
         return pathToEntity(pkgId, resolution);
@@ -188,7 +191,7 @@ public class PackageLoader {
             }
 
             @Override
-            public RepoDAG getRepoDag() {
+            public RepoHierarchy getRepoDag() {
                 return resolution.resolvedBy;
             }
 

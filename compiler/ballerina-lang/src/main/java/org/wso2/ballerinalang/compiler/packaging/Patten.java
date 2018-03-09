@@ -11,15 +11,14 @@ import java.util.stream.Stream;
  * Patten of a set of resource (usually files paths).
  * EG: patten of bal in a jar. url patten. file patten.
  * <p>
- *
+ * <p>
  * Made out of 4 types of parts.
- *    Path                      - exact match to the a dir or file name
- *    Wildcard                  - any dir matches
- *    Wildcard source           - marches any source files in the dir or
- *                                in deeper dir, skipping any tests sources
- *    Wildcard source with test - marches any source files in the dir or
- *                                in deeper dir including test source
- *
+ * Path                      - exact match to the a dir or file name
+ * Wildcard                  - any dir matches
+ * Wildcard source           - marches any source files in the dir or
+ * in deeper dir, skipping any tests sources
+ * Wildcard source with test - marches any source files in the dir or
+ * in deeper dir including test source
  */
 public class Patten {
     public static final Part WILDCARD_DIR = new Part();

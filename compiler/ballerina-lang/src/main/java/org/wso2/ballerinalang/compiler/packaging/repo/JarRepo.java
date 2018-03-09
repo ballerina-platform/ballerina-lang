@@ -20,15 +20,27 @@ import java.util.Map;
  * Used to load system org bal files.
  */
 public class JarRepo implements Repo<Path> {
-    private final PathConverter resolver;
+    private final PathConverter converter;
 
     public JarRepo(URI jarLocation) {
         boolean isJar = jarLocation.getPath().endsWith(".jar");
         if (isJar) {
-            this.resolver = new PathConverter(pathWithinJar(jarLocation));
+            this.converter = new PathConverter(pathWithinJar(jarLocation));
         } else {
-            this.resolver = new PathConverter(Paths.get(jarLocation));
+            this.converter = new PathConverter(Paths.get(jarLocation));
         }
+    }
+
+    @Override
+    public Patten calculate(PackageID pkg) {
+        return new Patten(Patten.path("META-INF", "ballerina",
+                                      pkg.getName().value.replace('.', '/')), //TODO: remove replacement
+                          Patten.WILDCARD_SOURCE);
+    }
+
+    @Override
+    public Converter<Path> getConverterInstance() {
+        return converter;
     }
 
     private static Path pathWithinJar(URI pathToJar) {
@@ -55,14 +67,9 @@ public class JarRepo implements Repo<Path> {
     }
 
     @Override
-    public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("META-INF", "ballerina",
-                                      pkg.getName().value.replace('.', '/')),
-                          Patten.WILDCARD_SOURCE);
+    public String toString() {
+        return "{t:'JarRepo', c:'" + converter + "'}";
     }
 
-    @Override
-    public Converter<Path> getConverterInstance() {
-        return resolver;
-    }
+
 }

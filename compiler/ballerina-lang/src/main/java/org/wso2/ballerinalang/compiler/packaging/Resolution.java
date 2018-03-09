@@ -8,11 +8,11 @@ import java.util.List;
  * Had to wrap in a class since you can't return multiple items form a java method.
  */
 public class Resolution {
-    public static final Resolution EMPTY = new Resolution(null, null);
-    public final RepoDAG resolvedBy;
+    public static final Resolution NOT_FOUND = new Resolution(null, null);
+    public final RepoHierarchy resolvedBy;
     public final List<Path> paths;
 
-    Resolution(RepoDAG resolvedBy, List<Path> paths) {
+    Resolution(RepoHierarchy resolvedBy, List<Path> paths) {
         this.resolvedBy = resolvedBy;
         this.paths = paths;
     }

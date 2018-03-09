@@ -1,6 +1,9 @@
 package org.wso2.ballerinalang.compiler.packaging.resolve;
 
+import com.sun.nio.zipfs.ZipFileSystem;
+
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -57,5 +60,11 @@ public class PathConverter implements Converter<Path> {
     @Override
     public Stream<Path> finalize(Path path) {
         return Stream.of(path);
+    }
+
+    @Override
+    public String toString() {
+        FileSystem fs = root.getFileSystem();
+        return (fs instanceof ZipFileSystem ? fs + "!" : "") + root.toString();
     }
 }

@@ -34,4 +34,9 @@ public abstract class NonSysRepo<I> implements Repo<I> {
     }
 
     public abstract Patten calculateNonSysPkg(PackageID pkg);
+
+    @Override
+    public String toString() {
+        return "{t:'" + this.getClass().getSimpleName() + "', c:'" + converter + "'}";
+    }
 }

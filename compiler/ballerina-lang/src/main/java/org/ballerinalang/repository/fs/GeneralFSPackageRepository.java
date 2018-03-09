@@ -22,7 +22,7 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
-import org.wso2.ballerinalang.compiler.packaging.RepoDAG;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -241,7 +241,7 @@ public class GeneralFSPackageRepository implements PackageRepository {
         }
 
         @Override
-        public RepoDAG getRepoDag() {
+        public RepoHierarchy getRepoDag() {
             return null;
         }
 

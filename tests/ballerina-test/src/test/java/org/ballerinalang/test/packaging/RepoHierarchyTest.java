@@ -1,0 +1,135 @@
+package org.ballerinalang.test.packaging;
+
+import org.ballerinalang.model.elements.PackageID;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
+import org.wso2.ballerinalang.compiler.packaging.Resolution;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.StringConverter;
+import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchy.node;
+
+public class RepoHierarchyTest {
+
+    @Test
+    public void testFullOrder() {
+        PackageID nonExisting = newPackageID("good", "ok.pkg", "5");
+        ArrayList<Integer> order = new ArrayList<>();
+        RepoHierarchy subject = createSubject(order);
+
+        Resolution resolution = subject.resolve(nonExisting);
+
+        Assert.assertEquals(resolution, Resolution.NOT_FOUND);
+        Assert.assertEquals(order, Arrays.asList(0, 1, 2, 3, 4));
+    }
+
+    @Test
+    public void testResolvingFromAnIntermediate() {
+        RepoHierarchy subject;
+        Resolution resolution;
+
+        // Part 1
+        PackageID repo1sPkg = newPackageID("bad", "i.am", "1");
+        ArrayList<Integer> order = new ArrayList<>();
+        subject = createSubject(order);
+
+        resolution = subject.resolve(repo1sPkg);
+
+        Assert.assertNotEquals(resolution, Resolution.NOT_FOUND);
+        Assert.assertEquals(order, Arrays.asList(0, 1));
+
+        // Part 2
+        order.clear();
+        PackageID repo4sPkg = newPackageID("ugly", "ok.pkg", "4");
+        subject = resolution.resolvedBy;
+
+        subject.resolve(repo4sPkg);
+
+        Assert.assertNotEquals(resolution, Resolution.NOT_FOUND);
+        Assert.assertEquals(order, Arrays.asList(1, 2, 3, 4));
+    }
+
+    private Repo mockRepo(int i, List<Integer> order) {
+        return new Repo() {
+            @Override
+            public Patten calculate(PackageID pkg) {
+                order.add(i);
+                if (String.valueOf(i).equals(pkg.version.value)) {
+                    return new Patten(Patten.path("pkg" + i));
+                } else {
+                    return Patten.NULL;
+                }
+            }
+
+            @Override
+            public Converter getConverterInstance() {
+                return new StringConverter() {
+                    @Override
+                    public Stream<Path> finalize(String s) {
+                        return Stream.of(Paths.get(s));
+                    }
+                };
+            }
+
+            @Override
+            public String toString() {
+                return "Repo-" + i;
+            }
+        };
+    }
+
+    /**
+     * <pre>
+     *
+     *                                    ,--- projectCacheRepo ---.
+     *                                   /            2             \
+     * projectSource --- projectRepo ---<                            >--- homeCacheRepo
+     *            0            1         \                          /           4
+     *                                    `------- homeRepo -------'
+     *                                                3
+     * </pre>
+     * Expected lookup order
+     * <p>
+     * <p>
+     * 0. projectSource
+     * 1. projectRepo
+     * 2. homeRepo
+     * 3. projectCacheRepo
+     * 4. homeCacheRepo
+     *
+     * @param order list to remember order of invocation into
+     */
+    private RepoHierarchy createSubject(List<Integer> order) {
+
+        Repo projectSource = mockRepo(0, order);
+        Repo projectRepo = mockRepo(1, order);
+        Repo projectCacheRepo = mockRepo(2, order);
+        Repo homeRepo = mockRepo(3, order);
+        Repo homeCacheRepo = mockRepo(4, order);
+
+
+        RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo);
+        return RepoHierarchy.build(node(projectSource,
+                                        node(projectRepo,
+                                             node(projectCacheRepo, homeCacheNode),
+                                             node(homeRepo, homeCacheNode))));
+
+    }
+
+    private PackageID newPackageID(String org, String pkg, String version) {
+        return new PackageID(new Name(org), new Name(pkg), new Name(version));
+    }
+
+}
+
