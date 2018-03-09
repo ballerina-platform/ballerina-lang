@@ -130,7 +130,9 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BStruct getNext() {
+        // Make next row the current row
         next();
+        // Create BStruct from current row
         return iterator.generateNext();
     }
 

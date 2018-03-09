@@ -157,10 +157,6 @@ public enum DiagnosticCode {
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
 
-    //Error code related to annotation processors
-    COMPILER_PLUGIN_NO_PACKAGE_FOUND("compiler.plugin.no.package.found"),
-    COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE("compiler.plugin.no.annotations.found.in.package"),
-
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
     MISSING_TOKEN("missing.token"),
@@ -168,6 +164,13 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+
+    // Taint checking related codes
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
+    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
+    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 
     private String value;
