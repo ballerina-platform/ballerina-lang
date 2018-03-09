@@ -129,7 +129,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         }
 
         try {
-            /**
+            /*
              * First try to get a channel from the http2 connection manager. If it is not available
              * get the channel from the http connection manager. Http2 connection manager never create new channels,
              * rather http connection manager create new connections and handover to the http2 connection manager
@@ -144,9 +144,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     OutboundMsgHolder outboundMsgHolder =
                             new OutboundMsgHolder(httpOutboundRequest, activeHttp2ClientChannel);
 
-                    activeHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
-                        activeHttp2ClientChannel.getChannel().write(outboundMsgHolder);
-                    });
+                    activeHttp2ClientChannel.getChannel().eventLoop().execute(
+                            () -> activeHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     return httpResponseFuture;
