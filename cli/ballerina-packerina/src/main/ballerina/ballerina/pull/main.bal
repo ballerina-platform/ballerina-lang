@@ -56,6 +56,9 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         homeDirChannel = getFileChannel(homeRepoFilePath, "w");
 
         io:ByteChannel projectDirChannel = null;
+        io:IOError homeChannelCloseError;
+        io:IOError srcCloseError;
+
         if (projectRepoDirPath != null) {
             projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
             string projectRepoFilePath = projectRepoDirPath + FileSeparator + fileName;
@@ -70,9 +73,9 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         copy(pkgSize, sourceChannel, homeDirChannel, projectDirChannel, fullPkgPath, toAndFrom, pkgName,
              homeRepoDirPath, projectRepoDirPath);
         if (homeDirChannel != null) {
-            homeDirChannel.close();
+            homeChannelCloseError = homeDirChannel.close();
         }
-        sourceChannel.close();
+        srcCloseError = sourceChannel.close();
     }
 }
 
@@ -113,14 +116,22 @@ function getFileChannel (string filePath, string permission) (io:ByteChannel) {
 function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
     blob bytes;
     int numberOfBytesRead;
+    io:IOError readError;
 
-    bytes, numberOfBytesRead = channel.readBytes(numberOfBytes);
+    bytes, numberOfBytesRead, readError = channel.read(numberOfBytes, 0);
+    if (readError != null) {
+        throw readError.cause;
+    }
     return bytes, numberOfBytesRead;
 }
 
-function writeBytes (io:ByteChannel channel, blob content, int startOffset) (int) {
-
-    int numberOfBytesWritten = channel.writeBytes(content, startOffset);
+function writeBytes (io:ByteChannel channel, blob content, int startOffset, int size) (int) {
+    int numberOfBytesWritten;
+    io:IOError writeError;
+    numberOfBytesWritten, writeError = channel.write(content, startOffset, size);
+    if (writeError != null) {
+        throw writeError.cause;
+    }
     return numberOfBytesWritten;
 }
 
@@ -136,24 +147,32 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel homeDst, io:ByteC
     string noOfBytesRead;
     string equals = "==========";
     string tabspaces = "          ";
-    while (readCount != 0) {
-        readContent, readCount = readBytes(src, bytesChunk);
-        if (homeDst != null) {
-            numberOfBytesWritten = writeBytes(homeDst, readContent, 0);
-        }
-        if (projectDst != null) {
-            numberOfBytesWritten = writeBytes(projectDst, readContent, 0);
-        }
-        totalCount = totalCount + readCount;
-        float percentage = totalCount / pkgSize;
-        runtime:sleepCurrentWorker(100);
-        noOfBytesRead = totalCount + "/" + pkgSize;
-        string bar = equals.subString(0, <int>(percentage * 10));
-        string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
-        io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
-    }
+    boolean done = false;
 
-    if (readCount == 0) {
+    try {
+        while (!done) {
+            readContent, readCount = readBytes(src, bytesChunk);
+            if (readCount <= 0) {
+                done = true;
+            }
+            if (homeDst != null) {
+                numberOfBytesWritten = writeBytes(homeDst, readContent, 0, readCount);
+            }
+            if (projectDst != null) {
+                numberOfBytesWritten = writeBytes(projectDst, readContent, 0, readCount);
+            }
+            totalCount = totalCount + readCount;
+            float percentage = totalCount / pkgSize;
+            runtime:sleepCurrentWorker(100);
+            noOfBytesRead = totalCount + "/" + pkgSize;
+            string bar = equals.subString(0, <int>(percentage * 10));
+            string spaces = tabspaces.subString(0, 10 - <int>(percentage * 10));
+            io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
+        }
+    } catch (error err) {
+        throw err;
+    }
+    if (done) {
         if (homeDst != null) {
             uncompressFile(homeDirPath, packageName);
         }
