@@ -70,16 +70,11 @@ public final class BLangConnectorSPIUtil {
         BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[1];
         if (result == null || result.getType().getTag() != TypeTags.TYPE_TAG
                 || ((BTypeValue) result).value().getTag() != TypeTags.SERVICE_TAG) {
-            throw new BallerinaException("Can't get service reference");
+            throw new BallerinaConnectorException("Can't get service reference");
         }
         final BServiceType serviceType = (BServiceType) ((BTypeValue) result).value();
         final ProgramFile programFile = context.getProgramFile();
-        final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
-                .getServiceInfo(serviceType.getName());
-        final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
-        Context serviceInitCtx = new Context(programFile);
-        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
-        return service;
+        return getService(programFile, serviceType);
     }
 
     /**
@@ -143,5 +138,27 @@ public final class BLangConnectorSPIUtil {
             BLangFunctions.invokeFunction(programFile, initFunction, initContext);
         }
         return bConnector;
+    }
+
+    public static Service getServiceFromType(ProgramFile programFile, Value value) {
+        if (value == null || value.getType() != Value.Type.TYPE) {
+            throw new BallerinaConnectorException("Can't get service reference");
+        }
+        final BTypeValue vmValue = (BTypeValue) value.getVMValue();
+        if (vmValue.value().getTag() != TypeTags.SERVICE_TAG) {
+            throw new BallerinaConnectorException("Can't get service reference, not service type.");
+        }
+        return getService(programFile, (BServiceType) vmValue.value());
+    }
+
+    /* private utils */
+
+    private static Service getService(ProgramFile programFile, BServiceType serviceType) {
+        final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
+                .getServiceInfo(serviceType.getName());
+        final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+        Context serviceInitCtx = new Context(programFile);
+        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
+        return service;
     }
 }
