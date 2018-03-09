@@ -42,6 +42,6 @@ public class XMLSecurityTest {
             expectedExceptionsMessageRegExp = "error: error, message: failed to get xml as string: Encountered a " +
                     "reference to external entity.*")
     public void testExternalEntityInjectionNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testExternalEntityInjection");
+        BValue[] returns = BRunUtil.invoke(result, "testExternalEntityInjectionNegative");
     }
 }
