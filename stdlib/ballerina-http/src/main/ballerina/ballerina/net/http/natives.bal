@@ -41,7 +41,6 @@ public native function <Connection conn> respond (OutResponse res) (HttpConnecto
 @Return {value:"Error occured during HTTP server connector forward"}
 public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
 
-<<<<<<< HEAD
 @Description { value:"Send a push promise to the caller"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
@@ -55,14 +54,9 @@ public native function <Connection conn> pushPromise (PushPromise promise) (Http
 @Return { value:"Error occured during HTTP server connector forward" }
 public native function <Connection conn> pushResponse (PushPromise promise, OutResponse res) (HttpConnectorError);
 
-@Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
-@Param { value:"conn: The server connector connection" }
-@Return { value:"HTTP Session struct" }
-=======
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"HTTP Session struct"}
->>>>>>> wso2/master
 public native function <Connection conn> createSessionIfAbsent () (Session);
 
 @Description {value:"Gets the Session struct from the connection if it is present"}
