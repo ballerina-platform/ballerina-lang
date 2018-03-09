@@ -50,14 +50,14 @@ import java.util.List;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "init",
+        functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class Init extends AbstractHttpNativeFunction {
+public class InitEndpoint extends AbstractHttpNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

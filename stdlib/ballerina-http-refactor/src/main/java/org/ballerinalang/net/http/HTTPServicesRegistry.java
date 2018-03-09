@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
@@ -99,12 +100,14 @@ public class HTTPServicesRegistry {
             //service name cannot start with / hence concat
             return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        AnnAttrValue annotationValue = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-        if (annotationValue == null || annotationValue.getStringValue() == null) {
+
+        Struct annStruct = annotation.getValue();
+        String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
+        if (annotationValue == null || annotationValue.isEmpty()) {
             return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
-        if (!annotationValue.getStringValue().trim().isEmpty()) {
-            basePath = annotationValue.getStringValue();
+        if (!annotationValue.trim().isEmpty()) {
+            basePath = annotationValue;
         } else {
             basePath = HttpConstants.DEFAULT_BASE_PATH;
         }

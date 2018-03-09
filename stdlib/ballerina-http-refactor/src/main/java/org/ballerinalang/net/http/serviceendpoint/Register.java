@@ -54,6 +54,7 @@ public class Register extends AbstractHttpNativeFunction {
         Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
         // TODO: Check if this is valid.
+        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
             getHttpServicesRegistry(connectorEndpoint).registerService(new HttpService(service));
         }

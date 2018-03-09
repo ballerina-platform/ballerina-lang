@@ -65,11 +65,11 @@ public class HttpConnectionManager {
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
 
         if (isHTTPTraceLoggerEnabled()) {
-            try {
+//            try {
                 ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Error in configuring HTTP trace log");
-            }
+//            } catch (IOException e) {
+//                throw new BallerinaConnectorException("Error in configuring HTTP trace log");
+//            }
         }
     }
 

@@ -9,10 +9,6 @@ public struct ServiceEndpoint {
     ServiceEndpointConfiguration config;
 }
 
-public function <ServiceEndpoint ep> ServiceEndpoint() {
-    ep.config = {};
-}
-
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
@@ -35,7 +31,7 @@ public function <ServiceEndpoint ep> ServiceEndpoint() {
 @Field {value:"chunking: The chunking behaviour of the response"}
 public struct ServiceEndpointConfiguration {
     string host;
-    int port = 9090;
+    int port;
     KeepAlive keepAlive;
     TransferEncoding transferEncoding;
     Chunking chunking;
@@ -80,7 +76,13 @@ public enum TransferEncoding {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public native function <ServiceEndpoint ep> init (string epName, ServiceEndpointConfiguration config);
+public function <ServiceEndpoint ep> init (string epName, ServiceEndpointConfiguration config) {
+    ep.epName = epName;
+    ep.config = config;
+    ep.initEndpoint();
+}
+
+public native function<ServiceEndpoint ep> initEndpoint();
 
 @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
 @Param { value:"conn: The server connector connection" }

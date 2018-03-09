@@ -36,7 +36,9 @@ import java.util.List;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint")}
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "HttpService"),
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WsService")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -51,7 +53,8 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                     ((BLangAnnotationAttachment) annotation).annotationSymbol.pkgID.name.value)) {
                 return;
             }
-            if (annotation.getAnnotationName().getValue().equals("serviceConfig")) {
+            if (annotation.getAnnotationName().getValue().equals("httpServiceConfig")
+                    || annotation.getAnnotationName().getValue().equals("wsServiceConfig")) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
