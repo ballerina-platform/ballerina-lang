@@ -375,12 +375,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
-                    HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
-            BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            ballerinaFuture.notifyReply(inboundResponse);
+            ballerinaFuture.notifyReply(createInResponseStruct(this.context, httpCarbonMessage));
         }
 
         @Override
@@ -437,13 +432,37 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             ballerinaFuture.notifyReply(null, httpConnectorError);
         }
+    }
 
-        private BStruct createStruct(Context context, String structName, String protocolPackage) {
-            PackageInfo httpPackageInfo = context.getProgramFile()
-                    .getPackageInfo(protocolPackage);
-            StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-            BStructType structType = structInfo.getType();
-            return new BStruct(structType);
-        }
+    /**
+     * Creates a ballerina struct.
+     *
+     * @param context         ballerina context
+     * @param structName      name of the struct
+     * @param protocolPackage package name
+     * @return the ballerina struct
+     */
+    protected BStruct createStruct(Context context, String structName, String protocolPackage) {
+        PackageInfo httpPackageInfo = context.getProgramFile()
+                .getPackageInfo(protocolPackage);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
+    }
+
+    /**
+     * Creates InResponse using the native {@code HTTPCarbonMessage}.
+     *
+     * @param context           ballerina context
+     * @param httpCarbonMessage the HTTPCarbonMessage
+     * @return the InResponse
+     */
+    BStruct createInResponseStruct(Context context, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct inResponseStruct = createStruct(context, HttpConstants.IN_RESPONSE,
+                                                HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
+        BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
+        HttpUtil.populateInboundResponse(inResponseStruct, entity, mediaType, httpCarbonMessage);
+        return inResponseStruct;
     }
 }

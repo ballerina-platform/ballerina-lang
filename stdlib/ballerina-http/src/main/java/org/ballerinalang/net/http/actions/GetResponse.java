@@ -18,7 +18,6 @@ package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
@@ -27,9 +26,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +34,6 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
  * {@code GetResponse} action can be used to fetch the response message for a previous asynchronous invocation.
@@ -79,7 +72,7 @@ public class GetResponse extends AbstractHTTPAction {
 
         ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
-            throw new BallerinaException("invalid handle");
+            throw new BallerinaException("invalid http handle");
         }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
@@ -88,14 +81,6 @@ public class GetResponse extends AbstractHTTPAction {
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(ballerinaFuture, context));
         return ballerinaFuture;
-    }
-
-    private BStruct createStruct(Context context, String structName, String protocolPackage) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(protocolPackage);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
     }
 
     private class ResponseListener implements HttpConnectorListener {
@@ -110,12 +95,7 @@ public class GetResponse extends AbstractHTTPAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
-            BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            ballerinaFuture.notifyReply(inboundResponse);
+            ballerinaFuture.notifyReply(createInResponseStruct(this.context, httpCarbonMessage));
         }
 
         public void onError(Throwable throwable) {
@@ -129,5 +109,4 @@ public class GetResponse extends AbstractHTTPAction {
             ballerinaFuture.notifyReply(null, httpConnectorError);
         }
     }
-
 }

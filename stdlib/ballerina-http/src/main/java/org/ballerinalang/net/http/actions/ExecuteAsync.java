@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
- * {@code Execute} action can be used to invoke execute a http call with any httpVerb in asynchronous manner.
+ * {@code ExecuteAsync} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -67,9 +67,8 @@ public class ExecuteAsync extends Execute {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context), true);
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'execute' action in " + HttpConstants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CONNECTOR_NAME
                                          + ". " + clientConnectorException.getMessage(), context);
         }
     }
-
 }

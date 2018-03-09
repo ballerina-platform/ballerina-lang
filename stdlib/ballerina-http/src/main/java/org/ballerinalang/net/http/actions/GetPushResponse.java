@@ -18,7 +18,6 @@ package org.ballerinalang.net.http.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
@@ -28,8 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +34,6 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
-
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 
 /**
  * {@code GetPushResponse} action can be used to get a push response message associated with a
@@ -90,14 +84,6 @@ public class GetPushResponse extends AbstractHTTPAction {
         return ballerinaFuture;
     }
 
-    private BStruct createStruct(Context context, String structName, String protocolPackage) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(protocolPackage);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
-    }
-
     private class PushResponseListener implements HttpClientConnectorListener {
 
         ClientConnectorFuture ballerinaFuture;
@@ -110,12 +96,7 @@ public class GetPushResponse extends AbstractHTTPAction {
 
         @Override
         public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
-            BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            ballerinaFuture.notifyReply(inboundResponse);
+            ballerinaFuture.notifyReply(createInResponseStruct(this.context, httpCarbonMessage));
         }
     }
 }

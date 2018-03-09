@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * {@code HasPromise} action can be used to check whether a promise promise is available.
+ * {@code HasPromise} action can be used to check whether a push promise is available.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -69,7 +69,7 @@ public class HasPromise extends AbstractHTTPAction {
 
         ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
-            throw new BallerinaException("invalid handle");
+            throw new BallerinaException("invalid http handle");
         }
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         BConnector bConnector = (BConnector) getRefArgument(context, 0);

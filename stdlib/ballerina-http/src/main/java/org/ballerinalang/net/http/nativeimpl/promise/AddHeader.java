@@ -30,9 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * Native function to add a header to a Push Promise.
- *
- * @since 0.964
+ * Ballerina native function to add a header to a Push Promise.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

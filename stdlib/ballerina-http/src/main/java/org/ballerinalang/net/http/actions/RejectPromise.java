@@ -76,7 +76,7 @@ public class RejectPromise extends AbstractHTTPAction {
         clientConnector.rejectPushResponse(http2PushPromise);
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        ballerinaFuture.notifyReply(new BBoolean(true));  // TODO: Implement a listener to see the progress
+        ballerinaFuture.notifyReply(new BBoolean(true)); // TODO: Implement a listener to see the progress
         return ballerinaFuture;
     }
 }

@@ -32,10 +32,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * Native function to get header value of a Push Promise.
- * If there are more than one header value for the specified header name, the first value is returned
- *
- * @since 0.964
+ * Ballerina native function to get header value of a Push Promise.
+ * If there are more than one header value for the specified header name exists, the first value is returned.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

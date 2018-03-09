@@ -32,9 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * Native function to get all header values for a particular header name in a Push Promise.
- *
- * @since 0.964
+ * Ballerina native function to get all header values for a particular header name in a Push Promise.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
