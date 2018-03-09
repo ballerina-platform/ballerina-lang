@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.963.1-SNAPSHOT</version>
+        <version>0.964.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -159,6 +159,7 @@
                                 <argument>test</argument>
                                 <argument>--</argument>
                                 <argument>--projectVersion=${project.version}</argument>
+                                <argument>--moveFailingFiles=${moveFailingFiles}</argument>
                             </arguments>
                             <skip>${maven.test.skip}</skip>
                         </configuration>
@@ -167,4 +168,7 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <moveFailingFiles>false</moveFailingFiles>
+    </properties>
 </project>

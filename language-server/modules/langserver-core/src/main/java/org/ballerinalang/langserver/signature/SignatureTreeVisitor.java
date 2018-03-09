@@ -70,6 +70,7 @@ public class SignatureTreeVisitor extends NodeVisitor {
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
     private SymbolEnter symbolEnter;
+    private SymbolTable symTable;
     private TextDocumentServiceContext documentServiceContext;
     private Stack<Node> blockOwnerStack;
 
@@ -85,13 +86,14 @@ public class SignatureTreeVisitor extends NodeVisitor {
 
     private void init(CompilerContext compilerContext) {
         symbolEnter = SymbolEnter.getInstance(compilerContext);
+        symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, SymbolTable.getInstance(compilerContext));
+        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         BLangCompilationUnit compilationUnit = pkgNode.getCompilationUnits().stream()

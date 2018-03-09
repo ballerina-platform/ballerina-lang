@@ -9,16 +9,17 @@ function initFileChannel(string filePath,string permission,string encoding,strin
 }
 
 function nextRecord () (string[]) {
-    string[] fields = delimitedRecordChannel.nextTextRecord();
+    string[] fields;
+    fields, _ = delimitedRecordChannel.nextTextRecord();
     return fields;
 }
 
 function writeRecord (string[] fields) {
-    delimitedRecordChannel.writeTextRecord(fields);
+   _ = delimitedRecordChannel.writeTextRecord(fields);
 }
 
 function close(){
-    delimitedRecordChannel.closeDelimitedRecordChannel();
+    _ = delimitedRecordChannel.closeDelimitedRecordChannel();
 }
 
 function hasNextRecord () (boolean) {
