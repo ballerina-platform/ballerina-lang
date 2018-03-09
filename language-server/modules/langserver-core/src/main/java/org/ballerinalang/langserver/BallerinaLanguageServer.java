@@ -71,6 +71,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
+        res.getCapabilities().setRenameProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);
     }
