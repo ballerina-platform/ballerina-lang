@@ -2,6 +2,9 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+////////////////////////
+/// Service Endpoint ///
+////////////////////////
 public struct ServiceEndpoint {
     // TODO : Make all field Read-Only
     string epName;
@@ -71,31 +74,116 @@ public native function <ServiceEndpoint ep> init (string epName, ServiceEndpoint
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public native function <ServiceEndpoint h> register (type serviceType)
+public native function <ServiceEndpoint ep> register (type serviceType)
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public native function <ServiceEndpoint h> start ();
+public native function <ServiceEndpoint ep> start ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <ServiceEndpoint h> getConnector () returns (ResponseConnector repConn);
+public native function <ServiceEndpoint ep> getConnector () returns (ResponseConnector repConn);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public native function <ServiceEndpoint h> stop ();
+public native function <ServiceEndpoint ep> stop ();
 
 
+//////////////////////////////
+/// Http Service Endpoint ///
+/////////////////////////////
 public struct HttpService {
+    string epName;
+    ServiceEndpointConfiguration config;
+    ServiceEndpoint serviceEndpoint = {};
 }
 
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
+public function <HttpService ep> init (string epName, ServiceEndpointConfiguration config) {
+    ep.serviceEndpoint.init(epName, config);
+}
+
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during registration" }
+public function <HttpService ep> register (type serviceType) {
+    ep.serviceEndpoint.register(serviceType);
+}
+
+@Description { value:"Starts the registered service"}
+@Return { value:"Error occured during registration" }
+public function <HttpService ep> start () {
+    ep.serviceEndpoint.start();
+}
+
+@Description { value:"Returns the connector that client code uses"}
+@Return { value:"The connector that client code uses" }
+@Return { value:"Error occured during registration" }
+public function <HttpService ep> getConnector () returns (ResponseConnector repConn) {
+    ep.serviceEndpoint.getConnector();
+}
+
+@Description { value:"Stops the registered service"}
+@Return { value:"Error occured during registration" }
+public function <HttpService ep> stop () {
+    ep.serviceEndpoint.stop();
+}
+
+//////////////////////////////////
+/// WebSocket Service Endpoint ///
+//////////////////////////////////
 public struct WsService{
+    string epName;
+    ServiceEndpointConfiguration config;
+    ServiceEndpoint serviceEndpoint = {};
+}
+
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
+public function <WsService ep> init (string epName, ServiceEndpointConfiguration config) {
+    ep.serviceEndpoint.init(epName, config);
+}
+
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during registration" }
+public function <WsService ep> register (type serviceType) {
+    ep.serviceEndpoint.register(serviceType);
+}
+
+@Description { value:"Starts the registered service"}
+@Return { value:"Error occured during registration" }
+public function <WsService ep> start () {
+    ep.serviceEndpoint.start();
+}
+
+@Description { value:"Returns the connector that client code uses"}
+@Return { value:"The connector that client code uses" }
+@Return { value:"Error occured during registration" }
+public function <WsService ep> getConnector () returns (ResponseConnector repConn) {
+    ep.serviceEndpoint.getConnector();
+}
+
+@Description { value:"Stops the registered service"}
+@Return { value:"Error occured during registration" }
+public function <WsService ep> stop () {
+    ep.serviceEndpoint.stop();
 }
 
 @Description {value:"Represent 'content-length' header name"}
 public const string CONTENT_LENGTH = "content-length";
 
+/////////////////////////////
+/// HTTP Server Connector ///
+/////////////////////////////
 
 @Description { value:"Represents the HTTP server Response connector"}
 @Field {value:"remoteHost: The server host name"}
@@ -124,6 +212,9 @@ public connector HttpConnector (string remoteHost, int port){
     native action getSession () (Session);
 }
 
+///////////////////////////
+/// WebSocket Connector ///
+///////////////////////////
 @Description {value:"Represents a WebSocket connector in ballerina. This include all connector oriented operations."}
 @Field {value: "attributes: Custom user attributes"}
 public connector WebSocketConnector (map attributes){
