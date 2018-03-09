@@ -56,7 +56,7 @@ service<http> Initiator2pcService {
             string participantId = abortReq.participantId;
             log:printInfo("Abort received for transaction: " + transactionId + " from participant:" + participantId);
             AbortResponse abortRes;
-            var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+            var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
             if (txn == null) {
                 res = {statusCode:404};
                 abortRes = {message:"Transaction-Unknown"};
