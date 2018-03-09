@@ -116,7 +116,7 @@ public class Http2ConnectionManager {
      * @param httpRoute          http route
      * @param http2ClientChannel previously exhausted Http2ClientChannel
      */
-    public void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+    void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
         if (perRouteConnectionPool != null) {

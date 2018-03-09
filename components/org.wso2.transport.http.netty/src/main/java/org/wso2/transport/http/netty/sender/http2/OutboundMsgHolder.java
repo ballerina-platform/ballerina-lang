@@ -48,7 +48,7 @@ public class OutboundMsgHolder {
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.http2ClientChannel = http2ClientChannel;
-        promises = new LinkedBlockingQueue();
+        promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
     }
@@ -85,7 +85,7 @@ public class OutboundMsgHolder {
      *
      * @param pushPromise push promise message
      */
-    public void addPromise(Http2PushPromise pushPromise) {
+    void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         responseFuture.notifyPromiseAvailability();
         responseFuture.notifyPushPromise();
@@ -97,7 +97,7 @@ public class OutboundMsgHolder {
      * @param streamId  id of the stream in which the push response received
      * @param pushResponse  push response message
      */
-    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+    void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
         responseFuture.notifyPushResponse(streamId, pushResponse);
     }
