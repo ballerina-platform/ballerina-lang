@@ -9,7 +9,7 @@ import ballerina.runtime;
 const string FileSeparator = "/";
 
 function pullPackage (string url, string homeRepoDirPath, string pkgName, string projectRepoDirPath,
-                      string fullPkgPath, string pkgVersion) (boolean) {
+                      string fullPkgPath, string pkgVersion) {
     endpoint<http:HttpClient> httpEndpoint {
         create http:HttpClient(url, {});
     }
@@ -19,7 +19,6 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
     if (errRes != null) {
         error err = {message:errRes.message};
         throw err;
-        return false;
     }
     if (resp.statusCode != 200) {
         var jsonResponse, errJson = resp.getJsonPayload();
@@ -29,7 +28,6 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         } else {
             io:println(jsonResponse.msg.toString());
         }
-        return false;
     } else {
         // If there is no version in the requested package
         if (pkgVersion == "*") {
@@ -47,7 +45,6 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
         if (sourceChannelErr != null) {
             error err = {message:sourceChannelErr.message};
             throw err;
-            return false;
         }
         io:ByteChannel homeDirChannel = null;
         string toAndFrom = " [central.ballerina.io -> home repo]";
@@ -76,7 +73,6 @@ function pullPackage (string url, string homeRepoDirPath, string pkgName, string
             homeDirChannel.close();
         }
         sourceChannel.close();
-        return true;
     }
 }
 
@@ -85,8 +81,8 @@ function ifFileExists (string filePath) (boolean) {
     return fileDir.exists();
 }
 
-function pull (string[] args) (boolean) {
-    return pullPackage(args[0], args[1], args[2], args[3], args[4], args[5]);
+function pull (string[] args) {
+    pullPackage(args[0], args[1], args[2], args[3], args[4], args[5]);
 }
 
 function createDirectories (string directoryPath) {
