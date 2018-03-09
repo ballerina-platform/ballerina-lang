@@ -64,6 +64,8 @@ public class BLangProgramRunner {
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+        // TODO : handle init errors.
+        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getStartFunctionInfo(), bContext);
 
         deployTransactionCoordinatorServices(programFile, bContext);
 
@@ -127,6 +129,8 @@ public class BLangProgramRunner {
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        // TODO : handle init errors.
+        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getStartFunctionInfo(), bContext);
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
@@ -154,9 +158,14 @@ public class BLangProgramRunner {
         if (debugger.isDebugEnabled()) {
             debugger.notifyExit();
         }
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
+        try {
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
+        } finally {
+            // Shutdown endpoints.
+            BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getStopFunctionInfo(), bContext);
         }
     }
 

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -189,6 +190,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(actionNode, list));
     }
 
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+    }
 
     // private methods
 

@@ -169,6 +169,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
+        analyzeDef(pkgNode.startFunction, pkgEnv);
+        analyzeDef(pkgNode.stopFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }

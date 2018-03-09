@@ -184,7 +184,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pSymbol, pkgEnv);
 
-        createPackageInitFunction(pkgNode);
+        createPackageInitFunctions(pkgNode);
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -231,7 +231,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
 
-        definePackageInitFunction(pkgNode, pkgEnv);
+        definePackageInitFunctions(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
@@ -803,7 +803,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineConnectorInitFunction(BLangConnector connector, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue());
+        BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue(),
+                Names.INIT_FUNCTION_SUFFIX);
         //Add connector as a parameter to the init function
         BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
         param.pos = connector.pos;
@@ -830,7 +831,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue());
+        BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
+                Names.INIT_FUNCTION_SUFFIX);
         //Add service level variables to the init function
         service.vars.stream().filter(f -> f.var.expr != null)
                 .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
@@ -911,12 +913,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BLangExpressionStmt createInitFuncInvocationStmt(BLangImportPackage importPackage,
-                                                             BPackageSymbol pkgSymbol) {
+                                                             BInvokableSymbol initFunctionSymbol) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = importPackage.pos;
         invocationNode.addWS(importPackage.getWS());
         BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        funcName.value = pkgSymbol.initFunctionSymbol.name.value;
+        funcName.value = initFunctionSymbol.name.value;
         invocationNode.name = funcName;
         invocationNode.pkgAlias = importPackage.alias;
 
@@ -927,7 +929,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return exprStmt;
     }
 
-    private void definePackageInitFunction(BLangPackage pkgNode, SymbolEnv env) {
+    private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
         // Add package level namespace declarations to the init function
         pkgNode.xmlnsList.forEach(xmlns -> {
@@ -941,16 +943,28 @@ public class SymbolEnter extends BLangNodeVisitor {
         addInitReturnStatement(initFunction.body);
         defineNode(pkgNode.initFunction, env);
         pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
+
+        addInitReturnStatement(pkgNode.startFunction.body);
+        defineNode(pkgNode.startFunction, env);
+        pkgNode.symbol.startFunctionSymbol = pkgNode.startFunction.symbol;
+
+        addInitReturnStatement(pkgNode.stopFunction.body);
+        defineNode(pkgNode.stopFunction, env);
+        pkgNode.symbol.stopFunctionSymbol = pkgNode.stopFunction.symbol;
     }
 
-    private void createPackageInitFunction(BLangPackage pkgNode) {
-        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
-        pkgNode.initFunction = initFunction;
+    private void createPackageInitFunctions(BLangPackage pkgNode) {
+        pkgNode.initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue(),
+                Names.INIT_FUNCTION_SUFFIX);
+        pkgNode.startFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue(),
+                Names.START_FUNCTION_SUFFIX);
+        pkgNode.stopFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue(),
+                Names.STOP_FUNCTION_SUFFIX);
     }
 
-    private BLangFunction createInitFunction(DiagnosticPos pos, String name) {
+    private BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {
         BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(name + Names.INIT_FUNCTION_SUFFIX.getValue()));
+        initFunction.setName(createIdentifier(name + sufix.getValue()));
         initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         initFunction.pos = pos;
         //Create body of the init function
@@ -1042,7 +1056,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
         ((BLangPackage) env.node).initFunction.body
-                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol));
+                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.initFunctionSymbol));
+        ((BLangPackage) env.node).startFunction.body
+                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.startFunctionSymbol));
+        ((BLangPackage) env.node).stopFunction.body
+                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.stopFunctionSymbol));
     }
 
     private void validateTransformerMappingTypes(BLangTransformer transformerNode) {

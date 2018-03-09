@@ -116,6 +116,11 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
+    public BValue getVMValue() {
+        return this.value;
+    }
+
+    @Override
     public Map<String, Value> getMapField(String fieldName) {
         final BMap refField = (BMap) value.getRefField(getFieldIndex(fieldName));
         if (refField == null) {
