@@ -58,14 +58,6 @@ public class WebSocketDispatcher {
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
                                                Map<String, String> variables, WebSocketMessage webSocketMessage,
                                                BMap<String, BString> queryParams) {
-        if (!webSocketMessage.isServerMessage()) {
-            String clientServiceName = webSocketMessage.getTarget();
-            WebSocketService clientService = servicesRegistry.getClientService(clientServiceName);
-            if (clientService == null) {
-                throw new BallerinaConnectorException("no client service found to handle the service request");
-            }
-            return clientService;
-        }
         try {
             String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();

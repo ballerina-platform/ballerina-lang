@@ -54,36 +54,7 @@ public class Init extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        String remoteUrl = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
-        String clientServiceName = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(context, HttpConstants.HTTP_PACKAGE_PATH);
-        final WebSocketService wsService =
-                httpServerConnector.getWebSocketServicesRegistry().getClientService(clientServiceName);
-        if (wsService == null) {
-            throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
-        }
 
-        BRefType bSubProtocolsBRefType = clientConfig.getRefField(0);
-        String wsParentConnectionID = clientConfig.getStringField(0);
-        BRefType<BMap<BString, BString>> bCustomHeaders = clientConfig.getRefField(1);
-        int idleTimeoutInSeconds = (int) clientConfig.getIntField(0);
-        WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
-        clientConnectorConfig.setTarget(clientServiceName);
-        if (bSubProtocolsBRefType != null) {
-            clientConnectorConfig.setSubProtocols(getSubProtocols(bSubProtocolsBRefType));
-        }
-        if (bCustomHeaders != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(bCustomHeaders));
-        }
-        if (idleTimeoutInSeconds > 0) {
-            clientConnectorConfig.setIdleTimeoutInMillis(idleTimeoutInSeconds * 1000);
-        }
-
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
-        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        WebSocketClientConnector clientConnector =
-                connectorFactory.createWsClientConnector(clientConnectorConfig);
+        return VOID_RETURN;
     }
 }

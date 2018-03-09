@@ -74,5 +74,10 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnectorError";
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
+    public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";
+    public static final String CLIENT_CUSTOMHEADERS_CONFIG = "customHeaders";
+    public static final String CLIENT_IDLETIMOUT_CONFIG = "idleTimeoutInSeconds";
+    public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
+
 
 }

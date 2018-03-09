@@ -630,7 +630,6 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
         string url;
         type callbackService;
         string [] subProtocols;
-        string parentConnectionID;
         map<string> customHeaders;
         int idleTimeoutInSeconds = -1;
     }

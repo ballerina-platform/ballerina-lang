@@ -21,6 +21,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.net.ws.WebSocketService;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 
@@ -56,7 +57,7 @@ public class BallerinaHttpServerConnector implements BallerinaServerConnector {
         if (service.getEndpointName().equals(PROTOCOL_PACKAGE_HTTP)) {
             HttpService httpService = new HttpService(service);
             httpServicesRegistry.registerService(httpService);
-        } else if (service.getEndpointName().equals(PROTOCOL_PACKAGE_WS)) {
+        } else if (service.getEndpointName().equals(WebSocketConstants.PROTOCOL_PACKAGE_WS)) {
             WebSocketService wsService = new WebSocketService(service);
             webSocketServicesRegistry.registerService(wsService);
         }
