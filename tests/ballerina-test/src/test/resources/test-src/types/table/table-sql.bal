@@ -117,6 +117,7 @@ function testSimpleSelectWithJoin () (int) {
 
     personTable.close();
     orderDetailsTable.close();
+    orderTable.close();
     return recordCount;
 }
 
@@ -158,6 +159,7 @@ function testSelectWithJoinAndWhere () (int) {
 
     personTable.close();
     orderDetailsTable.close();
+    orderTable.close();
     return recordCount;
 }
 
@@ -200,5 +202,6 @@ function testSelectWithJoinAndWhereWithGroupBy () (int) {
     io:println(orderDetailsTable);
     personTable.close();
     orderDetailsTable.close();
+    orderTable.close();
     return recordCount;
 }
