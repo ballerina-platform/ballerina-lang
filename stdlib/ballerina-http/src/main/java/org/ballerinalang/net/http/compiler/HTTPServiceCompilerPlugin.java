@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -54,7 +55,12 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-        // Validation resources.
+        // TODO: Validation resources' signature
+    }
+
+    @Override
+    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
+        // TODO: process endpoint configuration.
     }
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {
