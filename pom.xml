@@ -246,7 +246,11 @@
                 <artifactId>language-server-stdio-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
