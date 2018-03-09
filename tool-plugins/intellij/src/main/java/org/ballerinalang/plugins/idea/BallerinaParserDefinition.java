@@ -64,6 +64,7 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DeprecatedAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.DeprecatedTextNode;
 import org.ballerinalang.plugins.idea.psi.DocumentationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.DocumentationTemplateAttributeDescriptionNode;
 import org.ballerinalang.plugins.idea.psi.DocumentationTemplateInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.DoubleBackTickDeprecatedInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.DoubleBackTickInlineCodeNode;
@@ -513,6 +514,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new DoubleBackTickDeprecatedInlineCodeNode(node);
             case BallerinaParser.RULE_tripleBackTickDeprecatedInlineCode:
                 return new TripleBackTickDeprecatedInlineCodeNode(node);
+            case BallerinaParser.RULE_documentationTemplateAttributeDescription:
+                return new DocumentationTemplateAttributeDescriptionNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
