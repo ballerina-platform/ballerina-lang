@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
@@ -63,6 +64,8 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     
     public WorkerDataIndex paramWorkerIndex;
     public WorkerDataIndex retWorkerIndex;
+    
+    private NativeCallableUnit nativeCallableUnit;
 
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
@@ -250,4 +253,13 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerDataChannelInfo[] getWorkerDataChannelInfo() {
         return dataChannelInfoMap.values().toArray(new WorkerDataChannelInfo[0]);
     }
+    
+    public NativeCallableUnit getNativeCallableUnit() {
+        return nativeCallableUnit;
+    }
+    
+    public void setNativeCallableUnit(NativeCallableUnit nativeCallableUnit) {
+        this.nativeCallableUnit = nativeCallableUnit;
+    }
+    
 }

@@ -277,23 +277,15 @@ public class BLangVMErrors {
         if (context == null) {
             return null;
         }
-        int ip = getFinalIP(context);
-        return getStackFrame(context.callableUnitInfo, ip);
+        return getStackFrame(context.callableUnitInfo, context.ip);
     }
     
-    private static int getFinalIP(WorkerExecutionContext context) {
-        int ip = context.ip;
-        if (ip < 0) {
-            ip = context.backupIP;
-        }
-        return ip;
-    }
-
     public static String getPrintableStackTrace(BStruct error) {
         BRefValueArray cause = (BRefValueArray) error.getRefField(0);
 
-        // Skip printing the first callFailed error. Because its the entry point call (main function, service
-        // invocation) and its a call made by ballerina VM internally.
+        /* skip the first call failed error, since it would be the root context that calls the
+         * entry point functions (i.e. main etc..). The error at the root context will have all
+         * the errors as causes of the entry point function */
         if (cause != null) {
             return getCauseStackTraceArray(cause);
         }

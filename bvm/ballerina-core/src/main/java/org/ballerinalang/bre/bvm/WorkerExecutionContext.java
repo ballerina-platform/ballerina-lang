@@ -47,9 +47,7 @@ public class WorkerExecutionContext {
     public Map<String, Object> localProps = new HashMap<>();
     
     public int ip;
-    
-    public int backupIP;
-    
+        
     public ProgramFile programFile;
     
     public ConstantPoolEntry[] constPool;
@@ -69,8 +67,6 @@ public class WorkerExecutionContext {
     public WorkerResponseContext respCtx;
     
     public boolean runInCaller;
-
-    private Lock executionLock;
 
     private BStruct error;
 
@@ -106,9 +102,6 @@ public class WorkerExecutionContext {
         this.runInCaller = runInCaller;
         this.localTransactionInfo = parent.localTransactionInfo;
         initDebugger();
-        if (!this.runInCaller) {
-            executionLock = new ReentrantLock();
-        }
     }
 
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
@@ -131,9 +124,6 @@ public class WorkerExecutionContext {
         this.runInCaller = runInCaller;
         this.localTransactionInfo = parent.localTransactionInfo;
         initDebugger();
-        if (!this.runInCaller) {
-            executionLock = new ReentrantLock();
-        }
     }
 
     private void initDebugger() {
@@ -154,16 +144,6 @@ public class WorkerExecutionContext {
             this.debugContext = new DebugContext(DebugCommand.STEP_IN);
         }
         this.programFile.getDebugger().addWorkerContext(this);
-    }
-
-    public void backupIP() {
-        this.backupIP = this.ip;
-    }
-    
-    public void checkAndRestoreIP() {
-        if (this.ip < 0) {
-            this.ip = this.backupIP;
-        }
     }
     
     public void setError(BStruct error) {
@@ -186,18 +166,6 @@ public class WorkerExecutionContext {
         return this.localTransactionInfo;
     }
     
-    public void lockExecution() {
-        if (this.executionLock != null) {
-            this.executionLock.lock();
-        }
-    }
-    
-    public void unlockExecution() {
-        if (this.executionLock != null) {
-            this.executionLock.unlock();
-        }
-    }
-    
     public boolean isRootContext() {
         return this.code == null;
     }
@@ -217,7 +185,6 @@ public class WorkerExecutionContext {
         builder.append("STATE: " + this.state + "\n");
         builder.append("Run In Caller: " + this.runInCaller + "\n");
         builder.append("IP: " + this.ip + "\n");
-        builder.append("Backup IP: " + this.backupIP + "} \n");
         return builder.toString();
     }
     

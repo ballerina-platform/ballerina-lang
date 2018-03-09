@@ -17,9 +17,13 @@
 */
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.bre.BLangCallableUnitCallback;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
@@ -29,6 +33,9 @@ import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -38,6 +45,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -126,7 +134,6 @@ public class BLangFunctions {
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length, false, responseCallback);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-        BLangScheduler.switchToWaitForResponse(parentCtx);
 
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
@@ -145,8 +152,21 @@ public class BLangFunctions {
                     wdi, initWorkerLocalData, initWorkerCAI, false);
         }
     }
-
+    
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
+        BLangScheduler.switchToWaitForResponse(parentCtx);
+        WorkerExecutionContext resultCtx;
+        if (callableUnitInfo.isNative()) {
+            resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs);
+        } else {
+            resultCtx = invokeNonNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse);
+        }
+        resultCtx = BLangScheduler.resume(resultCtx, true);
+        return resultCtx;
+    }
+
+    public static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
         InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
@@ -154,7 +174,6 @@ public class BLangFunctions {
                 workerSet.generalWorkers.length, waitForResponse);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
-        BLangScheduler.switchToWaitForResponse(parentCtx);
 
         /* execute the init worker and extract the local variables created by it */
         WorkerData initWorkerLocalData = null;
@@ -187,6 +206,51 @@ public class BLangFunctions {
             runInCallerCtx = null;
         }
         return runInCallerCtx;
+    }
+    
+    private static WorkerExecutionContext invokeNativeCallable(CallableUnitInfo callableUnitInfo, 
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
+        WorkerData parentLocalData = parentCtx.workerLocal;
+        BType[] retTypes = callableUnitInfo.getRetParamTypes();
+        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
+                argRegs, callableUnitInfo.getParamTypes());
+        Context ctx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
+        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();        
+        if (nativeCallable == null) {
+            return parentCtx;
+        }
+        try {
+            if (nativeCallable.isBlocking()) {
+                nativeCallable.execute(ctx, null);
+                BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
+                /* we want the parent to continue, since we got the response of the native call already */
+                return parentCtx;
+            } else {
+                BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);
+                nativeCallable.execute(ctx, callback);
+                /* we want the parent to suspend (i.e. go to wait for response state) and stay until notified */
+                return null;
+            }
+        } catch (BLangNullReferenceException e) {
+            return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
+        } catch (Throwable e) {
+            WorkerExecutionContext x = handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+            return x;
+        }
+    }
+
+    private static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+        parentCtx.setError(error);
+        try {
+            CPU.handleError(parentCtx);
+            return parentCtx;
+        } catch (HandleErrorException e) {
+            if (e.ctx != null && !e.ctx.isRootContext()) {
+                return e.ctx;
+            } else {
+                return null;
+            }
+        }
     }
     
     private static void handleError(WorkerExecutionContext ctx) {

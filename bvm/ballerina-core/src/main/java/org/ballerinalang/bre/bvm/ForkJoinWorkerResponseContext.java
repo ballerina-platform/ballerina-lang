@@ -99,24 +99,24 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
     }
 
     @Override
-    protected synchronized void onError(WorkerSignal signal) {
+    protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
         BLangScheduler.workerExcepted(signal.getSourceContext());
         BStruct error = signal.getSourceContext().getError();
         if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
-            return;
+            return null;
         }
 
         if ((workerCount - (++errorCount)) >= reqJoinCount) {
             workerErrors.put(signal.getSourceContext().workerInfo.getWorkerName(), error);
-            return;
+            return null;
         }
         this.setAsFulfilled();
 
         //This location means, no one will add errors to the workerErrors
         this.workerErrors.put(signal.getSourceContext().workerInfo.getWorkerName(), error);
         this.modifyDebugCommands(this.targetCtx, signal.getSourceContext());
-        BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(signal.getSourceContext(),
+        return BLangScheduler.errorThrown(this.targetCtx, this.createCallFailedError(signal.getSourceContext(),
                 this.workerErrors));
     }
 

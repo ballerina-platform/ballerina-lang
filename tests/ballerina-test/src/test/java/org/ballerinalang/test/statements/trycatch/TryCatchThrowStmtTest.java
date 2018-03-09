@@ -106,11 +106,17 @@ public class TryCatchThrowStmtTest {
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct stackFrame = (BStruct) returns[0];
-        Assert.assertEquals(stackFrame.getStringField(0), "testUncaughtException");
-        Assert.assertEquals(stackFrame.getStringField(2), "try-catch-stmt.bal");
-        Assert.assertEquals(stackFrame.getIntField(0), 88);
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct stackFrame1 = (BStruct) returns[0];
+        Assert.assertEquals(stackFrame1.getStringField(0), "testErrorCallStackFrame");
+        Assert.assertEquals(stackFrame1.getStringField(2), "try-catch-stmt.bal");
+        Assert.assertEquals(stackFrame1.getIntField(0), 95);
+        BStruct stackFrame2 = (BStruct) returns[1];
+        Assert.assertEquals(stackFrame2.getStringField(0), "testUncaughtException");
+        Assert.assertEquals(stackFrame2.getStringField(2), "try-catch-stmt.bal");
+        Assert.assertEquals(stackFrame2.getIntField(0), 88);
     }
 
     @Test(description = "Test scope issue when using try catch inside while loop")

@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.NativeCallableUnit;
-
 import java.util.Objects;
 
 /**
@@ -28,7 +26,6 @@ import java.util.Objects;
  */
 public class ActionInfo extends CallableUnitInfo {
 
-    private NativeCallableUnit nativeAction;
     private ConnectorInfo connectorInfo;
 
     public ActionInfo(int pkgCPIndex, String pkgPath, int actionNameCPIndex, String actionName,
@@ -38,14 +35,6 @@ public class ActionInfo extends CallableUnitInfo {
         this.name = actionName;
         this.nameCPIndex = actionNameCPIndex;
         this.connectorInfo = connectorInfo;
-    }
-
-    public NativeCallableUnit getNativeAction() {
-        return nativeAction;
-    }
-
-    public void setNativeAction(NativeCallableUnit nativeAction) {
-        this.nativeAction = nativeAction;
     }
 
     public ConnectorInfo getConnectorInfo() {
