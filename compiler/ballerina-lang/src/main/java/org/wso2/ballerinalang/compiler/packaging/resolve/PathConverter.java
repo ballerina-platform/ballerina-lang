@@ -33,23 +33,25 @@ public class PathConverter implements Converter<Path> {
     @Override
     public Stream<Path> expand(Path path) {
         try {
-            return Files.list(path);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (Files.isDirectory(path)) {
+                return Files.list(path);
+            }
+        } catch (IOException ignore) {
+            // TODO: log
         }
+        return Stream.of();
     }
 
     @Override
     public Stream<Path> expandBal(Path path) {
-        if (Files.exists(path) && Files.isDirectory(path)) {
+        if (Files.isDirectory(path)) {
             try {
                 return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // TODO: log
             }
-        } else {
-            return Stream.of();
         }
+        return Stream.of();
     }
 
     @Override
@@ -65,6 +67,10 @@ public class PathConverter implements Converter<Path> {
     @Override
     public String toString() {
         FileSystem fs = root.getFileSystem();
-        return (fs instanceof ZipFileSystem ? fs + "!" : "") + root.toString();
+        if (fs instanceof ZipFileSystem) {
+            return fs.toString();
+        } else {
+            return root.toString();
+        }
     }
 }

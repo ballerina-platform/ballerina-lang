@@ -2,6 +2,8 @@ package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
@@ -11,8 +13,9 @@ import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 import org.wso2.ballerinalang.compiler.packaging.resolve.StringConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,9 +25,16 @@ import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchy.node;
 
 public class RepoHierarchyTest {
 
+    private Path tempFile;
+
+    @BeforeClass
+    public void createTemp() throws IOException {
+        tempFile = Files.createTempFile("bal-unit-repo-hierarchy-", "");
+    }
+
     @Test
     public void testFullOrder() {
-        PackageID nonExisting = newPackageID("good", "ok.pkg", "5");
+        PackageID nonExisting = newPackageID("bad", "ok.pkg", "5");
         ArrayList<Integer> order = new ArrayList<>();
         RepoHierarchy subject = createSubject(order);
 
@@ -40,7 +50,7 @@ public class RepoHierarchyTest {
         Resolution resolution;
 
         // Part 1
-        PackageID repo1sPkg = newPackageID("bad", "i.am", "1");
+        PackageID repo1sPkg = newPackageID("good", "i.am", "1");
         ArrayList<Integer> order = new ArrayList<>();
         subject = createSubject(order);
 
@@ -60,6 +70,11 @@ public class RepoHierarchyTest {
         Assert.assertEquals(order, Arrays.asList(1, 2, 3, 4));
     }
 
+    @AfterClass
+    public void deleteTemp() throws IOException {
+        Files.delete(tempFile);
+    }
+
     private Repo mockRepo(int i, List<Integer> order) {
         return new Repo() {
             @Override
@@ -77,7 +92,7 @@ public class RepoHierarchyTest {
                 return new StringConverter() {
                     @Override
                     public Stream<Path> finalize(String s) {
-                        return Stream.of(Paths.get(s));
+                        return Stream.of(tempFile);
                     }
                 };
             }
@@ -91,11 +106,11 @@ public class RepoHierarchyTest {
 
     /**
      * <pre>
-     *
-     *                                    ,--- projectCacheRepo ---.
-     *                                   /            2             \
+     *                    good/i.am:1                                     ugly/ok.pkg:4
+     *                        |           ,--- projectCacheRepo ---.            |
+     *                        v          /            2             \           v
      * projectSource --- projectRepo ---<                            >--- homeCacheRepo
-     *            0            1         \                          /           4
+     *            0           1          \                          /           4
      *                                    `------- homeRepo -------'
      *                                                3
      * </pre>
@@ -111,20 +126,17 @@ public class RepoHierarchyTest {
      * @param order list to remember order of invocation into
      */
     private RepoHierarchy createSubject(List<Integer> order) {
-
         Repo projectSource = mockRepo(0, order);
         Repo projectRepo = mockRepo(1, order);
         Repo projectCacheRepo = mockRepo(2, order);
         Repo homeRepo = mockRepo(3, order);
         Repo homeCacheRepo = mockRepo(4, order);
 
-
         RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo);
         return RepoHierarchy.build(node(projectSource,
                                         node(projectRepo,
                                              node(projectCacheRepo, homeCacheNode),
                                              node(homeRepo, homeCacheNode))));
-
     }
 
     private PackageID newPackageID(String org, String pkg, String version) {

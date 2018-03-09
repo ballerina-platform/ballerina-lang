@@ -5,6 +5,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Keeps list of n Repos in lookup order.
  * Also has a list of (n-1) child RepoHierarchy objects.
- *
+ * <p>
  * (n-1) because, each Repo is matched with one child RepoHierarchy,
  * except for the fist one, it matches with this object.
  */
@@ -92,7 +93,9 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<Path> paths = patten.convertToPaths(converter).collect(Collectors.toList());
+                List<Path> paths = patten.convertToPaths(converter)
+                                         .filter(path -> Files.isRegularFile(path))
+                                         .collect(Collectors.toList());
                 out.println("\t looking in " + repo + " for patten\n\t\t" +
                                     patten + " and found \n\t\t\t" +
                                     paths);
@@ -107,17 +110,16 @@ public class RepoHierarchy {
     }
 
     private RepoHierarchy getChildHierarchyForRepo(int repoIndex) {
-        RepoHierarchy dag;
-        if (repoIndex == 0) {
-            dag = this;
+        if (repoIndex > 0) {
+            return dags[repoIndex - 1];
         } else {
-            dag = dags[repoIndex - 1];
+            return this;
         }
-        return dag;
     }
 
     @Override
     public String toString() {
-        return "{r:" + Arrays.toString(repos) + ",d:" + Arrays.toString(dags) + "}";
+        return "{r:" + Arrays.toString(repos) +
+                ", d:" + Arrays.toString(dags) + "}";
     }
 }

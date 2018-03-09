@@ -7,7 +7,7 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ProjectObjRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
@@ -18,11 +18,11 @@ public class RepoTest {
     @Test
     public void testProjectObjRepo() {
         PackageID pkg = newPackageID("my_org", "my.pkg", "1.2.3");
-        ProjectObjRepo subject = new ProjectObjRepo((PathConverter) null);
+        ObjRepo subject = new ObjRepo((PathConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/.ballerina_project/repo/my_org/my.pkg/1.2.3/obj/my.pkg.balo");
+        Assert.assertEquals(patten.toString(), "$/repo/my_org/my.pkg/1.2.3/obj/my.pkg.balo");
     }
 
     @Test

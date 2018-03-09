@@ -27,7 +27,10 @@ import org.ballerinalang.repository.PackageSourceEntry;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
+import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -99,11 +102,27 @@ public class PackageLoader {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
-
-        System.out.println(this.repos);
     }
 
     private RepoHierarchy genRepoHierarchy(Path projectDir) {
+        Path balHomeDir = Paths.get("~/.ballerina_home");
+        Path projectHiddenDir = projectDir.resolve(".ballerina");
+        RepoHierarchy.RepoNode[] systemArr = loadSystemRepos();
+
+        Repo homeCacheRepo = new CacheRepo(balHomeDir);
+        Repo homeRepo = new ObjRepo(balHomeDir);
+        Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
+        Repo projectRepo = new ObjRepo(projectHiddenDir);
+        Repo projectSource = new ProjectSourceRepo(projectDir);
+
+        RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo, systemArr);
+        return RepoHierarchy.build(node(projectSource,
+                                        node(projectRepo,
+                                             node(projectCacheRepo, homeCacheNode),
+                                             node(homeRepo, homeCacheNode))));
+    }
+
+    private RepoHierarchy.RepoNode[] loadSystemRepos() {
         ServiceLoader<SystemPackageRepositoryProvider> loader
                 = ServiceLoader.load(SystemPackageRepositoryProvider.class);
         List<RepoHierarchy.RepoNode> systemList = StreamSupport.stream(loader.spliterator(), false)
@@ -111,9 +130,7 @@ public class PackageLoader {
                                                                .filter(Objects::nonNull)
                                                                .map(r -> node(r))
                                                                .collect(Collectors.toList());
-        RepoHierarchy.RepoNode[] systemArr = systemList.toArray(new RepoHierarchy.RepoNode[systemList.size()]);
-        ProjectSourceRepo project = new ProjectSourceRepo(projectDir);
-        return RepoHierarchy.build(node(project, systemArr));
+        return systemList.toArray(new RepoHierarchy.RepoNode[systemList.size()]);
     }
 
     public BLangPackage loadPackage(String source, PackageRepository packageRepo) {

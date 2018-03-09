@@ -10,12 +10,12 @@ import java.nio.file.Path;
 /**
  * Calculate balo path pattens in project.
  */
-public class ProjectObjRepo extends NonSysRepo<Path> {
-    public ProjectObjRepo(Converter<Path> converter) {
+public class ObjRepo extends NonSysRepo<Path> {
+    public ObjRepo(Converter<Path> converter) {
         super(converter);
     }
 
-    public ProjectObjRepo(Path path) {
+    public ObjRepo(Path path) {
         this(new PathConverter(path));
     }
 
@@ -26,8 +26,7 @@ public class ProjectObjRepo extends NonSysRepo<Path> {
         String pkgName = pkg.getName().value;
         String pkgVersion = pkg.version.value;
 
-        return new Patten(Patten.path(".ballerina_project",
-                                      "repo",
+        return new Patten(Patten.path("repo",
                                       orgName,
                                       pkgName,
                                       pkgVersion,
