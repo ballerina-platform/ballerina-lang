@@ -54,6 +54,7 @@ public class Symbols {
         return typeSymbol;    
     }
 
+    @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,
                                                                              BType type,
@@ -82,24 +83,24 @@ public class Symbols {
         return symbol;
     }
 
-    public static BTypeSymbol createConnectorSymbol(int flags,
-                                                    Name name,
-                                                    PackageID pkgID,
-                                                    BType type,
-                                                    BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.CONNECTOR;
-        return typeSymbol;
+    public static BConnectorSymbol createConnectorSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
+        connectorSymbol.kind = SymbolKind.CONNECTOR;
+        return connectorSymbol;
     }
 
-    public static BTypeSymbol createServiceSymbol(int flags,
-                                                  Name name,
-                                                  PackageID pkgID,
-                                                  BType type,
-                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SERVICE;
-        return typeSymbol;
+    public static BServiceSymbol createServiceSymbol(int flags,
+                                                     Name name,
+                                                     PackageID pkgID,
+                                                     BType type,
+                                                     BSymbol owner) {
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
+        serviceSymbol.kind = SymbolKind.SERVICE;
+        return serviceSymbol;
     }
 
     public static BInvokableSymbol createFunctionSymbol(int flags,

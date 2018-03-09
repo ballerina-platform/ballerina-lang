@@ -26,22 +26,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code BService} This is the implementation for the {@code Service} API.
+ * {@code ServiceImpl} This is the implementation for the {@code Service} API.
  *
  * @since 0.94
  */
-public class BService extends AbstractServiceResource implements Service {
+public class ServiceImpl extends AnnotatableNode implements Service {
     private String name;
     private String packagePath;
-    private String protocolPackage;
+    private String endPointName;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    public BService(String name, String packagePath, String protocolPackage) {
+    ServiceImpl(String name, String packagePath, String endPointName) {
         this.name = name;
         this.packagePath = packagePath;
-        this.protocolPackage = protocolPackage;
+        this.endPointName = endPointName;
     }
 
     public void addResource(String name, Resource resource) {
@@ -59,8 +59,8 @@ public class BService extends AbstractServiceResource implements Service {
     }
 
     @Override
-    public String getProtocolPackage() {
-        return protocolPackage;
+    public String getEndpointName() {
+        return endPointName;
     }
 
     @Override
@@ -72,5 +72,10 @@ public class BService extends AbstractServiceResource implements Service {
     @Override
     public Resource[] getResources() {
         return resourceMap.values().toArray(new Resource[0]);
+    }
+
+    @Override
+    public String getAnnotationEntryKey() {
+        return name;
     }
 }

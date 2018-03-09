@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -27,10 +28,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -50,6 +56,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,12 +77,15 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private SymbolTable symTable;
+    private SymbolResolver symResolver;
     private Names names;
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
     private List<CompilerPlugin> pluginList;
-    private Map<AnnotationID, List<CompilerPlugin>> processorMap;
+    private Map<DefinitionID, List<CompilerPlugin>> processorMap;
+    private Map<DefinitionID, List<CompilerPlugin>> endpointProcessorMap;
+
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
         CompilerPluginRunner annotationProcessor = context.get(COMPILER_PLUGIN_RUNNER_KEY);
@@ -90,11 +100,13 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         context.put(COMPILER_PLUGIN_RUNNER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
 
         this.pluginList = new ArrayList<>();
         this.processorMap = new HashMap<>();
+        this.endpointProcessorMap = new HashMap<>();
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
@@ -129,6 +141,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         List<BLangAnnotationAttachment> attachmentList = connectorNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(connectorNode, list));
         connectorNode.actions.forEach(action -> action.accept(this));
+        connectorNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangEnum enumNode) {
@@ -139,6 +152,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         List<BLangAnnotationAttachment> attachmentList = funcNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(funcNode, list));
+        funcNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -157,7 +171,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
+        notifyEndpointProcessors((BStructType) ((BServiceSymbol) serviceNode.symbol).endpointType, attachmentList,
+                (processor, list) -> processor.process(serviceNode, list));
         serviceNode.resources.forEach(resource -> resource.accept(this));
+        serviceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangStruct structNode) {
@@ -181,14 +198,19 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangResource resourceNode) {
         List<BLangAnnotationAttachment> attachmentList = resourceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(resourceNode, list));
-
+        resourceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangAction actionNode) {
         List<BLangAnnotationAttachment> attachmentList = actionNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(actionNode, list));
+        actionNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
+    public void visit(BLangEndpoint endpointNode) {
+        List<BLangAnnotationAttachment> attachmentList = Collections.emptyList();
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(endpointNode, list));
+    }
 
     // private methods
 
@@ -201,6 +223,13 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         // Cache the plugin implementation class
         pluginList.add(plugin);
 
+        handleAnnotationProcesses(plugin);
+        handleEndpointProcesses(plugin);
+
+        plugin.init(dlog);
+    }
+
+    private void handleAnnotationProcesses(CompilerPlugin plugin) {
         // Get the list of packages of annotations that this particular compiler plugin is interested in.
         SupportedAnnotationPackages supportedAnnotationPackages =
                 plugin.getClass().getAnnotation(SupportedAnnotationPackages.class);
@@ -217,14 +246,12 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             // Check whether each annotation type definition is available in the AST.
             List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage, plugin);
             annotationSymbols.forEach(annSymbol -> {
-                AnnotationID annotationID = new AnnotationID(annSymbol.pkgID.name.value, annSymbol.name.value);
+                DefinitionID definitionID = new DefinitionID(annSymbol.pkgID.name.value, annSymbol.name.value);
                 List<CompilerPlugin> processorList = processorMap.computeIfAbsent(
-                        annotationID, k -> new ArrayList<>());
+                        definitionID, k -> new ArrayList<>());
                 processorList.add(plugin);
             });
         }
-
-        plugin.init(dlog);
     }
 
     private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage, CompilerPlugin plugin) {
@@ -254,7 +281,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         Map<CompilerPlugin, List<AnnotationAttachmentNode>> attachmentMap = new HashMap<>();
 
         for (BLangAnnotationAttachment attachment : attachments) {
-            AnnotationID aID = new AnnotationID(attachment.annotationSymbol.pkgID.getName().value,
+            DefinitionID aID = new DefinitionID(attachment.annotationSymbol.pkgID.getName().value,
                     attachment.annotationName.value);
             if (!processorMap.containsKey(aID)) {
                 continue;
@@ -274,16 +301,61 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
     }
 
+    private void handleEndpointProcesses(CompilerPlugin plugin) {
+        // Get the list of endpoint of that this particular compiler plugin is interested in.
+        SupportEndpointTypes supportEndpointTypes = plugin.getClass().getAnnotation(SupportEndpointTypes.class);
+        if (supportEndpointTypes == null) {
+            return;
+        }
+        final SupportEndpointTypes.EndpointType[] endpointTypes = supportEndpointTypes.value();
+        if (endpointTypes.length == 0) {
+            return;
+        }
+        DefinitionID[] definitions = Arrays.stream(endpointTypes)
+                .map(endpointType -> new DefinitionID(endpointType.packageName(), endpointType.name()))
+                .toArray(DefinitionID[]::new);
+        for (DefinitionID definitionID : definitions) {
+            if (isValidEndpoints(definitionID, plugin)) {
+                List<CompilerPlugin> processorList = endpointProcessorMap.computeIfAbsent(
+                        definitionID, k -> new ArrayList<>());
+                processorList.add(plugin);
+            }
+        }
+    }
+
+    private boolean isValidEndpoints(DefinitionID endpoint, CompilerPlugin plugin) {
+        PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(endpoint.pkgName), Names.EMPTY);
+        BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
+        if (pkgSymbol == null) {
+            return false;
+        }
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
+        final BSymbol bSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(endpoint.name), SymTag.VARIABLE_NAME);
+        return bSymbol != symTable.notFoundSymbol;
+    }
+
+    private void notifyEndpointProcessors(BStructType endpointType, List<BLangAnnotationAttachment> attachments,
+                                          BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
+        DefinitionID endpointID = new DefinitionID(endpointType.tsymbol.pkgID.name.value,
+                endpointType.tsymbol.name.value);
+        final List<CompilerPlugin> compilerPlugins = endpointProcessorMap.get(endpointID);
+        if (compilerPlugins == null) {
+            return;
+        }
+        compilerPlugins.forEach(proc -> notifier.accept(proc, Collections.unmodifiableList(attachments)));
+    }
+
     /**
-     * This class is gives a convenient way to represent both package name and the annotation name.
+     * This class is gives a convenient way to represent both package name and the name of a definition.
+     * (i.e annotation, endpoint, struct, etc.)
      *
      * @since 0.962.0
      */
-    private static class AnnotationID {
+    private static class DefinitionID {
         String pkgName;
         String name;
 
-        AnnotationID(String pkgName, String name) {
+        DefinitionID(String pkgName, String name) {
             this.pkgName = pkgName;
             this.name = name;
         }
@@ -298,7 +370,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                 return false;
             }
 
-            AnnotationID that = (AnnotationID) o;
+            DefinitionID that = (DefinitionID) o;
             return Objects.equals(pkgName, that.pkgName) &&
                     Objects.equals(name, that.name);
         }
