@@ -130,8 +130,7 @@ public class Http2PushPromise {
      */
     public String[] getHeaders(String name) {
         List<String> headerList = httpRequest.headers().getAll(name);
-        String[] headers = headerList.toArray(new String[0]);
-        return headers;
+        return headerList.toArray(new String[0]);
     }
 
     /**
