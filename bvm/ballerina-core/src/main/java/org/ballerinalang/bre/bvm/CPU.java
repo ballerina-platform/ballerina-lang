@@ -700,7 +700,9 @@ public class CPU {
                     break;
                 case InstructionCodes.LOCK:
                     InstructionLock instructionLock = (InstructionLock) instruction;
-                    handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs);
+                    if (!handleVariableLock(ctx, instructionLock.types, instructionLock.varRegs)) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.UNLOCK:
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
@@ -2325,7 +2327,7 @@ public class CPU {
         }
     }
 
-    private static void handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
+    private static boolean handleVariableLock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
         boolean lockAcquired = true;
         for (int i = 0; i < varRegs.length && lockAcquired; i++) {
             BType paramType = types[i];
@@ -2350,6 +2352,7 @@ public class CPU {
                     lockAcquired = ctx.programFile.getGlobalMemoryBlock().lockRefField(ctx, regIndex);
             }
         }
+        return lockAcquired;
     }
 
     private static void handleVariableUnlock(WorkerExecutionContext ctx, BType[] types, int[] varRegs) {
