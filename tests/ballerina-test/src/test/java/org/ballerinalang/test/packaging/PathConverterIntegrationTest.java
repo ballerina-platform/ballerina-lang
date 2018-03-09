@@ -23,12 +23,14 @@ public class PathConverterIntegrationTest {
 
     private Path tempDirectory;
     private Path tempFile;
+    private Path tempNonSourceFile;
 
     @BeforeClass
     public void setup() throws IOException {
         tempDirectory = Files.createTempDirectory("bal-unit-test-patten-resolver-");
         Path deep = tempDirectory.resolve(Paths.get("very", "deep", "path#to the", "dir.bal"));
         Files.createDirectories(deep);
+        tempNonSourceFile = Files.createFile(deep.resolve("my.balo"));
         tempFile = Files.createFile(deep.resolve("tempFile.bal"));
     }
 
@@ -59,6 +61,7 @@ public class PathConverterIntegrationTest {
     @AfterClass
     public void teardown() throws IOException {
         Files.delete(tempFile);
+        Files.delete(tempNonSourceFile);
         Files.walk(tempDirectory)
              .sorted(Comparator.reverseOrder())
              .filter(Files::isDirectory)

@@ -16,7 +16,7 @@ public class HomeRepo extends NonSysRepo<Path> {
     }
 
     public HomeRepo(Path path) {
-        super(new PathConverter(path));
+        this(new PathConverter(path));
     }
 
     @Override

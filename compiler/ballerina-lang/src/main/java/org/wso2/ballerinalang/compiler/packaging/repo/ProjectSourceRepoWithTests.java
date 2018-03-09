@@ -16,7 +16,7 @@ public class ProjectSourceRepoWithTests extends NonSysRepo<Path> {
     }
 
     public ProjectSourceRepoWithTests(Path projectDir) {
-        super(new PathConverter(projectDir));
+        this(new PathConverter(projectDir));
     }
 
     @Override

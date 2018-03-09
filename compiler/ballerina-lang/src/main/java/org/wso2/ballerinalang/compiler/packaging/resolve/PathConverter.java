@@ -32,12 +32,11 @@ public class PathConverter implements Converter<Path> {
 
     @Override
     public Stream<Path> expand(Path path) {
-        try {
-            if (Files.isDirectory(path)) {
+        if (Files.isDirectory(path)) {
+            try {
                 return Files.list(path);
+            } catch (IOException ignore) {
             }
-        } catch (IOException ignore) {
-            // TODO: log
         }
         return Stream.of();
     }
@@ -47,8 +46,7 @@ public class PathConverter implements Converter<Path> {
         if (Files.isDirectory(path)) {
             try {
                 return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
-            } catch (IOException e) {
-                // TODO: log
+            } catch (IOException ignore) {
             }
         }
         return Stream.of();

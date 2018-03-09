@@ -45,6 +45,29 @@ public class RepoHierarchyTest {
     }
 
     @Test
+    public void testIdempotence() {
+        RepoHierarchy subject;
+        Resolution resolution;
+
+        // Part 1
+        PackageID repo0sPkg = newPackageID("easy", "too", "0");
+        ArrayList<Integer> order = new ArrayList<>();
+        subject = createSubject(order);
+
+        resolution = subject.resolve(repo0sPkg);
+
+        Assert.assertNotEquals(resolution, Resolution.NOT_FOUND);
+
+        // Part 2
+        order.clear();
+        subject = resolution.resolvedBy;
+
+        subject.resolve(repo0sPkg);
+
+        Assert.assertNotEquals(resolution, Resolution.NOT_FOUND);
+    }
+
+    @Test
     public void testResolvingFromAnIntermediate() {
         RepoHierarchy subject;
         Resolution resolution;
@@ -134,7 +157,7 @@ public class RepoHierarchyTest {
 
         RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo);
         return RepoHierarchy.build(node(projectSource,
-                                        node(projectRepo,
+                                        node(projectRepo,/* null nodes should be ignored */ null,
                                              node(projectCacheRepo, homeCacheNode),
                                              node(homeRepo, homeCacheNode))));
     }

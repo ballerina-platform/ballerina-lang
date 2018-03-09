@@ -23,12 +23,14 @@ public class JarRepo implements Repo<Path> {
     private final PathConverter converter;
 
     public JarRepo(URI jarLocation) {
+        Path root;
         boolean isJar = jarLocation.getPath().endsWith(".jar");
         if (isJar) {
-            this.converter = new PathConverter(pathWithinJar(jarLocation));
+            root = pathWithinJar(jarLocation);
         } else {
-            this.converter = new PathConverter(Paths.get(jarLocation));
+            root = Paths.get(jarLocation);
         }
+        this.converter = new PathConverter(root);
     }
 
     private static Path pathWithinJar(URI pathToJar) {
