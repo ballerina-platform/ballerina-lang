@@ -79,14 +79,6 @@ public class EndpointDesugar {
     }
 
     void rewriteServiceBoundToEndpointInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        // TODO : Fix me
-        {
-            for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
-                for (BLangService service : pkgNode.services) {
-                    service.attachedEndpoints.add(globalEndpoint.symbol);
-                }
-            }
-        }
         pkgNode.services.forEach(service -> rewriteService(service, pkgEnv));
     }
 
@@ -102,6 +94,13 @@ public class EndpointDesugar {
                     enclosingSymbol, varSymbol);
             ASTBuilderUtil.prependStatements(generateCode, startBlock);
         });
+    }
+
+    void defineGlobalEndpoint(BLangEndpoint ep, SymbolEnv env) {
+        final BLangVariable epVariable = ASTBuilderUtil.createVariable(ep.pos, ep.name.value, ep.symbol.type);
+        epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(ep.pos, env.enclPkg.symbol.scope, env,
+                names.fromIdNode(ep.name), SymTag.VARIABLE);
+        env.enclPkg.globalVars.add(epVariable);
     }
 
     void rewriteEndpoint(BLangEndpoint endpoint, SymbolEnv env) {
@@ -160,7 +159,8 @@ public class EndpointDesugar {
 
         // EPType ep_name = {};
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
-        ASTBuilderUtil.defineVariable(epVariable, endpointParentSymbol, names);
+        epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, endpointParentSymbol.scope, env,
+                names.fromString(epName), SymTag.VARIABLE);
         final BLangRecordLiteral newExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, endpoint.symbol.type);
         if (env.enclInvokable != null) {
             // In callable unit, endpoint is same scope variable.
@@ -169,18 +169,19 @@ public class EndpointDesugar {
             epNewStmt.var.expr = newExpr;
         } else {
             // This is an init function. ep variable is defined in outside.
+            if (env.enclConnector != null || env.enclService != null) {
+                // Add to endpoint variable to relevant location
+                final BLangVariableDef epVarDef = ASTBuilderUtil.createVariableDef(pos);
+                epVarDef.var = epVariable;
+                if (env.enclConnector != null) {
+                    env.enclConnector.varDefs.add(epVarDef);
+                } else {
+                    env.enclService.vars.add(epVarDef);
+                }
+            }
             final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, temp);
             assignmentStmt.varRefs.add(ASTBuilderUtil.createVariableRef(pos, epVariable.symbol));
             assignmentStmt.expr = newExpr;
-            // Add to endpoint variable to relevant location
-            final BLangVariableDef epVarDef = ASTBuilderUtil.createVariableDef(pos);
-            epVarDef.var = epVariable;
-            if (env.enclConnector != null) {
-                env.enclConnector.varDefs.add(epVarDef);
-            } else {
-                // TODO : Fix this for service and packages.
-                env.enclPkg.globalVars.add(epVariable);
-            }
         }
 
         // EPConfigType ep_nameConf = { ep-config-expr };
