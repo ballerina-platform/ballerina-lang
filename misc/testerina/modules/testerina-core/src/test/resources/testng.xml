@@ -25,6 +25,9 @@ under the License.
     <test name="ballerina-test-functions-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.testerina.test.AssertTest"/>
+            <class name="org.ballerinalang.testerina.test.GroupFilterTest"/>
+            <class name="org.ballerinalang.testerina.test.DataDrivenTests"/>
+            <class name="org.ballerinalang.testerina.test.DisableFunctionsTest"/>
         </classes>
     </test>
 

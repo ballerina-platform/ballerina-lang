@@ -59,6 +59,12 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
 
+    @Parameter(names = "--groups", description = "test groups to be executed")
+    private List<String> groupList;
+
+    @Parameter(names = "--disable-groups", description = "test groups to be excluded from executed")
+    private List<String> disableGroupList;
+
     public void execute() {
         if (helpFlag) {
             printCommandUsageInfo(parentCmdParser, "test");
@@ -73,8 +79,19 @@ public class TestCmd implements BLauncherCmd {
             TesterinaUtils.setMockEnabled(mock);
         }
 
+        if (groupList != null && disableGroupList != null) {
+            throw LauncherUtils
+                    .createUsageException("Cannot specify both --groups and --disable-groups flags at the same time");
+        }
+
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
-        BTestRunner.runTest(paths);
+
+        if (disableGroupList != null) {
+            excludeGroupsAndRunTests(paths);
+        } else {
+            includeGroupsAndRunTests(paths);
+        }
+        Runtime.getRuntime().exit(0);
     }
 
     @Override
@@ -179,6 +196,13 @@ public class TestCmd implements BLauncherCmd {
         }
     }
 
+    private void includeGroupsAndRunTests(Path [] paths) {
+        new BTestRunner().runTest(paths, groupList);
+    }
+
+    private void excludeGroupsAndRunTests(Path [] paths) {
+        new BTestRunner().runTest(paths, disableGroupList, true);
+    }
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
