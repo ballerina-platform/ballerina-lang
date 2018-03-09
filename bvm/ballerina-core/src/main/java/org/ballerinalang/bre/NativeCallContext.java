@@ -53,6 +53,7 @@ public class NativeCallContext implements Context {
         this.parentCtx = parentCtx;
         this.callableUnitInfo = callableUnitInfo;
         this.workerLocal = workerLocal;
+        this.localTransactionInfo = parentCtx.getLocalTransactionInfo();
     }
 
     @Override

@@ -74,7 +74,6 @@ public class BLangFunctions {
      * @param packageName the package the callable is residing
      * @param callableName the callable name
      * @param args the callable arguments
-     * @param parentCtx the parent worker execution context
      * @return
      */
     public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,

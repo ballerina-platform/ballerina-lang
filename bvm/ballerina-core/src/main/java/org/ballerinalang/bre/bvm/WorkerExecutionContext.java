@@ -26,6 +26,7 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +72,8 @@ public class WorkerExecutionContext {
 
     private DebugContext debugContext;
 
+    private LocalTransactionInfo localTransactionInfo;
+
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
@@ -97,6 +100,7 @@ public class WorkerExecutionContext {
                     " in callable unit: " + callableUnitInfo.getName());
         }
         this.runInCaller = runInCaller;
+        this.localTransactionInfo = parent.localTransactionInfo;
         initDebugger();
     }
 
@@ -118,6 +122,7 @@ public class WorkerExecutionContext {
                     " in callable unit: " + callableUnitInfo.getName());
         }
         this.runInCaller = runInCaller;
+        this.localTransactionInfo = parent.localTransactionInfo;
         initDebugger();
     }
 
@@ -150,17 +155,16 @@ public class WorkerExecutionContext {
     }
 
     public boolean isInTransaction() {
-        // TODO 
-        return false;
+        return this.localTransactionInfo != null;
     }
 
-//    public BallerinaTransactionManager getBallerinaTransactionManager() {
-//        return null;
-//    }
+    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
+        this.localTransactionInfo = localTransactionInfo;
+    }
 
-//    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
-//        //TODO
-//    }
+    public LocalTransactionInfo getLocalTransactionInfo() {
+        return this.localTransactionInfo;
+    }
     
     public boolean isRootContext() {
         return this.code == null;
