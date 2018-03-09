@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+package org.ballerinalang.swagger.test;
+
 import org.ballerinalang.swagger.CodeGenerator;
-import org.ballerinalang.swagger.exception.BalOpenApiException;
+import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -56,7 +58,7 @@ public class CodeGeneratorTest {
             }
         } catch (IOException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
-        } catch (BalOpenApiException e) {
+        } catch (BallerinaOpenApiException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         }
     }
@@ -80,7 +82,7 @@ public class CodeGeneratorTest {
             }
         } catch (IOException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
-        } catch (BalOpenApiException e) {
+        } catch (BallerinaOpenApiException e) {
             Assert.fail("Error while generating the service. " + e.getMessage());
         }
     }

@@ -19,8 +19,8 @@ package org.ballerinalang.swagger.exception;
 /**
  * Exception type definition for OpenAPI to BalOpenAPI parsing related errors.
  */
-public class BalOpenApiException extends Exception {
-    public BalOpenApiException(String message, Throwable e) {
+public class BallerinaOpenApiException extends Exception {
+    public BallerinaOpenApiException(String message, Throwable e) {
         super(message, e);
     }
 }

@@ -1,11 +1,9 @@
-{{#apiPackage}}package {{apiPackage}}.model;{{/apiPackage}}
-import ballerina.net.http.swagger;{{#schemas}}{{#value}}
-{{#isArraySchema}}@swagger:schema {
+{{#apiPackage}}package {{apiPackage}}.model;{{/apiPackage}}{{#schemas}}{{#value}}
+{{#isArraySchema}}@swagger:Schema {
     isArray: true,
     ref: "{{oasSchema.items.$ref}}"
 }
 public struct {{key}} {}{{/isArraySchema}}{{^isArraySchema}}
-public struct {{key}} {
-    {{#properties}}{{#value}}{{type}}{{/value}} {{key}};
-    {{/properties}}
+public struct {{key}} { {{#properties}}
+    {{#value}}{{type}}{{/value}} {{key}};{{/properties}}
 }{{/isArraySchema}}{{/value}}{{/schemas}}

@@ -25,7 +25,7 @@ import io.swagger.oas.models.media.Schema;
 import io.swagger.oas.models.security.SecurityRequirement;
 import io.swagger.oas.models.servers.Server;
 import io.swagger.oas.models.tags.Tag;
-import org.ballerinalang.swagger.exception.BalOpenApiException;
+import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,7 +39,10 @@ import java.util.Set;
  * Wrapper for <code>io.swagger.oas.models.OpenAPI</code>
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
-public class BalOpenApi {
+public class BallerinaOpenApi {
+    private static final int HTTP_PORT = 80;
+    private static final int HTTPS_PORT = 443;
+    
     private String apiPackage;
     private String openapi = "3.0.0";
     private Info info = null;
@@ -48,7 +51,7 @@ public class BalOpenApi {
     private Set<Map.Entry<String, String>> security = null;
     private List<Tag> tags = null;
     private Set<Map.Entry<String, PathItem>> paths = null;
-    private Set<Map.Entry<String, BalSchema>> schemas = null;
+    private Set<Map.Entry<String, BallerinaSchema>> schemas = null;
     private Components components = null;
     private Map<String, Object> extensions = null;
     private String host = null;
@@ -58,15 +61,15 @@ public class BalOpenApi {
     private String url = null;
 
     /**
-     * Build a {@link BalOpenApi} object from a {@link OpenAPI} object.
+     * Build a {@link BallerinaOpenApi} object from a {@link OpenAPI} object.
      * All non iterable objects using handlebars library is converted into
      * supported iterable object types.
      *
      * @param openAPI {@link OpenAPI} type object to be converted
-     * @return Converted {@link BalOpenApi} object
-     * @throws BalOpenApiException when OpenAPI to BalOpenApi parsing failed
+     * @return Converted {@link BallerinaOpenApi} object
+     * @throws BallerinaOpenApiException when OpenAPI to BallerinaOpenApi parsing failed
      */
-    public BalOpenApi buildFromOpenAPI(OpenAPI openAPI) throws BalOpenApiException {
+    public BallerinaOpenApi buildFromOpenAPI(OpenAPI openAPI) throws BallerinaOpenApiException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
@@ -81,7 +84,7 @@ public class BalOpenApi {
             setHostInfo(openAPI);
             setSchemas(openAPI);
         } catch (MalformedURLException e) {
-            throw new BalOpenApiException("Failed to parse server information", e);
+            throw new BallerinaOpenApiException("Failed to parse server information", e);
         }
 
         return this;
@@ -95,16 +98,13 @@ public class BalOpenApi {
     private void setSchemas(OpenAPI openAPI) {
         this.schemas = new LinkedHashSet<>();
         Map<String, Schema> schemaMap;
-        if (openAPI.getComponents() == null) {
-            return;
-        }
-        if (openAPI.getComponents().getSchemas() == null) {
+        if (openAPI.getComponents() == null || openAPI.getComponents().getSchemas() == null) {
             return;
         }
 
         schemaMap = openAPI.getComponents().getSchemas();
         for (Map.Entry entry : schemaMap.entrySet()) {
-            BalSchema schema = new BalSchema().buildFromSchema((Schema) entry.getValue(), schemaMap);
+            BallerinaSchema schema = new BallerinaSchema().buildFromSchema((Schema) entry.getValue());
             schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
         }
     }
@@ -118,8 +118,8 @@ public class BalOpenApi {
         List<Server> serverList = openAPI.getServers();
         if (serverList == null) {
             this.host = "localhost";
-            this.port = 80;
-            this.httpsPort = 443;
+            this.port = HTTP_PORT;
+            this.httpsPort = HTTPS_PORT;
             this.basePath = "/";
 
             return;
@@ -139,10 +139,10 @@ public class BalOpenApi {
 
             if (isHttps) {
                 httpsPort = url.getPort();
-                httpsPort = httpsPort == -1 ? 443 : httpsPort;
+                httpsPort = httpsPort == -1 ? HTTPS_PORT : httpsPort;
             } else {
                 port = url.getPort();
-                port = port == -1 ? 80 : port;
+                port = port == -1 ? HTTP_PORT : port;
             }
         }
     }
@@ -155,22 +155,21 @@ public class BalOpenApi {
     private void setSecurityRequirements(OpenAPI openAPI) {
         this.security = new LinkedHashSet<>();
         List<SecurityRequirement> requirements = openAPI.getSecurity();
-        if (requirements == null) {
+        if (requirements == null || requirements.isEmpty()) {
             return;
         }
 
-        for (SecurityRequirement requirement: requirements) {
-            for (Map.Entry entry: requirement.entrySet()) {
-                security.add(entry);
-            }
-        }
+        requirements.forEach(r -> r.forEach((key, value) -> {
+            Map.Entry entry = new AbstractMap.SimpleEntry(key, value);
+            security.add(entry);
+        }));
     }
 
     public String getApiPackage() {
         return apiPackage;
     }
 
-    public BalOpenApi apiPackage(String apiPackage) {
+    public BallerinaOpenApi apiPackage(String apiPackage) {
         this.apiPackage = apiPackage;
         return this;
     }
@@ -227,7 +226,7 @@ public class BalOpenApi {
         return httpsPort;
     }
 
-    public Set<Map.Entry<String, BalSchema>> getSchemas() {
+    public Set<Map.Entry<String, BallerinaSchema>> getSchemas() {
         return schemas;
     }
 

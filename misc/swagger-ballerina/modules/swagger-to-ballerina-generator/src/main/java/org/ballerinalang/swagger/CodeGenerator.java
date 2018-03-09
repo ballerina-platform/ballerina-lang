@@ -27,8 +27,8 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.oas.models.OpenAPI;
 import io.swagger.parser.v3.OpenAPIV3Parser;
-import org.ballerinalang.swagger.exception.BalOpenApiException;
-import org.ballerinalang.swagger.model.BalOpenApi;
+import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
+import org.ballerinalang.swagger.model.BallerinaOpenApi;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.swagger.utils.GeneratorConstants.GenType;
 
@@ -57,9 +57,10 @@ public class CodeGenerator {
      *                       <code>definitionPath</code> will be used as the default destination path
      * @throws IOException when file operations fail
      */
-    public void generate(GenType type, String definitionPath, String outPath) throws IOException, BalOpenApiException {
+    public void generate(GenType type, String definitionPath, String outPath) throws IOException,
+            BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
-        BalOpenApi definitionContext = new BalOpenApi().buildFromOpenAPI(api).apiPackage(apiPackage);
+        BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildFromOpenAPI(api).apiPackage(apiPackage);
         String fileName = api.getInfo().getTitle().replaceAll(" ", "") + ".bal";
         outPath = outPath == null || outPath.isEmpty() ? "." : outPath;
         String destination =  outPath + File.separator + fileName;
