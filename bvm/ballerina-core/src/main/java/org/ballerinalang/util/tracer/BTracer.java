@@ -37,7 +37,7 @@ import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
  */
 public class BTracer {
 
-    private static TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
+    private static final TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
 
     /**
      * {@link Map} of properties, which used to represent
@@ -64,15 +64,11 @@ public class BTracer {
     /**
      * Indicates whether this context is traceable or not.
      */
-    private boolean isTraceable = true;
+    private boolean isTraceable = false;
     /**
      * Active Ballerina context.
      */
     private Context bContext = null;
-    /**
-     * If there's a parent, this should hold parent span context.
-     */
-    private Map<String, ?> parentSpanContext = null;
     /**
      * Map of spans belongs to each open tracer.
      */
@@ -93,8 +89,7 @@ public class BTracer {
         this.isTraceable = !(isClientContext &&
                 bContext.getControlStack().getCurrentFrame()
                         .getCallableUnitInfo().getName()
-                        .endsWith(TraceConstant.FUNCTION_INIT)
-        );
+                        .endsWith(TraceConstant.FUNCTION_INIT)) && manager.isEnabled();
     }
 
     public void startSpan() {
@@ -180,14 +175,6 @@ public class BTracer {
 
     public void setContext(Context bContext) {
         this.bContext = bContext;
-    }
-
-    public Map getParentSpanContext() {
-        return parentSpanContext;
-    }
-
-    public void setParentSpanContext(Map<String, ?> parentSpanContext) {
-        this.parentSpanContext = parentSpanContext;
     }
 
     public Map getSpans() {

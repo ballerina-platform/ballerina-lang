@@ -37,7 +37,7 @@ import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
  * @since 0.963.1
  */
 public class TraceManagerWrapper {
-    private static TraceManagerWrapper instance = new TraceManagerWrapper();
+    private static final TraceManagerWrapper instance = new TraceManagerWrapper();
     private TraceManager manager;
     private boolean enabled = true;
 
@@ -48,7 +48,7 @@ public class TraceManagerWrapper {
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
             enabled = manager.isEnabled();
-        } catch (Exception t) {
+        } catch (Exception e) {
             enabled = false;
         }
     }
@@ -57,11 +57,15 @@ public class TraceManagerWrapper {
         return instance;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public void startSpan(Context context) {
         BTracer rBTracer = context.getRootBTracer();
         BTracer aBTracer = context.getActiveBTracer();
 
-        if (enabled && aBTracer.isTraceable()) {
+        if (aBTracer.isTraceable()) {
             String service = aBTracer.getServiceName();
             String resource = aBTracer.getResourceName();
 
@@ -113,32 +117,31 @@ public class TraceManagerWrapper {
 
             Map<String, String> traceContextMap = manager
                     .inject(spanList, null, service);
-            aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
 
+            aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
             aBTracer.setSpans(spanList);
-            aBTracer.setParentSpanContext(spanContext);
         }
     }
 
     public void finishSpan(BTracer bTracer) {
-        if (enabled && bTracer.isTraceable()) {
+        if (bTracer.isTraceable()) {
             manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()));
         }
     }
 
     public void log(BTracer bTracer, Map<String, Object> fields) {
-        if (enabled && bTracer.isTraceable()) {
+        if (bTracer.isTraceable()) {
             manager.log(new ArrayList<>(bTracer.getSpans().values()), fields);
         }
     }
 
     public void addTags(BTracer bTracer, Map<String, String> tags) {
-        if (enabled && bTracer.isTraceable()) {
+        if (bTracer.isTraceable()) {
             manager.addTags(new ArrayList<>(bTracer.getSpans().values()), tags);
         }
     }
 
-    private Map<String, String> addTracePrefix(Map<String, String> map) {
+    private static Map<String, String> addTracePrefix(Map<String, String> map) {
         return map.entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> TRACE_PREFIX + e.getKey(),
@@ -146,7 +149,7 @@ public class TraceManagerWrapper {
                 );
     }
 
-    private Map<String, String> removeTracePrefix(Map<String, String> map) {
+    private static Map<String, String> removeTracePrefix(Map<String, String> map) {
         return map.entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> e.getKey().replaceFirst(TRACE_PREFIX, ""),
