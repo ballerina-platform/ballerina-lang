@@ -19,6 +19,7 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
+import org.ballerinalang.connector.impl.ServiceImpl;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BConnector;
@@ -75,7 +76,10 @@ public final class BLangConnectorSPIUtil {
         final ProgramFile programFile = context.getProgramFile();
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
-        return ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+        final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+        Context serviceInitCtx = new Context(programFile);
+        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
+        return service;
     }
 
     /**
