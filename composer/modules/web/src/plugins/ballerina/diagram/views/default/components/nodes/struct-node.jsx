@@ -350,7 +350,7 @@ class StructNode extends React.Component {
                     <rect {...typeCellbox} className='struct-type-dropdown-wrapper' />
                     <text
                         x={typeCellbox.x + placeHolderPadding}
-                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 5}
                     > {this.state.newType || 'Select Type'}
                     </text>
                     <SuggestionsText
@@ -367,7 +367,7 @@ class StructNode extends React.Component {
                     <rect {...identifierCellBox} className='struct-input-value-wrapper' />
                     <text
                         x={identifierCellBox.x + placeHolderPadding}
-                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 5}
                         className='struct-input-text'
                     >
                         {this.state.newIdentifierEditing ? '' : (this.state.newIdentifier ? this.state.newIdentifier : 'Identifier')}
@@ -397,7 +397,7 @@ class StructNode extends React.Component {
                     <rect {...defaultValueBox} className='struct-input-value-wrapper' />
                     <text
                         x={defaultValueBox.x + placeHolderPadding}
-                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 5}
                         className='struct-input-text'
                     >
                         {this.state.newValueEditing ? '' : (this.state.newValue ? this.state.newValue : '+ Add Default Value')}

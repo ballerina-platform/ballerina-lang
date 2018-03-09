@@ -19,8 +19,8 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.NodeVisitor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -70,6 +70,7 @@ public class SignatureTreeVisitor extends NodeVisitor {
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
     private SymbolEnter symbolEnter;
+    private SymbolTable symTable;
     private TextDocumentServiceContext documentServiceContext;
     private Stack<Node> blockOwnerStack;
 
@@ -85,13 +86,14 @@ public class SignatureTreeVisitor extends NodeVisitor {
 
     private void init(CompilerContext compilerContext) {
         symbolEnter = SymbolEnter.getInstance(compilerContext);
+        symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, SymbolTable.getInstance(compilerContext));
+        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         BLangCompilationUnit compilationUnit = pkgNode.getCompilationUnits().stream()
@@ -264,8 +266,7 @@ public class SignatureTreeVisitor extends NodeVisitor {
     private boolean isCursorWithinBlock() {
         Position cursorPosition = this.documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Node blockOwner = blockOwnerStack.peek();
-        DiagnosticPos nodePosition =
-                TextDocumentServiceUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
+        DiagnosticPos nodePosition = CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
         int nodeStrtLine = nodePosition.getStartLine();

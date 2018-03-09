@@ -22,7 +22,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.EntityBody;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
@@ -35,8 +34,8 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
@@ -52,7 +51,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -170,7 +168,7 @@ public class MimeUtilityFunctionTest {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetJson", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
     }
 
@@ -189,7 +187,7 @@ public class MimeUtilityFunctionTest {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetXml", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BXML) returns[0]).getTextValue().stringValue(), "ballerina");
     }
 
@@ -208,7 +206,7 @@ public class MimeUtilityFunctionTest {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetText", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
     }
 
@@ -228,7 +226,7 @@ public class MimeUtilityFunctionTest {
         BBlob byteContent = new BBlob(content.getBytes());
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetBlob", args);
-        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), content);
     }
 
@@ -256,7 +254,7 @@ public class MimeUtilityFunctionTest {
             fileStruct.setStringField(0, file.getAbsolutePath());
             BValue[] args = {fileStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
@@ -277,7 +275,7 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
@@ -298,12 +296,10 @@ public class MimeUtilityFunctionTest {
                     (file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             BStruct returnByteChannelStruct = (BStruct) returns[0];
-            EntityBody entityBody = EntityBodyHandler.getEntityBody(returnByteChannelStruct.getNativeData
-                    (IOConstants.BYTE_CHANNEL_NAME));
-            FileIOChannel fileIOChannel = entityBody.getFileIOChannel();
-            Assert.assertEquals(StringUtils.getStringFromInputStream(new ByteArrayInputStream(fileIOChannel.readAll())),
+            Channel byteChannel = (Channel) returnByteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
                     "Hello Ballerina!");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -323,29 +319,30 @@ public class MimeUtilityFunctionTest {
                     EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath()));
             BValue[] args = {byteChannelStruct, new BString("Hello Ballerina!")};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetEntityBodyMultipleTimes", args);
-            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns.length, 2);
             Assert.assertEquals(returns[0].stringValue(), "File Content");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
     }
 
-    @Test(description = "Once the file channel is created and temp file deleted, check whether the content can " +
-            "still be retrieved properly from the file channel")
-    public void testTempFileDeletion() {
+    @Test(description = "Once the temp file channel is closed, check whether the temp file gets deleted")
+    public void testTempFileDeletion() throws IOException {
         File file;
         try {
             file = File.createTempFile("testFile", ".tmp");
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("File Content");
             bufferedWriter.close();
-            FileIOChannel fileIOChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
-            Assert.assertFalse(file.exists());
-            InputStream inputStream = fileIOChannel.getInputStream();
+            Channel tempFileIOChannel = EntityBodyHandler.getByteChannelForTempFile(file.getAbsolutePath());
+            Assert.assertTrue(file.exists());
+            InputStream inputStream = tempFileIOChannel.getInputStream();
             Assert.assertNotNull(inputStream);
             ByteArrayOutputStream result = new ByteArrayOutputStream();
             MimeUtil.writeInputToOutputStream(inputStream, result);
             Assert.assertEquals(result.toString("UTF-8"), "File Content");
+            tempFileIOChannel.close();
+            Assert.assertFalse(file.exists());
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
@@ -372,6 +369,79 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(outputStream.size(), 2323779);
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
+        }
+    }
+
+    @Test(description = "An EntityError should be returned in case the byte channel is null")
+    public void testGetByteChannelForNull() {
+        BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+        byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, null);
+        BValue[] args = {byteChannelStruct};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteChannel", args);
+        Assert.assertEquals(returns.length, 2);
+        BStruct byteChannel = (BStruct) returns[0];
+        Assert.assertNull(byteChannel);
+        BStruct errorStruct = (BStruct) returns[1];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "Byte channel is not available as payload");
+    }
+
+    @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
+            "is in data source form")
+    public void testByteChannelWhenPayloadInDataSource() {
+        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue[] args = {jsonContent};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonAndGetByteChannel", args);
+        Assert.assertEquals(returns.length, 2);
+        BStruct byteChannel = (BStruct) returns[0];
+        Assert.assertNull(byteChannel);
+        BStruct errorStruct = (BStruct) returns[1];
+        Assert.assertEquals(errorStruct.getStringField(0), "Byte channel is not available but payload " +
+                "can be obtain either as xml, json, string or blob type");
+    }
+
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+            "as a text data source is empty")
+    public void testGetTextDataSource() throws IOException {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("{'code':'123'}");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetTextDataSource", args);
+            Assert.assertEquals(returns.length, 2);
+            Assert.assertEquals(returns[0].stringValue(), "");
+        } catch (IOException e) {
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
+        }
+    }
+
+    @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+            "as a json data source return an error")
+    public void testGetJsonDataSource() throws IOException {
+        try {
+            File file = File.createTempFile("testFile", ".tmp");
+            file.deleteOnExit();
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write("Hello Ballerina!");
+            bufferedWriter.close();
+            BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonDataSource", args);
+            Assert.assertEquals(returns.length, 2);
+            Assert.assertNull(returns[0]);
+            BStruct errorStruct = (BStruct) returns[1];
+            Assert.assertTrue(errorStruct.getStringField(0).contains("Error occurred while extracting json " +
+                    "data from entity: failed to create json: empty JSON document"));
+        } catch (IOException e) {
+            log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
     }
 }

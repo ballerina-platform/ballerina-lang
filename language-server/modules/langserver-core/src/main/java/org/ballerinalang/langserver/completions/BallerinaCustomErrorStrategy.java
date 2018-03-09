@@ -60,7 +60,14 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
     private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
+        /*
+        TODO: Specific check for callable unit body is added in order to handle the completion inside an 
+        endpoint definition. This particular case need to remove after introducing a proper handling mechanism or with
+         the introduction of BNF grammar
+         */
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
+                || (this.context.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
+                && currentContext instanceof BallerinaParser.CallableUnitBodyContext)) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
@@ -127,6 +134,8 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
         if (context instanceof BallerinaParser.NameReferenceContext) {
             setContextIfConnectorInit(context, e);
+        } else if (context instanceof BallerinaParser.ExpressionContext) {
+            setContextIfConditionalStatement(context, e);
         }
     }
 
@@ -148,6 +157,25 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
                 }
             }
             connectorInitContext.getParent().exception = e;
+        }
+    }
+
+    /**
+     * Set the context if the statement is a conditional statement such as if-else, while or catch.
+     * @param context   Current parser rule context
+     * @param e         Exception of the parser context
+     */
+    private void setContextIfConditionalStatement(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext conditionalContext = context.getParent();
+        if (conditionalContext == null) {
+            return;
+        }
+        if (conditionalContext instanceof BallerinaParser.IfClauseContext) {
+            conditionalContext.getParent().exception = e;
+        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext) {
+            conditionalContext.exception = e;
+        } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            setContextIfConditionalStatement(conditionalContext, e);
         }
     }
 }

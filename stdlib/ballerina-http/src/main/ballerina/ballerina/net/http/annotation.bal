@@ -25,6 +25,7 @@ package ballerina.net.http;
 @Field {value:"allowHeaders: The array of allowed headers by the service"}
 @Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
+@Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
 @Field {value:"maxUriLength: Maximum length allowed for the URL"}
@@ -56,7 +57,7 @@ public annotation configuration attach service<> {
     string[] allowHeaders;
     int maxAge;
     string[] exposeHeaders;
-    boolean keepAlive;
+    string keepAlive;
     string transferEncoding;
     string chunking;
     int maxUriLength;

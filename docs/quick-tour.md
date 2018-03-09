@@ -14,19 +14,21 @@ Now that you know [a little bit about Ballerina](index.md), let's take it for a 
 
 The HelloWorld sample will show you how easy it is to run Ballerina, send it a request, and get a response. 
 
-Let's take a look at what the sample looks like in the Ballerina programming language:
+Let's take a look at what the code looks like in the Ballerina programming language:
 
 ```
+import ballerina.io;
 function main (string[] args) {
-  println("Hello, World!");
+    io:println("Hello, World!");
+}
 ``` 
 
-The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
+The above code doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line. To run this, copy the above code into a hello-world.bal file.
 
-At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line:
+At the command prompt, navigate to the directory that contains the hello-world.bal file and enter the following line:
 
-```bash
-ballerina run helloworld.bal
+```
+$ ballerina run hello-world.bal
 ```
 
 You will see the following response:
@@ -35,7 +37,7 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran the HelloWorld sample, and got a response within seconds. 
+You just started Ballerina, ran a simple code, and got a response within seconds. 
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
@@ -53,7 +55,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
 
     The welcome page of Ballerina Composer appears. 
     
-    ![alt text](images/ComposerNew.png "Welcome page")
+    ![alt text](images/ComposerNew1.png "Welcome page")
     
 Let's open a sample and take a look around. 
 
@@ -61,45 +63,45 @@ Let's open a sample and take a look around.
 
 Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
 
-1. Click **echoService**.
+1. Click **Echo Service**.
 
     The Echo Service program displays in the Composer.
     
-    ![alt text](images/echoServiceNew.png "Echo Service program")
+    ![alt text](images/echoServiceNew1.png "Echo Service program")
 
-    Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
-    
-    ![alt text](images/ConstructsNew.png "Constructs")
+    Notice that on the top you have an add button containing the various constructs that you'll use to build your integration. When you select a construct it is drawn in the canvas. This is where you build your sequence diagrams that define your integration logic.
+        
+    ![alt text](images/ConstructsNew1.png "Constructs")
     
     Some constructs have a **life line** of execution where you program the statements to be executed. This defines the flow of execution. The life line is represented by a vertical line in the default program or any other construct of the **echoService**.
     
-    ![alt text](images/LifelineNew.png "Ballerina construct life line")
+    ![alt text](images/LifelineNew1.png "Ballerina construct life line")
     
-    There are packages called **Connectors** and **Libraries** that are available to be used by your Ballerina program. By default, the Composer imports few commonly used packages to this section. If you add an import to a different package, it is added to this section. Hovering over these packages provides a link to the documentation for each of these libraries, including the available functions and their usage. Click the eye icon to view more connectors and libraries.
+    There are packages called **Connectors** and **Libraries** that are available to be used by your Ballerina program. By default, the Composer imports few commonly used packages to this section. If you add an import to a different package, it is added to this section. Click on the plus icon on the right of the diagram and select Endpoint to see the list of connectors.
     
-    ![alt text](images/Libraries.png "Ballerina connectors and libraries")
+    ![alt text](images/Connectors.png "Ballerina connectors and libraries")
 
     Notice the **Source View** button and the **Split View** button in the lower right corner. Also note the **Swagger Source** button associated with the service.
     
-    ![alt text](images/SourceSwaggerButtons.png "Source and Swagger buttons")
+    ![alt text](images/SourceSwaggerButtons1.png "Source and Swagger buttons")
    
 2. Click **Source View**. 
 
-    ![alt text](images/EchoSourceNew.png "Source view")
+    ![alt text](images/EchoSourceNew1.png "Source view")
 
     You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. This can be done by clicking **Design View** in the lower right corner.
 
 3. Click **Swagger View**. 
 
-    ![alt text](images/EchoSwaggerNew.png "Swagger view")
+    ![alt text](images/EchoSwaggerNew1.png "Swagger view")
 
     If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
-1. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
+4. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
 
-1. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
+5. You can run your program from the Composer itself. Click the **Run** button on the left of the Composer and choose whether you want to run your program as an **Application** or a **Service**. You can stop the application by clicking **Stop Application**.
 
-    ![alt text](images/BallerinaRunNew.png "Run application")
+    ![alt text](images/BallerinaRunNew1.png "Run application")
 
-1. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
+6. Click the "x" to the right of "echoService.bal" in the tab title to close this sample, and click **Don't Save** when prompted.
 

@@ -238,6 +238,9 @@ public class Init extends AbstractHTTPAction {
 
         String httpVersion = options.getStringField(HttpConstants.HTTP_VERSION_STRUCT_INDEX);
         senderConfiguration.setHttpVersion(httpVersion);
+
+        String forwardedExtension = options.getStringField(HttpConstants.FORWARDED_EXTENSION_INDEX);
+        senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
     private boolean isInteger(long val) {

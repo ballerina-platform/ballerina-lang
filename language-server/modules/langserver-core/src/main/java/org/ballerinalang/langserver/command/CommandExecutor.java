@@ -87,22 +87,38 @@ public class CommandExecutor {
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                         .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split(";");
-            int totalLines = fileContent.split("\\n|\\r\\n|\\r").length;
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
                     context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY));
             
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
-            DiagnosticPos pos = lastImport.getPosition();
-            int endCol = pos.getEndColumn() - 1;
-            int endLine = pos.getEndLine() - 1;
-            int contentLengthToLastImport = 
-                    fileContent.substring(0, fileContent.indexOf(contentComponents[endLine])).length()
-                            + contentComponents[endLine].length() + 1;
-            String remainingTextToReplace = fileContent.substring(contentLengthToLastImport);
+            DiagnosticPos pos;
+            
+            if (!bLangPackage.getImports().isEmpty()) {
+                BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
+                pos = lastImport.getPosition();
+            } else if (bLangPackage.getImports().isEmpty() && bLangPackage.getPackageDeclaration() != null) {
+                pos = (DiagnosticPos) bLangPackage.getPackageDeclaration().getPosition();
+            } else {
+                pos = null;
+            }
+            
+            int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
+            int endLine = pos == null ? 0 : pos.getEndLine() - 1;
+            
+            String remainingTextToReplace;
+            
+            if (endCol != -1) {
+                int contentLengthToReplaceStart = fileContent.substring(0,
+                        fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
+                remainingTextToReplace = fileContent.substring(contentLengthToReplaceStart);
+            } else {
+                remainingTextToReplace = fileContent;
+            }
+            
             String editText = "\r\nimport " + pkgName + ";"
                     + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;

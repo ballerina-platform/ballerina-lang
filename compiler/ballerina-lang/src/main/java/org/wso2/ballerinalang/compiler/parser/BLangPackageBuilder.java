@@ -1,23 +1,24 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -141,12 +142,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,8 +172,6 @@ public class BLangPackageBuilder {
     private Stack<BLangNameReference> nameReferenceStack = new Stack<>();
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
-
-    private Stack<List<TypeNode>> typeNodeListStack = new Stack<>();
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
 
@@ -231,14 +233,26 @@ public class BLangPackageBuilder {
 
     private Set<Whitespace> endpointKeywordWs;
 
-    private DiagnosticLog dlog;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private CompilerOptions compilerOptions;
+
+    /**
+     * Keep the number of anonymous structs found so far in the current package.
+     * This field is used to generate a name for an anonymous struct.
+     */
+    private int anonStructCount = 0;
+
+    protected int lambdaFunctionCount = 0;
+
+    private BLangDiagnosticLog dlog;
 
     private static final String PIPE = "|";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.compilerOptions = CompilerOptions.getInstance(context);
         this.compUnit = compUnit;
     }
 
@@ -356,19 +370,11 @@ public class BLangPackageBuilder {
 
         if (retParamsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            if (retParamTypeOnly) {
-                functionTypeNode.returnParamTypeNodes.addAll(this.typeNodeListStack.pop());
-            } else {
-                this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
-            }
+            this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
         }
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            if (paramsTypeOnly) {
-                functionTypeNode.paramTypeNodes.addAll(this.typeNodeListStack.pop());
-            } else {
-                this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
-            }
+            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
         }
 
         functionTypeNode.addWS(ws);
@@ -428,7 +434,7 @@ public class BLangPackageBuilder {
         BLangStruct structNode = (BLangStruct) this.structStack.peek();
         structNode.addWS(wsForSemiColon);
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
-        
+
         if (!isPrivate) {
             field.flagSet.add(Flag.PUBLIC);
         }
@@ -470,24 +476,10 @@ public class BLangPackageBuilder {
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
         if (retParamsAvail) {
-            if (retParamTypeOnly) {
-                this.typeNodeListStack.pop().forEach(e -> {
-                    VariableNode var = TreeBuilder.createVariableNode();
-                    var.setTypeNode(e);
-
-                    // Create an empty name node
-                    IdentifierNode nameNode = TreeBuilder.createIdentifierNode();
-                    nameNode.setValue("");
-                    var.setName(nameNode);
-                    ((BLangVariable) var).docTag = DocTag.RETURN;
-                    invNode.addReturnParameter(var);
-                });
-            } else {
-                this.varListStack.pop().forEach(variableNode -> {
-                    ((BLangVariable) variableNode).docTag = DocTag.RETURN;
-                    invNode.addReturnParameter(variableNode);
-                });
-            }
+            this.varListStack.pop().forEach(variableNode -> {
+                ((BLangVariable) variableNode).docTag = DocTag.RETURN;
+                invNode.addReturnParameter(variableNode);
+            });
         }
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
@@ -955,6 +947,7 @@ public class BLangPackageBuilder {
 
         BLangPackageDeclaration pkgDcl = (BLangPackageDeclaration) TreeBuilder.createPackageDeclarationNode();
         pkgDcl.pos = pos;
+        // TODO: orgname is null, fix it.
         pkgDcl.addWS(ws);
         pkgDcl.pkgNameComps = pkgNameComps;
         pkgDcl.version = versionNode;
@@ -963,6 +956,7 @@ public class BLangPackageBuilder {
 
     public void addImportPackageDeclaration(DiagnosticPos pos,
                                             Set<Whitespace> ws,
+                                            String orgName,
                                             List<String> nameComps,
                                             String version,
                                             String alias) {
@@ -979,6 +973,7 @@ public class BLangPackageBuilder {
         importDcl.addWS(ws);
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.version = versionNode;
+        importDcl.orgName = (BLangIdentifier) this.createIdentifier(orgName);
         importDcl.alias = aliasNode;
         this.compUnit.addTopLevelNode(importDcl);
         if (this.imports.contains(importDcl)) {
@@ -1013,7 +1008,7 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-        var.docTag =  DocTag.VARIABLE;
+        var.docTag = DocTag.VARIABLE;
 
         this.compUnit.addTopLevelNode(var);
     }
@@ -1024,7 +1019,7 @@ public class BLangPackageBuilder {
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
-        var.docTag =  DocTag.VARIABLE;
+        var.docTag = DocTag.VARIABLE;
 
         attachAnnotations(var);
         attachDocumentations(var);
@@ -1155,21 +1150,6 @@ public class BLangPackageBuilder {
         this.connectorNodeStack.peek().addAction(actionNode);
     }
 
-    public void startProcessingTypeNodeList() {
-        this.typeNodeListStack.push(new ArrayList<>());
-    }
-
-    public void endProcessingTypeNodeList(int size) {
-        for (int i = 0; i < size; i++) {
-            this.typeNodeListStack.peek().add(0, typeNodeStack.pop());
-        }
-    }
-
-    public void endProcessingTypeNodeList(Set<Whitespace> ws, int size) {
-        commaWsStack.push(ws);
-        endProcessingTypeNodeList(size);
-    }
-
     public void startAnnotationDef(DiagnosticPos pos) {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
@@ -1217,7 +1197,7 @@ public class BLangPackageBuilder {
     public void setDocumentationAttachmentContent(DiagnosticPos pos,
                                                   Set<Whitespace> ws,
                                                   String contentText) {
-        DocumentationNode  docAttachmentNode = docAttachmentStack.peek();
+        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
         docAttachmentNode.addWS(ws);
 
         docAttachmentNode.setDocumentationText(contentText);
@@ -1497,6 +1477,18 @@ public class BLangPackageBuilder {
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
+
+        // TODO This is a temporary workaround to flag coordinator service start
+        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+        if (value != null) {
+            return;
+        }
+
+        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+        addImportPackageDeclaration(pos, null, Names.ANON_ORG.value,
+                nameComps, Names.DEFAULT_VERSION.value,
+                Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1957,5 +1949,10 @@ public class BLangPackageBuilder {
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
         return userDefinedType;
+    }
+
+    private List<String> getPackageNameComps(String sourcePkg) {
+        String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
+        return Arrays.asList(pkgParts);
     }
 }

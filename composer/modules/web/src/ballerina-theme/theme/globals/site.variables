@@ -2,6 +2,14 @@
      User Global Variables
 *******************************/
 
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus,
+html:focus, body:focus, input[readonly]:focus{
+  outline: none;
+}
+
 /*-------------------
        Fonts
 --------------------*/
@@ -48,10 +56,9 @@
 @gray-800   : #343a40;
 @gray-900   : #212529;
 
-
 /*---- Inverted Colors  ----*/
 
-@invertedBackgroundColor        : #222;
+@invertedBackgroundColor        : #252525;
 @invertedInputBackgroundColor   : #3a3a3a;
 @selectionInvertedBorderColor   : @orange;
 @selectionInvertedTextColor     : @off-white;
@@ -64,4 +71,8 @@
 @highlightBackground            : @orange;
 
 @selectionBorderRadius          : 0;
-@borderRadius          : 0;
+@noBorderRadius                 : 0;
+
+@inputHeight                    : 40px;
+
+@paragraphLineHeight            : 1em;

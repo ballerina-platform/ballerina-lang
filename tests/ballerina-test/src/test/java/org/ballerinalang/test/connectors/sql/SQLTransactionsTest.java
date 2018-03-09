@@ -44,28 +44,28 @@ public class SQLTransactionsTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testLocalTransacton() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransacton");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonRollback() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonAbort() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonAbort");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonThrow() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonErrorThrow");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -73,7 +73,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonThrowAndCatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactionErrorThrowAndCatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
@@ -81,14 +81,14 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonCommitted() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonCommitted");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTwoTransactons() {
         BValue[] returns = BRunUtil.invoke(result, "testTwoTransactons");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -96,13 +96,13 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testTransactonWithoutHandlers() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonWithoutHandlers");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testLocalTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
@@ -111,7 +111,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testLocalTransactonSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
@@ -119,10 +119,46 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test
+    @Test(groups = "TransactionTest")
     public void testLocalTransactonFailedWithNextupdate() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonFailedWithNextupdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedTwoLevelTransactonSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedTwoLevelTransactonSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonSuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonFailed() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testNestedThreeLevelTransactonFailedWithRetrySuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailedWithRetrySuccess");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed txL3 txL3_If");
+    }
+
+    @Test(dependsOnGroups = "TransactionTest")
+    public void testCloseConnectionPool() {
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @AfterSuite
