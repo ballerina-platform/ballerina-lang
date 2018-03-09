@@ -90,13 +90,13 @@ public class Init extends AbstractHttpNativeFunction {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
         long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
-        String transferEncoding = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
+        String transferEncoding = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
         String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
-        if (host == null) {
+        if (host == null || host.isEmpty()) {
             listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
         } else {
             listenerConfiguration.setHost(host);
@@ -106,7 +106,7 @@ public class Init extends AbstractHttpNativeFunction {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
+        if ((transferEncoding != null || !transferEncoding.isEmpty()) && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING
                 .equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                                                           + transferEncoding);

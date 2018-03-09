@@ -30,7 +30,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.BallerinaWebSocketServerConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -60,6 +62,10 @@ public class Start extends AbstractHttpNativeFunction {
         serverConnectorFuture
                 .setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
         // TODO: set startup server port binder. Do we really need it with new design?
+        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
+        serverConnectorFuture.setPortBindingEventListener(
+                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
+
         return new BValue[]{null};
     }
 }

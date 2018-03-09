@@ -9,6 +9,10 @@ public struct ServiceEndpoint {
     ServiceEndpointConfiguration config;
 }
 
+public function <ServiceEndpoint ep> ServiceEndpoint() {
+    ep.config = {};
+}
+
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
@@ -31,9 +35,9 @@ public struct ServiceEndpoint {
 @Field {value:"chunking: The chunking behaviour of the response"}
 public struct ServiceEndpointConfiguration {
     string host;
-    int port;
+    int port = 9090;
     KeepAlive keepAlive;
-    string transferEncoding;
+    TransferEncoding transferEncoding;
     Chunking chunking;
     SslConfiguration ssl;
 }
@@ -41,6 +45,7 @@ public struct ServiceEndpointConfiguration {
 public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
+    config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
 public struct SslConfiguration {
@@ -65,6 +70,10 @@ public enum KeepAlive {
 
 public enum Chunking {
     AUTO, ALWAYS, NEVER
+}
+
+public enum TransferEncoding {
+    CHUNKING
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
