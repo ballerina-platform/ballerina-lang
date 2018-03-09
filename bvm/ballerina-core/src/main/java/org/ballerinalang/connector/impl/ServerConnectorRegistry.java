@@ -90,7 +90,7 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        return new ServiceImpl(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getEndpointName());
+        return null;
     }
 
 

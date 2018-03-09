@@ -30,6 +30,7 @@ import org.ballerinalang.util.codegen.StructInfo;
  *
  * @since 0.94
  */
+@Deprecated
 public class ConnectorUtils extends ConnectorSPIModelHelper {
 
     /**
@@ -41,7 +42,7 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
      * @return created struct.
      */
     public static BStruct createStruct(Resource resource, String packageName, String structName) {
-        return createAndGetStruct(resource, packageName, structName);
+        return null;
     }
 
     /**

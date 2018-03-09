@@ -27,10 +27,13 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -162,6 +165,14 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public List<? extends EndpointNode> getEndpointNodes() {
         return endpoints;
+    }
+
+    @Override
+    public void bindToEndpoint(SimpleVariableReferenceNode endpointRef) {
+        final BLangSimpleVarRef endpointVar = (BLangSimpleVarRef) endpointRef;
+        if ((endpointVar.symbol.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
+            this.attachedEndpoints.add((BEndpointVarSymbol) endpointVar.symbol);
+        }
     }
 
     @Override

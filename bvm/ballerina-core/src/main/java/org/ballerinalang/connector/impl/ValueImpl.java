@@ -35,9 +35,11 @@ public class ValueImpl implements Value {
     private String stringValue;
     private boolean booleanValue;
     private StructImpl structValue;
+    private BValue value;
 
-    private ValueImpl(Type type) {
+    private ValueImpl(Type type, BValue value) {
         this.type = type;
+        this.value = value;
     }
 
     @Override
@@ -70,11 +72,15 @@ public class ValueImpl implements Value {
         return structValue;
     }
 
+    public BValue getVMValue() {
+        return this.value;
+    }
+
     public static ValueImpl createValue(BValue value) {
         if (value == null) {
             return null;
         }
-        ValueImpl val = new ValueImpl(Type.getType(value.getType().getTag()));
+        ValueImpl val = new ValueImpl(Type.getType(value), value);
         switch (val.type) {
             case INT:
                 val.intValue = ((BValueType) value).intValue();
@@ -87,6 +93,8 @@ public class ValueImpl implements Value {
                 break;
             case STRUCT:
                 val.structValue = new StructImpl((BStruct) value);
+                break;
+            case NULL:
                 break;
             default:
                 val.stringValue = value.stringValue();

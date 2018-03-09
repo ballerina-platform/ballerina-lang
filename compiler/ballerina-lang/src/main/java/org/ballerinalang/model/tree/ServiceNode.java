@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
@@ -48,5 +49,7 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     void setInitFunction(FunctionNode function);
 
     FunctionNode getInitFunction();
+
+    void bindToEndpoint(SimpleVariableReferenceNode endpointRef);
     
 }

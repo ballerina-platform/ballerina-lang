@@ -32,5 +32,6 @@ public class BEndpointVarSymbol extends BVarSymbol {
 
     public BEndpointVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(flags, name, pkgID, type, owner);
+        this.tag = SymTag.ENDPOINT;
     }
 }

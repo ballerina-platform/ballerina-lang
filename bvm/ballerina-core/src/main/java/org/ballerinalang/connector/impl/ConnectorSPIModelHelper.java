@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
@@ -27,9 +25,7 @@ import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.StructInfo;
 
 import java.util.Arrays;
 
@@ -42,25 +38,8 @@ public class ConnectorSPIModelHelper {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
 
-    protected static BStruct createAndGetStruct(Resource resource, String packageName, String structName) {
-        PackageInfo packageInfo = getPackageInfo(resource);
-        ProgramFile programFile = packageInfo.getProgramFile();
-
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packageName);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
-    }
-
-    protected static PackageInfo getPackageInfo(Resource resource) {
-        ResourceInfo resourceInfo = ((ResourceImpl) resource).getResourceInfo();
-        ServiceInfo serviceInfo = resourceInfo.getServiceInfo();
-        return serviceInfo.getPackageInfo();
-    }
-
     public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo) {
-        ServiceImpl service = new ServiceImpl(serviceInfo.getName(), serviceInfo.getPackagePath(),
-                serviceInfo.getEndpointName());
+        ServiceImpl service = new ServiceImpl(serviceInfo);
         processAnnotations(serviceInfo.getPackagePath(), programFile, service);
         Arrays.stream(serviceInfo.getResourceInfoEntries()).forEach(resourceInfo -> {
             ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), resourceInfo);

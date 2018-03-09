@@ -59,7 +59,7 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
      *
      * @return resourceInfo object.
      */
-    protected ResourceInfo getResourceInfo() {
+    public ResourceInfo getResourceInfo() {
         return resourceInfo;
     }
 
