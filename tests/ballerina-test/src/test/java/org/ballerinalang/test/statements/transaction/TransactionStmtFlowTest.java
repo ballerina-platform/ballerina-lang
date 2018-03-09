@@ -280,7 +280,7 @@ public class TransactionStmtFlowTest {
                 "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock inFirstTrxFld err inSecTrxBlock inFSecTrxEnd end");
     }
 
-    //@Test() //TODO:uncomment after VM fix for http actions.
+    @Test() //TODO:uncomment after VM fix for http actions.
     public void testValidAbortAndReturn() {
         BValue[] returns = BRunUtil.invoke(programFile, "testAbort", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
