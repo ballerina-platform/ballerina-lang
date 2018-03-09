@@ -77,8 +77,6 @@ public class PackageLoader {
     private SymbolEnter symbolEnter;
     private Names names;
 
-//    private PackageRepository packageRepo;
-
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
         if (loader == null) {
@@ -148,7 +146,7 @@ public class PackageLoader {
                 return bLangPackage;
             }
 
-            pkgEntity = loadPackageEntity(pkgId, source);
+            pkgEntity = loadPackageEntity(pkgId);
             bLangPackage = loadPackageFromEntity(pkgId, pkgEntity); //loadPackage(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
@@ -172,7 +170,7 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId, String source) {
+    private PackageEntity loadPackageEntity(PackageID pkgId) {
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
             throw new RuntimeException("Package not found " + pkgId);
@@ -267,7 +265,7 @@ public class PackageLoader {
         PackageID pkgId = PackageID.DEFAULT;
         BLangPackage bLangPackage;
         if (source.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
-            pkgEntity = loadPackageEntity(pkgId, source);
+            pkgEntity = loadPackageEntity(pkgId);
             bLangPackage = loadPackageFromEntity(pkgId, pkgEntity); // loadPackage(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
@@ -386,42 +384,4 @@ public class PackageLoader {
         this.packageCache.put(pkgId, bLangPackage);
         return bLangPackage;
     }
-
-    private void loadPackageRepository(CompilerContext context) {
-        // Initialize program dir repository a.k.a entry package repository
-//        PackageRepository programRepo = context.get(PackageRepository.class);
-//        if (programRepo == null) {
-//            // create the default program repo
-//            String sourceRoot = options.get(PROJECT_DIR);
-//            // TODO: replace by the org read form TOML.
-//            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
-//        }
-
-//        this.packageRepo =
-// new CompositePackageRepository(systemRepo, this.loadUserRepository(systemRepo), programRepo);
-    }
-
-//    private PackageRepository loadSystemRepository() {
-//        ServiceLoader<SystemPackageRepositoryProvider> loader = ServiceLoader.load(
-//                SystemPackageRepositoryProvider.class);
-//        AggregatedPackageRepository repo = new AggregatedPackageRepository();
-//        loader.forEach(e -> repo.addRepository(e.loadRepository()));
-//        return repo;
-//    }
-//
-//    private PackageRepository loadExtensionRepository() {
-//        ServiceLoader<ExtensionPackageRepositoryProvider> loader = ServiceLoader.load(
-//                ExtensionPackageRepositoryProvider.class);
-//        AggregatedPackageRepository repo = new AggregatedPackageRepository();
-//        loader.forEach(e -> repo.addRepository(e.loadRepository()));
-//        return repo;
-//    }
-//
-//    private PackageRepository loadUserRepository(PackageRepository systemRepo) {
-//        ServiceLoader<UserRepositoryProvider> loader = ServiceLoader.load(UserRepositoryProvider.class);
-//        AggregatedPackageRepository userRepo = new AggregatedPackageRepository();
-//        loader.forEach(e -> userRepo.addRepository(e.loadRepository()));
-//
-//        return new CompositePackageRepository(systemRepo, this.loadExtensionRepository(), userRepo);
-//    }
 }
