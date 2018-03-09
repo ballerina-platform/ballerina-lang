@@ -8,7 +8,7 @@ service<http> echo11 {
         path:"echo2"
     }
     resource echo1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo5":"echo5"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -19,7 +19,7 @@ service<http> echo11 {
         path:"/echo2/{abc}-{xyz}"
     }
     resource echo2 (http:Connection conn, http:Request req, string abc, string xyz) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -30,7 +30,7 @@ service<http> echo11 {
         path:"/echo2/{abc}+{xyz}"
     }
     resource echo3 (http:Connection conn, http:Request req, string abc, string xyz) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":xyz, "second":abc};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -41,7 +41,7 @@ service<http> echo11 {
         path:"/echo2/{abc}"
     }
     resource echo4 (http:Connection conn, http:Request req, string abc) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo3":abc};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -52,7 +52,7 @@ service<http> echo11 {
         path:"/echo2/{abc}+{xyz}/bar"
     }
     resource echo5 (http:Connection conn, http:Request req, string abc, string xyz) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -63,7 +63,7 @@ service<http> echo11 {
         path:"/echo2/{abc}+{xyz}/{bar}"
     }
     resource echo6 (http:Connection conn, http:Request req, string abc, string xyz, string bar) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":bar};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -74,7 +74,7 @@ service<http> echo11 {
         path:"/echo2/*"
     }
     resource echo7 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo5":"any"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -85,7 +85,7 @@ service<http> echo11 {
         path:"/echo2/{abc}+{xyz}/bar"
     }
     resource echo8 (http:Connection conn, http:Request req, string abc, string xyz) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -101,7 +101,7 @@ service<http> echo11 {
         foo, _ = (string)params.foo;
         json responseJson = {"first":abc, "second":xyz, "third":foo, "echo9":"echo9"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -116,7 +116,7 @@ service<http> echo11 {
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo10":"echo10"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -127,7 +127,7 @@ service<http> echo11 {
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo11":"echo11"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -137,7 +137,7 @@ service<http> echo11 {
         path:"/echo12/{abc}/bar"
     }
     resource echo12 (http:Connection conn, http:Request req, string abc) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo12":abc};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -153,7 +153,7 @@ service<http> echo11 {
         bar, _ = (string)params.foo;
         json responseJson = {"echo125":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -169,7 +169,7 @@ service<http> echo11 {
         bar, err = (string)params.foo;
         json responseJson = {"echo125":bar, "error":err.message};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -186,7 +186,7 @@ service<http> echo11 {
         bar, _ = <int>barStr;
         json responseJson = {"echo13":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -203,7 +203,7 @@ service<http> echo11 {
         bar, _ = <float>barStr;
         json responseJson = {"echo14":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -220,7 +220,7 @@ service<http> echo11 {
         bar, _ = <boolean> barStr;
         json responseJson = {"echo15":bar};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -242,7 +242,7 @@ service<http> echo22 {
     }
     resource echo1 (http:Connection conn, http:Request req) {
         json responseJson = {"echo1":"echo1"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -252,7 +252,7 @@ service<http> echo22 {
         path:"/echo2/*"
     }
     resource echo2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo2":"echo2"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -263,7 +263,7 @@ service<http> echo22 {
         path:"/echo2/foo/bar"
     }
     resource echo3 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo3":"echo3"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -278,7 +278,7 @@ service<http> echo33 {
         foo, _ = (string)params.foo;
         json responseJson = {"third":foo, "echo33":"echo1"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -291,7 +291,7 @@ service<http> echo44 {
         path:"echo2"
     }
     resource echo221 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":"zzz"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -302,7 +302,7 @@ service<http> echo44 {
         var foo, _ = (string)params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -312,7 +312,7 @@ service<http> echo44 {
         path:"echo2"
     }
     resource echo222 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"first":"bar"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -330,7 +330,7 @@ service<http> echo55 {
         foo, _ = (string)params.foo;
         json responseJson = {"echo55":"echo55"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -339,7 +339,7 @@ service<http> echo55 {
         path:"/*"
     }
     resource echo2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo55":"default"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -354,7 +354,7 @@ service<http> echo55 {
         foo, _ = (string)params.foo;
         json responseJson = {"echo55":"/foo/*"};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -366,7 +366,7 @@ service<http> echo66 {
         path:"/a/*"
     }
     resource echo1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo66": req.extraPathInfo};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -376,7 +376,7 @@ service<http> echo66 {
         path:"/a"
     }
     resource echo2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         if (req.extraPathInfo == null) {
             req.extraPathInfo = "empty";
         }

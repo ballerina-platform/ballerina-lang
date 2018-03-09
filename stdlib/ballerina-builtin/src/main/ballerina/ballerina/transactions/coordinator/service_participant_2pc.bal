@@ -33,7 +33,7 @@ service<http> Participant2pcService {
         methods:["POST"]
     }
     resource prepare (http:Connection conn, http:Request req) {
-        http:OutResponse res;
+        http:Response res;
         var payload, _ = req.getJsonPayload();
         var prepareReq, _ = <PrepareRequest>payload;
         string transactionId = prepareReq.transactionId;
@@ -80,7 +80,7 @@ service<http> Participant2pcService {
         var notifyReq, _ = <NotifyRequest>payload;
         string transactionId = notifyReq.transactionId;
         log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + transactionId);
-        http:OutResponse res;
+        http:Response res;
 
         NotifyResponse notifyRes;
         var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[transactionId];

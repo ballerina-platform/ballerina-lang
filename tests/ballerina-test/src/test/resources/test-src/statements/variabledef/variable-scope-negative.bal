@@ -38,13 +38,13 @@ service<http> myService {
     int a = 20;
 
     resource myResource1(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         int b = a + 50;
         _ = conn.respond(res);
     }
 
     resource myResource2(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         int c = b + 50;
         _ = conn.respond(res);
     }

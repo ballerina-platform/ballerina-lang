@@ -16,7 +16,7 @@ service<http> httpService {
         methods:["POST", "GET", "PUT", "My"]
     }
     resource testResource (http:Connection conn, http:Request req) {
-        http:OutResponse resp = {};
+        http:Response resp = {};
         var payload, payloadError = req.getStringPayload();
         if (payloadError == null) {
             io:println(payload);

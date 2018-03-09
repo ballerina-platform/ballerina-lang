@@ -78,7 +78,7 @@ service<http> InitiatorService {
 
         var payload, _ = req.getJsonPayload();
         var registrationReq, e = <RegistrationRequest>payload;
-        http:OutResponse res;
+        http:Response res;
         if (e != null || registrationReq == null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};

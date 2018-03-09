@@ -8,7 +8,7 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Connection conn, http:Request req) {
-        http:OutResponse resp = {};
+        http:Response resp = {};
         var payload, _ = req.getStringPayload();
         resp.setStringPayload(payload);
         _ = conn.respond(resp);

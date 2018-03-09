@@ -177,7 +177,7 @@ service<http> helloServer {
     }
     resource getPayloadFromFileChannel (http:Connection conn, http:Request request) {
         var byteChannel, _ = request.getByteChannel();
-        http:OutResponse response = {};
+        http:Response response = {};
         mime:Entity responseEntity = {};
         responseEntity.setByteChannel(byteChannel);
         response.setEntity(responseEntity);

@@ -21,13 +21,13 @@ import ballerina.net.http;
 }
 service<http> participant2 {
     resource task1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("Resource is invoked");
         _ = conn.respond(res);
     }
 
     resource task2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         string result = "incorrect id";
         transaction {
             if (req.getHeader("X-XID") == req.getHeader("participant-id")) {

@@ -14,7 +14,7 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
     }
@@ -35,7 +35,7 @@ service<http> echoOne {
         path:"/abc"
     }
     resource echoAbc (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
     }
@@ -52,7 +52,7 @@ service<http> echoDummy {
         path:"/"
     }
     resource echoDummy (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
     }

@@ -7,7 +7,7 @@ function main (string[] args) {
                               create http:HttpClient("https://localhost:9095", getConnectorConfigs());
     }
     http:Request req = {};
-    http:InResponse resp = {};
+    http:Response resp = {};
     log:printInfo("Sending request");
     resp, _ = connectorEP.get("/echo/", req);
     log:printInfo("response received");

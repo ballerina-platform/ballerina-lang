@@ -13,12 +13,12 @@ service<http> contentBasedRouting {
         }
         //Get JSON payload from the request message.
         var jsonMsg, payloadError = req.getJsonPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             //Get the string value relevant to the key "name".
             string nameString;
             nameString, _ = (string)jsonMsg["name"];
-            http:InResponse clientResponse;
+            http:Response clientResponse;
             http:HttpConnectorError err;
             if (nameString == "sanFrancisco") {
                 //"post" represents the POST action of HTTP connector. This routes the payload to the relevant service as the server accepts the entity enclosed.

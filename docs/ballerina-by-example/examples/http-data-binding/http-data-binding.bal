@@ -19,7 +19,7 @@ service<http> hello {
         json details = order.Details;
         io:println(details);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(details);
         _ = conn.respond(res);
     }
@@ -35,7 +35,7 @@ service<http> hello {
         xml city = store.selectChildren("city");
         io:println(city);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setXmlPayload(city);
         _ = conn.respond(res);
     }
@@ -57,7 +57,7 @@ service<http> hello {
         map marks = student.Marks;
         io:println(marks);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Name:name, Grade:grade});
         _ = conn.respond(res);
     }

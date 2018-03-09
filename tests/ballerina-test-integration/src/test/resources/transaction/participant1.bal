@@ -31,7 +31,7 @@ service<http> participant1 {
         }
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
-        http:InResponse clientResponse2;
+        http:Response clientResponse2;
         transaction {
             var clientResponse1, _ = endPoint.forward("/task1", req);
             clientResponse2, _ = endPoint.get("/task2", newReq);

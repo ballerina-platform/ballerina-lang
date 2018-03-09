@@ -7,7 +7,7 @@ service<http> echo {
         body:"person"
     }
     resource echo1 (http:Connection conn, http:Request req, string key, int person) {
-        http:OutResponse res = {};
+        http:Response res = {};
         _ = conn.respond(res);
     }
 }

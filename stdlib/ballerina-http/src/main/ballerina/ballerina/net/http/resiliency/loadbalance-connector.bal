@@ -37,54 +37,54 @@ public connector LoadBalancer (http:HttpClient[] loadBalanceClientsArray, functi
     @Description {value:"The POST action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.POST, loadBalanceInferredConfig);
     }
 
     @Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.HEAD, loadBalanceInferredConfig);
     }
 
     @Description {value:"The PATCH action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.PATCH, loadBalanceInferredConfig);
     }
 
     @Description {value:"The PUT action implementation of the Load Balance Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.PUT, loadBalanceInferredConfig);
     }
 
     @Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.OPTIONS, loadBalanceInferredConfig);
     }
 
     @Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.FORWARD, loadBalanceInferredConfig);
     }
 
@@ -92,27 +92,27 @@ public connector LoadBalancer (http:HttpClient[] loadBalanceClientsArray, functi
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceExecuteAction(path, request, httpVerb, loadBalanceInferredConfig);
     }
 
     @Description {value:"The DELETE action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.DELETE, loadBalanceInferredConfig);
     }
 
     @Description {value:"The GET action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
     @Param {value:"request: A Request struct"}
-    @Return {value:"The InResponse struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, HttpOperation.GET, loadBalanceInferredConfig);
     }
 }
@@ -121,7 +121,7 @@ public connector LoadBalancer (http:HttpClient[] loadBalanceClientsArray, functi
 // of the http verb and invokes the perform action method.
 function performLoadBalanceExecuteAction (string path, http:Request request,
                                string httpVerb, LoadBalanceInferredConfig loadBalanceInferredConfig)
-(http:InResponse, http:HttpConnectorError) {
+(http:Response, http:HttpConnectorError) {
     HttpOperation connctorAction = extractHttpOperation(httpVerb);
     if (connctorAction != null) {
         return performLoadBalanceAction(path, request, connctorAction, loadBalanceInferredConfig);
@@ -136,7 +136,7 @@ function performLoadBalanceExecuteAction (string path, http:Request request,
 // Handles all the actions exposed through the Load Balance connector.
 function performLoadBalanceAction (string path, http:Request request,
                                    HttpOperation requestAction, LoadBalanceInferredConfig loadBalanceInferredConfig)
-(http:InResponse, http:HttpConnectorError) {
+(http:Response, http:HttpConnectorError) {
 
     http:HttpClient loadBalanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
 
@@ -145,7 +145,7 @@ function performLoadBalanceAction (string path, http:Request request,
     LoadBalanceConnectorError loadBalanceConnectorError = {};
     http:HttpConnectorError httpConnectorError;
     loadBalanceConnectorError.httpConnectorError = [];
-    http:InResponse inResponse;
+    http:Response inResponse;
 
     // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
     // load balance endpoints to keep the request message to load balance the messages in case of failure.
@@ -192,7 +192,7 @@ public function (http:HttpClient [])(http:HttpClient) roundRobin =
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError,
                                                 http:HttpConnectorError httpConnectorError, int index)
-(http:InResponse, http:HttpConnectorError) {
+(http:Response, http:HttpConnectorError) {
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.httpConnectorError[index] = httpConnectorError;
     string lastErrorMsg = httpConnectorError.message;

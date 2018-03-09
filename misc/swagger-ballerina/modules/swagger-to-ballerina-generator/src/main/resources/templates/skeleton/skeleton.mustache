@@ -19,7 +19,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub de - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -32,7 +32,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -45,7 +45,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -58,7 +58,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -71,7 +71,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -84,7 +84,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -97,7 +97,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -110,7 +110,7 @@ service<http> {{cut info.title " "}} {
     }
     resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);

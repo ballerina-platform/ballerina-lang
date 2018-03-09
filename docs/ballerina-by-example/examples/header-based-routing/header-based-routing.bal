@@ -17,7 +17,7 @@ service<http> headerBasedRouting {
         }
         //Create new outbound request and inbound response to handle client call.
         http:Request newRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.
         string nameString = req.getHeader("type");
@@ -30,7 +30,7 @@ service<http> headerBasedRouting {
         }
 
         //Native function "forward" sends back the inbound clientResponse to the caller if no any error is found.
-        http:OutResponse res = {};
+        http:Response res = {};
         if (err != null) {
             res.statusCode = 500;
             res.setStringPayload(err.message);

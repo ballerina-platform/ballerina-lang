@@ -2,7 +2,7 @@ import ballerina.net.http;
 
 service<http> serviceName{
     resource resourceName (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.
     }
 }

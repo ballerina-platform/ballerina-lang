@@ -20,7 +20,7 @@ service<http> headerBasedRouting {
         var nameString = req.getHeader("name");
 
         http:Request clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", clientRequest);

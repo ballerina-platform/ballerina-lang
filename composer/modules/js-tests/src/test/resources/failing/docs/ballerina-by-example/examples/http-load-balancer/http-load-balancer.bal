@@ -18,7 +18,7 @@ service<http> loadBalancerService {
             resiliency:roundRobin);
         }
 
-        http:InResponse inResponse = {};
+        http:Response inResponse = {};
         http:HttpConnectorError httpConnectorError;
 
         http:Request outRequest = {};
@@ -26,7 +26,7 @@ service<http> loadBalancerService {
         outRequest.setJsonPayload(requestPayload);
         inResponse, httpConnectorError = endPoint.post("/", outRequest);
 
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         if (httpConnectorError != null) {
             outResponse.statusCode = httpConnectorError.statusCode;
             outResponse.setStringPayload(httpConnectorError.message);
@@ -43,7 +43,7 @@ service<http> mock1 {
         path:"/"
     }
     resource mock1Resource (http:Connection conn, http:Request req) {
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock1 Resource is invoked.");
         _ = conn.respond(outResponse);
     }
@@ -55,7 +55,7 @@ service<http> mock2 {
         path:"/"
     }
     resource mock2Resource (http:Connection conn, http:Request req) {
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }
@@ -67,7 +67,7 @@ service<http> mock3 {
         path:"/"
     }
     resource mock3Resource (http:Connection conn, http:Request req) {
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }

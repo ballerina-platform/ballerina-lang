@@ -11,7 +11,7 @@ service<http> helloWorld {
         endpoint<http:HttpClient> ep {
             create http:HttpClient("http://httpstat.us", {});
         }
-        http:InResponse backendResponse;
+        http:Response backendResponse;
         backendResponse, _ = ep.forward("/200", req);
 
         _ = conn.forward(backendResponse);

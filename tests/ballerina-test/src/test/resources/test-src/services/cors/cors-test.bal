@@ -18,7 +18,7 @@ service<http> echo1 {
          allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
     resource info1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"resCors"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -29,7 +29,7 @@ service<http> echo1 {
          path : "/test2"
     }
     resource info2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"serCors"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -42,7 +42,7 @@ service<http> echo1 {
         allowCredentials : true
     }
     resource info3 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"moreOrigins"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -58,7 +58,7 @@ service<http> hello2 {
          exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
     resource info1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"resOnlyCors"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -72,7 +72,7 @@ service<http> hello2 {
         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
     }
     resource info2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"optionsOnly"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -93,7 +93,7 @@ service<http> echo3 {
         methods:["POST", "PUT"]
     }
     resource info1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"cors"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -105,7 +105,7 @@ service<http> echo4 {
         methods:["POST"]
     }
     resource info1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"noCors"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -115,7 +115,7 @@ service<http> echo4 {
         methods:["OPTIONS"]
     }
     resource info2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"noCorsOPTIONS"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);

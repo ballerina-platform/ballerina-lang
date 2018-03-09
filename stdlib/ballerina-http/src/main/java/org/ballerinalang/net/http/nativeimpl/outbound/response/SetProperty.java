@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "propertyName", type = TypeKind.STRING),
                 @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type

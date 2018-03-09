@@ -10,7 +10,7 @@ service<http> Bankinfo {
     }
     resource product (http:Connection conn, http:Request req) {
         var jsonRequest, payloadError = req.getJsonPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             string branchCode;
             branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;

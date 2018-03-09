@@ -20,7 +20,7 @@ service<http> echo {
         path:"/"
     }
     resource echo (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
         io:println("successful");
@@ -37,7 +37,7 @@ service<http> echoDummy {
         path:"/"
     }
     resource echoDummy (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("hello world");
         _ = conn.respond(res);
     }

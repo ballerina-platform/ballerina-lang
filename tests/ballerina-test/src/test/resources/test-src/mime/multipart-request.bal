@@ -12,7 +12,7 @@ service<http> helloServer {
     resource multipart1 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var textContent, _ = bodyParts[0].getText();
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setStringPayload(textContent);
         _ = conn.respond(response);
     }
@@ -24,7 +24,7 @@ service<http> helloServer {
     resource multipart2 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var jsonContent, _ = bodyParts[0].getJson();
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setJsonPayload(jsonContent);
         _ = conn.respond(response);
     }
@@ -36,7 +36,7 @@ service<http> helloServer {
     resource multipart3 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var xmlContent, _ = bodyParts[0].getXml();
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setXmlPayload(xmlContent);
         _ = conn.respond(response);
     }
@@ -48,7 +48,7 @@ service<http> helloServer {
     resource multipart4 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var blobContent, _ = bodyParts[0].getBlob();
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setBinaryPayload(blobContent);
         _ = conn.respond(response);
     }
@@ -66,7 +66,7 @@ service<http> helloServer {
             content = content + " -- " + handleContent(part);
             i = i + 1;
         }
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setStringPayload(content);
         _ = conn.respond(response);
     }
@@ -77,7 +77,7 @@ service<http> helloServer {
     }
     resource multipart6 (http:Connection conn, http:Request request) {
         var entity, entityError = request.getMultiparts();
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setStringPayload(entityError.message);
         _ = conn.respond(response);
     }
@@ -95,7 +95,7 @@ service<http> helloServer {
             content = handleNestedParts(parentPart);
             i = i + 1;
         }
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setStringPayload(content);
         _ = conn.respond(response);
     }

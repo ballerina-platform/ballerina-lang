@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "propertyName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM

@@ -38,7 +38,7 @@ public class SwaggerConverterUtilsTest {
             "        methods:[\"GET\"]\n" +
             "    }\n" +
             "    resource stocks (http:Connection conn, http:Request inReq) {\n" +
-            "        http:OutResponse res = {};\n" +
+            "        http:Response res = {};\n" +
             "        json payload = {\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"};\n" +
             "        res.setJsonPayload(payload);\n" +
             "        _ = conn.respond(res);\n" +
@@ -60,12 +60,12 @@ public class SwaggerConverterUtilsTest {
             "                                    {endpointTimeout:5000}),\n" +
             "                     create http:HttpClient(\"http://localhost:9090/mock\", {})],\n" +
             "                     errorCode);\n" +
-            "        }        http:InResponse inResponse = {};\n" +
+            "        }        http:Response inResponse = {};\n" +
             "        http:HttpConnectorError err;        http:Request outRequest = {};\n" +
             "        json requestPayload = {\"name\":\"Ballerina\"};\n" +
             "        outRequest.setJsonPayload(requestPayload);\n" +
             "        inResponse, err = endPoint.post(\"/\", outRequest);        " +
-            "http:OutResponse outResponse = {};\n" +
+            "http:Response outResponse = {};\n" +
             "        if (err != null) {\n" +
             "            outResponse.statusCode = err.statusCode;\n" +
             "            outResponse.setStringPayload(err.message);\n" +
@@ -80,7 +80,7 @@ public class SwaggerConverterUtilsTest {
             "        path:\"/\"\n" +
             "    }\n" +
             "    resource echoResource (http:Connection conn, http:Request req) {\n" +
-            "        http:OutResponse outResponse = {};\n" +
+            "        http:Response outResponse = {};\n" +
             "        runtime:sleepCurrentWorker(30000);\n" +
             "        outResponse.setStringPayload(\"Resource is invoked\");\n" +
             "        _ = conn.respond(outResponse);\n" +
@@ -91,7 +91,7 @@ public class SwaggerConverterUtilsTest {
             "        path:\"/\"\n" +
             "    }\n" +
             "    resource mockResource (http:Connection conn, http:Request req) {\n" +
-            "        http:OutResponse outResponse = {};\n" +
+            "        http:Response outResponse = {};\n" +
             "        outResponse.setStringPayload(\"Mock Resource is Invoked.\");\n" +
             "        _ = conn.respond(outResponse);\n" +
             "    }\n" +

@@ -35,7 +35,7 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(packageName = "ballerina.net.http",
                    functionName = "getEntity",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "InResponse",
+                                        structType = "Response",
                                         structPackage = "ballerina.net.http"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)

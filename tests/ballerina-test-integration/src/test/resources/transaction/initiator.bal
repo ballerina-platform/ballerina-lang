@@ -31,7 +31,7 @@ service<http> InitiatorService {
             create http:HttpClient("http://localhost:8889/participant1", {});
         }
         http:Request newReq = {};
-        http:InResponse clientResponse1;
+        http:Response clientResponse1;
         transaction {
             clientResponse1, _ = endPoint.get("/", newReq);
         } failed {

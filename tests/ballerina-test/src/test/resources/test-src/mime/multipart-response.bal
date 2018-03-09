@@ -39,7 +39,7 @@ service<http> multipart {
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
 
         //Set the body parts to outbound response.
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setMultiparts(bodyParts, contentType);
 
@@ -54,7 +54,7 @@ service<http> multipart {
 
         var bodyParts, _ = request.getMultiparts();
         string contentType = request.getHeader("content-type");
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setMultiparts(bodyParts, contentType);
         _ = conn.respond(outResponse);
     }

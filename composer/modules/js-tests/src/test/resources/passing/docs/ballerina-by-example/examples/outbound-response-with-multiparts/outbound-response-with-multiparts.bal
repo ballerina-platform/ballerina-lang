@@ -36,7 +36,7 @@ service<http> multiparts {
 
         //Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
         _ = conn.respond(outResponse);

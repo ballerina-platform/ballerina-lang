@@ -18,7 +18,7 @@ service<http> helloWorld {
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
         var payload, payloadError = req.getStringPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             // Process the payload
             io:println(payload);

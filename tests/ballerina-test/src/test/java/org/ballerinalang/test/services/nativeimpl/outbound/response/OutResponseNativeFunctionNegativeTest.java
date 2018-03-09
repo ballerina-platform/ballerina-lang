@@ -50,8 +50,8 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class OutResponseNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-    private final String inRespStruct = HttpConstants.IN_RESPONSE;
-    private final String outRespStruct = HttpConstants.OUT_RESPONSE;
+    private final String inRespStruct = HttpConstants.RESPONSE;
+    private final String outRespStruct = HttpConstants.RESPONSE;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -193,7 +193,7 @@ public class OutResponseNativeFunctionNegativeTest {
                 "incompatible types: expected 'int', found 'string'", 4, 22);
         //testResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'method' in struct 'ballerina.net.http:InResponse'",
+                "undefined field 'method' in struct 'ballerina.net.http:Response'",
                 9, 21);
     }
 }

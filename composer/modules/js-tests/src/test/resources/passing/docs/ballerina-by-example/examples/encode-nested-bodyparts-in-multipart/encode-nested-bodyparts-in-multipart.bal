@@ -42,7 +42,7 @@ service<http> nestedparts {
         http:Request request = {};
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
-        http:InResponse resp1 = {};
+        http:Response resp1 = {};
         resp1, _ = httpEndpoint.post("/nestedparts/decoder", request);
 
         _ = conn.forward(resp1);

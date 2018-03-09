@@ -8,7 +8,7 @@ service<http> echo66 {
         consumes:["application/xml"]
     }
     resource echo1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"msg":"wso2"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -20,7 +20,7 @@ service<http> echo66 {
         produces:["text/xml","application/xml "]
     }
     resource echo2 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"msg":"wso22"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -33,7 +33,7 @@ service<http> echo66 {
         produces:["text/css","application/json"]
     }
     resource echo3 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"msg":"wso222"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -43,7 +43,7 @@ service<http> echo66 {
 @http:configuration {basePath:"/echo67"}
 service<http> echo67 {
     resource echo1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo33": "echo1"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);

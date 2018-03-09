@@ -63,7 +63,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class OutResponseNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
-    private final String outRespStruct = HttpConstants.OUT_RESPONSE;
+    private final String outRespStruct = HttpConstants.RESPONSE;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -499,7 +499,7 @@ public class OutResponseNativeFunctionSuccessTest {
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
         BStruct outResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                HttpConstants.IN_RESPONSE);
+                HttpConstants.RESPONSE);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 

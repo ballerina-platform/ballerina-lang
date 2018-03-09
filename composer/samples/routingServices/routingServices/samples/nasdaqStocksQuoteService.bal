@@ -10,7 +10,7 @@ service<http> nasdaqStocksQuote {
     }
     resource stocks (http:Connection conn, http:Request req) {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

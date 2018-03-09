@@ -14,7 +14,7 @@ service<http> sample {
     }
 
     resource getCount(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("count - " + requestCount);
         _ = conn.respond(res);
     }
@@ -81,7 +81,7 @@ service<http> sample1 {
     }
 
     resource getResult(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText + requestCount + price + person.age + person.address.line1
                              + floatArr[0] + floatArr[1] + strVal);
@@ -164,7 +164,7 @@ service<http> sample2 {
     }
 
     resource getResult(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText1 + requestCount + price + person1.age + person1.address.line1
                                 + floatArr1[0] + floatArr1[1] + strVal);
@@ -188,7 +188,7 @@ service<http> sample3 {
     }
 
     resource getMsg(http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
 
         lock {
             message = "modified by second resource";

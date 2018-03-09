@@ -49,7 +49,7 @@ public class CodeGeneratorTest {
                     "        methods:[\"GET\"]\n" +
                     "    }\n" +
                     "    resource stocks (http:Connection conn, http:Request inReq) {\n" +
-                    "        http:OutResponse res = {};\n" +
+                    "        http:Response res = {};\n" +
                     "        json payload = {\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"};\n" +
                     "        res.setJsonPayload(payload);\n" +
                     "        _ = conn.respond(res);\n" +

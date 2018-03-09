@@ -17,7 +17,7 @@ service<http> CustomerMgtService {
             payload = {"Status":"Customer is successfully added."};
         }
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

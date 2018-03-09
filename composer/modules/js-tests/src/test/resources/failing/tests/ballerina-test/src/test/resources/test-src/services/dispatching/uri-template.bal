@@ -15,7 +15,7 @@ service<http> Ecommerce {
         json responseJson = {"X-ORDER-ID":orderId, "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -31,7 +31,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T2", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -47,7 +47,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T3", "ProductID":productId, "RegID":regId};
         io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -66,7 +66,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -87,7 +87,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         io:println (responseJson.toString ());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -106,7 +106,7 @@ service<http> Ecommerce {
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -115,7 +115,7 @@ service<http> Ecommerce {
         path:""
     }
     resource echo1 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo11":"echo11"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -132,7 +132,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo99 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         _ = conn.respond(res);
     }
 
@@ -141,7 +141,7 @@ service<http> echo111 {
         path : "/hi"
     }
     resource productsOptions (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"wso2"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -152,7 +152,7 @@ service<http> echo111 {
         path : "/test"
     }
     resource productsInfo98 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         _ = conn.respond(res);
 
     }
@@ -162,7 +162,7 @@ service<http> echo111 {
         path : "/getme"
     }
     resource productsGet (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"get"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -173,7 +173,7 @@ service<http> echo111 {
         path : "/post"
     }
     resource productsPOST (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"post"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -184,7 +184,7 @@ service<http> echo111 {
         path : "/put"
     }
     resource productsPUT (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"put"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -207,7 +207,7 @@ service<http> serviceHello {
         path:"/test/"
     }
     resource productsInfo (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo":"sanitized"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -224,7 +224,7 @@ service<http> echo113 {
         path:"/ech[o/{foo}"
     }
     resource productsInfo (http:Connection conn, http:Request req, string foo) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo113": foo};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
@@ -241,7 +241,7 @@ service<http> echo114 {
         path:"/ech%5Bo14/{foo}"
     }
     resource productsInfo (http:Connection conn, http:Request req, string foo) {
-        http:OutResponse res = {};
+        http:Response res = {};
         json responseJson = {"echo114": foo};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);

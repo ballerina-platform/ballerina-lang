@@ -12,7 +12,7 @@ service<http> headQuoteService {
         }
         string method = req.method;
         http:Request clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
@@ -24,7 +24,7 @@ service<http> headQuoteService {
         endpoint<http:HttpClient> endPoint {
               create http:HttpClient("http://localhost:9090", {});
         }
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
         _ = conn.forward(clientResponse);
     }
@@ -36,7 +36,7 @@ service<http> headQuoteService {
         endpoint<http:HttpClient> endPoint {
               create http:HttpClient("http://localhost:9090", {});
         }
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         clientResponse, _ = endPoint.forward("/getQuote/stocks", req);
         _ = conn.forward(clientResponse);
     }
@@ -49,7 +49,7 @@ service<http> headQuoteService {
             create http:HttpClient("http://localhost:9090", {});
         }
         http:Request clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         clientResponse, _ = endPoint.execute(method, "/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
@@ -67,7 +67,7 @@ service<http> testClientConHEAD {
             create http:HttpClient("http://localhost:9090", {});
         }
         http:Request clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         clientResponse, _ = quoteEP.get("/getQuote/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }
@@ -81,7 +81,7 @@ service<http> quoteService {
         path:"/stocks"
     }
     resource company (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("wso2");
         _ = conn.respond(res);
     }
@@ -91,7 +91,7 @@ service<http> quoteService {
         path:"/stocks"
     }
     resource product (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("ballerina");
         _ = conn.respond(res);
     }
@@ -100,7 +100,7 @@ service<http> quoteService {
         path:"/stocks"
     }
     resource defaultStock (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setHeader("Method", "any");
         res.setStringPayload("default");
         _ = conn.respond(res);
@@ -111,7 +111,7 @@ service<http> quoteService {
         body:"person"
     }
     resource employee (http:Connection conn, http:Request req, json person) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(person);
         _ = conn.respond(res);
     }

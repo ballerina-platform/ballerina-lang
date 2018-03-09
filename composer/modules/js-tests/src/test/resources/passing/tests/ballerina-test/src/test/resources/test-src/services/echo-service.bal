@@ -19,7 +19,7 @@ service<http> echo {
         path:"/message"
     }
     resource echo (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         _ = conn.respond(res);
     }
     
@@ -29,7 +29,7 @@ service<http> echo {
     }
     resource echo_worker (http:Connection conn, http:Request req) {
         worker w1 {
-            http:OutResponse res = {};
+            http:Response res = {};
             _ = conn.respond(res);
         }
         worker w2 {
@@ -43,7 +43,7 @@ service<http> echo {
         path:"/setString"
     }
     resource setString (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         serviceLevelStr, _ = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
         _ = conn.respond(res);
@@ -54,7 +54,7 @@ service<http> echo {
         path:"/getString"
     }
     resource getString (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(serviceLevelStr);
         _ = conn.respond(res);
     }
@@ -63,7 +63,7 @@ service<http> echo {
         methods:["GET"]
     }
     resource removeHeaders (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
@@ -76,7 +76,7 @@ service<http> echo {
         path:"/getServiceLevelString"
     }
     resource getServiceLevelString (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(serviceLevelStringVar);
         _ = conn.respond(res);
     }
@@ -86,7 +86,7 @@ service<http> echo {
         path:constPath
     }
     resource connstValueAsAttributeValue (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("constant path test");
         _ = conn.respond(res);
     }
@@ -109,7 +109,7 @@ service<http> echo {
         team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -119,7 +119,7 @@ service<http> echo {
         path:"/modify"
     }
     resource modify11 (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.statusCode = 204;
         _ = conn.respond(res);
     }

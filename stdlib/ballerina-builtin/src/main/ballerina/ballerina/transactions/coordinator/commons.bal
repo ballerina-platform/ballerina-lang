@@ -99,7 +99,7 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (string msg) returns (http:OutResponse res) {
+function respondToBadRequest (string msg) returns (http:Response res) {
     log:printError(msg);
     res = {statusCode:400};
     RequestError err = {errorMessage:msg};

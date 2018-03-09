@@ -30,12 +30,12 @@ int[] errorCodes = [404, 502];
 
 resiliency:FailoverConfig errorCode = {failoverCodes:errorCodes};
 
-function testSuccessScenario () (http:InResponse, http:HttpConnectorError) {
+function testSuccessScenario () (http:Response, http:HttpConnectorError) {
     endpoint<http:HttpClient> ep {
         create resiliency:Failover(failoverGroup, errorCode);
     }
 
-    http:InResponse clientResponse = {};
+    http:Response clientResponse = {};
     http:HttpConnectorError err;
     http:Request outReq = {};
 
@@ -49,12 +49,12 @@ function testSuccessScenario () (http:InResponse, http:HttpConnectorError) {
     return clientResponse, err;
 }
 
-function testFailureScenario () (http:InResponse, http:HttpConnectorError) {
+function testFailureScenario () (http:Response, http:HttpConnectorError) {
     endpoint<http:HttpClient> ep {
         create resiliency:Failover(failoverGroup, errorCode);
     }
 
-    http:InResponse clientResponse = {};
+    http:Response clientResponse = {};
     http:HttpConnectorError err;
     http:Request outReq = {};
 
@@ -75,57 +75,57 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
-        http:InResponse response;
+    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+        http:Response response;
         http:HttpConnectorError err;
         response, err = generateResponse(actualRequestNumber);
         actualRequestNumber = actualRequestNumber + 1;
         return response, err;
     }
 
-    action head (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action put (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action options (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action forward (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 }
 
-function generateErrorResponse () (http:InResponse, http:HttpConnectorError) {
+function generateErrorResponse () (http:Response, http:HttpConnectorError) {
     http:HttpConnectorError err = {};
     err.message = "Connection refused";
     err.statusCode = 502;
     return null, err;
 }
 
-function generateResponse (int count) (http:InResponse, http:HttpConnectorError) {
+function generateResponse (int count) (http:Response, http:HttpConnectorError) {
 
-    http:InResponse inResponse = {};
+    http:Response inResponse = {};
     http:HttpConnectorError err = {};
     if (count == 0) {
         err.message = "Connection refused";

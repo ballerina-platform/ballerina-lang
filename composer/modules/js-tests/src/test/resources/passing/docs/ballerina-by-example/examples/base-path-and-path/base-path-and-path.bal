@@ -12,7 +12,7 @@ service<http> echo {
     resource echo (http:Connection conn, http:Request req) {
         // A util method that can get the request payload.
         var payload, payloadError = req.getJsonPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             res.setJsonPayload(payload);
         } else {

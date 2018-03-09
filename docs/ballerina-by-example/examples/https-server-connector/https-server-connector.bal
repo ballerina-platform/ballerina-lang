@@ -16,7 +16,7 @@ service<http> helloWorld {
     }
 
     resource sayHello (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
     }

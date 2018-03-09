@@ -148,8 +148,7 @@ public class HttpConstants {
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
-    public static final String IN_RESPONSE = "InResponse";
-    public static final String OUT_RESPONSE = "OutResponse";
+    public static final String RESPONSE = "Response";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
@@ -198,14 +197,10 @@ public class HttpConstants {
     public static final int REQUEST_USER_AGENT_INDEX = 3;
     public static final int REQUEST_EXTRA_PATH_INFO_INDEX = 4;
 
-    //InResponse struct indexes
-    public static final int IN_RESPONSE_STATUS_CODE_INDEX = 0;
-    public static final int IN_RESPONSE_REASON_PHRASE_INDEX = 0;
-    public static final int IN_RESPONSE_SERVER_INDEX = 1;
-
-    //OutResponse struct indexes
-    public static final int OUT_RESPONSE_STATUS_CODE_INDEX = 0;
-    public static final int OUT_RESPONSE_REASON_PHRASE_INDEX = 0;
+    //Response struct indexes
+    public static final int RESPONSE_STATUS_CODE_INDEX = 0;
+    public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
+    public static final int RESPONSE_SERVER_INDEX = 1;
 
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;

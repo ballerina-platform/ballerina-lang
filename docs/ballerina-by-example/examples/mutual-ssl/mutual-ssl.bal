@@ -21,7 +21,7 @@ service<http> helloWorld {
     }
 
     resource sayHello (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         //Set response payload.
         res.setStringPayload("Successful");
         //Send response to client.
@@ -36,7 +36,7 @@ function main (string[] args) {
     }
     //Creates a request.
     http:Request req = {};
-    http:InResponse resp = {};
+    http:Response resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
     io:println("Response code: " + resp.statusCode);
     io:println("Response: " + resp.getStringPayload());

@@ -16,7 +16,7 @@ service<http> productmgt {
         json payload;
         payload, _ = (json)productsMap[prodId];
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -35,7 +35,7 @@ service<http> productmgt {
         } else {
             payload = {"Status":"An error occurred while retrieving json payload."};
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

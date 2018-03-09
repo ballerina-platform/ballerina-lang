@@ -8,7 +8,7 @@ service<http> headerService {
             create http:HttpClient("http://localhost:9090", {});
         }
         //http:Request clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Response clientResponse = {};
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
         clientResponse, _ = endPoint.get("/sample/stocks", req);
@@ -22,7 +22,7 @@ service<http> headerService {
         var clientResponse, _ = endPoint.forward("/sample/customers", req);
         string[] headers = clientResponse.getHeaders("person");
         json payload = {header1:headers[0] , header2:headers[1]};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -39,7 +39,7 @@ service<http> quoteService {
         string[] headers = req.getHeaders("core");
         json payload = {header1:headers[0] , header2:headers[1]};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -49,7 +49,7 @@ service<http> quoteService {
         path:"/customers"
     }
     resource product (http:Connection conn, http:Request req) {
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
         _ = conn.respond(res);

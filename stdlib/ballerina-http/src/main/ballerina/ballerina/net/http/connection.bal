@@ -24,7 +24,7 @@ public enum RedirectCode {
 @Param { value:"conn: The server connector connection" }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
 public function <Connection conn> respondContinue () (HttpConnectorError) {
-    OutResponse res = {};
+    Response res = {};
     res.statusCode = 100;
     HttpConnectorError err = conn.respond(res);
     return err;
@@ -36,7 +36,7 @@ public function <Connection conn> respondContinue () (HttpConnectorError) {
 @Param { value:"redirectCode: Status code of the specific redirect." }
 @Param { value:"locations: Array of locations where the redirection can happen." }
 @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-public function <Connection conn> redirect (OutResponse response, RedirectCode code, string[] locations) (HttpConnectorError) {
+public function <Connection conn> redirect (Response response, RedirectCode code, string[] locations) (HttpConnectorError) {
     if (code == RedirectCode.MULTIPLE_CHOICES_300) {
         response.statusCode = 300;
     } else if (code == RedirectCode.MOVED_PERMANENTLY_301) {

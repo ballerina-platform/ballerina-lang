@@ -33,7 +33,7 @@ service<http> echo {
         } else {
             value = req.getHeader("Transfer-Encoding");
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({"Outbound request content":value});
         _ = conn.respond(res);
     }

@@ -16,7 +16,7 @@ service<http> CustomerMgtService {
             payload = {"Status":"Customer is successfully added."};
         }
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -109,7 +109,7 @@ service<http> OrderMgtService {
             payload = {"Status":"Order is successfully added."};
         }
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -128,7 +128,7 @@ service<http> productmgt {
         json payload;
         payload, _ = (json)productsMap[prodId];
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -143,7 +143,7 @@ service<http> productmgt {
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }

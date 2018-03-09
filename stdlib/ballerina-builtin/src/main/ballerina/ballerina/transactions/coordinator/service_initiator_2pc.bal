@@ -33,7 +33,7 @@ service<http> Initiator2pcService {
         path:"/abort"
     }
     resource abortTransaction (http:Connection conn, http:Request req) {
-        http:OutResponse res;
+        http:Response res;
         var payload, _ = req.getJsonPayload();
         var abortReq, _ = <AbortRequest>payload;
         string transactionId = abortReq.transactionId;

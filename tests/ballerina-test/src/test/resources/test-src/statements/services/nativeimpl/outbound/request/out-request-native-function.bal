@@ -108,7 +108,7 @@ service<http> helloServer {
         req.addHeader(key, value);
         string result = req.getHeader(key);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({lang:result});
         _ = conn.respond(res);
     }
@@ -121,7 +121,7 @@ service<http> helloServer {
         req.setHeader("content-length", "15");
         int length = req.getContentLength();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:length});
         _ = conn.respond(res);
     }
@@ -134,7 +134,7 @@ service<http> helloServer {
         req.setHeader("Content-Type", "application/x-www-form-urlencoded");
         string header = req.getHeader("Content-Type");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }
@@ -148,7 +148,7 @@ service<http> helloServer {
         var value, _ = req.getJsonPayload();
         json lang = value.lang;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(lang);
         _ = conn.respond(res);
     }
@@ -161,7 +161,7 @@ service<http> helloServer {
         req.setProperty("wso2", "Ballerina");
         string property = req.getProperty("wso2");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:property});
         _ = conn.respond(res);
     }
@@ -174,7 +174,7 @@ service<http> helloServer {
         req.setStringPayload("ballerina");
         var value, _ = req.getStringPayload();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(value);
         _ = conn.respond(res);
     }
@@ -189,7 +189,7 @@ service<http> helloServer {
         var value, _ = req.getXmlPayload();
         var name = value.getTextValue();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(name);
         _ = conn.respond(res);
     }
@@ -206,7 +206,7 @@ service<http> helloServer {
         if (headerValue == null) {
             header = "value is null";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }
@@ -225,7 +225,7 @@ service<http> helloServer {
         if (headerValue == null) {
             header = "value is null";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:header});
         _ = conn.respond(res);
     }
@@ -239,7 +239,7 @@ service<http> helloServer {
         req.setHeader(key, value);
         string result = req.getHeader(key);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:result});
         _ = conn.respond(res);
     }
@@ -253,7 +253,7 @@ service<http> helloServer {
         req.setJsonPayload(jsonStr);
         var result, _ = req.getJsonPayload();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(result);
         _ = conn.respond(res);
     }
@@ -266,7 +266,7 @@ service<http> helloServer {
         req.setProperty(key, value);
         string result = req.getProperty(key);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({value:result});
         _ = conn.respond(res);
     }
@@ -279,7 +279,7 @@ service<http> helloServer {
         req.setStringPayload(value);
         var result, _ = req.getStringPayload();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({lang:result});
         _ = conn.respond(res);
     }
@@ -294,7 +294,7 @@ service<http> helloServer {
         var value, _ = req.getXmlPayload();
         var name = value.getTextValue();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({lang:name});
         _ = conn.respond(res);
     }
@@ -310,7 +310,7 @@ service<http> helloServer {
         var value, _ = req.getBinaryPayload();
         string name = value.toString("UTF-8");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({lang:name});
         _ = conn.respond(res);
     }
@@ -322,7 +322,7 @@ service<http> helloServer {
         var value, _ = req.getBinaryPayload();
         string name = value.toString("UTF-8");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(name);
         _ = conn.respond(res);
     }

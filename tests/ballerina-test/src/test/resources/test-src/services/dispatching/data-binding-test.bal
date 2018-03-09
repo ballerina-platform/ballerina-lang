@@ -13,7 +13,7 @@ service<http> echo {
     }
     resource body1 (http:Connection conn, http:Request req, string person) {
         json responseJson = {"Person":person};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -25,7 +25,7 @@ service<http> echo {
     }
     resource body2 (http:Connection conn, http:Request req, string key, string person) {
         json responseJson = {Key:key , Person:person};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -37,7 +37,7 @@ service<http> echo {
     resource body3 (http:Connection conn, http:Request req, json person) {
         json name = person.name;
         json team = person.team;
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Team:team});
         _ = conn.respond(res);
     }
@@ -49,7 +49,7 @@ service<http> echo {
     resource body4 (http:Connection conn, http:Request req, xml person) {
         string name = person.getElementName();
         string team = person.getTextValue();
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Team:team});
         _ = conn.respond(res);
     }
@@ -60,7 +60,7 @@ service<http> echo {
     }
     resource body5 (http:Connection conn, http:Request req, blob person) {
         string name = person.toString("UTF-8");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name});
         _ = conn.respond(res);
     }
@@ -72,7 +72,7 @@ service<http> echo {
     resource body6 (http:Connection conn, http:Request req, Person person) {
         string name = person.name;
         int age = person.age;
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Age:age});
         _ = conn.respond(res);
     }

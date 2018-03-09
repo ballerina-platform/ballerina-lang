@@ -17,7 +17,7 @@ service<http> sample {
         if (session != null) {
             result = "session created";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -35,7 +35,7 @@ service<http> sample {
         } else {
             result = "no session id available";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -53,7 +53,7 @@ service<http> sample {
         } else {
             result = "session is not created";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -72,7 +72,7 @@ service<http> sample {
         } else {
             result = "attribute not available";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -83,7 +83,7 @@ service<http> sample {
     }
     resource echo5 (http:Connection conn, http:Request req) {
 
-        http:OutResponse res = {};
+        http:Response res = {};
         string result = "chamil";
         http:Session session = conn.getSession();
         any attribute = session.getAttribute("name");
@@ -106,7 +106,7 @@ service<http> sample {
         if (attribute != null) {
             myName, err = (string)attribute;
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
         _ = conn.respond(res);
     }
@@ -126,7 +126,7 @@ service<http> sample {
         } else {
             session.setAttribute("name", result);
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -151,7 +151,7 @@ service<http> counter {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string> sessionCounter);
         _ = conn.respond(res);
     }
@@ -173,7 +173,7 @@ service<http> counter {
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(sessionCounter));
         _ = conn.respond(res);
     }
@@ -194,7 +194,7 @@ service<http> sample2 {
         }
         Session.setAttribute("name", "chamil");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
         _ = conn.respond(res);
     }
@@ -214,7 +214,7 @@ service<http> sample2 {
         } else {
             Session.setAttribute("nameStruct", d);
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(d.name);
         _ = conn.respond(res);
     }
@@ -231,7 +231,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("arraysize:" + arrsize);
         _ = conn.respond(res);
     }
@@ -247,7 +247,7 @@ service<http> sample2 {
         session.setAttribute("location", "colombo");
         string[] arr = session.getAttributeNames();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(arr[0]);
         _ = conn.respond(res);
     }
@@ -267,7 +267,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
         _ = conn.respond(res);
     }
@@ -286,7 +286,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
         _ = conn.respond(res);
     }
@@ -301,7 +301,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
         _ = conn.respond(res);
     }
@@ -318,7 +318,7 @@ service<http> sample2 {
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(arrsize));
         _ = conn.respond(res);
     }
@@ -329,7 +329,7 @@ service<http> sample2 {
     }
     resource getmap (http:Connection conn, http:Request req) {
 
-        http:OutResponse res = {};
+        http:Response res = {};
         http:Session session = conn.createSessionIfAbsent();
         var value = req.getHeader("counter");
         if (value == null) {
@@ -363,7 +363,7 @@ service<http> sample2 {
             string[] arr = attributes.keys();
             v0,_ = (string)attributes[arr[0]];
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("value" + ":" + v0);
         _ = conn.respond(res);
     }
@@ -377,7 +377,7 @@ service<http> sample2 {
         http:Session session = conn.createSessionIfAbsent();
         string id = session.getId();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(id);
         _ = conn.respond(res);
     }
@@ -391,7 +391,7 @@ service<http> sample2 {
         http:Session session = conn.getSession();
         string id = session.getId();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(id);
         _ = conn.respond(res);
     }
@@ -405,7 +405,7 @@ service<http> sample2 {
         http:Session session = conn.createSessionIfAbsent();
         boolean stat = session.isNew();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(stat));
         _ = conn.respond(res);
     }
@@ -419,7 +419,7 @@ service<http> sample2 {
         http:Session session = conn.createSessionIfAbsent();
         int time = session.getCreationTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -434,7 +434,7 @@ service<http> sample2 {
         session.invalidate();
         int time = session.getCreationTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -448,7 +448,7 @@ service<http> sample2 {
         http:Session session = conn.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -463,7 +463,7 @@ service<http> sample2 {
         session.invalidate();
         int time = session.getLastAccessedTime();
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -478,7 +478,7 @@ service<http> sample2 {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -493,7 +493,7 @@ service<http> sample2 {
         session.invalidate();
         session.setMaxInactiveInterval(89);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("done");
         _ = conn.respond(res);
     }
@@ -508,7 +508,7 @@ service<http> sample2 {
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(<string>(time));
         _ = conn.respond(res);
     }
@@ -523,7 +523,7 @@ service<http> sample2 {
         }
         Session.setAttribute("name", "SecondName");
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(myName);
         _ = conn.respond(res);
     }

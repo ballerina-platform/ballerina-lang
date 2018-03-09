@@ -24,7 +24,7 @@ service<http> sample {
     }
     resource sampleResource (http:Connection conn, http:Request req) {
         string value = req.getHeader("forwarded");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload("forwarded header value : " + value);
         _ = conn.respond(res);
     }
