@@ -20,13 +20,15 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
-import org.ballerinalang.code.generator.util.ClientContextHolder;
+import org.ballerinalang.code.generator.model.ClientContextHolder;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BallerinaFile;
@@ -38,7 +40,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -47,7 +48,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * <p>This class generates Service definitions, clients or connectors for a provided ballerina service.</p>
@@ -125,7 +125,10 @@ public class CodeGenerator {
     public String getConvertedString(Object object, String templateDir, String templateName)
             throws CodeGeneratorException {
         Template template = compileTemplate(templateDir, templateName);
-        Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
+        Context context = Context.newBuilder(object).resolver(
+                MapValueResolver.INSTANCE,
+                JavaBeanValueResolver.INSTANCE,
+                FieldValueResolver.INSTANCE).build();
         try {
             return template.apply(context);
         } catch (IOException e) {
@@ -174,7 +177,6 @@ public class CodeGenerator {
         }
     }
 
-
     /**
      * This method is responsible for generating code based on provided ballerina source and service name.
      *
@@ -182,12 +184,11 @@ public class CodeGenerator {
      * @param ballerinaSource Ballerina string source.
      * @param serviceName     Service name to be used to generate code(if multiple service available within ballerina
      *                        source).
-     * @param outPath         Output path to be written generated code.
      * @return generated string output which represent ballerina service(or its client).
      * @throws CodeGeneratorException when error occurs while conversion happens.
      */
-    public String generate(GeneratorConstants.GenType genType, String ballerinaSource, String serviceName,
-                           String outPath) throws CodeGeneratorException {
+    public String generate(GeneratorConstants.GenType genType, String ballerinaSource, String serviceName)
+            throws CodeGeneratorException {
         // Get the ballerina model using the ballerina source code.
         BFile balFile = new BFile();
         balFile.setContent(ballerinaSource);

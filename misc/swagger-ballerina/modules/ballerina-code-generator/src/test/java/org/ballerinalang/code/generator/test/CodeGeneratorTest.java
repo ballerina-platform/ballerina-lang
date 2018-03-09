@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
+package org.ballerinalang.code.generator.test;
+
 import org.ballerinalang.code.generator.CodeGenerator;
 import org.ballerinalang.code.generator.GeneratorConstants;
-
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-
 public class CodeGeneratorTest {
-    private String testResourceRoot;
-
-    @BeforeClass()
-    public void setup() {
-        testResourceRoot = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-    }
 
     @Test(description = "Test Ballerina skeleton generation when destination path is provided")
-    public void generateSkeletonWithDestination() {
-        String outPath = testResourceRoot + File.separator + "service.bal";
-        String definitionPath = testResourceRoot + File.separator + "petstore.yaml";
+    public void generateClientWithDestination() {
         CodeGenerator generator = new CodeGenerator();
         try {
             String ballerinaSource = "package passthroughservice.samples;\n" +
@@ -46,22 +36,24 @@ public class CodeGeneratorTest {
                     "service<http> nyseStockQuote {\n" +
                     "\n" +
                     "    @http:resourceConfig {\n" +
-                    "        methods:[\"GET\"]\n" +
+                    "        methods:[\"GET\"],\n" +
+                    "        path:\"/stocks/{name}\"" +
                     "    }\n" +
-                    "    resource stocks (http:Connection conn, http:InRequest inReq) {\n" +
+                    "    resource stock (http:Connection conn, http:InRequest inReq, string name) {\n" +
                     "        http:OutResponse res = {};\n" +
-                    "        json payload = {\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"};\n" +
+                    "        json payload = {\"exchange\":\"nyse\", \"name\": name, \"value\":\"127.50\"};\n" +
                     "        res.setJsonPayload(payload);\n" +
                     "        _ = conn.respond(res);\n" +
                     "    }\n" +
                     "}\n";
             String serviceName = "nyseStockQuote";
-            String generatedSource = generator.generate(GeneratorConstants.GenType.OPENAPI, ballerinaSource,
-                    serviceName, outPath);
+            String generatedSource = generator
+                    .generate(GeneratorConstants.GenType.CLIENT, ballerinaSource, serviceName);
             Assert.assertNotNull(generatedSource);
+            boolean isParamGenerated = generatedSource.contains("action stock (string name");
+            Assert.assertTrue(isParamGenerated, "Expected resource parameter not generated");
         } catch (CodeGeneratorException e) {
             Assert.fail();
-
         }
     }
 }

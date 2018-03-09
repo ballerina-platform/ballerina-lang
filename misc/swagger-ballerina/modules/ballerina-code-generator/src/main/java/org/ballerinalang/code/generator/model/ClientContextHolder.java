@@ -1,6 +1,21 @@
-package org.ballerinalang.code.generator.util;
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import org.ballerinalang.code.generator.model.OperationContext;
+package org.ballerinalang.code.generator.model;
+
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -19,12 +34,12 @@ public class ClientContextHolder {
 
     private String name;
     private String url;
-    private List<OperationContext> operations;
+    private List<ResourceContextHolder> resources;
 
     public static ClientContextHolder buildContext(ServiceNode service) {
         ClientContextHolder context = new ClientContextHolder();
         context.name = service.getName().getValue();
-        context.operations = new ArrayList<>();
+        context.resources = new ArrayList<>();
 
         // Iterate through all service level annotations and find out service hosting information
         for (AnnotationAttachmentNode ann: service.getAnnotationAttachments()) {
@@ -65,10 +80,10 @@ public class ClientContextHolder {
             }
         }
 
-        // Extract ballerina resource nodes as parsable operations
+        // Extract ballerina resource nodes as parsable resources
         for (ResourceNode resource: service.getResources()) {
-            OperationContext operation = OperationContext.buildOperation(resource);
-            context.operations.add(operation);
+            ResourceContextHolder operation = ResourceContextHolder.buildContext(resource);
+            context.resources.add(operation);
         }
 
         return context;
@@ -82,7 +97,7 @@ public class ClientContextHolder {
         return url;
     }
 
-    public List<OperationContext> getOperations() {
-        return operations;
+    public List<ResourceContextHolder> getResources() {
+        return resources;
     }
 }

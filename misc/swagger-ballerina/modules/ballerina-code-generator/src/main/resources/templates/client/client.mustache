@@ -7,34 +7,36 @@ public connector {{name}} () {
         create http:HttpClient("{{url}}", {});
     }
     http:HttpConnectorError httpError;
-{{#operations}}
-    action {{name}} () (http:InResponse, error ) {
+{{#resources}}
+    action {{name}} ({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) (http:InResponse, error) {
         http:OutRequest request = {};
         http:InResponse response = {};
         error outError;
 
         //Create the required request as needed
         //request.setHeader("Content-Type", "application/json");
-        response, httpError = ep.{{lower method}}("{{path}}", request);
+        string path = string `{{path}}`;
+        response, httpError = ep.{{lower method}}(path, request);
         if (httpError != null) {
             outError = {message:httpError.message, cause:httpError.cause};
         }
 
         return response, outError;
     }
-{{/operations}}
+{{/resources}}
 }
 
 function main (string[] args) {
-    endpoint<{{name}}> connectorEp{
+    endpoint<{{name}}> connectorEp {
         create {{name}}();
     }
 
     http:InResponse resp;
     error err;
-    {{#operations}}
+    string message;
+    {{#resources}}
     // sample invocation of {{name}} resource
-    resp, err = connectorEp.{{name}}();
-    io:println(resp. getStringPayload());
-    {{/operations}}
+    resp, err = connectorEp.{{name}}({{#parameters}}{{>arguments}}{{/parameters}});
+    message, _ = resp.getStringPayload();
+    io:println(message);{{/resources}}
 }
