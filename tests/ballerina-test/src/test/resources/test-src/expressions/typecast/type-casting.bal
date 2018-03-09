@@ -580,3 +580,31 @@ function testErrorOnCasting() (error, error, error, error) {
 
     return err1, err2, err3, err4;
 }
+
+function testAnyToTable() (table, any) {
+    table < Employee> tb = {};
+
+    Employee e1 = {id:1, name:"Jane"};
+    Employee e2 = {id:2, name:"Anne"};
+    tb.add(e1);
+    tb.add(e2);
+
+    any anyValue = tb;
+    table casted;
+    error err;
+    casted, err = (table) anyValue;
+    return casted, err;
+}
+
+function testAnyToTableWithErrors() (table, error) {
+    any stringValue = "SomeString";
+    table casted;
+    error err;
+    casted, err = (table) stringValue;
+    return casted, err;
+}
+
+struct Employee {
+    int id;
+    string name;
+}

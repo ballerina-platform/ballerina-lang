@@ -36,14 +36,17 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
         functionName = "commitResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
+        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
+                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class CommitResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);
-        boolean commitSuccessful = TransactionResourceManager.getInstance().notifyCommit(transactionId);
+        int transactionBlockId = (int) getIntArgument(ctx, 0);
+        boolean commitSuccessful =
+                TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
         return getBValues(new BBoolean(commitSuccessful));
     }
 }
