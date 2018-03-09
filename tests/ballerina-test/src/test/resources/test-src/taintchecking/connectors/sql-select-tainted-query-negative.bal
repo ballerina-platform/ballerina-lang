@@ -1,10 +1,10 @@
 import ballerina.data.sql;
 
 public function main (string[] args) {
-    testSelectWithTaintedNegative(args);
+    testSelectWithTaintedQueryNegative(args);
 }
 
-public function testSelectWithTaintedNegative(string[] args) {
+public function testSelectWithTaintedQueryNegative(string[] args) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});

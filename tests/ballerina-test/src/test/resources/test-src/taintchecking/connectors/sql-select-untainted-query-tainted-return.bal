@@ -1,16 +1,29 @@
 import ballerina.data.sql;
 
-public function main (string[] args) {
-    testSelectWithUntainted(args);
+struct Employee {
+    int id;
+    string name;
 }
 
-public function testSelectWithUntainted(string[] args) {
+public function main (string[] args) {
+    testSelectWithUntaintedQueryProducingTaintedReturn(args);
+}
+
+public function testSelectWithUntaintedQueryProducingTaintedReturn(string[] args) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
     }
 
     table dt = testDB.select("SELECT  FirstName from Customers where registrationID = 1", null, null);
+    while (dt.hasNext()) {
+        var rs, _ = (Employee)dt.getNext();
+        testFunction(rs.name);
+    }
     testDB.close();
     return;
+}
+
+public function testFunction (string anyValue) {
+
 }

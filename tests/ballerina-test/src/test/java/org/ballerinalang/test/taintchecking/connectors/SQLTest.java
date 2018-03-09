@@ -31,32 +31,32 @@ import org.testng.annotations.Test;
 public class SQLTest {
 
     @Test
-    public void testSelectWithUntainted() {
+    public void testSelectWithUntaintedQuery() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/sql-select-untainted.bal");
+                .compile("test-src/taintchecking/connectors/sql-select-untainted-query.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
-    public void testSelectWithTaintedNegative() {
+    public void testSelectWithTaintedQueryNegative() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/sql-select-tainted-negative.bal");
+                .compile("test-src/taintchecking/connectors/sql-select-tainted-query-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'query'", 13, 30);
     }
 
 
     @Test
-    public void testSelectTaintedReturn() {
+    public void testSelectWithUntaintedQueryProducingTaintedReturn() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/sql-select-tainted-return.bal");
+                .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
     @Test
-    public void testSelectTaintedReturnNegative() {
+    public void testSelectWithUntaintedQueryProducingTaintedReturnNegative() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/connectors/sql-select-tainted-return-negative.bal");
+                .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'sensitiveValue'", 21, 22);
     }

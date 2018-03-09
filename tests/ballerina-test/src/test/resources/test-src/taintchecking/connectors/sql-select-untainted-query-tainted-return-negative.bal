@@ -6,10 +6,10 @@ struct Employee {
 }
 
 public function main (string[] args) {
-    testSelectWithUntainted(args);
+    testSelectWithUntaintedQueryProducingTaintedReturnNegative(args);
 }
 
-public function testSelectWithUntainted(string[] args) {
+public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
     endpoint<sql:ClientConnector> testDB {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_SQL_CONNECTOR", "SA", "", {maximumPoolSize:1});
