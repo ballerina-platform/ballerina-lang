@@ -119,7 +119,7 @@ public class Http2ClientChannel {
      * @param streamId stream id
      * @return in-flight message associated with the a particular stream id
      */
-    public OutboundMsgHolder getInFlightMessage(int streamId) {
+    OutboundMsgHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);
     }
 
@@ -138,7 +138,7 @@ public class Http2ClientChannel {
      * @param streamId        stream id
      * @param promisedMessage {@code OutboundMsgHolder} which holds the promised message
      */
-    public void putPromisedMessage(int streamId, OutboundMsgHolder promisedMessage) {
+    void putPromisedMessage(int streamId, OutboundMsgHolder promisedMessage) {
         promisedMessages.put(streamId, promisedMessage);
     }
 
@@ -148,7 +148,7 @@ public class Http2ClientChannel {
      * @param streamId stream id
      * @return promised message associated with the a particular stream id
      */
-    public OutboundMsgHolder getPromisedMessage(int streamId) {
+    OutboundMsgHolder getPromisedMessage(int streamId) {
         return promisedMessages.get(streamId);
     }
 
