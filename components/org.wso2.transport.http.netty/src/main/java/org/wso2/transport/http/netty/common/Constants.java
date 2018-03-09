@@ -201,9 +201,11 @@ public final class Constants {
     public static final String HTTP2_SCHEME = ":scheme";
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
+    public static final String HTTP_ENCODER = "encoder";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
+    public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";

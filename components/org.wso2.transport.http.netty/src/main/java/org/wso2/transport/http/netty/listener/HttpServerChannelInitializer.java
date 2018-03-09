@@ -102,10 +102,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
 
             if (validateCertEnabled) {
-                ch.pipeline().addLast("certificateValidation",
+                ch.pipeline().addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                                       new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
             }
-            serverPipeline.addLast("encoder", new HttpResponseEncoder());
+            serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
             configureHTTPPipeline(serverPipeline);
 
             if (socketIdleTimeout > 0) {
@@ -167,7 +167,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 return null;
             }
         };
-        pipeline.addLast("encoder", sourceCodec);
+        pipeline.addLast(Constants.HTTP_ENCODER, sourceCodec);
         pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
         /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
