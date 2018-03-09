@@ -298,7 +298,7 @@ public function <Entity entity> getHeader (string headerName) (string) {
         return headerValue[0];
     } else {
         //Ignore case and check existence of header
-        string[] headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
+        var existingHeaderName, headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
         return headerValueArray == null ? null : headerValueArray[0];
     }
 }
@@ -311,7 +311,8 @@ public function <Entity entity> getHeaders (string headerName) (string[]) {
     if (entity.headers == null) {
         return null;
     }
-    return useCaseInsensitiveStrategy(headerName, entity.headers);
+    var existingHeaderName, headerValueArray = useCaseInsensitiveStrategy(headerName, entity.headers);
+    return headerValueArray;
 }
 
 @Description {value:"Get all the headers"}
@@ -332,12 +333,11 @@ public function <Entity entity> addHeader (string headerName, string headerValue
     if (entity.headers == null) {
         entity.headers = {};
     }
-    string[] existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
+    var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
     if (existingValues == null) {
         entity.setHeader(headerName, headerValue);
     } else {
         existingValues[lengthof existingValues] = headerValue;
-        string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
         entity.headers[existingHeaderName] = existingValues;
     }
 }
@@ -352,7 +352,7 @@ public function <Entity entity> setHeader (string headerName, string headerValue
         entity.headers = {};
     }
     string[] valueArray = [headerValue];
-    string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
+    var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
     if (existingHeaderName == null) {
         entity.headers[headerName] = valueArray;
     } else {
@@ -366,7 +366,7 @@ public function <Entity entity> setHeader (string headerName, string headerValue
 @Param {value:"headerName: Represent the header name"}
 public function <Entity entity> removeHeader (string headerName) {
     if (entity.headers != null) {
-        string existingHeaderName = getCaseInsensitiveHeaderName(headerName, entity.headers);
+        var existingHeaderName, existingValues = useCaseInsensitiveStrategy(headerName, entity.headers);
         if (existingHeaderName != null) {
             entity.headers.remove(existingHeaderName);
         }
@@ -395,23 +395,12 @@ public function <Entity entity> getContentLength () (int) {
     return -1;
 }
 
-function useCaseInsensitiveStrategy (string headerNameToLookFor, map headers) (string[]) {
+function useCaseInsensitiveStrategy (string headerNameToLookFor, map headers) (string, string[]) {
     foreach key, value in headers {
-        var headerKey, _ = (string)key;
-        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
+        if (key.toLowerCase() == headerNameToLookFor.toLowerCase()) {
             var headerVal, _ = (string[])value;
-            return headerVal;
+            return key, headerVal;
         }
     }
-    return null;
-}
-
-function getCaseInsensitiveHeaderName (string headerNameToLookFor, map headers) (string) {
-    foreach key, value in headers {
-        var headerKey, _ = (string)key;
-        if (headerKey.toLowerCase() == headerNameToLookFor.toLowerCase()) {
-            return headerKey;
-        }
-    }
-    return null;
+    return null, null;
 }
