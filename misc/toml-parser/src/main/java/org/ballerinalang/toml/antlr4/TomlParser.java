@@ -24,8 +24,8 @@ public class TomlParser extends Parser {
 		UPPERCASE_Z=50, HEXDIG=51;
 	public static final int
 		RULE_toml = 0, RULE_alpha = 1, RULE_expression = 2, RULE_ws = 3, RULE_wschar = 4, 
-		RULE_newline = 5, RULE_keyval = 6, RULE_key = 7, RULE_simpleKey = 8, RULE_unquotedKey = 9, 
-		RULE_quotedKey = 10, RULE_dottedKey = 11, RULE_keyvalSep = 12, RULE_dotSep = 13, 
+		RULE_newline = 5, RULE_keyVal = 6, RULE_key = 7, RULE_simpleKey = 8, RULE_unquotedKey = 9, 
+		RULE_quotedKey = 10, RULE_dottedKey = 11, RULE_keyValSep = 12, RULE_dotSep = 13, 
 		RULE_val = 14, RULE_string = 15, RULE_basicString = 16, RULE_basicChar = 17, 
 		RULE_digit = 18, RULE_escaped = 19, RULE_escapeSeqChar = 20, RULE_mlBasicString = 21, 
 		RULE_mlBasicStringDelim = 22, RULE_mlBasicBody = 23, RULE_mlBasicChar = 24, 
@@ -46,8 +46,8 @@ public class TomlParser extends Parser {
 		RULE_inlineTableKeyvalsNonEmpty = 76, RULE_table = 77, RULE_stdTable = 78, 
 		RULE_stdTableOpen = 79, RULE_stdTableClose = 80;
 	public static final String[] ruleNames = {
-		"toml", "alpha", "expression", "ws", "wschar", "newline", "keyval", "key", 
-		"simpleKey", "unquotedKey", "quotedKey", "dottedKey", "keyvalSep", "dotSep", 
+		"toml", "alpha", "expression", "ws", "wschar", "newline", "keyVal", "key", 
+		"simpleKey", "unquotedKey", "quotedKey", "dottedKey", "keyValSep", "dotSep", 
 		"val", "string", "basicString", "basicChar", "digit", "escaped", "escapeSeqChar", 
 		"mlBasicString", "mlBasicStringDelim", "mlBasicBody", "mlBasicChar", "literalString", 
 		"mlLiteralString", "mlLiteralStringDelim", "mlLiteralBody", "integer", 
@@ -252,8 +252,8 @@ public class TomlParser extends Parser {
 		public WsContext ws(int i) {
 			return getRuleContext(WsContext.class,i);
 		}
-		public KeyvalContext keyval() {
-			return getRuleContext(KeyvalContext.class,0);
+		public KeyValContext keyVal() {
+			return getRuleContext(KeyValContext.class,0);
 		}
 		public TableContext table() {
 			return getRuleContext(TableContext.class,0);
@@ -292,7 +292,7 @@ public class TomlParser extends Parser {
 				setState(174);
 				ws();
 				setState(175);
-				keyval();
+				keyVal();
 				setState(176);
 				ws();
 				}
@@ -463,40 +463,40 @@ public class TomlParser extends Parser {
 		return _localctx;
 	}
 
-	public static class KeyvalContext extends ParserRuleContext {
+	public static class KeyValContext extends ParserRuleContext {
 		public KeyContext key() {
 			return getRuleContext(KeyContext.class,0);
 		}
-		public KeyvalSepContext keyvalSep() {
-			return getRuleContext(KeyvalSepContext.class,0);
+		public KeyValSepContext keyValSep() {
+			return getRuleContext(KeyValSepContext.class,0);
 		}
 		public ValContext val() {
 			return getRuleContext(ValContext.class,0);
 		}
-		public KeyvalContext(ParserRuleContext parent, int invokingState) {
+		public KeyValContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_keyval; }
+		@Override public int getRuleIndex() { return RULE_keyVal; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof TomlListener ) ((TomlListener)listener).enterKeyval(this);
+			if ( listener instanceof TomlListener ) ((TomlListener)listener).enterKeyVal(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof TomlListener ) ((TomlListener)listener).exitKeyval(this);
+			if ( listener instanceof TomlListener ) ((TomlListener)listener).exitKeyVal(this);
 		}
 	}
 
-	public final KeyvalContext keyval() throws RecognitionException {
-		KeyvalContext _localctx = new KeyvalContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_keyval);
+	public final KeyValContext keyVal() throws RecognitionException {
+		KeyValContext _localctx = new KeyValContext(_ctx, getState());
+		enterRule(_localctx, 12, RULE_keyVal);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(194);
 			key();
 			setState(195);
-			keyvalSep();
+			keyValSep();
 			setState(196);
 			val();
 			}
@@ -869,7 +869,7 @@ public class TomlParser extends Parser {
 		return _localctx;
 	}
 
-	public static class KeyvalSepContext extends ParserRuleContext {
+	public static class KeyValSepContext extends ParserRuleContext {
 		public List<WsContext> ws() {
 			return getRuleContexts(WsContext.class);
 		}
@@ -877,23 +877,23 @@ public class TomlParser extends Parser {
 			return getRuleContext(WsContext.class,i);
 		}
 		public TerminalNode EQUALS() { return getToken(TomlParser.EQUALS, 0); }
-		public KeyvalSepContext(ParserRuleContext parent, int invokingState) {
+		public KeyValSepContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_keyvalSep; }
+		@Override public int getRuleIndex() { return RULE_keyValSep; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof TomlListener ) ((TomlListener)listener).enterKeyvalSep(this);
+			if ( listener instanceof TomlListener ) ((TomlListener)listener).enterKeyValSep(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof TomlListener ) ((TomlListener)listener).exitKeyvalSep(this);
+			if ( listener instanceof TomlListener ) ((TomlListener)listener).exitKeyValSep(this);
 		}
 	}
 
-	public final KeyvalSepContext keyvalSep() throws RecognitionException {
-		KeyvalSepContext _localctx = new KeyvalSepContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_keyvalSep);
+	public final KeyValSepContext keyValSep() throws RecognitionException {
+		KeyValSepContext _localctx = new KeyValSepContext(_ctx, getState());
+		enterRule(_localctx, 24, RULE_keyValSep);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -4477,8 +4477,8 @@ public class TomlParser extends Parser {
 		public KeyContext key() {
 			return getRuleContext(KeyContext.class,0);
 		}
-		public KeyvalSepContext keyvalSep() {
-			return getRuleContext(KeyvalSepContext.class,0);
+		public KeyValSepContext keyValSep() {
+			return getRuleContext(KeyValSepContext.class,0);
 		}
 		public ValContext val() {
 			return getRuleContext(ValContext.class,0);
@@ -4506,7 +4506,7 @@ public class TomlParser extends Parser {
 			setState(557);
 			key();
 			setState(558);
-			keyvalSep();
+			keyValSep();
 			setState(559);
 			val();
 			}

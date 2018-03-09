@@ -88,13 +88,13 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterKeyval(TomlParser.KeyvalContext ctx) { }
+	@Override public void enterKeyVal(TomlParser.KeyValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitKeyval(TomlParser.KeyvalContext ctx) { }
+	@Override public void exitKeyVal(TomlParser.KeyValContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -160,13 +160,13 @@ public class TomlBaseListener implements TomlListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterKeyvalSep(TomlParser.KeyvalSepContext ctx) { }
+	@Override public void enterKeyValSep(TomlParser.KeyValSepContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitKeyvalSep(TomlParser.KeyvalSepContext ctx) { }
+	@Override public void exitKeyValSep(TomlParser.KeyValSepContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

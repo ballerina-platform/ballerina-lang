@@ -68,15 +68,15 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitNewline(TomlParser.NewlineContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#keyval}.
+	 * Enter a parse tree produced by {@link TomlParser#keyVal}.
 	 * @param ctx the parse tree
 	 */
-	void enterKeyval(TomlParser.KeyvalContext ctx);
+	void enterKeyVal(TomlParser.KeyValContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TomlParser#keyval}.
+	 * Exit a parse tree produced by {@link TomlParser#keyVal}.
 	 * @param ctx the parse tree
 	 */
-	void exitKeyval(TomlParser.KeyvalContext ctx);
+	void exitKeyVal(TomlParser.KeyValContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#key}.
 	 * @param ctx the parse tree
@@ -128,15 +128,15 @@ public interface TomlListener extends ParseTreeListener {
 	 */
 	void exitDottedKey(TomlParser.DottedKeyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link TomlParser#keyvalSep}.
+	 * Enter a parse tree produced by {@link TomlParser#keyValSep}.
 	 * @param ctx the parse tree
 	 */
-	void enterKeyvalSep(TomlParser.KeyvalSepContext ctx);
+	void enterKeyValSep(TomlParser.KeyValSepContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link TomlParser#keyvalSep}.
+	 * Exit a parse tree produced by {@link TomlParser#keyValSep}.
 	 * @param ctx the parse tree
 	 */
-	void exitKeyvalSep(TomlParser.KeyvalSepContext ctx);
+	void exitKeyValSep(TomlParser.KeyValSepContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TomlParser#dotSep}.
 	 * @param ctx the parse tree

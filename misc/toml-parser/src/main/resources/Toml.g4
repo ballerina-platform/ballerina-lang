@@ -17,7 +17,7 @@ HASH : '#';
 
 expression
            : ws
-           | ws keyval ws
+           | ws keyVal ws
            | ws table ws;
 
 // Whitespace
@@ -35,7 +35,7 @@ COMMENT : '#' .*? ('\n' | '\r' | '\t') -> channel(2) ;
 
 //Key-Value pairs
 
-keyval : key keyvalSep val;
+keyVal : key keyValSep val;
 
 key : dottedKey | simpleKey;
 simpleKey : unquotedKey | quotedKey;
@@ -44,7 +44,7 @@ unquotedKey : ( alpha | digit | HYPHEN | UNDERSCORE )* ;
 quotedKey : basicString | literalString;
 dottedKey : simpleKey (dotSep simpleKey)*;
 
-keyvalSep : ws EQUALS ws ;
+keyValSep : ws EQUALS ws ;
 dotSep : ws PERIOD ws;
 
 val : string | bool | array | dateTime | floatingPoint | integer | inlineTable;
@@ -203,7 +203,7 @@ inlineTableClose    : '}';
 inlineTableSep      : ',';
 
 inlineTableKeyvals :  ws inlineTableKeyvalsNonEmpty (inlineTableSep ws inlineTableKeyvalsNonEmpty)* ;
-inlineTableKeyvalsNonEmpty : key keyvalSep val ;
+inlineTableKeyvalsNonEmpty : key keyValSep val ;
 
 // Table
 
