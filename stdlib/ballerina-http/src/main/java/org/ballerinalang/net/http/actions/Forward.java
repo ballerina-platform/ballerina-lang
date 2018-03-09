@@ -26,9 +26,11 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
@@ -61,13 +63,14 @@ public class Forward extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-
+        DataContext dataContext = new DataContext(context, callback);
         try {
             // Execute the operation
-            executeNonBlockingAction(context, createOutboundRequestMsg(context), callback);
-        } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'forward' action in " + HttpConstants.CONNECTOR_NAME
-                    + ". " + t.getMessage(), context);
+            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
+        } catch (ClientConnectorException clientConnectorException) {
+            BallerinaException exception = new BallerinaException("Failed to invoke 'forward' action in " +
+                    HttpConstants.CONNECTOR_NAME + ". " + clientConnectorException.getMessage(), context);
+            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
 

@@ -352,7 +352,7 @@ public class HttpUtil {
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
-    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+    public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP);
         StructInfo errorStructInfo = httpPackageInfo.getStructInfo(HttpConstants.HTTP_CONNECTOR_ERROR);
