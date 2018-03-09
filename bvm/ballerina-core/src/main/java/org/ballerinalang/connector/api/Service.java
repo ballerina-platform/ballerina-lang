@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.connector.api;
 
-import org.ballerinalang.util.codegen.ServiceInfo;
-
 import java.util.List;
 
 /**
@@ -66,5 +64,4 @@ public interface Service {
      */
     Resource[] getResources();
 
-    ServiceInfo getServiceInfo();
 }

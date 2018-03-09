@@ -82,7 +82,6 @@ public class ServiceImpl extends AnnotatableNode implements Service {
         return name;
     }
 
-    @Override
     public ServiceInfo getServiceInfo() {
         return serviceInfo;
     }
