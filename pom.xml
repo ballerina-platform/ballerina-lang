@@ -246,7 +246,11 @@
                 <artifactId>language-server-stdio-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -771,6 +775,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
 
                 <module>composer</module>
 
@@ -836,6 +841,7 @@
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
 
                 <module>composer</module>
 
