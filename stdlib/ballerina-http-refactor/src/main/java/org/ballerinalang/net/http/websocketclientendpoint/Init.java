@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},

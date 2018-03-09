@@ -30,7 +30,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -52,7 +51,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "<init>",
-        connectorName = HttpConstants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CLIENT_CONNECTOR,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
         },
         connectorArgs = {
@@ -122,7 +121,7 @@ public class Init extends AbstractHTTPAction {
 
         HttpClientConnector httpClientConnector =
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
-        connector.setNativeData(HttpConstants.CONNECTOR_NAME, httpClientConnector);
+        connector.setNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         ballerinaFuture.notifySuccess();

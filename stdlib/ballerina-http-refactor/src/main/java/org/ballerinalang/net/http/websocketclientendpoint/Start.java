@@ -50,7 +50,7 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )

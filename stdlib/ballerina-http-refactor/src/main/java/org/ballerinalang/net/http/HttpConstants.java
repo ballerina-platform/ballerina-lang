@@ -135,7 +135,7 @@ public class HttpConstants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
-    public static final String CONNECTOR_NAME = "HttpClient";
+    public static final String CLIENT_CONNECTOR = "ClientConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";

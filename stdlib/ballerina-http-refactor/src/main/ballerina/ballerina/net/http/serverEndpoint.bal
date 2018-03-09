@@ -38,7 +38,7 @@ public struct ServiceEndpointConfiguration {
     SslConfiguration ssl;
 }
 
-function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
+public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
 }
@@ -102,7 +102,7 @@ public struct HttpService {
     ServiceEndpoint serviceEndpoint;
 }
 
-function <HttpService ep> HttpService() {
+public function <HttpService ep> HttpService() {
     ep.serviceEndpoint = {};
 }
 
@@ -150,7 +150,7 @@ public struct WsService{
     ServiceEndpoint serviceEndpoint;
 }
 
-function <WsService ep> WsService() {
+public function <WsService ep> WsService() {
     ep.serviceEndpoint = {};
 }
 
