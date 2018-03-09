@@ -67,8 +67,6 @@ public class WorkerExecutionContext {
     
     public boolean runInCaller;
 
-    private Lock executionLock;
-
     private BStruct error;
 
     private DebugContext debugContext;
@@ -100,9 +98,6 @@ public class WorkerExecutionContext {
         }
         this.runInCaller = runInCaller;
         initDebugger();
-        if (!this.runInCaller) {
-            executionLock = new ReentrantLock();
-        }
     }
 
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
@@ -124,9 +119,6 @@ public class WorkerExecutionContext {
         }
         this.runInCaller = runInCaller;
         initDebugger();
-        if (!this.runInCaller) {
-            executionLock = new ReentrantLock();
-        }
     }
 
     private void initDebugger() {
@@ -169,18 +161,6 @@ public class WorkerExecutionContext {
 //    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
 //        //TODO
 //    }
-    
-    public void lockExecution() {
-        if (this.executionLock != null) {
-            this.executionLock.lock();
-        }
-    }
-    
-    public void unlockExecution() {
-        if (this.executionLock != null) {
-            this.executionLock.unlock();
-        }
-    }
     
     public boolean isRootContext() {
         return this.code == null;

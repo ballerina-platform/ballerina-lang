@@ -234,22 +234,23 @@ public class BLangFunctions {
         } catch (BLangNullReferenceException e) {
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
-            return handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+            WorkerExecutionContext x = handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+            return x;
         }
     }
 
     private static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
-        Map<String, BStruct> errors = new HashMap<>();
-        errors.put(parentCtx.workerInfo.getWorkerName(), error);
-        parentCtx.setError(BLangVMErrors.createCallFailedException(parentCtx, errors));
+        parentCtx.setError(error);
         try {
             CPU.handleError(parentCtx);
+            return parentCtx;
         } catch (HandleErrorException e) {
-            if (!e.ctx.isRootContext()) {
+            if (e.ctx != null && !e.ctx.isRootContext()) {
                 return e.ctx;
+            } else {
+                return null;
             }
         }
-        return null;
     }
     
     private static void handleError(WorkerExecutionContext ctx) {

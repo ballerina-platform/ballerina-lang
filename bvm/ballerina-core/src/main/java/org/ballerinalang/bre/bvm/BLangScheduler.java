@@ -48,14 +48,7 @@ public class BLangScheduler {
      * @param ctx the worker execution context
      */
     public static void executeNow(WorkerExecutionContext ctx) {
-        ctx.state = WorkerState.RUNNING;
-        try {
-            CPU.exec(ctx);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-            ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, null));
-        }
+        CPU.exec(ctx);
     }
     
     private static void workerCountUp() {
@@ -173,16 +166,7 @@ public class BLangScheduler {
         
         @Override
         public void run() {
-            try {
-                this.ctx.lockExecution();
-                this.ctx.state = WorkerState.RUNNING;
-                CPU.exec(this.ctx);
-            } catch (Throwable e) {
-                this.ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                this.ctx.respCtx.signal(new WorkerSignal(this.ctx, SignalType.ERROR, null));
-            } finally {
-                ctx.unlockExecution();
-            }
+            CPU.exec(this.ctx);
         }
         
     }

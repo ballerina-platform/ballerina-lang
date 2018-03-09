@@ -125,13 +125,17 @@ public class CPU {
     }
 
     public static void exec(WorkerExecutionContext ctx) {
-        while (true) {
+        while (ctx != null && !ctx.isRootContext()) {
             try {
                 tryExec(ctx);
             } catch (HandleErrorException e) {
                 ctx = e.ctx;
-                if (ctx != null && !ctx.isRootContext()) {
-                    continue;
+            } catch (Throwable e) {
+                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                try {
+                    handleError(ctx);
+                } catch (HandleErrorException e2) {
+                    ctx = e2.ctx;
                 }
             }
             break;
@@ -139,6 +143,8 @@ public class CPU {
     }
     
     private static void tryExec(WorkerExecutionContext ctx) {
+        ctx.state = WorkerState.RUNNING;
+        
         int i;
         int j;
         int cpIndex; // Index of the constant pool
