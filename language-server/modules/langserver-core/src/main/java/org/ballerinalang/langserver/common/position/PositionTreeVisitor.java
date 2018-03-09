@@ -686,6 +686,9 @@ public class PositionTreeVisitor extends NodeVisitor {
         addTopLevelNodeToContext(enumNode, enumNode.name.getValue(), enumNode.symbol.pkgID,
                 enumNode.symbol.kind.name(), enumNode.symbol.kind.name(),
                 enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
+        if (enumNode.getPosition().sLine == this.position.getLine()) {
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
+        }
     }
 
     /**
