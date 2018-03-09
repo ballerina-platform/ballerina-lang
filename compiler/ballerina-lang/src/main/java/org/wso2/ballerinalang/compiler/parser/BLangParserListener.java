@@ -807,7 +807,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String endpointName = ctx.Identifier().getText();
-        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName);
+        boolean isInitExprExist = ctx.recordLiteral() != null;
+        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName, isInitExprExist);
     }
 
     @Override

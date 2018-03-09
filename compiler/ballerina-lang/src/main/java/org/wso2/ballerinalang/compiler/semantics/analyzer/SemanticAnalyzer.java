@@ -696,7 +696,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.STRUCT) {
             configType = endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) endpointNode.symbol.type.tsymbol);
         }
-        this.typeChecker.checkExpr(endpointNode.configurationExpr, env, Lists.of(configType));
+        if (endpointNode.configurationExpr != null) {
+            this.typeChecker.checkExpr(endpointNode.configurationExpr, env, Lists.of(configType));
+        }
     }
 
     private boolean isInTopLevelWorkerEnv() {

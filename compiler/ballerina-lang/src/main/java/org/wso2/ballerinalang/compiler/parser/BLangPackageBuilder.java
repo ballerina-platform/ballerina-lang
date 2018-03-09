@@ -492,13 +492,15 @@ public class BLangPackageBuilder {
         return endpointListStack.pop();
     }
 
-    public void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+    public void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean initExprExist) {
         final BLangEndpoint endpointNode = (BLangEndpoint) TreeBuilder.createEndpointNode();
         attachAnnotations(endpointNode);
         endpointNode.pos = pos;
         endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
         endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();
-        endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
+        if (initExprExist) {
+            endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
+        }
         endpointNode.addWS(ws);
         endpointListStack.peek().add(endpointNode);
     }

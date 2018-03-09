@@ -157,7 +157,7 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* endpointType Identifier recordLiteral
+    :   annotationAttachment* endpointType Identifier recordLiteral?
     ;
 
 endpointType
