@@ -3,18 +3,6 @@ package ballerina.net.http;
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
-@Description {value:"Configuration for a WebSocket service."}
-@Field {value: "endpoints: array of endpoints the service would be attached to"}
-@Field {value:"basePath: Path of the WebSocket service"}
-@Field {value:"subProtocols: Negotiable sub protocol by the service"}
-@Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public struct WebSocketServiceConfiguration {
-    ServiceEndpoint[] endpoints;
-    string basePath;
-    string[] subProtocols;
-    int idleTimeoutInSeconds;
-}
-
 @Description {value: "Configuration for HTTP service"}
 @Field {value: "endpoints: array of endpoints the service would be attached to"}
 @Field {value: "lifetime: The life time of the service"}
@@ -31,7 +19,7 @@ public struct WebSocketServiceConfiguration {
 @Field {value:"webSocketConfig: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfiguration {
     ServiceEndpoint[] endpoints;
-    ServiceLifeTime lifetime;
+    HttpServiceLifeTime lifetime;
     string basePath;
     boolean compressionEnabled;
     string[] allowOrigins;
@@ -43,7 +31,26 @@ public struct HttpServiceConfiguration {
     int maxUriLength;
     int maxHeaderSize;
     int maxEntityBodySize;
-    webSocketConfig webSocket;
+    WebSocketUpgradeConfig webSocket;
+}
+
+
+public struct WebSocketUpgradeConfig {
+    string upgradePath;
+    type upgradeService;
+}
+
+
+@Description {value:"Configuration for a WebSocket service."}
+@Field {value: "endpoints: array of endpoints the service would be attached to"}
+@Field {value:"basePath: Path of the WebSocket service"}
+@Field {value:"subProtocols: Negotiable sub protocol by the service"}
+@Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
+public struct WebSocketServiceConfiguration {
+    ServiceEndpoint[] endpoints;
+    string basePath;
+    string[] subProtocols;
+    int idleTimeoutInSeconds;
 }
 
 @Description {value: "The life time of the service"}
@@ -80,7 +87,7 @@ public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration
 @Field {value:"allowHeaders: The array of allowed headers by the resource"}
 @Field {value:"maxAge: The duration to cache the preflight from client side"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
-public annotation resourceConfig attach resource {
+public struct ResourceConfig {
     string[] methods;
     string path;
     string body;
@@ -93,3 +100,5 @@ public annotation resourceConfig attach resource {
     int maxAge;
     string[] exposeHeaders;
 }
+
+public annotation <resource> resourceConfig ResourceConfig;

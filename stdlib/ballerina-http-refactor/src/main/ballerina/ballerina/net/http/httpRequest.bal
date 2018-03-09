@@ -4,6 +4,94 @@ import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
 
+//////////////////////////////
+/// Native implementations ///
+//////////////////////////////
+
+@Description { value:"Represents an HTTP inbound request message"}
+@Field {value:"path: Resource path of request URI"}
+@Field {value:"method: HTTP request method"}
+@Field {value:"httpVersion: The version of HTTP"}
+@Field {value:"userAgent: User-Agent request header"}
+public struct InRequest {
+    string rawPath;
+    string method;
+    string httpVersion;
+    string userAgent;
+    string extraPathInfo;
+}
+
+@Description {value:"Get the entity from the inbound request with the body included. This function is to be used only internally."}
+@Param {value:"req: The inbound request message"}
+@Return {value:"Entity of the request"}
+@Return {value:"EntityError will get thrown in case of errors during entity construction"}
+native function <InRequest req> getEntity () (mime:Entity, mime:EntityError);
+
+@Description {value:"Get the entity from the inbound request without the body. This function is to be used only internally."}
+@Param {value:"req: The inbound request message"}
+@Return {value:"Entity of the request"}
+native function <InRequest req> getEntityWithoutBody () (mime:Entity);
+
+@Description {value:"Set the entity to inbound request"}
+@Param {value:"req: The inbound request message"}
+@Return {value:"Entity of the request"}
+public native function <InRequest req> setEntity (mime:Entity entity);
+
+@Description {value:"Gets the query parameters from the HTTP request as a map"}
+@Param {value:"req: The inbound request message"}
+@Return {value:"The map of query params"}
+public native function <InRequest req> getQueryParams () (map);
+
+@Description {value:"Retrieves the named property from the request"}
+@Param {value:"req: The inbound request message"}
+@Param {value:"propertyName: The name of the property"}
+@Return {value:"The property value"}
+public native function <InRequest req> getProperty (string propertyName) (string);
+
+@Description {value:"Get matrix parameters from the request"}
+@Param {value:"req: The inbound request message"}
+@Param {value:"path: Path to the location of matrix parameters"}
+@Return {value:"A map of matrix paramters which can be found for a given path"}
+public native function <InRequest req> getMatrixParams (string path) (map);
+
+@Description { value:"Represents an HTTP outbound request message"}
+public struct OutRequest {
+}
+
+@Description {value:"Get the entity from the outbound request"}
+@Param {value:"req: The outbound request message"}
+@Return {value:"Entity of the request"}
+@Return {value:"EntityError will might get thrown during entity construction in case of errors"}
+public native function <OutRequest req> getEntity () (mime:Entity, mime:EntityError);
+
+@Description {value:"Get the entity from the outbound request without the body. This function is to be used only internally"}
+@Param {value:"req: The outbound request message"}
+@Return {value:"Entity of the request"}
+native function <OutRequest req> getEntityWithoutBody () (mime:Entity);
+
+@Description {value:"Set the entity to outbound request"}
+@Param {value:"req: The outbound request message"}
+@Return {value:"Entity of the request"}
+public native function <OutRequest req> setEntity (mime:Entity entity);
+
+@Description {value:"Sets a request property"}
+@Param {value:"req: The outbound request message"}
+@Param {value:"propertyName: The name of the property"}
+@Param {value:"propertyValue: The value of the property"}
+public native function <OutRequest req> setProperty (string propertyName, string propertyValue);
+
+@Description {value:"Retrieves the named property from the request"}
+@Param {value:"req: The outbound request message"}
+@Param {value:"propertyName: The name of the property"}
+@Return {value:"The property value"}
+public native function <OutRequest req> getProperty (string propertyName) (string);
+
+
+
+/////////////////////////////////
+/// Ballerina Implementations ///
+/////////////////////////////////
+
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
@@ -112,65 +200,90 @@ public function <OutRequest request> getContentLength () (int) {
 @Description {value:"Gets the inbound request payload in JSON format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The JSON reresentation of the message payload"}
-public function <InRequest request> getJsonPayload () (json) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getJsonPayload () (json, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getJson();
 }
 
 @Description {value:"Gets the outbound request payload in JSON format"}
 @Param {value:"request: The outbound request message"}
 @Return {value:"The JSON reresentation of the message payload"}
-public function <OutRequest request> getJsonPayload () (json) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getJsonPayload () (json, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getJson();
 }
 
 @Description {value:"Gets the inbound request payload in XML format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The XML representation of the message payload"}
-public function <InRequest request> getXmlPayload () (xml) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getXmlPayload () (xml, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getXml();
 }
 
 @Description {value:"Gets the outbound request payload in XML format"}
 @Param {value:"request: The outbound request message"}
 @Return {value:"The XML representation of the message payload"}
-public function <OutRequest request> getXmlPayload () (xml) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getXmlPayload () (xml, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getXml();
 }
 
 @Description {value:"Gets the inbound request payload as a string"}
 @Param {value:"request: inbound request message"}
 @Return {value:"The string representation of the message payload"}
-public function <InRequest request> getStringPayload () (string) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getStringPayload () (string, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getText();
 }
 
 @Description {value:"Gets the outbound request payload as a string"}
 @Param {value:"request: outbound request message"}
 @Return {value:"The string representation of the message payload"}
-public function <OutRequest request> getStringPayload () (string) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getStringPayload () (string, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getText();
 }
 
 @Description {value:"Gets the inbound request payload in blob format"}
 @Param {value:"request: The inbound request message"}
 @Return {value:"The blob representation of the message payload"}
-public function <InRequest request> getBinaryPayload () (blob) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getBinaryPayload () (blob, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        blob byteData;
+        return byteData, entityError;
+    }
     return entity.getBlob();
 }
-
 
 @Description {value:"Gets the outbound request payload in blob format"}
 @Param {value:"request: The outbound request message"}
 @Return {value:"The blob representation of the message payload"}
-public function <OutRequest request> getBinaryPayload () (blob) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getBinaryPayload () (blob, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        blob byteData;
+        return byteData, entityError;
+    }
     return entity.getBlob();
 }
 
@@ -178,8 +291,11 @@ public function <OutRequest request> getBinaryPayload () (blob) {
 please use 'getMultiparts()' instead."}
 @Param {value:"request: The inbound request message"}
 @Return {value:"A byte channel as the message payload"}
-public function <InRequest request> getByteChannel () (io:ByteChannel) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getByteChannel () (io:ByteChannel, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getByteChannel();
 }
 
@@ -187,18 +303,27 @@ public function <InRequest request> getByteChannel () (io:ByteChannel) {
 please use 'getMultiparts()' instead."}
 @Param {value:"request: outbound request message"}
 @Return {value:"A byte channel as the message payload"}
-public function <OutRequest request> getByteChannel () (io:ByteChannel) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getByteChannel () (io:ByteChannel, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getByteChannel();
 }
 
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
 @Param {value:"req: The inbound request message"}
 @Return {value:"The map of form params"}
-public function <InRequest request> getFormParams () (map) {
-    mime:Entity entity = request.getEntity();
-    string formData = entity.getText();
+public function <InRequest request> getFormParams () (map, mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
+    var formData, entityErr = entity.getText();
     map parameters = {};
+    if (entityErr != null) {
+        return parameters, entityErr;
+    }
     if (formData != null && formData != "") {
         string[] entries = formData.split("&");
         int entryIndex = 0;
@@ -215,22 +340,28 @@ public function <InRequest request> getFormParams () (map) {
             entryIndex = entryIndex + 1;
         }
     }
-    return parameters;
+    return parameters, null;
 }
 
 @Description {value:"Get multiparts from inbound request"}
 @Param {value:"req: The request message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <InRequest request> getMultiparts () (mime:Entity[]) {
-    mime:Entity entity = request.getEntity();
+public function <InRequest request> getMultiparts () (mime:Entity[], mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getBodyParts();
 }
 
 @Description {value:"Get multiparts from outbound request"}
 @Param {value:"req: The request message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <OutRequest request> getMultiparts () (mime:Entity[]) {
-    mime:Entity entity = request.getEntity();
+public function <OutRequest request> getMultiparts () (mime:Entity[], mime:EntityError) {
+    var entity, entityError = request.getEntity();
+    if (entityError != null) {
+        return null, entityError;
+    }
     return entity.getBodyParts();
 }
 

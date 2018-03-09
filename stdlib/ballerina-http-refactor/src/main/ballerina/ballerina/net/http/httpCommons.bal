@@ -2,6 +2,23 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+
+//////////////////////////////
+/// Native implementations ///
+//////////////////////////////
+
+@Description { value:"Parse headerValue and return value with parameter map"}
+@Param { value:"headerValue: The header value" }
+@Return { value:"The header value" }
+@Return { value:"The header value parameter map" }
+@Return { value:"Error occured during header parsing" }
+public native function parseHeader (string headerValue)(string, map, error);
+
+
+/////////////////////////////////
+/// Ballerina Implementations ///
+/////////////////////////////////
+
 function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
     var headerValue, _ = (string[]) entity.headers[headerName];
     return headerValue == null ? null : headerValue[0];

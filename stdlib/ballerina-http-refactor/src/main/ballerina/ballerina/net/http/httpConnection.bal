@@ -1,7 +1,46 @@
 package ballerina.net.http;
 
+@Description {value:"Represent 'content-length' header name"}
+public const string CONTENT_LENGTH = "content-length";
 const string HEADER_KEY_LOCATION = "Location";
 
+@Description {value:"Represents the HTTP server connector connection"}
+@Field {value:"remoteHost: The server host name"}
+@Field {value:"port: The server port"}
+public struct Connection {
+    string remoteHost;
+    int port;
+}
+
+//////////////////////////////
+/// Native Implementations ///
+//////////////////////////////
+@Description {value:"Sends outbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The outbound response message"}
+@Return {value:"Error occured during HTTP server connector respond"}
+public native function <Connection conn> respond (OutResponse res) (HttpConnectorError);
+
+@Description {value:"Forwards inbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The inbound response message"}
+@Return {value:"Error occured during HTTP server connector forward"}
+public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
+
+@Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
+@Param {value:"conn: The server connector connection"}
+@Return {value:"HTTP Session struct"}
+public native function <Connection conn> createSessionIfAbsent () (Session);
+
+@Description {value:"Gets the Session struct from the connection if it is present"}
+@Param {value:"conn: The server connector connection"}
+@Return {value:"The HTTP Session struct assoicated with the request"}
+public native function <Connection conn> getSession () (Session);
+
+
+/////////////////////////////////
+/// Ballerina Implementations ///
+/////////////////////////////////
 @Description { value:"Status codes for HTTP redirect"}
 @Field { value:"MULTIPLE_CHOICES_300: Represents status code 300 - Multiple Choices."}
 @Field { value:"MOVED_PERMANENTLY_301: Represents status code 301 - Moved Permanently."}
