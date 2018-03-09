@@ -303,6 +303,30 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             suite.addMockFunctionObj(id, function);
         });
 
+        suite.getBeforeSuiteFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addBeforeSuiteFunctionObj(function);
+        });
+
+        suite.getAfterSuiteFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addAfterSuiteFunctionObj(function);
+        });
+
+        suite.getBeforeEachFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addBeforeEachFunctionObj(function);
+        });
+
+        suite.getAfterEachFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addAfterEachFunctionObj(function);
+        });
+
     }
 
     private static int[] checkCyclicDependencies(List<Test> tests) {

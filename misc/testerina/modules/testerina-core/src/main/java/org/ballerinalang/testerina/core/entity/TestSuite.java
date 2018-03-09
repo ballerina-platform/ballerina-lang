@@ -37,6 +37,39 @@ public class TestSuite {
     private List<ProgramFile> programFiles = new ArrayList<>();
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
+
+    public List<String> getBeforeSuiteFunctionNames() {
+        return beforeSuiteFunctionNames;
+    }
+
+    public void setBeforeSuiteFunctionNames(List<String> beforeSuiteFunctionNames) {
+        this.beforeSuiteFunctionNames = beforeSuiteFunctionNames;
+    }
+
+    public List<String> getAfterSuiteFunctionNames() {
+        return afterSuiteFunctionNames;
+    }
+
+    public void setAfterSuiteFunctionNames(List<String> afterSuiteFunctionNames) {
+        this.afterSuiteFunctionNames = afterSuiteFunctionNames;
+    }
+
+    public List<String> getBeforeEachFunctionNames() {
+        return beforeEachFunctionNames;
+    }
+
+    public void setBeforeEachFunctionNames(List<String> beforeEachFunctionNames) {
+        this.beforeEachFunctionNames = beforeEachFunctionNames;
+    }
+
+    public List<String> getAfterEachFunctionNames() {
+        return afterEachFunctionNames;
+    }
+
+    public void setAfterEachFunctionNames(List<String> afterEachFunctionNames) {
+        this.afterEachFunctionNames = afterEachFunctionNames;
+    }
+
     private List<String> beforeEachFunctionNames = new ArrayList<>();
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
@@ -165,6 +198,22 @@ public class TestSuite {
 
     public void addMockFunctionObj(String id, TesterinaFunction function) {
         this.mockFunctionsMap.put(id, function);
+    }
+
+    public void addBeforeSuiteFunctionObj(TesterinaFunction function) {
+        this.beforeSuiteFunctions.add(function);
+    }
+
+    public void addAfterSuiteFunctionObj(TesterinaFunction function) {
+        this.afterSuiteFunctions.add(function);
+    }
+
+    public void addBeforeEachFunctionObj(TesterinaFunction function) {
+        this.beforeEachFunctions.add(function);
+    }
+
+    public void addAfterEachFunctionObj(TesterinaFunction function) {
+        this.afterEachFunctions.add(function);
     }
 
     public List<TesterinaFunction> getAfterSuiteFunctions() {
