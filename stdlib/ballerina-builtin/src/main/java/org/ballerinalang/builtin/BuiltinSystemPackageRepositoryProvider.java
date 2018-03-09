@@ -22,14 +22,6 @@ import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystems;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * This represents the standard Ballerina built-in system package repository provider.
  *
@@ -38,30 +30,9 @@ import java.util.Map;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class BuiltinSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
-    private static final String SYSTEM_ORG_NAME = "ballerina";
-    //TODO: make a local variable
-    private Repo repo;
-
     @Override
     public Repo loadRepository() {
-        if (this.repo != null) {
-            return this.repo;
-        }
-        try {
-            URI thisClassLocation = this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            this.repo = new JarRepo(thisClassLocation);
-        } catch (URISyntaxException ignore) {
-        }
-        return this.repo;
-    }
-
-    private static void initFS(URI uri) throws IOException {
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-        try {
-            FileSystems.newFileSystem(uri, env);
-        } catch (FileSystemAlreadyExistsException ignore) {
-        }
+        return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
 
 }
