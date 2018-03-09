@@ -100,16 +100,32 @@ const string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Reva
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
 
+@Description {value:"Used for configuring the caching behaviour. Setting the cacheLevel field in the CacheConfig struct allows the user to control the caching behaviour."}
+@Field {value:"CACHE_CONTROL_AND_VALIDATORS: Restricts caching to instances where the Cache-Control header and either the ETag or Last-Modified header is present."}
+@Field {value:"SPECIFICATION: Caching behaviour is as specified by the RFC7234 specification."}
+public enum CachingLevel {
+    CACHE_CONTROL_AND_VALIDATORS,
+    SPECIFICATION
+}
+
 @Description {value:"CacheConfig struct is used for providing the caching configurations necessary for the HTTP caching client."}
 @Field {value:"isShared: Specifies whether the HTTP caching client should behave as a public cache or a private cache"}
 @Field {value:"expiryTimeMillis: The number of milliseconds to keep an entry in the cache"}
 @Field {value:"capacity: The capacity of the cache"}
 @Field {value:"evictionFactor: The fraction of entries to be removed when the cache is full. The value should be between 0 (exclusive) and 1 (inclusive)."}
+@Field {value:"cachingLevel: Gives the user some control over the caching behaviour. By default, this is set to CACHE_CONTROL_AND_VALIDATORS."}
 public struct CacheConfig {
     boolean isShared = false;
     int expiryTimeMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
+    CachingLevel cachingLevel;
+}
+
+@Description {value:"Initializes the CacheConfig struct to its default values"}
+@Param {value:"cacheConfig: The CacheConfig struct to be initialized"}
+public function <CacheConfig cacheConfig> CacheConfig () {
+    cacheConfig.cachingLevel = CachingLevel.CACHE_CONTROL_AND_VALIDATORS;
 }
 
 @Description {value:"An HTTP caching client implementation which takes an HttpClient and wraps it with a caching layer."}
@@ -121,8 +137,7 @@ public connector HttpCachingClient (HttpClient httpClient, CacheConfig cacheConf
         httpClient;
     }
 
-    HttpCache cache = createHttpCache("http-cache", cacheConfig.expiryTimeMillis, cacheConfig.capacity,
-                                      cacheConfig.evictionFactor, cacheConfig.isShared);
+    HttpCache cache = createHttpCache("http-cache", cacheConfig);
 
     @Description {value:"Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the origin server."}
     @Param {value:"path: Resource path "}
@@ -277,24 +292,25 @@ function getCachedResponse (HttpCache cache, HttpClient httpClient, OutRequest r
             }
         }
 
-        log:printTrace("Validating a stale response for '"+ path + "' with the origin server.");
+        log:printTrace("Validating a stale response for '" + path + "' with the origin server.");
         return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
     }
 
+    InResponse newResponse;
     HttpConnectorError err;
     log:printTrace("Sending new request to: " + path);
-    cachedResponse, err = httpEP.get(path, req);
-    if (cachedResponse != null) {
-        cachedResponse.requestTime = currentT.time;
-        cachedResponse.receivedTime = time:currentTime().time;
-        cache.put(getCacheKey(httpMethod, path), req.cacheControl, cachedResponse);
+    newResponse, err = httpEP.get(path, req);
+    if (newResponse != null && cache.isAllowedToCache(newResponse)) {
+        newResponse.requestTime = currentT.time;
+        newResponse.receivedTime = time:currentTime().time;
+        cache.put(getCacheKey(httpMethod, path), req.cacheControl, newResponse);
     }
-    return cachedResponse, err;
+    return newResponse, err;
 }
 
 function getValidationResponse (HttpClient httpClient, OutRequest req, InResponse cachedResponse, HttpCache cache,
                                 time:Time currentT, string path, string httpMethod, boolean isFreshResponse)
-                                                                            (InResponse, HttpConnectorError) {
+(InResponse, HttpConnectorError) {
     // If the no-cache directive is set, always validate the response before serving
     InResponse validationResponse;
     HttpConnectorError validationErr;

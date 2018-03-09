@@ -20,15 +20,27 @@ import ballerina.caching;
 
 struct HttpCache {
     caching:Cache cache;
+    CachingLevel cachingLevel;
     boolean isShared;
 }
 
-function createHttpCache (string name, int expiryTimeMillis, int capacity, float evictionFactor, boolean isShared) (HttpCache) {
+function createHttpCache (string name, CacheConfig cacheConfig) (HttpCache) {
     HttpCache httpCache = {};
-    caching:Cache backingCache = caching:createCache(name, expiryTimeMillis, capacity, evictionFactor);
+    caching:Cache backingCache = caching:createCache(name, cacheConfig.expiryTimeMillis, cacheConfig.capacity,
+                                                     cacheConfig.evictionFactor);
     httpCache.cache = backingCache;
-    httpCache.isShared = isShared;
+    httpCache.cachingLevel = cacheConfig.cachingLevel;
+    httpCache.isShared = cacheConfig.isShared;
     return httpCache;
+}
+
+function <HttpCache httpCache> isAllowedToCache(InResponse response) (boolean) {
+    if (httpCache.cachingLevel == CachingLevel.CACHE_CONTROL_AND_VALIDATORS) {
+        map headers = response.getAllHeaders();
+        return headers[CACHE_CONTROL] != null && (headers[ETAG] != null || headers[LAST_MODIFIED] != null);
+    }
+
+    return true;
 }
 
 function <HttpCache httpCache> put (string key, RequestCacheControl requestCacheControl, InResponse inboundResponse) {

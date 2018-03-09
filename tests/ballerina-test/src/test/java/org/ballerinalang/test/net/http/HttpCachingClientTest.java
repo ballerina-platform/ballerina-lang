@@ -45,7 +45,6 @@ import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.AGE;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
@@ -60,6 +59,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
  */
 public class HttpCachingClientTest {
 
+    private static final String AGE = "Age";
     private static final String CACHE_CONTROL = "Cache-Control";
     private static final String DATE = "Date";
     private static final String ETAG = "Etag";
@@ -76,7 +76,7 @@ public class HttpCachingClientTest {
         compileResult = BCompileUtil.compile(sourceRoot.toString(), "ballerina.net.http", CompilerPhase.CODE_GEN);
     }
 
-    @Test
+    @Test(description = "Tests whether the Age header is parsed correctly, according to the specification")
     public void testGetAgeValue() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getAgeValue", new BValue[]{new BString("10")});
         Assert.assertEquals(returns[0].stringValue(), "10");
@@ -88,7 +88,7 @@ public class HttpCachingClientTest {
         Assert.assertEquals(returns[0].stringValue(), "0");
     }
 
-    @Test
+    @Test(description = "Tests whether the Date header is parsed correctly to an integer value")
     public void testGetDateValue() {
         String expectedDate = "Thu, 01 Mar 2018 15:36:34 GMT";
         BStruct inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
@@ -110,7 +110,7 @@ public class HttpCachingClientTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), date);
     }
 
-    @Test
+    @Test(description = "Tests whether the 2xx warnings are retained correctly as per the specification")
     public void testRetain2xxWarnings() {
         final String warning214 = "Warning: 214 - \"Transformation Applied\"";
         final String warning299 = "Warning: 299 - \"Miscellaneous Persistent Warning\"";
@@ -140,7 +140,7 @@ public class HttpCachingClientTest {
         Assert.assertEquals(warningHeaders.get(1), warning299);
     }
 
-    @Test
+    @Test(description = "Tests whether the headers of a cached response are correctly updated by a validation response")
     public void testReplaceHeaders() {
         final String cachedDateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String cachedExpiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT";
@@ -191,7 +191,7 @@ public class HttpCachingClientTest {
         Assert.assertEquals(((BStringArray) updatedCachedRespHeaders.get("test-name")).get(0), validationTestHeader);
     }
 
-    @Test
+    @Test(description = "Test for the isAStrongValidator() function which determines whether a given ETag is strong")
     public void testIsAStrongValidator() {
         // Not testing for null arguments since in code, this function is always called after a null check
         BValue[] returns = BRunUtil.invoke(compileResult, "isAStrongValidator", new BValue[]{new BString("abc")});
@@ -210,7 +210,8 @@ public class HttpCachingClientTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test for the hasAWeakValidator() function which determines whether a 304 response contains a" +
+            " weak validator")
     public void testHasAWeakValidator() {
         final String lastModifiedHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String etagHeader = "1sps79e:q0efehi8";
@@ -245,7 +246,8 @@ public class HttpCachingClientTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test for the isStaleResponseAccepted() function which determines whether stale responses are" +
+            " acceptable")
     public void testIsStaleResponseAccepted() {
         boolean isSharedCache = false;
         RequestCacheControlStruct cacheControl
@@ -280,7 +282,8 @@ public class HttpCachingClientTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(description = "Test for the isServingStaleProhibited() function which determines whether serving stale " +
+            "responses is prohibited.")
     public void testIsServingStaleProhibited() {
         RequestCacheControlStruct requestCacheControl
                 = new RequestCacheControlStruct(compileResult.getProgFile()
@@ -327,7 +330,7 @@ public class HttpCachingClientTest {
     }
 
     // To ensure freshness calculation adheres to https://tools.ietf.org/html/rfc7234#section-4.2.1
-    @Test
+    @Test(description = "Test for the determination of freshness lifetime of a cached response")
     public void testGetFreshnessLifetime() {
         // First, set all potential fields that can be used for freshness calculation so that the test can determine
         // if the correct precedence order is followed.
@@ -393,8 +396,12 @@ public class HttpCachingClientTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 
-    @Test
+    @Test(description = "Test for the isFreshResponse() function which determines whether a cached response is still " +
+            "fresh.")
     public void testIsFreshResponse() {
+        final String dateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
+        final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
+
         BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  IN_RESPONSE);
@@ -402,11 +409,52 @@ public class HttpCachingClientTest {
                 = new ResponseCacheControlStruct(compileResult.getProgFile()
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
+        responseCacheControl.setMaxAge(300).setSMaxAge(300);
+
         HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
+        cachedResponseMsg.setHeader(AGE, String.valueOf(200));
+        cachedResponseMsg.setHeader(DATE, dateHeader);
+        cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
         initInboundResponse(cachedResponse, responseCacheControl, cachedResponseMsg);
 
+        BMap entityHeadersMap =
+                ((BMap) ((BStruct) cachedResponse.getNativeData(Constants.MESSAGE_ENTITY)).getRefField(1));
 
+        BValue[] inputArgs = {cachedResponse, new BBoolean(true)};
+        BValue[] returns;
+
+        // When all 3 parameters for freshness life time is set
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        entityHeadersMap.put(AGE, new BStringArray(new String[]{"350"}));
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+
+        // When only max-age and Expires header are there
+        responseCacheControl.setSMaxAge(-1);
+        inputArgs[1] = new BBoolean(false);
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+
+        entityHeadersMap.put(AGE, new BStringArray(new String[]{"200"}));
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        // When only Expires header is there
+        responseCacheControl.setMaxAge(-1);
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        entityHeadersMap.put(AGE, new BStringArray(new String[]{"650"}));
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+
+        // When there are none of the above 3
+        entityHeadersMap.remove(EXPIRES);
+        returns = BRunUtil.invoke(compileResult, "isFreshResponse", inputArgs);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
     private void initInboundResponse(BStruct inResponse, HTTPCarbonMessage inResponseMsg) {
