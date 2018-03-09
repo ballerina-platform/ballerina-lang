@@ -62,7 +62,7 @@ service<http> Participant2pcService {
             string participatedTxnId = getParticipatedTransactionId(transactionId, txnBlockId);
             log:printInfo("Prepare received for transaction: " + participatedTxnId);
             PrepareResponse prepareRes;
-            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
             if (txn == null) {
                 res = {statusCode:404};
                 prepareRes = {message:"Transaction-Unknown"};
@@ -78,7 +78,8 @@ service<http> Participant2pcService {
                 } else {
                     res = {statusCode:500};
                     prepareRes = {message:"aborted"};
-                    _ = participatedTransactions.remove(participatedTxnId);
+                    // do not remove the transaction since we may get a msg from the initiator
+                    txn.state = TransactionState.ABORTED;
                     log:printInfo("Aborted transaction: " + transactionId);
                 }
             }
@@ -125,7 +126,7 @@ service<http> Participant2pcService {
             log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
 
             NotifyResponse notifyRes;
-            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+            var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
             if (txn == null) {
                 res = {statusCode:404};
                 notifyRes = {message:"Transaction-Unknown"};
@@ -141,6 +142,7 @@ service<http> Participant2pcService {
                         if (commitSuccessful) {
                             res = {statusCode:200};
                             notifyRes = {message:"Committed"};
+                            txn.state = TransactionState.COMMITTED;
                         } else {
                             res = {statusCode:500};
                             log:printError("Committing resource managers failed. Transaction:" + participatedTxnId);
@@ -153,13 +155,14 @@ service<http> Participant2pcService {
                     if (abortSuccessful) {
                         res = {statusCode:200};
                         notifyRes = {message:"Aborted"};
+                        txn.state = TransactionState.ABORTED;
                     } else {
                         res = {statusCode:500};
                         log:printError("Aborting resource managers failed. Transaction:" + participatedTxnId);
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-                _ = participatedTransactions.remove(participatedTxnId);
+                // do not remove the transaction since we may get a msg from the initiator
             }
             var j, _ = <json>notifyRes;
             res.setJsonPayload(j);
