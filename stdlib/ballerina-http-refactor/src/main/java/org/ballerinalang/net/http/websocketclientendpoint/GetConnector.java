@@ -44,5 +44,6 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        return VOID_RETURN;
     }
 }

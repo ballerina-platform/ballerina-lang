@@ -42,5 +42,6 @@ public class Stop extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        return VOID_RETURN;
     }
 }
