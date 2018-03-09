@@ -7,7 +7,7 @@ service<http> sample {
         path:"/path/{foo}"
     }
     @Description {value:"PathParam and QueryParam extract values from the request URI."}
-    resource params (http:Connection conn, http:InRequest req, string foo) {
+    resource params (http:Connection conn, http:Request req, string foo) {
         // Get QueryParam.
         var params = req.getQueryParams();
         var bar, _ = (string)params.bar;

@@ -8,7 +8,7 @@ service<http> nestedparts {
         methods:["POST"],
         path:"/decoder"
     }
-    resource nestedPartReceiver (http:Connection conn, http:InRequest req) {
+    resource nestedPartReceiver (http:Connection conn, http:Request req) {
         //Extract multiparts from the inbound request.
         var parentParts, payloadError = req.getMultiparts();
         http:OutResponse res = {};

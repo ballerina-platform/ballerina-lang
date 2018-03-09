@@ -8,11 +8,11 @@ service<http> multiparts {
         methods:["GET"],
         path:"/decode_in_response"
     }
-    resource multipartReceiver (http:Connection conn, http:InRequest request) {
+    resource multipartReceiver (http:Connection conn, http:Request request) {
         endpoint<http:HttpClient> httpEndpoint {
             create http:HttpClient("http://localhost:9092", {});
         }
-        http:OutRequest outRequest = {};
+        http:Request outRequest = {};
         http:InResponse inResponse = {};
         inResponse, _ = httpEndpoint.get("/multiparts/encode_out_response", outRequest);
         var parentParts, payloadError = inResponse.getMultiparts();

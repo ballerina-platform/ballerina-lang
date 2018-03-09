@@ -8,7 +8,7 @@ service<http> multiparts {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartSender (http:Connection conn, http:InRequest req) {
+    resource multipartSender (http:Connection conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};

@@ -6,7 +6,7 @@ function main (string[] args) {
         create http:HttpClient("https://postman-echo.com", {});
     }
 
-    http:OutRequest req = {};
+    http:Request req = {};
     // Send a GET request to the specified endpoint
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/get?test=123", req);

@@ -7,7 +7,7 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/route"
     }
-    resource cbrResource (http:Connection conn, http:InRequest req) {
+    resource cbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }

@@ -15,7 +15,7 @@ service<http> helloWorld {
         path:"/"
     }
 
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
@@ -28,7 +28,7 @@ function main (string[] args) {
         create http:HttpClient("https://localhost:9095", getConnectorConfigs());
     }
     //Creates an outbound request.
-    http:OutRequest req = {};
+    http:Request req = {};
     http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
     io:println("Response code: " + resp.statusCode);

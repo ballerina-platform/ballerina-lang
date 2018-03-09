@@ -20,7 +20,7 @@ service<http> circuitBreakerDemo {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
 
         // The Circuit Breaker accepts an HTTP client connector as its first argument.
         // - When the percentage of failed requests passes the specified threshold, the circuit trips and subsequent requests to the backend fails immediately.<br>
@@ -66,7 +66,7 @@ service<http> helloWorld {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         if (counter % 5 == 0) {
             runtime:sleepCurrentWorker(5000);
             counter = counter + 1;

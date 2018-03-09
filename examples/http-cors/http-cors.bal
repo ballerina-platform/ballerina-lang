@@ -18,7 +18,7 @@ service<http> crossOriginService {
         allowCredentials : true,
         allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
     }
-    resource companyInfo (http:Connection conn, http:InRequest req) {
+    resource companyInfo (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"type":"middleware"};
         res.setJsonPayload(responseJson);
@@ -30,7 +30,7 @@ service<http> crossOriginService {
         methods:["POST"],
         path:"/lang"
     }
-    resource langInfo (http:Connection conn, http:InRequest req) {
+    resource langInfo (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"lang":"Ballerina"};
         res.setJsonPayload(responseJson);
