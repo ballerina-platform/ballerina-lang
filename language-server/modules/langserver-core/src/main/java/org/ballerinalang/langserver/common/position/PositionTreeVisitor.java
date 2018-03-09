@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -677,6 +678,16 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(endpointType);
         if (endpointType.endpointType != null) {
             acceptNode(endpointType.endpointType);
+        }
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        addTopLevelNodeToContext(enumNode, enumNode.name.getValue(), enumNode.symbol.pkgID,
+                enumNode.symbol.kind.name(), enumNode.symbol.kind.name(),
+                enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
+        if (enumNode.getPosition().sLine == this.position.getLine()) {
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
         }
     }
 

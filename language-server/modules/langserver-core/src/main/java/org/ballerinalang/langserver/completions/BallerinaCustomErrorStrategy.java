@@ -134,6 +134,8 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
 
         if (context instanceof BallerinaParser.NameReferenceContext) {
             setContextIfConnectorInit(context, e);
+        } else if (context instanceof BallerinaParser.ExpressionContext) {
+            setContextIfConditionalStatement(context, e);
         }
     }
 
@@ -155,6 +157,25 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
                 }
             }
             connectorInitContext.getParent().exception = e;
+        }
+    }
+
+    /**
+     * Set the context if the statement is a conditional statement such as if-else, while or catch.
+     * @param context   Current parser rule context
+     * @param e         Exception of the parser context
+     */
+    private void setContextIfConditionalStatement(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext conditionalContext = context.getParent();
+        if (conditionalContext == null) {
+            return;
+        }
+        if (conditionalContext instanceof BallerinaParser.IfClauseContext) {
+            conditionalContext.getParent().exception = e;
+        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext) {
+            conditionalContext.exception = e;
+        } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            setContextIfConditionalStatement(conditionalContext, e);
         }
     }
 }
