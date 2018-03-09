@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractImportNode extends Node {
 
 
+    setOrgName(newValue, silent, title) {
+        const oldValue = this.orgName;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.orgName = newValue;
+
+        this.orgName.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'orgName',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getOrgName() {
+        return this.orgName;
+    }
+
+
+
     setPackageVersion(newValue, silent, title) {
         const oldValue = this.packageVersion;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

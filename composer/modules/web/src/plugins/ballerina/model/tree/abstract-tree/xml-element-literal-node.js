@@ -17,9 +17,34 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractXmlElementLiteralNode extends ExpressionNode {
+class AbstractXmlElementLiteralNode extends Node {
+
+
+    setNamespaces(newValue, silent, title) {
+        const oldValue = this.namespaces;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.namespaces = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'namespaces',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getNamespaces() {
+        return this.namespaces;
+    }
+
 
 
     setStartTagName(newValue, silent, title) {
@@ -48,6 +73,7 @@ class AbstractXmlElementLiteralNode extends ExpressionNode {
     }
 
 
+
     setEndTagName(newValue, silent, title) {
         const oldValue = this.endTagName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,29 +99,6 @@ class AbstractXmlElementLiteralNode extends ExpressionNode {
         return this.endTagName;
     }
 
-
-    setNamespaces(newValue, silent, title) {
-        const oldValue = this.namespaces;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.namespaces = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'namespaces',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getNamespaces() {
-        return this.namespaces;
-    }
 
 
     setAttributes(newValue, silent, title) {

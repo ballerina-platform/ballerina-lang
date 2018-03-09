@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractIndexBasedAccessExprNode extends ExpressionNode {
+class AbstractIndexBasedAccessExprNode extends Node {
 
 
     setIndex(newValue, silent, title) {
@@ -48,6 +48,7 @@ class AbstractIndexBasedAccessExprNode extends ExpressionNode {
     }
 
 
+
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractIndexBasedAccessExprNode extends ExpressionNode {
     getExpression() {
         return this.expression;
     }
+
 
 
 }

@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractCatchNode extends Node {
 
 
+    setParameter(newValue, silent, title) {
+        const oldValue = this.parameter;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.parameter = newValue;
+
+        this.parameter.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'parameter',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getParameter() {
+        return this.parameter;
+    }
+
+
+
     setBody(newValue, silent, title) {
         const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -47,31 +74,6 @@ class AbstractCatchNode extends Node {
         return this.body;
     }
 
-
-    setParameter(newValue, silent, title) {
-        const oldValue = this.parameter;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.parameter = newValue;
-
-        this.parameter.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'parameter',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getParameter() {
-        return this.parameter;
-    }
 
 
 }

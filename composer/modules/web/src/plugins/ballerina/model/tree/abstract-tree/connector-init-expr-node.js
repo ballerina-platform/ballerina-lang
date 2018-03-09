@@ -167,6 +167,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     }
 
 
+
     setFilterConnectos(newValue, silent, title) {
         const oldValue = this.filterConnectos;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

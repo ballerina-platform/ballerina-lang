@@ -48,6 +48,7 @@ class AbstractEndpointTypeNode extends Node {
     }
 
 
+
 }
 
 export default AbstractEndpointTypeNode;

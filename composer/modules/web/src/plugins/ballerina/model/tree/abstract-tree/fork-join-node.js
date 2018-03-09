@@ -141,6 +141,141 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+    setTimeOutVariable(newValue, silent, title) {
+        const oldValue = this.timeOutVariable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeOutVariable = newValue;
+
+        this.timeOutVariable.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeOutVariable',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeOutVariable() {
+        return this.timeOutVariable;
+    }
+
+
+
+    setJoinResultVar(newValue, silent, title) {
+        const oldValue = this.joinResultVar;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinResultVar = newValue;
+
+        this.joinResultVar.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinResultVar',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinResultVar() {
+        return this.joinResultVar;
+    }
+
+
+
+    setTimeOutExpression(newValue, silent, title) {
+        const oldValue = this.timeOutExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeOutExpression = newValue;
+
+        this.timeOutExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeOutExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeOutExpression() {
+        return this.timeOutExpression;
+    }
+
+
+
+    setJoinBody(newValue, silent, title) {
+        const oldValue = this.joinBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinBody = newValue;
+
+        this.joinBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinBody() {
+        return this.joinBody;
+    }
+
+
+
+    setTimeoutBody(newValue, silent, title) {
+        const oldValue = this.timeoutBody;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeoutBody = newValue;
+
+        this.timeoutBody.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeoutBody',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeoutBody() {
+        return this.timeoutBody;
+    }
+
+
+
     setJoinedWorkerIdentifiers(newValue, silent, title) {
         const oldValue = this.joinedWorkerIdentifiers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -284,6 +419,7 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+
     setJoinCount(newValue, silent, title) {
         const oldValue = this.joinCount;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -307,135 +443,6 @@ class AbstractForkJoinNode extends StatementNode {
         return this.joinCount;
     }
 
-
-    setJoinBody(newValue, silent, title) {
-        const oldValue = this.joinBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinBody = newValue;
-
-        this.joinBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinBody() {
-        return this.joinBody;
-    }
-
-
-    setTimeOutExpression(newValue, silent, title) {
-        const oldValue = this.timeOutExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.timeOutExpression = newValue;
-
-        this.timeOutExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'timeOutExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTimeOutExpression() {
-        return this.timeOutExpression;
-    }
-
-
-    setTimeOutVariable(newValue, silent, title) {
-        const oldValue = this.timeOutVariable;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.timeOutVariable = newValue;
-
-        this.timeOutVariable.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'timeOutVariable',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTimeOutVariable() {
-        return this.timeOutVariable;
-    }
-
-
-    setTimeoutBody(newValue, silent, title) {
-        const oldValue = this.timeoutBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.timeoutBody = newValue;
-
-        this.timeoutBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'timeoutBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTimeoutBody() {
-        return this.timeoutBody;
-    }
-
-
-    setJoinResultVar(newValue, silent, title) {
-        const oldValue = this.joinResultVar;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinResultVar = newValue;
-
-        this.joinResultVar.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinResultVar',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinResultVar() {
-        return this.joinResultVar;
-    }
 
 
 }
