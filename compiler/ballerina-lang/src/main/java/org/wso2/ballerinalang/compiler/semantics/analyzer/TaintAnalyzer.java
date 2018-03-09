@@ -119,9 +119,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.XMLConstants;
 
 /**
@@ -155,7 +157,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     private BlockedNode blockedNode;
     private List<Boolean> taintedStatusList;
     private List<Boolean> returnTaintedStatusList;
-    private List<TaintRecord.TaintError> taintErrorList = new ArrayList<>();
+    private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private Map<BlockingNode, List<BlockedNode>> blockedNodeMap = new HashMap<>();
 
     private static final String ANNOTATION_TAINTED = "tainted";
@@ -920,10 +922,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             return;
         } else {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-            taintErrorList.forEach(error -> {
+            taintErrorSet.forEach(error -> {
                 this.dlog.error(error.pos, error.diagnosticCode, error.paramName);
             });
-            taintErrorList.clear();
+            taintErrorSet.clear();
         }
         invNode.params.forEach(param -> param.symbol.tainted = false);
         invNode.symbol.taintTable = new HashMap<>();
@@ -969,11 +971,11 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             invokableNode.params.get(paramIndex).symbol.tainted = true;
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
-        if (taintErrorList.size() > 0) {
+        if (taintErrorSet.size() > 0) {
             // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
             // error to the table for future reference.
-            taintTable.put(paramIndex, new TaintRecord(null, new ArrayList<>(taintErrorList)));
-            taintErrorList.clear();
+            taintTable.put(paramIndex, new TaintRecord(null, new ArrayList<>(taintErrorSet)));
+            taintErrorSet.clear();
         } else if (this.blockedNode == null) {
             if (invokableNode.retParams.size() == 0) {
                 returnTaintedStatusList = new ArrayList<>();
@@ -990,7 +992,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         } else {
             for (BLangWorker worker : invokableNode.workers) {
                 analyzeNode(worker, symbolEnv);
-                if (this.blockedNode != null || taintErrorList.size() > 0) {
+                if (this.blockedNode != null || taintErrorSet.size() > 0) {
                     break;
                 }
             }
@@ -1061,7 +1063,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             this.blockedNode = null;
             // Discard any error generated if invokable was found to be blocked. This will avoid duplicates when
             // blocked invokable is re-examined.
-            taintErrorList.clear();
+            taintErrorSet.clear();
             isBlocked = true;
         }
         return isBlocked;
@@ -1090,14 +1092,14 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
 
     private void addTaintError(DiagnosticPos diagnosticPos, String paramName, DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, diagnosticCode);
-        taintErrorList.add(taintError);
+        taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
     }
 
     private void addTaintError(List<TaintRecord.TaintError> taintError) {
-        taintErrorList.addAll(taintError);
+        taintErrorSet.addAll(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
@@ -1162,7 +1164,9 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             // also be tainted, unless it was explicitly marked untainted using @untainted with returns.
             invocationExpr.expr.accept(this);
             for (int i = 0; i < returnTaintedStatus.size(); i++) {
-                returnTaintedStatus.set(i, getObservedTaintedStatus());
+                if (getObservedTaintedStatus()) {
+                    returnTaintedStatus.set(i, getObservedTaintedStatus());
+                }
             }
             //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
         }
