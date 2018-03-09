@@ -25,6 +25,10 @@ import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.packerina.toml.model.Manifest;
+import org.ballerinalang.packerina.toml.model.Settings;
+import org.ballerinalang.packerina.toml.parser.ManifestProcessor;
+import org.ballerinalang.packerina.toml.parser.SettingsProcessor;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,13 +40,16 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 /**
  * Util class for network calls.
@@ -73,9 +80,10 @@ public class NetworkUtils {
 
     /**
      * Invoke package init.
+     *
      * @param programFile program file
      * @param packageInfo package info object
-     * @param bContext context object
+     * @param bContext    context object
      */
     private static void initPackage(ProgramFile programFile, PackageInfo packageInfo, Context bContext) {
         if (!packageInit) {
@@ -177,6 +185,7 @@ public class NetworkUtils {
         Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
         Path sourcePath = Paths.get("ballerina/pull");
         ProgramFile programFile = LauncherUtils.compile(sourceRootPath, sourcePath);
+
         String host = getHost(ballerinaCentralURL);
         Path cacheDir = Paths.get("caches").resolve(host);
 
@@ -224,6 +233,55 @@ public class NetworkUtils {
     }
 
     /**
+     * Push/Uploads packages to the central repository.
+     *
+     * @param packageName         path of the package folder to be pushed
+     * @param ballerinaCentralURL URL of ballerina central
+     */
+    public static void pushPackages(String packageName, String installToRepo, String ballerinaCentralURL) {
+        Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        Path sourcePath = Paths.get("ballerina/push");
+        ProgramFile programFile = LauncherUtils.compile(sourceRootPath, sourcePath);
+
+        String accessToken = getAccessTokenOfCLI() != null ? removeQuotationsFromValue(getAccessTokenOfCLI()) : null;
+        if (accessToken != null) {
+            // Get the org-name and version by reading Ballerina.toml inside the project
+            Manifest manifest = readManifestConfigurations();
+            if (manifest.getName() != null && manifest.getVersion() != null) {
+                String orgName = removeQuotationsFromValue(manifest.getName());
+                String version = removeQuotationsFromValue(manifest.getVersion());
+                String resourcePath = ballerinaCentralURL + Paths.get(orgName).resolve(packageName)
+                        .resolve(version);
+
+                Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+                // Construct the package name along with the version and check if it exists
+                Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                        .resolve(packageName).resolve(version);
+                if (Files.notExists(pkgPath)) {
+                    outStream.println("Package " + packageName + " with version " + version + " does not exist");
+                } else {
+                    // Default push to the remote repository
+                    if (installToRepo == null) {
+                        String[] proxyConfigs = readProxyConfigurations();
+                        String[] arguments = new String[]{accessToken, resourcePath, pkgPath.toString()};
+                        arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
+                                .toArray(String[]::new);
+                        invokeFunction(programFile, "push", arguments);
+                    }
+                }
+            } else {
+                outStream.println("An org-name and package version is required when pushing. This is not specified " +
+                        "in Ballerina.toml inside the project");
+            }
+        } else {
+            outStream.println("You have not specified an access-token for the central in your Settings.toml\n" +
+                    "Please login to central if you are already registered using 'central.ballerina.io/login' to get" +
+                    " a valid access-token. \nIf you are new to the site please register using " +
+                    "'central.ballerina.io/register'");
+        }
+    }
+
+    /**
      * Check if Ballerina.toml exists in the current directory that the pull command is executed, to
      * verify that its from a project directory
      *
@@ -246,5 +304,86 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
         }
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve("Ballerina.toml").toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
+    }
+
+    /**
+     * Read Settings.toml to populate the configurations.
+     *
+     * @return settings object
+     */
+    private static Settings readSettings() {
+        String tomlFilePath = UserRepositoryUtils.initializeUserRepository().resolve("Settings.toml").toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
+        }
+    }
+
+    /**
+     * Read proxy configurations from the SettingHeaders.toml file.
+     *
+     * @return array with proxy configurations
+     */
+    private static String[] readProxyConfigurations() {
+        String host = "", port = "", username = "", password = "";
+        String proxyConfigArr[] = new String[]{host, port, username, password};
+        Settings settings = readSettings();
+        if (settings.getProxy() != null) {
+            if (settings.getProxy().getHost() != null) {
+                host = removeQuotationsFromValue(settings.getProxy().getHost());
+                proxyConfigArr[0] = host;
+            }
+            if (settings.getProxy().getPort() != null) {
+                port = removeQuotationsFromValue(settings.getProxy().getPort());
+                proxyConfigArr[1] = port;
+            }
+            if (settings.getProxy().getUserName() != null) {
+                username = removeQuotationsFromValue(settings.getProxy().getUserName());
+                proxyConfigArr[2] = username;
+            }
+            if (settings.getProxy().getPassword() != null) {
+                password = removeQuotationsFromValue(settings.getProxy().getPassword());
+                proxyConfigArr[3] = password;
+            }
+        }
+        return proxyConfigArr;
+    }
+
+    /**
+     * Read the access token generated for the CLI.
+     *
+     * @return access token for generated for the CLI
+     */
+    private static String getAccessTokenOfCLI() {
+        Settings settings = readSettings();
+        if (settings.getCentral() != null) {
+            return settings.getCentral().getAccessToken();
+        }
+        return null;
+    }
+
+    /**
+     * Remove enclosing quotation from the string value.
+     *
+     * @param value string value with enclosing quotations
+     * @return string value after removing the enclosing quotations
+     */
+    private static String removeQuotationsFromValue(String value) {
+        return value.replace("\"", "");
     }
 }
