@@ -30,6 +30,7 @@ import org.ballerinalang.packerina.toml.model.Settings;
 import org.ballerinalang.packerina.toml.parser.ManifestProcessor;
 import org.ballerinalang.packerina.toml.parser.SettingsProcessor;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -254,7 +255,6 @@ public class NetworkUtils {
                         .resolve(version);
 
                 Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-                // Construct the package name along with the version and check if it exists
                 Path pkgPath = currentDirPath.resolve(".ballerina").resolve("repo").resolve(orgName)
                         .resolve(packageName).resolve(version);
                 if (Files.notExists(pkgPath)) {
@@ -267,6 +267,22 @@ public class NetworkUtils {
                         arguments = Stream.concat(Arrays.stream(arguments), Arrays.stream(proxyConfigs))
                                 .toArray(String[]::new);
                         invokeFunction(programFile, "push", arguments);
+                    } else {
+                        // Check if the package should be installed into the home repository
+                        if (installToRepo.equals("home")) {
+                            Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository()
+                                    .resolve(BLangConstants.USER_REPO_ARTIFACTS_DIRNAME).resolve(orgName)
+                                    .resolve(packageName).resolve(version);
+                            if (!Files.exists(targetDirectoryPath)) {
+                                try {
+                                    Files.createDirectories(targetDirectoryPath);
+                                } catch (IOException e) {
+                                    outStream.println("Error when occured when creating directories in " +
+                                            "./ballerina/artifacts/ to install the package locally");
+                                }
+                            }
+                            copyFolder(pkgPath, targetDirectoryPath);
+                        }
                     }
                 }
             } else {
@@ -385,5 +401,32 @@ public class NetworkUtils {
      */
     private static String removeQuotationsFromValue(String value) {
         return value.replace("\"", "");
+    }
+
+    /**
+     * Copy folders/files from source directory to the destination directory.
+     *
+     * @param src  source directory path
+     * @param dest destination directory path
+     */
+    public static void copyFolder(Path src, Path dest) {
+        try {
+            Files.walk(src).forEach(s -> {
+                try {
+                    Path d = dest.resolve(src.relativize(s));
+                    if (Files.isDirectory(s)) {
+                        if (!Files.exists(d)) {
+                            Files.createDirectory(d);
+                            return;
+                        }
+                    }
+                    Files.copy(s, d);
+                } catch (IOException e) {
+                    outStream.println("Error occured while pushing the package to the user repository");
+                }
+            });
+        } catch (IOException ex) {
+            outStream.println("Error occured while visiting the file tree " + src.toString());
+        }
     }
 }
