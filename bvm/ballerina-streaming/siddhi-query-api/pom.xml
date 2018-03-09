@@ -42,18 +42,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <basedir>${project.build.outputDirectory}/org/wso2/siddhi/query/api</basedir>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <properties>
         <mavan.findbugsplugin.exclude.file>../../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>

@@ -716,6 +716,22 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-annotations</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+
             <!-- Compile time dependencies -->
             <dependency>
                 <groupId>org.mvel</groupId>

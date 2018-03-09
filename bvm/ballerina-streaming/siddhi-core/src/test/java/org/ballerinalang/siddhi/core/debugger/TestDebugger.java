@@ -872,25 +872,4 @@ public class TestDebugger {
 
         siddhiAppRuntime.shutdown();
     }
-
-    @Test
-    public void testDebugger13() throws InterruptedException {
-        log.info("Siddi Debugger Test 13: Test debugging a query with insert into table.");
-        SiddhiManager siddhiManager = new SiddhiManager();
-        String streams = "" +
-                "define stream StockStream (symbol string, price float, volume long); " +
-                "define table StockTable (symbol string, price float, volume long); ";
-        String query = "" +
-                "@info(name = 'query1') " +
-                "from StockStream " +
-                "insert into StockTable ;";
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
-        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
-        siddhiAppRuntime.debug();
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-        stockStream.send(new Event(123L, new Object[]{"IBM", 75.6f, 100L}));
-        stockStream.send(new Event[]{new Event(123L, new Object[]{"WSO2", 57.6f, 100L})});
-        Thread.sleep(500);
-        siddhiAppRuntime.shutdown();
-    }
 }

@@ -33,9 +33,9 @@
     <url>http://ballerinalang.org</url>
 
     <modules>
+        <module>siddhi-annotations</module>
         <module>siddhi-query-api</module>
         <module>siddhi-query-compiler</module>
         <module>siddhi-core</module>
-        <module>siddhi-annotations</module>
     </modules>
 </project>

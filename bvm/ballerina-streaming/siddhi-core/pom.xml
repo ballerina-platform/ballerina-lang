@@ -32,15 +32,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ballerinalang.siddhi</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>siddhi-query-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.siddhi</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>siddhi-query-compiler</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.siddhi</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>siddhi-annotations</artifactId>
         </dependency>
         <dependency>
@@ -96,35 +96,6 @@
             <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <basedir>${project.build.outputDirectory}/org/wso2/siddhi/core</basedir>
-                </configuration>
-            </plugin>
-
-            <!--TODO Adding as the temporary solution to have guava code with Siddhi core -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </build>
 
     <properties>
         <mavan.findbugsplugin.exclude.file>../../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>

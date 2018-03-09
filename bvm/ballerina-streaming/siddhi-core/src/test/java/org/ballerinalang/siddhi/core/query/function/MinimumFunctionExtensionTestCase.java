@@ -343,7 +343,7 @@ public class MinimumFunctionExtensionTestCase {
                             AssertJUnit.assertEquals(37.75f, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            AssertJUnit.fail();
                     }
                 }
             }
@@ -404,7 +404,7 @@ public class MinimumFunctionExtensionTestCase {
                             AssertJUnit.assertEquals(40L, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            AssertJUnit.fail();
                     }
                 }
             }

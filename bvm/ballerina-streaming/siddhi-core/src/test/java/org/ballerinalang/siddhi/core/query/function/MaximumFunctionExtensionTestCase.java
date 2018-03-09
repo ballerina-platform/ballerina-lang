@@ -403,7 +403,7 @@ public class MaximumFunctionExtensionTestCase {
                             AssertJUnit.assertEquals(40.0f, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            AssertJUnit.fail();
                     }
                 }
             }
@@ -464,7 +464,7 @@ public class MaximumFunctionExtensionTestCase {
                             AssertJUnit.assertEquals(3812L, event.getData(0));
                             break;
                         default:
-                            org.junit.Assert.fail();
+                            AssertJUnit.fail();
                     }
                 }
             }

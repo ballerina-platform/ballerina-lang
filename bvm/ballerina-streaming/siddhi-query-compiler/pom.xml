@@ -33,7 +33,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ballerinalang.siddhi</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>siddhi-query-api</artifactId>
         </dependency>
         <dependency>
@@ -80,13 +80,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <basedir>${project.build.outputDirectory}/org/wso2/siddhi/query/compiler</basedir>
-                </configuration>
             </plugin>
         </plugins>
     </build>
