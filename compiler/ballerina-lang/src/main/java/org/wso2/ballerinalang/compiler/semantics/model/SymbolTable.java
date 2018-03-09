@@ -1,22 +1,21 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.model;
-
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
@@ -54,7 +53,9 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -65,7 +66,6 @@ public class SymbolTable {
             new CompilerContext.Key<>();
 
     public static final PackageID BUILTIN = new PackageID(Names.ANON_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
-
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -85,7 +85,6 @@ public class SymbolTable {
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType nullType = new BNullType();
-    public final BType voidType = new BNoType(TypeTags.VOID);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType arrayType = new BArrayType(noType);
@@ -98,6 +97,9 @@ public class SymbolTable {
     public BPackageSymbol builtInPackageSymbol;
 
     private Names names;
+
+    public Map<PackageID, BPackageSymbol> pkgSymbolMap = new HashMap<>();
+    public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -308,6 +310,20 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
+
+        defineUnaryOperator(OperatorKind.UNTAINT, intType, intType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, floatType, floatType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, booleanType, booleanType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, stringType, stringType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, typeType, typeType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, jsonType, jsonType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, xmlType, xmlType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, tableType, tableType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, anyType, anyType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, mapType, mapType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, connectorType, connectorType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, arrayType, arrayType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, nullType, nullType, InstructionCodes.NOP);
 
         defineCastOperators();
         defineConversionOperators();
