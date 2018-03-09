@@ -36,95 +36,95 @@ public connector LoadBalancer (http:HttpClient[] loadBalanceClientsArray, functi
 
     @Description {value:"The POST action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.POST, loadBalanceInferredConfig);
+    action post (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.POST, loadBalanceInferredConfig);
     }
 
     @Description {value:"The HEAD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.HEAD, loadBalanceInferredConfig);
+    action head (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.HEAD, loadBalanceInferredConfig);
     }
 
     @Description {value:"The PATCH action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.PATCH, loadBalanceInferredConfig);
+    action patch (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.PATCH, loadBalanceInferredConfig);
     }
 
     @Description {value:"The PUT action implementation of the Load Balance Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.PUT, loadBalanceInferredConfig);
+    action put (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.PUT, loadBalanceInferredConfig);
     }
 
     @Description {value:"The OPTIONS action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.OPTIONS, loadBalanceInferredConfig);
+    action options (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.OPTIONS, loadBalanceInferredConfig);
     }
 
     @Description {value:"The FORWARD action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An InRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, null, request, HttpOperation.FORWARD, loadBalanceInferredConfig);
+    action forward (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.FORWARD, loadBalanceInferredConfig);
     }
 
     @Description {value:"The EXECUTE action implementation of the LoadBalancer Connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceExecuteAction(path, request, null, httpVerb, loadBalanceInferredConfig);
+    action execute (string httpVerb, string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceExecuteAction(path, request, httpVerb, loadBalanceInferredConfig);
     }
 
     @Description {value:"The DELETE action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.DELETE, loadBalanceInferredConfig);
+    action delete (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.DELETE, loadBalanceInferredConfig);
     }
 
     @Description {value:"The GET action implementation of the LoadBalancer Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performLoadBalanceAction(path, request, null, HttpOperation.GET, loadBalanceInferredConfig);
+    action get (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performLoadBalanceAction(path, request, HttpOperation.GET, loadBalanceInferredConfig);
     }
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performLoadBalanceExecuteAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performLoadBalanceExecuteAction (string path, http:Request request,
                                string httpVerb, LoadBalanceInferredConfig loadBalanceInferredConfig)
 (http:InResponse, http:HttpConnectorError) {
     HttpOperation connctorAction = extractHttpOperation(httpVerb);
     if (connctorAction != null) {
-        return performLoadBalanceAction(path, outRequest, inRequest, connctorAction, loadBalanceInferredConfig);
+        return performLoadBalanceAction(path, request, connctorAction, loadBalanceInferredConfig);
     } else {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
@@ -134,7 +134,7 @@ function performLoadBalanceExecuteAction (string path, http:OutRequest outReques
 }
 
 // Handles all the actions exposed through the Load Balance connector.
-function performLoadBalanceAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performLoadBalanceAction (string path, http:Request request,
                                    HttpOperation requestAction, LoadBalanceInferredConfig loadBalanceInferredConfig)
 (http:InResponse, http:HttpConnectorError) {
 
@@ -149,16 +149,16 @@ function performLoadBalanceAction (string path, http:OutRequest outRequest, http
 
     // When performing passthrough scenarios using Load Balance connector, message needs to be built before trying out the
     // load balance endpoints to keep the request message to load balance the messages in case of failure.
-    if (inRequest != null && HttpOperation.FORWARD == requestAction) {
-        var binaryPayload, _ = inRequest.getBinaryPayload();
+    if (request != null && HttpOperation.FORWARD == requestAction) {
+        var binaryPayload, _ = request.getBinaryPayload();
     }
 
-    inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBalanceClient);
+    inResponse, httpConnectorError = invokeEndpoint(path, request, requestAction, loadBalanceClient);
 
     while (httpConnectorError != null) {
         loadBalanceConnectorError.httpConnectorError[nextIndex] = httpConnectorError;
         loadBalanceClient = loadBalanceInferredConfig.algorithm(loadBalanceInferredConfig.loadBalanceClientsArray);
-        inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, loadBalanceClient);
+        inResponse, httpConnectorError = invokeEndpoint(path, request, requestAction, loadBalanceClient);
         loadBalanceTermination = loadBalanceTermination + 1;
         if (loadBalanceTermination == (lengthof loadBalanceInferredConfig.loadBalanceClientsArray - 1) && inResponse == null) {
             loadBalanceTermination = 0;

@@ -63,12 +63,12 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
- * Test cases for ballerina.net.http inbound inRequest success native functions.
+ * Test cases for ballerina.net.http request success native functions.
  */
-public class InRequestNativeFunctionSuccessTest {
+public class RequestNativeFunctionSuccessTest {
 
     private CompileResult result, serviceResult;
-    private final String inReqStruct = HttpConstants.IN_REQUEST;
+    private final String reqStruct = HttpConstants.REQUEST;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String entityStruct = HttpConstants.ENTITY;
@@ -84,7 +84,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test getBinaryPayload method of the request")
     public void testGetBinaryPayloadMethod() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -103,7 +103,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetContentLength() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String payload = "ballerina";
         BMap<String, BStringArray> headersMap = new BMap<>();
@@ -139,7 +139,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetHeader() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_GET);
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
 
@@ -169,7 +169,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test GetHeaders function within a function")
     public void testGetHeaders() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("", HttpConstants.HTTP_METHOD_GET);
         HttpHeaders headers = inRequestMsg.getHeaders();
         headers.set("test-header", APPLICATION_FORM);
@@ -190,7 +190,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetJsonPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -223,7 +223,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
@@ -253,7 +253,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetStringPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -285,7 +285,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetXmlPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -341,7 +341,7 @@ public class InRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -359,7 +359,7 @@ public class InRequestNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test GetByteChannel function within a service. Send a json content as a request " +
-            "and then get a byte channel from the InRequest and set that ByteChannel as the response content")
+            "and then get a byte channel from the Request and set that ByteChannel as the response content")
     public void testServiceGetByteChannel() {
         String key = "lang";
         String value = "ballerina";

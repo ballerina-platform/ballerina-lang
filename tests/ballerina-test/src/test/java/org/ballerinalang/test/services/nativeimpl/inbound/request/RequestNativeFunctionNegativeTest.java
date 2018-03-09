@@ -42,12 +42,12 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
- * Test cases for ballerina.net.http inbound inRequest negative native functions.
+ * Test cases for ballerina.net.http request negative native functions.
  */
-public class InRequestNativeFunctionNegativeTest {
+public class RequestNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-    private final String inReqStruct = HttpConstants.IN_REQUEST;
+    private final String reqStruct = HttpConstants.REQUEST;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -62,7 +62,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test(description = "Test when the content length header is not set")
     public void testGetContentLength() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertEquals(Integer.parseInt(returnVals[0].stringValue()), -1);
@@ -70,7 +70,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetHeader() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
@@ -80,7 +80,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
@@ -88,7 +88,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -107,7 +107,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetProperty() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BString propertyName = new BString("wso2");
         BValue[] inputArg = {inRequest, propertyName};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetProperty", inputArg);
@@ -118,7 +118,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertNull(returnVals[0].stringValue());
@@ -126,7 +126,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetXmlPayloadNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertNull(returnVals[0]);
@@ -134,7 +134,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetMethodNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = {inRequest};
@@ -146,7 +146,7 @@ public class InRequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetRequestURLNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inReqStruct);
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = {inRequest};
@@ -161,8 +161,8 @@ public class InRequestNativeFunctionNegativeTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined function 'setStatusCode' in struct 'ballerina.net.http:InRequest'", 4, 5);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'statusCode' in struct 'ballerina.net.http:InRequest'", 5, 5);
+                "undefined field 'statusCode' in struct 'ballerina.net.http:Request'", 5, 5);
     }
 }

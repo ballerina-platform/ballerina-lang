@@ -8,7 +8,7 @@ service<http> loadBalancerService {
         path:"/"
     }
 
-    resource loadBalanceResource (http:Connection conn, http:InRequest req) {
+    resource loadBalanceResource (http:Connection conn, http:Request req) {
 
         endpoint<http:HttpClient> endPoint {
             create resiliency:LoadBalancer(
@@ -21,7 +21,7 @@ service<http> loadBalancerService {
         http:InResponse inResponse = {};
         http:HttpConnectorError httpConnectorError;
 
-        http:OutRequest outRequest = {};
+        http:Request outRequest = {};
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
         inResponse, httpConnectorError = endPoint.post("/", outRequest);
@@ -42,7 +42,7 @@ service<http> mock1 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock1Resource (http:Connection conn, http:InRequest req) {
+    resource mock1Resource (http:Connection conn, http:Request req) {
         http:OutResponse outResponse = {};
         outResponse.setStringPayload("Mock1 Resource is invoked.");
         _ = conn.respond(outResponse);
@@ -54,7 +54,7 @@ service<http> mock2 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock2Resource (http:Connection conn, http:InRequest req) {
+    resource mock2Resource (http:Connection conn, http:Request req) {
         http:OutResponse outResponse = {};
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
         _ = conn.respond(outResponse);
@@ -66,7 +66,7 @@ service<http> mock3 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock3Resource (http:Connection conn, http:InRequest req) {
+    resource mock3Resource (http:Connection conn, http:Request req) {
         http:OutResponse outResponse = {};
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
         _ = conn.respond(outResponse);

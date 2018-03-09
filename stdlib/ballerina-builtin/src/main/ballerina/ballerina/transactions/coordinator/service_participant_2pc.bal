@@ -32,7 +32,7 @@ service<http> Participant2pcService {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource prepare (http:Connection conn, http:InRequest req) {
+    resource prepare (http:Connection conn, http:Request req) {
         http:OutResponse res;
         var payload, _ = req.getJsonPayload();
         var prepareReq, _ = <PrepareRequest>payload;
@@ -75,7 +75,7 @@ service<http> Participant2pcService {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource notify (http:Connection conn, http:InRequest req) {
+    resource notify (http:Connection conn, http:Request req) {
         var payload, _ = req.getJsonPayload();
         var notifyReq, _ = <NotifyRequest>payload;
         string transactionId = notifyReq.transactionId;

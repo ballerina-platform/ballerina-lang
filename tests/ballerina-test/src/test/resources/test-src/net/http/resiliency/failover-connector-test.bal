@@ -37,7 +37,7 @@ function testSuccessScenario () (http:InResponse, http:HttpConnectorError) {
 
     http:InResponse clientResponse = {};
     http:HttpConnectorError err;
-    http:OutRequest outReq = {};
+    http:Request outReq = {};
 
     int counter = 0;
 
@@ -56,7 +56,7 @@ function testFailureScenario () (http:InResponse, http:HttpConnectorError) {
 
     http:InResponse clientResponse = {};
     http:HttpConnectorError err;
-    http:OutRequest outReq = {};
+    http:Request outReq = {};
 
     int counter = 0;
 
@@ -75,7 +75,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
         http:InResponse response;
         http:HttpConnectorError err;
         response, err = generateResponse(actualRequestNumber);
@@ -83,35 +83,35 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
         return response, err;
     }
 
-    action head (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action put (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action options (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 }

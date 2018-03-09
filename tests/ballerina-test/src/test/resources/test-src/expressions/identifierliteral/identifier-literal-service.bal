@@ -7,7 +7,7 @@ service<http> |sample service| {
         methods:["GET"],
         path:"/resource"
     }
-    resource |sample resource| (http:Connection conn, http:InRequest req) {
+    resource |sample resource| (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
@@ -18,7 +18,7 @@ service<http> |sample service| {
         methods:["GET"],
         path:"/resource2"
     }
-    resource |sample resource2| (http:Connection conn, http:InRequest req) {
+    resource |sample resource2| (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string |a a| = "hello";
         res.setStringPayload(|a a|);

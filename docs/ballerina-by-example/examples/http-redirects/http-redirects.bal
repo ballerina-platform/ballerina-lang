@@ -5,7 +5,7 @@ function main (string[] args) {
     endpoint<http:HttpClient> httpEndoint {
         create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
     }
-    http:OutRequest req = {};
+    http:Request req = {};
 
     //Send a GET request to the specified endpoint
     http:InResponse resp;

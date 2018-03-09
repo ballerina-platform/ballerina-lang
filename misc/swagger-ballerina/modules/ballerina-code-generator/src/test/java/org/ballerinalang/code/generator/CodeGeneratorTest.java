@@ -48,7 +48,7 @@ public class CodeGeneratorTest {
                     "    @http:resourceConfig {\n" +
                     "        methods:[\"GET\"]\n" +
                     "    }\n" +
-                    "    resource stocks (http:Connection conn, http:InRequest inReq) {\n" +
+                    "    resource stocks (http:Connection conn, http:Request inReq) {\n" +
                     "        http:OutResponse res = {};\n" +
                     "        json payload = {\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"};\n" +
                     "        res.setJsonPayload(payload);\n" +

@@ -11,7 +11,7 @@ service<http> infoService {
     }
     @Description {value:"Resource can consume/accept text/json and application/json media types only. Therefore Content-Type header must have one of the types."}
     @Description {value:"Resource can produce application/xml payloads. Therefore Accept header should be set accordingly."}
-    resource student (http:Connection conn, http:InRequest req) {
+    resource student (http:Connection conn, http:Request req) {
         //Get JSON payload from the request message.
         var jsonMsg, payloadError = req.getJsonPayload();
         http:OutResponse res = {};

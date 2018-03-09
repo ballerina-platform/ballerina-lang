@@ -9,7 +9,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/textbodypart"
     }
-    resource multipart1 (http:Connection conn, http:InRequest request) {
+    resource multipart1 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var textContent, _ = bodyParts[0].getText();
         http:OutResponse response = {};
@@ -21,7 +21,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/jsonbodypart"
     }
-    resource multipart2 (http:Connection conn, http:InRequest request) {
+    resource multipart2 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var jsonContent, _ = bodyParts[0].getJson();
         http:OutResponse response = {};
@@ -33,7 +33,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/xmlbodypart"
     }
-    resource multipart3 (http:Connection conn, http:InRequest request) {
+    resource multipart3 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var xmlContent, _ = bodyParts[0].getXml();
         http:OutResponse response = {};
@@ -45,7 +45,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/binarybodypart"
     }
-    resource multipart4 (http:Connection conn, http:InRequest request) {
+    resource multipart4 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         var blobContent, _ = bodyParts[0].getBlob();
         http:OutResponse response = {};
@@ -57,7 +57,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/multipleparts"
     }
-    resource multipart5 (http:Connection conn, http:InRequest request) {
+    resource multipart5 (http:Connection conn, http:Request request) {
         var bodyParts, _ = request.getMultiparts();
         int i = 0;
         string content = "";
@@ -75,7 +75,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/emptyparts"
     }
-    resource multipart6 (http:Connection conn, http:InRequest request) {
+    resource multipart6 (http:Connection conn, http:Request request) {
         var entity, entityError = request.getMultiparts();
         http:OutResponse response = {};
         response.setStringPayload(entityError.message);
@@ -86,7 +86,7 @@ service<http> helloServer {
         methods:["POST"],
         path:"/nestedparts"
     }
-    resource multipart7 (http:Connection conn, http:InRequest request) {
+    resource multipart7 (http:Connection conn, http:Request request) {
         var parentParts, _ = request.getMultiparts();
         int i = 0;
         string content = "";

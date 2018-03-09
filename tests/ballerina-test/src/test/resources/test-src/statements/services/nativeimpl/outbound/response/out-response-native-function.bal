@@ -94,7 +94,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }
@@ -102,7 +102,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/12/{phase}"
     }
-    resource echo2 (http:Connection conn, http:InRequest req, string phase) {
+    resource echo2 (http:Connection conn, http:Request req, string phase) {
         http:OutResponse res = {};
         res.reasonPhrase = phase;
         _ = conn.respond(res);
@@ -111,7 +111,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/13"
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
+    resource echo3 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.statusCode = 203;
         _ = conn.respond(res);
@@ -120,7 +120,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    resource addheader (http:Connection conn, http:InRequest req, string key, string value) {
+    resource addheader (http:Connection conn, http:Request req, string key, string value) {
         http:OutResponse res = {};
         res.addHeader(key, value);
         string result = res.getHeader(key);
@@ -131,7 +131,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getHeader/{header}/{value}"
     }
-    resource getHeader (http:Connection conn, http:InRequest req, string header, string value) {
+    resource getHeader (http:Connection conn, http:Request req, string header, string value) {
         http:OutResponse res = {};
         res.setHeader(header, value);
         string result = res.getHeader(header);
@@ -142,7 +142,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getJsonPayload/{value}"
     }
-    resource GetJsonPayload(http:Connection conn, http:InRequest req, string value) {
+    resource GetJsonPayload(http:Connection conn, http:Request req, string value) {
         http:OutResponse res = {};
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
@@ -155,7 +155,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetProperty/{key}/{value}"
     }
-    resource GetProperty (http:Connection conn, http:InRequest req,string key, string value) {
+    resource GetProperty (http:Connection conn, http:Request req, string key, string value) {
         http:OutResponse res = {};
         res.setProperty(key, value);
         string property = res.getProperty(key);
@@ -166,7 +166,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetStringPayload/{valueStr}"
     }
-    resource GetStringPayload(http:Connection conn, http:InRequest req, string valueStr) {
+    resource GetStringPayload(http:Connection conn, http:Request req, string valueStr) {
         http:OutResponse res = {};
         res.setStringPayload(valueStr);
         var value, _ = res.getStringPayload();
@@ -177,7 +177,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Connection conn, http:InRequest req) {
+    resource GetXmlPayload(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
@@ -190,7 +190,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/RemoveHeader/{key}/{value}"
     }
-    resource RemoveHeader (http:Connection conn, http:InRequest req, string key, string value) {
+    resource RemoveHeader (http:Connection conn, http:Request req, string key, string value) {
         http:OutResponse res = {};
         res.setHeader(key, value);
         res.removeHeader(key);
@@ -206,7 +206,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/RemoveAllHeaders"
     }
-    resource RemoveAllHeaders (http:Connection conn, http:InRequest req) {
+    resource RemoveAllHeaders (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");

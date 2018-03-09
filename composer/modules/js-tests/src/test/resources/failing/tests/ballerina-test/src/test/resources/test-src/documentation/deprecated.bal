@@ -41,7 +41,7 @@ deprecated {
 service<http> PizzaService {
 
     deprecated {This Resource is deprecated use `PizzaHutService.orderFromPizza()` instead.}
-    resource orderPizza(http:Connection conn, http:InRequest req) {
+    resource orderPizza(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }

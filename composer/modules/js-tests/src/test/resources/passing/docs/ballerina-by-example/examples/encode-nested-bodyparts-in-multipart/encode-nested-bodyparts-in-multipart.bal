@@ -8,7 +8,7 @@ service<http> nestedparts {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:Connection conn, http:InRequest req) {
+    resource nestedPartSender (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> httpEndpoint {
             create http:HttpClient("http://localhost:9093", {});
         }
@@ -39,7 +39,7 @@ service<http> nestedparts {
 
         //Create an array to hold the parent part and set it to request.
         mime:Entity[] immediatePartsToRequest = [parentPart];
-        http:OutRequest request = {};
+        http:Request request = {};
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
         http:InResponse resp1 = {};

@@ -5,13 +5,13 @@ import ballerina.net.http;
 service<http> PizzaService {
     
     @doc:Description{value:"Order pizza"}
-    resource orderPizza(http:Connection conn, http:InRequest req) {
+    resource orderPizza(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }
     
     @doc:Description{value:456}
-    resource checkStatus(http:Connection conn, http:InRequest req) {
+    resource checkStatus(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }

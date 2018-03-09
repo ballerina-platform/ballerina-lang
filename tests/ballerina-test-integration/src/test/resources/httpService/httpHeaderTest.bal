@@ -3,19 +3,19 @@ import ballerina.net.http;
 @http:configuration {basePath:"/product"}
 service<http> headerService {
 
-    resource value (http:Connection conn, http:InRequest req) {
+    resource value (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
-        http:OutRequest clientRequest = {};
+        //http:Request clientRequest = {};
         http:InResponse clientResponse = {};
-        clientRequest.setHeader("core", "aaa");
-        clientRequest.addHeader("core", "bbb");
-        clientResponse, _ = endPoint.get("/sample/stocks", clientRequest);
+        req.setHeader("core", "aaa");
+        req.addHeader("core", "bbb");
+        clientResponse, _ = endPoint.get("/sample/stocks", req);
         _ = conn.forward(clientResponse);
     }
 
-    resource id (http:Connection conn, http:InRequest req) {
+    resource id (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {});
         }
@@ -35,7 +35,7 @@ service<http> quoteService {
         methods:["GET"],
         path:"/stocks"
     }
-    resource company (http:Connection conn, http:InRequest req) {
+    resource company (http:Connection conn, http:Request req) {
         string[] headers = req.getHeaders("core");
         json payload = {header1:headers[0] , header2:headers[1]};
 
@@ -48,7 +48,7 @@ service<http> quoteService {
         methods:["GET"],
         path:"/customers"
     }
-    resource product (http:Connection conn, http:InRequest req) {
+    resource product (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");

@@ -13,7 +13,7 @@ service<http> failoverService {
         path:"/"
     }
 
-    resource failoverPostResource (http:Connection conn, http:InRequest req) {
+    resource failoverPostResource (http:Connection conn, http:Request req) {
         // Failover Connector takes the input as an array of HttpClient connectors and FailoverConfig struct.
         // The FailoverConfig struct should contain int array of HTTP status codes and interval of failover in  milliseconds.
         //      struct FailoverConfig {
@@ -32,7 +32,7 @@ service<http> failoverService {
         http:InResponse inResponse = {};
         http:HttpConnectorError err;
 
-        http:OutRequest outRequest = {};
+        http:Request outRequest = {};
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
         inResponse, err = endPoint.post("/", outRequest);
@@ -56,7 +56,7 @@ service<http> echo {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:InRequest req) {
+    resource echoResource (http:Connection conn, http:Request req) {
         http:OutResponse outResponse = {};
         runtime:sleepCurrentWorker(30000);
         outResponse.setStringPayload("Resource is invoked");
@@ -69,7 +69,7 @@ service<http> mock {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mockResource (http:Connection conn, http:InRequest req) {
+    resource mockResource (http:Connection conn, http:Request req) {
         http:OutResponse outResponse = {};
         outResponse.setStringPayload("Mock Resource is Invoked.");
         _ = conn.respond(outResponse);

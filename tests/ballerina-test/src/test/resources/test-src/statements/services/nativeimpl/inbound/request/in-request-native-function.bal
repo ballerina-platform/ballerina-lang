@@ -2,42 +2,42 @@ import ballerina.net.http;
 import ballerina.io;
 import ballerina.mime;
 
-function testGetContentLength (http:InRequest req) (int) {
+function testGetContentLength (http:Request req) (int) {
     int length = req.getContentLength();
     return length;
 }
 
-function testGetHeader (http:InRequest req, string key) (string) {
+function testGetHeader (http:Request req, string key) (string) {
     return req.getHeader(key);
 }
 
-function testGetHeaders (http:InRequest req, string key) (string[]) {
+function testGetHeaders (http:Request req, string key) (string[]) {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload (http:InRequest req) (json, mime:EntityError) {
+function testGetJsonPayload (http:Request req) (json, mime:EntityError) {
     return req.getJsonPayload();
 }
 
-function testGetMethod (http:InRequest req) (string) {
+function testGetMethod (http:Request req) (string) {
     string method = req.method;
     return method;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
+function testGetProperty (http:Request req, string propertyName) (string) {
     string payload = req.getProperty(propertyName);
     return payload;
 }
 
-function testGetStringPayload (http:InRequest req) (string, mime:EntityError) {
+function testGetStringPayload (http:Request req) (string, mime:EntityError) {
     return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:InRequest req) (blob, mime:EntityError) {
+function testGetBinaryPayload (http:Request req) (blob, mime:EntityError) {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:InRequest req) (xml, mime:EntityError) {
+function testGetXmlPayload (http:Request req) (xml, mime:EntityError) {
     return req.getXmlPayload();
 }
 
@@ -47,7 +47,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string method = req.method;
         res.setStringPayload(method);
@@ -57,7 +57,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/12"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
+    resource echo2 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string url = req.rawPath;
         res.setStringPayload(url);
@@ -67,7 +67,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/13"
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
+    resource echo3 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string url = req.rawPath;
         res.setStringPayload(url);
@@ -77,7 +77,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getContentLength"
     }
-    resource GetContentLength (http:Connection conn, http:InRequest req) {
+    resource GetContentLength (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         int length = req.getContentLength();
         res.setJsonPayload({value:length});
@@ -87,7 +87,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getHeader"
     }
-    resource getHeader (http:Connection conn, http:InRequest req) {
+    resource getHeader (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string header = req.getHeader("content-type");
         res.setJsonPayload({value:header});
@@ -97,7 +97,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/getJsonPayload"
     }
-    resource GetJsonPayload (http:Connection conn, http:InRequest req) {
+    resource GetJsonPayload (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var value, _ = req.getJsonPayload();
         json lang = value.lang;
@@ -108,7 +108,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetProperty"
     }
-    resource GetProperty (http:Connection conn, http:InRequest req) {
+    resource GetProperty (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string property = req.getProperty("wso2");
         res.setJsonPayload({value:property});
@@ -118,7 +118,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetStringPayload"
     }
-    resource GetStringPayload (http:Connection conn, http:InRequest req) {
+    resource GetStringPayload (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var value, _ = req.getStringPayload();
         res.setStringPayload(value);
@@ -128,7 +128,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload (http:Connection conn, http:InRequest req) {
+    resource GetXmlPayload (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var value, _ = req.getXmlPayload();
         string name = value.getTextValue();
@@ -139,7 +139,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetBinaryPayload"
     }
-    resource GetBinaryPayload (http:Connection conn, http:InRequest req) {
+    resource GetBinaryPayload (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var value, _ = req.getBinaryPayload();
         string name = value.toString("UTF-8");
@@ -150,7 +150,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/GetByteChannel"
     }
-    resource GetByteChannel (http:Connection conn, http:InRequest req) {
+    resource GetByteChannel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var byteChannel, _ = req.getByteChannel();
         res.setByteChannel(byteChannel);

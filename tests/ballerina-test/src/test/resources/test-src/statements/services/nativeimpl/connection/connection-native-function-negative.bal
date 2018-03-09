@@ -6,7 +6,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/10"
     }
-    resource echo10 (http:Connection conn, http:InRequest req) {
+    resource echo10 (http:Connection conn, http:Request req) {
         http:OutResponse resp = {};
         _ = conn.respond(null);
     }
@@ -14,7 +14,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo11 (http:Connection conn, http:InRequest req) {
+    resource echo11 (http:Connection conn, http:Request req) {
         http:OutResponse resp = {};
         http:Connection connn = {};
         _ = connn.respond(resp);
@@ -23,14 +23,14 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/20"
     }
-    resource echo20 (http:Connection conn, http:InRequest req) {
+    resource echo20 (http:Connection conn, http:Request req) {
         _ = conn.forward(null);
     }
 
     @http:resourceConfig {
         path:"/21"
     }
-    resource echo21 (http:Connection conn, http:InRequest req) {
+    resource echo21 (http:Connection conn, http:Request req) {
         http:InResponse resp = {};
         http:Connection connn = {};
         _ = connn.forward(resp);

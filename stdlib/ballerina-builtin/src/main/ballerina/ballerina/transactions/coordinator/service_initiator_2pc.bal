@@ -32,7 +32,7 @@ service<http> Initiator2pcService {
         methods:["POST"],
         path:"/abort"
     }
-    resource abortTransaction (http:Connection conn, http:InRequest req) {
+    resource abortTransaction (http:Connection conn, http:Request req) {
         http:OutResponse res;
         var payload, _ = req.getJsonPayload();
         var abortReq, _ = <AbortRequest>payload;

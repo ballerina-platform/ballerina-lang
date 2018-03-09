@@ -7,7 +7,7 @@ service<http> multiparts {
         methods:["POST"],
         path:"/receivableParts"
     }
-    resource receiveMultiparts (http:Connection conn, http:InRequest req) {
+    resource receiveMultiparts (http:Connection conn, http:Request req) {
         //Extract multiparts from the inbound request.
         var bodyParts, payloadError = req.getMultiparts();
         http:OutResponse res = {};

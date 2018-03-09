@@ -8,7 +8,7 @@ service<http> OrderMgtService {
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource orders (http:Connection conn, http:InRequest req) {
+    resource orders (http:Connection conn, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {

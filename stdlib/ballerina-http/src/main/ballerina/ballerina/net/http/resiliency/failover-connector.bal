@@ -63,98 +63,98 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
 
     @Description {value:"The POST action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.POST, failoverInferredConfig);
+    action post (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.POST, failoverInferredConfig);
     }
 
     @Description {value:"The HEAD action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.HEAD, failoverInferredConfig);
+    action head (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.HEAD, failoverInferredConfig);
     }
 
     @Description {value:"The PATCH action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.PATCH, failoverInferredConfig);
+    action patch (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.PATCH, failoverInferredConfig);
     }
 
     @Description {value:"The PUT action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.PUT, failoverInferredConfig);
+    action put (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.PUT, failoverInferredConfig);
     }
 
     @Description {value:"The OPTIONS action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.OPTIONS, failoverInferredConfig);
+    action options (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.OPTIONS, failoverInferredConfig);
     }
 
     @Description {value:"The FORWARD action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An InRequest struct"}
+    @Param {value:"request: An Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, null, request, HttpOperation.FORWARD, failoverInferredConfig);
+    action forward (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.FORWARD, failoverInferredConfig);
     }
 
     @Description {value:"The EXECUTE action implementation of the Failover Connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performExecuteAction(path, request, null, httpVerb, failoverInferredConfig);
+    action execute (string httpVerb, string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performExecuteAction(path, request, httpVerb, failoverInferredConfig);
     }
 
     @Description {value:"The DELETE action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.DELETE, failoverInferredConfig);
+    action delete (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.DELETE, failoverInferredConfig);
     }
 
     @Description {value:"The GET action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
+    @Param {value:"request: A Request struct"}
     @Return {value:"The InResponse struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
-        return performFailoverAction(path, request, null, HttpOperation.GET, failoverInferredConfig);
+    action get (string path, http:Request request) (http:InResponse, http:HttpConnectorError) {
+        return performFailoverAction(path, request, HttpOperation.GET, failoverInferredConfig);
     }
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performExecuteAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performExecuteAction (string path, http:Request request,
                                string httpVerb, FailoverInferredConfig failoverInferredConfig)
 (http:InResponse, http:HttpConnectorError) {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
-    return performFailoverAction(path, outRequest, inRequest, connectorAction, failoverInferredConfig);
+    return performFailoverAction(path, request, connectorAction, failoverInferredConfig);
 }
 
 // Handles all the actions exposed through the Failover connector.
-function performFailoverAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performFailoverAction (string path, http:Request request,
                                 HttpOperation requestAction, FailoverInferredConfig failoverInferredConfig)
                                                                         (http:InResponse, http:HttpConnectorError) {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
@@ -173,24 +173,24 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
 
     // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
     // failover endpoints to keep the request message to failover the messages.
-    if (inRequest != null && HttpOperation.FORWARD == requestAction) {
-        var binaryPayload, _ = inRequest.getBinaryPayload();
+    if (request != null && HttpOperation.FORWARD == requestAction) {
+        var binaryPayload, _ = request.getBinaryPayload();
     }
 
     mime:Entity requestEntity = null;
-    if (outRequest != null) {
-        requestEntity, _ = outRequest.getEntity();
+    if (request != null) {
+        requestEntity, _ = request.getEntity();
     }
 
     while (startIndex != currentIndex) {
         startIndex = initialIndex;
         currentIndex = currentIndex + 1;
-        inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, failoverClient);
+        inResponse, httpConnectorError = invokeEndpoint(path, request, requestAction, failoverClient);
 
         if (inResponse == null && httpConnectorError != null) {
-            outRequest = {};
+            request = {};
             if (requestEntity != null) {
-                outRequest.setEntity(requestEntity);
+                request.setEntity(requestEntity);
             }
 
             if (noOfEndpoints > currentIndex) {
@@ -205,9 +205,9 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
             int httpStatusCode = inResponse.statusCode;
             if (failoverCodeIndex[httpStatusCode] == true) {
                 if (noOfEndpoints > currentIndex) {
-                    outRequest = {};
+                    request = {};
                     if (requestEntity != null) {
-                        outRequest.setEntity(requestEntity);
+                        request.setEntity(requestEntity);
                     }
                     runtime:sleepCurrentWorker(failoverInterval);
                     failoverClient = failoverClients[currentIndex];

@@ -7,7 +7,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo5":"echo5"};
         res.setJsonPayload(responseJson);
@@ -18,7 +18,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/{abc}-{xyz}"
     }
-    resource echo2 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    resource echo2 (http:Connection conn, http:Request req, string abc, string xyz) {
         http:OutResponse res = {};
         json responseJson = {"first":abc, "second":xyz};
         res.setJsonPayload(responseJson);
@@ -29,7 +29,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}"
     }
-    resource echo3 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    resource echo3 (http:Connection conn, http:Request req, string abc, string xyz) {
         http:OutResponse res = {};
         json responseJson = {"first":xyz, "second":abc};
         res.setJsonPayload(responseJson);
@@ -40,7 +40,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/{abc}"
     }
-    resource echo4 (http:Connection conn, http:InRequest req, string abc) {
+    resource echo4 (http:Connection conn, http:Request req, string abc) {
         http:OutResponse res = {};
         json responseJson = {"echo3":abc};
         res.setJsonPayload(responseJson);
@@ -51,7 +51,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo5 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    resource echo5 (http:Connection conn, http:Request req, string abc, string xyz) {
         http:OutResponse res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":"echo4"};
         res.setJsonPayload(responseJson);
@@ -62,7 +62,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/{abc}+{xyz}/{bar}"
     }
-    resource echo6 (http:Connection conn, http:InRequest req, string abc, string xyz, string bar) {
+    resource echo6 (http:Connection conn, http:Request req, string abc, string xyz, string bar) {
         http:OutResponse res = {};
         json responseJson = {"first":abc, "second":xyz, "echo4":bar};
         res.setJsonPayload(responseJson);
@@ -73,7 +73,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo7 (http:Connection conn, http:InRequest req) {
+    resource echo7 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo5":"any"};
         res.setJsonPayload(responseJson);
@@ -84,7 +84,7 @@ service<http> echo11 {
         methods:["POST"],
         path:"/echo2/{abc}+{xyz}/bar"
     }
-    resource echo8 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    resource echo8 (http:Connection conn, http:Request req, string abc, string xyz) {
         http:OutResponse res = {};
         json responseJson = {"first":abc, "second":xyz, "echo8":"echo8"};
         res.setJsonPayload(responseJson);
@@ -95,7 +95,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo3/{abc}+{xyz}"
     }
-    resource echo9 (http:Connection conn, http:InRequest req, string abc, string xyz) {
+    resource echo9 (http:Connection conn, http:Request req, string abc, string xyz) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -110,7 +110,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/"
     }
-    resource echo10 (http:Connection conn, http:InRequest req) {
+    resource echo10 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -121,7 +121,7 @@ service<http> echo11 {
         _ = conn.respond(res);
     }
 
-    resource echo11 (http:Connection conn, http:InRequest req) {
+    resource echo11 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -136,7 +136,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo12/{abc}/bar"
     }
-    resource echo12 (http:Connection conn, http:InRequest req, string abc) {
+    resource echo12 (http:Connection conn, http:Request req, string abc) {
         http:OutResponse res = {};
         json responseJson = {"echo12":abc};
         res.setJsonPayload(responseJson);
@@ -147,7 +147,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo125"
     }
-    resource echo125 (http:Connection conn, http:InRequest req) {
+    resource echo125 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string bar;
         bar, _ = (string)params.foo;
@@ -162,7 +162,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/paramNeg"
     }
-    resource paramNeg (http:Connection conn, http:InRequest req) {
+    resource paramNeg (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         error err;
         string bar;
@@ -178,7 +178,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo13"
     }
-    resource echo13 (http:Connection conn, http:InRequest req) {
+    resource echo13 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         int bar;
@@ -195,7 +195,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo14"
     }
-    resource echo14 (http:Connection conn, http:InRequest req) {
+    resource echo14 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         float bar;
@@ -212,7 +212,7 @@ service<http> echo11 {
         methods:["GET"],
         path:"/echo15"
     }
-    resource echo15 (http:Connection conn, http:InRequest req) {
+    resource echo15 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string barStr;
         boolean bar;
@@ -229,7 +229,7 @@ service<http> echo11 {
         methods:["POST"],
         path:"/so2"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    resource echo (http:Connection conn, http:Request req) {
     }
 }
 
@@ -240,7 +240,7 @@ service<http> echo22 {
         methods:["GET"],
         path:"/echo2"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         json responseJson = {"echo1":"echo1"};
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -251,7 +251,7 @@ service<http> echo22 {
         methods:["GET"],
         path:"/echo2/*"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
+    resource echo2 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo2":"echo2"};
         res.setJsonPayload(responseJson);
@@ -262,7 +262,7 @@ service<http> echo22 {
         methods:["GET"],
         path:"/echo2/foo/bar"
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
+    resource echo3 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo3":"echo3"};
         res.setJsonPayload(responseJson);
@@ -272,7 +272,7 @@ service<http> echo22 {
 
 @http:configuration {basePath:"/"}
 service<http> echo33 {
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -290,14 +290,14 @@ service<http> echo44 {
     @http:resourceConfig {
         path:"echo2"
     }
-    resource echo221 (http:Connection conn, http:InRequest req) {
+    resource echo221 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"first":"zzz"};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
 
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         var foo, _ = (string)params.foo;
         json responseJson = {"first":foo, "echo44":"echo1"};
@@ -311,7 +311,7 @@ service<http> echo44 {
         methods:["GET"],
         path:"echo2"
     }
-    resource echo222 (http:Connection conn, http:InRequest req) {
+    resource echo222 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"first":"bar"};
         res.setJsonPayload(responseJson);
@@ -324,7 +324,7 @@ service<http> echo55 {
     @http:resourceConfig {
         path:"/foo/bar"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -338,7 +338,7 @@ service<http> echo55 {
     @http:resourceConfig {
         path:"/*"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
+    resource echo2 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo55":"default"};
         res.setJsonPayload(responseJson);
@@ -348,7 +348,7 @@ service<http> echo55 {
     @http:resourceConfig {
         path:"/foo/*"
     }
-    resource echo5 (http:Connection conn, http:InRequest req) {
+    resource echo5 (http:Connection conn, http:Request req) {
         map params = req.getQueryParams();
         string foo;
         foo, _ = (string)params.foo;
@@ -365,7 +365,7 @@ service<http> echo66 {
     @http:resourceConfig {
         path:"/a/*"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo66": req.extraPathInfo};
         res.setJsonPayload(responseJson);
@@ -375,7 +375,7 @@ service<http> echo66 {
     @http:resourceConfig {
         path:"/a"
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
+    resource echo2 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         if (req.extraPathInfo == null) {
             req.extraPathInfo = "empty";

@@ -9,7 +9,7 @@ service<http> serviceName {
         methods:["GET"],
         path:""
     }
-    resource test1 (http:Connection conn, http:InRequest req) {
+    resource test1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to service name"};
         res.setJsonPayload(responseJson);
@@ -22,7 +22,7 @@ service<http> serviceName {
 }
 service<http> serviceEmptyName {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
+    resource test1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to empty service name"};
         res.setJsonPayload(responseJson);
@@ -32,7 +32,7 @@ service<http> serviceEmptyName {
     @http:resourceConfig {
         path:"/*"
     }
-    resource proxy (http:Connection conn, http:InRequest req) {
+    resource proxy (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to a proxy service"};
         res.setJsonPayload(responseJson);
@@ -42,7 +42,7 @@ service<http> serviceEmptyName {
 
 service<http> serviceWithNoAnnotation {
 
-    resource test1 (http:Connection conn, http:InRequest req) {
+    resource test1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);

@@ -42,7 +42,7 @@ service<http> helloServer {
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
+    resource echo1 (http:Connection conn, http:Request req) {
         http:InResponse res = {};
         _ = conn.forward(res);
     }

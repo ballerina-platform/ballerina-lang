@@ -8,7 +8,7 @@ service<http> multiparts {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:Connection conn, http:InRequest req) {
+    resource encodeMultiparts (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> httpEndpoint {
             create http:HttpClient("http://localhost:9090", {});
         }
@@ -39,7 +39,7 @@ service<http> multiparts {
         //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [xmlBodyPart, xmlFilePart, jsonBodyPart];
 
-        http:OutRequest request = {};
+        http:Request request = {};
         //Set body parts to request. Here the content-type is set as multipart form data. This also works with any other
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.

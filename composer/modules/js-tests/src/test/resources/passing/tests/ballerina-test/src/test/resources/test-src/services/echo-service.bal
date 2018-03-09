@@ -18,7 +18,7 @@ service<http> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    resource echo (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }
@@ -27,7 +27,7 @@ service<http> echo {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource echo_worker (http:Connection conn, http:InRequest req) {
+    resource echo_worker (http:Connection conn, http:Request req) {
         worker w1 {
             http:OutResponse res = {};
             _ = conn.respond(res);
@@ -42,7 +42,7 @@ service<http> echo {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (http:Connection conn, http:InRequest req) {
+    resource setString (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         serviceLevelStr, _ = req.getStringPayload();
         //res.setStringPayload(res, serviceLevelStr);
@@ -53,7 +53,7 @@ service<http> echo {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (http:Connection conn, http:InRequest req) {
+    resource getString (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload(serviceLevelStr);
         _ = conn.respond(res);
@@ -62,7 +62,7 @@ service<http> echo {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (http:Connection conn, http:InRequest req) {
+    resource removeHeaders (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
@@ -75,7 +75,7 @@ service<http> echo {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (http:Connection conn, http:InRequest req) {
+    resource getServiceLevelString (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload(serviceLevelStringVar);
         _ = conn.respond(res);
@@ -85,7 +85,7 @@ service<http> echo {
         methods:["GET"],
         path:constPath
     }
-    resource connstValueAsAttributeValue (http:Connection conn, http:InRequest req) {
+    resource connstValueAsAttributeValue (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload("constant path test");
         _ = conn.respond(res);
@@ -95,13 +95,13 @@ service<http> echo {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (http:Connection conn, http:InRequest req) {
+    resource testEmptyResourceBody (http:Connection conn, http:Request req) {
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource getFormParams (http:Connection conn, http:InRequest req) {
+    resource getFormParams (http:Connection conn, http:Request req) {
         var params, _ = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
@@ -118,7 +118,7 @@ service<http> echo {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource modify11 (http:Connection conn, http:InRequest req) {
+    resource modify11 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.statusCode = 204;
         _ = conn.respond(res);

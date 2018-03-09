@@ -8,7 +8,7 @@ service<http> Bankinfo {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:InRequest req) {
+    resource product (http:Connection conn, http:Request req) {
         var jsonRequest, payloadError = req.getJsonPayload();
         http:OutResponse res = {};
         if (payloadError == null) {

@@ -9,7 +9,7 @@ service<http> echo {
         methods:["POST"],
         path:"/bar"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    resource echo (http:Connection conn, http:Request req) {
         // A util method that can get the request payload.
         var payload, payloadError = req.getJsonPayload();
         http:OutResponse res = {};

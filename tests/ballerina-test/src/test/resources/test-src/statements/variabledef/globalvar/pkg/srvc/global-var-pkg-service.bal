@@ -28,7 +28,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource accessGlobalVarFromOtherPkg (http:Connection conn, http:InRequest req) {
+    resource accessGlobalVarFromOtherPkg (http:Connection conn, http:Request req) {
         int pkgInt = varpkg:glbVarInt;
         string pkgString = varpkg:glbVarString;
         float pkgFloat = varpkg:glbVarFloat;
@@ -43,7 +43,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/assign-from-other-pkg"
     }
-    resource assignGlobalVarFromOtherPkg (http:Connection conn, http:InRequest req) {
+    resource assignGlobalVarFromOtherPkg (http:Connection conn, http:Request req) {
 
         http:OutResponse res = {};
         json responseJson = {"glbVarFloat1":glbVarFloat1};
@@ -55,7 +55,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/func-inv-from-same-pkg"
     }
-    resource assignFuncInvocationToGlobalVarFromSamePkg (http:Connection conn, http:InRequest req) {
+    resource assignFuncInvocationToGlobalVarFromSamePkg (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"glbVarFunc":glbVarFunc};
         res.setJsonPayload(responseJson);
@@ -66,7 +66,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/func-inv-from-diff-pkg"
     }
-    resource assignFuncInvocationToGlobalVarFromDiffPkg (http:Connection conn, http:InRequest req) {
+    resource assignFuncInvocationToGlobalVarFromDiffPkg (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"glbVarPkgFunc":glbVarPkgFunc};
         res.setJsonPayload(responseJson);
@@ -77,7 +77,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/assign-to-service-var-from-diff-pkg"
     }
-    resource assignGlobalVarToServiceVarFromDiffPkg (http:Connection conn, http:InRequest req) {
+    resource assignGlobalVarToServiceVarFromDiffPkg (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"serviceVarString":serviceVarString};
         res.setJsonPayload(responseJson);
@@ -88,7 +88,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/change-global-var-diff-pkg"
     }
-    resource changeGlobalVarInDiffPkg (http:Connection conn, http:InRequest req) {
+    resource changeGlobalVarInDiffPkg (http:Connection conn, http:Request req) {
 
         http:OutResponse res = {};
         varpkg:glbVarFloatChange = 345432.454;
@@ -107,7 +107,7 @@ service<http> GlobalVarSecond {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:InRequest req) {
+    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         float changeVarFloat = varpkg:glbVarFloatChange;
         json responseJson = {"changeVarFloat":changeVarFloat};

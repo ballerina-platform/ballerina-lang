@@ -48,7 +48,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class OutRequestNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-    private final String outReqStruct = HttpConstants.OUT_REQUEST;
+    private final String outReqStruct = HttpConstants.REQUEST;
     private final String entityStruct = HttpConstants.ENTITY;
     private final String mediaTypeStruct = MEDIA_TYPE;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -179,15 +179,15 @@ public class OutRequestNativeFunctionNegativeTest {
 
     @Test
     public void testCompilationErrorTestCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
 
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined function 'setStatusCode' in struct 'ballerina.net.http:OutRequest'", 4, 5);
+                "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined field 'statusCode' in struct 'ballerina.net.http:OutRequest'", 5, 5);
-        BAssertUtil.validateError(resultNegative, 2,
-                "undefined field 'method' in struct 'ballerina.net.http:OutRequest'", 10, 21);
-        BAssertUtil.validateError(resultNegative, 3,
-                "undefined field 'rawPath' in struct 'ballerina.net.http:OutRequest'", 15, 18);
+                "undefined field 'statusCode' in struct 'ballerina.net.http:Request'", 5, 5);
+//        BAssertUtil.validateError(resultNegative, 2,
+//                "undefined field 'method' in struct 'ballerina.net.http:Request'", 10, 21);
+//        BAssertUtil.validateError(resultNegative, 3,
+//                "undefined field 'rawPath' in struct 'ballerina.net.http:Request'", 15, 18);
     }
 }

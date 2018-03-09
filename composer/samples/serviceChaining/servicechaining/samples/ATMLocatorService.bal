@@ -9,7 +9,7 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Connection conn, http:InRequest req) {
+    resource locator (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> bankInfoService {
             create http:HttpClient("http://localhost:9090/bankinfo/product", {});
         }
@@ -17,7 +17,7 @@ service<http> ATMLocator {
             create http:HttpClient("http://localhost:9090/branchlocator/product", {});
         }
 
-        http:OutRequest backendServiceReq = {};
+        http:Request backendServiceReq = {};
         http:HttpConnectorError err;
         var jsonLocatorReq, _ = req.getJsonPayload();
         string zipCode;

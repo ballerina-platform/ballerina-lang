@@ -1,12 +1,12 @@
 import ballerina.net.http;
 import ballerina.mime;
 
-function testGetContentLength (http:OutRequest req) (int) {
+function testGetContentLength (http:Request req) (int) {
     int length = req.getContentLength();
     return length;
 }
 
-function testGetHeader (http:OutRequest req, string key) (string) {
+function testGetHeader (http:Request req, string key) (string) {
     var contentType = req.getHeader(key);
     if (contentType == null) {
         return null;
@@ -14,62 +14,62 @@ function testGetHeader (http:OutRequest req, string key) (string) {
     return contentType;
 }
 
-function testGetJsonPayload (http:OutRequest req) (json, mime:EntityError) {
+function testGetJsonPayload (http:Request req) (json, mime:EntityError) {
     return req.getJsonPayload();
 }
 
-function testGetProperty (http:OutRequest req, string propertyName) (string) {
+function testGetProperty (http:Request req, string propertyName) (string) {
     string payload = req.getProperty(propertyName);
     return payload;
 }
 
-function testGetEntity (http:OutRequest req) (mime:Entity, mime:EntityError) {
+function testGetEntity (http:Request req) (mime:Entity, mime:EntityError) {
     return req.getEntity();
 }
 
-function testGetStringPayload (http:OutRequest req) (string, mime:EntityError) {
+function testGetStringPayload (http:Request req) (string, mime:EntityError) {
     return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:OutRequest req) (blob, mime:EntityError) {
+function testGetBinaryPayload (http:Request req) (blob, mime:EntityError) {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:OutRequest req) (xml, mime:EntityError) {
+function testGetXmlPayload (http:Request req) (xml, mime:EntityError) {
     return req.getXmlPayload();
 }
 
-function testRemoveHeader (http:OutRequest req, string key) (http:OutRequest) {
+function testRemoveHeader (http:Request req, string key) (http:Request) {
     req.removeHeader(key);
     return req;
 }
 
-function testRemoveAllHeaders (http:OutRequest req) (http:OutRequest) {
+function testRemoveAllHeaders (http:Request req) (http:Request) {
     req.removeAllHeaders();
     return req;
 }
 
-function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
+function testSetHeader (http:Request req, string key, string value) (http:Request) {
     req.setHeader(key, value);
     return req;
 }
 
-function testSetJsonPayload (http:OutRequest req, json value) (http:OutRequest) {
+function testSetJsonPayload (http:Request req, json value) (http:Request) {
     req.setJsonPayload(value);
     return req;
 }
 
-function testSetProperty (http:OutRequest req, string name, string value) (http:OutRequest) {
+function testSetProperty (http:Request req, string name, string value) (http:Request) {
     req.setProperty(name, value);
     return req;
 }
 
-function testSetStringPayload (http:OutRequest req, string value) (http:OutRequest) {
+function testSetStringPayload (http:Request req, string value) (http:Request) {
     req.setStringPayload(value);
     return req;
 }
 
-function testSetXmlPayload (http:OutRequest req, xml value) (http:OutRequest) {
+function testSetXmlPayload (http:Request req, xml value) (http:Request) {
     req.setXmlPayload(value);
     return req;
 }

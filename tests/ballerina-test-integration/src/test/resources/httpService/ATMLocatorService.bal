@@ -7,7 +7,7 @@ service<http> ATMLocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource locator (http:Connection conn, http:InRequest req) {
+    resource locator (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> bankInfoService {
             create http:HttpClient("http://localhost:9090/bankinfo/product", {});
         }
@@ -15,7 +15,7 @@ service<http> ATMLocator {
             create http:HttpClient("http://localhost:9090/branchlocator/product", {});
         }
 
-        http:OutRequest backendServiceReq = {};
+        http:Request backendServiceReq = {};
         http:HttpConnectorError err;
         var jsonLocatorReq, _ = req.getJsonPayload();
         string zipCode;
@@ -47,7 +47,7 @@ service<http> Bankinfo {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:InRequest req) {
+    resource product (http:Connection conn, http:Request req) {
         var jsonRequest, _ = req.getJsonPayload();
         string branchCode;
         branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;
@@ -70,7 +70,7 @@ service<http> Banklocator {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:InRequest req) {
+    resource product (http:Connection conn, http:Request req) {
         var jsonRequest, _ = req.getJsonPayload();
         string zipCode;
         zipCode, _ = (string)jsonRequest.BranchLocator.ZipCode;

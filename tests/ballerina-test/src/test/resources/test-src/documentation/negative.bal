@@ -107,7 +107,7 @@ service<http> PizzaService {
     P{{req}} In request.
     P{{req}} In request.
     P{{reqest}} In request.}
-    resource orderPizza(http:Connection conn, http:InRequest req) {
+    resource orderPizza(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         _ = conn.respond(res);
     }

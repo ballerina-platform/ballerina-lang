@@ -9,7 +9,7 @@ service<http> helloWorld {
     @http:resourceConfig {
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         // Check if the client expects a 100-continue response.
         if (req.expects100Continue()) {
             // Send a 100-continue response to the client.

@@ -6,7 +6,7 @@ function main (string[] args) {
     endpoint<http:HttpClient> connectorEP {
                               create http:HttpClient("https://localhost:9095", getConnectorConfigs());
     }
-    http:OutRequest req = {};
+    http:Request req = {};
     http:InResponse resp = {};
     log:printInfo("Sending request");
     resp, _ = connectorEP.get("/echo/", req);

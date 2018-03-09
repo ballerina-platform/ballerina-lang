@@ -6,14 +6,14 @@ service<http> sample {
 
     int requestCount = 0;
 
-    resource echo(http:Connection conn, http:InRequest req) {
+    resource echo(http:Connection conn, http:Request req) {
         lock {
             requestCount = requestCount + 1;
         }
         _ = conn.respond({});
     }
 
-    resource getCount(http:Connection conn, http:InRequest req) {
+    resource getCount(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload("count - " + requestCount);
         _ = conn.respond(res);
@@ -35,7 +35,7 @@ service<http> sample1 {
 
     map mapVal = {name:""};
 
-    resource echo(http:Connection conn, http:InRequest req) {
+    resource echo(http:Connection conn, http:Request req) {
         lock {
             requestCount = requestCount + 1;
             price = price + 2;
@@ -50,7 +50,7 @@ service<http> sample1 {
         _ = conn.respond({});
     }
 
-    resource echo1(http:Connection conn, http:InRequest req) {
+    resource echo1(http:Connection conn, http:Request req) {
         lock {
             floatArr[1] = floatArr[1] + 2;
             finalText = finalText + "3";
@@ -65,7 +65,7 @@ service<http> sample1 {
         _ = conn.respond({});
     }
 
-    resource echo2(http:Connection conn, http:InRequest req) {
+    resource echo2(http:Connection conn, http:Request req) {
         lock {
             person.age = person.age + 1;
             requestCount = requestCount + 1;
@@ -80,7 +80,7 @@ service<http> sample1 {
         _ = conn.respond({});
     }
 
-    resource getResult(http:Connection conn, http:InRequest req) {
+    resource getResult(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText + requestCount + price + person.age + person.address.line1
@@ -115,7 +115,7 @@ service<http> sample2 {
 
     map mapVal = {name:""};
 
-    resource echo(http:Connection conn, http:InRequest req) {
+    resource echo(http:Connection conn, http:Request req) {
         io:println("************************* echo");
         lock {
             requestCount = requestCount + 1;
@@ -131,7 +131,7 @@ service<http> sample2 {
         _ = conn.respond({});
     }
 
-    resource echo1(http:Connection conn, http:InRequest req) {
+    resource echo1(http:Connection conn, http:Request req) {
         io:println("************************* echo1");
         lock {
             floatArr1[1] = floatArr1[1] + 2;
@@ -147,7 +147,7 @@ service<http> sample2 {
         _ = conn.respond({});
     }
 
-    resource echo2(http:Connection conn, http:InRequest req) {
+    resource echo2(http:Connection conn, http:Request req) {
         io:println("************************* echo2");
         lock {
             person1.age = person1.age + 1;
@@ -163,7 +163,7 @@ service<http> sample2 {
         _ = conn.respond({});
     }
 
-    resource getResult(http:Connection conn, http:InRequest req) {
+    resource getResult(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText1 + requestCount + price + person1.age + person1.address.line1
@@ -176,7 +176,7 @@ service<http> sample3 {
 
     string message = "";
 
-    resource echo(http:Connection conn, http:InRequest req) {
+    resource echo(http:Connection conn, http:Request req) {
         lock {
             io:println("************** waiting inside first request");
             runtime:sleepCurrentWorker(100);
@@ -187,7 +187,7 @@ service<http> sample3 {
         _ = conn.respond({});
     }
 
-    resource getMsg(http:Connection conn, http:InRequest req) {
+    resource getMsg(http:Connection conn, http:Request req) {
         http:OutResponse res = {};
 
         lock {

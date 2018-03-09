@@ -1,12 +1,12 @@
 import ballerina.net.http;
 import ballerina.mime;
 
-function testGetContentLength (http:InRequest req) (int) {
+function testGetContentLength (http:Request req) (int) {
     int length = req.getContentLength();
     return length;
 }
 
-function testGetHeader (http:InRequest req, string key) (string) {
+function testGetHeader (http:Request req, string key) (string) {
     var contentType = req.getHeader(key);
     if (contentType == null) {
         return null;
@@ -14,21 +14,21 @@ function testGetHeader (http:InRequest req, string key) (string) {
     return contentType;
 }
 
-function testGetJsonPayload (http:InRequest req) (json, mime:EntityError) {
+function testGetJsonPayload (http:Request req) (json, mime:EntityError) {
     return req.getJsonPayload();
 }
 
-function testGetMethod (http:InRequest req) (string ) {
+function testGetMethod (http:Request req) (string) {
     string method = req.method;
     return method;
 }
 
-function testGetProperty (http:InRequest req, string propertyName) (string) {
+function testGetProperty (http:Request req, string propertyName) (string) {
     string payload = req.getProperty(propertyName);
     return payload;
 }
 
-function testGetRequestURL (http:InRequest req) (string) {
+function testGetRequestURL (http:Request req) (string) {
     string url = req.rawPath;
     if (url == "") {
         url = "no url";
@@ -36,19 +36,19 @@ function testGetRequestURL (http:InRequest req) (string) {
     return url;
 }
 
-function testGetStringPayload (http:InRequest req) (string, mime:EntityError) {
+function testGetStringPayload (http:Request req) (string, mime:EntityError) {
     return req.getStringPayload();
 }
 
-function testGetBinaryPayload (http:InRequest req) (blob, mime:EntityError) {
+function testGetBinaryPayload (http:Request req) (blob, mime:EntityError) {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:InRequest req) (xml, mime:EntityError) {
+function testGetXmlPayload (http:Request req) (xml, mime:EntityError) {
     return req.getXmlPayload();
 }
 
-function testSetHeader (http:OutRequest req, string key, string value) (http:OutRequest) {
+function testSetHeader (http:Request req, string key, string value) (http:Request) {
     req.setHeader(key, value);
     return req;
 }

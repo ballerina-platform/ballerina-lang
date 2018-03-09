@@ -8,7 +8,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/route"
     }
-    resource hbrResource (http:Connection conn, http:InRequest req) {
+    resource hbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> locationEP {
             create http:HttpClient("http://www.mocky.io", {});
         }
@@ -16,7 +16,7 @@ service<http> headerBasedRouting {
             create http:HttpClient("http://samples.openweathermap.org", {});
         }
         //Create new outbound request and inbound response to handle client call.
-        http:OutRequest newRequest = {};
+        http:Request newRequest = {};
         http:InResponse clientResponse = {};
         http:HttpConnectorError err;
         //Native function getHeader() returns header value of a specified header name.

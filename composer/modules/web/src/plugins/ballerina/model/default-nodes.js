@@ -1000,7 +1000,7 @@ export default {
                                 {
                                     ws: '',
                                     i: 26,
-                                    text: 'InRequest',
+                                    text: 'Request',
                                     static: false,
                                 },
                             ],
@@ -1020,7 +1020,7 @@ export default {
                             },
                             typeName: {
                                 literal: false,
-                                value: 'InRequest',
+                                value: 'Request',
                                 kind: 'Identifier',
                             },
                             kind: 'UserDefinedType',
@@ -3563,7 +3563,7 @@ export default {
                         {
                             ws: '',
                             i: 23,
-                            text: 'InRequest',
+                            text: 'Request',
                             static: false,
                         },
                     ],
@@ -3583,7 +3583,7 @@ export default {
                     },
                     typeName: {
                         literal: false,
-                        value: 'InRequest',
+                        value: 'Request',
                         kind: 'Identifier',
                     },
                     kind: 'UserDefinedType',

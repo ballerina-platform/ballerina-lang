@@ -51,12 +51,12 @@ public native function <Connection conn> createSessionIfAbsent () (Session);
 @Return {value:"The HTTP Session struct assoicated with the request"}
 public native function <Connection conn> getSession () (Session);
 
-@Description {value:"Represents an HTTP inbound request message"}
+@Description {value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
-public struct InRequest {
+public struct Request {
     string rawPath;
     string method;
     string httpVersion;
@@ -65,69 +65,43 @@ public struct InRequest {
 }
 
 @Description {value:"Get the entity from the inbound request with the body included. This function is to be used only internally."}
-@Param {value:"req: The inbound request message"}
+@Param {value:"req: The request message"}
 @Return {value:"Entity of the request"}
 @Return {value:"EntityError will get thrown in case of errors during entity construction"}
-native function <InRequest req> getEntity () (mime:Entity, mime:EntityError);
+public native function <Request req> getEntity () (mime:Entity, mime:EntityError);
 
 @Description {value:"Get the entity from the inbound request without the body. This function is to be used only internally."}
 @Param {value:"req: The inbound request message"}
 @Return {value:"Entity of the request"}
-native function <InRequest req> getEntityWithoutBody () (mime:Entity);
+public native function <Request req> getEntityWithoutBody () (mime:Entity);
 
 @Description {value:"Set the entity to inbound request"}
 @Param {value:"req: The inbound request message"}
 @Return {value:"Entity of the request"}
-public native function <InRequest req> setEntity (mime:Entity entity);
+public native function <Request req> setEntity (mime:Entity entity);
 
 @Description {value:"Gets the query parameters from the HTTP request as a map"}
 @Param {value:"req: The inbound request message"}
 @Return {value:"The map of query params"}
-public native function <InRequest req> getQueryParams () (map);
+public native function <Request req> getQueryParams () (map);
 
 @Description {value:"Retrieves the named property from the request"}
-@Param {value:"req: The inbound request message"}
+@Param {value:"req: The request message"}
 @Param {value:"propertyName: The name of the property"}
 @Return {value:"The property value"}
-public native function <InRequest req> getProperty (string propertyName) (string);
+public native function <Request req> getProperty (string propertyName) (string);
 
 @Description {value:"Get matrix parameters from the request"}
-@Param {value:"req: The inbound request message"}
+@Param {value:"req: The request message"}
 @Param {value:"path: Path to the location of matrix parameters"}
 @Return {value:"A map of matrix paramters which can be found for a given path"}
-public native function <InRequest req> getMatrixParams (string path) (map);
-
-@Description {value:"Represents an HTTP outbound request message"}
-public struct OutRequest {
-}
-
-@Description {value:"Get the entity from the outbound request"}
-@Param {value:"req: The outbound request message"}
-@Return {value:"Entity of the request"}
-@Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-public native function <OutRequest req> getEntity () (mime:Entity, mime:EntityError);
-
-@Description {value:"Get the entity from the outbound request without the body. This function is to be used only internally"}
-@Param {value:"req: The outbound request message"}
-@Return {value:"Entity of the request"}
-native function <OutRequest req> getEntityWithoutBody () (mime:Entity);
-
-@Description {value:"Set the entity to outbound request"}
-@Param {value:"req: The outbound request message"}
-@Return {value:"Entity of the request"}
-public native function <OutRequest req> setEntity (mime:Entity entity);
+public native function <Request req> getMatrixParams (string path) (map);
 
 @Description {value:"Sets a request property"}
-@Param {value:"req: The outbound request message"}
+@Param {value:"req: The request message"}
 @Param {value:"propertyName: The name of the property"}
 @Param {value:"propertyValue: The value of the property"}
-public native function <OutRequest req> setProperty (string propertyName, string propertyValue);
-
-@Description {value:"Retrieves the named property from the request"}
-@Param {value:"req: The outbound request message"}
-@Param {value:"propertyName: The name of the property"}
-@Return {value:"The property value"}
-public native function <OutRequest req> getProperty (string propertyName) (string);
+public native function <Request req> setProperty (string propertyName, string propertyValue);
 
 @Description {value:"Represents an HTTP Inbound response message"}
 @Field {value:"statusCode: The response status code"}
@@ -380,65 +354,65 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action post (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action post (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"The HEAD action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action head (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action head (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"The PUT action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action put (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action put (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"Invokes an HTTP call with the specified HTTP verb."}
     @Param {value:"httpVerb: HTTP verb value"}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action execute (string httpVerb, string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action execute (string httpVerb, string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"The PATCH action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action patch (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action patch (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"The DELETE action implementation of the HTTP connector"}
     @Param {value:"path: Resource path "}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action delete (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action delete (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"GET action implementation of the HTTP Connector"}
     @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action get (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action get (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"OPTIONS action implementation of the HTTP Connector"}
     @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP outbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action options (string path, OutRequest req) (InResponse, HttpConnectorError);
+    native action options (string path, Request req) (InResponse, HttpConnectorError);
 
     @Description {value:"Forward action can be used to invoke an HTTP call with inbound request's HTTP verb"}
     @Param {value:"path: Request path"}
-    @Param {value:"req: An HTTP inbound request message"}
+    @Param {value:"req: An HTTP request message"}
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
-    native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
+    native action forward (string path, Request req) (InResponse, HttpConnectorError);
 }

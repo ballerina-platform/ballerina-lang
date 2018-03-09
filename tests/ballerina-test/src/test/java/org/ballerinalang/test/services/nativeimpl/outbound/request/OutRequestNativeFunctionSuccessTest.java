@@ -55,6 +55,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
@@ -77,7 +79,7 @@ public class OutRequestNativeFunctionSuccessTest {
     private static final Logger LOG = LoggerFactory.getLogger(OutRequestNativeFunctionSuccessTest.class);
 
     private CompileResult result, serviceResult;
-    private final String outReqStruct = HttpConstants.OUT_REQUEST;
+    private final String reqStruct = HttpConstants.REQUEST;
     private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String entityStruct = HttpConstants.ENTITY;
@@ -85,10 +87,18 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath =
-                "test-src/statements/services/nativeimpl/outbound/request/out-request-native-function.bal";
-        result = BCompileUtil.compile(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+//        String sourceFilePath =
+//                "test-src/statements/services/nativeimpl/outbound/request/out-request-native-function.bal";
+//        result = BCompileUtil.compile(sourceFilePath);
+//        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+//        result = BCompileUtil.compile(sourceFilePath);
+//        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+        String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "statements", "services", "nativeimpl", "outbound",
+                "request");
+        result = BCompileUtil.compile(sourceRoot.resolve("out-request-native-function.bal").toString());
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceRoot.resolve("out-request-native-function.bal")
+                .toString());
     }
 
     @Test
@@ -122,7 +132,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test getBinaryPayload method of the request")
     public void testGetBinaryPayloadMethod() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         HTTPCarbonMessage outRequestMsg = HttpUtil.createHttpCarbonMessage(true);
@@ -144,7 +154,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test
     public void testGetContentLength() {
         String payload = "ballerina";
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
@@ -173,7 +183,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetHeader() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
@@ -205,7 +215,7 @@ public class OutRequestNativeFunctionSuccessTest {
     public void testGetHeaders() {
         String headerValue1 = APPLICATION_FORM;
         String headerValue2 = TEXT_PLAIN + ";b=5";
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         BMap<String, BStringArray> headersMap = new BMap<>();
@@ -224,7 +234,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetJsonPayload() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -253,7 +263,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test
     public void testGetProperty() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage outRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         String propertyName = "wso2";
         String propertyValue = "Ballerina";
@@ -282,7 +292,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test GetStringPayload within a function")
     public void testGetStringPayload() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -312,7 +322,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test GetXmlPayload within a function")
     public void testGetXmlPayload() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
@@ -341,7 +351,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveHeader() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
         String headerValue = "100-continue";
@@ -376,7 +386,7 @@ public class OutRequestNativeFunctionSuccessTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveAllHeaders() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
         String range = "Range";
@@ -635,7 +645,7 @@ public class OutRequestNativeFunctionSuccessTest {
 
     @Test(description = "Test getStringPayload method with JSON payload")
     public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, outReqStruct);
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 

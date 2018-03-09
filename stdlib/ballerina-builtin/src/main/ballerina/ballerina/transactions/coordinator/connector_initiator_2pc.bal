@@ -25,7 +25,7 @@ public connector Initiator2pcClient () {
         }
         AbortRequest abortReq = {transactionId:transactionId, participantId:localParticipantId};
         var j, _ = <json>abortReq;
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(j);
         var res, commErr = coordinatorEP.post("", req);
         if (commErr == null) {

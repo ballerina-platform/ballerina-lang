@@ -7,7 +7,7 @@ service<http> testService {
         methods:["GET"],
         path:"/t1/{person}/bar/{year}/foo"
     }
-    resource test1 (http:Connection conn, http:InRequest req, string person, string year) {
+    resource test1 (http:Connection conn, http:Request req, string person, string year) {
         http:OutResponse res = {};
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{year}}`;
@@ -40,7 +40,7 @@ service<http> testService {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-    resource testEncoded (http:Connection conn, http:InRequest req, string person) {
+    resource testEncoded (http:Connection conn, http:Request req, string person) {
         http:OutResponse res = {};
         json outJson = {};
         outJson.person = person;

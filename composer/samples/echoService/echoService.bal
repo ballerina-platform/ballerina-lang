@@ -7,7 +7,7 @@ service<http> echo {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
+    resource echo (http:Connection conn, http:Request req) {
         http:OutResponse resp = {};
         var payload, payloadError = req.getStringPayload();
         if (payloadError == null) {

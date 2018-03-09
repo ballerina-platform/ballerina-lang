@@ -7,7 +7,7 @@ service<http> multipart {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartOutResponse (http:Connection conn, http:InRequest request) {
+    resource multipartOutResponse (http:Connection conn, http:Request request) {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = {};
@@ -50,7 +50,7 @@ service<http> multipart {
         methods:["POST"],
         path:"/nested_parts_in_outresponse"
     }
-    resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
+    resource nestedPartsInOutResponse (http:Connection conn, http:Request request) {
 
         var bodyParts, _ = request.getMultiparts();
         string contentType = request.getHeader("content-type");

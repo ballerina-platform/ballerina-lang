@@ -20,13 +20,13 @@ import ballerina.net.http;
     port:8890
 }
 service<http> participant2 {
-    resource task1 (http:Connection conn, http:InRequest req) {
+    resource task1 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         res.setStringPayload("Resource is invoked");
         _ = conn.respond(res);
     }
 
-    resource task2 (http:Connection conn, http:InRequest req) {
+    resource task2 (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         string result = "incorrect id";
         transaction {

@@ -19,7 +19,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource defineGlobalVar (http:Connection conn, http:InRequest req) {
+    resource defineGlobalVar (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
@@ -30,7 +30,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/access-service-level"
     }
-    resource accessGlobalVarAtServiceLevel (http:Connection conn, http:InRequest req) {
+    resource accessGlobalVarAtServiceLevel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
@@ -41,7 +41,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/change-resource-level"
     }
-    resource changeGlobalVarAtResourceLevel (http:Connection conn, http:InRequest req) {
+    resource changeGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
@@ -53,7 +53,7 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:InRequest req) {
+    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
@@ -70,7 +70,7 @@ service<http> GlobalVarSecond {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:InRequest req) {
+    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
         http:OutResponse res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);

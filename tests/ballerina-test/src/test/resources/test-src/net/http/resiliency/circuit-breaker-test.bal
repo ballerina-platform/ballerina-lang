@@ -33,7 +33,7 @@ function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
+    http:Request request;
     http:InResponse[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
@@ -59,7 +59,7 @@ function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
+    http:Request request;
     http:InResponse[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
@@ -84,7 +84,7 @@ function testHttpStatusCodeFailure () (http:InResponse[], http:HttpConnectorErro
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
+    http:Request request;
     http:InResponse[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
@@ -107,31 +107,31 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action head (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action put (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         http:InResponse response;
         http:HttpConnectorError err;
         actualRequestNumber = actualRequestNumber + 1;
@@ -149,11 +149,11 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return response, err;
     }
 
-    action options (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 
-    action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 }

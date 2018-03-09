@@ -48,7 +48,7 @@ service<http> InitiatorService {
         methods:["POST"],
         path:registrationPath
     }
-    resource register (http:Connection conn, http:InRequest req) {
+    resource register (http:Connection conn, http:Request req) {
         //register(in: Micro-Transaction-Registration,
         //out: Micro-Transaction-Coordination?,
         //fault: ( Invalid-Protocol |

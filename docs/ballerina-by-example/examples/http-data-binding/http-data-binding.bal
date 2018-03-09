@@ -14,7 +14,7 @@ service<http> hello {
         methods:["POST"],
         body:"order"
     }
-    resource bindJson (http:Connection conn, http:InRequest req, json order) {
+    resource bindJson (http:Connection conn, http:Request req, json order) {
         //Access JSON field values
         json details = order.Details;
         io:println(details);
@@ -30,7 +30,7 @@ service<http> hello {
         body:"store",
         consumes:["application/xml"]
     }
-    resource bindXML (http:Connection conn, http:InRequest req, xml store) {
+    resource bindXML (http:Connection conn, http:Request req, xml store) {
         //Access XML content.
         xml city = store.selectChildren("city");
         io:println(city);
@@ -46,7 +46,7 @@ service<http> hello {
         body:"student",
         consumes:["application/json"]
     }
-    resource bindStruct (http:Connection conn, http:InRequest req, Student student) {
+    resource bindStruct (http:Connection conn, http:Request req, Student student) {
         //Access Student struct fields
         string name = student.Name;
         io:println(name);

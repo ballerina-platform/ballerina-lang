@@ -14,7 +14,7 @@ service<http> ParticipantService {
     @http:resourceConfig {
         path:"/update"
     }
-    resource updateStockQuote (http:Connection conn, http:InRequest req) {
+    resource updateStockQuote (http:Connection conn, http:Request req) {
         log:printInfo("Received update stockquote request");
         http:OutResponse res;
 

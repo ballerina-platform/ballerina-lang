@@ -11,7 +11,7 @@ service<http> echo {
     @http:resourceConfig {
         body:"person"
     }
-    resource body1 (http:Connection conn, http:InRequest req, string person) {
+    resource body1 (http:Connection conn, http:Request req, string person) {
         json responseJson = {"Person":person};
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -23,7 +23,7 @@ service<http> echo {
         path:"/body2/{key}",
         body:"person"
     }
-    resource body2 (http:Connection conn, http:InRequest req, string key, string person) {
+    resource body2 (http:Connection conn, http:Request req, string key, string person) {
         json responseJson = {Key:key , Person:person};
         http:OutResponse res = {};
         res.setJsonPayload(responseJson);
@@ -34,7 +34,7 @@ service<http> echo {
         methods:["GET","POST"],
         body:"person"
     }
-    resource body3 (http:Connection conn, http:InRequest req, json person) {
+    resource body3 (http:Connection conn, http:Request req, json person) {
         json name = person.name;
         json team = person.team;
         http:OutResponse res = {};
@@ -46,7 +46,7 @@ service<http> echo {
         methods:["POST"],
         body:"person"
     }
-    resource body4 (http:Connection conn, http:InRequest req, xml person) {
+    resource body4 (http:Connection conn, http:Request req, xml person) {
         string name = person.getElementName();
         string team = person.getTextValue();
         http:OutResponse res = {};
@@ -58,7 +58,7 @@ service<http> echo {
         methods:["POST"],
         body:"person"
     }
-    resource body5 (http:Connection conn, http:InRequest req, blob person) {
+    resource body5 (http:Connection conn, http:Request req, blob person) {
         string name = person.toString("UTF-8");
         http:OutResponse res = {};
         res.setJsonPayload({Key:name});
@@ -69,7 +69,7 @@ service<http> echo {
         methods:["POST"],
         body:"person"
     }
-    resource body6 (http:Connection conn, http:InRequest req, Person person) {
+    resource body6 (http:Connection conn, http:Request req, Person person) {
         string name = person.name;
         int age = person.age;
         http:OutResponse res = {};
@@ -81,7 +81,7 @@ service<http> echo {
         methods:["POST"],
         body:"person"
     }
-    resource body7 (http:Connection conn, http:InRequest req, http:HttpConnectorError person) {
+    resource body7 (http:Connection conn, http:Request req, http:HttpConnectorError person) {
         _ = conn.respond({});
     }
 }

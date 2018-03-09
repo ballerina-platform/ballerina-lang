@@ -14,7 +14,7 @@ service<http> InitiatorService {
         methods:["GET"],
         path:"/"
     }
-    resource init (http:Connection conn, http:InRequest req) {
+    resource init (http:Connection conn, http:Request req) {
         http:OutResponse res;
         log:printInfo("Initiating transaction...");
 
@@ -64,7 +64,7 @@ public connector BizClient () {
         endpoint<http:HttpClient> bizEP {
             create http:HttpClient("http://" + host + ":" + port + "/stockquote/update", {});
         }
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(bizReq);
         var res, e = bizEP.post("", req);
         log:printInfo("Got response from bizservice");

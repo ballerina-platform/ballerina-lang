@@ -8,7 +8,7 @@ service<http> nyseStockQuote {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource stocks (http:Connection con, http:InRequest req) {
+    resource stocks (http:Connection con, http:Request req) {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         http:OutResponse res = {};
         res.setJsonPayload(payload);
