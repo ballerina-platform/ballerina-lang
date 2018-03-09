@@ -677,47 +677,21 @@
                 <version>${disruptor.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr.runtime.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-
-            <!--metrics-->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
             </dependency>
-
-            <!-- Test dependencies -->
+            <!-- Compile time dependencies -->
             <dependency>
-                <groupId>org.apache.log4j.wso2</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jms</groupId>
-                        <artifactId>jms</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.jdmk</groupId>
-                        <artifactId>jmxtools</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.jmx</groupId>
-                        <artifactId>jmxri</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <scope>compile</scope>
+                <version>${mvel2.version}</version>
             </dependency>
 
             <dependency>
@@ -734,14 +708,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>siddhi-annotations</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-
-            <!-- Compile time dependencies -->
-            <dependency>
-                <groupId>org.mvel</groupId>
-                <artifactId>mvel2</artifactId>
-                <version>${mvel2.version}</version>
-                <scope>compile</scope>
             </dependency>
 
         </dependencies>
