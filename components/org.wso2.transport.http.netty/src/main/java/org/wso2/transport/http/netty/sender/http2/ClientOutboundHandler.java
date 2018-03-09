@@ -126,7 +126,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        public void writeContent(ChannelHandlerContext ctx) {
+        void writeContent(ChannelHandlerContext ctx) {
             int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
             // Write Content
