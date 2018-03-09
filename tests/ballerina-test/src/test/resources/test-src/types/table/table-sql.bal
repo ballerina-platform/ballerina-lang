@@ -21,6 +21,7 @@ struct OrderDetails {
     string items;
     float amount;
 }
+
 struct Student {
     string name;
     int index;
