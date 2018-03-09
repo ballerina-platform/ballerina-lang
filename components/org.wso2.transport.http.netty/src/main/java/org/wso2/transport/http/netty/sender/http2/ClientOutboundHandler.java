@@ -227,4 +227,3 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         ctx.flush();
     }
 }
-
