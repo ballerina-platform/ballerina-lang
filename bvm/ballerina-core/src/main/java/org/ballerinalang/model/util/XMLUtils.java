@@ -56,11 +56,11 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * Common utility methods used for XML manipulation.
- *
+ * 
  * @since 0.88
  */
 public class XMLUtils {
-
+    
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
     private static final String XML_DCLR_START = "<?xml";
