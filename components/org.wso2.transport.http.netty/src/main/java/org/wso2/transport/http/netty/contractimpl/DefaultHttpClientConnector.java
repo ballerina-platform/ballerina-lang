@@ -99,16 +99,16 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     @Override
-    public void rejectPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise) {
+    public void rejectPushResponse(Http2PushPromise pushPromise) {
         Http2Reset http2Reset = new Http2Reset(pushPromise.getPromisedStreamId());
-        OutboundMsgHolder outboundMsgHolder = responseHandle.getOutboundMsgHolder();
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
         pushPromise.reject();
         outboundMsgHolder.getHttp2ClientChannel().getChannel().write(http2Reset);
     }
 
     @Override
-    public HttpResponseFuture getPushResponse(ResponseHandle responseHandle) {
-        return responseHandle.getOutboundMsgHolder().getResponseFuture();
+    public HttpResponseFuture getPushResponse(Http2PushPromise pushPromise) {
+        return pushPromise.getOutboundMsgHolder().getResponseFuture();
     }
 
     @Override

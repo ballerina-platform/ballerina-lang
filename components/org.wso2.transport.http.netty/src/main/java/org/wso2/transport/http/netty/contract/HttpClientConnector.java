@@ -82,16 +82,15 @@ public interface HttpClientConnector {
      * As per the spec, server is allowed to start sending the push response without waiting for an acknowledgement
      * from the client.
      *
-     * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @param pushPromise    push promise related to the server push which is need to be rejected
      */
-    void rejectPushResponse(ResponseHandle responseHandle, Http2PushPromise pushPromise);
+    void rejectPushResponse(Http2PushPromise pushPromise);
 
     /**
      * Gets the push response in asynchronous manner.
      *
-     * @param responseHandle Response Handle which represent the asynchronous service invocation
+     * @param pushPromise    push promise related to the server push
      * @return returns the status of the asynchronous push response fetch action
      */
-    HttpResponseFuture getPushResponse(ResponseHandle responseHandle);
+    HttpResponseFuture getPushResponse(Http2PushPromise pushPromise);
 }
