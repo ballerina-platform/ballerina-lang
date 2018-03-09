@@ -20,6 +20,7 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,14 +35,16 @@ public class ServiceImpl extends AnnotatableNode implements Service {
     private String name;
     private String packagePath;
     private String endPointName;
+    private ServiceInfo serviceInfo;
 
     //key - resourceName, value - resource
     private Map<String, Resource> resourceMap = new HashMap<>();
 
-    ServiceImpl(String name, String packagePath, String endPointName) {
-        this.name = name;
-        this.packagePath = packagePath;
-        this.endPointName = endPointName;
+    ServiceImpl(ServiceInfo serviceInfo) {
+        this.serviceInfo = serviceInfo;
+        this.name = serviceInfo.getName();
+        this.packagePath = serviceInfo.getPackagePath();
+        this.endPointName = serviceInfo.getEndpointName();
     }
 
     public void addResource(String name, Resource resource) {
@@ -77,5 +80,9 @@ public class ServiceImpl extends AnnotatableNode implements Service {
     @Override
     public String getAnnotationEntryKey() {
         return name;
+    }
+
+    public ServiceInfo getServiceInfo() {
+        return serviceInfo;
     }
 }

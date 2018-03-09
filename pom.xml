@@ -814,6 +814,8 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <!--<module>stdlib/ballerina-http</module>-->
+                <module>stdlib/ballerina-http-refactor</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -850,6 +852,8 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <!--<module>stdlib/ballerina-http</module>-->
+                <module>stdlib/ballerina-http-refactor</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -880,6 +884,8 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-grpc</module>
+                <!--<module>stdlib/ballerina-http</module>-->
+                <module>stdlib/ballerina-http-refactor</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>

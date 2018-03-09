@@ -19,6 +19,7 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
+import org.ballerinalang.connector.impl.ServiceImpl;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BConnector;
@@ -69,13 +70,11 @@ public final class BLangConnectorSPIUtil {
         BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[1];
         if (result == null || result.getType().getTag() != TypeTags.TYPE_TAG
                 || ((BTypeValue) result).value().getTag() != TypeTags.SERVICE_TAG) {
-            throw new BallerinaException("Can't get service reference");
+            throw new BallerinaConnectorException("Can't get service reference");
         }
         final BServiceType serviceType = (BServiceType) ((BTypeValue) result).value();
         final ProgramFile programFile = context.getProgramFile();
-        final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
-                .getServiceInfo(serviceType.getName());
-        return ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+        return getService(programFile, serviceType);
     }
 
     /**
@@ -88,7 +87,11 @@ public final class BLangConnectorSPIUtil {
      * @return created struct
      */
     public static BStruct createBStruct(Context context, String pkgPath, String structName, Object... values) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(pkgPath);
+        return createBStruct(context.getProgramFile(), pkgPath, structName, values);
+    }
+
+    public static BStruct createBStruct(ProgramFile programFile, String pkgPath, String structName, Object... values) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
@@ -112,14 +115,15 @@ public final class BLangConnectorSPIUtil {
     /**
      * Creates a VM connector value.
      *
-     * @param context       current context
+     * @param programFile   program file
      * @param pkgPath       package path of the connector
      * @param connectorName name of the connector
      * @param args          args of the connector in the defined order
      * @return created struct
      */
-    public static BConnector createBConnector(Context context, String pkgPath, String connectorName, Object... args) {
-        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(pkgPath);
+    public static BConnector createBConnector(ProgramFile programFile, String pkgPath, String connectorName,
+                                              Object... args) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
@@ -130,9 +134,31 @@ public final class BLangConnectorSPIUtil {
         final BConnector bConnector = BLangVMStructs.createBConnector(connectorInfo, args);
         final FunctionInfo initFunction = packageInfo.getFunctionInfo(connectorName + INIT_FUNCTION_SUFFIX);
         if (initFunction != null) {
-            Context initContext = new Context(context.getProgramFile());
-            BLangFunctions.invokeFunction(context.getProgramFile(), initFunction, initContext);
+            Context initContext = new Context(programFile);
+            BLangFunctions.invokeFunction(programFile, initFunction, initContext);
         }
         return bConnector;
+    }
+
+    public static Service getServiceFromType(ProgramFile programFile, Value value) {
+        if (value == null || value.getType() != Value.Type.TYPE) {
+            throw new BallerinaConnectorException("Can't get service reference");
+        }
+        final BTypeValue vmValue = (BTypeValue) value.getVMValue();
+        if (vmValue.value().getTag() != TypeTags.SERVICE_TAG) {
+            throw new BallerinaConnectorException("Can't get service reference, not service type.");
+        }
+        return getService(programFile, (BServiceType) vmValue.value());
+    }
+
+    /* private utils */
+
+    private static Service getService(ProgramFile programFile, BServiceType serviceType) {
+        final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
+                .getServiceInfo(serviceType.getName());
+        final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+        Context serviceInitCtx = new Context(programFile);
+        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
+        return service;
     }
 }

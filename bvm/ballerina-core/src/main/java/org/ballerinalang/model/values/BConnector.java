@@ -72,7 +72,7 @@ public final class BConnector implements BRefType, StructureType {
         nativeData.put(key, value);
     }
 
-    public Object getnativeData(String key) {
+    public Object getNativeData(String key) {
         return nativeData.get(key);
     }
 

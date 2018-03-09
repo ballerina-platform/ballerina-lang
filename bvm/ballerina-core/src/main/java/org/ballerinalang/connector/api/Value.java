@@ -17,6 +17,7 @@
 package org.ballerinalang.connector.api;
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BValue;
 
 /**
  * Wrapper for values in BVM.
@@ -67,6 +68,8 @@ public interface Value {
      */
     Struct getStructValue();
 
+    BValue getVMValue();
+
     // TODO Implement XML and JSON
 
     /**
@@ -86,7 +89,9 @@ public interface Value {
         JSON(TypeTags.JSON_TAG),
         XML(TypeTags.XML_TAG),
         TYPE(TypeTags.TYPE_TAG),
-        ENUM(TypeTags.ENUM_TAG);
+        ENUM(TypeTags.ENUM_TAG),
+        NULL(TypeTags.NULL_TAG),
+        OTHER(-1);
 
         int tag;
 
@@ -104,7 +109,19 @@ public interface Value {
                     return type;
                 }
             }
-            return null;
+            return OTHER;
+        }
+
+        public static Type getType(BValue value) {
+            if (value == null) {
+                return NULL;
+            }
+            for (Type type : Type.values()) {
+                if (type.tag == value.getType().getTag()) {
+                    return type;
+                }
+            }
+            return OTHER;
         }
     }
 }

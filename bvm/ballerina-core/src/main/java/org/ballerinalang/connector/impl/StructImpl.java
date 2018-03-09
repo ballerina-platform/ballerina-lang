@@ -159,6 +159,16 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
+    public void addNativeData(String key, Object data) {
+        value.addNativeData(key, data);
+    }
+
+    @Override
+    public Object getNativeData(String key) {
+        return value.getNativeData(key);
+    }
+
+    @Override
     public String getAnnotationEntryKey() {
         return getName();
     }
