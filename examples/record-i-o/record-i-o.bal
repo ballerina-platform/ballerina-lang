@@ -50,8 +50,8 @@ function process (io:DelimitedRecordChannel srcRecordChannel,
 }
 
 function main (string[] args) {
-    string srcFileName = "./files/sales.csv";
-    string dstFileName = "./files/sampleResponse.csv";
+    string srcFileName = "./files/sample.csv";
+    string dstFileName = "./files/sampleResponse.txt";
     io:IOError closeError;
     //Here we specify the location of the CSV file where the record separator is
     //new line and field separator is comma.
@@ -60,7 +60,7 @@ function main (string[] args) {
     //Here we specify the location of the text file where the record separator
     //is new line and field separator is pipe.
     io:DelimitedRecordChannel dstRecordChannel =
-    getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", ",");
+    getFileRecordChannel(dstFileName, "w", "UTF-8", "\n", "|");
     try {
         io:println("Start to process CSV file from " + srcFileName + " to text file in "
                    + dstFileName);
