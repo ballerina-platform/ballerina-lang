@@ -20,6 +20,9 @@
         <Package name="org.ballerinalang.builtin"/>
     </Match>
     <Match>
+        <Package name="org.ballerinalang.nativeimpl.compression"/>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.nativeimpl.actions.data.sql.client"/>
     </Match>
 </FindBugsFilter>

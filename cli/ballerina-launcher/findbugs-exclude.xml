@@ -19,4 +19,10 @@
     <Match>
         <Package name="org.ballerinalang.launcher.util" />
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.launcher.toml.antlr4" />
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.launcher.toml.model.fields" />
+    </Match>
 </FindBugsFilter>
