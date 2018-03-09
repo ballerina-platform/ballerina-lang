@@ -181,6 +181,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     }
 
     /**
+     * @deprecated
      * @since 0.94
      */
     public static class BLangActionInvocation extends BLangInvocation {

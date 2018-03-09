@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -482,6 +483,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
 
+    }
+
+    public void visit(BLangActionInvocationExpr actionInvExpr) {
     }
 
     public void visit(BLangTypeInit cIExpr) {

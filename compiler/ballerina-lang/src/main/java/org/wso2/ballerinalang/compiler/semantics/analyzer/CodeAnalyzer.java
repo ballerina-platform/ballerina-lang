@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -645,6 +646,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangActionInvocationExpr actionInvExpr) {
+    }
+
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
     }
@@ -984,6 +989,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 invocationExpr.expr.accept(this);
             }
             invocationExpr.argExprs.forEach(argExpr -> argExpr.accept(this));
+        }
+
+        @Override
+        public void visit(BLangActionInvocationExpr actionInvExpr) {
         }
 
         @Override

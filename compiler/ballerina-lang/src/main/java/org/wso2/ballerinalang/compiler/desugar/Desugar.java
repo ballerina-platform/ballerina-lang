@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -684,6 +685,10 @@ public class Desugar extends BLangNodeVisitor {
                 result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
                 break;
         }
+    }
+
+    @Override
+    public void visit(BLangActionInvocationExpr actionInvExpr) {
     }
 
     public void visit(BLangTypeInit connectorInitExpr) {

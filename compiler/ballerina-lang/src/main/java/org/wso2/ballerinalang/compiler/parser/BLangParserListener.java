@@ -843,15 +843,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1492,6 +1483,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createTypeAccessExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

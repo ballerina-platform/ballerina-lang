@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
@@ -112,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -736,6 +736,22 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
+    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangActionInvocationExpr actionInvExpr = (BLangActionInvocationExpr) TreeBuilder.createActionInvocationExpr();
+        actionInvExpr.pos = pos;
+        actionInvExpr.addWS(ws);
+        actionInvExpr.invocationExpr = (BLangInvocation) exprNodeStack.pop();
+
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = nameReference.pos;
+        varRef.addWS(nameReference.ws);
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
+        actionInvExpr.connectorVarRef = varRef;
+        addExpressionNode(actionInvExpr);
+    }
+
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
@@ -1289,24 +1305,6 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
-    }
-
-    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws, String varName) {
-        ExpressionNode rExprNode = exprNodeStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.addWS(removeNthFromLast(ws, 1));
-        varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
-        varRef.variableName = (BLangIdentifier) createIdentifier(varName);
-
-
-        BLangBind bindNode = (BLangBind) TreeBuilder.createBindNode();
-        bindNode.setExpression(rExprNode);
-        bindNode.pos = pos;
-        bindNode.addWS(ws);
-        bindNode.setVariable(varRef);
-        addStmtToCurrentBlock(bindNode);
     }
 
     public void startForeachStatement() {

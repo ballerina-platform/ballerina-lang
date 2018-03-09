@@ -18,7 +18,13 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * @since 0.94
+ * Represents action invocation expression.
+ *
+ * @since 0.965.0
  */
 public interface ActionInvocationNode extends ExpressionNode {
+
+    InvocationNode getInvocationExpr();
+
+    VariableReferenceNode getConnectorVarRef();
 }
