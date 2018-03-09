@@ -89,7 +89,7 @@ export default {
         ],
 
         documentation: [
-            ['(P|R|T|F|V)({{)(.+)(}})',
+            ['(P|R|T|F|V)({{)(.+)(}})', 
                 ['keyword.other.documentation', 'keyword.other.documentation',
                 'variable.parameter.documentation', 'keyword.other.documentation' ]
             ],
