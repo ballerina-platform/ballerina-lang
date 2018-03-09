@@ -3,7 +3,10 @@ package org.wso2.ballerinalang.compiler.packaging.resolve;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-public class URIResolver implements Resolver<StringBuilder> {
+/**
+ * Provide functions need to covert a patten to steam of by paths, by downloading them as url .
+ */
+public class URIConverter implements Converter<StringBuilder> {
 
     @Override
     public StringBuilder combine(StringBuilder stringBuilder, String pathPart) {

@@ -6,9 +6,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -21,7 +22,7 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 public class JarIntegrationTest {
 
     private Path tempJar;
-    private static final byte[] BAL_CONTENT = "good bal".getBytes();
+    private static final byte[] BAL_CONTENT = "good bal".getBytes(StandardCharsets.UTF_8);
 
     @BeforeClass
     public void setup() throws IOException {
@@ -41,10 +42,10 @@ public class JarIntegrationTest {
 
     @Test
     public void balInsideJar() throws IOException {
-        Patten balPatten = new Patten(path("very"), Patten.WILDCARD_BAL);
+        Patten balPatten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
         JarRepo repo = new JarRepo(tempJar.toUri());
-        Resolver<Path> resolver = repo.getResolverInstance();
-        List<Path> paths = balPatten.convertToPaths(resolver)
+        Converter<Path> converter = repo.getConverterInstance();
+        List<Path> paths = balPatten.convertToPaths(converter)
                                     .collect(Collectors.toList());
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(Files.readAllBytes(paths.get(0)), BAL_CONTENT);

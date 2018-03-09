@@ -2,18 +2,21 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 
 import java.nio.file.Path;
 
+/**
+ * Calculate path pattens for home repo.
+ */
 public class HomeRepo extends NonSysRepo<Path> {
-    public HomeRepo(Resolver<Path> resolver) {
-        super(resolver);
+    public HomeRepo(Converter<Path> converter) {
+        super(converter);
     }
 
     public HomeRepo(Path path) {
-        super(new PathResolver(path));
+        super(new PathConverter(path));
     }
 
     @Override
@@ -23,6 +26,6 @@ public class HomeRepo extends NonSysRepo<Path> {
         String pkgVersion = pkg.version.value;
 
         return new Patten(Patten.path("repo", orgName, pkgName, pkgVersion, "src"),
-                          Patten.WILDCARD_BAL);
+                          Patten.WILDCARD_SOURCE);
     }
 }

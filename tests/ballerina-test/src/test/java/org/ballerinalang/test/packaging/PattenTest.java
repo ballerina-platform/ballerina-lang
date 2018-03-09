@@ -3,7 +3,7 @@ package org.ballerinalang.test.packaging;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -19,10 +19,10 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 public class PattenTest {
     @Test
     public void testReduction() {
-        Resolver<String> mock = mockResolver("root-dir",
-                                             (a, b) -> a + " > " + b,
-                                             null,
-                                             null);
+        Converter<String> mock = mockResolver("root-dir",
+                                              (a, b) -> a + " > " + b,
+                                              null,
+                                              null);
         Patten subject = new Patten(path("hello", "world"));
 
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
@@ -33,12 +33,12 @@ public class PattenTest {
     @Test
     public void testExpansion() {
         Patten subject = new Patten(Patten.WILDCARD_DIR);
-        Resolver<String> mock = mockResolver("root-dir",
-                                             null,
+        Converter<String> mock = mockResolver("root-dir",
+                                              null,
                                              s -> Stream.of(s + " > cache1",
                                                             s + " > cache2",
                                                             s + " > cache3"),
-                                             null);
+                                              null);
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
         Assert.assertEquals(strings, Arrays.asList("root-dir > cache1",
                                                    "root-dir > cache2",
@@ -52,14 +52,14 @@ public class PattenTest {
     @Test(enabled = false)
     public void testLazy() {
         Patten subject = new Patten(Patten.WILDCARD_DIR);
-        Resolver<String> mock = mockResolver("root-dir",
-                                             null,
+        Converter<String> mock = mockResolver("root-dir",
+                                              null,
                                              s -> Stream.concat(Stream.of("", ""),
                                                                 Stream.generate(() -> {
                                                                     Assert.fail("method called. Hence not lazy.");
                                                                     return "";
                                                                 })),
-                                             null);
+                                              null);
 
         List<String> strings = subject.convert(mock).limit(1).collect(Collectors.toList());
         Assert.assertTrue(strings.isEmpty());
@@ -68,23 +68,23 @@ public class PattenTest {
     @Test
     public void testReductionAndExpansion() {
         Patten subject = new Patten(path("hello"), Patten.WILDCARD_DIR, path("world"));
-        Resolver<String> mock = mockResolver("root-dir",
-                                             (a, b) -> a + " > " + b,
+        Converter<String> mock = mockResolver("root-dir",
+                                              (a, b) -> a + " > " + b,
                                              s -> Stream.of(s + " > cache1",
                                                             s + " > cache2",
                                                             s + " > cache3"),
-                                             null);
+                                              null);
         List<String> strings = subject.convert(mock).collect(Collectors.toList());
         Assert.assertEquals(strings, Arrays.asList("root-dir > hello > cache1 > world",
                                                    "root-dir > hello > cache2 > world",
                                                    "root-dir > hello > cache3 > world"));
     }
 
-    private static <I> Resolver<I> mockResolver(I start,
-                                                BiFunction<I, String, I> combine,
-                                                Function<I, Stream<I>> expand,
-                                                Function<I, Stream<I>> expandBal) {
-        return new Resolver<I>() {
+    private static <I> Converter<I> mockResolver(I start,
+                                                 BiFunction<I, String, I> combine,
+                                                 Function<I, Stream<I>> expand,
+                                                 Function<I, Stream<I>> expandBal) {
+        return new Converter<I>() {
             @Override
             public I combine(I i, String pathPart) {
                 return combine.apply(i, pathPart);

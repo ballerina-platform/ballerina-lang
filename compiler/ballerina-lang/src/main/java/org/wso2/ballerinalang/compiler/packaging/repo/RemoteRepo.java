@@ -2,12 +2,15 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.URIResolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.URIConverter;
 
+/**
+ * Calculate url pattens of package.
+ */
 public class RemoteRepo extends NonSysRepo<StringBuilder> {
-    public RemoteRepo(Resolver<StringBuilder> resolver) {
-        super(resolver);
+    public RemoteRepo(Converter<StringBuilder> converter) {
+        super(converter);
     }
 
     @Override
@@ -17,11 +20,11 @@ public class RemoteRepo extends NonSysRepo<StringBuilder> {
         String pkgVersion = pkg.version.value;
 
         return new Patten(Patten.path("repo", orgName, pkgName, pkgVersion, "src"),
-                          Patten.WILDCARD_BAL);
+                          Patten.WILDCARD_SOURCE);
     }
 
     public RemoteRepo(String baseURL) {
-        this(new URIResolver());
+        this(new URIConverter());
     }
 
 }

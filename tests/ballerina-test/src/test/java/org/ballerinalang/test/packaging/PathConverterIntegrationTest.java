@@ -5,7 +5,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.WILDCARD_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
-public class PathResolverIntegrationTest {
+public class PathConverterIntegrationTest {
 
     private Path tempDirectory;
     private Path tempFile;
@@ -35,7 +35,7 @@ public class PathResolverIntegrationTest {
     @Test
     public void testWildcard() {
         Patten patten = new Patten(WILDCARD_DIR, path("deep"), WILDCARD_DIR, path("dir.bal", "tempFile.bal"));
-        PathResolver subject = new PathResolver(tempDirectory);
+        PathConverter subject = new PathConverter(tempDirectory);
 
         Stream<Path> pathStream = patten.convert(subject);
 
@@ -46,8 +46,8 @@ public class PathResolverIntegrationTest {
 
     @Test
     public void testBalSearch() {
-        Patten patten = new Patten(path("very"), Patten.WILDCARD_BAL);
-        PathResolver subject = new PathResolver(tempDirectory);
+        Patten patten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
+        PathConverter subject = new PathConverter(tempDirectory);
 
         Stream<Path> pathStream = patten.convert(subject);
 

@@ -153,14 +153,14 @@ public class PackageLoader {
     }
 
     private PackageEntity loadPackageEntity(PackageID pkgId, String source) {
-        Resolution r = repos.resolve(pkgId);
-        if (r == Resolution.EMPTY) {
+        Resolution resolution = repos.resolve(pkgId);
+        if (resolution == Resolution.EMPTY) {
             throw new RuntimeException("Package not found " + pkgId);
         }
-        return pathToEntity(pkgId, r.path);
+        return pathToEntity(pkgId, resolution);
     }
 
-    private PackageEntity pathToEntity(PackageID pkgId, List<Path> paths) {
+    private PackageEntity pathToEntity(PackageID pkgId, Resolution resolution) {
         return new PackageSource() {
             @Override
             public Kind getKind() {
@@ -188,13 +188,18 @@ public class PackageLoader {
             }
 
             @Override
+            public RepoDAG getRepoDag() {
+                return resolution.resolvedBy;
+            }
+
+            @Override
             public PackageSourceEntry getPackageSourceEntry(String name) {
                 return null;
             }
 
             @Override
             public List<PackageSourceEntry> getPackageSourceEntries() {
-                return paths.stream().map(p -> new PackageSourceEntry() {
+                return resolution.paths.stream().map(p -> new PackageSourceEntry() {
                     @Override
                     public PackageID getPackageID() {
                         return pkgId;
@@ -202,13 +207,12 @@ public class PackageLoader {
 
                     @Override
                     public String getEntryName() {
-                        return p.getFileName().toString();
+                        return p.getName(p.getNameCount() - 1).toString();
                     }
 
                     @Override
                     public byte[] getCode() {
                         try {
-                            System.out.println("    Reading " + pkgId + " from " + p);
                             return Files.readAllBytes(p);
                         } catch (IOException e) {
                             return new byte[]{};
@@ -373,7 +377,8 @@ public class PackageLoader {
 //            programRepo = new LocalFSPackageRepository(sourceRoot, Names.ANON_ORG.getValue());
 //        }
 
-//        this.packageRepo = new CompositePackageRepository(systemRepo, this.loadUserRepository(systemRepo), programRepo);
+//        this.packageRepo =
+// new CompositePackageRepository(systemRepo, this.loadUserRepository(systemRepo), programRepo);
     }
 
 //    private PackageRepository loadSystemRepository() {

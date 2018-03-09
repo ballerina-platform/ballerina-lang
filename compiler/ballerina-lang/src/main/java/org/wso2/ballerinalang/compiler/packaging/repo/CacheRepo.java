@@ -2,19 +2,22 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 
 import java.nio.file.Path;
 
+/**
+ * Calculate path pattens for project and home cache.
+ */
 public class CacheRepo extends NonSysRepo<Path> {
 
-    public CacheRepo(Resolver<Path> resolver) {
-        super(resolver);
+    public CacheRepo(Converter<Path> converter) {
+        super(converter);
     }
 
     public CacheRepo(Path path) {
-        this(new PathResolver(path));
+        this(new PathConverter(path));
     }
 
     @Override
@@ -26,6 +29,6 @@ public class CacheRepo extends NonSysRepo<Path> {
         return new Patten(Patten.path("caches"),
                           Patten.WILDCARD_DIR,
                           Patten.path(orgName, pkgName, pkgVersion, "src"),
-                          Patten.WILDCARD_BAL);
+                          Patten.WILDCARD_SOURCE);
     }
 }

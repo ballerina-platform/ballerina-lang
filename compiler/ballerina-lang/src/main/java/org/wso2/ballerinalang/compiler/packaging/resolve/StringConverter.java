@@ -3,7 +3,10 @@ package org.wso2.ballerinalang.compiler.packaging.resolve;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-public class StringResolver implements Resolver<String> {
+/**
+ * Provide functions need to covert a patten to a string.
+ */
+public class StringConverter implements Converter<String> {
 
     @Override
     public String combine(String a, String b) {

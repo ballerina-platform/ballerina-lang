@@ -6,17 +6,20 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.stream.Stream;
 
-public class PathResolver implements Resolver<Path> {
+/**
+ * Provide functions need to covert a patten to steam of paths.
+ */
+public class PathConverter implements Converter<Path> {
 
     private final Path root;
 
-    public PathResolver(Path root) {
+    public PathConverter(Path root) {
         this.root = root;
     }
 
     private static boolean isBal(Path path, BasicFileAttributes attributes) {
-        return !(attributes.isDirectory() || attributes.isOther())
-                && path.getFileName().toString().endsWith(".bal");
+        Path fileName = path.getFileName();
+        return attributes.isRegularFile() && fileName != null && fileName.toString().endsWith(".bal");
     }
 
     @Override
@@ -37,7 +40,7 @@ public class PathResolver implements Resolver<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.exists(path) && Files.isDirectory(path)) {
             try {
-                return Files.find(path, Integer.MAX_VALUE, PathResolver::isBal);
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

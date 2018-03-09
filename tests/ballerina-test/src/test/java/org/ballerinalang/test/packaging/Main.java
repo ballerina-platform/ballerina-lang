@@ -11,6 +11,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -36,7 +37,8 @@ public class Main {
 
 
         Resolution match = repos.resolve(pkg);
-        System.out.println(match.path);
-        System.out.println(match.resolvedBy);
+        PrintStream out = System.out;
+        out.println(match.paths);
+        out.println(match.resolvedBy);
     }
 }

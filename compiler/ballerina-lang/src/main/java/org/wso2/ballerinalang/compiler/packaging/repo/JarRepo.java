@@ -2,8 +2,8 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,15 +15,19 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Calculate path pattens within meta-inf dir of jars (or exploded jars).
+ * Used to load system org bal files.
+ */
 public class JarRepo implements Repo<Path> {
-    private final PathResolver resolver;
+    private final PathConverter resolver;
 
     public JarRepo(URI jarLocation) {
         boolean isJar = jarLocation.getPath().endsWith(".jar");
         if (isJar) {
-            this.resolver = new PathResolver(pathWithinJar(jarLocation));
+            this.resolver = new PathConverter(pathWithinJar(jarLocation));
         } else {
-            this.resolver = new PathResolver(Paths.get(jarLocation));
+            this.resolver = new PathConverter(Paths.get(jarLocation));
         }
     }
 
@@ -47,7 +51,6 @@ public class JarRepo implements Repo<Path> {
         try {
             FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
-            System.err.println("jar already registered.");
         }
     }
 
@@ -55,11 +58,11 @@ public class JarRepo implements Repo<Path> {
     public Patten calculate(PackageID pkg) {
         return new Patten(Patten.path("META-INF", "ballerina",
                                       pkg.getName().value.replace('.', '/')),
-                          Patten.WILDCARD_BAL);
+                          Patten.WILDCARD_SOURCE);
     }
 
     @Override
-    public Resolver<Path> getResolverInstance() {
+    public Converter<Path> getConverterInstance() {
         return resolver;
     }
 }

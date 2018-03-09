@@ -1,24 +1,38 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 
-import org.wso2.ballerinalang.compiler.packaging.resolve.Resolver;
-import org.wso2.ballerinalang.compiler.packaging.resolve.StringResolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.resolve.StringConverter;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
+/**
+ * Patten of a set of resource (usually files paths).
+ * EG: patten of bal in a jar. url patten. file patten.
+ * <p>
+ *
+ * Made out of 4 types of parts.
+ *    Path                      - exact match to the a dir or file name
+ *    Wildcard                  - any dir matches
+ *    Wildcard source           - marches any source files in the dir or
+ *                                in deeper dir, skipping any tests sources
+ *    Wildcard source with test - marches any source files in the dir or
+ *                                in deeper dir including test source
+ *
+ */
 public class Patten {
     public static final Part WILDCARD_DIR = new Part();
-    public static final Part WILDCARD_BAL = new Part();
-    public static final Part WILDCARD_BAL_WITH_TEST = new Part();
+    public static final Part WILDCARD_SOURCE = new Part();
+    public static final Part WILDCARD_SOURCE_WITH_TEST = new Part();
     public static final Patten NULL = new Patten() {
         @Override
-        public <T> Stream<T> convert(Resolver<T> resolver) {
+        public <T> Stream<T> convert(Converter<T> converter) {
             return Stream.of();
         }
     };
 
-    private static final Resolver<String> STRING_RESOLVER = new StringResolver();
+    private static final Converter<String> STRING_CONVERTER = new StringConverter();
 
     private final Part[] parts;
 
@@ -30,42 +44,45 @@ public class Patten {
         return new Part(path);
     }
 
-    public <T> Stream<T> convert(Resolver<T> resolver) {
-        Stream<T> aggregate = Stream.of(resolver.start());
+    public <T> Stream<T> convert(Converter<T> converter) {
+        Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
             if (part == WILDCARD_DIR) {
-                aggregate = aggregate.flatMap(resolver::expand);
-            } else if (part == WILDCARD_BAL) {
-                aggregate = aggregate.flatMap(resolver::expandBal);
-            } else if (part == WILDCARD_BAL_WITH_TEST) {
-                aggregate = aggregate.flatMap(resolver::expandBal);
+                aggregate = aggregate.flatMap(converter::expand);
+            } else if (part == WILDCARD_SOURCE) {
+                aggregate = aggregate.flatMap(converter::expandBal);
+            } else if (part == WILDCARD_SOURCE_WITH_TEST) {
+                aggregate = aggregate.flatMap(converter::expandBal);
             } else {
-                aggregate = aggregate.map(t -> callReduceForEach(t, part.values, resolver));
+                aggregate = aggregate.map(t -> callReduceForEach(t, part.values, converter));
             }
         }
         return aggregate;
     }
 
     @SuppressWarnings("unchecked")
-    public Stream<Path> convertToPaths(Resolver resolver) {
-        return convert(resolver).flatMap(resolver::finalize);
+    public Stream<Path> convertToPaths(Converter converter) {
+        return convert(converter).flatMap(converter::finalize);
     }
 
     public String toString() {
-        return convert(STRING_RESOLVER).findFirst()
-                                       .orElse("#");
+        return convert(STRING_CONVERTER).findFirst()
+                                        .orElse("#");
     }
 
     //TODO: replace with Stream#combine(U, BiFunction<U,? super T,U>, BinaryOperator<U>) ?
-    private <I> I callReduceForEach(I i, String[] values, Resolver<I> resolver) {
+    private <I> I callReduceForEach(I i, String[] values, Converter<I> converter) {
         I j = i;
         for (String value : values) {
-            j = resolver.combine(j, value);
+            j = converter.combine(j, value);
         }
         return j;
     }
 
 
+    /**
+     * Part of a Patten.
+     */
     public static class Part {
         private final String[] values;
 

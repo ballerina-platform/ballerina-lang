@@ -10,7 +10,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathResolver;
+import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 public class RepoTest {
@@ -18,7 +18,7 @@ public class RepoTest {
     @Test
     public void testProjectObjRepo() {
         PackageID pkg = newPackageID("my_org", "my.pkg", "1.2.3");
-        ProjectObjRepo subject = new ProjectObjRepo((PathResolver) null);
+        ProjectObjRepo subject = new ProjectObjRepo((PathConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
@@ -28,7 +28,7 @@ public class RepoTest {
     @Test
     public void testProjectSourceRepo() {
         PackageID pkg = newPackageID("best_org", "this.pkg", "1.8.3");
-        ProjectSourceRepo subject = new ProjectSourceRepo((PathResolver) null);
+        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null);
 
         Patten prospect = subject.calculate(pkg);
 
@@ -38,7 +38,7 @@ public class RepoTest {
     @Test
     public void testHomeRepo() {
         PackageID pkg = newPackageID("my_org", "my.pkg", "10.2.3");
-        HomeRepo subject = new HomeRepo((PathResolver) null);
+        HomeRepo subject = new HomeRepo((PathConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
@@ -48,7 +48,7 @@ public class RepoTest {
     @Test
     public void testCacheRepo() {
         PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        CacheRepo subject = new CacheRepo((PathResolver) null);
+        CacheRepo subject = new CacheRepo((PathConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
