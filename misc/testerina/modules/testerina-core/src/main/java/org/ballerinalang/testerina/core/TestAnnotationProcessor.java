@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -206,12 +207,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         int[] sortedElts = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
         List<Test> sortedTests = orderTests(suite.getTests(), sortedElts);
-        injectMocks(suite.getMockFunctionsMap(), programFile);
         suite.setTests(sortedTests);
-        suite.addProgramFile(programFile);
+        suite.setProgramFile(programFile);
+        injectMocks(suite);
     }
 
-    public static void injectMocks(Map<String, TesterinaFunction> mockFunctions, ProgramFile programFile) {
+    public static void injectMocks(TestSuite suite) {
+        ProgramFile programFile = suite.getProgramFile();
+        Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         mockFunctions.forEach((k, v) -> {
             String[] info = k.split("#");
             if (info.length != 2) {
@@ -223,7 +226,32 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     if (ins instanceof Instruction.InstructionCALL) {
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
                         if (call.functionInfo.getName().equals(info[1])) {
+                            suite.addMockedRealFunction(k, call.functionInfo);
                             call.functionInfo = v.getbFunction();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    public static void resetMocks(TestSuite suite) {
+        ProgramFile programFile = suite.getProgramFile();
+        Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
+        Map<String, FunctionInfo> mockedRealFunctionsMap = suite.getMockedRealFunctionsMap();
+
+        mockFunctions.forEach((k, v) -> {
+            String[] info = k.split("#");
+            if (info.length != 2) {
+                return;
+            }
+
+            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
+                for (Instruction ins : packageInfo.getInstructions()) {
+                    if (ins instanceof Instruction.InstructionCALL) {
+                        Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
+                        if (call.functionInfo.getName().equals(info[1])) {
+                            call.functionInfo = mockedRealFunctionsMap.get(k);
                         }
                     }
                 }

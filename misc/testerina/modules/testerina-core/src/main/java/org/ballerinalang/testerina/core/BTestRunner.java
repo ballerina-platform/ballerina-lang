@@ -131,12 +131,11 @@ public class BTestRunner {
         AtomicBoolean shouldSkip = new AtomicBoolean();
 
         testSuites.forEach((packageName, suite) -> {
-            suite.getInitFunction().invoke();
-
             outStream.println("Executing test suite for package: " + packageName);
-//            for (ProgramFile programFile : suite.getProgramFiles()) {
-//                AnnotationProcessor.injectMocks(mockFunctionsMap, programFile);
-//            }
+
+            if (suite.getInitFunction() != null) {
+                suite.getInitFunction().invoke();
+            }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;
@@ -272,6 +271,7 @@ public class BTestRunner {
                     }
                 });
             });
+            TestAnnotationProcessor.resetMocks(suite);
         });
     }
 

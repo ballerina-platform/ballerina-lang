@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class TestSuite {
     private String suiteName;
     private TesterinaFunction initFunction;
     private List<Test> tests = new ArrayList<>();
-    private List<ProgramFile> programFiles = new ArrayList<>();
+    private ProgramFile programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
 
@@ -78,6 +79,26 @@ public class TestSuite {
     private List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
     private List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
 
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - name of the mock function
+     */
+    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - a @{@link TesterinaFunction} mock function.
+     */
+    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
+
+    /**
+     * Key - unique identifier for the function to be mocked.
+     * Value - real function.
+     */
+    private Map<String, FunctionInfo> mockedRealFunctionsMap = new HashMap<>();
+
+    public Map<String, FunctionInfo> getMockedRealFunctionsMap() {
+        return mockedRealFunctionsMap;
+    }
     public Map<String, String> getMockFunctionNamesMap() {
         return mockFunctionNamesMap;
     }
@@ -94,23 +115,12 @@ public class TestSuite {
         this.mockFunctionsMap = mockFunctionsMap;
     }
 
-    /**
-     * Key - unique identifier for the function to be mocked.
-     * Value - name of the mock function
-     */
-    private Map<String, String> mockFunctionNamesMap = new HashMap<>();
-    /**
-     * Key - unique identifier for the function to be mocked.
-     * Value - a @{@link TesterinaFunction} mock function.
-     */
-    private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
-
     public TestSuite(String suiteName) {
         this.suiteName = suiteName;
     }
 
-    public List<ProgramFile> getProgramFiles() {
-        return programFiles;
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 
     public TesterinaFunction getInitFunction() {
@@ -196,6 +206,10 @@ public class TestSuite {
         this.mockFunctionNamesMap.put(id, function);
     }
 
+    public void addMockedRealFunction(String id, FunctionInfo function) {
+        this.mockedRealFunctionsMap.put(id, function);
+    }
+
     public void addMockFunctionObj(String id, TesterinaFunction function) {
         this.mockFunctionsMap.put(id, function);
     }
@@ -224,8 +238,8 @@ public class TestSuite {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void addProgramFile(ProgramFile programFile) {
-        this.programFiles.add(programFile);
+    public void setProgramFile(ProgramFile programFile) {
+        this.programFile = programFile;
     }
 
 }

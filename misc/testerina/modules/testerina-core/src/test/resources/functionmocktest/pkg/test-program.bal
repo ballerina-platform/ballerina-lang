@@ -8,13 +8,13 @@ import ballerina.io;
     functionName : "intAdd"
 }
 public function mockIntAdd (int a, int b) (int c) {
-    io:println("I'm the mockIntAdd!");
-    return a+b;
+    return a-b;
 }
 
 @test:config{}
 function testAssertIntEquals () {
     int answer = 0;
     answer = intAdd(5, 3);
-    test:assertEquals(answer, 8, "intAdd function failed");
+    io:println("Function mocking test");
+    test:assertEquals(answer, 2, "function mocking failed");
 }
