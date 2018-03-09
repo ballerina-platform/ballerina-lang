@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class NetworkUtils {
     private static PrintStream outStream = System.err;
+    private static boolean packageInit = false;
 
     /**
      * Invoke function.
@@ -71,6 +72,19 @@ public class NetworkUtils {
     }
 
     /**
+     * Invoke package init.
+     * @param programFile program file
+     * @param packageInfo package info object
+     * @param bContext context object
+     */
+    private static void initPackage(ProgramFile programFile, PackageInfo packageInfo, Context bContext) {
+        if (!packageInit) {
+            BLangFunctions.invokePackageInitFunction(programFile, packageInfo.getInitFunctionInfo(), bContext);
+            packageInit = true;
+        }
+    }
+
+    /**
      * Run function from the bal file.
      *
      * @param programFile bal program file
@@ -78,16 +92,13 @@ public class NetworkUtils {
      * @param args        arguments passed to the method
      */
     private static void runFunction(ProgramFile programFile, String methodName, String[] args) {
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
-        // Non blocking is not supported in the main program flow..
+        PackageInfo pkgInfo = programFile.getEntryPackage();
         Context bContext = new Context(programFile);
 
         Debugger debugger = new Debugger(programFile);
         initDebugger(bContext, debugger);
-
-        // Invoke package init function
-        FunctionInfo mainFuncInfo = getFunctionInfo(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        FunctionInfo mainFuncInfo = getFunctionInfo(pkgInfo, methodName);
+        initPackage(programFile, pkgInfo, bContext);
 
         // Prepare function arguments
         BStringArray arrayArgs = new BStringArray();
@@ -98,7 +109,7 @@ public class NetworkUtils {
         WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
 
         // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
+        StackFrame callerSF = new StackFrame(pkgInfo, -1, new int[0]);
         callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = arrayArgs;
 
@@ -140,14 +151,15 @@ public class NetworkUtils {
     /**
      * Get function info.
      *
-     * @param pkgInfo package in which the function exists
+     * @param pkgInfo    package in which the function exists
+     * @param methodName name of the method to be invoked
      * @return functionInfo object
      */
-    private static FunctionInfo getFunctionInfo(PackageInfo pkgInfo) {
+    private static FunctionInfo getFunctionInfo(PackageInfo pkgInfo, String methodName) {
         String errorMsg = "function not found in  '" +
                 pkgInfo.getProgramFile().getProgramFilePath() + "'";
 
-        FunctionInfo mainFuncInfo = pkgInfo.getFunctionInfo("pull");
+        FunctionInfo mainFuncInfo = pkgInfo.getFunctionInfo(methodName);
         if (mainFuncInfo == null) {
             throw new BallerinaException(errorMsg);
         }
