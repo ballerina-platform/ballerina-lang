@@ -1161,14 +1161,14 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         }
         if (invocationExpr.expr != null) {
             // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result will
-            // also be tainted, unless it was explicitly marked untainted using @untainted with returns.
+            // also be tainted.
+            //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
             invocationExpr.expr.accept(this);
             for (int i = 0; i < returnTaintedStatus.size(); i++) {
                 if (getObservedTaintedStatus()) {
                     returnTaintedStatus.set(i, getObservedTaintedStatus());
                 }
             }
-            //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
         }
         taintedStatusList = returnTaintedStatus;
     }
