@@ -134,7 +134,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -338,15 +337,7 @@ public class BLangPackageBuilder {
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
         constraintType.addWS(nameReference.ws);
-
-        BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
-        endpointTypeNode.pos = pos;
-        endpointTypeNode.endpointType = constraintType;
-        endpointVarWs = removeNthFromStart(ws, 3);
-        endpointKeywordWs = removeNthFromStart(ws, 0);
-        endpointTypeNode.addWS(ws);
-
-        addType(endpointTypeNode);
+        addType(constraintType);
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
@@ -497,7 +488,7 @@ public class BLangPackageBuilder {
         attachAnnotations(endpointNode);
         endpointNode.pos = pos;
         endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
-        endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();
+        endpointNode.endpointTypeNode = (BLangUserDefinedType) typeNodeStack.pop();
         if (initExprExist) {
             endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
         }

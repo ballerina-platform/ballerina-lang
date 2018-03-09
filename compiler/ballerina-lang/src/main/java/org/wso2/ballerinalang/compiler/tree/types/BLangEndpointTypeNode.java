@@ -18,19 +18,15 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.types.EndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.95
+ *
  */
-public class BLangEndpointTypeNode extends BLangUserDefinedType implements EndpointTypeNode {
+@Deprecated
+public class BLangEndpointTypeNode extends BLangUserDefinedType {
     public BLangUserDefinedType endpointType;
-
-    @Override
-    public BLangUserDefinedType getEndpointStructType() {
-        return endpointType;
-    }
 
     @Override
     public NodeKind getKind() {
