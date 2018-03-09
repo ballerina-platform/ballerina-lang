@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.util;
 
-import com.ctc.wstx.api.WstxInputProperties;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
@@ -33,8 +32,7 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
-import org.apache.axiom.om.util.StAXParserConfiguration;
-import org.apache.axiom.util.stax.dialect.StAXDialect;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BJSON;
@@ -46,9 +44,7 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -56,8 +52,6 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLResolver;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -95,7 +89,7 @@ public class XMLUtils {
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
             // This is to overcome the issue of axiom not allowing to parse xml-comments,
             // xml-text nodes, and pi nodes, without having an enclosing xml-element node.
-            OMElement omElement = XMLUtils.stringToOM("<root>" + xmlStr + "</root>");
+            OMElement omElement = AXIOMUtil.stringToOM("<root>" + xmlStr + "</root>");
             Iterator<OMNode> children = omElement.getChildren();
             OMNode omNode = null;
             if (children.hasNext()) {
@@ -607,50 +601,4 @@ public class XMLUtils {
         }
         return qname;
     }
-
-    /**
-     * Create an OMElement from an XML fragment given as a string, while ignore any references to external entities.
-     * This prevents XML external entity injection attacks.
-     *
-     * @param xmlFragment the well-formed XML fragment
-     * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException
-     */
-    public static OMElement stringToOM(String xmlFragment) throws XMLStreamException {
-        OMFactory omFactory = OMAbstractFactory.getOMFactory();
-        return xmlFragment != null ? OMXMLBuilderFactory.createOMBuilder(omFactory, STANDALONE,
-                new StringReader(xmlFragment)).getDocumentElement() : null;
-    }
-
-    /**
-     * Configuration that forces the parser to process the XML document as
-     * standalone. In this configuration, the parser will ignore any references
-     * to external entities, in particular DTDs. This is especially useful to
-     * process documents referencing DTDs with system IDs that are network
-     * locations, because parsing these documents would otherwise fail on nodes
-     * detached from the network. This configuration should be used with care
-     * because the resulting representation of the document may be incomplete.
-     * E.g. default attribute values defined in the DTD will not be reported.
-     */
-    private static final StAXParserConfiguration STANDALONE = new StAXParserConfiguration() {
-        public XMLInputFactory configure(XMLInputFactory factory, StAXDialect dialect) {
-            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-            factory.setProperty(WstxInputProperties.P_MAX_ELEMENT_COUNT, 1000);
-            // Some StAX parser such as Woodstox still try to load the external DTD subset,
-            // even if IS_SUPPORTING_EXTERNAL_ENTITIES is set to false. To work around this,
-            // we add a custom XMLResolver that returns empty documents. See WSTX-117 for
-            // an interesting discussion about this.
-            factory.setXMLResolver(new XMLResolver() {
-                public Object resolveEntity(String publicID, String systemID, String baseURI,
-                                            String namespace) throws XMLStreamException {
-                    return new ByteArrayInputStream(new byte[0]);
-                }
-            });
-            return factory;
-        }
-
-        public String toString() {
-            return "STANDALONE";
-        }
-    };
 }
