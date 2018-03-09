@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSing
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Store
+ * Store.
  */
 public class Store extends BasicSingleInputStream implements InputStore {
 

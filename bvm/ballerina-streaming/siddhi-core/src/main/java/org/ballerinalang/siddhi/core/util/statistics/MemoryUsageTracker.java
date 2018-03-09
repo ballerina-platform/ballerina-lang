@@ -19,12 +19,12 @@
 package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
- * Estimate the memory usage of set of object
+ * Estimate the memory usage of set of object.
  */
 public interface MemoryUsageTracker {
 
     /**
-     * Register the object that needs to be measured the memory usage
+     * Register the object that needs to be measured the memory usage.
      *
      * @param object Object
      * @param name   An unique value to identify the object.
@@ -32,6 +32,7 @@ public interface MemoryUsageTracker {
     void registerObject(Object object, String name);
 
     /**
+     * Return the name.
      * @param object Object
      * @return Name of the mem tracker
      */

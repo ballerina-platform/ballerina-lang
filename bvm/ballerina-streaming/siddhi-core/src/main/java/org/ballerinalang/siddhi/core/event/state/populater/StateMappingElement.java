@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.core.event.state.populater;
 
 /**
- * Element to hold information about StateEvent population
+ * Element to hold information about StateEvent population.
  */
 public class StateMappingElement {
     private int[] fromPosition;    //position in StateEvent StreamEvent/EventIndex/(Before,OnAfter,Output)/data[]

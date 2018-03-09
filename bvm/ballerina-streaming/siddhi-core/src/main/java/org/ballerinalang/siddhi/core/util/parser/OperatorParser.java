@@ -51,7 +51,7 @@ import static org.ballerinalang.siddhi.core.util.collection.expression.Collectio
 import static org.ballerinalang.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PRIMARY_KEY_RESULT_SET;
 
 /**
- * Class to parse {@link Operator}
+ * Class to parse {@link Operator}.
  */
 public class OperatorParser {
 

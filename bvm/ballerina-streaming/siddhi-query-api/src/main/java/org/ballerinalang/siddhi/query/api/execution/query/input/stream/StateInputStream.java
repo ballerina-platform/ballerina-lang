@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Input stream that handle states in query
+ * Input stream that handle states in query.
  */
 public class StateInputStream extends InputStream {
 
@@ -138,7 +138,7 @@ public class StateInputStream extends InputStream {
     }
 
     /**
-     * Different state management types
+     * Different state management types.
      */
     public enum Type {
         PATTERN,

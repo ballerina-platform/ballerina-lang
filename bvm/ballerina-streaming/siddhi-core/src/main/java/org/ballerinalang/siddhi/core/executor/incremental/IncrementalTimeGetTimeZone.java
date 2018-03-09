@@ -40,6 +40,21 @@ public class IncrementalTimeGetTimeZone extends FunctionExecutor {
     private static Pattern gmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}");
 
+    public static String getTimeZone(String stringTimeStamp) {
+        stringTimeStamp = stringTimeStamp.trim();
+        // stringTimeStamp must be of format "2017-06-01 04:05:50 +05:00 (not GMT) or 2017-06-01 04:05:50 (if in GMT)"
+        if (gmtRegexPattern.matcher(stringTimeStamp).matches()) {
+            return "+00:00";
+        } else if (nonGmtRegexPattern.matcher(stringTimeStamp).matches()) {
+            String[] dateTimeZone = stringTimeStamp.split(" ");
+            return dateTimeZone[2];
+        }
+        throw new SiddhiAppRuntimeException("Timestamp " + stringTimeStamp + "doesn't match "
+                + "the supported formats <yyyy>-<MM>-<dd> <HH>:<mm>:<ss> (for GMT time zone) or " +
+                "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <Z> (for non GMT time zone). The ISO 8601 UTC offset must be "
+                + "provided for <Z> (ex. +05:30, -11:00");
+    }
+
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
@@ -50,7 +65,7 @@ public class IncrementalTimeGetTimeZone extends FunctionExecutor {
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0].getReturnType() != Attribute.Type.STRING) {
                 throw new SiddhiAppValidationException("Time zone can be retrieved, only from " +
-                        "string values, but found " +  attributeExpressionExecutors[0].getReturnType());
+                        "string values, but found " + attributeExpressionExecutors[0].getReturnType());
             }
         }
     }
@@ -82,20 +97,5 @@ public class IncrementalTimeGetTimeZone extends FunctionExecutor {
     @Override
     public void restoreState(Map<String, Object> state) {
         //Nothing to be done
-    }
-
-    public static String getTimeZone(String stringTimeStamp) {
-        stringTimeStamp = stringTimeStamp.trim();
-        // stringTimeStamp must be of format "2017-06-01 04:05:50 +05:00 (not GMT) or 2017-06-01 04:05:50 (if in GMT)"
-        if (gmtRegexPattern.matcher(stringTimeStamp).matches()) {
-            return "+00:00";
-        } else if (nonGmtRegexPattern.matcher(stringTimeStamp).matches()) {
-            String[] dateTimeZone = stringTimeStamp.split(" ");
-            return dateTimeZone[2];
-        }
-        throw new SiddhiAppRuntimeException("Timestamp " + stringTimeStamp + "doesn't match "
-                + "the supported formats <yyyy>-<MM>-<dd> <HH>:<mm>:<ss> (for GMT time zone) or " +
-                "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <Z> (for non GMT time zone). The ISO 8601 UTC offset must be "
-                + "provided for <Z> (ex. +05:30, -11:00");
     }
 }

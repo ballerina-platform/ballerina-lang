@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Extension config readers
+ * Extension config readers.
  */
 public class InMemoryConfigReader implements ConfigReader {
     private final String keyPrefix;

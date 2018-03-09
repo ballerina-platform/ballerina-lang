@@ -18,9 +18,6 @@
 package org.ballerinalang.siddhi.core.query.partition;
 
 import org.apache.log4j.Logger;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -29,6 +26,9 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
 import org.ballerinalang.siddhi.core.util.SiddhiTestHelper;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

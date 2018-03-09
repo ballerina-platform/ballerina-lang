@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.core.event.state.StateEvent;
 import java.util.List;
 
 /**
- * The populater class that populates StateEvents
+ * The populater class that populates StateEvents.
  */
 public class SelectiveStateEventPopulator implements StateEventPopulator {
 

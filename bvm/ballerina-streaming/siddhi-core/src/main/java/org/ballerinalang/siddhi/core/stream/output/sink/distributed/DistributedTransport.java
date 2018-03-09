@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.stream.output.sink.distributed;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.stream.output.sink.Sink;
@@ -32,6 +30,8 @@ import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 import org.ballerinalang.siddhi.query.api.annotation.Element;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -126,7 +126,7 @@ public abstract class DistributedTransport extends Sink {
 
 
     /**
-     * Supported dynamic options by the transport
+     * Supported dynamic options by the transport.
      *
      * @return the list of supported dynamic option keys
      */

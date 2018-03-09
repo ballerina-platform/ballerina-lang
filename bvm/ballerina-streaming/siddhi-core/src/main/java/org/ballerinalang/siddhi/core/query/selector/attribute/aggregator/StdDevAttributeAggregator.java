@@ -151,7 +151,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     /**
-     * Standard deviation abstrct aggregator for Double values
+     * Standard deviation abstrct aggregator for Double values.
      */
     private abstract class StdDevAbstractAttributeAggregatorDouble extends StdDevAttributeAggregator {
         private final Attribute.Type type = Attribute.Type.DOUBLE;
@@ -242,7 +242,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     /**
-     * Standard deviation aggregator for Double values
+     * Standard deviation aggregator for Double values.
      */
     private class StdDevAttributeAggregatorDouble extends StdDevAbstractAttributeAggregatorDouble {
         @Override
@@ -257,7 +257,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     /**
-     * Standard deviation aggregator for Float values
+     * Standard deviation aggregator for Float values.
      */
     private class StdDevAttributeAggregatorFloat extends StdDevAbstractAttributeAggregatorDouble {
         @Override
@@ -272,7 +272,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     /**
-     * Standard deviation aggregator for Integer values
+     * Standard deviation aggregator for Integer values.
      */
     private class StdDevAttributeAggregatorInt extends StdDevAbstractAttributeAggregatorDouble {
         @Override
@@ -287,7 +287,7 @@ public class StdDevAttributeAggregator extends AttributeAggregator {
     }
 
     /**
-     * Standard deviation aggregator for Long values
+     * Standard deviation aggregator for Long values.
      */
     private class StdDevAttributeAggregatorLong extends StdDevAbstractAttributeAggregatorDouble {
         @Override

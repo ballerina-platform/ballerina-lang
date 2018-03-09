@@ -118,7 +118,8 @@ public class QueryParser {
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
             if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
-                    if (streamHandler instanceof org.ballerinalang.siddhi.query.api.execution.query.input.handler.Window) {
+                    if (streamHandler instanceof
+                            org.ballerinalang.siddhi.query.api.execution.query.input.handler.Window) {
                         isWindow = true;
                         break;
                     }

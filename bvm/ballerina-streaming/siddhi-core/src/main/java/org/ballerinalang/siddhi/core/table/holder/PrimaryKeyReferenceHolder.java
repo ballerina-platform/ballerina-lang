@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.table.holder;
 import java.io.Serializable;
 
 /**
- * PrimaryKeyReferenceHolder for indexed Event Table
+ * PrimaryKeyReferenceHolder for indexed Event Table.
  */
 public class PrimaryKeyReferenceHolder implements Serializable {
     private static final long serialVersionUID = 3147984326180029463L;

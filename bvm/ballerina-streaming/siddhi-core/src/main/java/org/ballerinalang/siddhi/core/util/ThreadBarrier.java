@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.util;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Thread Barrier used to avoid concurrency issues during event processing
+ * Thread Barrier used to avoid concurrency issues during event processing.
  */
 public class ThreadBarrier {
 

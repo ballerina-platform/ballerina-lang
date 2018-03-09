@@ -24,7 +24,8 @@ import java.util.List;
 
 /**
  * InputProcessor act as the adaptor between {@link InputHandler} and
- * {@link org.ballerinalang.siddhi.core.stream.StreamJunction}. Input Handler will send incoming events into the processor.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction}.
+ * Input Handler will send incoming events into the processor.
  */
 public interface InputProcessor {
 

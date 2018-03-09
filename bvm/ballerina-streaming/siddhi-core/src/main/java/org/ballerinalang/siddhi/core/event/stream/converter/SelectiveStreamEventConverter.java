@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * The converter class that converts the events into StreamEvent
+ * The converter class that converts the events into StreamEvent.
  */
 public class SelectiveStreamEventConverter implements StreamEventConverter, Serializable {
 

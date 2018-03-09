@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * The converter class that only converts the OutputData of the events to StreamEvent
+ * The converter class that only converts the OutputData of the events to StreamEvent.
  */
 public class SimpleStreamEventConverter implements StreamEventConverter, Serializable {
     private static final long serialVersionUID = 8941977469225523543L;

@@ -48,7 +48,7 @@ public abstract class RecordTableHandler {
     }
 
     /**
-     * Initialize the Record Table Handler
+     * Initialize the Record Table Handler.
      *
      * @param elementId       is the generated id for the record table handler
      * @param tableDefinition is the definition of the table with annotations if any
@@ -60,11 +60,12 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Add record.
+     *
      * @param timestamp                  the timestamp of the last event in the event chunk
      * @param records                    records that need to be added to the table, each Object[] represent a
      *                                   record and it will match the attributes of the Table Definition.
      * @param recordTableHandlerCallback call back to do operations on the record table
-     *
      * @throws ConnectionUnavailableException
      */
     public abstract void add(long timestamp, List<Object[]> records,
@@ -77,12 +78,13 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Delete record.
+     *
      * @param timestamp                    the timestamp of the last event in the event chunk
      * @param deleteConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition
      * @param compiledCondition            the compiledCondition against which records should be matched for deletion
      * @param recordTableHandlerCallback   call back to do operations on the record table
-     *
      * @throws ConnectionUnavailableException
      */
     public abstract void delete(long timestamp, List<Map<String, Object>> deleteConditionParameterMaps,
@@ -99,6 +101,8 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Update record.
+     *
      * @param timestamp                    the timestamp of the last event in the event chunk
      * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
@@ -106,7 +110,6 @@ public abstract class RecordTableHandler {
      * @param updateSetExpressions         the set of updates mappings and related complied expressions
      * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
      * @param recordTableHandlerCallback   call back to do operations on the record table
-     *
      * @throws ConnectionUnavailableException
      */
     public abstract void update(long timestamp, CompiledCondition updateCondition,
@@ -126,6 +129,8 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Update or add record.
+     *
      * @param timestamp                    the timestamp of the last event in the event chunk
      * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
@@ -135,7 +140,6 @@ public abstract class RecordTableHandler {
      *                                     update set
      * @param addingRecords                the values for adding new records if the update condition did not match
      * @param recordTableHandlerCallback   call back to do operations on the record table
-     *
      * @throws ConnectionUnavailableException
      */
     public abstract void updateOrAdd(long timestamp, CompiledCondition updateCondition,
@@ -152,14 +156,15 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Find record.
+     *
      * @param timestamp                  the timestamp of the event used to match from record table
      * @param findConditionParameterMap  map of matching StreamVariable Ids and their values
      *                                   corresponding to the compiled condition
      * @param compiledCondition          the compiledCondition against which records should be matched
      * @param recordTableHandlerCallback call back to do operations on the record table
-     *
-     * @throws ConnectionUnavailableException
      * @return RecordIterator of matching records
+     * @throws ConnectionUnavailableException
      */
     public abstract Iterator<Object[]> find(long timestamp, Map<String, Object> findConditionParameterMap,
                                             CompiledCondition compiledCondition,
@@ -172,15 +177,15 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Check record existence.
+     *
      * @param timestamp                     the timestamp of the event used to match from record table
      * @param containsConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the
      *                                      compiled condition
      * @param compiledCondition             the compiledCondition against which records should be matched
      * @param recordTableHandlerCallback    call back to do operations on the record table
-     *
-     * @throws ConnectionUnavailableException
-     *
      * @return if matching record found or not
+     * @throws ConnectionUnavailableException
      */
     public abstract boolean contains(long timestamp, Map<String, Object> containsConditionParameterMap,
                                      CompiledCondition compiledCondition,
@@ -195,15 +200,16 @@ public abstract class RecordTableHandler {
     }
 
     /**
+     * Query record.
+     *
      * @param timestamp                  the timestamp of the event used to match from record table
      * @param parameterMap               map of matching StreamVariable Ids and their values
      *                                   corresponding to the compiled condition and selection
      * @param compiledCondition          the compiledCondition against which records should be matched
      * @param compiledSelection          the compiledSelection which maps the events based on selection
      * @param recordTableHandlerCallback call back to do operations on the record table
-     *
-     * @throws ConnectionUnavailableException
      * @return RecordIterator of matching records
+     * @throws ConnectionUnavailableException
      */
     public abstract Iterator<Object[]> query(long timestamp, Map<String, Object> parameterMap,
                                              CompiledCondition compiledCondition,

@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.expression.Variable;
 import java.util.List;
 
 /**
- * Basic Selector API
+ * Basic Selector API.
  */
 public class BasicSelector extends Selector {
 

@@ -20,11 +20,11 @@
 
 package org.ballerinalang.siddhi.annotation.classindex.processor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.classindex.ClassIndex;
 import org.ballerinalang.siddhi.annotation.classindex.IndexAnnotated;
 import org.ballerinalang.siddhi.annotation.classindex.IndexSubclasses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,21 +66,19 @@ import javax.tools.StandardLocation;
  * Generates index files for {@link ClassIndex}.
  */
 public class ClassIndexProcessor extends AbstractProcessor {
+    private static final Logger log = LoggerFactory.getLogger(ClassIndexProcessor.class);
     private Map<String, Set<String>> subclassMap = new HashMap<>();
     private Map<String, Set<String>> annotatedMap = new HashMap<>();
     private Map<String, Set<String>> packageMap = new HashMap<>();
-
     private boolean annotationDriven = true;
     private Set<String> indexedAnnotations = new HashSet<>();
     private Set<String> indexedSuperclasses = new HashSet<>();
     private Set<String> indexedPackages = new HashSet<>();
     private Set<TypeElement> javadocAlreadyStored = new HashSet<>();
-
     private Types types;
     private Filer filer;
     private Elements elementUtils;
     private Messager messager;
-    private static final Logger log = LoggerFactory.getLogger(ClassIndexProcessor.class);
 
     public ClassIndexProcessor() {
     }
@@ -98,6 +96,16 @@ public class ClassIndexProcessor extends AbstractProcessor {
         annotationDriven = false;
         for (Class<?> klass : classes) {
             indexedAnnotations.add(klass.getCanonicalName());
+        }
+    }
+
+    private static void readOldIndexFile(Set<String> entries, Reader reader) throws IOException {
+        try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+            String line = bufferedReader.readLine();
+            while (line != null) {
+                entries.add(line);
+                line = bufferedReader.readLine();
+            }
         }
     }
 
@@ -236,16 +244,6 @@ public class ClassIndexProcessor extends AbstractProcessor {
             }
         }
         return null;
-    }
-
-    private static void readOldIndexFile(Set<String> entries, Reader reader) throws IOException {
-        try (BufferedReader bufferedReader = new BufferedReader(reader)) {
-            String line = bufferedReader.readLine();
-            while (line != null) {
-                entries.add(line);
-                line = bufferedReader.readLine();
-            }
-        }
     }
 
     private void writeIndexFile(Set<String> entries, String resourceName, FileObject overrideFile) throws IOException {

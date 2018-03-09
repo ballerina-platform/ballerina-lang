@@ -144,7 +144,7 @@ public class MetaStreamEvent implements MetaComplexEvent {
     }
 
     /**
-     * Type of Meta Events
+     * Type of Meta Events.
      */
     public enum EventType {
         TABLE, WINDOW, AGGREGATE, DEFAULT

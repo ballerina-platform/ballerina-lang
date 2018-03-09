@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.input.state;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Logical state element used in pattern to handle logical operations
+ * Logical state element used in pattern to handle logical operations.
  */
 public class LogicalStateElement implements StateElement {
 
@@ -117,14 +117,6 @@ public class LogicalStateElement implements StateElement {
         return result;
     }
 
-    /**
-     * Different type of logical condition
-     */
-    public enum Type {
-        AND,
-        OR
-    }
-
     @Override
     public int[] getQueryContextStartIndex() {
         return queryContextStartIndex;
@@ -143,5 +135,13 @@ public class LogicalStateElement implements StateElement {
     @Override
     public void setQueryContextEndIndex(int[] lineAndColumn) {
         queryContextEndIndex = lineAndColumn;
+    }
+
+    /**
+     * Different type of logical condition.
+     */
+    public enum Type {
+        AND,
+        OR
     }
 }

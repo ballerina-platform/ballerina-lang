@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.condition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Not condition {@link Expression}
+ * Not condition {@link Expression}.
  */
 public class Not extends Expression {
 

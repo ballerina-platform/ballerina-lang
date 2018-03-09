@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
- * Each siddhi app will have one StatisticsManager in siddhi app context
+ * Each siddhi app will have one StatisticsManager in siddhi app context.
  */
 public interface StatisticsManager {
 

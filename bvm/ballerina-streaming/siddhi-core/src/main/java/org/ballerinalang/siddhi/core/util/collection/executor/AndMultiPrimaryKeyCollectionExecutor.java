@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Implementation of {@link CollectionExecutor}
+ * Implementation of {@link CollectionExecutor}.
  */
 public class AndMultiPrimaryKeyCollectionExecutor implements CollectionExecutor {
 

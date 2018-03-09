@@ -45,7 +45,7 @@ public class JoinProcessor implements Processor {
     private QuerySelector selector;
 
     public JoinProcessor(boolean leftJoinProcessor, boolean preJoinProcessor, boolean outerJoinProcessor,
-            int matchingStreamIndex) {
+                         int matchingStreamIndex) {
         this.leftJoinProcessor = leftJoinProcessor;
         this.preJoinProcessor = preJoinProcessor;
         this.outerJoinProcessor = outerJoinProcessor;
@@ -185,12 +185,12 @@ public class JoinProcessor implements Processor {
         this.findableProcessor = findableProcessor;
     }
 
-    public void setCompiledCondition(CompiledCondition compiledCondition) {
-        this.compiledCondition = compiledCondition;
-    }
-
     public CompiledCondition getCompiledCondition() {
         return this.compiledCondition;
+    }
+
+    public void setCompiledCondition(CompiledCondition compiledCondition) {
+        this.compiledCondition = compiledCondition;
     }
 
     public void setTrigger(boolean trigger) {
@@ -204,9 +204,9 @@ public class JoinProcessor implements Processor {
     /**
      * Join the given two event streams.
      *
-     * @param leftStream event left stream
+     * @param leftStream  event left stream
      * @param rightStream event right stream
-     * @param type complex event type
+     * @param type        complex event type
      * @return StateEvent state event
      */
     public StateEvent joinEventBuilder(StreamEvent leftStream, StreamEvent rightStream, ComplexEvent.Type type) {

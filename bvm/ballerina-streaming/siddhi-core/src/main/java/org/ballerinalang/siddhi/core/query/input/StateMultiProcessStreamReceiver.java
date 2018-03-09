@@ -27,7 +27,8 @@ import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
 import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
- * Implementation of {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} to receive events to be fed into
+ * Implementation of {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver}
+ * to receive events to be fed into
  * multi stream stateful queries.
  */
 public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver {

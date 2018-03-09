@@ -60,7 +60,7 @@ import java.util.Map;
                                 "select instanceOfBoolean(value) as state\n" +
                                 "insert into barStream;",
                         description = "if the value = 32 then this will returns false as the value is not an" +
-                        " instance of the boolean."
+                                " instance of the boolean."
                 )
         }
 )

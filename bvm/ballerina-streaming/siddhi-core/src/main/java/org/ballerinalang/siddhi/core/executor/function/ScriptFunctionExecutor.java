@@ -18,13 +18,13 @@
 
 package org.ballerinalang.siddhi.core.executor.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 import org.ballerinalang.siddhi.core.function.Script;
 import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -37,7 +37,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     Attribute.Type returnType;
     Script script;
 
-    public ScriptFunctionExecutor() { }
+    public ScriptFunctionExecutor() {
+    }
 
     public ScriptFunctionExecutor(String name) {
         this.functionId = name;

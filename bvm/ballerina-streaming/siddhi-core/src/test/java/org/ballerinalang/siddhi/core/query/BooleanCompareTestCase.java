@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.siddhi.core.query;
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.testng.annotations.Test;
 
 /**
  * Test expression comparisons with Boolean values.

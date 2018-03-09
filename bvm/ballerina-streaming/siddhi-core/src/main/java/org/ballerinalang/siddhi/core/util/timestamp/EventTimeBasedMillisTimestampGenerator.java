@@ -74,7 +74,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Create an EventBasedTimeMillisTimestampGenerator.
      *
-     * @param scheduledExecutorService  the schedule service to be executed for produce heartbeat.
+     * @param scheduledExecutorService the schedule service to be executed for produce heartbeat.
      */
     public EventTimeBasedMillisTimestampGenerator(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
@@ -167,7 +167,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     }
 
     /**
-     * This {@link Runnable} class is executed by the {@link ScheduledExecutorService}
+     * This {@link Runnable} class is executed by the {@link ScheduledExecutorService}.
      */
     private class TimeInjector implements Runnable {
         @Override

@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.collection.operator;
 
 /**
- * Represent a logical expression
+ * Represent a logical expression.
  */
 public interface CompiledCondition extends CompiledExpression {
 

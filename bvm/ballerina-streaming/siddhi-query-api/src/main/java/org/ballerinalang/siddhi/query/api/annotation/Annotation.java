@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Annotation for siddhi functions and extensions
+ * Annotation for siddhi functions and extensions.
  */
 public class Annotation implements SiddhiElement {
 
@@ -123,7 +123,7 @@ public class Annotation implements SiddhiElement {
             }
         }
         if (annotations != null && annotations.size() > 0) {
-         
+
             for (Annotation annotation : annotations) {
                 if (!isFirst) {
                     definitionBuilder.append(", ");

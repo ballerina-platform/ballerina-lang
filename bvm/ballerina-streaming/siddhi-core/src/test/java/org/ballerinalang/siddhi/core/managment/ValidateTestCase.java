@@ -18,12 +18,12 @@
 
 package org.ballerinalang.siddhi.core.managment;
 
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.ballerinalang.siddhi.core.SiddhiManager;
-import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 
 public class ValidateTestCase {
     private static final Logger log = LoggerFactory.getLogger(ValidateTestCase.class);

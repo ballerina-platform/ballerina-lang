@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.util.snapshot;
 import java.util.concurrent.Future;
 
 /**
- * Class which contains the references related to persistence
+ * Class which contains the references related to persistence.
  */
 public class PersistenceReference {
 

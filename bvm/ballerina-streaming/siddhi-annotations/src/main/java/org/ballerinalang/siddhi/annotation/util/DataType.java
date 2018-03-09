@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.annotation.util;
 
 /**
- * Enum types used in @Parameter, @ReturnAttribute
+ * Enum types used in @Parameter, @ReturnAttribute.
  */
 public enum DataType {
     STRING,

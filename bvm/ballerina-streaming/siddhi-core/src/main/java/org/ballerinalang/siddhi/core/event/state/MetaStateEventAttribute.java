@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import java.util.Arrays;
 
 /**
- * Holds the Attribute info for StateEvent data to StreamEvent data
+ * Holds the Attribute info for StateEvent data to StreamEvent data.
  */
 public class MetaStateEventAttribute {
     private Attribute attribute;

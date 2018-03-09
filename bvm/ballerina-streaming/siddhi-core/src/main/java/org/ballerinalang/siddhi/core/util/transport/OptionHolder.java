@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Holder object to contain {@link Option}
+ * Holder object to contain {@link Option}.
  */
 public class OptionHolder {
 

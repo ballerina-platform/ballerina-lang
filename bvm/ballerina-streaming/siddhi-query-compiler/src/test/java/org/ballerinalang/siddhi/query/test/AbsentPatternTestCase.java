@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.query.test;
 
-import org.testng.AssertJUnit;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.execution.query.Query;
 import org.ballerinalang.siddhi.query.api.execution.query.input.state.State;
 import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -29,6 +27,8 @@ import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class AbsentPatternTestCase {
 

@@ -22,7 +22,7 @@ package org.ballerinalang.siddhi.query.api;
 import java.io.Serializable;
 
 /**
- * Siddhi query elements having context
+ * Siddhi query elements having context.
  */
 public interface SiddhiElement extends Serializable {
 

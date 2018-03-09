@@ -28,7 +28,7 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
- * Class to parse {@link MatchingMetaInfoHolder}
+ * Class to parse {@link MatchingMetaInfoHolder}.
  */
 public class MatcherParser {
 

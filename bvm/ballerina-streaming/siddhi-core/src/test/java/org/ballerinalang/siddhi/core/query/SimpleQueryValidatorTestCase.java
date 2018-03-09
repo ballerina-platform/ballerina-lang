@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query;
 
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.config.SiddhiContext;
@@ -26,6 +24,8 @@ import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 import org.ballerinalang.siddhi.core.util.parser.SiddhiAppParser;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class SimpleQueryValidatorTestCase {
     private SiddhiContext siddhiContext;

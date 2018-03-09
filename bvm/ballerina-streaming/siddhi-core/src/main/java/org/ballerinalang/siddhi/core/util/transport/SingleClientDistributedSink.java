@@ -98,7 +98,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called to connect to the backend before events are published
+     * Will be called to connect to the backend before events are published.
      *
      * @throws ConnectionUnavailableException if it cannot connect to the backend
      */
@@ -112,7 +112,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called after all publishing is done, or when ConnectionUnavailableException is thrown
+     * Will be called after all publishing is done, or when ConnectionUnavailableException is thrown.
      */
     @Override
     public void disconnect() {
@@ -120,7 +120,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called at the end to clean all the resources consumed
+     * Will be called at the end to clean all the resources consumed.
      */
     @Override
     public void destroy() {
@@ -129,7 +129,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
 
     /**
      * Used to collect the serializable state of the processing element, that need to be
-     * persisted for the reconstructing the element to the same state on a different point of time
+     * persisted for the reconstructing the element to the same state on a different point of time.
      *
      * @return stateful objects of the processing element as an array
      */
@@ -139,8 +139,8 @@ public class SingleClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Used to restore serialized state of the processing element, for reconstructing
-     * the element to the same state as if was on a previous point of time.
+     * Used to restore serialized state of the processing element, for reconstructing the element to the same state
+     * as if was on a previous point of time.
      *
      * @param state the stateful objects of the element as an array on
      *              the same order provided by currentState().

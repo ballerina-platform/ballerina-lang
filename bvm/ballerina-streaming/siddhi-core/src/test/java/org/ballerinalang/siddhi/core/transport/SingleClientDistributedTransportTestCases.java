@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.siddhi.core.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.config.InMemoryConfigManager;
 import org.ballerinalang.siddhi.core.util.transport.InMemoryBroker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;

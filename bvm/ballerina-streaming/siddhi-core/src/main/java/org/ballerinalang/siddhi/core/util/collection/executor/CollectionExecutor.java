@@ -53,7 +53,7 @@ public interface CollectionExecutor {
     Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
 
     /**
-     * Checks if a matching event exist in indexedEventHolder
+     * Checks if a matching event exist in indexedEventHolder.
      *
      * @param matchingEvent      matching input event
      * @param indexedEventHolder indexed EventHolder containing data
@@ -62,7 +62,7 @@ public interface CollectionExecutor {
     boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder);
 
     /**
-     * Delete matching events exists from indexedEventHolder
+     * Delete matching events exists from indexedEventHolder.
      *
      * @param deletingEvent      matching input event
      * @param indexedEventHolder indexed EventHolder containing data

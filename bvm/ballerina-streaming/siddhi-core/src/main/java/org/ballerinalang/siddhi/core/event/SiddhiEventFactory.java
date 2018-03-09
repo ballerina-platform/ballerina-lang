@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.core.event;
 
 /**
- * Event Factory to create new Events
+ * Event Factory to create new Events.
  */
 public class SiddhiEventFactory implements com.lmax.disruptor.EventFactory<Event> {
 

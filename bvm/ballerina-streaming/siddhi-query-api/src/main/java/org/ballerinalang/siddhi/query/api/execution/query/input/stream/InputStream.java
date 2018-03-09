@@ -26,7 +26,7 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import java.util.List;
 
 /**
- * Input stream in queries
+ * Input stream in queries.
  */
 public abstract class InputStream implements SiddhiElement {
 

@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiContext;
 import org.ballerinalang.siddhi.core.config.StatisticsConfiguration;
 import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
@@ -31,6 +29,8 @@ import org.ballerinalang.siddhi.core.util.parser.SiddhiAppParser;
 import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
 import org.ballerinalang.siddhi.query.api.SiddhiApp;
 import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,7 +185,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method to integrate Carbon Metrics into Siddhi
+     * Method to integrate Carbon Metrics into Siddhi.
      *
      * @param statisticsConfiguration statistics configuration
      */
@@ -194,7 +194,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method used to get all SiddhiAppRuntimes
+     * Method used to get all SiddhiAppRuntimes.
      *
      * @return siddhiAppRuntimeMap
      */
@@ -203,7 +203,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method to shutdown Siddhi Manager
+     * Method to shutdown Siddhi Manager.
      */
     public void shutdown() {
         List<String> siddhiAppNames = new ArrayList<String>(siddhiAppRuntimeMap.keySet());

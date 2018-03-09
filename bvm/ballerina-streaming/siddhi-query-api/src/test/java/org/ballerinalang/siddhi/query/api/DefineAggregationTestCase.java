@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.siddhi.query.api;
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
 import org.ballerinalang.siddhi.query.api.aggregation.Within;
 import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
@@ -29,6 +28,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputSt
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.testng.annotations.Test;
 
 public class DefineAggregationTestCase {
     @Test

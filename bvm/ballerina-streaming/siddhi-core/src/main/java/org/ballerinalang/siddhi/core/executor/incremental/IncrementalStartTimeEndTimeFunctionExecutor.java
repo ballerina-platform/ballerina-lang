@@ -39,6 +39,39 @@ import java.util.regex.Pattern;
  */
 public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecutor {
 
+    private static List<Pattern> getSupportedRegexPatterns(int withinStringLength) {
+        List<Pattern> gmtRegexPatterns = new ArrayList<>();
+        List<Pattern> nonGmtRegexPatterns = new ArrayList<>();
+
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}"));
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*"));
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:]\\*\\*[:]\\*\\*"));
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
+        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
+
+        nonGmtRegexPatterns.add(Pattern
+                .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}\\s[+-][0-9]{2}[:][0-9]{2}"));
+        nonGmtRegexPatterns.add(
+                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
+        nonGmtRegexPatterns.add(
+                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
+        nonGmtRegexPatterns.add(
+                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
+        nonGmtRegexPatterns
+                .add(Pattern.compile("[0-9]{4}-[0-9]{2}-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
+        nonGmtRegexPatterns
+                .add(Pattern.compile("[0-9]{4}-\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
+
+        if (withinStringLength == 19) {
+            return gmtRegexPatterns;
+        } else if (withinStringLength == 26) {
+            return nonGmtRegexPatterns;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
@@ -106,39 +139,6 @@ public class IncrementalStartTimeEndTimeFunctionExecutor extends FunctionExecuto
     @Override
     public void restoreState(Map<String, Object> state) {
         // Nothing to be done
-    }
-
-    private static List<Pattern> getSupportedRegexPatterns(int withinStringLength) {
-        List<Pattern> gmtRegexPatterns = new ArrayList<>();
-        List<Pattern> nonGmtRegexPatterns = new ArrayList<>();
-
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}"));
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*"));
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:]\\*\\*[:]\\*\\*"));
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-[0-9]{2}-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
-        gmtRegexPatterns.add(Pattern.compile("[0-9]{4}-\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*"));
-
-        nonGmtRegexPatterns.add(Pattern
-                .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}\\s[+-][0-9]{2}[:][0-9]{2}"));
-        nonGmtRegexPatterns.add(
-                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
-        nonGmtRegexPatterns.add(
-                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
-        nonGmtRegexPatterns.add(
-                Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
-        nonGmtRegexPatterns
-                .add(Pattern.compile("[0-9]{4}-[0-9]{2}-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
-        nonGmtRegexPatterns
-                .add(Pattern.compile("[0-9]{4}-\\*\\*-\\*\\*\\s\\*\\*[:]\\*\\*[:]\\*\\*\\s[+-][0-9]{2}[:][0-9]{2}"));
-
-        if (withinStringLength == 19) {
-            return gmtRegexPatterns;
-        } else if (withinStringLength == 26) {
-            return nonGmtRegexPatterns;
-        } else {
-            return null;
-        }
     }
 
     private Long[] getStartTimeEndTime(String singleWithinTimeAsString) {

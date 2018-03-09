@@ -22,7 +22,7 @@ import com.lmax.disruptor.EventFactory;
 import java.io.Serializable;
 
 /**
- * Event Factory to create new StreamEvents
+ * Event Factory to create new StreamEvents.
  */
 public class StreamEventFactory implements EventFactory<StreamEvent>, Serializable {
 
@@ -32,7 +32,7 @@ public class StreamEventFactory implements EventFactory<StreamEvent>, Serializab
     private int outputDataSize;
 
     /**
-     * Initialization of the factory with event data sizes
+     * Initialization of the factory with event data sizes.
      *
      * @param beforeWindowDataSize  BeforeWindow size
      * @param onAfterWindowDataSize OnAfterWindow size
@@ -45,7 +45,7 @@ public class StreamEventFactory implements EventFactory<StreamEvent>, Serializab
     }
 
     /**
-     * Constructs new Events
+     * Constructs new Events.
      *
      * @return StreamEvent
      */

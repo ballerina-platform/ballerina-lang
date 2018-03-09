@@ -17,11 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -29,6 +24,11 @@ import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class IfThenElseFunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(IfThenElseFunctionTestCase.class);

@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Class to parse {@link PartitionRuntime}
+ * Class to parse {@link PartitionRuntime}.
  */
 public class PartitionParser {
 
@@ -94,7 +94,7 @@ public class PartitionParser {
     }
 
     /**
-     * Create metaEvent to be used by StreamPartitioner with output attributes
+     * Create metaEvent to be used by StreamPartitioner with output attributes.
      *
      * @param stateEvent metaStateEvent of the queryRuntime
      * @return metaStateEvent

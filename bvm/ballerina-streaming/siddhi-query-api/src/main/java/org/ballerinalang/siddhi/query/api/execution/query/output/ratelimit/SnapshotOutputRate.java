@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.execution.query.output.ratelimit;
 
 /**
- * Rate limiting of query output and producing state snapshot as output
+ * Rate limiting of query output and producing state snapshot as output.
  */
 public class SnapshotOutputRate extends OutputRate {
 

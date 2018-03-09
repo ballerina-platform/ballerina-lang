@@ -48,12 +48,12 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
     }
 
     /**
-     * The init method of the WindowProcessor, this method will be called before other methods
+     * The init method of the WindowProcessor, this method will be called before other methods.
      *
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param configReader                 the config reader of window
      * @param outputExpectsExpiredEvents   is expired event out put or not
-     * @param siddhiAppContext         the context of the siddhi app
+     * @param siddhiAppContext             the context of the siddhi app
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                  boolean outputExpectsExpiredEvents, SiddhiAppContext
@@ -67,7 +67,7 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
     }
 
     /**
-     * The main processing method that will be called upon event arrival
+     * The main processing method that will be called upon event arrival.
      *
      * @param streamEventChunk  the stream event chunk that need to be processed
      * @param nextProcessor     the next processor to which the success events need to be passed

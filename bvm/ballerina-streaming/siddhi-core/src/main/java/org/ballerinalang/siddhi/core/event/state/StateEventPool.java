@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.core.event.state;
 
 /**
- * Event pool containing StreamEvent for reuse
+ * Event pool containing StreamEvent for reuse.
  * This is not a thread safe implementation
  */
 public class StateEventPool {
@@ -41,7 +41,7 @@ public class StateEventPool {
 //    }
 
     /**
-     * Borrowing an StateEvent
+     * Borrowing an StateEvent.
      *
      * @return if StateEvent exist in the pool an existing event if not a new StateEvent will be returned
      */
@@ -61,7 +61,7 @@ public class StateEventPool {
     }
 
     /**
-     * Collects the used InnerStreamEvents
+     * Collects the used InnerStreamEvents.
      * If the pool has space the returned event will be added to the pool else it will be dropped
      *
      * @param stateEvent used event
@@ -84,6 +84,8 @@ public class StateEventPool {
     }
 
     /**
+     * Return buffered size.
+     *
      * @return Occupied buffer size
      */
     public int getBufferedEventsSize() {

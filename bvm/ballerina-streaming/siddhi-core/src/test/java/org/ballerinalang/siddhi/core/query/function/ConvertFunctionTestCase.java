@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -31,6 +26,11 @@ import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class ConvertFunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(ConvertFunctionTestCase.class);
@@ -288,14 +288,14 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
-                                "long, typeB bool, typeN double) ;";
+                "long, typeB bool, typeN double) ;";
         String query = "" +
-                       "@info(name = 'query1') " +
-                       "from typeStream " +
-                       "select convert(typeS,'234') as valueS, convert(typeF,'float') as valueF, convert(typeD," +
-                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
-                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
-                       "insert into outputStream ;";
+                "@info(name = 'query1') " +
+                "from typeStream " +
+                "select convert(typeS,'234') as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                "insert into outputStream ;";
 
         siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
@@ -307,14 +307,14 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
-                                "long, typeB bool, typeN double) ;";
+                "long, typeB bool, typeN double) ;";
         String query = "" +
-                       "@info(name = 'query1') " +
-                       "from typeStream " +
-                       "select convert(typeS,123) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
-                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
-                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
-                       "insert into outputStream ;";
+                "@info(name = 'query1') " +
+                "from typeStream " +
+                "select convert(typeS,123) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                "insert into outputStream ;";
 
         siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
@@ -326,14 +326,14 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream typeStream (typeS object, typeF float, typeD double, typeI int, typeL " +
-                                "long, typeB bool, typeN double) ;";
+                "long, typeB bool, typeN double) ;";
         String query = "" +
-                       "@info(name = 'query1') " +
-                       "from typeStream " +
-                       "select convert(typeS,typeS) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
-                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
-                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
-                       "insert into outputStream ;";
+                "@info(name = 'query1') " +
+                "from typeStream " +
+                "select convert(typeS,typeS) as valueS, convert(typeF,'float') as valueF, convert(typeD," +
+                "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                "insert into outputStream ;";
 
         siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
@@ -345,15 +345,15 @@ public class ConvertFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream typeStream (typeS string, typeF float, typeD double, typeI int, typeL " +
-                                "long, typeB bool, typeN double) ;";
+                "long, typeB bool, typeN double) ;";
         String query = "" +
-                       "@info(name = 'query1') " +
-                       "from typeStream " +
-                       "select convert(typeS,'invalidType') as valueS, convert(typeF,'float') as valueF, convert" +
-                       "(typeD," +
-                       "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
-                       "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
-                       "insert into outputStream ;";
+                "@info(name = 'query1') " +
+                "from typeStream " +
+                "select convert(typeS,'invalidType') as valueS, convert(typeF,'float') as valueF, convert" +
+                "(typeD," +
+                "'double') as valueD , convert(typeI,'int') as valueI , convert(typeL,'long') as valueL , " +
+                "convert(typeB,'bool') as valueB, convert(typeN,'string') as valueN " +
+                "insert into outputStream ;";
 
         siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }

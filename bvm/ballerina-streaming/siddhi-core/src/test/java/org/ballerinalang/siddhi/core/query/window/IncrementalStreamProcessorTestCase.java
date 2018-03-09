@@ -18,9 +18,9 @@
 
 package org.ballerinalang.siddhi.core.query.window;
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.testng.annotations.Test;
 
 public class IncrementalStreamProcessorTestCase {
 

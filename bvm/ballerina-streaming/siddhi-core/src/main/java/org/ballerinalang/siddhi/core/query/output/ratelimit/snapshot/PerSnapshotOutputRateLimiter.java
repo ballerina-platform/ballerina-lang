@@ -97,7 +97,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                                                wrappedSnapshotOutputRateLimiter, siddhiAppContext, queryName);
+                wrappedSnapshotOutputRateLimiter, siddhiAppContext, queryName);
     }
 
     @Override

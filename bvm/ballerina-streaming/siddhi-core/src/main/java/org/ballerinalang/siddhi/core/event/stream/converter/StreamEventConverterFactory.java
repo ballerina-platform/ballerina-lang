@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Factory to construct {@link StreamEventConverter}
+ * Factory to construct {@link StreamEventConverter}.
  */
 public class StreamEventConverterFactory {
 

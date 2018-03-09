@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.aggregation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -34,6 +29,11 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
 import org.ballerinalang.siddhi.core.util.SiddhiTestHelper;
 import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ public class AggregationTestCase {
     private boolean eventArrived;
     private List<Object[]> inEventsList;
     private List<Object[]> removeEventsList;
+
     @BeforeMethod
     public void init() {
         inEventCount = new AtomicInteger(0);
@@ -295,7 +296,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 7, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 7, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }   finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -540,21 +541,22 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "define aggregation stockAggregation " +
-                "from stockStream " +
-                "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as lastTradeValue, " +
-                "count() as count " +
-                "aggregate by timestamp every min, day, year ;" +
+                        "from stockStream " +
+                        "select avg(price) as avgPrice, sum(price) as totalPrice, " +
+                        "(price * quantity) as lastTradeValue, " +
+                        "count() as count " +
+                        "aggregate by timestamp every min, day, year ;" +
 
-                "define stream inputStream (symbol string, value int, startTime string, " +
-                "endTime string, perValue string); " +
+                        "define stream inputStream (symbol string, value int, startTime string, " +
+                        "endTime string, perValue string); " +
 
-                "@info(name = 'query1') " +
-                "from inputStream as i join stockAggregation as s " +
-                "within 1496200000000L, 1596434876000L " +
-                "per \"days\" " +
-                "select AGG_TIMESTAMP, s.avgPrice, totalPrice, lastTradeValue, count " +
-                "order by AGG_TIMESTAMP " +
-                "insert all events into outputStream; ";
+                        "@info(name = 'query1') " +
+                        "from inputStream as i join stockAggregation as s " +
+                        "within 1496200000000L, 1596434876000L " +
+                        "per \"days\" " +
+                        "select AGG_TIMESTAMP, s.avgPrice, totalPrice, lastTradeValue, count " +
+                        "order by AGG_TIMESTAMP " +
+                        "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -656,7 +658,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 8, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 8, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }  finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -672,22 +674,22 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "define aggregation stockAggregation " +
-                "from stockStream " +
-                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
+                        "from stockStream " +
+                        "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                         "(price * quantity) as lastTradeValue " +
-                "group by symbol " +
-                "aggregate by timestamp every sec...year; " +
+                        "group by symbol " +
+                        "aggregate by timestamp every sec...year; " +
 
-                "define stream inputStream (symbol string, value int, startTime string, " +
-                "endTime string, perValue string); " +
+                        "define stream inputStream (symbol string, value int, startTime string, " +
+                        "endTime string, perValue string); " +
 
-                "@info(name = 'query1') " +
-                "from inputStream as i join stockAggregation as s " +
-                "within \"2017-06-** **:**:**\" " +
-                "per \"seconds\" " +
-                "select AGG_TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
-                "order by AGG_TIMESTAMP " +
-                "insert all events into outputStream; ";
+                        "@info(name = 'query1') " +
+                        "from inputStream as i join stockAggregation as s " +
+                        "within \"2017-06-** **:**:**\" " +
+                        "per \"seconds\" " +
+                        "select AGG_TIMESTAMP, s.symbol, lastTradeValue, totalPrice " +
+                        "order by AGG_TIMESTAMP " +
+                        "insert all events into outputStream; ";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -813,11 +815,11 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "define aggregation stockAggregation " +
-                "from stockStream " +
-                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
+                        "from stockStream " +
+                        "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
                         "(price * quantity) as lastTradeValue  " +
-                "group by symbol " +
-                "aggregate every sec...hour ;";
+                        "group by symbol " +
+                        "aggregate every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -880,7 +882,7 @@ public class AggregationTestCase {
                 "define aggregation stockAggregation " +
                 "from stockStream " +
                 "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
-                    "(price * quantity) as lastTradeValue, max(price) as maxPrice, min(price) as minPrice " +
+                "(price * quantity) as lastTradeValue, max(price) as maxPrice, min(price) as minPrice " +
                 "group by symbol " +
                 "aggregate by timestamp every sec...year  ; " +
 
@@ -979,7 +981,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of remove events", 0, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
 
-        }   finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -1010,10 +1012,10 @@ public class AggregationTestCase {
 
         String query =
                 " @info(name = 'query1') " +
-                " define aggregation stockAggregation " +
-                " from stockStream " +
-                " select sum(price) as sumPrice " +
-                " aggregate by arrival every week";
+                        " define aggregation stockAggregation " +
+                        " from stockStream " +
+                        " select sum(price) as sumPrice " +
+                        " aggregate by arrival every week";
 
         siddhiManager.createSiddhiAppRuntime(stockStream + query);
     }
@@ -1347,15 +1349,15 @@ public class AggregationTestCase {
         LOG.info("incrementalStreamProcessorTest19");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String query =  "define stream inputStream (symbol string, value int, startTime string, " +
-                        "endTime string, perValue string); " +
+        String query = "define stream inputStream (symbol string, value int, startTime string, " +
+                "endTime string, perValue string); " +
 
-                        "@info(name = 'query1') " +
-                        "from inputStream as i join stockAggregation as s " +
-                        "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
-                        "per \"months\" " +
-                        "select s.symbol, avgPrice, totalPrice " +
-                        "insert all events into outputStream; ";
+                "@info(name = 'query1') " +
+                "from inputStream as i join stockAggregation as s " +
+                "within \"2017-01-01 00:00:00\", \"2021-01-01 00:00:00\" " +
+                "per \"months\" " +
+                "select s.symbol, avgPrice, totalPrice " +
+                "insert all events into outputStream; ";
 
         siddhiManager.createSiddhiAppRuntime(query);
     }
@@ -1424,21 +1426,21 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "define aggregation stockAggregation " +
-                "from stockStream " +
-                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
-                "as lastTradeValue  " +
-                "group by symbol " +
-                "aggregate by timestamp every sec...hour  ; " +
+                        "from stockStream " +
+                        "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) " +
+                        "as lastTradeValue  " +
+                        "group by symbol " +
+                        "aggregate by timestamp every sec...hour  ; " +
 
-                "define stream inputStream (symbol string, value int, startTime string, endTime string, " +
-                "perValue string); " +
+                        "define stream inputStream (symbol string, value int, startTime string, endTime string, " +
+                        "perValue string); " +
 
-                "@info(name = 'query1') " +
-                "from inputStream as i join stockAggregation as s " +
-                "within \"2017-06-** **:**:**\" " +
-                "per \"days\" " +
-                "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
-                "insert all events into outputStream; ";
+                        "@info(name = 'query1') " +
+                        "from inputStream as i join stockAggregation as s " +
+                        "within \"2017-06-** **:**:**\" " +
+                        "per \"days\" " +
+                        "select s.symbol, avgPrice, totalPrice as sumPrice, lastTradeValue  " +
+                        "insert all events into outputStream; ";
 
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
@@ -1715,7 +1717,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 2, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 2, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }   finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -2448,12 +2450,12 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "@BufferSize('3') " +
-                "define aggregation stockAggregation " +
-                "from stockStream " +
-                "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
-                "(price * quantity) as lastTradeValue  " +
-                "group by symbol " +
-                "aggregate by timestamp every sec...hour ;";
+                        "define aggregation stockAggregation " +
+                        "from stockStream " +
+                        "select symbol, avg(price) as avgPrice, sum(price) as totalPrice, " +
+                        "(price * quantity) as lastTradeValue  " +
+                        "group by symbol " +
+                        "aggregate by timestamp every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(stockStream + query);
 
@@ -2487,7 +2489,7 @@ public class AggregationTestCase {
                         "quantity int, timestamp long);";
         String query =
                 "@BufferSize('3') " +
-                "define aggregation stockAggregation " +
+                        "define aggregation stockAggregation " +
                         "from stockStream " +
                         "select avg(price) as avgPrice, sum(price) as totalPrice, (price * quantity) as " +
                         "lastTradeValue, " +
@@ -2571,7 +2573,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 4, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }  finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -2670,7 +2672,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 4, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 4, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }  finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }
@@ -2771,7 +2773,7 @@ public class AggregationTestCase {
             AssertJUnit.assertEquals("Number of success events", 5, inEventCount.get());
             AssertJUnit.assertEquals("Number of remove events", 5, removeEventCount.get());
             AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        }  finally {
+        } finally {
             siddhiAppRuntime.shutdown();
         }
     }

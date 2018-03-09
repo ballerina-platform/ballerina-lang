@@ -24,8 +24,8 @@ import org.ballerinalang.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
- * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
- * with single stream.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into
+ * pattern queries with single stream.
  */
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 

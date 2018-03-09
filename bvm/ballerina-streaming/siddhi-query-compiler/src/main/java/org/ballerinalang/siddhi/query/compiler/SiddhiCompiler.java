@@ -50,7 +50,7 @@ import org.ballerinalang.siddhi.query.compiler.internal.SiddhiErrorListener;
 import org.ballerinalang.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
 
 /**
- * Siddhi query compiler
+ * Siddhi query compiler.
  */
 public class SiddhiCompiler {
 

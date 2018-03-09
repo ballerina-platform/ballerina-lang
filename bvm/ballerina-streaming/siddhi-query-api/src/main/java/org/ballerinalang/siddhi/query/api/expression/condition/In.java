@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.condition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * In condition {@link Expression} checking events from Table or Window
+ * In condition {@link Expression} checking events from Table or Window.
  */
 public class In extends Expression {
 

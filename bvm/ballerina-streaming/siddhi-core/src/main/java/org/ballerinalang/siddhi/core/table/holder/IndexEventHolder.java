@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.table.holder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
@@ -30,6 +28,8 @@ import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
 import org.ballerinalang.siddhi.core.util.SiddhiConstants;
 import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Collection;

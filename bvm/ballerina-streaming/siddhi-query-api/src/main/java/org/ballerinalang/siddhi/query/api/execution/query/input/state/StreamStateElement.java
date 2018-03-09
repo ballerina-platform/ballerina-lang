@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSing
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * State element containing the event stream
+ * State element containing the event stream.
  */
 public class StreamStateElement implements StateElement {
 

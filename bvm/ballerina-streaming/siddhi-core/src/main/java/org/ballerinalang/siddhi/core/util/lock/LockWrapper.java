@@ -51,7 +51,7 @@ public class LockWrapper {
     }
 
     /**
-     * Return the internal lock of the {@link LockWrapper}
+     * Return the internal lock of the {@link LockWrapper}.
      *
      * @return the actual lock which is used by this instance
      */
@@ -60,7 +60,7 @@ public class LockWrapper {
     }
 
     /**
-     * Set the internal lock to this {@link LockWrapper}
+     * Set the internal lock to this {@link LockWrapper}.
      *
      * @param lock the actual lock to be used
      */

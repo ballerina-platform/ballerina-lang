@@ -17,12 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query.partition;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -42,6 +36,12 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStre
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

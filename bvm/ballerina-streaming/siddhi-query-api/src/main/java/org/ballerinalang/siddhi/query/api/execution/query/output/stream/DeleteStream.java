@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Query output stream deleting entry from table
+ * Query output stream deleting entry from table.
  */
 public class DeleteStream extends OutputStream {
 

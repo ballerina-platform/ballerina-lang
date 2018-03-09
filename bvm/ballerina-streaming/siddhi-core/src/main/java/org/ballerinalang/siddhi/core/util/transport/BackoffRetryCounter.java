@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.transport;
 
 /**
- * Backoff Retry Counter to count when to retry next during reconnection
+ * Backoff Retry Counter to count when to retry next during reconnection.
  */
 public class BackoffRetryCounter {
     private final String[] timeIntervalNames = new String[]{"5 sec", "10 sec", "15 sec", "30 sec", "1 min", "1 min",

@@ -26,8 +26,8 @@ import org.ballerinalang.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
- * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
- * with multiple streams.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events
+ * into pattern queries with multiple streams.
  */
 public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {
 

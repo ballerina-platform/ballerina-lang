@@ -27,7 +27,7 @@ import org.ballerinalang.siddhi.query.api.expression.Variable;
 import java.util.List;
 
 /**
- * Aggregation Definition API
+ * Aggregation Definition API.
  */
 public class AggregationDefinition extends AbstractDefinition {
 

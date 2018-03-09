@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 import org.ballerinalang.siddhi.query.api.util.SiddhiConstants;
 
 /**
- * Query output stream inserting events in to another stream, table, or window
+ * Query output stream inserting events in to another stream, table, or window.
  */
 public class InsertIntoStream extends OutputStream {
 

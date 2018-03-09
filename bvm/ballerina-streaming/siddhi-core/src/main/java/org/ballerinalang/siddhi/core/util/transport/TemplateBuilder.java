@@ -32,7 +32,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Template builder used by {@link org.ballerinalang.siddhi.core.stream.output.sink.SinkMapper} to generate custom payload.
+ * Template builder used by {@link org.ballerinalang.siddhi.core.stream.output.sink.SinkMapper}
+ * to generate custom payload.
  */
 public class TemplateBuilder {
     private static final Pattern DYNAMIC_PATTERN = Pattern.compile("(\\{\\{[^{}]*\\}\\})|[{}]");

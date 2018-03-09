@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 import java.util.Arrays;
 
 /**
- * Event that is used external to Siddhi
+ * Event that is used external to Siddhi.
  */
 public class Event {
 

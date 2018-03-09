@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.exception;
 
 /**
- * Exception thrown when duplicate attributes are defined in a definition
+ * Exception thrown when duplicate attributes are defined in a definition.
  */
 public class DuplicateAnnotationException extends SiddhiAppValidationException {
 

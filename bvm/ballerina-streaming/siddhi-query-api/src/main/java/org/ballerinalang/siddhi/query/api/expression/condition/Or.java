@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.condition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Or condition {@link Expression}
+ * Or condition {@link Expression}.
  */
 public class Or extends Expression {
 

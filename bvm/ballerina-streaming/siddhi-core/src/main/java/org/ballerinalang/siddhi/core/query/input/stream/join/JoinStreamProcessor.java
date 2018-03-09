@@ -31,7 +31,7 @@ public class JoinStreamProcessor implements Processor {
     List<Processor> joinProcessorList = new ArrayList<Processor>();
 
     /**
-     * Process the handed StreamEvent
+     * Process the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be processed
      */
@@ -43,7 +43,7 @@ public class JoinStreamProcessor implements Processor {
     }
 
     /**
-     * Get next processor element in the processor chain. Processed event should be sent to next processor
+     * Get next processor element in the processor chain. Processed event should be sent to next processor.
      *
      * @return Next processor
      */
@@ -53,7 +53,7 @@ public class JoinStreamProcessor implements Processor {
     }
 
     /**
-     * Set next processor element in processor chain
+     * Set next processor element in processor chain.
      *
      * @param processor Processor to be set as next element of processor chain
      */
@@ -63,7 +63,7 @@ public class JoinStreamProcessor implements Processor {
     }
 
     /**
-     * Set as the last element of the processor chain
+     * Set as the last element of the processor chain.
      *
      * @param processor Last processor in the chain
      */
@@ -73,7 +73,7 @@ public class JoinStreamProcessor implements Processor {
     }
 
     /**
-     * Clone a copy of processor
+     * Clone a copy of processor.
      *
      * @param key partition key
      * @return cloned processor

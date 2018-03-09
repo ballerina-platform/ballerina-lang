@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.constant;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Float constant {@link Expression}
+ * Float constant {@link Expression}.
  */
 public class FloatConstant extends Expression implements Constant {
 

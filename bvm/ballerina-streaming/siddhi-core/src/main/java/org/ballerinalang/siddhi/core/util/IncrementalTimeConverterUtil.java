@@ -33,58 +33,58 @@ public class IncrementalTimeConverterUtil {
 
     public static long getNextEmitTime(long currentTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
-        case SECONDS:
-            return currentTime - currentTime % 1000 + 1000;
-        case MINUTES:
-            return currentTime - currentTime % 60000 + 60000;
-        case HOURS:
-            return currentTime - currentTime % 3600000 + 3600000;
-        case DAYS:
-            return currentTime - currentTime % 86400000 + 86400000;
-        case MONTHS:
-            return getNextEmitTimeForMonth(currentTime, timeZone);
-        case YEARS:
-            return getNextEmitTimeForYear(currentTime, timeZone);
-        default:
-            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
+            case SECONDS:
+                return currentTime - currentTime % 1000 + 1000;
+            case MINUTES:
+                return currentTime - currentTime % 60000 + 60000;
+            case HOURS:
+                return currentTime - currentTime % 3600000 + 3600000;
+            case DAYS:
+                return currentTime - currentTime % 86400000 + 86400000;
+            case MONTHS:
+                return getNextEmitTimeForMonth(currentTime, timeZone);
+            case YEARS:
+                return getNextEmitTimeForYear(currentTime, timeZone);
+            default:
+                throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
     public static long getStartTimeOfAggregates(long currentTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
-        case SECONDS:
-            return currentTime - currentTime % getMillisecondsPerDuration(duration);
-        case MINUTES:
-            return currentTime - currentTime % getMillisecondsPerDuration(duration);
-        case HOURS:
-            return currentTime - currentTime % getMillisecondsPerDuration(duration);
-        case DAYS:
-            return currentTime - currentTime % getMillisecondsPerDuration(duration);
-        case MONTHS:
-            return getStartTimeOfAggregatesForMonth(currentTime, timeZone);
-        case YEARS:
-            return getStartTimeOfAggregatesForYear(currentTime, timeZone);
-        default:
-            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
+            case SECONDS:
+                return currentTime - currentTime % getMillisecondsPerDuration(duration);
+            case MINUTES:
+                return currentTime - currentTime % getMillisecondsPerDuration(duration);
+            case HOURS:
+                return currentTime - currentTime % getMillisecondsPerDuration(duration);
+            case DAYS:
+                return currentTime - currentTime % getMillisecondsPerDuration(duration);
+            case MONTHS:
+                return getStartTimeOfAggregatesForMonth(currentTime, timeZone);
+            case YEARS:
+                return getStartTimeOfAggregatesForYear(currentTime, timeZone);
+            default:
+                throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
     public static long getPreviousStartTime(long currentStartTime, TimePeriod.Duration duration, String timeZone) {
         switch (duration) {
-        case SECONDS:
-            return currentStartTime - getMillisecondsPerDuration(duration);
-        case MINUTES:
-            return currentStartTime - getMillisecondsPerDuration(duration);
-        case HOURS:
-            return currentStartTime - getMillisecondsPerDuration(duration);
-        case DAYS:
-            return currentStartTime - getMillisecondsPerDuration(duration);
-        case MONTHS:
-            return getStartTimeOfPreviousMonth(currentStartTime, timeZone);
-        case YEARS:
-            return getStartTimeOfPreviousYear(currentStartTime, timeZone);
-        default:
-            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
+            case SECONDS:
+                return currentStartTime - getMillisecondsPerDuration(duration);
+            case MINUTES:
+                return currentStartTime - getMillisecondsPerDuration(duration);
+            case HOURS:
+                return currentStartTime - getMillisecondsPerDuration(duration);
+            case DAYS:
+                return currentStartTime - getMillisecondsPerDuration(duration);
+            case MONTHS:
+                return getStartTimeOfPreviousMonth(currentStartTime, timeZone);
+            case YEARS:
+                return getStartTimeOfPreviousYear(currentStartTime, timeZone);
+            default:
+                throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
@@ -152,17 +152,17 @@ public class IncrementalTimeConverterUtil {
 
     public static int getMillisecondsPerDuration(TimePeriod.Duration duration) {
         switch (duration) {
-        case SECONDS:
-            return 1000;
-        case MINUTES:
-            return 60000;
-        case HOURS:
-            return 3600000;
-        case DAYS:
-            return 86400000;
-        default:
-            throw new SiddhiAppRuntimeException("Cannot provide number of milliseconds per duration " + duration
-                    + ".Number of milliseconds are only define for SECONDS, MINUTES, HOURS and DAYS");
+            case SECONDS:
+                return 1000;
+            case MINUTES:
+                return 60000;
+            case HOURS:
+                return 3600000;
+            case DAYS:
+                return 86400000;
+            default:
+                throw new SiddhiAppRuntimeException("Cannot provide number of milliseconds per duration " + duration
+                        + ".Number of milliseconds are only define for SECONDS, MINUTES, HOURS and DAYS");
         }
     }
 }

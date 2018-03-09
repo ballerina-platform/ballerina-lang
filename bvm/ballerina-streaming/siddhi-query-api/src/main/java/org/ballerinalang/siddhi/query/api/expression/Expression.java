@@ -39,7 +39,7 @@ import org.ballerinalang.siddhi.query.api.expression.math.Multiply;
 import org.ballerinalang.siddhi.query.api.expression.math.Subtract;
 
 /**
- * Siddhi expression
+ * Siddhi expression.
  */
 public abstract class Expression implements SiddhiElement {
 
@@ -166,7 +166,7 @@ public abstract class Expression implements SiddhiElement {
     }
 
     /**
-     * Time constant factory class
+     * Time constant factory class.
      */
     public abstract static class Time {
 

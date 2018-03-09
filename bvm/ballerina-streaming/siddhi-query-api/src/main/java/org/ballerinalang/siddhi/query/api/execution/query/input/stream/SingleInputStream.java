@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Single input stream using only filters and functions
+ * Single input stream using only filters and functions.
  */
 public class SingleInputStream extends InputStream {
 

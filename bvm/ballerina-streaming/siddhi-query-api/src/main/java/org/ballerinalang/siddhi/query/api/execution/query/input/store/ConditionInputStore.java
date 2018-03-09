@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.input.store;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Condition Input Store
+ * Condition Input Store.
  */
 public class ConditionInputStore implements InputStore {
 

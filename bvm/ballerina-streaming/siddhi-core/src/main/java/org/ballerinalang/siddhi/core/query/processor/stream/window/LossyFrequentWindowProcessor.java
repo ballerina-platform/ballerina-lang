@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.processor.stream.window;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.Example;
 import org.ballerinalang.siddhi.annotation.Extension;
 import org.ballerinalang.siddhi.annotation.Parameter;
@@ -40,6 +38,8 @@ import org.ballerinalang.siddhi.core.util.collection.operator.Operator;
 import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.core.util.parser.OperatorParser;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -248,15 +248,15 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(map.values(), condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
     /**
-     * Inner class to keep the lossy count
+     * Inner class to keep the lossy count.
      */
     public class LossyCount {
         int count;

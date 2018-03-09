@@ -100,8 +100,9 @@ public class SelectorParser {
                     queryName));
         }
         if (!selector.getOrderByList().isEmpty()) {
-            querySelector.setOrderByEventComparator(new OrderByEventComparator(selector.getOrderByList(), metaComplexEvent,
-                    SiddhiConstants.HAVING_STATE, null, variableExpressionExecutors, siddhiAppContext,
+            querySelector.setOrderByEventComparator(new OrderByEventComparator(selector.getOrderByList(),
+                    metaComplexEvent, SiddhiConstants.HAVING_STATE, null, variableExpressionExecutors,
+                    siddhiAppContext,
                     queryName));
         }
         if (selector.getLimit() != null) {
@@ -186,8 +187,9 @@ public class SelectorParser {
                 // value at conversion stage
                 VariableExpressionExecutor executor = ((VariableExpressionExecutor) expressionExecutor);
                 if (metaComplexEvent instanceof MetaStateEvent) {
-                    ((MetaStateEvent) metaComplexEvent).addOutputDataAllowingDuplicate(new MetaStateEventAttribute(executor
-                            .getAttribute(), executor.getPosition()));
+                    ((MetaStateEvent) metaComplexEvent).
+                            addOutputDataAllowingDuplicate(new MetaStateEventAttribute(executor.getAttribute(),
+                                    executor.getPosition()));
                 } else {
                     ((MetaStreamEvent) metaComplexEvent).addOutputDataAllowingDuplicate(executor.getAttribute());
                 }

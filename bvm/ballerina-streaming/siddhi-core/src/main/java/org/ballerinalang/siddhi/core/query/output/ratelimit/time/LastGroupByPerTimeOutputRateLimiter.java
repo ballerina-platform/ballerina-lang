@@ -19,8 +19,6 @@
 package org.ballerinalang.siddhi.core.query.output.ratelimit.time;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.GroupedComplexEvent;
@@ -29,6 +27,8 @@ import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.ballerinalang.siddhi.core.util.Schedulable;
 import org.ballerinalang.siddhi.core.util.Scheduler;
 import org.ballerinalang.siddhi.core.util.parser.SchedulerParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.siddhi.core.managment;
 
+import org.ballerinalang.siddhi.core.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.ballerinalang.siddhi.core.event.Event;
 
 public class EventTestCase {
     private static final Logger log = LoggerFactory.getLogger(EventTestCase.class);

@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.table;
 
 /**
- * Marker interface for {@link CompiledUpdateSet}
+ * Marker interface for {@link CompiledUpdateSet}.
  */
 public interface CompiledUpdateSet {
 }

@@ -73,7 +73,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Class to parse {@link OutputCallback}
+ * Class to parse {@link OutputCallback}.
  */
 public class OutputParser {
 
@@ -154,12 +154,13 @@ public class OutputParser {
                 if (outStream instanceof DeleteStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0,
-                                        table.getTableDefinition(), 0);
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent,
+                                        0, table.getTableDefinition(), 0);
                         CompiledCondition compiledCondition = table.compileCondition((((DeleteStream) outStream).
                                         getOnDeleteExpression()), matchingMetaInfoHolder, siddhiAppContext,
                                 null, tableMap, queryName);
-                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(),
+                                10);
                         return new DeleteTableCallback(table, compiledCondition, matchingMetaInfoHolder.
                                 getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool, streamEventPool,
                                 streamEventConverter, queryName);
@@ -172,8 +173,8 @@ public class OutputParser {
                 } else if (outStream instanceof UpdateStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0,
-                                        table.getTableDefinition(), 0);
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent,
+                                        0, table.getTableDefinition(), 0);
                         CompiledCondition compiledCondition = table.compileCondition((((UpdateStream) outStream).
                                         getOnUpdateExpression()), matchingMetaInfoHolder, siddhiAppContext,
                                 null, tableMap, queryName);
@@ -187,7 +188,8 @@ public class OutputParser {
                         }
                         CompiledUpdateSet compiledUpdateSet = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
-                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(),
+                                10);
                         return new UpdateTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
                                 stateEventPool, streamEventPool, streamEventConverter, queryName);
@@ -217,7 +219,8 @@ public class OutputParser {
                         }
                         CompiledUpdateSet compiledUpdateSet = table.compileUpdateSet(updateSet, matchingMetaInfoHolder,
                                 siddhiAppContext, null, tableMap, queryName);
-                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
+                        StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(),
+                                10);
                         return new UpdateOrInsertTableCallback(table, compiledCondition, compiledUpdateSet,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent,
                                 stateEventPool, streamEventPool, streamEventConverter, queryName);

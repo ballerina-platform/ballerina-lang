@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Selector selecting query output stream attributes
+ * Selector selecting query output stream attributes.
  */
 public class Selector implements SiddhiElement {
 

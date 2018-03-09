@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcess
 import org.ballerinalang.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 
 /**
- * Scheduler which operate based on event's timestamp
+ * Scheduler which operate based on event's timestamp.
  */
 public class EventTimeBasedScheduler extends Scheduler {
 

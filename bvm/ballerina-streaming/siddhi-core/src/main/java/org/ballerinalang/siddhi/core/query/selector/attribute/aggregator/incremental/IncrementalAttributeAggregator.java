@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Abstract class for incremental aggregators
+ * Abstract class for incremental aggregators.
  */
 public abstract class IncrementalAttributeAggregator {
 

@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.annotation;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Annotation element
+ * Annotation element.
  */
 public class Element implements SiddhiElement {
 

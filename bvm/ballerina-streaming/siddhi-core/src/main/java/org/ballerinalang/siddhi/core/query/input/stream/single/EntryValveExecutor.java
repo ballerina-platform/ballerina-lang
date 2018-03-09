@@ -36,7 +36,7 @@ public class EntryValveExecutor implements Executor, Schedulable {
     }
 
     /**
-     * Execute the handed StreamEvent
+     * Execute the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be executed
      */
@@ -47,7 +47,7 @@ public class EntryValveExecutor implements Executor, Schedulable {
     }
 
     /**
-     * Get next executor element in the executor chain. Executed event should be sent to next executor
+     * Get next executor element in the executor chain. Executed event should be sent to next executor.
      *
      * @return Next Executor
      */
@@ -57,7 +57,7 @@ public class EntryValveExecutor implements Executor, Schedulable {
     }
 
     /**
-     * Set next executor element in executor chain
+     * Set next executor element in executor chain.
      *
      * @param executor Executor to be set as next element of executor chain
      */

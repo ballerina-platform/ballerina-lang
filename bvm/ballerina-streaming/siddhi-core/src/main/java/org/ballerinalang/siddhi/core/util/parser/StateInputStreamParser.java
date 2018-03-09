@@ -70,7 +70,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class to parse {@link StateStreamRuntime}
+ * Class to parse {@link StateStreamRuntime}.
  */
 public class StateInputStreamParser {
 

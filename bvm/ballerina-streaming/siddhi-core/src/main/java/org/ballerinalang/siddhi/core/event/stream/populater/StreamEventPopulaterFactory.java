@@ -30,11 +30,11 @@ import static org.ballerinalang.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_IND
 
 /**
  * The StateEventPopulaterFactory that populates StreamEventPopulater according to MetaStreamEvent and to be mapped
- * attributes
+ * attributes.
  */
 public class StreamEventPopulaterFactory {
     /**
-     * Constructs StreamEventPopulater according to MetaStateEvent and to be mapped attributes
+     * Constructs StreamEventPopulater according to MetaStateEvent and to be mapped attributes.
      *
      * @param metaStreamEvent       info for populating the StreamEvent
      * @param streamEventChainIndex StreamEvent chain index

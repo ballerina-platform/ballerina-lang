@@ -62,20 +62,16 @@ public class BaseIncrementalValueStore implements Snapshotable {
         this.values = new Object[expressionExecutors.size() + 1];
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public void setValue(Object value, int position) {
         values[position] = value;
     }
 
-    public void setProcessed(boolean isProcessed) {
-        this.isProcessed = isProcessed;
-    }
-
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public List<ExpressionExecutor> getExpressionExecutors() {
@@ -84,6 +80,10 @@ public class BaseIncrementalValueStore implements Snapshotable {
 
     public boolean isProcessed() {
         return isProcessed;
+    }
+
+    public void setProcessed(boolean isProcessed) {
+        this.isProcessed = isProcessed;
     }
 
     public StreamEvent createStreamEvent() {

@@ -17,11 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -38,6 +33,11 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStre
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class FilterTestCase2 {
     private static final Logger log = LoggerFactory.getLogger(FilterTestCase2.class);
@@ -61,8 +61,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
-                                                                                  Compare.Operator.LESS_THAN,
-                                                                                  Expression.value(60L))));
+                Compare.Operator.LESS_THAN,
+                Expression.value(60L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -102,8 +102,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
-                                                                                  Compare.Operator.LESS_THAN,
-                                                                                  Expression.value(60L))));
+                Compare.Operator.LESS_THAN,
+                Expression.value(60L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -143,8 +143,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
-                                                                                  Compare.Operator.LESS_THAN,
-                                                                                  Expression.value(4L))));
+                Compare.Operator.LESS_THAN,
+                Expression.value(4L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -184,8 +184,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
-                                                                                  Compare.Operator.LESS_THAN,
-                                                                                  Expression.value(40L))));
+                Compare.Operator.LESS_THAN,
+                Expression.value(40L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -626,8 +626,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
-                                                                                  Compare.Operator.GREATER_THAN_EQUAL,
-                                                                                  Expression.value(60L))));
+                Compare.Operator.GREATER_THAN_EQUAL,
+                Expression.value(60L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -667,8 +667,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("price"),
-                                                                                  Compare.Operator.GREATER_THAN_EQUAL,
-                                                                                  Expression.value(60L))));
+                Compare.Operator.GREATER_THAN_EQUAL,
+                Expression.value(60L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -708,8 +708,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("quantity"),
-                                                                                  Compare.Operator.GREATER_THAN_EQUAL,
-                                                                                  Expression.value(4L))));
+                Compare.Operator.GREATER_THAN_EQUAL,
+                Expression.value(4L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));
@@ -749,8 +749,8 @@ public class FilterTestCase2 {
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream").filter(Expression.compare(Expression.variable("volume"),
-                                                                                  Compare.Operator.GREATER_THAN_EQUAL,
-                                                                                  Expression.value(40L))));
+                Compare.Operator.GREATER_THAN_EQUAL,
+                Expression.value(40L))));
         query.annotation(Annotation.annotation("info").element("name", "query1"));
         query.select(Selector.selector().select("symbol", Expression.variable("symbol")).select("price", Expression
                 .variable("price")).select("quantity", Expression.variable("quantity")));

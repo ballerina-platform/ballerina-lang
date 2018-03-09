@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSing
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * States of pattern
+ * States of pattern.
  */
 public class State {
 

@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Implementation of {@link CollectionExecutor} which handles or condition
+ * Implementation of {@link CollectionExecutor} which handles or condition.
  */
 public class OrCollectionExecutor implements CollectionExecutor {
 

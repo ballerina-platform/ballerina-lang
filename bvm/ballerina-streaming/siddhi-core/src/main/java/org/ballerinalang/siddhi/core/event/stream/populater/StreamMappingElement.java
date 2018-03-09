@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.core.event.stream.populater;
 
 /**
- * Element to hold information about StreamEvent population from the given data[]
+ * Element to hold information about StreamEvent population from the given data[].
  */
 public class StreamMappingElement {
     private int fromPosition;   //position in data[]

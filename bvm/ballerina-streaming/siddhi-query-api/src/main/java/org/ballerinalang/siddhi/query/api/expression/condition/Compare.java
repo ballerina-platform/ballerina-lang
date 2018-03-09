@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.condition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Compare condition {@link Expression}
+ * Compare condition {@link Expression}.
  */
 public class Compare extends Expression {
 
@@ -92,7 +92,7 @@ public class Compare extends Expression {
     }
 
     /**
-     * Different types of compare operators
+     * Different types of compare operators.
      */
     public enum Operator {
         LESS_THAN,

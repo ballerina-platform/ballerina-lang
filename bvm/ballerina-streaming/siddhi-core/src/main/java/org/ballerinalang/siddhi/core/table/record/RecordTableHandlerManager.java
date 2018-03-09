@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * RecordTableHandlerManager is a factory implementation that would generate {@link RecordTableHandler}s
+ * RecordTableHandlerManager is a factory implementation that would generate {@link RecordTableHandler}s.
  */
 public abstract class RecordTableHandlerManager {
 

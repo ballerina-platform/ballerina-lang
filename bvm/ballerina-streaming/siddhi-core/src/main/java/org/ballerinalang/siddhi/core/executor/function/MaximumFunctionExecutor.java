@@ -92,7 +92,7 @@ public class MaximumFunctionExecutor extends FunctionExecutor {
     }
 
     /**
-     * return maximum of arbitrary long set of Double values
+     * return maximum of arbitrary long set of Double values.
      *
      * @param data array of Double values
      * @return max

@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.constant;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Double constant {@link Expression}
+ * Double constant {@link Expression}.
  */
 public class DoubleConstant extends Expression implements Constant {
 

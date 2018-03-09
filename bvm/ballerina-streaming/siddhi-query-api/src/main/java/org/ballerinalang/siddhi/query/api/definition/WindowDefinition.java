@@ -29,7 +29,7 @@ public class WindowDefinition extends StreamDefinition {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Internal window which has to be used within the EventWindow
+     * Internal window which has to be used within the EventWindow.
      */
     private Window window;
 

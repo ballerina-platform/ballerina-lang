@@ -96,8 +96,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Siddhi Query visitor implementation converting query to Siddhi Query Objects
+ * Siddhi Query visitor implementation converting query to Siddhi Query Objects.
  */
+
 public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     private Set<String> activeStreams = new HashSet<String>();

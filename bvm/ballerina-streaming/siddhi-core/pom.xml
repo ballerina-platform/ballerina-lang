@@ -16,7 +16,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
@@ -27,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>siddhi-core</artifactId>
-    <name>Siddhi Core</name>
+    <name>Ballerina Streaming - Siddhi Core</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -98,7 +99,8 @@
     </dependencies>
 
     <properties>
-        <mavan.findbugsplugin.exclude.file>../../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
+        <maven.checkstyleplugin.excludes>**/SiddhiDebuggerClient.java</maven.checkstyleplugin.excludes>
+        <mavan.findbugsplugin.exclude.file>../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
 
 </project>

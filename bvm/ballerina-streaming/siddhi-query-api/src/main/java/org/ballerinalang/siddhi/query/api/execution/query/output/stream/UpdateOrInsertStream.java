@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Query output stream try to update table else insert into it
+ * Query output stream try to update table else insert into it.
  */
 public class UpdateOrInsertStream extends OutputStream {
     protected Expression onUpdateExpression;

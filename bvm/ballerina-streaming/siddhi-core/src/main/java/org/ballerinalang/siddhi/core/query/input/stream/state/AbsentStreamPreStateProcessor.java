@@ -231,13 +231,13 @@ public class AbsentStreamPreStateProcessor extends StreamPreStateProcessor imple
     }
 
     @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public Scheduler getScheduler() {
+        return this.scheduler;
     }
 
     @Override
-    public Scheduler getScheduler() {
-        return this.scheduler;
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     @Override

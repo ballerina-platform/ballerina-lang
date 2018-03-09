@@ -24,7 +24,7 @@ import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 import java.io.Serializable;
 
 /**
- * The converter that does no conversion but only copy OutputData of the events into StreamEvents
+ * The converter that does no conversion but only copy OutputData of the events into StreamEvents.
  */
 public class ZeroStreamEventConverter implements StreamEventConverter, Serializable {
 

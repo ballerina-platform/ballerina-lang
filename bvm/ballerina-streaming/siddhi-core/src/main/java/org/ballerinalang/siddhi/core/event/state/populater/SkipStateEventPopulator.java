@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.event.state.populater;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
- * The populater class that skips populates StateEvents
+ * The populater class that skips populates StateEvents.
  */
 public class SkipStateEventPopulator implements StateEventPopulator {
 

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper for annotation
+ * Helper for annotation.
  */
 public class AnnotationHelper {
 

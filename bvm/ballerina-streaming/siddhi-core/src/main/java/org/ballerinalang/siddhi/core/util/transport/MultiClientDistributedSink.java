@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.util.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.stream.output.sink.Sink;
@@ -32,6 +30,8 @@ import org.ballerinalang.siddhi.core.util.extension.holder.SinkExecutorExtension
 import org.ballerinalang.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 import org.ballerinalang.siddhi.query.api.extension.Extension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,7 +86,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called to connect to the backend before events are published
+     * Will be called to connect to the backend before events are published.
      *
      * @throws ConnectionUnavailableException if it cannot connect to the backend
      */
@@ -123,7 +123,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called after all publishing is done, or when ConnectionUnavailableException is thrown
+     * Will be called after all publishing is done, or when ConnectionUnavailableException is thrown.
      */
     @Override
     public void disconnect() {
@@ -131,7 +131,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Will be called at the end to clean all the resources consumed
+     * Will be called at the end to clean all the resources consumed.
      */
     @Override
     public void destroy() {
@@ -139,8 +139,8 @@ public class MultiClientDistributedSink extends DistributedTransport {
     }
 
     /**
-     * Used to collect the serializable state of the processing element, that need to be
-     * persisted for the reconstructing the element to the same state on a different point of time
+     * Used to collect the serializable state of the processing element, that need to be persisted for the
+     * reconstructing the element to the same state on a different point of time.
      *
      * @return stateful objects of the processing element as an array
      */

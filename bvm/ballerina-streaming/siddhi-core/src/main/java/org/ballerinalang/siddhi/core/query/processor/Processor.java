@@ -28,35 +28,35 @@ import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 public interface Processor {
 
     /**
-     * Process the handed StreamEvent
+     * Process the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be processed
      */
     void process(ComplexEventChunk complexEventChunk);
 
     /**
-     * Get next processor element in the processor chain. Processed event should be sent to next processor
+     * Get next processor element in the processor chain. Processed event should be sent to next processor.
      *
      * @return next processor
      */
     Processor getNextProcessor();
 
     /**
-     * Set next processor element in processor chain
+     * Set next processor element in processor chain.
      *
      * @param processor Processor to be set as next element of processor chain
      */
     void setNextProcessor(Processor processor);
 
     /**
-     * Set as the last element of the processor chain
+     * Set as the last element of the processor chain.
      *
      * @param processor Last processor in the chain
      */
     void setToLast(Processor processor);
 
     /**
-     * Clone a copy of processor
+     * Clone a copy of processor.
      *
      * @param key partition key
      * @return cloned processor

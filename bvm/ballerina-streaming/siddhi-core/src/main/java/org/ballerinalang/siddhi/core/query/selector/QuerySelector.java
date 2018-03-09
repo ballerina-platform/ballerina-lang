@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query.selector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
@@ -33,6 +31,8 @@ import org.ballerinalang.siddhi.core.query.selector.attribute.processor.Attribut
 import org.ballerinalang.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.ballerinalang.siddhi.core.util.SiddhiConstants;
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -329,17 +329,17 @@ public class QuerySelector implements Processor {
         return null;    //since there is no processors after a query selector
     }
 
-    @Override
-    public void setNextProcessor(Processor processor) {
-        //this method will not be used as there is no processors after a query selector
-    }
-
     public void setNextProcessor(OutputRateLimiter outputRateLimiter) {
         if (this.outputRateLimiter == null) {
             this.outputRateLimiter = outputRateLimiter;
         } else {
             throw new SiddhiAppCreationException("outputRateLimiter is already assigned");
         }
+    }
+
+    @Override
+    public void setNextProcessor(Processor processor) {
+        //this method will not be used as there is no processors after a query selector
     }
 
     @Override

@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.query.api.definition;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Siddhi inline function definition
+ * Siddhi inline function definition.
  */
 public class FunctionDefinition implements SiddhiElement {
     private static final long serialVersionUID = 42L;

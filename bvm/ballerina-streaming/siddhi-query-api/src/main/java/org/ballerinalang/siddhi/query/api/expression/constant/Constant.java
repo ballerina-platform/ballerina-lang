@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.constant;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Constant
+ * Constant.
  */
 public interface Constant extends SiddhiElement {
 

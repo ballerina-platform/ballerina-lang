@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Each siddhi app will have one metric registry and placed in siddhi app context
+ * Each siddhi app will have one metric registry and placed in siddhi app context.
  */
 public class SiddhiStatisticsManager implements StatisticsManager {
     private MetricRegistry metricRegistry = new MetricRegistry();

@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.util.config;
 import java.util.Map;
 
 /**
- * Siddhi Configuration Reader
+ * Siddhi Configuration Reader.
  */
 public interface ConfigReader {
 

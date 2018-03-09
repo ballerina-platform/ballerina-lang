@@ -45,6 +45,11 @@ import java.util.Map;
  * based on the logical conditions defined herewith.
  */
 public class IncrementalAggregateCompileCondition implements CompiledCondition {
+    private final StreamEventPool streamEventPoolForTableMeta;
+    private final StreamEventCloner tableEventCloner;
+    private final StreamEventPool streamEventPoolForAggregateMeta;
+    private final StreamEventCloner aggregateEventCloner;
+    private final List<Attribute> additionalAttributes;
     private Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions;
     private CompiledCondition inMemoryStoreCompileCondition;
     private CompiledCondition onCompiledCondition;
@@ -54,12 +59,6 @@ public class IncrementalAggregateCompileCondition implements CompiledCondition {
     private MatchingMetaInfoHolder alteredMatchingMetaInfoHolder;
     private ExpressionExecutor perExpressionExecutor;
     private ExpressionExecutor startTimeEndTimeExpressionExecutor;
-
-    private final StreamEventPool streamEventPoolForTableMeta;
-    private final StreamEventCloner tableEventCloner;
-    private final StreamEventPool streamEventPoolForAggregateMeta;
-    private final StreamEventCloner aggregateEventCloner;
-    private final List<Attribute> additionalAttributes;
 
     public IncrementalAggregateCompileCondition(
             Map<TimePeriod.Duration, CompiledCondition> withinTableCompiledConditions,

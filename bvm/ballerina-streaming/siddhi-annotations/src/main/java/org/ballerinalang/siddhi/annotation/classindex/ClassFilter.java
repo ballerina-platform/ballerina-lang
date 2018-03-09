@@ -32,6 +32,36 @@ import java.util.List;
  * Class filter responsible for filtering classes based on various criteria.
  */
 public final class ClassFilter {
+    private ClassFilter() {
+    }
+
+    /**
+     * Returns a builder for a filter which satisfies all selected predicates.
+     */
+    public static UnionBuilder only() {
+        return new Builder();
+    }
+
+    /**
+     * Returns a filter which satisfies any of the selected predicates.
+     *
+     * @param alternatives alternative predicates
+     * @return filter which satisfies any of the provided predicates
+     */
+    public static FilterBuilder any(final Predicate... alternatives) {
+        return new CommonFilterBuilder() {
+            @Override
+            public boolean matches(Class<?> klass) {
+                for (Predicate alternative : alternatives) {
+                    if (alternative.matches(klass)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
     /**
      * Class from.
      */
@@ -130,9 +160,6 @@ public final class ClassFilter {
          * Returns only classes - filters out any interfaces.
          */
         UnionBuilder classes();
-    }
-
-    private ClassFilter() {
     }
 
     private abstract static class CommonFilterBuilder implements FilterBuilder {
@@ -289,32 +316,5 @@ public final class ClassFilter {
             }
             return true;
         }
-    }
-
-    /**
-     * Returns a builder for a filter which satisfies all selected predicates.
-     */
-    public static UnionBuilder only() {
-        return new Builder();
-    }
-
-    /**
-     * Returns a filter which satisfies any of the selected predicates.
-     *
-     * @param alternatives alternative predicates
-     * @return filter which satisfies any of the provided predicates
-     */
-    public static FilterBuilder any(final Predicate... alternatives) {
-        return new CommonFilterBuilder() {
-            @Override
-            public boolean matches(Class<?> klass) {
-                for (Predicate alternative : alternatives) {
-                    if (alternative.matches(klass)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
     }
 }

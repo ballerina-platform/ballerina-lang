@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Publishing strategy to allow publish messages to multiple destination by partitioning
+ * Publishing strategy to allow publish messages to multiple destination by partitioning.
  */
 @Extension(
         name = "partitioned",
@@ -51,7 +51,7 @@ import java.util.List;
 )
 public class PartitionedDistributionStrategy extends DistributionStrategy {
     /**
-     * Keep track of all the destinations regardless of their connectivity status
+     * Keep track of all the destinations regardless of their connectivity status.
      */
     private int totalDestinationCount = 0;
     private Option partitionOption;
@@ -59,10 +59,11 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
+     *
+     * @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
      * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader This hold the {@link PartitionedDistributionStrategy} configuration reader.
+     * @param configReader             This hold the {@link PartitionedDistributionStrategy} configuration reader.
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,

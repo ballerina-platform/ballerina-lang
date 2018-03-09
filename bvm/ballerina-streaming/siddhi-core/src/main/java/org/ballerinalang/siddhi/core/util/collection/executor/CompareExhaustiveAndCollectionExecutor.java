@@ -27,7 +27,7 @@ import org.ballerinalang.siddhi.core.table.holder.IndexedEventHolder;
 import java.util.Collection;
 
 /**
- * Implementation of {@link CollectionExecutor}
+ * Implementation of {@link CollectionExecutor}.
  */
 public class CompareExhaustiveAndCollectionExecutor implements CollectionExecutor {
 

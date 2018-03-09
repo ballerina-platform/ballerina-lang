@@ -18,14 +18,14 @@
 
 package org.ballerinalang.siddhi.core.query.output.callback;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;

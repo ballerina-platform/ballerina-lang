@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.managment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -30,6 +25,11 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
 import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -355,7 +355,6 @@ public class StatisticsTestCase {
 
     /**
      * To not enable stats if no Stats manager enabled
-     *
      */
     @Test
     public void statisticsTest5() throws InterruptedException {

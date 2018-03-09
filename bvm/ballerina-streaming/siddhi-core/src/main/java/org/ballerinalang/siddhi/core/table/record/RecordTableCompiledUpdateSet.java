@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * {@link CompiledUpdateSet} implementation for Record Table
+ * {@link CompiledUpdateSet} implementation for Record Table.
  */
 public class RecordTableCompiledUpdateSet implements CompiledUpdateSet {
     private LinkedHashMap<String, CompiledExpression> updateSetMap = new LinkedHashMap<>();

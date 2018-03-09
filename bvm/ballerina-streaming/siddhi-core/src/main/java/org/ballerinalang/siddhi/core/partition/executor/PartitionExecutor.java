@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.partition.executor;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
- * Interface class for Partition Executors which will calculate the partition key for a given {@link ComplexEvent}
+ * Interface class for Partition Executors which will calculate the partition key for a given {@link ComplexEvent}.
  */
 public interface PartitionExecutor {
 

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.util.ExceptionUtil;
@@ -29,6 +27,8 @@ import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
 import org.ballerinalang.siddhi.core.util.transport.BackoffRetryCounter;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -96,7 +96,7 @@ public abstract class Source implements Snapshotable {
     public abstract Class[] getOutputEventClasses();
 
     /**
-     * Called to connect to the source backend for receiving events
+     * Called to connect to the source backend for receiving events.
      *
      * @param connectionCallback Callback to pass the ConnectionUnavailableException for connection failure after
      *                           initial successful connection
@@ -105,22 +105,22 @@ public abstract class Source implements Snapshotable {
     public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
 
     /**
-     * Called to disconnect from the source backend, or when ConnectionUnavailableException is thrown
+     * Called to disconnect from the source backend, or when ConnectionUnavailableException is thrown.
      */
     public abstract void disconnect();
 
     /**
-     * Called at the end to clean all the resources consumed
+     * Called at the end to clean all the resources consumed.
      */
     public abstract void destroy();
 
     /**
-     * Called to pause event consumption
+     * Called to pause event consumption.
      */
     public abstract void pause();
 
     /**
-     * Called to resume event consumption
+     * Called to resume event consumption.
      */
     public abstract void resume();
 
@@ -181,7 +181,7 @@ public abstract class Source implements Snapshotable {
     }
 
     /**
-     * Callback class used to pass connection exception during message retrieval
+     * Callback class used to pass connection exception during message retrieval.
      */
     public class ConnectionCallback {
         public void onError(ConnectionUnavailableException e) {

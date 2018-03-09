@@ -19,10 +19,10 @@
  */
 package org.ballerinalang.siddhi.core.util.extension.holder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public abstract class AbstractExtensionHolder {
                 if (clazz.isAssignableFrom(extension)) {
                     if (extensionMap.containsKey(extensionKey)) {
                         log.error("Extension class " + extension.getName() + " not loaded, as there is already an" +
-                                          " matching extension '" + extensionKey + "' implemented as " + extensionMap
+                                " matching extension '" + extensionKey + "' implemented as " + extensionMap
                                 .get
                                         (extensionKey).getName());
                     } else {

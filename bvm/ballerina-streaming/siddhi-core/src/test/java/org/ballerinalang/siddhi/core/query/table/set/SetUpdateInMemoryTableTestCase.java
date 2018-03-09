@@ -18,24 +18,20 @@
 
 package org.ballerinalang.siddhi.core.query.table.set;
 
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
-import org.ballerinalang.siddhi.core.SiddhiManager;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.sql.SQLException;
 
 public class SetUpdateInMemoryTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(SetUpdateInMemoryTableTestCase.class);
-
-    @BeforeMethod
-    public void init() {
-    }
 
     @BeforeClass
     public static void startTest() {
@@ -45,6 +41,10 @@ public class SetUpdateInMemoryTableTestCase {
     @AfterClass
     public static void shutdown() {
         log.info("== SET tests for RDBMS Table - update cases, completed ==");
+    }
+
+    @BeforeMethod
+    public void init() {
     }
 
     @Test

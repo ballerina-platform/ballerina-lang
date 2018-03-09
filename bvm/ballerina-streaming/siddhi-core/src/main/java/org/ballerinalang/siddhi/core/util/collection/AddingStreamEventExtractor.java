@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.core.event.state.StateEvent;
 import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 
 /**
- * Extract a {@link StreamEvent} from a {@link StateEvent}
+ * Extract a {@link StreamEvent} from a {@link StateEvent}.
  */
 public class AddingStreamEventExtractor {
     private int matchingStreamEventPosition;

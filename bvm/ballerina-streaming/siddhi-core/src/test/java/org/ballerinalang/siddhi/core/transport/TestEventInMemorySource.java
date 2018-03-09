@@ -26,8 +26,8 @@ import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.input.source.InMemorySource;
 
 /**
- * Implementation of {@link org.ballerinalang.siddhi.core.stream.input.source.Source} to receive events through in-memory
- * transport.
+ * Implementation of {@link org.ballerinalang.siddhi.core.stream.input.source.Source} to receive events
+ * through in-memory transport.
  */
 @Extension(
         name = "testEventInMemory",

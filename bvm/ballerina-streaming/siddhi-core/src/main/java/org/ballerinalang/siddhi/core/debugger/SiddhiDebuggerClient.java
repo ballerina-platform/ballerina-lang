@@ -224,7 +224,7 @@ public class SiddhiDebuggerClient {
      * Start the {@link SiddhiDebuggerClient} and configure the breakpoints.
      *
      * @param siddhiApp the Siddhi query
-     * @param input         the user input as a whole text
+     * @param input     the user input as a whole text
      */
     public void start(final String siddhiApp, String input) {
         SiddhiManager siddhiManager = new SiddhiManager();

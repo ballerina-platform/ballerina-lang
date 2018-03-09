@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.event.state;
 import com.lmax.disruptor.EventFactory;
 
 /**
- * Event Factory to create new StateEvents
+ * Event Factory to create new StateEvents.
  */
 public class StateEventFactory implements EventFactory<StateEvent> {
 

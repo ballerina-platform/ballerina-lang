@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Joining input streams in a query
+ * Joining input streams in a query.
  */
 public class JoinInputStream extends InputStream {
 
@@ -168,7 +168,7 @@ public class JoinInputStream extends InputStream {
     }
 
     /**
-     * Different join types
+     * Different join types.
      */
     public enum Type {
         JOIN,
@@ -179,7 +179,7 @@ public class JoinInputStream extends InputStream {
     }
 
     /**
-     * Different triggers to start joining process
+     * Different triggers to start joining process.
      */
     public enum EventTrigger {
         LEFT,

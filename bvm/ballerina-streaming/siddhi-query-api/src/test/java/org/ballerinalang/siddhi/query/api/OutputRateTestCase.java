@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.siddhi.query.api;
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.execution.query.Query;
 import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.ballerinalang.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.testng.annotations.Test;
 
 /**
  * Test case to validate output rate limiting

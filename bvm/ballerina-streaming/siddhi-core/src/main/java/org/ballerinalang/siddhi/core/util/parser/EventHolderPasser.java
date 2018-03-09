@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.util.parser;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
 import org.ballerinalang.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
@@ -36,12 +34,14 @@ import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class to parse {@link EventHolder}
+ * Class to parse {@link EventHolder}.
  */
 public class EventHolderPasser {
     private static final Logger log = LoggerFactory.getLogger(EventHolderPasser.class);

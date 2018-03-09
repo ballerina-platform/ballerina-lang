@@ -35,7 +35,7 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
     }
 
     /**
-     * This method is to notify receive of events to calculate the throughput
+     * This method is to notify receive of events to calculate the throughput.
      */
     @Override
     public void eventIn() {
@@ -43,7 +43,7 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
     }
 
     /**
-     * This method is to notify receive of events to calculate the throughput
+     * This method is to notify receive of events to calculate the throughput.
      *
      * @param eventCount events passed through
      */
@@ -53,7 +53,7 @@ public class SiddhiThroughputMetric implements ThroughputTracker {
     }
 
     /**
-     * @return Name of the memory usage tracker
+     * @return Name of the memory usage tracker.
      */
     @Override
     public String getName() {

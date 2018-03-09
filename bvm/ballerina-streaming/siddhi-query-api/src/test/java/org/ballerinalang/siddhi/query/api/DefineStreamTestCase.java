@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.siddhi.query.api;
 
-import org.testng.AssertJUnit;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class DefineStreamTestCase {
 

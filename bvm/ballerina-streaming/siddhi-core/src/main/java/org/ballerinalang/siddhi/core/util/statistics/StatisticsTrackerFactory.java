@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.annotation.Element;
 import java.util.List;
 
 /**
- * Factory interface to create Trackers and Managers
+ * Factory interface to create Trackers and Managers.
  */
 public interface StatisticsTrackerFactory {
 

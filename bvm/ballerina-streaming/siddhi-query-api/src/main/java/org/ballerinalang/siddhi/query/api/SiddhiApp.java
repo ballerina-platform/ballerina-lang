@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Siddhi siddhi app
+ * Siddhi siddhi app.
  */
 public class SiddhiApp implements SiddhiElement {
 

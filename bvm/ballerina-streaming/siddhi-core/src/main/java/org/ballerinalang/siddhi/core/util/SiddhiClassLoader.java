@@ -42,7 +42,7 @@ public class SiddhiClassLoader {
         Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getName());
         if (clazz == null) {
             throw new SiddhiAppCreationException("No extension exist for " + extension.getNamespace() + ":" +
-                                                             extension.getName(), true);
+                    extension.getName(), true);
         }
         try {
             return SiddhiClassLoader.loadClass(clazz);

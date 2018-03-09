@@ -48,8 +48,8 @@ public class SinkValidationAnnotationProcessor extends AbstractAnnotationProcess
         if (namespace.isEmpty()) {
             //The namespace cannot be null or empty as @Extension extends from namespace reserved super class.
             throw new AnnotationValidationException(MessageFormat.format("The @Extension -> namespace " +
-                    "cannot be null or empty, annotated class {1} extends from namespace reserved super class {2}.",
-                    name, extensionClassFullName, AnnotationConstants.SINK_SUPER_CLASS));
+                            "cannot be null or empty, annotated class {1} extends from namespace reserved " +
+                            "super class {2}.", name, extensionClassFullName, AnnotationConstants.SINK_SUPER_CLASS));
         } else {
             //Check if namespace provided matches with the reserved namespace.
             if (!namespace.equals(AnnotationConstants.SINK_NAMESPACE)) {

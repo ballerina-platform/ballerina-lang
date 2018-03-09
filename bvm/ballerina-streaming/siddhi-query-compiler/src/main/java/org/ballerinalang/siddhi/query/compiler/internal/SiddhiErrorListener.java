@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 /**
- * Error listener in Siddhi Parser
+ * Error listener in Siddhi Parser.
  */
 public class SiddhiErrorListener extends BaseErrorListener {
     public static final SiddhiErrorListener INSTANCE = new SiddhiErrorListener();

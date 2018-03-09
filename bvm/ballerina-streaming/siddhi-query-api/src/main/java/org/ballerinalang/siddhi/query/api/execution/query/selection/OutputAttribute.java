@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.Variable;
 
 /**
- * Query output stream attributes
+ * Query output stream attributes.
  */
 public class OutputAttribute implements SiddhiElement {
 

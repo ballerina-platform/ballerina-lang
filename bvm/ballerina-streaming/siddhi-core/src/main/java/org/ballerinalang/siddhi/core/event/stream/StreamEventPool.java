@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.event.stream;
 import java.io.Serializable;
 
 /**
- * Event pool containing StreamEvent for reuse
+ * Event pool containing StreamEvent for reuse.
  * This is not a thread safe implementation
  */
 public class StreamEventPool implements Serializable {
@@ -44,7 +44,7 @@ public class StreamEventPool implements Serializable {
     }
 
     /**
-     * Borrowing an StreamEvent
+     * Borrowing an StreamEvent.
      *
      * @return if StreamEvent exist in the pool an existing event if not a new StreamEvent will be returned
      */
@@ -61,7 +61,7 @@ public class StreamEventPool implements Serializable {
     }
 
     /**
-     * Collects the used InnerStreamEvents
+     * Collects the used InnerStreamEvents.
      * If the pool has space the returned event will be added to the pool else it will be dropped
      *
      * @param streamEvent used event
@@ -84,6 +84,8 @@ public class StreamEventPool implements Serializable {
     }
 
     /**
+     * Return buffered event size.
+     *
      * @return Occupied buffer size
      */
     public int getBufferedEventsSize() {

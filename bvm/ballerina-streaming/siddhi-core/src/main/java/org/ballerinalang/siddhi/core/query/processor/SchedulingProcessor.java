@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.query.processor;
 import org.ballerinalang.siddhi.core.util.Scheduler;
 
 /**
- * Parent interface for Processors which need access to Siddhi {@link Scheduler}
+ * Parent interface for Processors which need access to Siddhi {@link Scheduler}.
  */
 public interface SchedulingProcessor extends Processor {
 

@@ -25,17 +25,17 @@ package org.ballerinalang.siddhi.core.util.statistics;
  */
 public interface LatencyTracker {
     /**
-     * This is to be called when starting the latency calculation
+     * This is to be called when starting the latency calculation.
      */
     void markIn();
 
     /**
-     * This is to be called when latency calculation should be stopped
+     * This is to be called when latency calculation should be stopped.
      */
     void markOut();
 
     /**
-     * @return Name of the latency tracker
+     * @return Name of the latency tracker.
      */
     String getName();
 

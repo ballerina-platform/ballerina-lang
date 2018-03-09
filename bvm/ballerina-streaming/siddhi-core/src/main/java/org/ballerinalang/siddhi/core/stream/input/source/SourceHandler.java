@@ -24,7 +24,8 @@ import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
- * SourceHandler is an optional implementable class that wraps {@link org.ballerinalang.siddhi.core.stream.input.InputHandler}.
+ * SourceHandler is an optional implementable class that wraps
+ * {@link org.ballerinalang.siddhi.core.stream.input.InputHandler}.
  * It will do optional processing to the events before sending the events to the input handler
  */
 public abstract class SourceHandler implements InputEventHandlerCallback, Snapshotable {
@@ -57,11 +58,11 @@ public abstract class SourceHandler implements InputEventHandlerCallback, Snapsh
         return elementId;
     }
 
-    public void setInputHandler(InputHandler inputHandler) {
-        this.inputHandler = inputHandler;
-    }
-
     public InputHandler getInputHandler() {
         return inputHandler;
+    }
+
+    public void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
     }
 }

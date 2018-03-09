@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression;
 import org.ballerinalang.siddhi.query.api.util.SiddhiConstants;
 
 /**
- * Variable {@link Expression}
+ * Variable {@link Expression}.
  */
 public class Variable extends Expression {
 

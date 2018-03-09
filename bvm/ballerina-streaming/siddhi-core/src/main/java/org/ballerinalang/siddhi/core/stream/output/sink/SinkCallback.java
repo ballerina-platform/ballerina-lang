@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 

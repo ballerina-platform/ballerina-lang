@@ -20,12 +20,12 @@ package org.ballerinalang.siddhi.query.api.execution.query.input.state;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Count state element used in patterns
+ * Count state element used in patterns.
  */
 public class CountStateElement implements StateElement {
 
-    private static final long serialVersionUID = 1L;
     public static final int ANY = -1;
+    private static final long serialVersionUID = 1L;
     private StreamStateElement streamStateElement;
     private TimeConstant within;
     private int minCount = ANY;

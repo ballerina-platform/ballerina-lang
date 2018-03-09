@@ -95,7 +95,7 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
     }
 
     /**
-     * Set next processor element in processor chain
+     * Set next processor element in processor chain.
      *
      * @param nextProcessor Processor to be set as next element of processor chain
      */
@@ -105,7 +105,7 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
     }
 
     /**
-     * Set as the last element of the processor chain
+     * Set as the last element of the processor chain.
      *
      * @param processor Last processor in the chain
      */
@@ -119,7 +119,7 @@ public class LogicalPostStateProcessor extends StreamPostStateProcessor {
     }
 
     /**
-     * Clone a copy of processor
+     * Clone a copy of processor.
      *
      * @param key partition key
      * @return clone of PostStateProcessor

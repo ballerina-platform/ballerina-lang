@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.table;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.state.StateEvent;
@@ -44,6 +42,8 @@ import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
 import org.ballerinalang.siddhi.core.util.transport.BackoffRetryCounter;
 import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
 import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;

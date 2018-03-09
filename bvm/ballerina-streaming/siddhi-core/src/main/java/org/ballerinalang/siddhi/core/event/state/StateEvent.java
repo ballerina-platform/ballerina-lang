@@ -37,7 +37,7 @@ import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CH
 import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
 
 /**
- * Implementation of StateEvent to be used when executing join/pattern queries
+ * Implementation of StateEvent to be used when executing join/pattern queries.
  */
 public class StateEvent implements ComplexEvent {
 
@@ -77,6 +77,7 @@ public class StateEvent implements ComplexEvent {
     }
 
     /**
+     * Return the attribute based on position.
      * @param position int array of 3 or 4 elements
      *                 int array of 3 : position[0]-which element of the streamEventSize array,
      *                 position[1]-BeforeWindowData or OutputData or AfterWindowData,

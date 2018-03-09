@@ -26,7 +26,7 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import java.util.List;
 
 /**
- * Basic single input stream using filters, windows and functions
+ * Basic single input stream using filters, windows and functions.
  */
 public class BasicSingleInputStream extends SingleInputStream {
 

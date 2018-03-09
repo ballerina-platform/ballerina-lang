@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.query.api.util;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 
 /**
- * Util for processing Siddhi Exceptions
+ * Util for processing Siddhi Exceptions.
  */
 public class ExceptionUtil {
 

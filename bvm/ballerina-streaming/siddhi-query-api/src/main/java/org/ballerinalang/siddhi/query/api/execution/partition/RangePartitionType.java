@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import java.util.Arrays;
 
 /**
- * Partition type supporting value ranges
+ * Partition type supporting value ranges.
  */
 public class RangePartitionType implements PartitionType {
 
@@ -105,7 +105,7 @@ public class RangePartitionType implements PartitionType {
     }
 
     /**
-     * Each range partition property
+     * Each range partition property.
      */
     public static class RangePartitionProperty implements SiddhiElement {
         private static final long serialVersionUID = 1L;

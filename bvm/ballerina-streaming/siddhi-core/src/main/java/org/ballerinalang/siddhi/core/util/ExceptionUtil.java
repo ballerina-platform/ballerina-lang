@@ -24,7 +24,7 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 
 /**
- * Util class to handling Siddhi exceptions
+ * Util class to handling Siddhi exceptions.
  */
 public class ExceptionUtil {
 
@@ -72,8 +72,8 @@ public class ExceptionUtil {
 
     public static String getMessageWithContext(Throwable throwable, SiddhiAppContext siddhiAppContext) {
 
-        return org.ballerinalang.siddhi.query.api.util.ExceptionUtil.getMessageWithContext(throwable, siddhiAppContext.getName(),
-                siddhiAppContext.getSiddhiAppString());
+        return org.ballerinalang.siddhi.query.api.util.ExceptionUtil.getMessageWithContext(throwable,
+                siddhiAppContext.getName(), siddhiAppContext.getSiddhiAppString());
     }
 
 

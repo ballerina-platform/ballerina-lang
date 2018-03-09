@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 
 /**
- * Query output anonymous stream deleting entry from table
+ * Query output anonymous stream deleting entry from table.
  */
 public class ReturnStream extends OutputStream {
 

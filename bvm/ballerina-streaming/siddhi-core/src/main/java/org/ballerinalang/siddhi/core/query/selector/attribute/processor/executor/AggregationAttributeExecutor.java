@@ -42,7 +42,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                attributeExpressionExecutors, siddhiAppContext, queryName);
+                attributeExpressionExecutors, siddhiAppContext, queryName);
     }
 
     @Override

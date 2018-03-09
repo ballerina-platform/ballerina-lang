@@ -75,11 +75,11 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     private int inputExecutorLength;
 
     /**
-     * The init method of the StreamFunction
+     * The init method of the StreamFunction.
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
-     * @param siddhiAppContext         siddhi app context
+     * @param siddhiAppContext             siddhi app context
      * @return the additional output attributes introduced by the function
      */
     @Override
@@ -122,7 +122,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     }
 
     /**
-     * The process method of the StreamFunction, used when multiple function parameters are provided
+     * The process method of the StreamFunction, used when multiple function parameters are provided.
      *
      * @param data the data values for the function parameters
      * @return the date for additional output attributes introduced by the function
@@ -142,7 +142,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
     }
 
     /**
-     * The process method of the StreamFunction, used when single function parameter is provided
+     * The process method of the StreamFunction, used when single function parameter is provided.
      *
      * @param data the data value for the function parameter
      * @return the date for additional output attribute introduced by the function

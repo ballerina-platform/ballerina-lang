@@ -19,8 +19,6 @@
 package org.ballerinalang.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.stream.input.source.SourceHandlerManager;
 import org.ballerinalang.siddhi.core.stream.output.sink.SinkHandlerManager;
 import org.ballerinalang.siddhi.core.table.record.RecordTableHandlerManager;
@@ -30,6 +28,8 @@ import org.ballerinalang.siddhi.core.util.config.InMemoryConfigManager;
 import org.ballerinalang.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
 import org.ballerinalang.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,12 +91,12 @@ public class SiddhiContext {
         this.persistenceStore = persistenceStore;
     }
 
-    public void setConfigManager(ConfigManager configManager) {
-        this.configManager = configManager;
-    }
-
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        this.configManager = configManager;
     }
 
     public DataSource getSiddhiDataSource(String dataSourceName) {

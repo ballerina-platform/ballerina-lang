@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.SiddhiConstants;
@@ -29,6 +27,8 @@ import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -75,7 +75,7 @@ public abstract class SourceMapper implements SourceEventListener {
     }
 
     /**
-     * Initialize Source-mapper
+     * Initialize Source-mapper.
      *
      * @param streamDefinition     Associated output stream definition
      * @param optionHolder         Mapper option holder

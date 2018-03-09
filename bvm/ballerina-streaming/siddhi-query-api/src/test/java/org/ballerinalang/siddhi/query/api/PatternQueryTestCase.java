@@ -18,7 +18,6 @@
 package org.ballerinalang.siddhi.query.api;
 
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.execution.query.Query;
 import org.ballerinalang.siddhi.query.api.execution.query.input.state.State;
 import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -27,6 +26,7 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.Variable;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
+import org.testng.annotations.Test;
 
 public class PatternQueryTestCase {
 

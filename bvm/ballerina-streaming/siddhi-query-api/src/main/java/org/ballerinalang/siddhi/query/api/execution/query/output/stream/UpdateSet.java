@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Updating UpdateSet Attribute for UpdateStream
+ * Updating UpdateSet Attribute for UpdateStream.
  */
 public class UpdateSet implements SiddhiElement {
 
@@ -92,7 +92,7 @@ public class UpdateSet implements SiddhiElement {
     }
 
     /**
-     * Attribute assignment for updates
+     * Attribute assignment for updates.
      */
     public static class SetAttribute implements SiddhiElement {
 

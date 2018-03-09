@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * create PartitionExecutors to be used to get partitioning key
+ * create PartitionExecutors to be used to get partitioning key.
  */
 public class StreamPartitioner {
 
@@ -85,7 +85,7 @@ public class StreamPartitioner {
 
     private int createStateInputStreamExecutors(StateElement stateElement, Partition partition, MetaStateEvent
             metaEvent, List<VariableExpressionExecutor> executors, SiddhiAppContext siddhiAppContext, int
-            executorIndex, String queryName) {
+                                                        executorIndex, String queryName) {
 
         if (stateElement instanceof EveryStateElement) {
             return createStateInputStreamExecutors(((EveryStateElement) stateElement).getStateElement(), partition,
@@ -97,7 +97,7 @@ public class StreamPartitioner {
                     partition, metaEvent, executors, siddhiAppContext, executorIndex, queryName);
         } else if (stateElement instanceof LogicalStateElement) {
             executorIndex = createStateInputStreamExecutors(((LogicalStateElement) stateElement)
-                    .getStreamStateElement1(), partition, metaEvent, executors, siddhiAppContext, executorIndex,
+                            .getStreamStateElement1(), partition, metaEvent, executors, siddhiAppContext, executorIndex,
                     queryName);
             return createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement2(),
                     partition, metaEvent, executors, siddhiAppContext, executorIndex, queryName);
@@ -117,7 +117,7 @@ public class StreamPartitioner {
 
     private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent
             metaEvent, List<VariableExpressionExecutor> executors, SiddhiAppContext siddhiAppContext, String
-            queryName) {
+                                                        queryName) {
         createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors,
                 siddhiAppContext, queryName);
         int size = executors.size();
@@ -142,7 +142,7 @@ public class StreamPartitioner {
                 if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression((
-                                (ValuePartitionType) partitionType).getExpression(),
+                                        (ValuePartitionType) partitionType).getExpression(),
                                 metaEvent, SiddhiConstants.UNKNOWN_STATE, tableMap, executors,
                                 siddhiAppContext, false, 0, queryName)));
                     }

@@ -31,7 +31,7 @@ import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CH
 import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
 
 /**
- * The populater class that populates StateEvents
+ * The populater class that populates StateEvents.
  */
 public class SelectiveComplexEventPopulater implements ComplexEventPopulater {
 

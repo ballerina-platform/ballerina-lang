@@ -72,7 +72,7 @@ public class NextInnerStateRuntime extends StreamInnerStateRuntime {
         InnerStateRuntime clonedNextInnerStateRuntime = nextInnerStateRuntime.clone(key);
 
         NextInnerStateRuntime nextInnerStateRuntime = new NextInnerStateRuntime(clonedCurrentInnerStateRuntime,
-                                                                                clonedNextInnerStateRuntime, stateType);
+                clonedNextInnerStateRuntime, stateType);
         nextInnerStateRuntime.singleStreamRuntimeList.addAll(clonedCurrentInnerStateRuntime
                 .getSingleStreamRuntimeList());
         nextInnerStateRuntime.singleStreamRuntimeList.addAll(clonedNextInnerStateRuntime.getSingleStreamRuntimeList());

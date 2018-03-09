@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Stream handler that does manipulations on stream in Siddhi queries
+ * Stream handler that does manipulations on stream in Siddhi queries.
  */
 public interface StreamHandler extends SiddhiElement {
 

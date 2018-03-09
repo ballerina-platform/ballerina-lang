@@ -106,7 +106,7 @@ public class TimePeriod implements SiddhiElement {
     }
 
     /**
-     * Durations supported in Incremental Aggregation
+     * Durations supported in Incremental Aggregation.
      */
     public enum Duration {
         SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS

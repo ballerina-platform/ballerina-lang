@@ -73,13 +73,13 @@ public class CastFunctionExecutor extends FunctionExecutor {
                         SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new SiddhiAppValidationException("Invalid no of arguments passed to common:cast() function, " +
-                                                               "required 2 parameters, but found " +
-                                                               attributeExpressionExecutors.length);
+                    "required 2 parameters, but found " +
+                    attributeExpressionExecutors.length);
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("The second argument has to be a string constant specifying " +
-                                                               "one of the supported data types "
-                                                               + "(int, long, float, double, string, bool)");
+                    "one of the supported data types "
+                    + "(int, long, float, double, string, bool)");
         } else {
             String type = attributeExpressionExecutors[1].execute(null).toString();
             if (type.toLowerCase().equals("int")) {
@@ -96,7 +96,7 @@ public class CastFunctionExecutor extends FunctionExecutor {
                 returnType = Attribute.Type.STRING;
             } else {
                 throw new SiddhiAppValidationException("Type must be one of int, long, float, double, bool, " +
-                                                                   "string");
+                        "string");
             }
         }
     }

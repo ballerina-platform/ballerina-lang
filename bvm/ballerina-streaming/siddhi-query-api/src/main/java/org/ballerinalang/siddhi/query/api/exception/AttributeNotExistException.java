@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.exception;
 
 /**
- * Exception thrown when attribute is not present
+ * Exception thrown when attribute is not present.
  */
 public class AttributeNotExistException extends SiddhiAppValidationException {
 

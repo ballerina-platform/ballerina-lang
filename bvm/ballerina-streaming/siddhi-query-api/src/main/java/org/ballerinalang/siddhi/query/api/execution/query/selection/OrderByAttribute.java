@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.expression.Variable;
 
 /**
- * Query order by attribute
+ * Query order by attribute.
  */
 public class OrderByAttribute implements SiddhiElement {
 
@@ -69,7 +69,7 @@ public class OrderByAttribute implements SiddhiElement {
     }
 
     /**
-     * enum for ascending and descending
+     * enum for ascending and descending.
      */
     public enum Order {
         ASC,

@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.util;
 
 /**
- * Siddhi constants
+ * Siddhi constants.
  */
 public class SiddhiConstants {
 

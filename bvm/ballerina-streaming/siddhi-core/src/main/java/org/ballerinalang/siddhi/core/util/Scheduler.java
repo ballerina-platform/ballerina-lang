@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
@@ -30,6 +28,8 @@ import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcess
 import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
 import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
 import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Scheduler implementation to take periodic snapshots
+ * Scheduler implementation to take periodic snapshots.
  */
 public abstract class Scheduler implements Snapshotable {
 

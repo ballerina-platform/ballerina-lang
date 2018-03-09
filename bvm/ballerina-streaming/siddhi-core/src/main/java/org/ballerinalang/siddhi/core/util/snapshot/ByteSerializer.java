@@ -18,10 +18,10 @@
 
 package org.ballerinalang.siddhi.core.util.snapshot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,7 +30,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Serializer used by {@link SnapshotService} to do Object to Byte[] conversion and vise-versa
+ * Serializer used by {@link SnapshotService} to do Object to Byte[] conversion and vise-versa.
  */
 public class ByteSerializer {
     private static final Logger log = LoggerFactory.getLogger(ByteSerializer.class);

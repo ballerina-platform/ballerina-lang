@@ -223,7 +223,7 @@ public class PartitionRuntime implements Snapshotable {
 
 
     /**
-     * clone all the queries of the partition for a given partition key if they are not available
+     * clone all the queries of the partition for a given partition key if they are not available.
      *
      * @param key partition key
      */

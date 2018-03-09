@@ -36,7 +36,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     protected boolean isEventReturned;
 
     /**
-     * Process the handed StreamEvent
+     * Process the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be processed
      */
@@ -90,7 +90,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     }
 
     /**
-     * Set next processor element in processor chain
+     * Set next processor element in processor chain.
      *
      * @param nextProcessor Processor to be set as next element of processor chain
      */
@@ -100,7 +100,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     }
 
     /**
-     * Set as the last element of the processor chain
+     * Set as the last element of the processor chain.
      *
      * @param processor Last processor in the chain
      */
@@ -114,7 +114,7 @@ public class StreamPostStateProcessor implements PostStateProcessor {
     }
 
     /**
-     * Clone a copy of processor
+     * Clone a copy of processor.
      *
      * @param key partition key
      * @return clone of StreamPostStateProcessor

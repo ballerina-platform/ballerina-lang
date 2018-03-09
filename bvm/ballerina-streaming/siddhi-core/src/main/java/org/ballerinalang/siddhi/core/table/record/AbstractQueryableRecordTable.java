@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.table.record;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.state.StateEvent;
@@ -42,6 +40,8 @@ import org.ballerinalang.siddhi.query.api.execution.query.selection.OutputAttrib
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.Variable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +96,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
     }
 
     /**
-     * Query records matching the compiled condition and selection
+     * Query records matching the compiled condition and selection.
      *
      * @param parameterMap      map of matching StreamVariable Ids and their values
      *                          corresponding to the compiled condition and selection
@@ -193,7 +193,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
     }
 
     /**
-     * Compile the query selection
+     * Compile the query selection.
      *
      * @param selectAttributeBuilders  helps visiting the select attributes in order
      * @param groupByExpressionBuilder helps visiting the group by attributes in order
@@ -233,7 +233,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
     }
 
     /**
-     * Holder of Selection attribute with renaming field
+     * Holder of Selection attribute with renaming field.
      */
     public class SelectAttributeBuilder {
         private final ExpressionBuilder expressionBuilder;
@@ -254,7 +254,7 @@ public abstract class AbstractQueryableRecordTable extends AbstractRecordTable i
     }
 
     /**
-     * Holder of order by attribute with order orientation
+     * Holder of order by attribute with order orientation.
      */
     public class OrderByAttributeBuilder {
         private final ExpressionBuilder expressionBuilder;

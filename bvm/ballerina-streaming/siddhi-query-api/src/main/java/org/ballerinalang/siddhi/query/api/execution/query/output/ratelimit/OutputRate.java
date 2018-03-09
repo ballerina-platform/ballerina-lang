@@ -25,7 +25,7 @@ import org.ballerinalang.siddhi.query.api.expression.constant.LongConstant;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Rate limiting of query output
+ * Rate limiting of query output.
  */
 public abstract class OutputRate implements SiddhiElement {
     private static final long serialVersionUID = 1L;
@@ -79,7 +79,7 @@ public abstract class OutputRate implements SiddhiElement {
     }
 
     /**
-     * Output rate limiting types
+     * Output rate limiting types.
      */
     public enum Type {
         ALL,

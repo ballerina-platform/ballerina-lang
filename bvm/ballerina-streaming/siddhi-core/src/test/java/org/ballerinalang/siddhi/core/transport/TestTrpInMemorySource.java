@@ -31,8 +31,8 @@ import org.ballerinalang.siddhi.core.util.transport.InMemoryBroker;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 
 /**
- * Implementation of {@link org.ballerinalang.siddhi.core.stream.input.source.Source} to receive events through in-memory
- * transport.
+ * Implementation of {@link org.ballerinalang.siddhi.core.stream.input.source.Source} to receive events
+ * through in-memory transport.
  */
 @Extension(
         name = "testTrpInMemory",

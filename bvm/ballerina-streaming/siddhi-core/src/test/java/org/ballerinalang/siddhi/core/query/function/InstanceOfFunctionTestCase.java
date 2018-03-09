@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -30,6 +25,11 @@ import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class InstanceOfFunctionTestCase {
 
@@ -322,14 +322,14 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfLong(timestamp,sensorId) as valid, timestamp " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfLong(timestamp,sensorId) as valid, timestamp " +
+                "insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
@@ -368,15 +368,15 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfBoolean(isPowerSaverEnabled,sensorName) as valid, " +
-                        "isPowerSaverEnabled " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfBoolean(isPowerSaverEnabled,sensorName) as valid, " +
+                "isPowerSaverEnabled " +
+                "insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
     }
@@ -388,14 +388,14 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfInteger(sensorId,sensorName) as valid, sensorId " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfInteger(sensorId,sensorName) as valid, sensorId " +
+                "insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
@@ -408,14 +408,14 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfString(sensorName,sensorId) as valid " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfString(sensorName,sensorId) as valid " +
+                "insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
@@ -428,14 +428,14 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfDouble(longitude,sensorName) as valid, longitude " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfDouble(longitude,sensorName) as valid, longitude " +
+                "insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
     }
@@ -447,14 +447,14 @@ public class InstanceOfFunctionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String sensorEventStream = "define stream sensorEventStream (timestamp long, " +
-                                   "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
-                                   "latitude double, " +
-                                   "humidity float, sensorValue double);";
+                "isPowerSaverEnabled bool, sensorId int , sensorName string, longitude double, " +
+                "latitude double, " +
+                "humidity float, sensorValue double);";
 
         String query = ("@info(name = 'query1') " +
-                        "from sensorEventStream " +
-                        "select sensorName ,instanceOfFloat(humidity,sensorName) as valid, longitude " +
-                        "insert into outputStream;");
+                "from sensorEventStream " +
+                "select sensorName ,instanceOfFloat(humidity,sensorName) as valid, longitude " +
+                "insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
     }

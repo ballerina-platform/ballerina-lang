@@ -31,6 +31,7 @@ public class IncrementalAggregationAttributeValidationAnnotationProcessor extend
     public IncrementalAggregationAttributeValidationAnnotationProcessor(String extensionClassFullName) {
         super(extensionClassFullName);
     }
+
     @Override
     public void parameterValidation(Parameter[] parameters) throws AnnotationValidationException {
         for (Parameter parameter : parameters) {

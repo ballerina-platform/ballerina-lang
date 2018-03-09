@@ -118,6 +118,8 @@ public class StreamEvent implements ComplexEvent {
     }
 
     /**
+     * Get attribute based on position.
+     *
      * @param position int array of 4 elements
      *                 position[0] and position[1] are discarded
      *                 position[2]-BeforeWindowData or OutputData or AfterWindowData, position[3]- which attribute

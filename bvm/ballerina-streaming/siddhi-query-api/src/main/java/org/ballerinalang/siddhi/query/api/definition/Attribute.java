@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.definition;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Attributes of the Siddhi Definitions
+ * Attributes of the Siddhi Definitions.
  */
 public class Attribute implements SiddhiElement {
 
@@ -100,7 +100,7 @@ public class Attribute implements SiddhiElement {
     }
 
     /**
-     * Different Type of Attribute Types
+     * Different Type of Attribute Types.
      */
     public enum Type {
         STRING,

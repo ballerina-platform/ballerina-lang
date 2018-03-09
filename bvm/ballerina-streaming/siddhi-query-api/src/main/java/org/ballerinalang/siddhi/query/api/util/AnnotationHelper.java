@@ -25,7 +25,7 @@ import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException
 import java.util.List;
 
 /**
- * Helper class to extract annotations
+ * Helper class to extract annotations.
  */
 public class AnnotationHelper {
 

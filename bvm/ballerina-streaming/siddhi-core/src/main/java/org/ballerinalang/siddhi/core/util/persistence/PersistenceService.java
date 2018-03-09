@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.siddhi.core.util.persistence;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.ballerinalang.siddhi.core.exception.NoPersistenceStoreException;
 import org.ballerinalang.siddhi.core.util.snapshot.SnapshotService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Persistence Service is the service layer to handle state persistence tasks such as persisting current state and

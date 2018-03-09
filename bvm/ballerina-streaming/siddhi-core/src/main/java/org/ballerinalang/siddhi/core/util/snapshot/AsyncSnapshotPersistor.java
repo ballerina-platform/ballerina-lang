@@ -18,13 +18,13 @@
 
 package org.ballerinalang.siddhi.core.util.snapshot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.exception.NoPersistenceStoreException;
 import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * {@link Runnable} which is responsible for persisting the snapshots that are taken
+ * {@link Runnable} which is responsible for persisting the snapshots that are taken.
  */
 public class AsyncSnapshotPersistor implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(AsyncSnapshotPersistor.class);

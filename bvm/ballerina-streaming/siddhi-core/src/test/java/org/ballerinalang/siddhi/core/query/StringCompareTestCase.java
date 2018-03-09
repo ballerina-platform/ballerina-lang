@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.siddhi.core.query;
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.testng.annotations.Test;
 
 /**
  * Test expression comparisons with String values.
@@ -226,12 +226,12 @@ public class StringCompareTestCase {
 
     private String generateExecutionPlan(String filter, String fields) {
         return new StringBuilder()
-            .append("@App:name('filterTest1') ")
-            .append("define stream cseEventStream (").append(fields).append(");")
-            .append("@info(name = 'query1') ")
-            .append("from cseEventStream[").append(filter).append("] ")
-            .append("select symbol, price ")
-            .append("insert into outputStream;")
-            .toString();
+                .append("@App:name('filterTest1') ")
+                .append("define stream cseEventStream (").append(fields).append(");")
+                .append("@info(name = 'query1') ")
+                .append("from cseEventStream[").append(filter).append("] ")
+                .append("select symbol, price ")
+                .append("insert into outputStream;")
+                .toString();
     }
 }

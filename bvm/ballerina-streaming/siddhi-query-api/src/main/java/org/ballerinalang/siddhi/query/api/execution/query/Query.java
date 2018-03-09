@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Siddhi Query
+ * Siddhi Query.
  */
 public class Query implements ExecutionElement, SiddhiElement {
 

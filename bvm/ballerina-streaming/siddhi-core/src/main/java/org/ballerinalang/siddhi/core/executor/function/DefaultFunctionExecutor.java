@@ -42,13 +42,13 @@ import java.util.Map;
                 + "parameter",
         parameters = {
                 @Parameter(name = "attribute",
-                           description = "The attribute that could be null.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                                   DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                        description = "The attribute that could be null.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
                 @Parameter(name = "default",
-                           description = "The default value that will be used when 'attribute' parameter is null",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                                   DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                        description = "The default value that will be used when 'attribute' parameter is null",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returned type will be same as the 'attribute' and 'default' type.",
@@ -69,20 +69,20 @@ public class DefaultFunctionExecutor extends FunctionExecutor {
         if (attributeExpressionExecutors.length != 2) {
             // check whether all the arguments passed
             throw new SiddhiAppValidationException("Invalid no of parameters passed to default() function, " +
-                                                               "it require only 2 (attribute, default value) , "
-                                                               + "but found "
-                                                               + attributeExpressionExecutors.length);
+                    "it require only 2 (attribute, default value) , "
+                    + "but found "
+                    + attributeExpressionExecutors.length);
         } else if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("Invalid parameter passed to default() function, " +
-                                                               "this only consumes constants, but found "
-                                                               + attributeExpressionExecutors[1].getClass().getName());
+                    "this only consumes constants, but found "
+                    + attributeExpressionExecutors[1].getClass().getName());
 
         } else if ((attributeExpressionExecutors[0].getReturnType() != attributeExpressionExecutors[1]
                 .getReturnType())) {
             throw new SiddhiAppValidationException("Both attribute and default value parameters need to be of "
-                                                               + "same return type but they are of " +
-                                                               attributeExpressionExecutors[0].getReturnType() + "and" +
-                                                               attributeExpressionExecutors[1].getReturnType());
+                    + "same return type but they are of " +
+                    attributeExpressionExecutors[0].getReturnType() + "and" +
+                    attributeExpressionExecutors[1].getReturnType());
         }
         returnType = attributeExpressionExecutors[0].getReturnType();
     }

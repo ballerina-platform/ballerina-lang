@@ -54,10 +54,11 @@ public class RecreateInMemoryData {
     private final Map<String, AggregationRuntime> aggregationMap;
 
     public RecreateInMemoryData(List<TimePeriod.Duration> incrementalDurations,
-            Map<TimePeriod.Duration, Table> aggregationTables,
-            Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap, SiddhiAppContext siddhiAppContext,
-            MetaStreamEvent metaStreamEvent, Map<String, Table> tableMap, Map<String, Window> windowMap,
-            Map<String, AggregationRuntime> aggregationMap) {
+                                Map<TimePeriod.Duration, Table> aggregationTables,
+                                Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap,
+                                SiddhiAppContext siddhiAppContext, MetaStreamEvent metaStreamEvent,
+                                Map<String, Table> tableMap, Map<String, Window> windowMap,
+                                Map<String, AggregationRuntime> aggregationMap) {
         this.incrementalDurations = incrementalDurations;
         this.aggregationTables = aggregationTables;
         this.incrementalExecutorMap = incrementalExecutorMap;
@@ -140,7 +141,8 @@ public class RecreateInMemoryData {
                     long emitTimeOfLatestEventInTable = IncrementalTimeConverterUtil.getNextEmitTime(
                             latestEventTimestamp, rootDuration, timeZoneOfNextLatestEvent);
 
-                    rootIncrementalExecutor.setValuesForInMemoryRecreateFromTable(true, emitTimeOfLatestEventInTable);
+                    rootIncrementalExecutor.setValuesForInMemoryRecreateFromTable(true,
+                            emitTimeOfLatestEventInTable);
 
                 }
             }

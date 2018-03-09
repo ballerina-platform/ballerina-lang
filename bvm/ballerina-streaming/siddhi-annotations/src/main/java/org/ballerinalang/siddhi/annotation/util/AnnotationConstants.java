@@ -38,11 +38,13 @@ public class AnnotationConstants {
             "org.ballerinalang.siddhi.core.query.processor.stream.function.StreamFunctionProcessor";
     public static final String STORE_SUPER_CLASS = "org.ballerinalang.siddhi.core.table.record.AbstractRecordTable";
     public static final String SOURCE_SUPER_CLASS = "org.ballerinalang.siddhi.core.stream.input.source.Source";
-    public static final String SOURCE_MAPPER_SUPER_CLASS = "org.ballerinalang.siddhi.core.stream.input.source.SourceMapper";
+    public static final String SOURCE_MAPPER_SUPER_CLASS =
+            "org.ballerinalang.siddhi.core.stream.input.source.SourceMapper";
     public static final String WINDOW_PROCESSOR_CLASS =
             "org.ballerinalang.siddhi.core.query.processor.stream.window.WindowProcessor";
     public static final String INCREMENTAL_ATTRIBUTE_AGGREGATOR_SUPER_CLASS =
-            "org.ballerinalang.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator";
+            "org.ballerinalang.siddhi.core.query.selector.attribute.aggregator.incremental." +
+                    "IncrementalAttributeAggregator";
 
     public static final String DISTRIBUTION_STRATEGY_NAMESPACE = "distributionStrategy";
     public static final String STORE_NAMESPACE = "store";

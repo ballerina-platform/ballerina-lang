@@ -58,10 +58,13 @@ import org.ballerinalang.siddhi.query.api.extension.Extension;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Single input stream processor class.
+ */
 public class SingleInputStreamParser {
 
     /**
-     * Parse single InputStream and return SingleStreamRuntime
+     * Parse single InputStream and return SingleStreamRuntime.
      *
      * @param inputStream                 single input stream to be parsed
      * @param siddhiAppContext            query to be parsed
@@ -76,7 +79,6 @@ public class SingleInputStreamParser {
      * @param supportsBatchProcessing     supports batch processing
      * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
      * @param queryName                   query name of single input stream belongs to.
-     *
      * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream,

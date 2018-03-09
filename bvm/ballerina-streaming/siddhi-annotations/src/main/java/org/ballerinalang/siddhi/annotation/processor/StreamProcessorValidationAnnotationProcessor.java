@@ -67,8 +67,8 @@ public class StreamProcessorValidationAnnotationProcessor extends AbstractAnnota
             if (parameter.optional()) {
                 if (parameter.defaultValue().isEmpty()) {
                     throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
-                                    "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
-                                    "optional parameter.", parameterName, extensionClassFullName));
+                            "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
+                            "optional parameter.", parameterName, extensionClassFullName));
                 }
             }
         }

@@ -93,6 +93,7 @@ public class InMemoryBroker {
                 try {
                     topicSubscribers.get(subscriber.getTopic()).remove(subscriber);
                 } catch (Exception ignored) {
+                    //exception ignored.
                 }
             }
         }

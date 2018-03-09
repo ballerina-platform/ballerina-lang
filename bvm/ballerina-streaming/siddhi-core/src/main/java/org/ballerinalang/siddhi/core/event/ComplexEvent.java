@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.event;
 import java.io.Serializable;
 
 /**
- * The interface for the internal event implementations
+ * The interface for the internal event implementations.
  */
 public interface ComplexEvent extends Serializable {
 

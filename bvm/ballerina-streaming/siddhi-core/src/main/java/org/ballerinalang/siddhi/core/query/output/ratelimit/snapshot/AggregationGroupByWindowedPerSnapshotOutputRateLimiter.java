@@ -35,7 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * Implementation of {@link PerSnapshotOutputRateLimiter} for queries with GroupBy, Aggregators and Windows.
  */
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
-                                                                    AggregationWindowedPerSnapshotOutputRateLimiter {
+        AggregationWindowedPerSnapshotOutputRateLimiter {
     private List<GroupedComplexEvent> eventList;
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
 
@@ -45,7 +45,7 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
                                                                      SiddhiAppContext siddhiAppContext,
                                                                      String queryName) {
         super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter,
-              siddhiAppContext, queryName);
+                siddhiAppContext, queryName);
         this.queryName = queryName;
         groupByAggregateAttributeValueMap = new HashMap<String, Map<Integer, Object>>();
         eventList = new LinkedList<GroupedComplexEvent>();
@@ -150,8 +150,8 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                                                                          aggregateAttributePositionList,
-                                                                          wrappedSnapshotOutputRateLimiter,
-                                                                          siddhiAppContext, queryName);
+                aggregateAttributePositionList,
+                wrappedSnapshotOutputRateLimiter,
+                siddhiAppContext, queryName);
     }
 }

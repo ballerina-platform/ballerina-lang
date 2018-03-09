@@ -21,7 +21,8 @@ package org.ballerinalang.siddhi.core.util;
  */
 public class StringUtil {
 
-    private StringUtil() {}
+    private StringUtil() {
+    }
 
     public static String removeCRLFCharacters(String str) {
         if (str != null) {

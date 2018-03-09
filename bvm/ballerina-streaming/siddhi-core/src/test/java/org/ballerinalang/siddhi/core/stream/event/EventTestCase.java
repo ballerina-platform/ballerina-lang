@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.stream.event;
 
-import org.testng.AssertJUnit;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.config.SiddhiContext;
@@ -63,6 +61,8 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStre
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;

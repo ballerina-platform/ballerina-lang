@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
- * Memory Calculable Objects
+ * Memory Calculable Objects.
  */
 public interface MemoryCalculable {
 

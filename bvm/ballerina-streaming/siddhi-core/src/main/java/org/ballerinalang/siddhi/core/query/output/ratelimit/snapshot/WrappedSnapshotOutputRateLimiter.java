@@ -65,10 +65,10 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     @Override
     public OutputRateLimiter clone(String key) {
         WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value,
-                                                                                         scheduledExecutorService,
-                                                                                         groupBy, windowed,
-                                                                                         siddhiAppContext,
-                                                                                         queryName);
+                scheduledExecutorService,
+                groupBy, windowed,
+                siddhiAppContext,
+                queryName);
         instance.outputRateLimiter = this.outputRateLimiter.clone(key, instance);
         return instance;
     }
@@ -119,10 +119,10 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         } else {
             if (groupBy) {
                 outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService,
-                                                                            this, siddhiAppContext, queryName);
+                        this, siddhiAppContext, queryName);
             } else {
                 outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this,
-                                                                     siddhiAppContext, queryName);
+                        siddhiAppContext, queryName);
             }
         }
 
@@ -130,11 +130,11 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         if (metaComplexEvent instanceof MetaStateEvent) {
             StateEventPool stateEventPool = new StateEventPool((MetaStateEvent) metaComplexEvent, 5);
             outputRateLimiter.setStateEventCloner(new StateEventCloner((MetaStateEvent) metaComplexEvent,
-                                                                       stateEventPool));
+                    stateEventPool));
         } else {
             StreamEventPool streamEventPool = new StreamEventPool((MetaStreamEvent) metaComplexEvent, 5);
             outputRateLimiter.setStreamEventCloner(new StreamEventCloner((MetaStreamEvent) metaComplexEvent,
-                                                                         streamEventPool));
+                    streamEventPool));
         }
 
     }

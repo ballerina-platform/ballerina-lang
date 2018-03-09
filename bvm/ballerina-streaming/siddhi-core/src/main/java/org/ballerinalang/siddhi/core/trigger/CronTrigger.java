@@ -18,6 +18,14 @@
 
 package org.ballerinalang.siddhi.core.trigger;
 
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -31,14 +39,6 @@ import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
-import org.ballerinalang.siddhi.core.event.Event;
-import org.ballerinalang.siddhi.core.stream.StreamJunction;
-import org.ballerinalang.siddhi.core.util.ExceptionUtil;
-import org.ballerinalang.siddhi.core.util.SiddhiConstants;
-import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
-import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
 
 /**
  * Implementation of {@link Trigger} which will trigger events based on a cron expression.

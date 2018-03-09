@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Element representing states in pattern
+ * Element representing states in pattern.
  */
 public interface StateElement extends SiddhiElement {
 

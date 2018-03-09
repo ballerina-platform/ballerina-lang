@@ -66,7 +66,7 @@ public class MapOperator extends CollectionOperator {
     @Override
     public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
-                                                  InMemoryCompiledUpdateSet compiledUpdateSet,
+                                                    InMemoryCompiledUpdateSet compiledUpdateSet,
                                                     AddingStreamEventExtractor addingStreamEventExtractor) {
         return super.tryUpdate(updatingOrAddingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(),
                 compiledUpdateSet, addingStreamEventExtractor);

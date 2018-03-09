@@ -18,11 +18,11 @@
 
 package org.ballerinalang.siddhi.core;
 
-import org.testng.AssertJUnit;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.testng.AssertJUnit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,12 +109,12 @@ public class TestUtil {
 
     private static class TestQueryCallback extends QueryCallback implements TestCallback {
 
+        private final Object[][] expected;
+        private final int noOfExpectedEvents;
         private AtomicInteger inEventCount = new AtomicInteger(0);
         private AtomicInteger removeEventCount = new AtomicInteger(0);
         private boolean eventArrived;
         private List<AssertionError> assertionErrors = new ArrayList<>();
-        private final Object[][] expected;
-        private final int noOfExpectedEvents;
 
         public TestQueryCallback(Object[]... expected) {
             this.expected = expected;
@@ -175,11 +175,11 @@ public class TestUtil {
 
     private static class TestStreamCallback extends StreamCallback implements TestCallback {
 
+        private final Object[][] expected;
+        private final int noOfExpectedEvents;
         private AtomicInteger inEventCount = new AtomicInteger(0);
         private boolean eventArrived;
         private List<AssertionError> assertionErrors = new ArrayList<>();
-        private final Object[][] expected;
-        private final int noOfExpectedEvents;
 
         public TestStreamCallback(Object[]... expected) {
             this.expected = expected;

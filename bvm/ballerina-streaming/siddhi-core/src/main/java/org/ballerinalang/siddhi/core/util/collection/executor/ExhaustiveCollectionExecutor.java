@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Implementation of {@link CollectionExecutor}
+ * Implementation of {@link CollectionExecutor}.
  */
 public class ExhaustiveCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;

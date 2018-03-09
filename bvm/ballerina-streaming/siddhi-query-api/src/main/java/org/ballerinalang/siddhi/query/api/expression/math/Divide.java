@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.math;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Divide {@link Expression}
+ * Divide {@link Expression}.
  */
 public class Divide extends Expression {
 

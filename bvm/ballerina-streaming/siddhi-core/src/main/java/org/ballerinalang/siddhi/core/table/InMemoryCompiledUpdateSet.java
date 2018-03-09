@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 import java.util.Map;
 
 /**
- * Compiled update-set created for {@link InMemoryTable}
+ * Compiled update-set created for {@link InMemoryTable}.
  */
 public class InMemoryCompiledUpdateSet implements CompiledUpdateSet {
     //In this map, the key will be the attribute position of the updating event

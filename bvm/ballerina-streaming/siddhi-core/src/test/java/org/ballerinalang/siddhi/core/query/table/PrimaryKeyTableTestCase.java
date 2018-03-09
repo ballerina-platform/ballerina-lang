@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.table;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -33,6 +28,11 @@ import org.ballerinalang.siddhi.core.util.SiddhiTestHelper;
 import org.ballerinalang.siddhi.query.api.exception.AttributeNotExistException;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;

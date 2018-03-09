@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Siddhi Trigger Definition
+ * Siddhi Trigger Definition.
  */
 public class TriggerDefinition implements SiddhiElement {
 

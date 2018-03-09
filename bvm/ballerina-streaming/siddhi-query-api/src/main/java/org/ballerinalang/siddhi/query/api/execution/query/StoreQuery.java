@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.input.store.InputStore
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 
 /**
- * Siddhi Query
+ * Siddhi Query.
  */
 public class StoreQuery implements SiddhiElement {
 

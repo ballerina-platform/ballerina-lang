@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.config;
 import org.ballerinalang.siddhi.core.util.statistics.StatisticsTrackerFactory;
 
 /**
- * Siddhi statistics module related configuration holder
+ * Siddhi statistics module related configuration holder.
  */
 public class StatisticsConfiguration {
 

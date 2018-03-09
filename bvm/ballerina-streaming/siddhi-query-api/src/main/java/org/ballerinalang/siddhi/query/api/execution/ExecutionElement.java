@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 import java.util.List;
 
 /**
- * Execution element of siddhi siddhi app
+ * Execution element of siddhi siddhi app.
  */
 public interface ExecutionElement {
 

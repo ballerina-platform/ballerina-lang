@@ -24,7 +24,7 @@ import org.ballerinalang.siddhi.query.api.extension.Extension;
 import java.util.Arrays;
 
 /**
- * Siddhi window handler
+ * Siddhi window handler.
  */
 public class Window implements StreamHandler, Extension, SiddhiElement {
 

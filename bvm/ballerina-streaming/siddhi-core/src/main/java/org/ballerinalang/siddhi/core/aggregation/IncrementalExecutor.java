@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.aggregation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
@@ -35,6 +33,8 @@ import org.ballerinalang.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.ballerinalang.siddhi.core.util.Scheduler;
 import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
 import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.ZoneOffset;

@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.query.api.execution.query.input.store;
 
 /**
- * Input Store
+ * Input Store.
  */
 public interface InputStore {
 

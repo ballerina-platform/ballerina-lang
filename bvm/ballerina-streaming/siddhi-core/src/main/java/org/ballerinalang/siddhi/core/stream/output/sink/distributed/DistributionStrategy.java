@@ -46,7 +46,7 @@ public abstract class DistributionStrategy {
      * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param distributionOptionHolder The option under @destination of the relevant sink.
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader This hold the {@link DistributionStrategy} extensions configuration reader.
+     * @param configReader             This hold the {@link DistributionStrategy} extensions configuration reader.
      */
     public abstract void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
             distributionOptionHolder, List<OptionHolder> destinationOptionHolders, ConfigReader configReader);

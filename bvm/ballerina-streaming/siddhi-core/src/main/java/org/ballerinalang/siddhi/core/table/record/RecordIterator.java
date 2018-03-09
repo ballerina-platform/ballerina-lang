@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 /**
  * This iterator represents an event table iterator which is also capable of closing and releasing its resources.
+ *
  * @param <T> Records to iterate
  */
 public interface RecordIterator<T> extends Iterator<T>, Closeable {

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.siddhi.core.stream.input;
 
+import org.ballerinalang.siddhi.core.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * InputHandler is the {@link Event} entry point to Siddhi. Users can create an Input Handler and then use that to

@@ -24,8 +24,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
 import org.ballerinalang.siddhi.core.stream.StreamJunction;
@@ -37,6 +35,8 @@ import org.ballerinalang.siddhi.core.util.statistics.MemoryCalculable;
 import org.ballerinalang.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.ballerinalang.siddhi.core.util.statistics.StatisticsManager;
 import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -291,7 +291,7 @@ public class ObjectSizeCalculator {
         // Breadth-first traversal instead of naive depth-first with recursive
         // implementation, so we don't blow the stack traversing long linked lists.
         try {
-            for (;; ) {
+            for (;;) {
                 visit(obj, isFirst);
                 isFirst = false;
                 if (pending.isEmpty()) {

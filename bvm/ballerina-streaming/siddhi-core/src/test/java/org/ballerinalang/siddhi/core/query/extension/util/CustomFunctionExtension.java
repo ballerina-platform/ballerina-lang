@@ -37,8 +37,8 @@ import java.util.Map;
         description = "Return the sum of the given input values.",
         parameters = {
                 @Parameter(name = "args",
-                           description = "The values that need to be sum.",
-                           type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                        description = "The values that need to be sum.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated sum value as a double or float.",

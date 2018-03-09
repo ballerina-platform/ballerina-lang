@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.Example;
 import org.ballerinalang.siddhi.annotation.Extension;
 import org.ballerinalang.siddhi.annotation.Parameter;
@@ -32,6 +30,8 @@ import org.ballerinalang.siddhi.core.util.transport.InMemoryBroker;
 import org.ballerinalang.siddhi.core.util.transport.Option;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class InMemorySink extends Sink {
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
                         ConfigReader sinkConfigReader, SiddhiAppContext
-            siddhiAppContext) {
+                                siddhiAppContext) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 

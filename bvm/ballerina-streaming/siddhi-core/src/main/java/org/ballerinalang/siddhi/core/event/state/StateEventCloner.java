@@ -19,7 +19,8 @@
 package org.ballerinalang.siddhi.core.event.state;
 
 /**
- * Class to clone {@link StateEvent} used when creating {@link org.ballerinalang.siddhi.core.partition.PartitionRuntime}.
+ * Class to clone {@link StateEvent} used when creating
+ * {@link org.ballerinalang.siddhi.core.partition.PartitionRuntime}.
  */
 public class StateEventCloner {
 
@@ -38,7 +39,7 @@ public class StateEventCloner {
     }
 
     /**
-     * Method to copy new StreamEvent from StreamEvent
+     * Method to copy new StreamEvent from StreamEvent.
      *
      * @param stateEvent StreamEvent to be copied
      * @return StateEvent

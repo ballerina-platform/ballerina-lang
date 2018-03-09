@@ -221,11 +221,11 @@ public class SiddhiAppContext {
         this.siddhiAppString = siddhiAppString;
     }
 
-    public void setIncludedMetrics(List<String> includedMetrics) {
-        this.includedMetrics = includedMetrics;
-    }
-
     public List<String> getIncludedMetrics() {
         return includedMetrics;
+    }
+
+    public void setIncludedMetrics(List<String> includedMetrics) {
+        this.includedMetrics = includedMetrics;
     }
 }

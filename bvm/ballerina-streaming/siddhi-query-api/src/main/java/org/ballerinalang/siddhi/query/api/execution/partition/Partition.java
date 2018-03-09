@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@linkplain org.ballerinalang.siddhi.query.api.execution.partition.Partition} class is used to represent the definition of
- * a partition for a Siddhi instance.
+ * {@linkplain org.ballerinalang.siddhi.query.api.execution.partition.Partition} class is used to represent
+ * the definition of a partition for a Siddhi instance.
  */
 public class Partition implements ExecutionElement, SiddhiElement {
 

@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.exception;
 
 /**
- * Exception thrown when unsupported attribute type assigned to an attribute
+ * Exception thrown when unsupported attribute type assigned to an attribute.
  */
 public class UnsupportedAttributeTypeException extends SiddhiAppValidationException {
 

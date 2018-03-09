@@ -24,7 +24,7 @@ package org.ballerinalang.siddhi.core.stream.output.sink;
  */
 public interface SinkListener {
     /**
-     * Sending events via output transport
+     * Sending events via output transport.
      *
      * @param payload payload of the event
      */

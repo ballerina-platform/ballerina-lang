@@ -28,8 +28,8 @@ import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 import java.util.List;
 
 /**
- * Publishing strategy to broad cast message to all destinations
- * */
+ * Publishing strategy to broad cast message to all destinations.
+ */
 @Extension(
         name = "broadcast",
         namespace = "distributionStrategy",
@@ -47,12 +47,14 @@ import java.util.List;
 public class BroadcastDistributionStrategy extends DistributionStrategy {
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
+     *
+     * @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
      * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param distributionOptionHolder Option holder containing static and dynamic options related to the
      *                                 distribution strategy.
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader This hold the {@link BroadcastDistributionStrategy} extensions configuration reader.
+     * @param configReader             This hold the {@link BroadcastDistributionStrategy} extensions configuration
+     *                                 reader.
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder

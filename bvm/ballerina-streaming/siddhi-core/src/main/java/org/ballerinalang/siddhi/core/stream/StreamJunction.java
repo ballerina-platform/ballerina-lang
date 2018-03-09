@@ -23,8 +23,6 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -40,6 +38,8 @@ import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;

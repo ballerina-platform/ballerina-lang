@@ -340,9 +340,11 @@ public class DefinitionParserHelper {
                             sourceAnnotation);
 
                     OptionHolder sourceOptionHolder = constructOptionHolder(streamDefinition, sourceAnnotation,
-                            source.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class), null);
+                            source.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class),
+                            null);
                     OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
-                            sourceMapper.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class), null);
+                            sourceMapper.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class),
+                            null);
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
                     String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
@@ -482,7 +484,8 @@ public class DefinitionParserHelper {
                         OptionHolder transportOptionHolder = constructOptionHolder(streamDefinition, sinkAnnotation,
                                 sinkExt, supportedDynamicOptions);
                         OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
-                                sinkMapper.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class),
+                                sinkMapper.getClass().
+                                        getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class),
                                 sinkMapper.getSupportedDynamicOptions());
                         List<Element> payloadElementList = getPayload(mapAnnotation);
 

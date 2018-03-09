@@ -31,8 +31,8 @@ import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
 import java.util.Map;
 
 /**
- * Parent implementation to run the {@link org.ballerinalang.siddhi.core.util.Scheduler} to handle periodic snapshot rate
- * limiting.
+ * Parent implementation to run the {@link org.ballerinalang.siddhi.core.util.Scheduler} to handle periodic
+ * snapshot rate limiting.
  */
 public abstract class SnapshotOutputRateLimiter implements Schedulable {
     protected SiddhiAppContext siddhiAppContext;

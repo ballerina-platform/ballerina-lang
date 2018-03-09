@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.exception;
 import org.ballerinalang.siddhi.query.api.util.ExceptionUtil;
 
 /**
- * Exception thrown when siddhi app is not valid
+ * Exception thrown when siddhi app is not valid.
  */
 public class SiddhiAppValidationException extends RuntimeException implements SiddhiAppContextException {
 

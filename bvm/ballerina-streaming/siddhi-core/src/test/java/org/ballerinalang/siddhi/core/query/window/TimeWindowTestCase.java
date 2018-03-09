@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query.window;
 
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -28,6 +25,9 @@ import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 public class TimeWindowTestCase {
     private int inEventCount;
@@ -87,6 +87,7 @@ public class TimeWindowTestCase {
 
     /**
      * Commenting out intermittent failing test case until fix this properly.
+     *
      * @throws InterruptedException throw exception if interrupted the input handler sender.
      */
     @Test

@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.util;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * unique id generator for elements inside a given siddhi app
+ * unique id generator for elements inside a given siddhi app.
  */
 public class ElementIdGenerator {
 

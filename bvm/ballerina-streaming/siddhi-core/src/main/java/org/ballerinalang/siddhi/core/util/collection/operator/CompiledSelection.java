@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.collection.operator;
 
 /**
- * Represent a selection
+ * Represent a selection.
  */
 public interface CompiledSelection extends CompiledExpression {
 

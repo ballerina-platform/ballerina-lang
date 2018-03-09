@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 import org.ballerinalang.siddhi.query.api.util.ExceptionUtil;
 
 /**
- * Exception thrown when passer errors occur in siddhi
+ * Exception thrown when passer errors occur in siddhi.
  */
 public class SiddhiParserException extends RuntimeException implements SiddhiAppContextException {
 

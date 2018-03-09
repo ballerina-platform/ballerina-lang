@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Query output stream
+ * Query output stream.
  */
 public abstract class OutputStream implements SiddhiElement {
 
@@ -103,7 +103,7 @@ public abstract class OutputStream implements SiddhiElement {
     }
 
     /**
-     * Output event types
+     * Output event types.
      */
     public enum OutputEventType {
         EXPIRED_EVENTS,

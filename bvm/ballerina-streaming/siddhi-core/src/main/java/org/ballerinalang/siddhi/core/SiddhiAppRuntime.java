@@ -19,8 +19,6 @@
 package org.ballerinalang.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.debugger.SiddhiDebugger;
@@ -69,6 +67,8 @@ import org.ballerinalang.siddhi.query.api.definition.WindowDefinition;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 import org.ballerinalang.siddhi.query.api.execution.query.StoreQuery;
 import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;

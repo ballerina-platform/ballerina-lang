@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.util.collection.operator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.state.StateEvent;
 import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
@@ -30,6 +28,8 @@ import org.ballerinalang.siddhi.core.table.holder.IndexedEventHolder;
 import org.ballerinalang.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
 import org.ballerinalang.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.ballerinalang.siddhi.core.util.collection.executor.CollectionExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;

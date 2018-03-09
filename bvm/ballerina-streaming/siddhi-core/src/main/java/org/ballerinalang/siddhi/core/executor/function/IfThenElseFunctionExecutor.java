@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.executor.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.Example;
 import org.ballerinalang.siddhi.annotation.Extension;
 import org.ballerinalang.siddhi.annotation.Parameter;
@@ -31,6 +29,8 @@ import org.ballerinalang.siddhi.core.util.ExceptionUtil;
 import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 

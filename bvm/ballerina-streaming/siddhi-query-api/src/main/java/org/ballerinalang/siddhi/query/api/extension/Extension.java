@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.extension;
 import java.io.Serializable;
 
 /**
- * Siddhi extension
+ * Siddhi extension.
  */
 public interface Extension extends Serializable {
 

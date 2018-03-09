@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.executor.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
@@ -27,6 +25,8 @@ import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 import org.ballerinalang.siddhi.core.util.ExceptionUtil;
 import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parent abstract class for Function Executors. Function executor will have one or more input parameters and single
@@ -89,7 +89,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotab
                                  SiddhiAppContext siddhiAppContext);
 
     /**
-     * The main execution method which will be called upon event arrival
+     * The main execution method which will be called upon event arrival.
      *
      * @param event the event to be executed
      * @return the execution result
@@ -118,7 +118,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotab
     }
 
     /**
-     * The main execution method which will be called upon event arrival
+     * The main execution method which will be called upon event arrival.
      * when there are more then one function parameter
      *
      * @param data the runtime values of function parameters
@@ -127,8 +127,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotab
     protected abstract Object execute(Object[] data);
 
     /**
-     * The main execution method which will be called upon event arrival
-     * when there are zero or one function parameter
+     * The main execution method which will be called upon event arrival when there are zero or one function parameter.
      *
      * @param data null if the function parameter count is zero or
      *             runtime data value of the function parameter

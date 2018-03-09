@@ -60,20 +60,20 @@ import java.util.concurrent.Executors;
 import static org.ballerinalang.siddhi.core.util.parser.helper.AnnotationHelper.generateIncludedMetrics;
 
 /**
- * Class to parse {@link SiddhiApp}
+ * Class to parse {@link SiddhiApp}.
  */
 public class SiddhiAppParser {
 
     /**
-     * Parse an SiddhiApp returning SiddhiAppRuntime
+     * Parse an SiddhiApp returning SiddhiAppRuntime.
      *
      * @param siddhiApp       plan to be parsed
      * @param siddhiAppString content of Siddhi application as string
      * @param siddhiContext   SiddhiContext  @return SiddhiAppRuntime
-     *
      * @return SiddhiAppRuntimeBuilder
      */
-    public static SiddhiAppRuntimeBuilder parse(SiddhiApp siddhiApp, String siddhiAppString, SiddhiContext siddhiContext) {
+    public static SiddhiAppRuntimeBuilder parse(SiddhiApp siddhiApp, String siddhiAppString,
+                                                SiddhiContext siddhiContext) {
 
         SiddhiAppContext siddhiAppContext = new SiddhiAppContext();
         siddhiAppContext.setSiddhiContext(siddhiContext);

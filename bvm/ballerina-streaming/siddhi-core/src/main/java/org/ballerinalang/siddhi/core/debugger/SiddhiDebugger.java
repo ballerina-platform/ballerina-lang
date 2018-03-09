@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.siddhi.core.debugger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.util.snapshot.SnapshotService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -204,8 +204,8 @@ public class SiddhiDebugger {
     }
 
     /**
-     * Get all the events stored in the {@link org.ballerinalang.siddhi.core.util.snapshot.Snapshotable} entities of the given
-     * query.
+     * Get all the events stored in the {@link org.ballerinalang.siddhi.core.util.snapshot.Snapshotable} entities
+     * of the given query.
      *
      * @param queryName name of the Siddhi query
      * @return QueryState internal state of the query

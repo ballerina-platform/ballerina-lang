@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The StateEventPopulaterFactory that constructs StateEventPopulater according to MetaStateEvent
+ * The StateEventPopulaterFactory that constructs StateEventPopulater according to MetaStateEvent.
  */
 public class StateEventPopulatorFactory {
     /**
-     * Constructs StateEventPopulator according to MetaStateEvent
+     * Constructs StateEventPopulator according to MetaStateEvent.
      *
      * @param metaComplexEvent info for populating the StateEvents
      * @return StateEventPopulator

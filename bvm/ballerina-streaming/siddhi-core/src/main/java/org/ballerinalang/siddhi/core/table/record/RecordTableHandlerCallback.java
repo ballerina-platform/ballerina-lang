@@ -16,12 +16,12 @@
 
 package org.ballerinalang.siddhi.core.table.record;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
 import org.ballerinalang.siddhi.core.util.collection.operator.CompiledExpression;
 import org.ballerinalang.siddhi.core.util.collection.operator.CompiledSelection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;

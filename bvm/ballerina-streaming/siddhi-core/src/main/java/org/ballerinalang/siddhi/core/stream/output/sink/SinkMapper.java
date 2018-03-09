@@ -79,7 +79,7 @@ public abstract class SinkMapper {
     }
 
     /**
-     * Supported dynamic options by the mapper
+     * Supported dynamic options by the mapper.
      *
      * @return the list of supported dynamic option keys
      */
@@ -102,7 +102,7 @@ public abstract class SinkMapper {
                               SiddhiAppContext siddhiAppContext);
 
     /**
-     * Get produced event class types
+     * Get produced event class types.
      *
      * @return Array of classes that will be produced by the sink-mapper,
      * null or empty array if it can produce any type of class.
@@ -110,7 +110,7 @@ public abstract class SinkMapper {
     public abstract Class[] getOutputEventClasses();
 
     /**
-     * Called to map the events and send them to {@link SinkListener} for publishing
+     * Called to map the events and send them to {@link SinkListener} for publishing.
      *
      * @param events {@link Event}s that need to be mapped
      */
@@ -155,7 +155,7 @@ public abstract class SinkMapper {
 
 
     /**
-     * Called to map the event and send it to {@link SinkListener} for publishing
+     * Called to map the event and send it to {@link SinkListener} for publishing.
      *
      * @param event The {@link Event} that need to be mapped
      */
@@ -170,7 +170,7 @@ public abstract class SinkMapper {
     }
 
     /**
-     * Called to map the events and send them to {@link SinkListener} for publishing
+     * Called to map the events and send them to {@link SinkListener} for publishing.
      *
      * @param events                    {@link Event}s that need to be mapped
      * @param optionHolder              Option holder containing static and dynamic options related to the mapper
@@ -181,7 +181,7 @@ public abstract class SinkMapper {
             payloadTemplateBuilderMap, SinkListener sinkListener);
 
     /**
-     * Called to map the event and send it to {@link SinkListener} for publishing
+     * Called to map the event and send it to {@link SinkListener} for publishing.
      *
      * @param event                     {@link Event} that need to be mapped
      * @param optionHolder              Option holder containing static and dynamic options related to the mapper

@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Query output stream update events on table
+ * Query output stream update events on table.
  */
 public class UpdateStream extends OutputStream {
     private Expression onUpdateExpression;
@@ -41,7 +41,7 @@ public class UpdateStream extends OutputStream {
         this.onUpdateExpression = onUpdateExpression;
     }
 
-    public UpdateStream(String tableId, OutputEventType outputEventType,  Expression onUpdateExpression) {
+    public UpdateStream(String tableId, OutputEventType outputEventType, Expression onUpdateExpression) {
         this.id = tableId;
         this.outputEventType = outputEventType;
         this.onUpdateExpression = onUpdateExpression;

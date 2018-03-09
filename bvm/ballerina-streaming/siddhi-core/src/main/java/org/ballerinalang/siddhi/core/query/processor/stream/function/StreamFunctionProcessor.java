@@ -69,7 +69,7 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
     }
 
     /**
-     * The process method of the StreamFunction, used when more then one function parameters are provided
+     * The process method of the StreamFunction, used when more then one function parameters are provided.
      *
      * @param data the data values for the function parameters
      * @return the data for additional output attributes introduced by the function
@@ -78,7 +78,7 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
 
 
     /**
-     * The process method of the StreamFunction, used when zero or one function parameter is provided
+     * The process method of the StreamFunction, used when zero or one function parameter is provided.
      *
      * @param data null if the function parameter count is zero or runtime data value of the function parameter
      * @return the data for additional output attribute introduced by the function
@@ -90,8 +90,9 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
-     * @param configReader this hold the {@link StreamFunctionProcessor} extensions configuration reader.
-     * @param siddhiAppContext         the context of the siddhi app
+     * @param configReader                 this hold the {@link StreamFunctionProcessor} extensions configuration
+     *                                     reader.
+     * @param siddhiAppContext             the context of the siddhi app
      * @param outputExpectsExpiredEvents   is output expects ExpiredEvents
      * @return the additional output attributes introduced by the function
      */

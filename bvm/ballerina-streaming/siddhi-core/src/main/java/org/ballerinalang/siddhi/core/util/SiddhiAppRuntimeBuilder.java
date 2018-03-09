@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * For building SiddhiAppRuntime
+ * For building SiddhiAppRuntime.
  */
 public class SiddhiAppRuntimeBuilder {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap =

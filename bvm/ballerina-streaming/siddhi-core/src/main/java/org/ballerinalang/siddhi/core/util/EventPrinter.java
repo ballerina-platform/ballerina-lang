@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.siddhi.core.util;
 
+import org.ballerinalang.siddhi.core.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.siddhi.core.event.Event;
 
 import java.util.Arrays;
 
 /**
- * Utility class to print incoming {@link Event}
+ * Utility class to print incoming {@link Event}.
  */
 public class EventPrinter {
     private static final Logger log = LoggerFactory.getLogger(EventPrinter.class);

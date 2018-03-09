@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.util.ExceptionUtil;
@@ -35,6 +33,8 @@ import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.annotation.Element;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -108,14 +108,14 @@ public abstract class Sink implements SinkListener, Snapshotable {
     }
 
     /**
-     * Supported dynamic options by the transport
+     * Supported dynamic options by the transport.
      *
      * @return the list of supported dynamic option keys
      */
     public abstract String[] getSupportedDynamicOptions();
 
     /**
-     * Will be called for initialing the {@link Sink}
+     * Will be called for initialing the {@link Sink}.
      *
      * @param outputStreamDefinition containing stream definition bind to the {@link Sink}
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
@@ -155,7 +155,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
     }
 
     /**
-     * Sending events via output transport
+     * Sending events via output transport.
      *
      * @param payload          payload of the event
      * @param transportOptions one of the event constructing the payload
@@ -166,19 +166,19 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
 
     /**
-     * Called to connect to the backend before events are published
+     * Called to connect to the backend before events are published.
      *
      * @throws ConnectionUnavailableException if it cannot connect to the backend
      */
     public abstract void connect() throws ConnectionUnavailableException;
 
     /**
-     * Called after all publishing is done, or when ConnectionUnavailableException is thrown
+     * Called after all publishing is done, or when ConnectionUnavailableException is thrown.
      */
     public abstract void disconnect();
 
     /**
-     * Called at the end to clean all the resources consumed
+     * Called at the end to clean all the resources consumed.
      */
     public abstract void destroy();
 
@@ -226,6 +226,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
         return isConnected.get();
     }
 
+    public void setConnected(boolean connected) {
+        isConnected.set(connected);
+    }
+
     public void shutdown() {
         disconnect();
         destroy();
@@ -244,9 +248,5 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     public StreamDefinition getStreamDefinition() {
         return streamDefinition;
-    }
-
-    public void setConnected(boolean connected) {
-        isConnected.set(connected);
     }
 }

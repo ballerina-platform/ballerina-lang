@@ -24,12 +24,12 @@ import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 import java.io.Serializable;
 
 /**
- * The converter that converts data of the events into StreamEvents
+ * The converter that converts data of the events into StreamEvents.
  */
 public interface StreamEventConverter {
 
     /**
-     * Method to construct StreamEvent form Event
+     * Method to construct StreamEvent form Event.
      *
      * @param event         Event to be converted
      * @param borrowedEvent Event that will be populated
@@ -37,7 +37,7 @@ public interface StreamEventConverter {
     void convertEvent(Event event, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) new StreamEvent from StreamEvent
+     * Method to construct(change format) new StreamEvent from StreamEvent.
      *
      * @param complexEvent  StreamEvent to be Converted
      * @param borrowedEvent Event that will be populated
@@ -45,7 +45,7 @@ public interface StreamEventConverter {
     void convertComplexEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timeStamp and data from StreamEvent
+     * Method to construct(change format) timeStamp and data from StreamEvent.
      *
      * @param timeStamp     timeStamp of the event
      * @param data          output data of the event
@@ -54,7 +54,7 @@ public interface StreamEventConverter {
     void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timeStamp and data from StreamEvent
+     * Method to construct(change format) timeStamp and data from StreamEvent.
      *
      * @param timeStamp     timeStamp of the event
      * @param data          output data of the event
@@ -64,7 +64,7 @@ public interface StreamEventConverter {
     void convertData(long timeStamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent);
 
     /**
-     * Element to hold information about event conversion
+     * Element to hold information about event conversion.
      */
     class ConversionMapping implements Serializable {
         private static final long serialVersionUID = 4986399180249934830L;

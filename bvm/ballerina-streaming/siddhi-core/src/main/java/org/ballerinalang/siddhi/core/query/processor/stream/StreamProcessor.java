@@ -49,7 +49,7 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
 
 
     /**
-     * The main processing method that will be called upon event arrival
+     * The main processing method that will be called upon event arrival.
      *
      * @param streamEventChunk      the event chunk that need to be processed
      * @param nextProcessor         the next processor to which the success events need to be passed
@@ -60,12 +60,12 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
                                     StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
 
     /**
-     * The configure method of the StreamProcessor, this method will be called before other methods
+     * The configure method of the StreamProcessor, this method will be called before other methods.
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param configReader                 the config reader of StreamProcessor
-     * @param siddhiAppContext         the context of the siddhi app
+     * @param siddhiAppContext             the context of the siddhi app
      * @param outputExpectsExpiredEvents   is output expects ExpiredEvents   @return the additional output attributes
      *                                     introduced by the function
      */

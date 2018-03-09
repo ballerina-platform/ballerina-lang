@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.input.state;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Every state element used in patterns to trigger repeated operations
+ * Every state element used in patterns to trigger repeated operations.
  */
 public class EveryStateElement implements StateElement {
 

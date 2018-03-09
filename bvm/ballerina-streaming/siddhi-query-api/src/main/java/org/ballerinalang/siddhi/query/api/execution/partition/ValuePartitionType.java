@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.query.api.execution.partition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Partition type supporting values
+ * Partition type supporting values.
  */
 public class ValuePartitionType implements PartitionType {
     private static final long serialVersionUID = 1L;

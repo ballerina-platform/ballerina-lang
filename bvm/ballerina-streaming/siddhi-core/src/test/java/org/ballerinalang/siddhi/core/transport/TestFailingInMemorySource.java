@@ -18,14 +18,14 @@
 
 package org.ballerinalang.siddhi.core.transport;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.Example;
 import org.ballerinalang.siddhi.annotation.Extension;
 import org.ballerinalang.siddhi.annotation.Parameter;
 import org.ballerinalang.siddhi.annotation.util.DataType;
 import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
 import org.ballerinalang.siddhi.core.stream.input.source.InMemorySource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of Source to receive events through in-memory transport for unavailability checking.

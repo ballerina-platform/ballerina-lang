@@ -25,7 +25,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.output.stream.ReturnSt
 import java.util.UUID;
 
 /**
- * Anonymous input query stream
+ * Anonymous input query stream.
  */
 public class AnonymousInputStream extends SingleInputStream {
     private Query query;

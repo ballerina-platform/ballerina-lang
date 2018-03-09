@@ -64,6 +64,9 @@ import static org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventTy
 import static org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventType.WINDOW;
 import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
+/**
+ * Class for Join input stream parser.
+ */
 public class JoinInputStreamParser {
 
 
@@ -99,11 +102,13 @@ public class JoinInputStreamParser {
                         leftMetaStreamEvent, leftInputStreamId);
                 setEventType(streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionMap,
                         rightMetaStreamEvent, rightInputStreamId);
-                leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId, latencyTracker, queryName, siddhiAppContext);
+                leftProcessStreamReceiver = new ProcessStreamReceiver(leftInputStreamId, latencyTracker, queryName,
+                        siddhiAppContext);
                 leftProcessStreamReceiver.setBatchProcessingAllowed(
                         leftMetaStreamEvent.getEventType() == WINDOW);
 
-                rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId, latencyTracker, queryName, siddhiAppContext);
+                rightProcessStreamReceiver = new ProcessStreamReceiver(rightInputStreamId, latencyTracker, queryName,
+                        siddhiAppContext);
                 rightProcessStreamReceiver.setBatchProcessingAllowed(
                         rightMetaStreamEvent.getEventType() == WINDOW);
 
@@ -113,7 +118,8 @@ public class JoinInputStreamParser {
                     throw new SiddhiAppCreationException("Both inputs of join " +
                             leftInputStreamId + " and " + rightInputStreamId + " are from static sources");
                 }
-                if (leftMetaStreamEvent.getEventType() != AGGREGATE && rightMetaStreamEvent.getEventType() != AGGREGATE) {
+                if (leftMetaStreamEvent.getEventType() != AGGREGATE &&
+                        rightMetaStreamEvent.getEventType() != AGGREGATE) {
                     if (joinInputStream.getPer() != null) {
                         throw new SiddhiAppCreationException("When joining " + leftInputStreamId + " and " +
                                 rightInputStreamId + " 'per' cannot be used as neither of them is an aggregation ");
@@ -126,12 +132,14 @@ public class JoinInputStreamParser {
                 if (windowDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
                     leftMetaStreamEvent.setEventType(WINDOW);
                     rightMetaStreamEvent.setEventType(WINDOW);
-                    rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
+                    rightProcessStreamReceiver =
+                            new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
                             1, latencyTracker, queryName, siddhiAppContext);
                     rightProcessStreamReceiver.setBatchProcessingAllowed(true);
                     leftProcessStreamReceiver = rightProcessStreamReceiver;
                 } else if (streamDefinitionMap.containsKey(joinInputStream.getAllStreamIds().get(0))) {
-                    rightProcessStreamReceiver = new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
+                    rightProcessStreamReceiver =
+                            new MultiProcessStreamReceiver(joinInputStream.getAllStreamIds().get(0),
                             2, latencyTracker, queryName, siddhiAppContext);
                     leftProcessStreamReceiver = rightProcessStreamReceiver;
                 } else {
@@ -194,15 +202,19 @@ public class JoinInputStreamParser {
                     break;
             }
 
-            JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true, leftOuterJoinProcessor, 0);
-            JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false, leftOuterJoinProcessor, 0);
+            JoinProcessor leftPreJoinProcessor = new JoinProcessor(true, true,
+                    leftOuterJoinProcessor, 0);
+            JoinProcessor leftPostJoinProcessor = new JoinProcessor(true, false,
+                    leftOuterJoinProcessor, 0);
 
             FindableProcessor leftFindableProcessor = insertJoinProcessorsAndGetFindable(leftPreJoinProcessor,
                     leftPostJoinProcessor, leftStreamRuntime, siddhiAppContext, outputExpectsExpiredEvents, queryName,
                     joinInputStream.getLeftInputStream());
 
-            JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true, rightOuterJoinProcessor, 1);
-            JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false, rightOuterJoinProcessor, 1);
+            JoinProcessor rightPreJoinProcessor = new JoinProcessor(false, true,
+                    rightOuterJoinProcessor, 1);
+            JoinProcessor rightPostJoinProcessor = new JoinProcessor(false, false,
+                    rightOuterJoinProcessor, 1);
 
             FindableProcessor rightFindableProcessor = insertJoinProcessorsAndGetFindable(rightPreJoinProcessor,
                     rightPostJoinProcessor, rightStreamRuntime, siddhiAppContext, outputExpectsExpiredEvents,
@@ -254,9 +266,9 @@ public class JoinInputStreamParser {
         if (windowDefinitionMap.containsKey(inputStreamId)) {
             metaStreamEvent.setEventType(WINDOW);
         } else if (tableDefinitionMap.containsKey(inputStreamId)) {
-                metaStreamEvent.setEventType(TABLE);
+            metaStreamEvent.setEventType(TABLE);
         } else if (aggregationDefinitionMap.containsKey(inputStreamId)) {
-                metaStreamEvent.setEventType(AGGREGATE);
+            metaStreamEvent.setEventType(AGGREGATE);
         } else if (!streamDefinitionMap.containsKey(inputStreamId)) {
             throw new SiddhiParserException("Definition of \"" + inputStreamId + "\" is not given");
         }

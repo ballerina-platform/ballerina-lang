@@ -18,24 +18,24 @@
 
 package org.ballerinalang.siddhi.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Scheduler based on System time
+ * Scheduler based on System time.
  */
 public class SystemTimeBasedScheduler extends Scheduler {
     private static final Logger log = LoggerFactory.getLogger(SystemTimeBasedScheduler.class);
+    private final Semaphore mutex;
     private EventCaller eventCaller;
     private volatile boolean running = false;
     private ScheduledExecutorService scheduledExecutorService;
-    private final Semaphore mutex;
 
     public SystemTimeBasedScheduler(ScheduledExecutorService scheduledExecutorService, Schedulable
             singleThreadEntryValve, SiddhiAppContext siddhiAppContext) {
@@ -73,7 +73,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
     @Override
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
         Scheduler scheduler = new SystemTimeBasedScheduler(scheduledExecutorService, entryValveProcessor,
-                                                           siddhiAppContext);
+                siddhiAppContext);
         scheduler.elementId = elementId + "-" + key;
         return scheduler;
     }

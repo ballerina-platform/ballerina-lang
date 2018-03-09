@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.constant;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * String constant {@link Expression}
+ * String constant {@link Expression}.
  */
 public class StringConstant extends Expression implements Constant {
 

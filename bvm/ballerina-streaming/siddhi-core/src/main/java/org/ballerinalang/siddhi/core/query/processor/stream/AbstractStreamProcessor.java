@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.siddhi.core.query.processor.stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
@@ -38,6 +36,8 @@ import org.ballerinalang.siddhi.query.api.SiddhiElement;
 import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -130,7 +130,7 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     }
 
     /**
-     * The main processing method that will be called upon event arrival
+     * The main processing method that will be called upon event arrival.
      *
      * @param streamEventChunk      the event chunk that need to be processed
      * @param nextProcessor         the next processor to which the success events need to be passed

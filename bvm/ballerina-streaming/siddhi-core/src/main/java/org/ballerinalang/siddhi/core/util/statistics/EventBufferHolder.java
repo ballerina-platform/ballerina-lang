@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
- * Event Buffer holder
+ * Event Buffer holder.
  */
 public interface EventBufferHolder {
 

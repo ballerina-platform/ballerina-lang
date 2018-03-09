@@ -24,7 +24,7 @@ import org.ballerinalang.siddhi.query.api.extension.Extension;
 import java.util.Arrays;
 
 /**
- * Siddhi stream function
+ * Siddhi stream function.
  */
 public class StreamFunction implements StreamHandler, Extension, SiddhiElement {
 

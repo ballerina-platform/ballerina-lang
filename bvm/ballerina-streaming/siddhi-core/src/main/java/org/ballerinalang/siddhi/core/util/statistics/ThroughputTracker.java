@@ -23,19 +23,19 @@ package org.ballerinalang.siddhi.core.util.statistics;
  */
 public interface ThroughputTracker {
     /**
-     * This method is to notify receive of an event to calculate the throughput
+     * This method is to notify receive of an event to calculate the throughput.
      */
     void eventIn();
 
     /**
-     * This method is to notify receive of multiple events to calculate the throughput
+     * This method is to notify receive of multiple events to calculate the throughput.
      *
      * @param eventCount number of events passing through
      */
     void eventsIn(int eventCount);
 
     /**
-     * @return Name of the memory usage tracker
+     * @return Name of the memory usage tracker.
      */
     String getName();
 

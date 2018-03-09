@@ -72,7 +72,8 @@ public class PassThroughSourceMapper extends SourceMapper {
         }
     }
 
-    @Override protected boolean allowNullInTransportProperties() {
+    @Override
+    protected boolean allowNullInTransportProperties() {
         return false;
     }
 }

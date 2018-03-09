@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.extension.Extension;
 import java.util.Arrays;
 
 /**
- * Attribute function {@link Expression}
+ * Attribute function {@link Expression}.
  */
 public class AttributeFunction extends Expression implements Extension {
 

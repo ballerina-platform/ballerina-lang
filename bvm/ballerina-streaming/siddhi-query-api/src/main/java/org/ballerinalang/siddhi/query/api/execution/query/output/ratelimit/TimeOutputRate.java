@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.execution.query.output.ratelimit;
 
 /**
- * Rate limiting of query output based on time
+ * Rate limiting of query output based on time.
  */
 public class TimeOutputRate extends OutputRate {
 

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.table.record;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 import org.ballerinalang.siddhi.core.event.state.StateEvent;
@@ -39,6 +37,8 @@ import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
 import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,7 +105,6 @@ public abstract class AbstractRecordTable extends Table {
      *
      * @param records records that need to be added to the table, each Object[] represent a record and it will match
      *                the attributes of the Table Definition.
-     *
      * @throws ConnectionUnavailableException
      */
     protected abstract void add(List<Object[]> records) throws ConnectionUnavailableException;
@@ -142,14 +141,13 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Find records matching the compiled condition
+     * Find records matching the compiled condition.
      *
      * @param findConditionParameterMap map of matching StreamVariable Ids and their values
      *                                  corresponding to the compiled condition
      * @param compiledCondition         the compiledCondition against which records should be matched
-     *
-     * @throws ConnectionUnavailableException
      * @return RecordIterator of matching records
+     * @throws ConnectionUnavailableException
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
                                                      CompiledCondition compiledCondition)
@@ -174,14 +172,13 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Check if matching record exist
+     * Check if matching record exist.
      *
      * @param containsConditionParameterMap map of matching StreamVariable Ids and their values corresponding to the
      *                                      compiled condition
      * @param compiledCondition             the compiledCondition against which records should be matched
-     *
-     * @throws ConnectionUnavailableException
      * @return if matching record found or not
+     * @throws ConnectionUnavailableException
      */
     protected abstract boolean contains(Map<String, Object> containsConditionParameterMap,
                                         CompiledCondition compiledCondition)
@@ -216,12 +213,11 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Delete all matching records
+     * Delete all matching records.
      *
      * @param deleteConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition
      * @param compiledCondition            the compiledCondition against which records should be matched for deletion
-     *
      * @throws ConnectionUnavailableException
      */
     protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps,
@@ -268,14 +264,13 @@ public abstract class AbstractRecordTable extends Table {
 
 
     /**
-     * Update all matching records
+     * Update all matching records.
      *
      * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
      * @param updateSetExpressions         the set of updates mappings and related complied expressions
      * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
-     *
      * @throws ConnectionUnavailableException
      */
     protected abstract void update(CompiledCondition updateCondition,
@@ -328,7 +323,7 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Try updating the records if they exist else add the records
+     * Try updating the records if they exist else add the records.
      *
      * @param updateCondition              the compiledCondition against which records should be matched for update
      * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
@@ -337,7 +332,6 @@ public abstract class AbstractRecordTable extends Table {
      * @param updateSetParameterMaps       map of matching StreamVariable Ids and their values corresponding to the
      *                                     update set
      * @param addingRecords                the values for adding new records if the update condition did not match
-     *
      * @throws ConnectionUnavailableException
      */
     protected abstract void updateOrAdd(CompiledCondition updateCondition,
@@ -382,7 +376,7 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Compile the matching expression
+     * Compile the matching expression.
      *
      * @param expressionBuilder helps visiting the conditions in order to compile the condition
      * @return compiled expression that can be used for matching events in find, contains, delete, update and
@@ -391,7 +385,7 @@ public abstract class AbstractRecordTable extends Table {
     protected abstract CompiledCondition compileCondition(ExpressionBuilder expressionBuilder);
 
     /**
-     * Compiles the expression in a set clause
+     * Compiles the expression in a set clause.
      *
      * @param expressionBuilder helps visiting the conditions in order to compile the condition
      * @return compiled expression that can be used for matching events in find, contains, delete, update and
@@ -400,7 +394,7 @@ public abstract class AbstractRecordTable extends Table {
     protected abstract CompiledExpression compileSetAttribute(ExpressionBuilder expressionBuilder);
 
     /**
-     * Compiled condition of the {@link AbstractRecordTable}
+     * Compiled condition of the {@link AbstractRecordTable}.
      */
     protected class RecordStoreCompiledCondition implements CompiledCondition {
         protected Map<String, ExpressionExecutor> variableExpressionExecutorMap;

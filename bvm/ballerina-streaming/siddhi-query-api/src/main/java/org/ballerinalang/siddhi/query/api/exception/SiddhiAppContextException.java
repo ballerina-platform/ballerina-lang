@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.query.api.exception;
 
 /**
- * Exception for considering context while throwing extensions
+ * Exception for considering context while throwing extensions.
  */
 public interface SiddhiAppContextException {
 

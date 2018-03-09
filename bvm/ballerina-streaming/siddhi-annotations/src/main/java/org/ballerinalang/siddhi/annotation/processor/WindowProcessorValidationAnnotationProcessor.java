@@ -54,7 +54,7 @@ public class WindowProcessorValidationAnnotationProcessor extends AbstractAnnota
             //Check if the @Parameter type is empty.
             if (parameter.type().length == 0) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter ->" +
-                        " name:{0} -> type annotated in class {1} is null or empty.", parameterName,
+                                " name:{0} -> type annotated in class {1} is null or empty.", parameterName,
                         extensionClassFullName));
             }
             //Check if the @Parameter dynamic property false or empty in the classes extending
@@ -67,8 +67,8 @@ public class WindowProcessorValidationAnnotationProcessor extends AbstractAnnota
             if (parameter.optional()) {
                 if (parameter.defaultValue().isEmpty()) {
                     throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
-                                    "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
-                                    "optional parameter.", parameterName, extensionClassFullName));
+                            "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
+                            "optional parameter.", parameterName, extensionClassFullName));
                 }
             }
         }

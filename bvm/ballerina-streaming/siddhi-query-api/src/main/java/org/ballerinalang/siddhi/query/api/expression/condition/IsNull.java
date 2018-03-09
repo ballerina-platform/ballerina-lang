@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.condition;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Condition {@link Expression} checking whether the event is null
+ * Condition {@link Expression} checking whether the event is null.
  */
 public class IsNull extends Expression {
 

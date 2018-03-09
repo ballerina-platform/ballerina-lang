@@ -34,21 +34,21 @@ import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 public interface Executor {
 
     /**
-     * Execute the handed StreamEvent
+     * Execute the handed StreamEvent.
      *
      * @param complexEventChunk event chunk to be processed
      */
     void execute(ComplexEventChunk complexEventChunk);
 
     /**
-     * Get next executor element in the execution chain. Executed event should be sent to next executor
+     * Get next executor element in the execution chain. Executed event should be sent to next executor.
      *
      * @return next executor
      */
     Executor getNextExecutor();
 
     /**
-     * Set next executor element in execution chain
+     * Set next executor element in execution chain.
      *
      * @param executor Event executor for incremental execution
      */

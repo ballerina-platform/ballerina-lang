@@ -58,7 +58,7 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public OutputRateLimiter clone(String key) {
         AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value,
-                                                                               scheduledExecutorService, queryName);
+                scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }

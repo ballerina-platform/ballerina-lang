@@ -77,25 +77,25 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
                      SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 2) {
             throw new SiddhiAppValidationException("convert() must have at 2 parameters, attribute and to be " +
-                                                               "converted type");
+                    "converted type");
         }
         inputType = attributeExpressionExecutors[0].getReturnType();
         if (inputType == Attribute.Type.OBJECT) {
             throw new SiddhiAppValidationException("1st parameter of convert() cannot be 'object' as " +
-                                                               "it's not supported, it has to be either of (STRING, " +
-                                                               "INT, LONG, FLOAT, DOUBLE, BOOL), but found " +
-                                                               attributeExpressionExecutors[0].getReturnType());
+                    "it's not supported, it has to be either of (STRING, " +
+                    "INT, LONG, FLOAT, DOUBLE, BOOL), but found " +
+                    attributeExpressionExecutors[0].getReturnType());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
             throw new SiddhiAppValidationException("2nd parameter of convert() must be 'string' have constant " +
-                                                               "value either of (STRING, INT, LONG, FLOAT, DOUBLE, "
-                                                               + "BOOL), but found " +
-                                                               attributeExpressionExecutors[0].getReturnType());
+                    "value either of (STRING, INT, LONG, FLOAT, DOUBLE, "
+                    + "BOOL), but found " +
+                    attributeExpressionExecutors[0].getReturnType());
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("2nd parameter of convert() must have constant value either " +
-                                                               "of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found "
-                                                               + "a variable expression");
+                    "of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found "
+                    + "a variable expression");
         }
         String type = (String) attributeExpressionExecutors[1].execute(null);
         if (Attribute.Type.STRING.toString().equalsIgnoreCase(type)) {
@@ -112,8 +112,8 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
             returnType = Attribute.Type.LONG;
         } else {
             throw new SiddhiAppValidationException("2nd parameter of convert() must have value either of " +
-                                                               "(STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found '" +
-                                                               type + "'");
+                    "(STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found '" +
+                    type + "'");
         }
     }
 

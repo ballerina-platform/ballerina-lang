@@ -18,8 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.processor.stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.annotation.Example;
 import org.ballerinalang.siddhi.annotation.Extension;
 import org.ballerinalang.siddhi.annotation.Parameter;
@@ -37,6 +35,8 @@ import org.ballerinalang.siddhi.core.util.config.ConfigReader;
 import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,8 +106,8 @@ public class LogStreamProcessor extends StreamProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
-     * @param siddhiAppContext         siddhi app context
-     * @param configReader this hold the {@link LogStreamProcessor} configuration reader.
+     * @param siddhiAppContext             siddhi app context
+     * @param configReader                 this hold the {@link LogStreamProcessor} configuration reader.
      * @return the additional output attributes introduced by the function
      */
     @Override

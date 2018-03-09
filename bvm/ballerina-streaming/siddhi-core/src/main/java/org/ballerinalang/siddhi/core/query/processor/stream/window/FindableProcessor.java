@@ -59,7 +59,7 @@ public interface FindableProcessor {
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
     CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                        SiddhiAppContext siddhiAppContext,
-                                        List<VariableExpressionExecutor> variableExpressionExecutors,
-                                        Map<String, Table> tableMap, String queryName);
+                                       SiddhiAppContext siddhiAppContext,
+                                       List<VariableExpressionExecutor> variableExpressionExecutors,
+                                       Map<String, Table> tableMap, String queryName);
 }

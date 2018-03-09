@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.expression.constant;
 
 /**
- * Time constant expression
+ * Time constant expression.
  */
 public class TimeConstant extends LongConstant {
 

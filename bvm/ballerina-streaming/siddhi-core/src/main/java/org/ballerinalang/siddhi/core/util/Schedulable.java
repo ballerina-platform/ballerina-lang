@@ -22,7 +22,7 @@ package org.ballerinalang.siddhi.core.util;
 import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 
 /**
- * Interface to mark any Siddhi execution component which is using scheduler
+ * Interface to mark any Siddhi execution component which is using scheduler.
  */
 public interface Schedulable {
 

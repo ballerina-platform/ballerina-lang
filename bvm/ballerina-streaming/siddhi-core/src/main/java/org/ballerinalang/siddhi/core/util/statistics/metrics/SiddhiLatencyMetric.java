@@ -73,6 +73,8 @@ public class SiddhiLatencyMetric implements LatencyTracker {
     }
 
     /**
+     * Return the name for the metric.
+     *
      * @return Name of the latency tracker
      */
     @Override

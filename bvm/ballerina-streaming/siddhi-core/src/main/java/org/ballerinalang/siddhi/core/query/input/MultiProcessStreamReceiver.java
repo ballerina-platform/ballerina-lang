@@ -33,8 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events to be fed into multi
- * stream processors which consume multiple streams.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} i
+ * mplementation to receive events to be fed into multi stream processors which consume multiple streams.
  */
 public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 

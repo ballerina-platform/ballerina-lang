@@ -18,11 +18,6 @@
 
 package org.ballerinalang.siddhi.core.query.function;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -31,6 +26,11 @@ import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.EventPrinter;
 import org.ballerinalang.siddhi.core.util.SiddhiTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -95,7 +95,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, 'double','ddd') as priceInDouble insert into outputStream;");
+                + "cast(price, 'double','ddd') as priceInDouble insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
@@ -107,7 +107,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, 'newType') as priceInDouble insert into outputStream;");
+                + "cast(price, 'newType') as priceInDouble insert into outputStream;");
         siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
@@ -117,7 +117,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, symbol) as priceInDouble insert into outputStream;");
+                + "cast(price, symbol) as priceInDouble insert into outputStream;");
 
         siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
@@ -128,7 +128,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, 'float') as priceInFloat insert into outputStream;");
+                + "cast(price, 'float') as priceInFloat insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
@@ -171,7 +171,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, 'long') as priceInLong insert into outputStream;");
+                + "cast(price, 'long') as priceInLong insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
@@ -214,7 +214,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, isAllowed object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,isAllowed, "
-                        + "cast(isAllowed, 'bool') as allowedInBool insert into outputStream;");
+                + "cast(isAllowed, 'bool') as allowedInBool insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
@@ -257,7 +257,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol object, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(symbol, 'string') as symbolInString insert into outputStream;");
+                + "cast(symbol, 'string') as symbolInString insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
@@ -300,7 +300,7 @@ public class CastFunctionExecutorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "\ndefine stream inputStream (symbol string, price object, volume long);";
         String query = ("@info(name = 'query1') from inputStream select symbol,price, "
-                        + "cast(price, 'int') as priceInInt insert into outputStream;");
+                + "cast(price, 'int') as priceInInt insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 

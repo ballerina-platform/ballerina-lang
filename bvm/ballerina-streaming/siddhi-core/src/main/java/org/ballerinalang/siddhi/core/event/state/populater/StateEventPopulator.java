@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.core.event.state.populater;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
- * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields
+ * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields.
  */
 public interface StateEventPopulator {
 

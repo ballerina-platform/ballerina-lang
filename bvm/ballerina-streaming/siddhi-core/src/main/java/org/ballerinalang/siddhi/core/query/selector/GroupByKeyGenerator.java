@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to generate keys for GroupBy groups
+ * Class to generate keys for GroupBy groups.
  */
 public class GroupByKeyGenerator {
 
@@ -53,7 +53,7 @@ public class GroupByKeyGenerator {
     }
 
     /**
-     * generate groupBy key of a streamEvent
+     * generate groupBy key of a streamEvent.
      *
      * @param event complexEvent
      * @return GroupByKey

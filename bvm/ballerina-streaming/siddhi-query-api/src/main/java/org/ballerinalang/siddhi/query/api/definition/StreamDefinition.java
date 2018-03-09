@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.definition;
 import org.ballerinalang.siddhi.query.api.annotation.Annotation;
 
 /**
- * Siddhi Stream Definition
+ * Siddhi Stream Definition.
  */
 public class StreamDefinition extends AbstractDefinition {
 

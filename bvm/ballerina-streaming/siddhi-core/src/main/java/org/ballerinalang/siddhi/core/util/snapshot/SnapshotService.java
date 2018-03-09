@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.siddhi.core.util.snapshot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
 import org.ballerinalang.siddhi.core.util.ThreadBarrier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -79,7 +79,7 @@ import java.util.Map;
                         defaultValue = "asc")
         },
         examples = @Example(
-                syntax =  "define stream cseEventStream (symbol string, price float, volume long);\n" +
+                syntax = "define stream cseEventStream (symbol string, price float, volume long);\n" +
                         "define window cseEventWindow (symbol string, price float, volume long) sort(2,volume, 'asc')" +
                         ";\n@info(name = 'query0')\n" +
                         "from cseEventStream\n" +
@@ -204,9 +204,9 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     public CompiledCondition compileCondition(Expression condition, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                               SiddhiAppContext siddhiAppContext,
-                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                               Map<String, Table> tableMap, String queryName) {
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(sortedWindow, condition, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }

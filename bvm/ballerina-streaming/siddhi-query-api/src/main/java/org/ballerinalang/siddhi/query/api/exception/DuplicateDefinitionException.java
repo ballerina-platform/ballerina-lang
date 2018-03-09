@@ -18,7 +18,7 @@
 package org.ballerinalang.siddhi.query.api.exception;
 
 /**
- * Exception thrown when a similar definition is defined again
+ * Exception thrown when a similar definition is defined again.
  */
 public class DuplicateDefinitionException extends SiddhiAppValidationException {
 

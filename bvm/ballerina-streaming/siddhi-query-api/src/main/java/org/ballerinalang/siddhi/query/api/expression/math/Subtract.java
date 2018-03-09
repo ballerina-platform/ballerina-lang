@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.expression.math;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * subtract {@link Expression}
+ * subtract {@link Expression}.
  */
 public class Subtract extends Expression {
 

@@ -39,12 +39,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to parse {@link InputStream}
+ * Class to parse {@link InputStream}.
  */
 public class InputStreamParser {
 
     /**
-     * Parse an InputStream returning corresponding StreamRuntime
+     * Parse an InputStream returning corresponding StreamRuntime.
      *
      * @param inputStream                input stream to be parsed
      * @param siddhiAppContext           associated siddhi siddhiAppContext

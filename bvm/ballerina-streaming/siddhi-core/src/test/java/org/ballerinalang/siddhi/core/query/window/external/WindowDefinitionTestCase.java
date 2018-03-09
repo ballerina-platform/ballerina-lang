@@ -18,14 +18,14 @@
 
 package org.ballerinalang.siddhi.core.query.window.external;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertTrue;
 

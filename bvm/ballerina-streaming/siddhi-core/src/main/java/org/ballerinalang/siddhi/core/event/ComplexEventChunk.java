@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Collection used to group and manage chunk or ComplexEvents
+ * Collection used to group and manage chunk or ComplexEvents.
  *
  * @param <E> sub types of ComplexEvent such as StreamEvent and StateEvent
  */

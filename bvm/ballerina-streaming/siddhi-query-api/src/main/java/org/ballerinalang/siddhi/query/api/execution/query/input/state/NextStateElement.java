@@ -20,7 +20,7 @@ package org.ballerinalang.siddhi.query.api.execution.query.input.state;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
- * Next state element used in patterns to link states
+ * Next state element used in patterns to link states.
  */
 public class NextStateElement implements StateElement {
 

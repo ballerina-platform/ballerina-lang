@@ -43,6 +43,28 @@ public class IncrementalUnixTimeFunctionExecutor extends FunctionExecutor {
     private static Pattern gmtRegexPattern = Pattern
             .compile("[0-9]{4}-[0-9]{2}-[0-9]{2}\\s[0-9]{2}[:][0-9]{2}[:][0-9]{2}");
 
+    public static long getUnixTimeStamp(String stringTimeStamp) {
+        stringTimeStamp = stringTimeStamp.trim();
+        // stringTimeStamp must be of format "2017-06-01 04:05:50 +05:00 (not GMT) or 2017-06-01 04:05:50 (if in GMT)"
+        if (gmtRegexPattern.matcher(stringTimeStamp).matches()) {
+            String[] dateTime = stringTimeStamp.split(" ");
+            return Instant.parse(dateTime[0].concat("T").concat(dateTime[1]).concat("Z")).toEpochMilli();
+        } else if (nonGmtRegexPattern.matcher(stringTimeStamp).matches()) {
+            String[] dateTimeZone = stringTimeStamp.split(" ");
+            String[] splitDate = dateTimeZone[0].split("-");
+            String[] splitTime = dateTimeZone[1].split(":");
+            return ZonedDateTime
+                    .of(Integer.parseInt(splitDate[0]), Integer.parseInt(splitDate[1]), Integer.parseInt(splitDate[2]),
+                            Integer.parseInt(splitTime[0]), Integer.parseInt(splitTime[1]),
+                            Integer.parseInt(splitTime[2]), 0, ZoneId.ofOffset("GMT", ZoneOffset.of(dateTimeZone[2])))
+                    .toEpochSecond() * 1000;
+        }
+        throw new SiddhiAppRuntimeException("Timestamp " + stringTimeStamp + "doesn't match "
+                + "the supported formats <yyyy>-<MM>-<dd> <HH>:<mm>:<ss> (for GMT time zone) or " +
+                "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <Z> (for non GMT time zone). The ISO 8601 UTC offset must be "
+                + "provided for <Z> (ex. +05:30, -11:00");
+    }
+
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                         SiddhiAppContext siddhiAppContext) {
@@ -80,27 +102,5 @@ public class IncrementalUnixTimeFunctionExecutor extends FunctionExecutor {
     @Override
     public void restoreState(Map<String, Object> state) {
         //Nothing to be done
-    }
-
-    public static long getUnixTimeStamp(String stringTimeStamp) {
-        stringTimeStamp = stringTimeStamp.trim();
-        // stringTimeStamp must be of format "2017-06-01 04:05:50 +05:00 (not GMT) or 2017-06-01 04:05:50 (if in GMT)"
-        if (gmtRegexPattern.matcher(stringTimeStamp).matches()) {
-            String[] dateTime = stringTimeStamp.split(" ");
-            return Instant.parse(dateTime[0].concat("T").concat(dateTime[1]).concat("Z")).toEpochMilli();
-        } else if (nonGmtRegexPattern.matcher(stringTimeStamp).matches()) {
-            String[] dateTimeZone = stringTimeStamp.split(" ");
-            String[] splitDate = dateTimeZone[0].split("-");
-            String[] splitTime = dateTimeZone[1].split(":");
-            return ZonedDateTime
-                    .of(Integer.parseInt(splitDate[0]), Integer.parseInt(splitDate[1]), Integer.parseInt(splitDate[2]),
-                            Integer.parseInt(splitTime[0]), Integer.parseInt(splitTime[1]),
-                            Integer.parseInt(splitTime[2]), 0, ZoneId.ofOffset("GMT", ZoneOffset.of(dateTimeZone[2])))
-                    .toEpochSecond() * 1000;
-        }
-        throw new SiddhiAppRuntimeException("Timestamp " + stringTimeStamp + "doesn't match "
-                + "the supported formats <yyyy>-<MM>-<dd> <HH>:<mm>:<ss> (for GMT time zone) or " +
-                "<yyyy>-<MM>-<dd> <HH>:<mm>:<ss> <Z> (for non GMT time zone). The ISO 8601 UTC offset must be "
-                + "provided for <Z> (ex. +05:30, -11:00");
     }
 }

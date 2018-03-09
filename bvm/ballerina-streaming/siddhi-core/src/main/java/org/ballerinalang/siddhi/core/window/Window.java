@@ -80,7 +80,7 @@ public class Window implements FindableProcessor, Snapshotable, MemoryCalculable
      */
     private final LockWrapper lockWrapper;
     /**
-     * TemplateBuilder to convert {@link StateEvent}s to {@link StreamEvent}s
+     * TemplateBuilder to convert {@link StateEvent}s to {@link StreamEvent}s.
      */
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     /**
@@ -104,7 +104,7 @@ public class Window implements FindableProcessor, Snapshotable, MemoryCalculable
     private StreamEventPool streamEventPool;
 
     /**
-     * window operation latency and throughput trackers
+     * window operation latency and throughput trackers.
      */
     private LatencyTracker latencyTrackerInsert;
     private LatencyTracker latencyTrackerFind;

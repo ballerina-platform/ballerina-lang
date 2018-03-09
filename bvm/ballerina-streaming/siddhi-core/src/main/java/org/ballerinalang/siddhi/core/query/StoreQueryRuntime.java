@@ -21,7 +21,7 @@ import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 /**
- * Store Query Runtime Interface
+ * Store Query Runtime Interface.
  */
 public interface StoreQueryRuntime {
 

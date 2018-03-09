@@ -18,19 +18,19 @@
 
 package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.util.ExceptionUtil;
 import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 import org.ballerinalang.siddhi.core.util.timestamp.TimestampGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 /**
- * This class wraps {@link InputHandler} class in order to guarantee exactly once processing
+ * This class wraps {@link InputHandler} class in order to guarantee exactly once processing.
  */
 public class InputEventHandler {
 

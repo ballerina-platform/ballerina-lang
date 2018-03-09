@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.query.api.execution.partition;
 import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
- * Type of Siddhi partition
+ * Type of Siddhi partition.
  */
 public interface PartitionType extends SiddhiElement {
 

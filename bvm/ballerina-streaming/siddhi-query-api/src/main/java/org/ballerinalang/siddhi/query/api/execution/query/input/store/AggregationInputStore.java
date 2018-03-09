@@ -22,7 +22,7 @@ import org.ballerinalang.siddhi.query.api.aggregation.Within;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
- * Aggregation Input Store
+ * Aggregation Input Store.
  */
 public class AggregationInputStore extends ConditionInputStore {
 

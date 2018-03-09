@@ -18,7 +18,6 @@
 package org.ballerinalang.siddhi.query.api;
 
 
-import org.testng.annotations.Test;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 import org.ballerinalang.siddhi.query.api.exception.UnsupportedAttributeTypeException;
 import org.ballerinalang.siddhi.query.api.execution.query.Query;
@@ -27,6 +26,7 @@ import org.ballerinalang.siddhi.query.api.execution.query.selection.OrderByAttri
 import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.testng.annotations.Test;
 
 public class SimpleQueryTestCase {
 
