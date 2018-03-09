@@ -166,8 +166,8 @@ public class CPU {
         while (ctx.ip >= 0) {
             if (debugEnabled) {
                 debug(ctx);
-                if (ctx.ip < 0) {
-                    break;
+                if (ctx.getDebugContext().isWorkerPaused()) {
+                    return;
                 }
             }
 
@@ -2457,9 +2457,8 @@ public class CPU {
      */
     private static void debugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, Debugger debugger) {
         ctx.getDebugContext().setLastLine(currentExecLine);
-        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
-
         debugger.pauseWorker(ctx);
+        debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, 
