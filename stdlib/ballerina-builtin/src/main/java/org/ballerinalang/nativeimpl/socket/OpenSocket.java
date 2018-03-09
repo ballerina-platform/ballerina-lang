@@ -37,6 +37,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD_INDEX;
+
 /**
  * Native function to open a Client socket.
  *
@@ -69,7 +71,7 @@ public class OpenSocket extends AbstractNativeFunction {
         try {
             // Open a client connection
             SocketChannel socketChannel = SocketChannel.open();
-            if (options.getIntField(0) > 0) {
+            if (options.getIntField(LOCAL_PORT_OPTION_FIELD_INDEX) > 0) {
                 socketChannel.bind(new InetSocketAddress((int) options.getIntField(0)));
             }
             socketChannel.connect(new InetSocketAddress(host, port));

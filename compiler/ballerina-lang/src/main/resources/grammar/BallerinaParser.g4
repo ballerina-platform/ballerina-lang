@@ -133,6 +133,7 @@ attachmentPoint
      | FUNCTION
      | STRUCT
      | ENUM
+     | ENDPOINT
      | CONST
      | PARAMETER
      | ANNOTATION
@@ -156,7 +157,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   ENDPOINT (LT nameReference GT) Identifier recordLiteral
+    :   annotationAttachment* endpointType Identifier recordLiteral?
+    ;
+
+endpointType
+    :   ENDPOINT (LT nameReference GT)
     ;
 
 typeName

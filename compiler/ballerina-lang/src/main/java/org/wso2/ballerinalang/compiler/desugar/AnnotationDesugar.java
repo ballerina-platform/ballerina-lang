@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -104,6 +105,10 @@ public class AnnotationDesugar {
                 String key = struct.name.value + DOT + field.name.value;
                 generateAnnotations(field, key, initFunction, annotationMap);
             }
+        }
+
+        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
+            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
         }
 
         ASTBuilderUtil.createReturnStmt(pkgNode.pos, initFunction.body);

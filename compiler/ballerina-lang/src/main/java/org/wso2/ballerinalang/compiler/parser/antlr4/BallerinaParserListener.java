@@ -318,6 +318,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEndpointDeclaration(BallerinaParser.EndpointDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#endpointType}.
+	 * @param ctx the parse tree
+	 */
+	void enterEndpointType(BallerinaParser.EndpointTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#endpointType}.
+	 * @param ctx the parse tree
+	 */
+	void exitEndpointType(BallerinaParser.EndpointTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
