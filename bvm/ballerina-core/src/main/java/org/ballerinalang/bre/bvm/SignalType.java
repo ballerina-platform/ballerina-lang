@@ -19,6 +19,8 @@ package org.ballerinalang.bre.bvm;
 
 /**
  * The type of the signal being sent from a worker to a {@link WorkerResponseContext}.
+ * 
+ * @since 0.965.0
  */
 public enum SignalType {
 

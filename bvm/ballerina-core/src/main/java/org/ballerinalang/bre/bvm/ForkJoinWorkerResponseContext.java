@@ -128,7 +128,7 @@ public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContex
         }
         this.setAsFulfilled();
         BMap<String, BRefValueArray> mbMap = new BMap<>();
-        channelNames.forEach((k,v) -> {
+        channelNames.forEach((k, v) -> {
             BRefValueArray workerRes = getWorkerResult(v);
             if (workerRes != null) {
                 mbMap.put(k, workerRes);

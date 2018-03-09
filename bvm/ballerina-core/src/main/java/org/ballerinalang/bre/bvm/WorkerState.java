@@ -19,6 +19,8 @@ package org.ballerinalang.bre.bvm;
 
 /**
  * This represents the possible worker execution states.
+ * 
+ * @since 0.965.0
  */
 public enum WorkerState {
 

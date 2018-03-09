@@ -17,7 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;

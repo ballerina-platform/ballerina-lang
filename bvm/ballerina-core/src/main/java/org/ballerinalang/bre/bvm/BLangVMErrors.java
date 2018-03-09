@@ -200,13 +200,6 @@ public class BLangVMErrors {
         return error;
     }
 
-    /**
-     * Attach CallStack to given Error Struct.
-     *
-     * @param error error struct
-     * @param progFile Program file
-     * @param ip current instruction pointer
-     */
     public static void attachStackFrame(BStruct error, WorkerExecutionContext context) {
         error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(context));
     }
@@ -215,13 +208,6 @@ public class BLangVMErrors {
         error.addNativeData(STRUCT_CALL_STACK_ELEMENT, getStackFrame(callableUnitInfo, 0));
     }
 
-    /**
-     * Generate StackTraceItem array.
-     *  
-     * @param progFile Program file
-     * @param ip current instruction pointer
-     * @return generated StackTraceItem struct array
-     */
     public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
         BRefValueArray callStack = new BRefValueArray();
         long index = 0;

@@ -113,7 +113,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 /**
  * This class executes Ballerina instruction codes by acting as a CPU.
  *
- * @since 0.963.0
+ * @since 0.965.0
  */
 public class CPU {
 
@@ -440,7 +440,8 @@ public class CPU {
                     break;
                 case InstructionCodes.WRKRECEIVE:
                     InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, wrkReceiveIns.regs)) {
+                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, 
+                            wrkReceiveIns.regs)) {
                         return;
                     }
                     break;
@@ -2496,13 +2497,14 @@ public class CPU {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String sourceTypeName,
-            String targetTypeName) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+            String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, String errorMessage) {
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, 
+            int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
