@@ -203,7 +203,6 @@ public class BLangFunctions {
             if (error != null) {
                 handleError(parentCtx);
             }
-            runInCallerCtx = null;
         }
         return runInCallerCtx;
     }
