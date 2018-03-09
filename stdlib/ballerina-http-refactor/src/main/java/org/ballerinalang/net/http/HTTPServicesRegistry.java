@@ -25,19 +25,15 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
-import org.ballerinalang.net.ws.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -52,8 +48,8 @@ public class HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
-    // Outer Map key=interface, Inner Map key=basePath
-    private final Map<String, Map<String, HttpService>> servicesInfoMap = new ConcurrentHashMap<>();
+    // Outer Map key=basePath
+    private final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
@@ -64,22 +60,20 @@ public class HTTPServicesRegistry {
     /**
      * Get ServiceInfo isntance for given interface and base path.
      *
-     * @param interfaceId interface id of the service.
      * @param basepath    basepath of the service.
      * @return the {@link HttpService} instance if exist else null
      */
-    public HttpService getServiceInfo(String interfaceId, String basepath) {
-        return servicesInfoMap.get(interfaceId).get(basepath);
+    public HttpService getServiceInfo(String basepath) {
+        return servicesInfoMap.get(basepath);
     }
 
     /**
      * Get ServiceInfo map for given interfaceId.
      *
-     * @param interfaceId interfaceId interface id of the services.
      * @return the serviceInfo map if exists else null.
      */
-    public Map<String, HttpService> getServicesInfoByInterface(String interfaceId) {
-        return servicesInfoMap.get(interfaceId);
+    public Map<String, HttpService> getServicesInfoByInterface() {
+        return servicesInfoMap;
     }
 
     /**
@@ -90,39 +84,11 @@ public class HTTPServicesRegistry {
     public void registerService(HttpService service) {
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
-
         String basePath = discoverBasePathFrom(service, annotation);
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
-//        Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
-//
-//        for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-//            String entryListenerInterface = listenerConfiguration.getId();
-//            Map<String, HttpService> servicesOnInterface = servicesInfoMap
-//                    .computeIfAbsent(entryListenerInterface, k -> new HashMap<>());
-//
-//            HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-//            // Assumption : this is always sequential, no two simultaneous calls can get here
-//            if (servicesOnInterface.containsKey(basePath)) {
-//                throw new BallerinaConnectorException(
-//                        "service with base path :" + basePath + " already exists in listener : "
-//                                + entryListenerInterface);
-//            }
-//            servicesOnInterface.put(basePath, service);
-//
-//            // If WebSocket upgrade path is available, then register the name of the WebSocket service.
-//            if (annotation != null) {
-//                AnnAttrValue webSocketAttr = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET);
-//                if (webSocketAttr != null) {
-//                    Annotation webSocketAnn = webSocketAttr.getAnnotation();
-//                    registerWebSocketUpgradePath(webSocketAnn, basePath, entryListenerInterface);
-//                }
-//            }
-//        }
-
         // TODO: Add websocket services to the service registry when service creation get available.
-
-
+        servicesInfoMap.put(service.getBasePath(), service);
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
         postProcessService(service);
     }

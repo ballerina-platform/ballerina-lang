@@ -56,7 +56,7 @@ public class HttpDispatcher {
 
     private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
-            Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
+            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
 
             String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
             inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
@@ -84,16 +84,6 @@ public class HttpDispatcher {
         } catch (Throwable e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
-    }
-
-    private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,
-                                                                   HTTPCarbonMessage inboundReqMsg) {
-        String interfaceId = getInterface(inboundReqMsg);
-        Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
-        if (servicesOnInterface == null) {
-            throw new BallerinaConnectorException("no services found for interface : " + interfaceId);
-        }
-        return servicesOnInterface;
     }
 
     private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
