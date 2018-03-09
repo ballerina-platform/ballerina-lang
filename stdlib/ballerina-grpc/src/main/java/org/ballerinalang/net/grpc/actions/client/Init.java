@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.actions;
+package org.ballerinalang.net.grpc.actions.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

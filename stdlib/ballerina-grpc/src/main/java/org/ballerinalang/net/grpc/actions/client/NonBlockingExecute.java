@@ -15,34 +15,36 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.actions;
+package org.ballerinalang.net.grpc.actions.client;
 
 import io.grpc.MethodDescriptor;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
 /**
- * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
+ * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
-        actionName = "streamingExecute",
+        actionName = "nonBlockingExecute",
         connectorName = "GRPCConnector",
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
+                @Argument(name = "payload", type = TypeKind.ANY),
                 @Argument(name = "listenerService", type = TypeKind.STRING)
         },
         returnType = {
@@ -55,13 +57,13 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
                 @Argument(name = "port", type = TypeKind.INT)
         }
 )
-public class StreamingExecute extends AbstractExecute {
+public class NonBlockingExecute extends AbstractExecute {
     @Override
     public ConnectorFuture execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         if (bConnector == null) {
-            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
-                    "is not initialized properly");
+            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
+                    "not initialized properly");
         }
 
         Object connectionStub = bConnector.getnativeData("stub");
@@ -80,33 +82,43 @@ public class StreamingExecute extends AbstractExecute {
             return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
         }
         if (connectionStub instanceof GrpcNonBlockingStub) {
+            BValue payloadBValue = getRefArgument(context, 1);
+            Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
             String listenerService = getStringArgument(context, 1);
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
-                StreamObserver<Message> requestSender;
-                if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
-                    requestSender = grpcNonBlockingStub.executeClientStreaming
-                            (responseObserver, methodName);
-
-                } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
-                    requestSender = grpcNonBlockingStub.executeBidiStreaming
-                            (responseObserver, methodName);
+                if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
+                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, listenerService),
+                            methodName);
+                } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
+                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
+                            listenerService), methodName);
                 } else {
                     return notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
-                responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
-                BStruct connStruct = createStruct(context, "ClientConnection");
-                connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
-                connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
-                        .getInputType());
-                return notifyReply(connStruct);
+                return notifyErrorReply(context, null);
             } catch (RuntimeException | GrpcClientException e) {
                 return notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
             }
         }
-        return null;
+        return notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
+                "type not supported");
+    }
+
+    @Override
+    ClientConnectorFuture notifyErrorReply(Context context, String errorMessage) {
+        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+        BStruct outboundError = createStruct(context, "ConnectorError");
+        outboundError.setStringField(0, errorMessage);
+        ballerinaFuture.notifyReply(outboundError);
+        return ballerinaFuture;
+    }
+
+    ClientConnectorFuture notifyReply() {
+        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+        ballerinaFuture.notifyReply(null);
+        return ballerinaFuture;
     }
 }
