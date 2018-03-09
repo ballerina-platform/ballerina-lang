@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './properties-form.css';
 
 /**
@@ -38,12 +39,29 @@ class TagInput extends React.Component {
         this.handleRemoveItem = this.handleRemoveItem.bind(this);
     }
 
-    render(){
+    handleInputChange(evt) {
+        this.setState({ input: evt.target.value });
+    }
+
+    handleInputKeyDown(evt) {
+        this.props.onTagsAdded(evt);
+        if (evt.keyCode === 13 || evt.keyCode === 188) {
+            this.setState(state => ({
+                input: '',
+            }));
+        }
+    }
+
+    handleRemoveItem(index) {
+        this.props.removeTagsAdded(this.props.taggedElements, index);
+    }
+
+    render() {
         return (
-            <ul id='ulContainer'className='sixteen wide field'>
+            <ul id='ulContainer' className='sixteen wide field'>
                 {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
                     (<li
-                        key={i}
+                        key={item}
                         className='tagItems'
                         onClick={() => { this.handleRemoveItem(i); }}
                     >
@@ -61,22 +79,19 @@ class TagInput extends React.Component {
             </ul>
         );
     }
-
-    handleInputChange(evt) {
-        this.setState({ input: evt.target.value });
-    }
-
-    handleInputKeyDown(evt) {
-        this.props.onTagsAdded(evt);
-        if (evt.keyCode === 13 || evt.keyCode === 188) {
-            this.setState(state => ({
-                input: '',
-            }));
-        }
-    }
-
-    handleRemoveItem(index) {
-        this.props.removeTagsAdded(this.props.taggedElements, index);
-    }
 }
+
+TagInput.propTypes = {
+    onTagsAdded: PropTypes.func,
+    removeTagsAdded: PropTypes.func,
+    taggedElements: PropTypes.instanceOf(Object).isRequired,
+    placeholder: PropTypes.string,
+};
+
+TagInput.defaultProps = {
+    onTagsAdded: () => { },
+    removeTagsAdded: () => { },
+    placeholder: '',
+};
+
 export default TagInput;
