@@ -806,9 +806,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
         String endpointName = ctx.Identifier().getText();
         this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName);
+    }
+
+    @Override
+    public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
+        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

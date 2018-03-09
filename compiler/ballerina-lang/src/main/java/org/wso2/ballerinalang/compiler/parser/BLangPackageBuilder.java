@@ -494,6 +494,7 @@ public class BLangPackageBuilder {
 
     public void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
         final BLangEndpoint endpointNode = (BLangEndpoint) TreeBuilder.createEndpointNode();
+        attachAnnotations(endpointNode);
         endpointNode.pos = pos;
         endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
         endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();

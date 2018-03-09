@@ -54,6 +54,7 @@ public class BLangAnnotationAttachmentPoint {
         FUNCTION("function"),
         STRUCT("struct"),
         ENUM("enum"),
+        ENDPOINT("endpoint"),
         CONST("const"),
         PARAMETER("parameter"),
         ANNOTATION("annotation"),

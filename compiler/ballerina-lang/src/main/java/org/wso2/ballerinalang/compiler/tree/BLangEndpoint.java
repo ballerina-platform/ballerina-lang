@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -26,7 +27,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,11 +43,13 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     public BLangEndpointTypeNode endpointTypeNode;
     public BLangExpression configurationExpr;
     public Set<Flag> flagSet;
+    public List<BLangAnnotationAttachment> annAttachments;
 
     public BEndpointVarSymbol symbol;
 
     public BLangEndpoint() {
         flagSet = EnumSet.noneOf(Flag.class);
+        annAttachments = new ArrayList<>();
     }
 
     @Override
@@ -70,5 +75,25 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.ENDPOINT;
+    }
+
+    @Override
+    public Set<Flag> getFlags() {
+        return flagSet;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
+    }
+
+    @Override
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
+        return annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
 }

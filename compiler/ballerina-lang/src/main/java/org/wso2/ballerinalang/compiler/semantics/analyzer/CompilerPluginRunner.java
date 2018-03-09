@@ -208,7 +208,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpoint endpointNode) {
-        List<BLangAnnotationAttachment> attachmentList = Collections.emptyList();
+        List<BLangAnnotationAttachment> attachmentList = endpointNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(endpointNode, list));
         notifyEndpointProcessors(endpointNode.symbol.type, attachmentList,
                 (processor, list) -> processor.process(endpointNode, list));
