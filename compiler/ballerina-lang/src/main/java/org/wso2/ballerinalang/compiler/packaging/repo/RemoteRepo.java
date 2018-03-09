@@ -13,6 +13,10 @@ public class RemoteRepo extends NonSysRepo<StringBuilder> {
         super(converter);
     }
 
+    public RemoteRepo(String baseURL) {
+        this(new URIConverter());
+    }
+
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
         String orgName = pkg.getOrgName().value;
@@ -21,10 +25,6 @@ public class RemoteRepo extends NonSysRepo<StringBuilder> {
 
         return new Patten(Patten.path("repo", orgName, pkgName, pkgVersion, "src"),
                           Patten.WILDCARD_SOURCE);
-    }
-
-    public RemoteRepo(String baseURL) {
-        this(new URIConverter());
     }
 
 }

@@ -26,19 +26,9 @@ public class RepoHierarchy {
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
 
-    /**
-     * Node in a directed acyclic graph containing repositories.
-     */
-    public static class RepoNode {
-        public final RepoNode[] children;
-        public final Repo repo;
-        private boolean visited;
-
-        RepoNode(Repo repo, RepoNode[] children) {
-            this.children = children;
-            this.repo = repo;
-        }
-
+    private RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
+        this.repos = repos;
+        this.dags = dags;
     }
 
     public static RepoHierarchy build(RepoNode root) {
@@ -80,11 +70,6 @@ public class RepoHierarchy {
         return new RepoNode(r, n);
     }
 
-    private RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
-        this.repos = repos;
-        this.dags = dags;
-    }
-
     public Resolution resolve(PackageID pkg) {
         PrintStream out = System.out;
         out.println("Searching " + pkg);
@@ -121,5 +106,20 @@ public class RepoHierarchy {
     public String toString() {
         return "{r:" + Arrays.toString(repos) +
                 ", d:" + Arrays.toString(dags) + "}";
+    }
+
+    /**
+     * Node in a directed acyclic graph containing repositories.
+     */
+    public static class RepoNode {
+        public final RepoNode[] children;
+        public final Repo repo;
+        private boolean visited;
+
+        RepoNode(Repo repo, RepoNode[] children) {
+            this.children = children;
+            this.repo = repo;
+        }
+
     }
 }

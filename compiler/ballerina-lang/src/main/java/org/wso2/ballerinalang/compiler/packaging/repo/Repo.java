@@ -16,6 +16,7 @@ import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
  *       `---> Converter
  *
  * </pre>
+ *
  * @param <I>
  */
 public interface Repo<I> {

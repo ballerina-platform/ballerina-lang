@@ -31,18 +31,6 @@ public class JarRepo implements Repo<Path> {
         }
     }
 
-    @Override
-    public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("META-INF", "ballerina",
-                                      pkg.getName().value.replace('.', '/')), //TODO: remove replacement
-                          Patten.WILDCARD_SOURCE);
-    }
-
-    @Override
-    public Converter<Path> getConverterInstance() {
-        return converter;
-    }
-
     private static Path pathWithinJar(URI pathToJar) {
         try {
             URI pathInJar = new URI("jar:" + pathToJar.getScheme(),
@@ -64,6 +52,18 @@ public class JarRepo implements Repo<Path> {
             FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
         }
+    }
+
+    @Override
+    public Patten calculate(PackageID pkg) {
+        return new Patten(Patten.path("META-INF", "ballerina",
+                                      pkg.getName().value.replace('.', '/')), //TODO: remove replacement
+                          Patten.WILDCARD_SOURCE);
+    }
+
+    @Override
+    public Converter<Path> getConverterInstance() {
+        return converter;
     }
 
     @Override
