@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
-import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
  * {@code RejectPromise} action can be used to reject a push promise.
@@ -44,8 +43,6 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpHandle",
-                        structPackage = "ballerina.net.http"),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
                         structPackage = "ballerina.net.http")
         },
@@ -68,13 +65,7 @@ public class RejectPromise extends AbstractHTTPAction {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action : {}", this.getName());
         }
-        BStruct handleStruct = ((BStruct) getRefArgument(context, 1));
-
-        ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
-        if (responseHandle == null) {
-            throw new BallerinaException("invalid handle");
-        }
-        BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 2);
+        BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
@@ -82,7 +73,7 @@ public class RejectPromise extends AbstractHTTPAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
-        clientConnector.rejectPushResponse(responseHandle, http2PushPromise);
+        clientConnector.rejectPushResponse(http2PushPromise);
 
         ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
         ballerinaFuture.notifyReply(new BBoolean(true));  // TODO: Implement a listener to see the progress

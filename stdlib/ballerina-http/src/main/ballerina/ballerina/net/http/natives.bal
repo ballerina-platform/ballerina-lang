@@ -526,15 +526,13 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	native action getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError);
 
 	@Description { value:"Retrieve server push response"}
-	@Param { value:"handle: Handle which relates to previous async invocation" }
 	@Param { value:"promise: Related Push Promise message" }
 	@Return { value:"HTTP Push Response message" }
 	@Return { value:"Error occured during HTTP client invocation" }
-	native action getPushResponse (HttpHandle handle, PushPromise promise) (InResponse, HttpConnectorError);
+	native action getPushResponse (PushPromise promise) (InResponse, HttpConnectorError);
 
 	@Description { value:"Reject a push promise"}
-	@Param { value:"handle: Handle which relates to previous async invocation" }
 	@Param { value:"promise: Push Promise need to be rejected" }
 	@Return { value:"Whether operation is successful" }
-	native action rejectPromise (HttpHandle handle, PushPromise promise) (boolean);
+	native action rejectPromise (PushPromise promise) (boolean);
 }
