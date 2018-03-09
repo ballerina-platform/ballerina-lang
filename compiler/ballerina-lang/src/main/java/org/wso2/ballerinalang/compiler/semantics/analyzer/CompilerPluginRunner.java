@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -231,19 +230,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
         BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
-        if (pkgSymbol == null) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_PACKAGE_FOUND,
-                    annPackage, plugin.getClass().getName());
-            return annotationSymbols;
-        }
-
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-        for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
-            annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
-        }
-
-        if (annotationSymbols.isEmpty()) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE);
+        if (pkgEnv != null) {
+            for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
+                annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
+            }
         }
         return annotationSymbols;
     }
