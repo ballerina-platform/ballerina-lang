@@ -61,6 +61,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.ConnectorInfo;
@@ -78,6 +79,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -98,6 +100,8 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -141,10 +145,10 @@ public class CPU {
             }
         }
     }
-    
+
     private static void tryExec(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.RUNNING;
-        
+
         int i;
         int j;
         int cpIndex; // Index of the constant pool
@@ -391,7 +395,7 @@ public class CPU {
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
-                    ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs, 
+                    ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
                             callIns.retRegs, false);
                     if (ctx == null) {
                         return;
@@ -414,7 +418,7 @@ public class CPU {
                     break;
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                    ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs, 
+                    ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
                             tcallIns.retRegs, false);
                     if (ctx == null) {
                         return;
@@ -427,7 +431,8 @@ public class CPU {
                     break;
                 case InstructionCodes.TR_END:
                     i = operands[0];
-                    endTransaction(ctx, i);
+                    j = operands[1];
+                    endTransaction(ctx, i, j);
                     break;
                 case InstructionCodes.WRKSEND:
                     InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -476,7 +481,7 @@ public class CPU {
                     funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
                     funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
                     functionInfo = funcRefCPEntry.getFunctionInfo();
-                    ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(), 
+                    ctx = BLangFunctions.invokeCallable(functionInfo, ctx, funcCallCPEntry.getArgRegs(),
                             funcCallCPEntry.getRetRegs(), false);
                     if (ctx == null) {
                         return;
@@ -2568,60 +2573,103 @@ public class CPU {
         sf.refRegs[i] = bStruct;
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int status) {
-//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-//        if (ballerinaTransactionManager != null) {
-//            try {
-//                if (status == TransactionStatus.SUCCESS.value()) {
-//                    ballerinaTransactionManager.commitTransactionBlock();
-//                } else if (status == TransactionStatus.FAILED.value()) {
-//                    ballerinaTransactionManager.rollbackTransactionBlock();
-//                } else { //status = 1 Transaction end
-//                    ballerinaTransactionManager.endTransactionBlock();
-//                    if (ballerinaTransactionManager.isOuterTransaction()) {
-//                        ctx.setBallerinaTransactionManager(null);
-//                    }
-//                }
-//            } catch (Throwable e) {
-//                ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-//                handleError(ctx);
-//                return;
-//            }
-//        }
-    }
-
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
-//        int retryCount = 3;
-//        if (retryCountRegIndex != -1) {
-//            retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
-//            if (retryCount < 0) {
-//                ctx.setError(BLangVMErrors.createError(ctx,
-//                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
-//                handleError(ctx);
-//                return;
-//            }
-//        }
-//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-//        if (ballerinaTransactionManager == null) {
-//            ballerinaTransactionManager = new BallerinaTransactionManager();
-//            ctx.setBallerinaTransactionManager(ballerinaTransactionManager);
-//        }
-//        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
-
+        int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
+        if (retryCountRegIndex != -1) {
+            retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
+            if (retryCount < 0) {
+                ctx.setError(BLangVMErrors
+                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError(ctx);
+                return;
+            }
+        }
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            localTransactionInfo = createTransactionInfo(ctx);
+            ctx.setLocalTransactionInfo(localTransactionInfo);
+        } else {
+            notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(), localTransactionInfo.getURL(),
+                    localTransactionInfo.getProtocol());
+        }
+        localTransactionInfo.beginTransactionBlock(transactionId, retryCount);
     }
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionId, int startOfAbortIP) {
-//        BallerinaTransactionManager ballerinaTransactionManager = ctx.getBallerinaTransactionManager();
-//        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
-//        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
-//        if (currentRetryCount >= allowedRetryCount) {
-//            if (currentRetryCount != 0) {
-//                ctx.ip = startOfAbortIP;
-//            }
-//        }
-//        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        if (localTransactionInfo.isRetryPossible(transactionId)) {
+            ctx.ip = startOfAbortIP;
+        }
+        localTransactionInfo.incrementCurrentRetryCount(transactionId);
     }
+
+    private static void endTransaction(WorkerExecutionContext ctx, int transactionId, int status) {
+        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        boolean notifyCoorinator = false;
+        try {
+            //In success case no need to do anything as with the transaction end phase it will be committed.
+            if (status == TransactionStatus.FAILED.value()) {
+                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionId);
+                if (notifyCoorinator) {
+                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId());
+                }
+            } else if (status == TransactionStatus.ABORTED.value()) {
+                notifyCoorinator = localTransactionInfo.onTransactionAbort();
+                if (notifyCoorinator) {
+                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId());
+                }
+            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
+                notifyCoorinator = localTransactionInfo.onTransactionEnd();
+                if (notifyCoorinator) {
+                    notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId());
+                    ctx.setLocalTransactionInfo(null);
+                }
+            }
+        } catch (Throwable e) {
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            handleError(ctx);
+        }
+    }
+
+    private static LocalTransactionInfo createTransactionInfo(WorkerExecutionContext ctx) {
+        BValue[] returns = notifyTransactionBegin(ctx, null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
+        //Check if error occurs during registration
+        if (returns[1] != null) {
+            throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
+        }
+        BStruct txDataStruct = (BStruct) returns[0];
+        String transactionId = txDataStruct.getStringField(1);
+        String protocol = txDataStruct.getStringField(2);
+        String url = txDataStruct.getStringField(3);
+        return new LocalTransactionInfo(transactionId, url, protocol);
+    }
+
+    private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
+            String protocol) {
+        BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
+        return invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+    }
+
+    private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId) {
+        BValue[] args = { new BString(globalTransactionId) };
+        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
+        if (returns[1] != null) {
+            throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
+        }
+    }
+
+    private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId) {
+        BValue[] args = { new BString(globalTransactionId) };
+        invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
+    }
+
+    private static BValue[] invokeCoordinatorFunction(WorkerExecutionContext ctx, String functionName, BValue[] args) {
+        PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        return BLangFunctions.invokeCallable(functionInfo, args);
+    }
+
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
@@ -2651,7 +2699,7 @@ public class CPU {
         BConnectorType actualCon = (BConnectorType) connector.getConnectorType();
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
-        
+
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
     }
 
@@ -3550,21 +3598,21 @@ public class CPU {
         sf.longRegs[j] = newArray.size();
         return;
     }
-    
+
     /**
      * This is used to propagate the results of {@link CPU#handleError(WorkerExecutionContext)} to the
      * main CPU instruction loop.
      */
     public static class HandleErrorException extends BallerinaException {
-        
+
         private static final long serialVersionUID = 1L;
-        
+
         public WorkerExecutionContext ctx;
-        
+
         public HandleErrorException(WorkerExecutionContext ctx) {
             this.ctx = ctx;
         }
-        
+
     }
-    
+
 }

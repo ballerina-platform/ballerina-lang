@@ -55,16 +55,11 @@ public class BLangProgramRunner {
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
-//        FIXME: uncomment
-//        deployTransactionCoordinatorServices(programFile, bContext);
+        deployTransactionCoordinatorServices(programFile);
 
         int serviceCount = 0;
         for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
-            // Invoke service init function
-            BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
-
-            // Deploy service
-            programFile.getServerConnectorRegistry().registerService(serviceInfo);
+            deployService(serviceInfo, programFile);
             serviceCount++;
         }
 
@@ -73,7 +68,7 @@ public class BLangProgramRunner {
         }
     }
 
-    private static void deployTransactionCoordinatorServices(ProgramFile programFile, Context bContext) {
+    private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
         PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
         ServiceInfo[] coordinatorServices;
         if (coordinatorPkgInfo != null) {
@@ -81,22 +76,15 @@ public class BLangProgramRunner {
             coordinatorServices = coordinatorPkgInfo.getServiceInfoEntries();
             if (coordinatorServices != null) {
                 for (ServiceInfo coordinatorService : coordinatorServices) {
-                    deployService(programFile, bContext, coordinatorService);
+                    deployService(coordinatorService, programFile);
                 }
             }
         }
     }
 
-    private static void deployService(ProgramFile programFile, Context bContext, ServiceInfo serviceInfo) {
+    private static void deployService(ServiceInfo serviceInfo, ProgramFile programFile) {
         // Invoke service init function
-        //TODO check this to pass a Service
-//        FIXME: uncomment follow
-//        bContext.setServiceInfo(serviceInfo);
-//        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
-//        if (bContext.getError() != null) {
-//            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-//            throw new BLangRuntimeException("error in deploying service: " + stackTraceStr);
-//        }
+        BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
 
         // Deploy service
         programFile.getServerConnectorRegistry().registerService(serviceInfo);

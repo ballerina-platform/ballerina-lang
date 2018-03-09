@@ -122,7 +122,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inTrx trxErr endTrx end");
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransaction1() {
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -131,7 +131,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx endInnerTrx endOuterTrx  end");
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransaction2() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -140,7 +140,7 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(), "start inOuterTrx inInnerTrx abort endOuterTrx  end");
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransaction3() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -150,7 +150,7 @@ public class TransactionStmtFlowTest {
                 + "inInnerTrx inInnerTrx inInnerTrx inOuterTrx inInnerTrx inInnerTrx inInnerTrx err end");
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransaction4() {
         BValue[] args = { new BInteger(-10) };
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
@@ -160,7 +160,7 @@ public class TransactionStmtFlowTest {
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx endOuterTrx  end");
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransactionWithFailed1() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -172,7 +172,7 @@ public class TransactionStmtFlowTest {
 
     }
 
-    @Test
+    @Test //TODO:fix after VM fix for http actions.
     public void testNestedTransactionWithFailed2() {
         BValue[] args = {new BInteger(-10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransactionWithFailed", args);
@@ -280,7 +280,7 @@ public class TransactionStmtFlowTest {
                 "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock inFirstTrxFld err inSecTrxBlock inFSecTrxEnd end");
     }
 
-    @Test()
+    @Test() //TODO:uncomment after VM fix for http actions.
     public void testValidAbortAndReturn() {
         BValue[] returns = BRunUtil.invoke(programFile, "testAbort", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
