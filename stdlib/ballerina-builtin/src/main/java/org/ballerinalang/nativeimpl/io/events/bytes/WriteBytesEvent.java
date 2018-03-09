@@ -73,10 +73,9 @@ public class WriteBytesEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int numberOfBytesWritten;
         NumericResult result;
         try {
-            numberOfBytesWritten = byteChannel.write(writeBuffer);
+            int numberOfBytesWritten = byteChannel.write(writeBuffer);
             result = new NumericResult(numberOfBytesWritten, context);
             return result;
         } catch (IOException e) {

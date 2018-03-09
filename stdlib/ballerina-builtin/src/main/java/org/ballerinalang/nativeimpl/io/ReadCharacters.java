@@ -122,16 +122,15 @@ public class ReadCharacters extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        long numberOfCharacters;
         BString content = null;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
+            long numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
+            //TODO when async functions are available enable this
             // IOUtils.read(characterChannel,numberOfCharacters,ReadCharacters::readCharactersResponse);
             String readCharacters = readCharacter((int) numberOfCharacters, characterChannel, eventContext);
             content = new BString(readCharacters);

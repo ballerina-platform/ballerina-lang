@@ -65,10 +65,9 @@ public class Close extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);

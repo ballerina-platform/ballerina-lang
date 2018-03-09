@@ -121,18 +121,16 @@ public class WriteCharacters extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        String content;
-        long startOffset;
         int numberOfCharactersWritten = 0;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            content = getStringArgument(context, CONTENT_INDEX);
-            startOffset = getIntArgument(context, START_OFFSET_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
+            String content = getStringArgument(context, CONTENT_INDEX);
+            long startOffset = getIntArgument(context, START_OFFSET_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
+            //TODO when async functions are available this should be modified
 //            IOUtils.write(characterChannel,content,startOffset,WriteCharacters::readCharactersResponse);
             numberOfCharactersWritten = writeCharacters(characterChannel, content, (int) startOffset, eventContext);
         } catch (Throwable e) {

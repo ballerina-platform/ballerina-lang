@@ -67,10 +67,9 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);

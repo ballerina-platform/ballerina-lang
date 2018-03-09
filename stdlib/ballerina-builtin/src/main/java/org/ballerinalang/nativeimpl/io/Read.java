@@ -101,23 +101,20 @@ public class Read extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        int numberOfBytes;
-        int offset;
         BBlob readByteBlob = null;
         BInteger numberOfReadBytes = null;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-            offset = (int) getIntArgument(context, OFFSET_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            int numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            int offset = (int) getIntArgument(context, OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] content = new byte[numberOfBytes];
             EventContext eventContext = new EventContext(context);
             int nBytes = IOUtils.readFull(byteChannel, content, offset, eventContext);
             numberOfReadBytes = new BInteger(nBytes);
             readByteBlob = new BBlob(content);
-            //When async function is available the following should be executed.
+            //TODO When async function is available the following should be executed.
             //IOUtils.read(byteChannel,content,offset,eventContext,Read::readResponse);
         } catch (Throwable e) {
             String message = "Error occurred while reading bytes:" + e.getMessage();

@@ -69,10 +69,9 @@ public class WriteCharactersEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int numberOfCharactersWritten;
         NumericResult result;
         try {
-            numberOfCharactersWritten = channel.write(content, offset);
+            int numberOfCharactersWritten = channel.write(content, offset);
             result = new NumericResult(numberOfCharactersWritten, context);
             return result;
         } catch (IOException e) {

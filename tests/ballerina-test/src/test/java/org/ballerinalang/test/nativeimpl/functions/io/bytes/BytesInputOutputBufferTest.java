@@ -65,7 +65,7 @@ public class BytesInputOutputBufferTest {
      */
     private int readFull(byte[] content, Channel channel) throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(content);
-        int numberOfBytesRead = 0;
+        int numberOfBytesRead;
         int totalNumberOfBytesRead = 0;
         do {
             numberOfBytesRead = channel.read(buffer);
@@ -167,7 +167,6 @@ public class BytesInputOutputBufferTest {
     @Test(description = "Reads file which has varying buffer sizes")
     public void varyingBufferSizeTest() throws IOException, URISyntaxException {
         final int numberOfBytesInFile = 7;
-        final int fixedBufferSize = 15;
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/sequenceOfChars");
         Channel channel = new MockByteChannel(byteChannel);

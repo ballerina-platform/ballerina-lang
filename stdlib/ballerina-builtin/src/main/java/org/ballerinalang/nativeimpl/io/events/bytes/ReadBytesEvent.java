@@ -64,10 +64,9 @@ public class ReadBytesEvent implements Event {
      */
     @Override
     public EventResult get() {
-        int numberOfBytesRead;
         NumericResult result;
         try {
-            numberOfBytesRead = channel.read(content);
+            int numberOfBytesRead = channel.read(content);
             byte[] content = this.content.array();
             context.getProperties().put(CONTENT_PROPERTY, content);
             result = new NumericResult(numberOfBytesRead, context);

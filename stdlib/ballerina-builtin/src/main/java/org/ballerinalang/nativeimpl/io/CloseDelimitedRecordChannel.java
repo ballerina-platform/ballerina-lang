@@ -68,10 +68,9 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
             DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);

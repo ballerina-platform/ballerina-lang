@@ -99,6 +99,7 @@ public class WriteTextRecord extends AbstractNativeFunction {
             throws ExecutionException, InterruptedException {
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records, context);
         CompletableFuture<EventResult> future = eventManager.publish(recordWriteEvent);
+        //TODO when async functions are available this should be uncommented
         //future.thenApply(WriteTextRecord::writeRecordResponse);
         EventResult eventResult = future.get();
         Throwable error = ((EventContext) eventResult.getContext()).getError();
@@ -114,12 +115,10 @@ public class WriteTextRecord extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        BStringArray content;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
+            BStringArray content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);

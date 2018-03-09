@@ -58,10 +58,9 @@ public class DelimitedRecordReadEvent implements Event {
      */
     @Override
     public EventResult get() {
-        String[] content;
         AlphaCollectionResult result;
         try {
-            content = channel.read();
+            String[] content = channel.read();
             result = new AlphaCollectionResult(content, context);
             return result;
         } catch (IOException e) {

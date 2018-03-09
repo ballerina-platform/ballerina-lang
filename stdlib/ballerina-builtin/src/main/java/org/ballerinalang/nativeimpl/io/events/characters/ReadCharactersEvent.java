@@ -61,10 +61,9 @@ public class ReadCharactersEvent implements Event {
 
     @Override
     public EventResult get() {
-        String content;
         AlphaResult result;
         try {
-            content = channel.read(numberOfCharacters);
+            String content = channel.read(numberOfCharacters);
             result = new AlphaResult(content, context);
             return result;
         } catch (IOException e) {

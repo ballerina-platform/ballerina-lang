@@ -111,12 +111,14 @@ public native function <ByteChannel channel> read (int numberOfBytes, int offset
 @Param {value:"content: Bytes which should be written"}
 @Param {value:"startOffset: If the bytes need to be written with an offset, the value of that offset"}
 @Return {value:"Number of bytes written"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <ByteChannel channel> write (blob content, int startOffset, int numberOfBytes) (int, IOError);
 
 @Description {value:"Function to read characters"}
 @Param {value:"channel: The CharacterChannel to read characters from"}
 @Param {value:"numberOfChars: Number of characters which should be read"}
 @Return {value:"The character sequence which was read"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <CharacterChannel channel> readCharacters (int numberOfChars) (string, IOError);
 
 @Description {value:"Function to write characters"}
@@ -124,6 +126,7 @@ public native function <CharacterChannel channel> readCharacters (int numberOfCh
 @Param {value:"content: Text content which should be written"}
 @Param {value:"startOffset: If the content needs to be written with an offset, the value of that offset"}
 @Return {value:"Number of characters written"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <CharacterChannel channel> writeCharacters (string content, int startOffset) (int, IOError);
 
 @Description {value:"Function to check whether next record is available or not"}
@@ -134,23 +137,28 @@ public native function <DelimitedRecordChannel channel> hasNextTextRecord () (bo
 @Description {value:"Function to read text records"}
 @Param {value:"channel: The DelimitedRecordChannel to read text records from"}
 @Return {value:"Fields listed in the record"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <DelimitedRecordChannel channel> nextTextRecord () (string[], IOError);
 
 @Description {value:"Function to write text records"}
 @Param {value:"channel: The DelimitedRecordChannel to write records"}
 @Param {value:"records: Fields which are included in the record"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <DelimitedRecordChannel channel> writeTextRecord (string[] records) (IOError);
 
 @Description {value:"Function to close a byte channel"}
 @Param {value:"channel: The ByteChannel to be closed"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <ByteChannel channel> close () (IOError);
 
 @Description {value:"Function to close the text record channel"}
 @Param {value:"channel: The DelimitedRecordChannel to be closed"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <DelimitedRecordChannel channel> closeDelimitedRecordChannel () (IOError);
 
 @Description {value:"Function to close a character channel"}
 @Param {value:"channel: The CharacterChannel to be closed"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function <CharacterChannel channel> closeCharacterChannel () (IOError);
 
 @Description {value:"Open a secure socket connection with a remote server"}

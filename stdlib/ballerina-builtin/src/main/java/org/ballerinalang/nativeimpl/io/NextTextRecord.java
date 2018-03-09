@@ -100,6 +100,7 @@ public class NextTextRecord extends AbstractNativeFunction {
         DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel, context
         );
         CompletableFuture<EventResult> future = eventManager.publish(event);
+        //TODO when async functions are available this should be modified
         //future.thenApply(NextTextRecord::readRecordResponse);
         EventResult eventResult = future.get();
         Throwable error = ((EventContext) eventResult.getContext()).getError();
@@ -114,11 +115,10 @@ public class NextTextRecord extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
         BStringArray record = null;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
 
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);

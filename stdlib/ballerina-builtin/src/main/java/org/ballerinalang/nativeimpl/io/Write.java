@@ -103,20 +103,17 @@ public class Write extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        byte[] content;
-        int numberOfBytes;
-        int offset;
         int numberOfBytesWritten = 0;
         BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            content = getBlobArgument(context, CONTENT_INDEX);
-            numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-            offset = (int) getIntArgument(context, START_OFFSET_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            byte[] content = getBlobArgument(context, CONTENT_INDEX);
+            int numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
+            int offset = (int) getIntArgument(context, START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, offset, numberOfBytes, eventContext);
+            //TODO when async functions are available this should be modified
 //            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
         } catch (Throwable e) {
             String message = "Error occurred while writing bytes:" + e.getMessage();

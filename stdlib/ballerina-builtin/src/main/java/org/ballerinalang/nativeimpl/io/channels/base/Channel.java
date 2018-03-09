@@ -73,7 +73,7 @@ public abstract class Channel {
 
     /**
      * <p>
-     * Will read/writ bytes from the provided channel
+     * Will read/write bytes from the provided channel
      * </p>
      * <p>
      * This operation will asynchronously read data from the channel.

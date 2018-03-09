@@ -154,7 +154,7 @@ public class IOUtils {
      */
     public static void read(CharacterChannel characterChannel, int numberOfCharacters,
                             Function<EventResult, EventResult> function, EventContext context) {
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters);
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
@@ -221,5 +221,4 @@ public class IOUtils {
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
-
 }
