@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.holder;
+package org.ballerinalang.siddhi.core.table.holder;
 
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Collection;
 import java.util.Set;

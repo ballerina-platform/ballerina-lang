@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.input.stream;
+package org.ballerinalang.siddhi.query.api.execution.query.input.stream;
 
 
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.ReturnStream;
 
 import java.util.UUID;
 

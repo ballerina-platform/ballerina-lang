@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api;
+package org.ballerinalang.siddhi.query.api;
 
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 public class DefineTriggerTestCase {
 

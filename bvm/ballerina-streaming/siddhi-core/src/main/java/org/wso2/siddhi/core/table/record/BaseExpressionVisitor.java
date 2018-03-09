@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
 
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 
 /**
  * Implementation of Antlr Visitor implementation for conditions.

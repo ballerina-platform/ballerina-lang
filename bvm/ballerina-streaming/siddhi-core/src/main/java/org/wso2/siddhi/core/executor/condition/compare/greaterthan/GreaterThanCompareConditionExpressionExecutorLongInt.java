@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare.greaterthan;
+package org.ballerinalang.siddhi.core.executor.condition.compare.greaterthan;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 /**
  * Executor class for Long-Integer Greater Than condition. Condition evaluation logic is implemented within executor.

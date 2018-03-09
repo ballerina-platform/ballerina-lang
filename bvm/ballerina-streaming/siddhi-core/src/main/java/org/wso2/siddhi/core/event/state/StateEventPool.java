@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.state;
+package org.ballerinalang.siddhi.core.event.state;
 
 /**
  * Event pool containing StreamEvent for reuse

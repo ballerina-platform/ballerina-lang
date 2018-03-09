@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.stream.output;
+package org.ballerinalang.siddhi.core.stream.output;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.metrics;
+package org.ballerinalang.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
 
 /**
  * Class to calculate Siddhi throughput.

@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.callback;
+package org.ballerinalang.siddhi.core.query.output.callback;
 
-import org.wso2.siddhi.core.debugger.SiddhiDebugger;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.debugger.SiddhiDebugger;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEventPool;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
 
 /**
  * Abstract class to represent parent callback implementation which allows users to get processed events from Siddhi

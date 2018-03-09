@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api;
+package org.ballerinalang.siddhi.query.api;
 
 
 import java.io.Serializable;

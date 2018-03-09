@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.exception;
+package org.ballerinalang.siddhi.query.api.exception;
 
 /**
  * Exception thrown when a similar definition is defined again

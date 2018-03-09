@@ -15,18 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.output.ratelimit;
+package org.ballerinalang.siddhi.core.query.output.ratelimit;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.query.output.callback.InsertIntoStreamCallback;
+import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
+import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
+import org.ballerinalang.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;

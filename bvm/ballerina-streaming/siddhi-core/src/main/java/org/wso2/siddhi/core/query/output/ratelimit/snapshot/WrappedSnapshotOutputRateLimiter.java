@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
+package org.ballerinalang.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEventCloner;
+import org.ballerinalang.siddhi.core.event.state.StateEventPool;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.ballerinalang.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
 
 import java.util.ArrayList;
 import java.util.List;

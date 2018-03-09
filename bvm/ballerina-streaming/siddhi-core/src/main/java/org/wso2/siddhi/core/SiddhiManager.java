@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core;
+package org.ballerinalang.siddhi.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.config.StatisticsConfiguration;
-import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
-import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
-import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
-import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
-import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
-import org.wso2.siddhi.core.util.config.ConfigManager;
-import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
-import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.core.config.SiddhiContext;
+import org.ballerinalang.siddhi.core.config.StatisticsConfiguration;
+import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceHandlerManager;
+import org.ballerinalang.siddhi.core.stream.output.sink.SinkHandlerManager;
+import org.ballerinalang.siddhi.core.table.record.RecordTableHandlerManager;
+import org.ballerinalang.siddhi.core.util.SiddhiAppRuntimeBuilder;
+import org.ballerinalang.siddhi.core.util.config.ConfigManager;
+import org.ballerinalang.siddhi.core.util.parser.SiddhiAppParser;
+import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
+import org.ballerinalang.siddhi.query.api.SiddhiApp;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +101,7 @@ public class SiddhiManager {
 
     /**
      * Method to set persistence for the Siddhi Manager instance.
-     * {@link org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore} is the default persistence store
+     * {@link org.ballerinalang.siddhi.core.util.persistence.InMemoryPersistenceStore} is the default persistence store
      * implementation users can utilize.
      *
      * @param persistenceStore Persistence Store implementation to be used.

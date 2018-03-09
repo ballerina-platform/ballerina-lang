@@ -16,40 +16,40 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.lock.LockSynchronizer;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.state.populater.StateEventPopulatorFactory;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventType;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.join.JoinStreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.lock.LockSynchronizer;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +118,7 @@ public class QueryParser {
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
             if (!isWindow && query.getInputStream() instanceof SingleInputStream) {
                 for (StreamHandler streamHandler : ((SingleInputStream) query.getInputStream()).getStreamHandlers()) {
-                    if (streamHandler instanceof org.wso2.siddhi.query.api.execution.query.input.handler.Window) {
+                    if (streamHandler instanceof org.ballerinalang.siddhi.query.api.execution.query.input.handler.Window) {
                         isWindow = true;
                         break;
                     }

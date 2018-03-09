@@ -16,30 +16,30 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.stream.window;
+package org.ballerinalang.siddhi.core.query.processor.stream.window;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.Parameter;
+import org.ballerinalang.siddhi.annotation.util.DataType;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.executor.ConstantExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.collection.operator.Operator;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.parser.OperatorParser;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.HashMap;

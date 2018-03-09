@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.processor.stream.window;
+package org.ballerinalang.siddhi.core.query.processor.stream.window;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.aggregation.Within;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.query.api.aggregation.Within;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,7 @@ import java.util.Map;
  * This is the {@link WindowProcessor} intended to be used with aggregate join queries.
  * This processor keeps a reference of the Aggregate and finds the items from that.
  * The process method just passes the events to the next
- * {@link org.wso2.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
+ * {@link org.ballerinalang.siddhi.core.query.input.stream.join.JoinProcessor} inorder to handle
  * the events there.
  */
 public class AggregateWindowProcessor extends WindowProcessor implements FindableProcessor {

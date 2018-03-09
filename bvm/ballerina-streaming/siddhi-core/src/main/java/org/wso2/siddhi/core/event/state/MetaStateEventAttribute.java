@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.state;
+package org.ballerinalang.siddhi.core.event.state;
 
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.Arrays;
 

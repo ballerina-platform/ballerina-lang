@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 

@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input;
+package org.ballerinalang.siddhi.core.stream.input;
 
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 import java.util.List;
 
 /**
  * InputProcessor act as the adaptor between {@link InputHandler} and
- * {@link org.wso2.siddhi.core.stream.StreamJunction}. Input Handler will send incoming events into the processor.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction}. Input Handler will send incoming events into the processor.
  */
 public interface InputProcessor {
 

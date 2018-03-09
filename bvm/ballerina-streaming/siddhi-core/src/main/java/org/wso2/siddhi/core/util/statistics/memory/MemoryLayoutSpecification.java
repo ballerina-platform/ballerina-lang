@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.memory;
+package org.ballerinalang.siddhi.core.util.statistics.memory;
 
 /**
  * Describes constant memory overheads for various constructs in a JVM implementation.

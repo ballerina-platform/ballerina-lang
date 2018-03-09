@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.test;
+package org.ballerinalang.siddhi.query.test;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 /**
  * Stream definition testing testcase

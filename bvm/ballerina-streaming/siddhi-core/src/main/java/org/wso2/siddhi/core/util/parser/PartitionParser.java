@@ -15,23 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.partition.PartitionRuntime;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.execution.partition.Partition;
-import org.wso2.siddhi.query.api.execution.partition.PartitionType;
-import org.wso2.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.partition.PartitionRuntime;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.util.SiddhiAppRuntimeBuilder;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.execution.partition.Partition;
+import org.ballerinalang.siddhi.query.api.execution.partition.PartitionType;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
 
 import java.util.ArrayList;
 import java.util.List;

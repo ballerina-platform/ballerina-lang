@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.stream.populater;
+package org.ballerinalang.siddhi.core.event.stream.populater;
 
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
 
 /**
  * The StateEventPopulaterFactory that populates StreamEventPopulater according to MetaStreamEvent and to be mapped

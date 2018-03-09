@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 import java.util.Arrays;
 

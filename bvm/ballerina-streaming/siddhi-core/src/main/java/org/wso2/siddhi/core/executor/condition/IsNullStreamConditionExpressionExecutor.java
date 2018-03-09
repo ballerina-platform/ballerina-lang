@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.executor.condition;
+package org.ballerinalang.siddhi.core.executor.condition;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 /**
  * Executor class for IsNullStream condition. Condition evaluation logic is implemented within executor.

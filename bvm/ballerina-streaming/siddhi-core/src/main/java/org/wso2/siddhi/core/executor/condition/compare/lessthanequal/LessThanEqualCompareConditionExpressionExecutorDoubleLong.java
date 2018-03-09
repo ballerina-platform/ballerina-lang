@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare.lessthanequal;
+package org.ballerinalang.siddhi.core.executor.condition.compare.lessthanequal;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 /**
  * Executor class for Double-Long Less Than or Equal condition. Condition evaluation logic is implemented within

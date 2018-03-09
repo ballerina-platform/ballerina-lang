@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.ballerinalang.siddhi.core.util.transport;
 
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * Holder class to represent supported dynamic options in sources and sinks.

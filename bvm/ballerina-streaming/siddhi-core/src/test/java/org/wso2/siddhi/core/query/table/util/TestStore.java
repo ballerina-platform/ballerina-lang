@@ -15,27 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.table.util;
+package org.ballerinalang.siddhi.core.query.table.util;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.table.record.AbstractRecordTable;
-import org.wso2.siddhi.core.table.record.ExpressionBuilder;
-import org.wso2.siddhi.core.table.record.RecordIterator;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.table.record.AbstractRecordTable;
+import org.ballerinalang.siddhi.core.table.record.ExpressionBuilder;
+import org.ballerinalang.siddhi.core.table.record.RecordIterator;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledExpression;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.ANNOTATION_STORE;
 
 /**
  * Custom store for testing purposes.

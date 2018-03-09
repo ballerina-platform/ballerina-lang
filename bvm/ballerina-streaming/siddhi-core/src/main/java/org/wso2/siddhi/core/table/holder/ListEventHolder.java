@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.holder;
+package org.ballerinalang.siddhi.core.table.holder;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
 
 import java.util.LinkedList;
 

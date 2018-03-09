@@ -16,22 +16,22 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.ballerinalang.siddhi.core.util.transport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
-import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.extension.Extension;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.stream.output.sink.Sink;
+import org.ballerinalang.siddhi.core.stream.output.sink.distributed.DistributedTransport;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiClassLoader;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
+import org.ballerinalang.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.extension.Extension;
 
 import java.util.ArrayList;
 import java.util.HashMap;

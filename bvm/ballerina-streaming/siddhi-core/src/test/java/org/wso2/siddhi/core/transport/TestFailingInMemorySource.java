@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.transport;
+package org.ballerinalang.siddhi.core.transport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.input.source.InMemorySource;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.Parameter;
+import org.ballerinalang.siddhi.annotation.util.DataType;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.stream.input.source.InMemorySource;
 
 /**
  * Implementation of Source to receive events through in-memory transport for unavailability checking.

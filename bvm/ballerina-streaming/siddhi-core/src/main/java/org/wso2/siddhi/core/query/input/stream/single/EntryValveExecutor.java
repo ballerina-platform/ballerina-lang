@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.single;
+package org.ballerinalang.siddhi.core.query.input.stream.single;
 
-import org.wso2.siddhi.core.aggregation.Executor;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.util.Schedulable;
-import org.wso2.siddhi.core.util.ThreadBarrier;
+import org.ballerinalang.siddhi.core.aggregation.Executor;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.util.Schedulable;
+import org.ballerinalang.siddhi.core.util.ThreadBarrier;
 
 /**
  * Entry point to incremental executors.

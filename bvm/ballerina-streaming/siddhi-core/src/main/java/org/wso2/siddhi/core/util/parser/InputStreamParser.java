@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.List;
 import java.util.Map;

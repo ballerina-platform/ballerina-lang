@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Class to parse {@link MatchingMetaInfoHolder}

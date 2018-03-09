@@ -16,29 +16,29 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.CompiledUpdateSet;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.table.CompiledUpdateSet;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.collection.AddingStreamEventExtractor;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledExpression;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateSet;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.HashMap;

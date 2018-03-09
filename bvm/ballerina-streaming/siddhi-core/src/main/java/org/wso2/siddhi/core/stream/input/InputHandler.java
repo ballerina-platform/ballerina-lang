@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.stream.input;
+package org.ballerinalang.siddhi.core.stream.input;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * InputHandler is the {@link Event} entry point to Siddhi. Users can create an Input Handler and then use that to

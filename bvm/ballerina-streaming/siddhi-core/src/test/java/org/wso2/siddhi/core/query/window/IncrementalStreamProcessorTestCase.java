@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.window;
+package org.ballerinalang.siddhi.core.query.window;
 
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
 
 public class IncrementalStreamProcessorTestCase {
 

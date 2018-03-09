@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.exception;
+package org.ballerinalang.siddhi.core.exception;
 
 /**
  * Exception class to be used when user provided operation is not supported by Siddhi.

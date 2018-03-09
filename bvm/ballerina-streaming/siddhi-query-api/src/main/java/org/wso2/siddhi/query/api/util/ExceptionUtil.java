@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.util;
+package org.ballerinalang.siddhi.query.api.util;
 
-import org.wso2.siddhi.query.api.exception.SiddhiAppContextException;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
 
 /**
  * Util for processing Siddhi Exceptions

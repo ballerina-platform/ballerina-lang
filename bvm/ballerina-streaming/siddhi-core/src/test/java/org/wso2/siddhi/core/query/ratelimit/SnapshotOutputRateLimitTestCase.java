@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.ratelimit;
+package org.ballerinalang.siddhi.core.query.ratelimit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.ballerinalang.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

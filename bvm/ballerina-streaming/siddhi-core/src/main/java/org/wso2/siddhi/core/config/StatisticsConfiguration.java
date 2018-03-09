@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.config;
+package org.ballerinalang.siddhi.core.config;
 
-import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsTrackerFactory;
 
 /**
  * Siddhi statistics module related configuration holder
  */
 public class StatisticsConfiguration {
 
-    private String metricPrefix = "org.wso2.siddhi";
+    private String metricPrefix = "org.ballerinalang.siddhi";
     private StatisticsTrackerFactory factory;
 
     public StatisticsConfiguration(StatisticsTrackerFactory factory) {

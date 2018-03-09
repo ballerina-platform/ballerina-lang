@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector.attribute.processor;
+package org.ballerinalang.siddhi.core.query.selector.attribute.processor;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 /**
  * Processor for event attributes.

@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query;
+package org.ballerinalang.siddhi.core.query;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.StoreQueryRuntimeException;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEventPool;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.exception.StoreQueryRuntimeException;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;

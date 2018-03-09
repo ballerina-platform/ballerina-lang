@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * SinkHandler is an optional interface before {@link SinkMapper}.

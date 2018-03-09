@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query;
+package org.ballerinalang.siddhi.core.query;
 
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
 
 /**
  * Test expression comparisons with Boolean values.

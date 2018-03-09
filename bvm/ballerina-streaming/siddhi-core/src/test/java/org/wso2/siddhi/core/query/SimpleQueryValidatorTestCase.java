@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query;
+package org.ballerinalang.siddhi.core.query;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.util.parser.SiddhiAppParser;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.config.SiddhiContext;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.util.parser.SiddhiAppParser;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 
 public class SimpleQueryValidatorTestCase {
     private SiddhiContext siddhiContext;

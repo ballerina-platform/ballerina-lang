@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 import java.util.concurrent.locks.ReentrantLock;
 

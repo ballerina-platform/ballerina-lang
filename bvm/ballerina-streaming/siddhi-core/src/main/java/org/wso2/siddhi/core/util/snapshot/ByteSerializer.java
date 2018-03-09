@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.snapshot;
+package org.ballerinalang.siddhi.core.util.snapshot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

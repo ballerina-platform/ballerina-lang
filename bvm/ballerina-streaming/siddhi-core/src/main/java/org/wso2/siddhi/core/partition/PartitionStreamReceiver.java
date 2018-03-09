@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.partition;
+package org.ballerinalang.siddhi.core.partition;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
-import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverterFactory;
+import org.ballerinalang.siddhi.core.partition.executor.PartitionExecutor;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 import java.util.Map;

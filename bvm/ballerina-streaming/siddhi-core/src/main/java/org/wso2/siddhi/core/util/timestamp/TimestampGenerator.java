@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.timestamp;
+package org.ballerinalang.siddhi.core.util.timestamp;
 
 /**
  * Parent interface for timestamp generators. Various implementations can provide implementation specific timestamp.

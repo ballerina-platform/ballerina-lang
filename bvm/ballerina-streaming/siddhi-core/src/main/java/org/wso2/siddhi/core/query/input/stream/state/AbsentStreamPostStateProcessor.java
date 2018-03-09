@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state;
+package org.ballerinalang.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 
 /**
  * PostStateProcessor to handle not pattern state processors.

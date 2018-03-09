@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query;
+package org.ballerinalang.siddhi.core.query;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
-import org.wso2.siddhi.core.util.parser.OutputParser;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
+import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.util.parser.OutputParser;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.core.util.statistics.MemoryCalculable;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;

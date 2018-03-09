@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.input.stream;
+package org.ballerinalang.siddhi.core.query.input.stream;
 
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
 
 import java.util.List;
 

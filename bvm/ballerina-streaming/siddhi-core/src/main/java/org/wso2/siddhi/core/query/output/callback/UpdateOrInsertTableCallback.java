@@ -16,18 +16,18 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.callback;
+package org.ballerinalang.siddhi.core.query.output.callback;
 
-import org.wso2.siddhi.core.debugger.SiddhiDebugger;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.table.CompiledUpdateSet;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.debugger.SiddhiDebugger;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEventPool;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.table.CompiledUpdateSet;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.collection.AddingStreamEventExtractor;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
 
 /**
  * Implementation of {@link OutputCallback} to receive processed Siddhi events from

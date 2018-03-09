@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.persistence;
+package org.ballerinalang.siddhi.core.util.persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
-import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
-import org.wso2.siddhi.core.util.snapshot.SnapshotService;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
+import org.ballerinalang.siddhi.core.exception.NoPersistenceStoreException;
+import org.ballerinalang.siddhi.core.util.snapshot.SnapshotService;
 
 /**
  * Persistence Service is the service layer to handle state persistence tasks such as persisting current state and

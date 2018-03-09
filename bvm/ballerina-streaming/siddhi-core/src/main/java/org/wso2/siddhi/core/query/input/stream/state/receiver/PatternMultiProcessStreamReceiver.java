@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state.receiver;
+package org.ballerinalang.siddhi.core.query.input.stream.state.receiver;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.input.StateMultiProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.query.input.StateMultiProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.state.PreStateProcessor;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
- * {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
  * with multiple streams.
  */
 public class PatternMultiProcessStreamReceiver extends StateMultiProcessStreamReceiver {

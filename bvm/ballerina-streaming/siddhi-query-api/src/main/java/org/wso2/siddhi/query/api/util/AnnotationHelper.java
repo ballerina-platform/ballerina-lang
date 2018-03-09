@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.util;
+package org.ballerinalang.siddhi.query.api.util;
 
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException;
 
 import java.util.List;
 

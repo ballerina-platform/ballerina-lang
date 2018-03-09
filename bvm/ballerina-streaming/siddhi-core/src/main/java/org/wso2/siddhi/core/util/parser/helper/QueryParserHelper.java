@@ -16,47 +16,47 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser.helper;
+package org.ballerinalang.siddhi.core.util.parser.helper;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
-import org.wso2.siddhi.core.event.state.StateEventPool;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEventAttribute;
+import org.ballerinalang.siddhi.core.event.state.StateEventCloner;
+import org.ballerinalang.siddhi.core.event.state.StateEventPool;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.ballerinalang.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.join.JoinProcessor;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.query.processor.SchedulingProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.AbstractStreamProcessor;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.collection.operator.IncrementalAggregateCompileCondition;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.HAVING_STATE;
-import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STATE_OUTPUT_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.HAVING_STATE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STATE_OUTPUT_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Utility class for queryParser to help with QueryRuntime

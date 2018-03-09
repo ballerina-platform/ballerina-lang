@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * Output events are grouped before sent out to the transport to achieve efficient network communication.

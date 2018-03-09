@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection.operator;
+package org.ballerinalang.siddhi.core.util.collection.operator;
 
 /**
  * Represent a selection

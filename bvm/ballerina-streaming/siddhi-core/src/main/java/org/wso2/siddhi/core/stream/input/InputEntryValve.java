@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input;
+package org.ballerinalang.siddhi.core.stream.input;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.util.ThreadBarrier;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.util.ThreadBarrier;
 
 import java.util.List;
 

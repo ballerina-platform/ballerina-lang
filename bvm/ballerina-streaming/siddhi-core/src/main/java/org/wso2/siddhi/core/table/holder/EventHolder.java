@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.holder;
+package org.ballerinalang.siddhi.core.table.holder;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 
 /**
  * Base EventHolder interface. EventHolder is a container of {@link StreamEvent}s. You can add {@link ComplexEventChunk}

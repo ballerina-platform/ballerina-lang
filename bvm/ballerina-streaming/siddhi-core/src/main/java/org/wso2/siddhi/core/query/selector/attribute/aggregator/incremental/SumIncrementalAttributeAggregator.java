@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
+package org.ballerinalang.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.Parameter;
+import org.ballerinalang.siddhi.annotation.ReturnAttribute;
+import org.ballerinalang.siddhi.annotation.util.DataType;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
  * {@link IncrementalAttributeAggregator} to calculate sum based on an event attribute.

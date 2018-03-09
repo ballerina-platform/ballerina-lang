@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.partition;
+package org.ballerinalang.siddhi.query.api.execution.partition;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
-import org.wso2.siddhi.query.api.util.SiddhiConstants;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.execution.ExecutionElement;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.query.api.util.SiddhiConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@linkplain org.wso2.siddhi.query.api.execution.partition.Partition} class is used to represent the definition of
+ * {@linkplain org.ballerinalang.siddhi.query.api.execution.partition.Partition} class is used to represent the definition of
  * a partition for a Siddhi instance.
  */
 public class Partition implements ExecutionElement, SiddhiElement {

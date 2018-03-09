@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcessor;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;

@@ -15,34 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.partition;
+package org.ballerinalang.siddhi.core.partition;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
-import org.wso2.siddhi.core.partition.executor.PartitionExecutor;
-import org.wso2.siddhi.core.partition.executor.RangePartitionExecutor;
-import org.wso2.siddhi.core.partition.executor.ValuePartitionExecutor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.query.api.execution.partition.Partition;
-import org.wso2.siddhi.query.api.execution.partition.PartitionType;
-import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
-import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
-import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.EveryStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.partition.executor.PartitionExecutor;
+import org.ballerinalang.siddhi.core.partition.executor.RangePartitionExecutor;
+import org.ballerinalang.siddhi.core.partition.executor.ValuePartitionExecutor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.parser.ExpressionParser;
+import org.ballerinalang.siddhi.query.api.execution.partition.Partition;
+import org.ballerinalang.siddhi.query.api.execution.partition.PartitionType;
+import org.ballerinalang.siddhi.query.api.execution.partition.RangePartitionType;
+import org.ballerinalang.siddhi.query.api.execution.partition.ValuePartitionType;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.CountStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.EveryStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.LogicalStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.NextStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.StateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.StreamStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.ArrayList;
 import java.util.List;

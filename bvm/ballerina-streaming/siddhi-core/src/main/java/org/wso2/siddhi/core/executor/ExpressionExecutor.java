@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.executor;
+package org.ballerinalang.siddhi.core.executor;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 /**
  * Parent interface for all Expression Executors classes.

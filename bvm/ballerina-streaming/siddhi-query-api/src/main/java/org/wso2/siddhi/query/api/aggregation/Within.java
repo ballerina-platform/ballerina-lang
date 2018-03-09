@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.aggregation;
+package org.ballerinalang.siddhi.query.api.aggregation;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

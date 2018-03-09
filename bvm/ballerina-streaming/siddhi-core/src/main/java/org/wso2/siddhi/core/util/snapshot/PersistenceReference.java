@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.snapshot;
+package org.ballerinalang.siddhi.core.util.snapshot;
 
 import java.util.concurrent.Future;
 

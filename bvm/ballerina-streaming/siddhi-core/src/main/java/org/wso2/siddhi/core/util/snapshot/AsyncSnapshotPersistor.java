@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.snapshot;
+package org.ballerinalang.siddhi.core.util.snapshot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.exception.NoPersistenceStoreException;
-import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.ballerinalang.siddhi.core.exception.NoPersistenceStoreException;
+import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
 
 /**
  * {@link Runnable} which is responsible for persisting the snapshots that are taken

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.statistics;
+package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
  * Event Buffer holder

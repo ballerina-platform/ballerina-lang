@@ -16,22 +16,22 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.table;
+package org.ballerinalang.siddhi.core.query.table;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.query.table.util.TestStore;
-import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
-import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.query.table.util.TestStore;
+import org.ballerinalang.siddhi.core.util.config.InMemoryConfigManager;
+import org.ballerinalang.siddhi.query.api.SiddhiApp;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.HashMap;
 import java.util.Map;

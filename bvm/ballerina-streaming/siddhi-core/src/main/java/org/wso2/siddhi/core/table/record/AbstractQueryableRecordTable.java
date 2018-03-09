@@ -16,32 +16,32 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.stream.window.QueryableProcessor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.CompiledSelection;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
-import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.executor.ConstantExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.QueryableProcessor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledSelection;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.parser.ExpressionParser;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.OrderByAttribute;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.OutputAttribute;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Variable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.output.stream;
+package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 
 /**
  * Query output anonymous stream deleting entry from table

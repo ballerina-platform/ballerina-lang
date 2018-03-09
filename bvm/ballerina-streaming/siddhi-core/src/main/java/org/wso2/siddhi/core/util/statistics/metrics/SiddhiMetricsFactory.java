@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.metrics;
+package org.ballerinalang.siddhi.core.util.statistics.metrics;
 
-import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.StatisticsManager;
-import org.wso2.siddhi.core.util.statistics.StatisticsTrackerFactory;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
-import org.wso2.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.core.util.statistics.BufferedEventsTracker;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsManager;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsTrackerFactory;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
 
 import java.util.List;
 

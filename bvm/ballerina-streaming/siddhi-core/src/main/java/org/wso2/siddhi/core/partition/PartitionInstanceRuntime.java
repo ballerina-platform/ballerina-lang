@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.partition;
+package org.ballerinalang.siddhi.core.partition;
 
-import org.wso2.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
 
 import java.util.List;
 

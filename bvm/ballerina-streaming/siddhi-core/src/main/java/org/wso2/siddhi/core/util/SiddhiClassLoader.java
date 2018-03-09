@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
-import org.wso2.siddhi.core.exception.CannotLoadClassException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
-import org.wso2.siddhi.query.api.extension.Extension;
+import org.ballerinalang.siddhi.core.exception.CannotLoadClassException;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.util.extension.holder.AbstractExtensionHolder;
+import org.ballerinalang.siddhi.query.api.extension.Extension;
 
 /**
  * used to load classes required for Siddhi extensions.

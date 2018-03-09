@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.debugger;
+package org.ballerinalang.siddhi.core.debugger;
 
 import com.google.gson.Gson;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 
 import java.io.BufferedReader;
 import java.io.File;

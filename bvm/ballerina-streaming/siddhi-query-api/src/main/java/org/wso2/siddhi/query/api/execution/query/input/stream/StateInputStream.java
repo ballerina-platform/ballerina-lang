@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.input.stream;
+package org.ballerinalang.siddhi.query.api.execution.query.input.stream;
 
-import org.wso2.siddhi.query.api.execution.query.input.state.CountStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.EveryStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.LogicalStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
-import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.CountStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.EveryStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.LogicalStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.NextStateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.StateElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.state.StreamStateElement;
 
 import java.util.ArrayList;
 import java.util.List;

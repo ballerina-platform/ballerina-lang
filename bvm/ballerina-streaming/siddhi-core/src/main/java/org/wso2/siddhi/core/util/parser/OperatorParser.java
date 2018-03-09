@@ -16,39 +16,39 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
-import org.wso2.siddhi.core.util.collection.executor.CollectionExecutor;
-import org.wso2.siddhi.core.util.collection.expression.AndMultiPrimaryKeyCollectionExpression;
-import org.wso2.siddhi.core.util.collection.expression.AttributeCollectionExpression;
-import org.wso2.siddhi.core.util.collection.expression.CollectionExpression;
-import org.wso2.siddhi.core.util.collection.expression.CompareCollectionExpression;
-import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
-import org.wso2.siddhi.core.util.collection.operator.EventChunkOperator;
-import org.wso2.siddhi.core.util.collection.operator.IndexOperator;
-import org.wso2.siddhi.core.util.collection.operator.MapOperator;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
-import org.wso2.siddhi.core.util.collection.operator.OverwriteTableIndexOperator;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.table.holder.IndexedEventHolder;
+import org.ballerinalang.siddhi.core.util.collection.executor.CollectionExecutor;
+import org.ballerinalang.siddhi.core.util.collection.expression.AndMultiPrimaryKeyCollectionExpression;
+import org.ballerinalang.siddhi.core.util.collection.expression.AttributeCollectionExpression;
+import org.ballerinalang.siddhi.core.util.collection.expression.CollectionExpression;
+import org.ballerinalang.siddhi.core.util.collection.expression.CompareCollectionExpression;
+import org.ballerinalang.siddhi.core.util.collection.operator.CollectionOperator;
+import org.ballerinalang.siddhi.core.util.collection.operator.EventChunkOperator;
+import org.ballerinalang.siddhi.core.util.collection.operator.IndexOperator;
+import org.ballerinalang.siddhi.core.util.collection.operator.MapOperator;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.collection.operator.Operator;
+import org.ballerinalang.siddhi.core.util.collection.operator.OverwriteTableIndexOperator;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Variable;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_RESULT_SET;
-import static org.wso2.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PRIMARY_KEY_RESULT_SET;
+import static org.ballerinalang.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.INDEXED_RESULT_SET;
+import static org.ballerinalang.siddhi.core.util.collection.expression.CollectionExpression.CollectionScope.PRIMARY_KEY_RESULT_SET;
 
 /**
  * Class to parse {@link Operator}

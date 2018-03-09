@@ -16,26 +16,26 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.table.holder.EventHolder;
-import org.wso2.siddhi.core.table.holder.IndexEventHolder;
-import org.wso2.siddhi.core.table.holder.ListEventHolder;
-import org.wso2.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
+import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.table.holder.EventHolder;
+import org.ballerinalang.siddhi.core.table.holder.IndexEventHolder;
+import org.ballerinalang.siddhi.core.table.holder.ListEventHolder;
+import org.ballerinalang.siddhi.core.table.holder.PrimaryKeyReferenceHolder;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.HashMap;
 import java.util.Map;

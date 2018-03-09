@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.timestamp;
+package org.ballerinalang.siddhi.core.util.timestamp;
 
 /**
  * {@link TimestampGenerator} which return value of System.nanoTime()

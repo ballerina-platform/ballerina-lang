@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api;
+package org.ballerinalang.siddhi.query.api;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 
 public class DefineStreamTestCase {
 

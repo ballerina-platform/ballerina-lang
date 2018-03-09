@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.output.ratelimit;
+package org.ballerinalang.siddhi.query.api.execution.query.output.ratelimit;
 
 /**
  * Rate limiting of query output based on time

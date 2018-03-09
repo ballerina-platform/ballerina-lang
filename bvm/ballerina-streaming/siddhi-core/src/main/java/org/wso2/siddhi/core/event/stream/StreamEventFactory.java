@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream;
+package org.ballerinalang.siddhi.core.event.stream;
 
 import com.lmax.disruptor.EventFactory;
 

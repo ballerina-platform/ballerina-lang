@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core;
+package org.ballerinalang.siddhi.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 
 import java.util.Arrays;
 import java.util.Map;

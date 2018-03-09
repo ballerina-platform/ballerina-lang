@@ -15,32 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
-import org.wso2.siddhi.core.query.selector.OrderByEventComparator;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEventAttribute;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.executor.ConstantExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.selector.GroupByKeyGenerator;
+import org.ballerinalang.siddhi.core.query.selector.OrderByEventComparator;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.OutputAttribute;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Variable;
 
 import java.util.ArrayList;
 import java.util.List;

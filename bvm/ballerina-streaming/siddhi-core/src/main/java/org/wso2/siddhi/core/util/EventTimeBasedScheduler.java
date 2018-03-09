@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
-import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcessor;
+import org.ballerinalang.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 
 /**
  * Scheduler which operate based on event's timestamp

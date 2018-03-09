@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.processor;
+package org.ballerinalang.siddhi.core.query.processor;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 
 /**
  * Parent interface representing Event Processors in Siddhi. Event Processors are the execution unit which will do

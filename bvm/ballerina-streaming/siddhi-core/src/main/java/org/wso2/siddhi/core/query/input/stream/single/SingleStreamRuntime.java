@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.input.stream.single;
+package org.ballerinalang.siddhi.core.query.input.stream.single;
 
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.query.processor.SchedulingProcessor;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
 
 import java.util.ArrayList;
 import java.util.List;

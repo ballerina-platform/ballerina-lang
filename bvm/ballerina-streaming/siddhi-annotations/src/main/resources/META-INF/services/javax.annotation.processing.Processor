@@ -16,5 +16,5 @@
 # under the License.
 #
 
-org.wso2.siddhi.annotation.processor.SiddhiAnnotationProcessor
-org.wso2.siddhi.annotation.classindex.processor.ClassIndexProcessor
+org.ballerinalang.siddhi.annotation.processor.SiddhiAnnotationProcessor
+org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor

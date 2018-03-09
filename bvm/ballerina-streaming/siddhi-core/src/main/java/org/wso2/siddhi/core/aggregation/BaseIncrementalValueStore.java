@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.aggregation;
+package org.ballerinalang.siddhi.core.aggregation;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

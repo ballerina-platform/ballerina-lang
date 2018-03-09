@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event;
+package org.ballerinalang.siddhi.core.event;
 
 import java.io.Serializable;
 import java.util.Iterator;

@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.selector.attribute.aggregator;
+package org.ballerinalang.siddhi.core.query.selector.attribute.aggregator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 
 public class DistinctCountAttributeAggregatorTestCase {
     private static final Logger log = LoggerFactory.getLogger(DistinctCountAttributeAggregatorTestCase.class);
@@ -57,8 +57,8 @@ public class DistinctCountAttributeAggregatorTestCase {
                 query);
         siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
-            public void receive(org.wso2.siddhi.core.event.Event[] events) {
-                for (org.wso2.siddhi.core.event.Event event : events) {
+            public void receive(org.ballerinalang.siddhi.core.event.Event[] events) {
+                for (org.ballerinalang.siddhi.core.event.Event event : events) {
                     AssertJUnit.assertEquals("User ID", "USER_1", event.getData(0));
                     AssertJUnit.assertEquals("Page ID", "WEB_PAGE_4", event.getData(1));
                     AssertJUnit.assertEquals("Distinct Pages", 4L, event.getData(2));

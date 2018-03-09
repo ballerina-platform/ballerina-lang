@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * Interface between InputEventHandler and InputHandler.

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.processor;
+package org.ballerinalang.siddhi.core.query.processor;
 
-import org.wso2.siddhi.core.util.Scheduler;
+import org.ballerinalang.siddhi.core.util.Scheduler;
 
 /**
  * Parent interface for Processors which need access to Siddhi {@link Scheduler}

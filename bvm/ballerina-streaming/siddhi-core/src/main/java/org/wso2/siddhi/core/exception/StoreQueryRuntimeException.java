@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+package org.ballerinalang.siddhi.core.exception;
 
 /**
- * Exception class to be used when an error occurs while creating {@link org.wso2.siddhi.query.api.SiddhiApp}
+ * Exception class to be used when an error occurs while creating {@link org.ballerinalang.siddhi.query.api.SiddhiApp}
  */
 public class StoreQueryRuntimeException extends RuntimeException {
     boolean classLoadingIssue = false;

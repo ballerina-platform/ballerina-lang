@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.metrics;
+package org.ballerinalang.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reporter;
 import com.codahale.metrics.ScheduledReporter;
-import org.wso2.siddhi.core.util.statistics.StatisticsManager;
-import org.wso2.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsManager;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

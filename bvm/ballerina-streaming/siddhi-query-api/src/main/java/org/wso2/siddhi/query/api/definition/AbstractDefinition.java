@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.definition;
+package org.ballerinalang.siddhi.query.api.definition;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.exception.AttributeNotExistException;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 
 import java.util.ArrayList;
 import java.util.List;

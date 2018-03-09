@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.metrics;
+package org.ballerinalang.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
-import org.wso2.siddhi.core.util.statistics.EventBufferHolder;
+import org.ballerinalang.siddhi.core.util.statistics.BufferedEventsTracker;
+import org.ballerinalang.siddhi.core.util.statistics.EventBufferHolder;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

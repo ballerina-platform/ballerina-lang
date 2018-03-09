@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.join;
+package org.ballerinalang.siddhi.core.query.input.stream.join;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
 
 import java.util.ArrayList;
 import java.util.List;

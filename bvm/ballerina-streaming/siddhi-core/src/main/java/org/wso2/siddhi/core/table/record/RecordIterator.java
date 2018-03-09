@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
 import java.io.Closeable;
 import java.util.Iterator;

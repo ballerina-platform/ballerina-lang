@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.ballerinalang.siddhi.core.util.transport;
 
 /**
  * Backoff Retry Counter to count when to retry next during reconnection

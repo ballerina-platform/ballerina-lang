@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.state;
+package org.ballerinalang.siddhi.core.event.state;
 
 /**
- * Class to clone {@link StateEvent} used when creating {@link org.wso2.siddhi.core.partition.PartitionRuntime}.
+ * Class to clone {@link StateEvent} used when creating {@link org.ballerinalang.siddhi.core.partition.PartitionRuntime}.
  */
 public class StateEventCloner {
 

@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.input.stream.state.runtime;
+package org.ballerinalang.siddhi.core.query.input.stream.state.runtime;
 
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.state.LogicalPostStateProcessor;
-import org.wso2.siddhi.core.query.input.stream.state.LogicalPreStateProcessor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.state.LogicalPostStateProcessor;
+import org.ballerinalang.siddhi.core.query.input.stream.state.LogicalPreStateProcessor;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.List;
 

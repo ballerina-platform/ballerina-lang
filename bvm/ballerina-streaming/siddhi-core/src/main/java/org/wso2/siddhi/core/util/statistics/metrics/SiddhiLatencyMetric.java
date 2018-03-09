@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.metrics;
+package org.ballerinalang.siddhi.core.util.statistics.metrics;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
  * Class to calculate Siddhi latency.

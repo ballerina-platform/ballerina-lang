@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event;
+package org.ballerinalang.siddhi.core.event;
 
 /**
  * Event Factory to create new Events

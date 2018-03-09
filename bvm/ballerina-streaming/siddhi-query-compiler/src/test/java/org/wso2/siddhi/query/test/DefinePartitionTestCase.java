@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.test;
+package org.ballerinalang.siddhi.query.test;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.execution.partition.Partition;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.query.api.execution.partition.Partition;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 
 /**
  * Partition testing testcase

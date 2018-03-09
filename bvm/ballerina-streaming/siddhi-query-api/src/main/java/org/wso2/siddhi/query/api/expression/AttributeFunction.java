@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.expression;
+package org.ballerinalang.siddhi.query.api.expression;
 
-import org.wso2.siddhi.query.api.extension.Extension;
+import org.ballerinalang.siddhi.query.api.extension.Extension;
 
 import java.util.Arrays;
 

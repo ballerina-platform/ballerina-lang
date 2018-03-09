@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.util.lock;
+package org.ballerinalang.siddhi.core.util.lock;
 
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class LockWrapper {
     /**
      * Id of the lock which is supposed to be unique inside EventWindows.
-     * It is recommended to use the {@link org.wso2.siddhi.core.window.Window} id as lock id.
+     * It is recommended to use the {@link org.ballerinalang.siddhi.core.window.Window} id as lock id.
      * For query lock, an empty String can be used as lock id since it will not be used in LockSyn
      */
     private final String lockId;

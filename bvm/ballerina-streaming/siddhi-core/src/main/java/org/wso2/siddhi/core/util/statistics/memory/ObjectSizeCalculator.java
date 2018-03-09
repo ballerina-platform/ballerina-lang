@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics.memory;
+package org.ballerinalang.siddhi.core.util.statistics.memory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -26,17 +26,17 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.table.record.AbstractRecordTable;
-import org.wso2.siddhi.core.util.statistics.BufferedEventsTracker;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.statistics.MemoryCalculable;
-import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
-import org.wso2.siddhi.core.util.statistics.StatisticsManager;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.table.record.AbstractRecordTable;
+import org.ballerinalang.siddhi.core.util.statistics.BufferedEventsTracker;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.util.statistics.MemoryCalculable;
+import org.ballerinalang.siddhi.core.util.statistics.MemoryUsageTracker;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsManager;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;

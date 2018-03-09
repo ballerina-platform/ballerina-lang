@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare;
+package org.ballerinalang.siddhi.core.executor.condition.compare;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
 /**
  * Parent Executor class for Compare conditions. common evaluation logic is implemented within executor.

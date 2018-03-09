@@ -15,22 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query;
+package org.ballerinalang.siddhi.query.api.execution.query;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.execution.ExecutionElement;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.DeleteStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.ReturnStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateSet;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

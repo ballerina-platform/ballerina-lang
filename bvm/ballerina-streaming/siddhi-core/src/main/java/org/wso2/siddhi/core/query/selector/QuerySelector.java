@@ -15,24 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.selector;
+package org.ballerinalang.siddhi.core.query.selector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.GroupedComplexEvent;
-import org.wso2.siddhi.core.event.state.populater.StateEventPopulator;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
-import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.GroupedComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.populater.StateEventPopulator;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.output.ratelimit.OutputRateLimiter;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.ballerinalang.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.stream.output.sink.distributed;
+package org.ballerinalang.siddhi.core.stream.output.sink.distributed;
 
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.Collections;

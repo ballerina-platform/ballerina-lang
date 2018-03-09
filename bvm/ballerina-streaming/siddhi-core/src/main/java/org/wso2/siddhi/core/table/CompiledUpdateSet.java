@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table;
+package org.ballerinalang.siddhi.core.table;
 
 /**
  * Marker interface for {@link CompiledUpdateSet}

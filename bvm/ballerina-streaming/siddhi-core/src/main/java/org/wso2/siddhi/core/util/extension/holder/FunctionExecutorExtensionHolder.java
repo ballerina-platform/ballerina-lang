@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.extension.holder;
+package org.ballerinalang.siddhi.core.util.extension.holder;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.executor.function.FunctionExecutor;
 
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics;
+package org.ballerinalang.siddhi.core.util.statistics;
 
-import org.wso2.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
 
 import java.util.List;
 

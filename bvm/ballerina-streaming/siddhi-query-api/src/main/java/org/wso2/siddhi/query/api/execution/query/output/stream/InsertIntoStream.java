@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.output.stream;
+package org.ballerinalang.siddhi.query.api.execution.query.output.stream;
 
-import org.wso2.siddhi.query.api.util.SiddhiConstants;
+import org.ballerinalang.siddhi.query.api.util.SiddhiConstants;
 
 /**
  * Query output stream inserting events in to another stream, table, or window

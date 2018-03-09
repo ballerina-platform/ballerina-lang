@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.util.EventTimeBasedScheduler;
-import org.wso2.siddhi.core.util.Schedulable;
-import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.SystemTimeBasedScheduler;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.util.EventTimeBasedScheduler;
+import org.ballerinalang.siddhi.core.util.Schedulable;
+import org.ballerinalang.siddhi.core.util.Scheduler;
+import org.ballerinalang.siddhi.core.util.SystemTimeBasedScheduler;
 
 import java.util.concurrent.ScheduledExecutorService;
 

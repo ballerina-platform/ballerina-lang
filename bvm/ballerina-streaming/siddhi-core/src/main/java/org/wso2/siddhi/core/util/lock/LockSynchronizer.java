@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.util.lock;
+package org.ballerinalang.siddhi.core.util.lock;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table;
+package org.ballerinalang.siddhi.core.table;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 import java.util.Map;
 

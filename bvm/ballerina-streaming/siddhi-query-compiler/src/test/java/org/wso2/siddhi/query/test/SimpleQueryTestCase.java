@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.test;
+package org.ballerinalang.siddhi.query.test;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
-import org.wso2.siddhi.query.api.execution.query.selection.OrderByAttribute;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.OrderByAttribute;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class SimpleQueryTestCase {
 

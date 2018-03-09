@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.debugger;
+package org.ballerinalang.siddhi.core.debugger;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
  * Callback to get notification about the events passing through the break points.

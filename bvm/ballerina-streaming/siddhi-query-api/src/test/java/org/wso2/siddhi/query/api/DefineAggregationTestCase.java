@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api;
+package org.ballerinalang.siddhi.query.api;
 
 import org.testng.annotations.Test;
-import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.aggregation.Within;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
+import org.ballerinalang.siddhi.query.api.aggregation.Within;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.input.store.InputStore;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 
 public class DefineAggregationTestCase {
     @Test

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state.runtime;
+package org.ballerinalang.siddhi.core.query.input.stream.state.runtime;
 
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 /**
  * Created on 12/19/14.

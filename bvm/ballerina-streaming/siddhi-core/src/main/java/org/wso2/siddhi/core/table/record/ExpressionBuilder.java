@@ -16,50 +16,50 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.expression.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.condition.And;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
-import org.wso2.siddhi.query.api.expression.condition.In;
-import org.wso2.siddhi.query.api.expression.condition.IsNull;
-import org.wso2.siddhi.query.api.expression.condition.Not;
-import org.wso2.siddhi.query.api.expression.condition.Or;
-import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
-import org.wso2.siddhi.query.api.expression.constant.Constant;
-import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
-import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
-import org.wso2.siddhi.query.api.expression.constant.LongConstant;
-import org.wso2.siddhi.query.api.expression.constant.StringConstant;
-import org.wso2.siddhi.query.api.expression.math.Add;
-import org.wso2.siddhi.query.api.expression.math.Divide;
-import org.wso2.siddhi.query.api.expression.math.Mod;
-import org.wso2.siddhi.query.api.expression.math.Multiply;
-import org.wso2.siddhi.query.api.expression.math.Subtract;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.parser.ExpressionParser;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.exception.AttributeNotExistException;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.expression.AttributeFunction;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Variable;
+import org.ballerinalang.siddhi.query.api.expression.condition.And;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.api.expression.condition.In;
+import org.ballerinalang.siddhi.query.api.expression.condition.IsNull;
+import org.ballerinalang.siddhi.query.api.expression.condition.Not;
+import org.ballerinalang.siddhi.query.api.expression.condition.Or;
+import org.ballerinalang.siddhi.query.api.expression.constant.BoolConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.Constant;
+import org.ballerinalang.siddhi.query.api.expression.constant.DoubleConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.FloatConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.IntConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.LongConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.StringConstant;
+import org.ballerinalang.siddhi.query.api.expression.math.Add;
+import org.ballerinalang.siddhi.query.api.expression.math.Divide;
+import org.ballerinalang.siddhi.query.api.expression.math.Mod;
+import org.ballerinalang.siddhi.query.api.expression.math.Multiply;
+import org.ballerinalang.siddhi.query.api.expression.math.Subtract;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Parse and build Siddhi Condition objects from @{link {@link Expression}s.

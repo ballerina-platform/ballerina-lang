@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.output.ratelimit;
+package org.ballerinalang.siddhi.core.query.output.ratelimit;
 
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 
 import java.util.Map;
 

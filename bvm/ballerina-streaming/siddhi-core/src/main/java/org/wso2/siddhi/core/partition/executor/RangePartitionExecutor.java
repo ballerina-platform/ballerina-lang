@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.partition.executor;
+package org.ballerinalang.siddhi.core.partition.executor;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.executor.condition.ConditionExpressionExecutor;
 
 /**
  * Range partition executor will compute whether a given {@link ComplexEvent} belongs to a pre-defined range and

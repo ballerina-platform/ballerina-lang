@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.timestamp;
+package org.ballerinalang.siddhi.core.util.timestamp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Return the timestamp of the latest event received by the stream junction.
- * This generator can notify the {@link org.wso2.siddhi.core.util.Scheduler}
+ * This generator can notify the {@link org.ballerinalang.siddhi.core.util.Scheduler}
  * whenever there is a new event with increased timestamp.
  * Also it can optionally send heart beat to the registered schedulers based
  * on the configuration provided.
  *
- * @see org.wso2.siddhi.core.stream.StreamJunction#sendData(long, Object[])
+ * @see org.ballerinalang.siddhi.core.stream.StreamJunction#sendData(long, Object[])
  */
 public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerator {
 
@@ -119,7 +119,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
      * Register to listen for time changes.
      *
      * @param listener any listeners interested on time change.
-     * @see org.wso2.siddhi.core.util.Scheduler
+     * @see org.ballerinalang.siddhi.core.util.Scheduler
      */
     public void addTimeChangeListener(TimeChangeListener listener) {
         synchronized (this) {

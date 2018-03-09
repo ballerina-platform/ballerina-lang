@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.partition;
+package org.ballerinalang.siddhi.query.api.execution.partition;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
  * Type of Siddhi partition

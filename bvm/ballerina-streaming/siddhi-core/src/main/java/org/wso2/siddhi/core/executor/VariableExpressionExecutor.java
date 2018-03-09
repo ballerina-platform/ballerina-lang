@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.executor;
+package org.ballerinalang.siddhi.core.executor;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
-import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CHAIN;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 /**
  * Executor class for Siddhi event attributes. This executor is used to extract attribute value from

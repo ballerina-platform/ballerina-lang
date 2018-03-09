@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.config;
+package org.ballerinalang.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
-import org.wso2.siddhi.core.function.Script;
-import org.wso2.siddhi.core.util.ElementIdGenerator;
-import org.wso2.siddhi.core.util.ThreadBarrier;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
-import org.wso2.siddhi.core.util.persistence.PersistenceService;
-import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.util.statistics.StatisticsManager;
-import org.wso2.siddhi.core.util.timestamp.TimestampGenerator;
+import org.ballerinalang.siddhi.core.function.Script;
+import org.ballerinalang.siddhi.core.util.ElementIdGenerator;
+import org.ballerinalang.siddhi.core.util.ThreadBarrier;
+import org.ballerinalang.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.ballerinalang.siddhi.core.util.persistence.PersistenceService;
+import org.ballerinalang.siddhi.core.util.snapshot.SnapshotService;
+import org.ballerinalang.siddhi.core.util.statistics.StatisticsManager;
+import org.ballerinalang.siddhi.core.util.timestamp.TimestampGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Holder object for context information of {@link org.wso2.siddhi.query.api.SiddhiApp}.
+ * Holder object for context information of {@link org.ballerinalang.siddhi.query.api.SiddhiApp}.
  */
 public class SiddhiAppContext {
 

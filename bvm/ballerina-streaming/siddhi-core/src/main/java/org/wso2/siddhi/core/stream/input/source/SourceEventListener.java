@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * Listener interface to be used by following component to get the events received by {@link Source}s. Source will

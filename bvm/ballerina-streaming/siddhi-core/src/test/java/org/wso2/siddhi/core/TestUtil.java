@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core;
+package org.ballerinalang.siddhi.core;
 
 import org.testng.AssertJUnit;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.query.output.callback.QueryCallback;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.util.EventPrinter;
 
 import java.util.ArrayList;
 import java.util.List;

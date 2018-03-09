@@ -15,54 +15,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.OperationNotSupportedException;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.input.MultiProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
-import org.wso2.siddhi.core.query.input.stream.join.JoinStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.window.AggregateWindowProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.LengthWindowProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.TableWindowProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
-import org.wso2.siddhi.core.query.processor.stream.window.WindowWindowProcessor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.aggregation.Within;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
-import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.exception.OperationNotSupportedException;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.executor.ConstantExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.VariableExpressionExecutor;
+import org.ballerinalang.siddhi.core.query.input.MultiProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.join.JoinProcessor;
+import org.ballerinalang.siddhi.core.query.input.stream.join.JoinStreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.AggregateWindowProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.LengthWindowProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.TableWindowProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.WindowProcessor;
+import org.ballerinalang.siddhi.core.query.processor.stream.window.WindowWindowProcessor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledCondition;
+import org.ballerinalang.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.aggregation.Within;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.SingleInputStream;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType.AGGREGATE;
-import static org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType.TABLE;
-import static org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType.WINDOW;
-import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+import static org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventType.AGGREGATE;
+import static org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventType.TABLE;
+import static org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent.EventType.WINDOW;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 
 public class JoinInputStreamParser {
 

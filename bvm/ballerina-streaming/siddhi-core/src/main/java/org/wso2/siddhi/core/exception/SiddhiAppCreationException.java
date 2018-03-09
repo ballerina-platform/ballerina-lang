@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+package org.ballerinalang.siddhi.core.exception;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.query.api.exception.SiddhiAppContextException;
-import org.wso2.siddhi.query.api.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
+import org.ballerinalang.siddhi.query.api.util.ExceptionUtil;
 
 /**
- * Exception class to be used when an error occurs while creating {@link org.wso2.siddhi.query.api.SiddhiApp}
+ * Exception class to be used when an error occurs while creating {@link org.ballerinalang.siddhi.query.api.SiddhiApp}
  */
 public class SiddhiAppCreationException extends RuntimeException implements SiddhiAppContextException {
     boolean classLoadingIssue = false;

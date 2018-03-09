@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.extension.holder;
+package org.ballerinalang.siddhi.core.util.extension.holder;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.function.Script;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.function.Script;
 
 import java.util.concurrent.ConcurrentHashMap;
 

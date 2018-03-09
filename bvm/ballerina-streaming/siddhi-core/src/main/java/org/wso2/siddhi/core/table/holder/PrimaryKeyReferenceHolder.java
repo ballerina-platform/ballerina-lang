@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.holder;
+package org.ballerinalang.siddhi.core.table.holder;
 
 import java.io.Serializable;
 

@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
 
 /**
  * Interface to mark any Siddhi execution component which is using scheduler

@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.ballerinalang.siddhi.core.util.transport;
 
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.HashMap;
 import java.util.HashSet;

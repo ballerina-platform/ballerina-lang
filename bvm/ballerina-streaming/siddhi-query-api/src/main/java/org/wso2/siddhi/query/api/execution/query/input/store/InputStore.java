@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.query.input.store;
+package org.ballerinalang.siddhi.query.api.execution.query.input.store;
 
 /**
  * Input Store

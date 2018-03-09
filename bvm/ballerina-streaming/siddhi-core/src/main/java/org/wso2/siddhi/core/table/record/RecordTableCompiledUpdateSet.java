@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.table.record;
+package org.ballerinalang.siddhi.core.table.record;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.table.CompiledUpdateSet;
-import org.wso2.siddhi.core.util.collection.operator.CompiledExpression;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.table.CompiledUpdateSet;
+import org.ballerinalang.siddhi.core.util.collection.operator.CompiledExpression;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

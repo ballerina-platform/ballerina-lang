@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.compiler.exception;
+package org.ballerinalang.siddhi.query.compiler.exception;
 
-import org.wso2.siddhi.query.api.exception.SiddhiAppContextException;
-import org.wso2.siddhi.query.api.util.ExceptionUtil;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppContextException;
+import org.ballerinalang.siddhi.query.api.util.ExceptionUtil;
 
 /**
  * Exception thrown when passer errors occur in siddhi

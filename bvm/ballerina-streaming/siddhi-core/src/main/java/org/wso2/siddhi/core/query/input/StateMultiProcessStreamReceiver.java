@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.input;
+package org.ballerinalang.siddhi.core.query.input;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.query.selector.QuerySelector;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 /**
- * Implementation of {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} to receive events to be fed into
+ * Implementation of {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} to receive events to be fed into
  * multi stream stateful queries.
  */
 public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver {

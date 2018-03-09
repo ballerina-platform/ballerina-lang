@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state;
+package org.ballerinalang.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
+import org.ballerinalang.siddhi.core.query.processor.SchedulingProcessor;
+import org.ballerinalang.siddhi.core.util.extension.holder.EternalReferencedHolder;
 
 /**
  * PreStateProcessor of events not received by Siddhi.

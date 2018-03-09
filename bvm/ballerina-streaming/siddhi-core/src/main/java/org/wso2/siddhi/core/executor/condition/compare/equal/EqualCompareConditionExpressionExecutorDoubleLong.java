@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.executor.condition.compare.equal;
+package org.ballerinalang.siddhi.core.executor.condition.compare.equal;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 /**
  * Executor class for Double-Long Equal condition. Condition evaluation logic is implemented within executor.

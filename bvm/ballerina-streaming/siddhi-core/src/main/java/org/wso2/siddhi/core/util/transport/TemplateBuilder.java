@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.transport;
+package org.ballerinalang.siddhi.core.util.transport;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.NoSuchAttributeException;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.exception.NoSuchAttributeException;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Template builder used by {@link org.wso2.siddhi.core.stream.output.sink.SinkMapper} to generate custom payload.
+ * Template builder used by {@link org.ballerinalang.siddhi.core.stream.output.sink.SinkMapper} to generate custom payload.
  */
 public class TemplateBuilder {
     private static final Pattern DYNAMIC_PATTERN = Pattern.compile("(\\{\\{[^{}]*\\}\\})|[{}]");

@@ -19,7 +19,7 @@
 grammar SiddhiQL;
 
 @header {
-	//import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+	//import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 }
 
 parse

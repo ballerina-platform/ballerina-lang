@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
 import java.util.HashMap;
 

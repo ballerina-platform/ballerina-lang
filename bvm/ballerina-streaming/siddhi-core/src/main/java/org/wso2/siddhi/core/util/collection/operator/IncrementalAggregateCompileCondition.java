@@ -16,25 +16,25 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection.operator;
+package org.ballerinalang.siddhi.core.util.collection.operator;
 
-import org.wso2.siddhi.core.aggregation.IncrementalDataAggregator;
-import org.wso2.siddhi.core.aggregation.IncrementalExecutor;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.aggregation.IncrementalDataAggregator;
+import org.ballerinalang.siddhi.core.aggregation.IncrementalExecutor;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 import java.util.HashMap;
 import java.util.List;

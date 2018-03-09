@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.ballerinalang.siddhi.core.stream.output.sink;
 
 /**
  * Sink Listener is used to get Events out from {@link SinkMapper}s into Sinks. Mappers will send the resulting

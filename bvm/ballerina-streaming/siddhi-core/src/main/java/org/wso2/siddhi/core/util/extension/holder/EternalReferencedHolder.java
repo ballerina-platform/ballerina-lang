@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.extension.holder;
+package org.ballerinalang.siddhi.core.util.extension.holder;
 
 /**
  * Primary interface used to give start and stop method to Siddhi components which will be called once during Siddhi

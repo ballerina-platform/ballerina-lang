@@ -16,20 +16,20 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.managment;
+package org.ballerinalang.siddhi.core.managment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -101,7 +101,7 @@ public class StatisticsTestCase {
         String output = baos.toString();
 
         AssertJUnit.assertTrue(output.contains("Gauges"));
-        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
+        AssertJUnit.assertTrue(output.contains("org.ballerinalang.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
         AssertJUnit.assertTrue(output.contains("query1.memory"));
         AssertJUnit.assertTrue(output.contains("Meters"));
         AssertJUnit.assertTrue(output.contains(SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -466,7 +466,7 @@ public class StatisticsTestCase {
         String output = baos.toString();
 
         AssertJUnit.assertTrue(output.contains("Gauges"));
-        AssertJUnit.assertTrue(output.contains("org.wso2.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
+        AssertJUnit.assertTrue(output.contains("org.ballerinalang.siddhi." + SiddhiConstants.METRIC_INFIX_SIDDHI_APPS));
         AssertJUnit.assertFalse(output.contains("query1.memory"));
         AssertJUnit.assertTrue(output.contains("cseEventStream2.throughput"));
         AssertJUnit.assertTrue(output.contains("Meters"));

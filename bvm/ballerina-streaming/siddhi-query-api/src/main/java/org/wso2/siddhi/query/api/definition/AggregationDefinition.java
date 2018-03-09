@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.definition;
+package org.ballerinalang.siddhi.query.api.definition;
 
-import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Variable;
+import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.BasicSelector;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Variable;
 
 import java.util.List;
 

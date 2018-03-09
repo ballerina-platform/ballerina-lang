@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.partition.executor;
+package org.ballerinalang.siddhi.core.partition.executor;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
  * Interface class for Partition Executors which will calculate the partition key for a given {@link ComplexEvent}

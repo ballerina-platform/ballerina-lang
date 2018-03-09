@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.function;
+package org.ballerinalang.siddhi.core.function;
 
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 /**
  * Parent interface for Script Function.

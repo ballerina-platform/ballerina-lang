@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare.notequal;
+package org.ballerinalang.siddhi.core.executor.condition.compare.notequal;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
 
 /**
  * Executor class for Integer-Double Not Equal condition. Condition evaluation logic is implemented within

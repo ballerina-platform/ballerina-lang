@@ -16,22 +16,22 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
+package org.ballerinalang.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.util.Schedulable;
-import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.util.Schedulable;
+import org.ballerinalang.siddhi.core.util.lock.LockWrapper;
 
 import java.util.Map;
 
 /**
- * Parent implementation to run the {@link org.wso2.siddhi.core.util.Scheduler} to handle periodic snapshot rate
+ * Parent implementation to run the {@link org.ballerinalang.siddhi.core.util.Scheduler} to handle periodic snapshot rate
  * limiting.
  */
 public abstract class SnapshotOutputRateLimiter implements Schedulable {

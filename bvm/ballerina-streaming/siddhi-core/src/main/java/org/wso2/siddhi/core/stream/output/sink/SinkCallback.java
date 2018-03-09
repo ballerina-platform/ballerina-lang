@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.stream.output.sink;
+package org.ballerinalang.siddhi.core.stream.output.sink;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.List;
 
 /**
  * Sink Callback is used to get {@link Event}s from Siddhi Streams using
- * {@link org.wso2.siddhi.core.stream.StreamJunction} and send them to {@link SinkMapper}s to do the mapping.
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction} and send them to {@link SinkMapper}s to do the mapping.
  */
 public class SinkCallback extends StreamCallback {
     private static final Logger log = LoggerFactory.getLogger(SinkCallback.class);

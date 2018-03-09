@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 /**
  * Class used to encode strings before logging.

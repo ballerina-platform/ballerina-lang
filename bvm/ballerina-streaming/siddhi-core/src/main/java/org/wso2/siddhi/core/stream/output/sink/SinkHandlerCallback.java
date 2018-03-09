@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.ballerinalang.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.Event;
 
 /**
  * Sink Handler Callback is used to send events to the {@link SinkMapper} after being handled by {@link SinkHandler}.

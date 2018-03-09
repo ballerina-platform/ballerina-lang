@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.core.query.output.callback;
+package org.ballerinalang.siddhi.core.query.output.callback;
 
-import org.wso2.siddhi.core.debugger.SiddhiDebugger;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.debugger.SiddhiDebugger;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
- * This callback is an adapter between {@link org.wso2.siddhi.core.stream.StreamJunction} and {@link Window}.
+ * This callback is an adapter between {@link org.ballerinalang.siddhi.core.stream.StreamJunction} and {@link Window}.
  * It receives {@link ComplexEventChunk}s and insert them into {@link Window}.
  */
 public class InsertIntoWindowCallback extends OutputCallback {

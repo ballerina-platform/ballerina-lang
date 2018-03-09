@@ -16,19 +16,19 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input;
+package org.ballerinalang.siddhi.core.stream.input;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.DefinitionNotExistException;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.DefinitionNotExistException;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Manager class to handle {@link org.wso2.siddhi.core.event.Event} insertion to Siddhi.
+ * Manager class to handle {@link org.ballerinalang.siddhi.core.event.Event} insertion to Siddhi.
  */
 public class InputManager {
 

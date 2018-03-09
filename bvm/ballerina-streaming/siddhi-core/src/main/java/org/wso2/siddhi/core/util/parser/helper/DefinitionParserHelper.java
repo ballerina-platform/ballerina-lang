@@ -16,67 +16,67 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser.helper;
+package org.ballerinalang.siddhi.core.util.parser.helper;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.function.Script;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.input.source.SourceHandler;
-import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
-import org.wso2.siddhi.core.stream.input.source.SourceMapper;
-import org.wso2.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
-import org.wso2.siddhi.core.stream.output.sink.OutputGroupDeterminer;
-import org.wso2.siddhi.core.stream.output.sink.PartitionedGroupDeterminer;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
-import org.wso2.siddhi.core.stream.output.sink.SinkHandler;
-import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
-import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
-import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
-import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
-import org.wso2.siddhi.core.table.InMemoryTable;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.table.record.RecordTableHandler;
-import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
-import org.wso2.siddhi.core.trigger.CronTrigger;
-import org.wso2.siddhi.core.trigger.PeriodicTrigger;
-import org.wso2.siddhi.core.trigger.StartTrigger;
-import org.wso2.siddhi.core.trigger.Trigger;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.SiddhiClassLoader;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.DistributionStrategyExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.ScriptExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.SinkMapperExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.SourceExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.SourceMapperExecutorExtensionHolder;
-import org.wso2.siddhi.core.util.extension.holder.TableExtensionHolder;
-import org.wso2.siddhi.core.util.transport.MultiClientDistributedSink;
-import org.wso2.siddhi.core.util.transport.Option;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.core.util.transport.SingleClientDistributedSink;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.definition.WindowDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.extension.Extension;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventCloner;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.function.Script;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.stream.input.source.AttributeMapping;
+import org.ballerinalang.siddhi.core.stream.input.source.Source;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceHandler;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceHandlerManager;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceMapper;
+import org.ballerinalang.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
+import org.ballerinalang.siddhi.core.stream.output.sink.OutputGroupDeterminer;
+import org.ballerinalang.siddhi.core.stream.output.sink.PartitionedGroupDeterminer;
+import org.ballerinalang.siddhi.core.stream.output.sink.Sink;
+import org.ballerinalang.siddhi.core.stream.output.sink.SinkHandler;
+import org.ballerinalang.siddhi.core.stream.output.sink.SinkHandlerManager;
+import org.ballerinalang.siddhi.core.stream.output.sink.SinkMapper;
+import org.ballerinalang.siddhi.core.stream.output.sink.distributed.DistributedTransport;
+import org.ballerinalang.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
+import org.ballerinalang.siddhi.core.table.InMemoryTable;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.table.record.RecordTableHandler;
+import org.ballerinalang.siddhi.core.table.record.RecordTableHandlerManager;
+import org.ballerinalang.siddhi.core.trigger.CronTrigger;
+import org.ballerinalang.siddhi.core.trigger.PeriodicTrigger;
+import org.ballerinalang.siddhi.core.trigger.StartTrigger;
+import org.ballerinalang.siddhi.core.trigger.Trigger;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiClassLoader;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.extension.holder.DistributionStrategyExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.ScriptExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.SinkMapperExecutorExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.SourceExecutorExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.SourceMapperExecutorExtensionHolder;
+import org.ballerinalang.siddhi.core.util.extension.holder.TableExtensionHolder;
+import org.ballerinalang.siddhi.core.util.transport.MultiClientDistributedSink;
+import org.ballerinalang.siddhi.core.util.transport.Option;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.core.util.transport.SingleClientDistributedSink;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.query.api.definition.FunctionDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.query.api.definition.WindowDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.extension.Extension;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -340,9 +340,9 @@ public class DefinitionParserHelper {
                             sourceAnnotation);
 
                     OptionHolder sourceOptionHolder = constructOptionHolder(streamDefinition, sourceAnnotation,
-                            source.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
+                            source.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class), null);
                     OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
-                            sourceMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
+                            sourceMapper.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class), null);
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
                     String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
@@ -476,13 +476,13 @@ public class DefinitionParserHelper {
                         SinkMapper sinkMapper = (SinkMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapperExtension, SinkMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
 
-                        org.wso2.siddhi.annotation.Extension sinkExt
-                                = sink.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
+                        org.ballerinalang.siddhi.annotation.Extension sinkExt
+                                = sink.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class);
 
                         OptionHolder transportOptionHolder = constructOptionHolder(streamDefinition, sinkAnnotation,
                                 sinkExt, supportedDynamicOptions);
                         OptionHolder mapOptionHolder = constructOptionHolder(streamDefinition, mapAnnotation,
-                                sinkMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                                sinkMapper.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class),
                                 sinkMapper.getSupportedDynamicOptions());
                         List<Element> payloadElementList = getPayload(mapAnnotation);
 
@@ -745,7 +745,7 @@ public class DefinitionParserHelper {
 
     private static OptionHolder constructOptionHolder(StreamDefinition streamDefinition,
                                                       Annotation annotation,
-                                                      org.wso2.siddhi.annotation.Extension extension,
+                                                      org.ballerinalang.siddhi.annotation.Extension extension,
                                                       String[] supportedDynamicOptions) {
         List<String> supportedDynamicOptionList = new ArrayList<>();
         if (supportedDynamicOptions != null) {
@@ -806,8 +806,8 @@ public class DefinitionParserHelper {
                                                                      StreamDefinition streamDefinition,
                                                                      Sink clientTransport,
                                                                      SiddhiAppContext siddhiAppContext) {
-        org.wso2.siddhi.annotation.Extension sinkExt
-                = clientTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
+        org.ballerinalang.siddhi.annotation.Extension sinkExt
+                = clientTransport.getClass().getAnnotation(org.ballerinalang.siddhi.annotation.Extension.class);
 
         List<OptionHolder> destinationOptHolders = new ArrayList<>();
         distributionAnnotation.getAnnotations().stream()

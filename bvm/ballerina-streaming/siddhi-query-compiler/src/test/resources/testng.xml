@@ -22,13 +22,13 @@
 <suite name="Siddhi-Compiler-Test-Suite">
     <test name="siddhi-compiler-tests" enabled="true" preserve-order="true">
         <classes>
-            <class name="org.wso2.siddhi.query.test.AbsentPatternTestCase"/>
-            <class name="org.wso2.siddhi.query.test.DefineAggregationTestCase"/>
-            <class name="org.wso2.siddhi.query.test.DefinePartitionTestCase"/>
-            <class name="org.wso2.siddhi.query.test.DefineStreamTestCase"/>
-            <class name="org.wso2.siddhi.query.test.DefineTableTestCase"/>
-            <class name="org.wso2.siddhi.query.test.QueryStoreTestCase"/>
-            <class name="org.wso2.siddhi.query.test.SimpleQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.AbsentPatternTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.DefineAggregationTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.DefinePartitionTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.DefineStreamTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.DefineTableTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.QueryStoreTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.test.SimpleQueryTestCase"/>
         </classes>
     </test>
 </suite>

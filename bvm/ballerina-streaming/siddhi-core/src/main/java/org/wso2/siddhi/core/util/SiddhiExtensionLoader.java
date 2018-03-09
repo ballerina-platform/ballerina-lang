@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.classindex.ClassIndex;
-import org.wso2.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
-import org.wso2.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
-import org.wso2.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.classindex.ClassIndex;
+import org.ballerinalang.siddhi.core.executor.incremental.IncrementalStartTimeEndTimeFunctionExecutor;
+import org.ballerinalang.siddhi.core.executor.incremental.IncrementalTimeGetTimeZone;
+import org.ballerinalang.siddhi.core.executor.incremental.IncrementalUnixTimeFunctionExecutor;
 
 import java.util.Map;
 

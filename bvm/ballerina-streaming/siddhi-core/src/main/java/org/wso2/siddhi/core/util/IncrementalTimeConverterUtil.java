@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
 
 import java.time.Instant;
 import java.time.ZoneId;

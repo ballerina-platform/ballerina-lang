@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection;
+package org.ballerinalang.siddhi.core.util.collection;
 
-import org.wso2.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
 
 /**
- * State Event holder used by {@link org.wso2.siddhi.core.executor.condition.InConditionExpressionExecutor}
+ * State Event holder used by {@link org.ballerinalang.siddhi.core.executor.condition.InConditionExpressionExecutor}
  */
 public class FinderStateEvent extends StateEvent {
 

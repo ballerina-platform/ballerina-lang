@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream.converter;
+package org.ballerinalang.siddhi.core.event.stream.converter;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 
 import java.io.Serializable;
 

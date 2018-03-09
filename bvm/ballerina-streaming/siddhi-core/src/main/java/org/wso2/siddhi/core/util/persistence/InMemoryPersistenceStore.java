@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.persistence;
+package org.ballerinalang.siddhi.core.util.persistence;
 
 
 import org.slf4j.Logger;

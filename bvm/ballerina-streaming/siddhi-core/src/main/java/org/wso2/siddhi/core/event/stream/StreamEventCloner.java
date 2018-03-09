@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event.stream;
+package org.ballerinalang.siddhi.core.event.stream;
 
 /**
- * Cloner class for {@link StreamEvent} to be used when creating {@link org.wso2.siddhi.core.partition.PartitionRuntime}
+ * Cloner class for {@link StreamEvent} to be used when creating {@link org.ballerinalang.siddhi.core.partition.PartitionRuntime}
  */
 public class StreamEventCloner {
 

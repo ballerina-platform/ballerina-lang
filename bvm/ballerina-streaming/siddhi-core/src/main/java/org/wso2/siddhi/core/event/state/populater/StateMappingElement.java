@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.state.populater;
+package org.ballerinalang.siddhi.core.event.state.populater;
 
 /**
  * Element to hold information about StateEvent population

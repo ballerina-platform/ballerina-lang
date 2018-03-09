@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.compiler.internal;
+package org.ballerinalang.siddhi.query.compiler.internal;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 /**
  * Error listener in Siddhi Parser

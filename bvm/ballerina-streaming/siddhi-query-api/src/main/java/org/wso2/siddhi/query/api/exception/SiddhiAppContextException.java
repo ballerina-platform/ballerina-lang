@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.exception;
+package org.ballerinalang.siddhi.query.api.exception;
 
 /**
  * Exception for considering context while throwing extensions

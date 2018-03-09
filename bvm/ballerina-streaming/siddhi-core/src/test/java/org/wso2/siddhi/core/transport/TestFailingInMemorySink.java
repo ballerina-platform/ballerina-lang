@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.transport;
+package org.ballerinalang.siddhi.core.transport;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.Parameter;
+import org.ballerinalang.siddhi.annotation.util.DataType;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.stream.output.sink.InMemorySink;
+import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
 
 @Extension(
         name = "testFailingInMemory",

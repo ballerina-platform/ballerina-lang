@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+package org.ballerinalang.siddhi.core.exception;
 
 /**
  * Exception class to be used when Siddhi cannot load the required extension class.

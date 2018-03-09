@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query;
+package org.ballerinalang.siddhi.core.query;
 
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.definition.Attribute;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 /**
  * Store Query Runtime Interface

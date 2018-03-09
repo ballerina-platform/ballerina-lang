@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.pattern.absent;
+package org.ballerinalang.siddhi.core.query.pattern.absent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.TestUtil;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.TestUtil;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 /**
  * Test the patterns:

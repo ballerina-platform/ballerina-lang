@@ -16,22 +16,22 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.transport;
+package org.ballerinalang.siddhi.core.transport;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.input.source.InMemorySource;
-import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.annotation.Parameter;
+import org.ballerinalang.siddhi.annotation.util.DataType;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.stream.input.source.InMemorySource;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceEventListener;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.transport.InMemoryBroker;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 
 /**
- * Implementation of {@link org.wso2.siddhi.core.stream.input.source.Source} to receive events through in-memory
+ * Implementation of {@link org.ballerinalang.siddhi.core.stream.input.source.Source} to receive events through in-memory
  * transport.
  */
 @Extension(

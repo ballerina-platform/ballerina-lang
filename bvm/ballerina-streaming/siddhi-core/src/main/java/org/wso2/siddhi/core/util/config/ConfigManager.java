@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.config;
+package org.ballerinalang.siddhi.core.util.config;
 
 import java.util.Map;
 

@@ -16,20 +16,20 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.config;
+package org.ballerinalang.siddhi.core.config;
 
 import com.lmax.disruptor.ExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.stream.input.source.SourceHandlerManager;
-import org.wso2.siddhi.core.stream.output.sink.SinkHandlerManager;
-import org.wso2.siddhi.core.table.record.RecordTableHandlerManager;
-import org.wso2.siddhi.core.util.SiddhiExtensionLoader;
-import org.wso2.siddhi.core.util.config.ConfigManager;
-import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
-import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
-import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
+import org.ballerinalang.siddhi.core.stream.input.source.SourceHandlerManager;
+import org.ballerinalang.siddhi.core.stream.output.sink.SinkHandlerManager;
+import org.ballerinalang.siddhi.core.table.record.RecordTableHandlerManager;
+import org.ballerinalang.siddhi.core.util.SiddhiExtensionLoader;
+import org.ballerinalang.siddhi.core.util.config.ConfigManager;
+import org.ballerinalang.siddhi.core.util.config.InMemoryConfigManager;
+import org.ballerinalang.siddhi.core.util.extension.holder.AbstractExtensionHolder;
+import org.ballerinalang.siddhi.core.util.persistence.PersistenceStore;
+import org.ballerinalang.siddhi.core.util.statistics.metrics.SiddhiMetricsFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 /**
- * Context information holder associated with {@link org.wso2.siddhi.core.SiddhiManager}
+ * Context information holder associated with {@link org.ballerinalang.siddhi.core.SiddhiManager}
  */
 public class SiddhiContext {
 

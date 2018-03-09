@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.executor.condition.compare.equal;
+package org.ballerinalang.siddhi.core.executor.condition.compare.equal;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.ExpressionExecutor;
+import org.ballerinalang.siddhi.core.executor.condition.compare.CompareConditionExpressionExecutor;
 
 /**
  * Parent Executor class for Equal condition. Data type specific sub classes will extend this.

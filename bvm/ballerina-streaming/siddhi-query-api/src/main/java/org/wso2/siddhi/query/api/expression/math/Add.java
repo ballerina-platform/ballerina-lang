@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.expression.math;
+package org.ballerinalang.siddhi.query.api.expression.math;
 
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
  * And {@link Expression}

@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event;
+package org.ballerinalang.siddhi.core.event;
 
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
  * Interface for meta event to hold information relevant to a {@link ComplexEvent}.

@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.query.input.store;
+package org.ballerinalang.siddhi.query.api.execution.query.input.store;
 
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
  * Condition Input Store

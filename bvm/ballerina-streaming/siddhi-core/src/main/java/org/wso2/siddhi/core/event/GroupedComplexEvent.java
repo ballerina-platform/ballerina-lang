@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.event;
+package org.ballerinalang.siddhi.core.event;
 
 /**
  * Implementation of {@link ComplexEvent} to hold events belonging to the same GroupBy group.

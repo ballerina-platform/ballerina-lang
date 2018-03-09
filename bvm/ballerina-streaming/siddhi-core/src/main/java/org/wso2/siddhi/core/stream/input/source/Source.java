@@ -16,19 +16,19 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.StringUtil;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
-import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.ConnectionUnavailableException;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.StringUtil;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
+import org.ballerinalang.siddhi.core.util.transport.BackoffRetryCounter;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;

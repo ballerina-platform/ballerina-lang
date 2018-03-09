@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.parser.helper;
+package org.ballerinalang.siddhi.core.util.parser.helper;
 
-import org.wso2.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
 
 import java.util.ArrayList;
 import java.util.List;

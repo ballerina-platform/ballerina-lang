@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.snapshot;
+package org.ballerinalang.siddhi.core.util.snapshot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
-import org.wso2.siddhi.core.util.ThreadBarrier;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.CannotRestoreSiddhiAppStateException;
+import org.ballerinalang.siddhi.core.util.ThreadBarrier;
 
 import java.util.ArrayList;
 import java.util.HashMap;

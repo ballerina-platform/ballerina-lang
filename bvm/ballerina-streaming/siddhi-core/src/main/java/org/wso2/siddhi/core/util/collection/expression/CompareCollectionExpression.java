@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection.expression;
+package org.ballerinalang.siddhi.core.util.collection.expression;
 
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.Compare;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 
 import java.util.HashSet;
 import java.util.Set;

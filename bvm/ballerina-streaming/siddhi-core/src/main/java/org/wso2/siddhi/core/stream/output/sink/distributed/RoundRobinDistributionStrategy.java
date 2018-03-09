@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink.distributed;
+package org.ballerinalang.siddhi.core.stream.output.sink.distributed;
 
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.annotation.Example;
+import org.ballerinalang.siddhi.annotation.Extension;
+import org.ballerinalang.siddhi.core.util.config.ConfigReader;
+import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
+import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
 import java.util.List;

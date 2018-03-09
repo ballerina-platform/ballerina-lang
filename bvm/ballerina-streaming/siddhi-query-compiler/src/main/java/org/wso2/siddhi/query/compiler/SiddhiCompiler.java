@@ -31,23 +31,23 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.compiler;
+package org.ballerinalang.siddhi.query.compiler;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.execution.partition.Partition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.StoreQuery;
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
-import org.wso2.siddhi.query.compiler.internal.SiddhiErrorListener;
-import org.wso2.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
+import org.ballerinalang.siddhi.query.api.SiddhiApp;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.definition.FunctionDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.execution.partition.Partition;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.execution.query.StoreQuery;
+import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.query.compiler.internal.SiddhiErrorListener;
+import org.ballerinalang.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
 
 /**
  * Siddhi query compiler

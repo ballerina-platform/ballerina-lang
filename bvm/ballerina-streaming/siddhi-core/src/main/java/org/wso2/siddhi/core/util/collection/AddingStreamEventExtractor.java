@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.collection;
+package org.ballerinalang.siddhi.core.util.collection;
 
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 
 /**
  * Extract a {@link StreamEvent} from a {@link StateEvent}

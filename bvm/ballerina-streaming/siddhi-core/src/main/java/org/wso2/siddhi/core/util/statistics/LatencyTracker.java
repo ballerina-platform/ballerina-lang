@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util.statistics;
+package org.ballerinalang.siddhi.core.util.statistics;
 
 /**
  * Calculates the process latency. markIn and markOut is used to denote start

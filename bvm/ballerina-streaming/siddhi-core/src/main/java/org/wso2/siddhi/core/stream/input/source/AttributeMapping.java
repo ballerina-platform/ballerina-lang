@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
 /**
  * Holder object to store mapping information for a given Siddhi Attribute
- * {@link org.wso2.siddhi.query.api.definition.Attribute}
+ * {@link org.ballerinalang.siddhi.query.api.definition.Attribute}
  */
 public class AttributeMapping {
     protected String name;

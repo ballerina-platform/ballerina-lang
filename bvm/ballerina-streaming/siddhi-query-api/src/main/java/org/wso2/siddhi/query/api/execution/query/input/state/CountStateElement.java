@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.query.input.state;
+package org.ballerinalang.siddhi.query.api.execution.query.input.state;
 
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
  * Count state element used in patterns

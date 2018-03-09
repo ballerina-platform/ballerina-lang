@@ -16,23 +16,23 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.trigger;
+package org.ballerinalang.siddhi.core.query.trigger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.util.EventPrinter;
+import org.ballerinalang.siddhi.query.api.SiddhiApp;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 public class TriggerTestCase {
     private static final Logger log = LoggerFactory.getLogger(TriggerTestCase.class);

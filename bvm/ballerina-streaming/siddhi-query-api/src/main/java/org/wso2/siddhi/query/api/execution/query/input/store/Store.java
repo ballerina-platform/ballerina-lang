@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.query.input.store;
+package org.ballerinalang.siddhi.query.api.execution.query.input.store;
 
-import org.wso2.siddhi.query.api.aggregation.Within;
-import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.query.api.aggregation.Within;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 /**
  * Store

@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.event;
+package org.ballerinalang.siddhi.core.stream.event;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 
 
 public class ComplexEventChunkTestCase {

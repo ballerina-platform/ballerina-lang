@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream.populater;
+package org.ballerinalang.siddhi.core.event.stream.populater;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 /**
  * The StateEventPopulater interface that populates StateEvents PreOutput and Output data fields

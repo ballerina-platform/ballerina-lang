@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.annotation;
+package org.ballerinalang.siddhi.query.api.annotation;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
 
 /**
  * Annotation element

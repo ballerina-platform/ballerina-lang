@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.stream;
+package org.ballerinalang.siddhi.core.event.stream;
 
-import org.wso2.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
-import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.ballerinalang.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
 
 /**
  * Standard processing event inside Siddhi. StreamEvent will be created

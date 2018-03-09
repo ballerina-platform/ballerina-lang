@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.definition;
+package org.ballerinalang.siddhi.query.api.definition;
 
-import org.wso2.siddhi.query.api.SiddhiElement;
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+import org.ballerinalang.siddhi.query.api.SiddhiElement;
+import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 /**
  * Siddhi Trigger Definition

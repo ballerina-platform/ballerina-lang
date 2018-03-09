@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.query.input;
+package org.ballerinalang.siddhi.core.query.input;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
-import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.ballerinalang.siddhi.core.event.stream.converter.StreamEventConverterFactory;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events to be fed into multi
+ * {@link org.ballerinalang.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events to be fed into multi
  * stream processors which consume multiple streams.
  */
 public class MultiProcessStreamReceiver extends ProcessStreamReceiver {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream;
+package org.ballerinalang.siddhi.core.stream;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
@@ -25,21 +25,21 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.SiddhiEventFactory;
-import org.wso2.siddhi.core.stream.input.InputProcessor;
-import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.core.util.statistics.EventBufferHolder;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
-import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEvent;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.SiddhiEventFactory;
+import org.ballerinalang.siddhi.core.stream.input.InputProcessor;
+import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.core.util.statistics.EventBufferHolder;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;

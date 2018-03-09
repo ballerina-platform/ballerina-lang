@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state.runtime;
+package org.ballerinalang.siddhi.core.query.input.stream.state.runtime;
 
-import org.wso2.siddhi.core.query.input.stream.state.CountPostStateProcessor;
-import org.wso2.siddhi.core.query.input.stream.state.CountPreStateProcessor;
+import org.ballerinalang.siddhi.core.query.input.stream.state.CountPostStateProcessor;
+import org.ballerinalang.siddhi.core.query.input.stream.state.CountPreStateProcessor;
 
 /**
  * Created on 12/19/14.

@@ -22,18 +22,18 @@
 <suite name="Siddhi-Api-Test-Suite">
     <test name="siddhi-api-tests" enabled="true" preserve-order="true">
         <classes>
-            <class name="org.wso2.siddhi.query.api.DefineAggregationTestCase"/>
-            <class name="org.wso2.siddhi.query.api.DefineStreamTestCase"/>
-            <class name="org.wso2.siddhi.query.api.DefineTableTestCase"/>
-            <class name="org.wso2.siddhi.query.api.DefineTriggerTestCase"/>
-            <class name="org.wso2.siddhi.query.api.JoinQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.OutputRateTestCase"/>
-            <class name="org.wso2.siddhi.query.api.PartitionQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.PatternQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.SequenceQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.SimpleQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.StoreQueryTestCase"/>
-            <class name="org.wso2.siddhi.query.api.TableQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.DefineAggregationTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.DefineStreamTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.DefineTableTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.DefineTriggerTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.JoinQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.OutputRateTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.PartitionQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.PatternQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.SequenceQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.SimpleQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.StoreQueryTestCase"/>
+            <class name="org.ballerinalang.siddhi.query.api.TableQueryTestCase"/>
         </classes>
     </test>
 </suite>

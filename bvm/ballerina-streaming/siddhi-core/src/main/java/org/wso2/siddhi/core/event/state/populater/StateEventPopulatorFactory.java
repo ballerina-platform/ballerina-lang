@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.event.state.populater;
+package org.ballerinalang.siddhi.core.event.state.populater;
 
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEventAttribute;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
 
 import java.util.ArrayList;
 import java.util.List;

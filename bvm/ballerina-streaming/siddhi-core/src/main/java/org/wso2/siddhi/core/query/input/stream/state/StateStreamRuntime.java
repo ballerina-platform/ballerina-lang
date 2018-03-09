@@ -16,23 +16,23 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state;
+package org.ballerinalang.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.state.receiver.SequenceMultiProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.state.receiver.SequenceSingleProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.state.runtime.InnerStateRuntime;
-import org.wso2.siddhi.core.query.processor.Processor;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.MetaComplexEvent;
+import org.ballerinalang.siddhi.core.event.state.MetaStateEvent;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.state.receiver.SequenceMultiProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.state.receiver.SequenceSingleProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.state.runtime.InnerStateRuntime;
+import org.ballerinalang.siddhi.core.query.processor.Processor;
 
 import java.util.List;
 
 /**
- * Stream Runtime implementation to represent {@link org.wso2.siddhi.core.event.state.StateEvent}.
+ * Stream Runtime implementation to represent {@link org.ballerinalang.siddhi.core.event.state.StateEvent}.
  */
 public class StateStreamRuntime implements StreamRuntime {
 

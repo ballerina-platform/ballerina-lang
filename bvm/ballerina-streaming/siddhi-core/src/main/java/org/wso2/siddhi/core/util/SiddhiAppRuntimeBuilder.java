@@ -16,37 +16,37 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.util;
+package org.ballerinalang.siddhi.core.util;
 
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.aggregation.AggregationRuntime;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.partition.PartitionRuntime;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
-import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
-import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
-import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.trigger.Trigger;
-import org.wso2.siddhi.core.util.lock.LockSynchronizer;
-import org.wso2.siddhi.core.util.parser.AggregationParser;
-import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.definition.WindowDefinition;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.aggregation.AggregationRuntime;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.partition.PartitionRuntime;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.query.input.ProcessStreamReceiver;
+import org.ballerinalang.siddhi.core.query.input.stream.StreamRuntime;
+import org.ballerinalang.siddhi.core.query.input.stream.single.SingleStreamRuntime;
+import org.ballerinalang.siddhi.core.query.output.callback.InsertIntoStreamCallback;
+import org.ballerinalang.siddhi.core.query.output.callback.InsertIntoWindowCallback;
+import org.ballerinalang.siddhi.core.query.output.callback.OutputCallback;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.stream.input.InputManager;
+import org.ballerinalang.siddhi.core.stream.input.source.Source;
+import org.ballerinalang.siddhi.core.stream.output.sink.Sink;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.trigger.Trigger;
+import org.ballerinalang.siddhi.core.util.lock.LockSynchronizer;
+import org.ballerinalang.siddhi.core.util.parser.AggregationParser;
+import org.ballerinalang.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.definition.AbstractDefinition;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.definition.FunctionDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.query.api.definition.WindowDefinition;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

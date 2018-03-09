@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.trigger;
+package org.ballerinalang.siddhi.core.trigger;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.StreamJunction;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.parser.helper.QueryParserHelper;
+import org.ballerinalang.siddhi.core.util.statistics.ThroughputTracker;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;

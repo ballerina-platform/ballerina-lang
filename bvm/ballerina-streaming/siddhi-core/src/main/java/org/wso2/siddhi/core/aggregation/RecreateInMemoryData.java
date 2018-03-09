@@ -16,24 +16,24 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.aggregation;
+package org.ballerinalang.siddhi.core.aggregation;
 
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.query.StoreQueryRuntime;
-import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
-import org.wso2.siddhi.core.util.parser.StoreQueryParser;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.execution.query.StoreQuery;
-import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
-import org.wso2.siddhi.query.api.expression.Expression;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.event.stream.MetaStreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
+import org.ballerinalang.siddhi.core.event.stream.StreamEventPool;
+import org.ballerinalang.siddhi.core.query.StoreQueryRuntime;
+import org.ballerinalang.siddhi.core.table.Table;
+import org.ballerinalang.siddhi.core.util.IncrementalTimeConverterUtil;
+import org.ballerinalang.siddhi.core.util.parser.StoreQueryParser;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.aggregation.TimePeriod;
+import org.ballerinalang.siddhi.query.api.execution.query.StoreQuery;
+import org.ballerinalang.siddhi.query.api.execution.query.input.store.InputStore;
+import org.ballerinalang.siddhi.query.api.execution.query.selection.Selector;
+import org.ballerinalang.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;

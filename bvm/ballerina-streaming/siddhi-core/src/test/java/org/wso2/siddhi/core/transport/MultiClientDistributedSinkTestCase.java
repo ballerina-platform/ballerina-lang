@@ -16,18 +16,18 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.transport;
+package org.ballerinalang.siddhi.core.transport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.config.InMemoryConfigManager;
-import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.util.config.InMemoryConfigManager;
+import org.ballerinalang.siddhi.core.util.transport.InMemoryBroker;
 
 import java.util.HashMap;
 import java.util.Map;

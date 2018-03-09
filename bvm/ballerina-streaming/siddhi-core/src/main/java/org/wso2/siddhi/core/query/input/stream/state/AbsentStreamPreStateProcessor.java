@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.query.input.stream.state;
+package org.ballerinalang.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
-import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.parser.SchedulerParser;
-import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
-import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
+import org.ballerinalang.siddhi.core.event.ComplexEventChunk;
+import org.ballerinalang.siddhi.core.event.state.StateEvent;
+import org.ballerinalang.siddhi.core.query.input.stream.single.EntryValveProcessor;
+import org.ballerinalang.siddhi.core.util.Scheduler;
+import org.ballerinalang.siddhi.core.util.parser.SchedulerParser;
+import org.ballerinalang.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 
 import java.util.Iterator;
 import java.util.List;

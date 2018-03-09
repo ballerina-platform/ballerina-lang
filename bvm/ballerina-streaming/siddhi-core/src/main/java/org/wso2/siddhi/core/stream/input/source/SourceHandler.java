@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.ballerinalang.siddhi.core.stream.input.source;
 
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.core.event.Event;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.util.snapshot.Snapshotable;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
 /**
- * SourceHandler is an optional implementable class that wraps {@link org.wso2.siddhi.core.stream.input.InputHandler}.
+ * SourceHandler is an optional implementable class that wraps {@link org.ballerinalang.siddhi.core.stream.input.InputHandler}.
  * It will do optional processing to the events before sending the events to the input handler
  */
 public abstract class SourceHandler implements InputEventHandlerCallback, Snapshotable {

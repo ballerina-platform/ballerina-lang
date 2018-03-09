@@ -15,41 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.parser;
+package org.ballerinalang.siddhi.core.util.parser;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.partition.PartitionRuntime;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.util.ElementIdGenerator;
-import org.wso2.siddhi.core.util.ExceptionUtil;
-import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
-import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.ThreadBarrier;
-import org.wso2.siddhi.core.util.persistence.PersistenceService;
-import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
-import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.SiddhiApp;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.definition.AggregationDefinition;
-import org.wso2.siddhi.query.api.definition.FunctionDefinition;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.definition.TriggerDefinition;
-import org.wso2.siddhi.query.api.definition.WindowDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
-import org.wso2.siddhi.query.api.execution.partition.Partition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
-import org.wso2.siddhi.query.compiler.SiddhiCompiler;
-import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
+import org.ballerinalang.siddhi.core.config.SiddhiAppContext;
+import org.ballerinalang.siddhi.core.config.SiddhiContext;
+import org.ballerinalang.siddhi.core.exception.SiddhiAppCreationException;
+import org.ballerinalang.siddhi.core.partition.PartitionRuntime;
+import org.ballerinalang.siddhi.core.query.QueryRuntime;
+import org.ballerinalang.siddhi.core.util.ElementIdGenerator;
+import org.ballerinalang.siddhi.core.util.ExceptionUtil;
+import org.ballerinalang.siddhi.core.util.SiddhiAppRuntimeBuilder;
+import org.ballerinalang.siddhi.core.util.SiddhiConstants;
+import org.ballerinalang.siddhi.core.util.ThreadBarrier;
+import org.ballerinalang.siddhi.core.util.persistence.PersistenceService;
+import org.ballerinalang.siddhi.core.util.snapshot.SnapshotService;
+import org.ballerinalang.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
+import org.ballerinalang.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
+import org.ballerinalang.siddhi.core.window.Window;
+import org.ballerinalang.siddhi.query.api.SiddhiApp;
+import org.ballerinalang.siddhi.query.api.annotation.Annotation;
+import org.ballerinalang.siddhi.query.api.annotation.Element;
+import org.ballerinalang.siddhi.query.api.definition.AggregationDefinition;
+import org.ballerinalang.siddhi.query.api.definition.FunctionDefinition;
+import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
+import org.ballerinalang.siddhi.query.api.definition.TriggerDefinition;
+import org.ballerinalang.siddhi.query.api.definition.WindowDefinition;
+import org.ballerinalang.siddhi.query.api.exception.DuplicateAnnotationException;
+import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.ballerinalang.siddhi.query.api.execution.ExecutionElement;
+import org.ballerinalang.siddhi.query.api.execution.partition.Partition;
+import org.ballerinalang.siddhi.query.api.execution.query.Query;
+import org.ballerinalang.siddhi.query.api.util.AnnotationHelper;
+import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
+import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
-import static org.wso2.siddhi.core.util.parser.helper.AnnotationHelper.generateIncludedMetrics;
+import static org.ballerinalang.siddhi.core.util.parser.helper.AnnotationHelper.generateIncludedMetrics;
 
 /**
  * Class to parse {@link SiddhiApp}
