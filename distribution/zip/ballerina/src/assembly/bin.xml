@@ -165,6 +165,8 @@
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
                 <include>com.h2database:h2</include>
+                <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                <include>org.codehaus.woodstox:stax2-api</include>
             </includes>
         </dependencySet>
 

@@ -139,6 +139,8 @@
                 <include>com.fasterxml.jackson.core:jackson-core</include>
                 <include>com.fasterxml.jackson.core:jackson-annotations</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
+                <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                <include>org.codehaus.woodstox:stax2-api</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
