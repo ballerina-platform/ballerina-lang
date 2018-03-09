@@ -37,7 +37,8 @@ public class CodeGeneratorTest {
                     "\n" +
                     "    @http:resourceConfig {\n" +
                     "        methods:[\"GET\"],\n" +
-                    "        path:\"/stocks/{name}\"" +
+                    "        path:\"/stocks/{name}\",\n" +
+                    "        consumes:[\"application/json\"]" +
                     "    }\n" +
                     "    resource stock (http:Connection conn, http:InRequest inReq, string name) {\n" +
                     "        http:OutResponse res = {};\n" +
@@ -50,8 +51,16 @@ public class CodeGeneratorTest {
             String generatedSource = generator
                     .generate(GeneratorConstants.GenType.CLIENT, ballerinaSource, serviceName);
             Assert.assertNotNull(generatedSource);
+
+            // Test parameter generation
             boolean isParamGenerated = generatedSource.contains("action stock (string name");
             Assert.assertTrue(isParamGenerated, "Expected resource parameter not generated");
+
+            // Test content type generation
+            boolean isContentTypeGenerated = generatedSource.contains(
+                    "request.setHeader(\"Content-Type\", \"application/json\");");
+            Assert.assertTrue(isContentTypeGenerated, "Expected content type not generated");
+
         } catch (CodeGeneratorException e) {
             Assert.fail();
         }

@@ -13,8 +13,8 @@ public connector {{name}} () {
         http:InResponse response = {};
         error outError;
 
-        //Create the required request as needed
-        //request.setHeader("Content-Type", "application/json");
+        //Create the required request as needed{{#contentType}}
+        request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
         string path = string `{{path}}`;
         response, httpError = ep.{{lower method}}(path, request);
         if (httpError != null) {

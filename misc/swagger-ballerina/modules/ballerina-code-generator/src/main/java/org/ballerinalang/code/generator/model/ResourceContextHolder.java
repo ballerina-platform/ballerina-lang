@@ -32,6 +32,7 @@ public class ResourceContextHolder {
 
     private String method;
     private String name;
+    private String contentType;
     private List<ParameterContextHolder> parameters;
 
     /**
@@ -65,6 +66,9 @@ public class ResourceContextHolder {
                         // Consider only first http method since we don't expect multiple http methods to be
                         // supported by single action
                         context.method = attr.getValue().getValueArray().get(0).getValue().toString();
+                    } else if ("consumes".equals(attrName)) {
+                        // We don't need to consider one of all content types for client generation
+                        context.contentType = attr.getValue().getValueArray().get(0).getValue().toString();
                     }
                 }
 
@@ -92,5 +96,13 @@ public class ResourceContextHolder {
 
     public String getPath() {
         return path;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public List<ParameterContextHolder> getParameters() {
+        return parameters;
     }
 }
