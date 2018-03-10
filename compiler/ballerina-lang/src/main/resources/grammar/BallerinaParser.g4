@@ -133,6 +133,7 @@ attachmentPoint
      | FUNCTION
      | STRUCT
      | ENUM
+     | ENDPOINT
      | CONST
      | PARAMETER
      | ANNOTATION
@@ -156,7 +157,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   ENDPOINT (LT nameReference GT) Identifier recordLiteral
+    :   annotationAttachment* endpointType Identifier recordLiteral?
+    ;
+
+endpointType
+    :   ENDPOINT (LT nameReference GT)
     ;
 
 typeName
@@ -227,7 +232,6 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -246,7 +250,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -271,11 +275,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-bindStatement
-    :   BIND expression WITH Identifier SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 variableReferenceList
@@ -409,12 +409,16 @@ invocation
     : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
+actionInvocation
+    : variableReference RARROW functionInvocation
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
 expressionStmt
-    :   variableReference SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement

@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
@@ -44,5 +44,6 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        return VOID_RETURN;
     }
 }

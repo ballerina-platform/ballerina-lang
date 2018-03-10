@@ -80,21 +80,7 @@ public class WebSocketServicesRegistry {
                 String basePath = findFullWebSocketUpgradePath(service);
                 if (basePath == null) {
                     slaveServices.put(service.getName(), service);
-                    return;
                 }
-
-                Set<ListenerConfiguration> listenerConfigurationSet =
-                        HttpUtil.getDefaultOrDynamicListenerConfig(configAnnotation);
-
-                for (ListenerConfiguration listenerConfiguration : listenerConfigurationSet) {
-                    String entryListenerInterface =
-                            listenerConfiguration.getHost() + ":" + listenerConfiguration.getPort();
-                    addServiceToURITemplate(entryListenerInterface, basePath, service);
-                    masterServices.put(service.getName(), service);
-                    HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-                }
-
-                logger.info("Service deployed : " + service.getName() + " with context " + basePath);
             }
         }
     }

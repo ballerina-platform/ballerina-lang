@@ -41,7 +41,7 @@ import javax.websocket.Session;
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "pushBinary",
+        actionName = "closeConnection",
         connectorName = WebSocketConstants.WEBSOCKET_CONNECTOR,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),

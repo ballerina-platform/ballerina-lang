@@ -47,7 +47,7 @@ import java.util.Map;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true

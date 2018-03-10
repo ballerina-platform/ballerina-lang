@@ -50,7 +50,7 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -58,35 +58,35 @@ public class Start extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
-        if (configs == null || !(configs instanceof WsClientConnectorConfig)) {
-            throw new BallerinaConnectorException("Initialize the service before starting it");
-        }
-        WebSocketClientConnector clientConnector =
-                connectorFactory.createWsClientConnector((WsClientConnectorConfig) configs);
-        BallerinaWebSocketClientConnectorListener
-                clientConnectorListener = new BallerinaWebSocketClientConnectorListener();
-        HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
-            @Override
-            public void onSuccess(Session session) {
-                BStruct wsConnection = createWsConnectionStruct(wsService, session, wsParentConnectionID);
-                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
-                WebSocketOpenConnectionInfo connectionInfo =
-                        new WebSocketOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
-                clientConnectorListener.setConnectionInfo(connectionInfo);
-                connectorFuture.notifySuccess();
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                BStruct wsError = createWsErrorStruct(context, t);
-                context.getControlStack().currentFrame.returnValues[1] = wsError;
-                connectorFuture.notifySuccess();
-            }
-        });
+//        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
+//        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+//        Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
+//        if (configs == null || !(configs instanceof WsClientConnectorConfig)) {
+//            throw new BallerinaConnectorException("Initialize the service before starting it");
+//        }
+//        WebSocketClientConnector clientConnector =
+//                connectorFactory.createWsClientConnector((WsClientConnectorConfig) configs);
+//        BallerinaWebSocketClientConnectorListener
+//                clientConnectorListener = new BallerinaWebSocketClientConnectorListener();
+//        HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
+//        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+//            @Override
+//            public void onSuccess(Session session) {
+//                BStruct wsConnection = createWsConnectionStruct(wsService, session, wsParentConnectionID);
+//                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
+//                WebSocketOpenConnectionInfo connectionInfo =
+//                        new WebSocketOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
+//                clientConnectorListener.setConnectionInfo(connectionInfo);
+//                connectorFuture.notifySuccess();
+//            }
+//
+//            @Override
+//            public void onError(Throwable t) {
+//                BStruct wsError = createWsErrorStruct(context, t);
+//                context.getControlStack().currentFrame.returnValues[1] = wsError;
+//                connectorFuture.notifySuccess();
+//            }
+//        });
         return VOID_RETURN;
     }
 

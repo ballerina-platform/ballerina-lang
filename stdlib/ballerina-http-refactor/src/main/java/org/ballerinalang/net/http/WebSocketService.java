@@ -26,7 +26,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -65,8 +65,8 @@ public class WebSocketService implements Service {
     }
 
     @Override
-    public String getProtocolPackage() {
-        return service.getProtocolPackage();
+    public String getEndpointName() {
+        return service.getEndpointName();
     }
 
     @Override
@@ -77,6 +77,11 @@ public class WebSocketService implements Service {
     @Override
     public Resource[] getResources() {
         return service.getResources();
+    }
+
+    @Override
+    public ServiceInfo getServiceInfo() {
+        return service.getServiceInfo();
     }
 
     public Resource getResourceByName(String resourceName) {

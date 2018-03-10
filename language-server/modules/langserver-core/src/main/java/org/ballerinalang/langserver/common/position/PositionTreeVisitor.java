@@ -31,9 +31,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -185,26 +185,27 @@ public class PositionTreeVisitor extends NodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
                 varRefExpr.pkgAlias.value);
-        if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
-                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
-                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
-                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY,
-                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
-                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
-            if (varRefExpr.symbol != null) {
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                        varRefExpr.symbol.owner.pkgID);
-                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-            }
-            setTerminateVisitor(true);
-        } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
+//        if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
+//                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
+//                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+//            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+//            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+//            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
+//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
+//            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY,
+//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.pkgID);
+//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
+//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name());
+//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
+//            if (varRefExpr.symbol != null) {
+//                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+//                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+//                        varRefExpr.symbol.owner.pkgID);
+//                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+//            }
+//            setTerminateVisitor(true);
+//        } else
+        if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
                 || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
@@ -673,10 +674,13 @@ public class PositionTreeVisitor extends NodeVisitor {
         }
     }
 
-    public void visit(BLangEndpointTypeNode endpointType) {
-        setPreviousNode(endpointType);
-        if (endpointType.endpointType != null) {
-            acceptNode(endpointType.endpointType);
+    @Override
+    public void visit(BLangEnum enumNode) {
+        addTopLevelNodeToContext(enumNode, enumNode.name.getValue(), enumNode.symbol.pkgID,
+                enumNode.symbol.kind.name(), enumNode.symbol.kind.name(),
+                enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
+        if (enumNode.getPosition().sLine == this.position.getLine()) {
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
         }
     }
 

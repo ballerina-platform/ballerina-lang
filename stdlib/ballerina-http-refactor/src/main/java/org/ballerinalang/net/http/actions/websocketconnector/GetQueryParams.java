@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "pushBinary",
+        actionName = "getQueryParams",
         connectorName = WebSocketConstants.WEBSOCKET_CONNECTOR,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR)

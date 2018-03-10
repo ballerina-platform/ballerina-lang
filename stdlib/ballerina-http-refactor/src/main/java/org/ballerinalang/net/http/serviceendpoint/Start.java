@@ -21,6 +21,8 @@ package org.ballerinalang.net.http.serviceendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -30,9 +32,13 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.BallerinaWebSocketServerConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+
+import java.util.logging.LogManager;
 
 /**
  * Get the ID of the connection.
@@ -53,6 +59,9 @@ public class Start extends AbstractHttpNativeFunction {
     public BValue[] execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        if (isHTTPTraceLoggerEnabled()) {
+            ((BLogManager) BLogManager.getLogManager()).setHttpTraceLogHandler();
+        }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
@@ -60,6 +69,16 @@ public class Start extends AbstractHttpNativeFunction {
         serverConnectorFuture
                 .setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
         // TODO: set startup server port binder. Do we really need it with new design?
+        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
+        serverConnectorFuture.setPortBindingEventListener(
+                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
+
         return new BValue[]{null};
+    }
+
+    public boolean isHTTPTraceLoggerEnabled() {
+        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
+        return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
+                org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
     }
 }

@@ -227,7 +227,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private ClientConnectorFuture send(Context context, HTTPCarbonMessage outboundRequestMsg) throws Exception {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CONNECTOR_NAME);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
