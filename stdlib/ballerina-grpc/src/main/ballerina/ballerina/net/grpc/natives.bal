@@ -56,12 +56,9 @@ public struct ServerConnection {
     ServiceEndpointConfiguration config;
 }
 
-public function <ServerConnection h> init (string epName, ServiceEndpointConfiguration c) {
-    h.epName = epName;
-    h.config = c;
-    io:println("init called gRPC ServiceEndpoint");
-}
-public  native function <ServerConnection h> register (type serviceType)(ConnectorError);
+public native function <ServerConnection h> init (string epName, ServiceEndpointConfiguration c);
+
+public native function <ServerConnection h> register (type serviceType)(ConnectorError);
 
 public native function <ServerConnection h> start () (ConnectorError);
 

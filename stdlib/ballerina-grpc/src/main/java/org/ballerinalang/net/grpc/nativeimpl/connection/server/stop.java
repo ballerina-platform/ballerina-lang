@@ -16,6 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.connection.server;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -24,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +45,12 @@ import org.slf4j.LoggerFactory;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class stop extends AbstractNativeFunction {
+public class stop extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(stop.class);
     
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[0];
+    
+        return new BValue[] {null};
     }
 }

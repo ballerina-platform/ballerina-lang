@@ -16,16 +16,24 @@
 package org.ballerinalang.net.grpc.nativeimpl.connection.server;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.MessageConstants;
+import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
 
 /**
  * Native function to respond the caller.
@@ -34,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "send",
+        functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         args = {@Argument(name = "response", type = TypeKind.STRING)},
@@ -42,11 +50,18 @@ import org.slf4j.LoggerFactory;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class start extends AbstractNativeFunction {
+public class start extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(start.class);
     
     @java.lang.Override
     public BValue[] execute(Context context) {
-        return new BValue[0];
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
+        try {
+            GrpcServicesBuilder.start(serverBuilder);
+        } catch (GrpcServerException e) {
+            throw new GrpcServerValidationException("Error in starting gRPC service.", e);
+        }
+        return new BValue[] {null};
     }
 }

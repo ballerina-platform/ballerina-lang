@@ -20,19 +20,21 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
+import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
+import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfiguration;
 
 /**
  * Native function to respond the caller.
@@ -49,20 +51,22 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class register extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(register.class);
+public class Init extends AbstractGrpcNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(Init.class);
     
-    @java.lang.Override
+    @Override
     public BValue[] execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
-        io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
-            registerService(serverBuilder, service);
-        } catch (GrpcServerException e) {
-            // TODO: 3/10/18
-            throw new GrpcServerValidationException("Error in registering gRPC service.", e);
+            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
+            ServiceConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            io.grpc.ServerBuilder serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration);
+            serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
+            return new BValue[] {null};
+        } catch (Throwable throwable) {
+            // TODO: 3/10/18 write util to generate error struct
+            BStruct errorStruct = null;
+            return new BValue[] {errorStruct};
         }
-        return new BValue[] {null};
     }
 }
