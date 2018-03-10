@@ -40,8 +40,6 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -138,7 +136,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 HttpResponseFuture outboundRespStatusFuture =
                         inboundRequestMsg.getHttpOutboundRespStatusFuture();
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
-                notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
+                Util.addResponseWriteFailureListener(outboundRespStatusFuture, outboundResponseChannelFuture);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -162,44 +160,15 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
         isHeaderWritten = true;
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
-        checkForWriteStatus(outboundRespStatusFuture, outboundChannelFuture);
+        Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
-    }
-
-    private void checkForWriteStatus(HttpResponseFuture outboundRespStatusFuture, ChannelFuture outboundChannelFuture) {
-        outboundChannelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-                }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            } else {
-                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-            }
-        });
     }
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
-        checkForWriteStatus(outboundRespStatusFuture, outboundChannelFuture);
+        Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
-    }
-
-    private void notifyIfFailure(HttpResponseFuture outboundRespStatusFuture,
-            ChannelFuture outboundResponseChannelFuture) {
-        outboundResponseChannelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-                }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            }
-        });
     }
 
     private void resetState(HTTPCarbonMessage outboundResponseMsg) {

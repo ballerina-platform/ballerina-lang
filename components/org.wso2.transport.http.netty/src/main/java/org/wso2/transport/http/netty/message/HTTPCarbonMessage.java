@@ -215,6 +215,33 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Sends a push response message back to the client.
+     *
+     * @param httpCarbonMessage the push response message
+     * @param pushPromise       the push promise associated with the push response message
+     * @return HttpResponseFuture which gives the status of the operation
+     * @throws ServerConnectorException if there is an error occurs while doing the operation
+     */
+    public HttpResponseFuture pushResponse(HTTPCarbonMessage httpCarbonMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage, pushPromise);
+        return httpOutboundRespStatusFuture;
+    }
+
+    /**
+     * Sends a push promise message back to the client.
+     *
+     * @param pushPromise the push promise message
+     * @return HttpResponseFuture which gives the status of the operation
+     * @throws ServerConnectorException if there is an error occurs while doing the operation
+     */
+    public HttpResponseFuture pushPromise(Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(pushPromise);
+        return httpOutboundRespStatusFuture;
+    }
+
+    /**
      * Copy Message properties and transport headers.
      *
      * @return HTTPCarbonMessage.

@@ -94,6 +94,7 @@ public final class Constants {
 
     public static final int DEFAULT_HTTP_PORT = 80;
     public static final int DEFAULT_HTTPS_PORT = 443;
+    public static final String DEFAULT_BASE_PATH = "/";
 
     public static final String TO = "TO";
     public static final String PROTOCOL = "PROTOCOL";
@@ -148,6 +149,7 @@ public final class Constants {
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
     public static final float HTTP_1_1 = 1.1f;
     public static final float HTTP_1_0 = 1.0f;
+    public static final float HTTP_2_0 = 2.0f;
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
 
     //Server Connection Related Parameters
@@ -189,6 +191,7 @@ public final class Constants {
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
+    public static final String HTTP2_VERSION = "2.0";
     public static final String STREAM_ID = "STREAM_ID";
 //    public static final String SCHEME = "SCHEME";
     public static final String AUTHORITY = "AUTHORITY";
@@ -198,8 +201,13 @@ public final class Constants {
     public static final String HTTP2_SCHEME = ":scheme";
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
+    public static final String HTTP_ENCODER = "encoder";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
+    public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
+    public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
+    public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";

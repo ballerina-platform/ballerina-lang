@@ -32,6 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * Server connector future implementation
@@ -74,6 +75,23 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
             throw new ServerConnectorException("HTTP connector listener is not set");
         }
         httpConnectorListener.onMessage(httpMessage);
+    }
+
+    @Override
+    public void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onPushResponse(pushPromise.getPromisedStreamId(), httpMessage);
+    }
+
+    @Override
+    public void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onPushPromise(pushPromise);
     }
 
     @Override

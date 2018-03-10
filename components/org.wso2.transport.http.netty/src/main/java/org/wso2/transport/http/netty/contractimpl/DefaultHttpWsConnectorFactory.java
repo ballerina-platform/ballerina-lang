@@ -24,6 +24,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -73,6 +74,9 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
+        if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
+            serverConnectorBootstrap.setHttp2Enabled(true);
+        }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());
         serverConnectorBootstrap.addThreadPools(bossGroup, workerGroup);
@@ -88,8 +92,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     public HttpClientConnector createHttpClientConnector(
             Map<String, Object> transportProperties, SenderConfiguration senderConfiguration) {
         BootstrapConfiguration bootstrapConfig = new BootstrapConfiguration(transportProperties);
-        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration.getPoolConfiguration(),
-                bootstrapConfig, clientGroup);
+        ConnectionManager connectionManager = new ConnectionManager(senderConfiguration, bootstrapConfig, clientGroup);
         return new DefaultHttpClientConnector(connectionManager, senderConfiguration);
     }
 

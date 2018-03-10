@@ -15,15 +15,25 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerUpgradeHandler;
+import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonTransportInitializer;
@@ -38,7 +48,6 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -59,6 +68,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
+    private boolean isHttp2Enabled = false;
     private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;
@@ -77,23 +87,33 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         ChannelPipeline serverPipeline = ch.pipeline();
 
-        if (sslConfig != null) {
-            sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
-            serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-        }
+        if (isHttp2Enabled) {
+            if (sslConfig != null) {
+                sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
+                serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+                serverPipeline.addLast(Constants.HTTP2_ALPN_HANDLER, new H2PipelineConfigurator());
+            } else {
+                configureH2cPipeline(serverPipeline);
+            }
+        } else {
+            if (sslConfig != null) {
+                sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
+                serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+            }
 
-        if (validateCertEnabled) {
-            ch.pipeline().addLast("certificateValidation",
-                    new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
-        }
-        serverPipeline.addLast("encoder", new HttpResponseEncoder());
-        configureHTTPPipeline(serverPipeline);
+            if (validateCertEnabled) {
+                ch.pipeline().addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                                      new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+            }
+            serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
+            configureHTTPPipeline(serverPipeline);
 
-        if (socketIdleTimeout > 0) {
-            serverPipeline.addBefore(
-                    Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
-                                         TimeUnit.MILLISECONDS));
+            if (socketIdleTimeout > 0) {
+                serverPipeline.addBefore(
+                        Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
+                                             TimeUnit.MILLISECONDS));
+            }
         }
     }
 
@@ -128,6 +148,31 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
                                                  keepAliveConfig, this.serverName, this.allChannels));
+    }
+
+    /**
+     * Configures HTTP/2 clear text pipeline.
+     *
+     * @param pipeline the channel pipeline
+     */
+    private void configureH2cPipeline(ChannelPipeline pipeline) {
+        // Add http2 upgrade decoder and upgrade handler
+        final HttpServerCodec sourceCodec = new HttpServerCodec();
+
+        final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
+            if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
+                return new Http2ServerUpgradeCodec(Constants.HTTP2_SOURCE_HANDLER, new Http2SourceHandlerBuilder(
+                        this.interfaceId, this.serverConnectorFuture, serverName).build());
+            } else {
+                return null;
+            }
+        };
+        pipeline.addLast(Constants.HTTP_ENCODER, sourceCodec);
+        pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
+                         new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
+        /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
+           large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
+        configureHTTPPipeline(pipeline);
     }
 
     @Override
@@ -185,6 +230,47 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setServerName(String serverName) {
         this.serverName = serverName;
+    }
+
+    /**
+     * Sets whether HTTP/2.0 is enabled for the connection.
+     *
+     * @param http2Enabled whether HTTP/2.0 is enabled
+     */
+    public void setHttp2Enabled(boolean http2Enabled) {
+        isHttp2Enabled = http2Enabled;
+    }
+
+    /**
+     * Handler which handles ALPN.
+     */
+    class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
+
+        public H2PipelineConfigurator() {
+            super(ApplicationProtocolNames.HTTP_1_1);
+        }
+
+        @Override
+        protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
+            if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
+                // handles pipeline for HTTP/2 requests after SSL handshake
+                ctx.pipeline().
+                        addLast(Constants.HTTP2_SOURCE_HANDLER,
+                                new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
+            } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
+                // handles pipeline for HTTP/1.x requests after SSL handshake
+                configureHTTPPipeline(ctx.pipeline());
+            } else {
+                throw new IllegalStateException("unknown protocol: " + protocol);
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            if (ctx != null && ctx.channel().isActive()) {
+                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+            }
+        }
     }
 
     void setAllChannels(ChannelGroup allChannels) {

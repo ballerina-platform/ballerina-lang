@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -66,14 +67,23 @@ public class TargetChannel {
     private ChunkConfig chunkConfig;
     private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
+    private Http2ClientChannel http2ClientChannel;
 
     private List<HttpContent> contentList = new ArrayList<>();
     private int contentLength = 0;
 
-    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture) {
+    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
+                         HttpRoute httpRoute) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.httpRoute = httpRoute;
+        if (httpClientChannelInitializer != null) {
+            http2ClientChannel =
+                    new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
+                                           httpClientChannelInitializer.getConnection(),
+                                           httpRoute, channelFuture.channel());
+        }
     }
 
     public Channel getChannel() {
@@ -162,6 +172,10 @@ public class TargetChannel {
 
     public ChannelFuture getChannelFuture() {
         return channelFuture;
+    }
+
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
     }
 
     public void writeContent(HTTPCarbonMessage httpOutboundRequest) {

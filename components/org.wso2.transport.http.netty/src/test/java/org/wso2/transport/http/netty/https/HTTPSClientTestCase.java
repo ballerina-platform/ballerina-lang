@@ -31,7 +31,6 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.http2.HTTP2MessageProcessor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -56,7 +55,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class HTTPSClientTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HTTP2MessageProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(HTTPSClientTestCase.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;

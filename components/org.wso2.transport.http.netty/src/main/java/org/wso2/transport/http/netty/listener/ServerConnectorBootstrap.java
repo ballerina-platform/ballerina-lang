@@ -140,6 +140,10 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
+    public void setHttp2Enabled(boolean isHttp2Enabled) {
+        httpServerChannelInitializer.setHttp2Enabled(isHttp2Enabled);
+    }
+
     public void addThreadPools(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
