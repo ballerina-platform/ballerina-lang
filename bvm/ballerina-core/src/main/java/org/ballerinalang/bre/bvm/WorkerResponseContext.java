@@ -46,7 +46,7 @@ public interface WorkerResponseContext {
     WorkerExecutionContext onFulfillment(boolean runInCaller);
     
     /**
-     * Update the target worker execution context information
+     * Update the target worker execution context information.
      * 
      * @param targetCtx the target worker execution context
      * @param retRegIndexes  the return registry locations of the target execution context
