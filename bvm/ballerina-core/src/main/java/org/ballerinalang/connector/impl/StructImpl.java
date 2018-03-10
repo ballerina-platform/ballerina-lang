@@ -73,7 +73,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
-    public int getIntField(String fieldName) {
+    public long getIntField(String fieldName) {
         return value.getIntField(getFieldIndex(fieldName));
     }
 

@@ -65,7 +65,7 @@ public class BlockingExecute extends AbstractExecute {
                     "is not initialized properly");
         }
         
-        Object connectionStub = bConnector.getnativeData("stub");
+        Object connectionStub = bConnector.getNativeData("stub");
         if (connectionStub == null) {
             return notifyErrorReply(context, "Error while getting connection stub. gRPC Client " +
                     "connector is not initialized properly");
