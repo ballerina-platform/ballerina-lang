@@ -48,8 +48,6 @@ public class WebSocketServicesRegistry {
     // Map<interface, URITemplate<WebSocketService, messageType>>
     private final Map<String, URITemplate<WebSocketService, WebSocketMessage>>
             serviceEndpointsTemplate = new ConcurrentHashMap<>();
-    // Map<clientServiceName, ClientService>
-    private final Map<String, WebSocketService> clientServices = new ConcurrentHashMap<>();
     // Map<ServiceName, ServiceEndpoint>
     private Map<String, WebSocketService> masterServices = new ConcurrentHashMap<>();
 
@@ -65,25 +63,22 @@ public class WebSocketServicesRegistry {
      * @param service service to register.
      */
     public void registerService(WebSocketService service) {
-        if (WebSocketServiceValidator.isWebSocketClientService(service)
-                && WebSocketServiceValidator.validateClientService(service)) {
-            registerClientService(service);
-        } else {
-            if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
-                Annotation configAnnotation =
-                        HttpUtil.getServiceConfigAnnotation(service, WebSocketConstants.PROTOCOL_PACKAGE_WS);
-                if (configAnnotation == null) {
-                    slaveServices.put(service.getName(), service);
-                    return;
-                }
+        //TODO: check if client does not have enpoints annotation
+        if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
+            Annotation configAnnotation =
+                    HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            if (configAnnotation == null) {
+                slaveServices.put(service.getName(), service);
+                return;
+            }
 
-                String basePath = findFullWebSocketUpgradePath(service);
-                if (basePath == null) {
-                    slaveServices.put(service.getName(), service);
-                }
+            String basePath = findFullWebSocketUpgradePath(service);
+            if (basePath == null) {
+                slaveServices.put(service.getName(), service);
             }
         }
     }
+
 
     public void addUpgradableServiceByName(String entryListenerInterface, String basePath, String serviceName) {
         httpToWsUpgradableServices.add(new UpgradableServiceInfo(entryListenerInterface, basePath, serviceName));
@@ -107,7 +102,7 @@ public class WebSocketServicesRegistry {
             StringBuilder errorMsg = new StringBuilder("Cannot register following services: \n");
             for (String serviceName : slaveServices.keySet()) {
                 WebSocketService service = slaveServices.remove(serviceName);
-                if (HttpUtil.getServiceConfigAnnotation(service, WebSocketConstants.PROTOCOL_PACKAGE_WS) == null) {
+                if (HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP) == null) {
                     String msg = "Cannot deploy WebSocket service without configuration annotation";
                     errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
                 } else {
@@ -142,38 +137,15 @@ public class WebSocketServicesRegistry {
     }
 
     /**
-     * Register a service as a client service.
-     *
-     * @param clientService {@link WebSocketService} of the client service.
-     */
-    private void registerClientService(WebSocketService clientService) {
-        if (clientServices.containsKey(clientService.getName())) {
-            throw new BallerinaException("Already contains a client service with name " + clientService.getName());
-        } else {
-            clientServices.put(clientService.getName(), clientService);
-        }
-    }
-
-    /**
      * Find the best matching service.
      *
      * @param listenerInterface Listener interface of the the service.
-     * @param uri uri of the service.
+     * @param uri               uri of the service.
      * @return the service which matches.
      */
     public WebSocketService matchServiceEndpoint(String listenerInterface, String uri, Map<String, String> variables) {
         // Message can be null here since WebSocketDataElement does not use inbound message to match services.
         return serviceEndpointsTemplate.get(listenerInterface).matches(uri, variables, null);
-    }
-
-    /**
-     * Retrieve the client service by service name if exists.
-     *
-     * @param serviceName name of the service.
-     * @return the service by service name if exists. Else return null.
-     */
-    public WebSocketService getClientService(String serviceName) {
-        return clientServices.get(serviceName);
     }
 
     /**
@@ -206,7 +178,7 @@ public class WebSocketServicesRegistry {
     private String findFullWebSocketUpgradePath(WebSocketService service) {
         // Find Base path for WebSocket
         Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service,
-                                                                          WebSocketConstants.PROTOCOL_PACKAGE_WS);
+                                                                          HttpConstants.PROTOCOL_PACKAGE_HTTP);
         String basePath = null;
         if (configAnnotation != null) {
             AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
