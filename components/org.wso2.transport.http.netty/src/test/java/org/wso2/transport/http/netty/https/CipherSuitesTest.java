@@ -148,7 +148,7 @@ public class CipherSuitesTest {
                 assertNotNull(listener.getThrowables());
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
-                    if (throwable.getMessage() != null && throwable.getMessage().contains("handshake_failure")) {
+                    if (throwable.getMessage() != null && throwable.getMessage().contains("Connection refused")) {
                         hasSSLException = true;
                         break;
                     }

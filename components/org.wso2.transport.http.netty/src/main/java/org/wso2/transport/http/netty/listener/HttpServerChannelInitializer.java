@@ -30,6 +30,7 @@ import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -66,7 +67,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
-    private boolean isHttp2Enabled = false;
+    private boolean isHttp2Enabled;
     private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;
@@ -87,9 +88,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (isHttp2Enabled) {
             if (sslConfig != null) {
-                sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
-                serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-                serverPipeline.addLast(Constants.HTTP2_ALPN_HANDLER, new H2PipelineConfigurator());
+                SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForServer();
+                ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
             } else {
                 configureH2cPipeline(serverPipeline);
             }
@@ -216,6 +216,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverName = serverName;
     }
 
+
     /**
      * Set whether HTTP/2.0 is enabled for the connection
      *
@@ -226,9 +227,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /* Handler which handles ALPN */
-    class H2PipelineConfigurator extends ApplicationProtocolNegotiationHandler {
+    class Http2PipelineConfiguratorForServer extends ApplicationProtocolNegotiationHandler {
 
-        public H2PipelineConfigurator() {
+        public Http2PipelineConfiguratorForServer() {
             super(ApplicationProtocolNames.HTTP_1_1);
         }
 

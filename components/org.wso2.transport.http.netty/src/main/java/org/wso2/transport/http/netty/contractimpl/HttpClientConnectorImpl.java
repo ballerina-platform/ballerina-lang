@@ -21,9 +21,9 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
@@ -144,13 +145,20 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
             OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
             responseFuture = outboundMsgHolder.getResponseFuture();
 
-            // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
-            freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
-
-            targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
+            targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (isValidateChannel(channelFuture)) {
+                public void onSuccess(String protocol, ChannelFuture channelFuture) {
+                    if (protocol.equalsIgnoreCase(ApplicationProtocolNames.HTTP_2)) {
+                        connectionManager.getHttp2ConnectionManager().
+                                addHttp2ClientChannel(route, freshHttp2ClientChannel);
+
+                        freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
+                            freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
+                        });
+                        responseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    } else {
+                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
+                        freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
                         responseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, responseFuture);
@@ -170,21 +178,12 @@ public class HttpClientConnectorImpl implements HttpClientConnector {
                                                           Constants.CONNECTION_KEEP_ALIVE);
                         }
                         targetChannel.writeContent(httpOutboundRequest);
-                    } else {
-                        notifyErrorState(channelFuture);
                     }
                 }
 
-                private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Created the connection to address: {}",
-                                    route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
-                                            .id());
-                        }
-                        return true;
-                    }
-                    return false;
+                @Override
+                public void onFailure(ChannelFuture channelFuture) {
+                    notifyErrorState(channelFuture);
                 }
 
                 private void notifyErrorState(ChannelFuture channelFuture) {

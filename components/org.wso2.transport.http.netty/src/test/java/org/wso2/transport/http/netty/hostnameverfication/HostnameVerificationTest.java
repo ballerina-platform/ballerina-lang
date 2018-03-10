@@ -77,8 +77,9 @@ public class HostnameVerificationTest {
         String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
         String password = "ballerina";
         return new Object[][] {
-                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
-                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 } };
+//                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
+                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 }
+        };
     }
 
     @Test(dataProvider = "configurations")

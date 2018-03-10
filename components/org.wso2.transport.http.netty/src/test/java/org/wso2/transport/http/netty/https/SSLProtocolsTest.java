@@ -156,7 +156,7 @@ public class SSLProtocolsTest {
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (
                             throwable.getMessage().contains("javax.net.ssl.SSLHandshakeException") || throwable
-                                    .getMessage().contains("handshake_failure"))) {
+                                    .getMessage().contains("Connection refused"))) {
                         hasSSLException = true;
                         break;
                     }

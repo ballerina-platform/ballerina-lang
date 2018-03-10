@@ -22,7 +22,6 @@ import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
@@ -76,15 +75,17 @@ public class SSLHandlerFactory {
         needClientAuth = sslConfig.isNeedClientAuth();
         protocol = sslConfig.getSSLProtocol();
         try {
-            KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
-            // Set up key manager factory to use our key store
-            kmf = KeyManagerFactory.getInstance(algorithm);
             KeyManager[] keyManagers = null;
-            if (ks != null) {
-                kmf.init(ks, sslConfig.getCertPass() != null ?
-                        sslConfig.getCertPass().toCharArray() :
-                        sslConfig.getKeyStorePass().toCharArray());
-                keyManagers = kmf.getKeyManagers();
+            if (sslConfig.getKeyStore() != null) {
+                KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
+                // Set up key manager factory to use our key store
+                kmf = KeyManagerFactory.getInstance(algorithm);
+                if (ks != null) {
+                    kmf.init(ks, sslConfig.getCertPass() != null ?
+                            sslConfig.getCertPass().toCharArray() :
+                            sslConfig.getKeyStorePass().toCharArray());
+                    keyManagers = kmf.getKeyManagers();
+                }
             }
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
@@ -165,27 +166,40 @@ public class SSLHandlerFactory {
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.
      */
-    public SslContext createHttp2TLSContext() throws SSLException {
+    public SslContext createHttp2TLSContextForServer() throws SSLException {
 
         // If listener configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ? Arrays
-                .asList(sslConfig.getCipherSuites()) : Http2SecurityUtil.CIPHERS;
-        SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
-        return SslContextBuilder.forServer(this.getKeyManagerFactory())
-                .trustManager(this.getTrustStoreFactory())
-                .sslProvider(provider)
-                .ciphers(ciphers,
-                        SupportedCipherSuiteFilter.INSTANCE)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE)
-                .applicationProtocolConfig(new ApplicationProtocolConfig(
-                        ApplicationProtocolConfig.Protocol.ALPN,
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
+                Arrays.asList(sslConfig.getCipherSuites()) :
+                Http2SecurityUtil.CIPHERS;
+        SslProvider provider = SslProvider.JDK;
+        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
+                .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
+                        new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                                ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                                ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
+    }
+
+    public SslContext createHttp2TLSContextForClient() throws SSLException {
+
+        // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
+        // specification will be added.
+        SslProvider provider = SslProvider.JDK;
+        List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
+                Arrays.asList(sslConfig.getCipherSuites()) :
+                Http2SecurityUtil.CIPHERS;
+
+        return SslContextBuilder.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
+                .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                         // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                         // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
                         ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                        ApplicationProtocolNames.HTTP_2,
-                        ApplicationProtocolNames.HTTP_1_1)).build();
+                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
     }
 
     public KeyManagerFactory getKeyManagerFactory() {

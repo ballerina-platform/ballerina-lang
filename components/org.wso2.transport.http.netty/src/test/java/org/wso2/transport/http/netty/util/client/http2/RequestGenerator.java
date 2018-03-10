@@ -54,4 +54,21 @@ public class RequestGenerator {
         return httpCarbonMessage;
     }
 
+    public static HTTPCarbonMessage generateHttpsRequest(HttpMethod httpMethod, String payload) {
+        HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(
+                new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true), httpMethod,
+                        "https://" + TestUtil.TEST_HOST + ":" + 8443));
+        httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
+        httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        httpCarbonMessage.setProperty(Constants.HTTP_PORT, 8443);
+        httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + 8443);
+        if (payload != null) {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
+            httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+        } else {
+            httpCarbonMessage.addHttpContent(new EmptyLastHttpContent());
+        }
+        return httpCarbonMessage;
+    }
+
 }

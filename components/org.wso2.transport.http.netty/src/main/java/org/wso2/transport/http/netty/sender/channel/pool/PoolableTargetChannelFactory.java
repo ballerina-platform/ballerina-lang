@@ -26,11 +26,13 @@ import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 import java.net.InetSocketAddress;
+
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -64,15 +66,19 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
+        ConnectionAvailabilityFuture connectionAvailabilityFuture = new ConnectionAvailabilityFuture();
+
         SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
         HttpClientChannelInitializer httpClientChannelInitializer = instantiateAndConfigClientInitializer(
-                senderConfiguration, clientBootstrap, clientSslEngine, connectionManager);
+                senderConfiguration, clientBootstrap, clientSslEngine, connectionManager, connectionAvailabilityFuture);
         clientBootstrap.handler(httpClientChannelInitializer);
 
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+        connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
 
-        TargetChannel targetChannel = new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute);
+        TargetChannel targetChannel =
+                new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);
         httpClientChannelInitializer.setHttp2ClientChannel(targetChannel.getHttp2ClientChannel());
 
         log.debug("Created channel: {}", httpRoute);
@@ -143,11 +149,10 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     }
 
     private HttpClientChannelInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
-                                                                        Bootstrap clientBootstrap,
-                                                                        SSLEngine sslEngine,
-                                                                        ConnectionManager connectionManager) {
-        HttpClientChannelInitializer httpClientChannelInitializer =
-                new HttpClientChannelInitializer(senderConfiguration, sslEngine, connectionManager);
+            Bootstrap clientBootstrap, SSLEngine sslEngine, ConnectionManager connectionManager,
+            ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+        HttpClientChannelInitializer httpClientChannelInitializer = new HttpClientChannelInitializer(
+                senderConfiguration, sslEngine, connectionManager, connectionAvailabilityFuture);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);
