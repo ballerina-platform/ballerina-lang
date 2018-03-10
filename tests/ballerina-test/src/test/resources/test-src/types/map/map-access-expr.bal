@@ -90,12 +90,12 @@ function testGetMapValues () (string, string) {
     return nam, city;
 }
 
-function testMapRemovePositive() (boolean) {
+function testMapRemovePositive() (boolean, boolean, boolean) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return namesMap.remove("fname");
+    return namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname");
 }
 
-function testMapRemoveNegative() (boolean) {
+function testMapRemoveNegative() (boolean, boolean, boolean) {
     map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
-    return namesMap.remove("fname2");
+    return namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2");
 }
