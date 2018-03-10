@@ -8,9 +8,9 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
-import org.wso2.ballerinalang.compiler.packaging.resolve.StringConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;

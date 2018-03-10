@@ -2,7 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
 /**
  * Patent of all the non-system repos.

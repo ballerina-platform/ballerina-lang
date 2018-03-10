@@ -4,13 +4,13 @@ import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 public class RepoTest {

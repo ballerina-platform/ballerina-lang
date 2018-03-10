@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * List of resolved paths and the DAG node used to resolve it.
+ * List of resolved paths and the RepoHierarchy used to resolve it.
  * Had to wrap in a class since you can't return multiple items form a java method.
  */
 public class Resolution {

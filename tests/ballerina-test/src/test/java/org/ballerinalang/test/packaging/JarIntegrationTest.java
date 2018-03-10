@@ -5,8 +5,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ public class JarIntegrationTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        tempJar = Files.createTempFile("bal-unit#test jar-resolve-", ".jar");
+        tempJar = Files.createTempFile("bal-unit#test jar-patten-convert-", ".jar");
 
         try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(tempJar))) {
             ZipEntry zipEntry = new ZipEntry("very/deep/path#to the/dir.bal/tempFile.bal");
@@ -44,9 +44,11 @@ public class JarIntegrationTest {
     public void balInsideJar() throws IOException {
         Patten balPatten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
         JarRepo repo = new JarRepo(tempJar.toUri());
-        Converter<Path> converter = repo.getConverterInstance();
-        List<Path> paths = balPatten.convertToPaths(converter)
+        Converter<Path> subject = repo.getConverterInstance();
+
+        List<Path> paths = balPatten.convertToPaths(subject)
                                     .collect(Collectors.toList());
+
         Assert.assertEquals(paths.size(), 1);
         Assert.assertEquals(Files.readAllBytes(paths.get(0)), BAL_CONTENT);
     }

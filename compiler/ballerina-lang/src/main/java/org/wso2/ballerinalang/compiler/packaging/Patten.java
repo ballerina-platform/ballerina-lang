@@ -1,8 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
-import org.wso2.ballerinalang.compiler.packaging.resolve.StringConverter;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;

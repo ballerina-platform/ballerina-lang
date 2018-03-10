@@ -5,7 +5,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 
 import java.io.IOException;
 import java.nio.file.Files;

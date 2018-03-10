@@ -2,7 +2,7 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 
 import java.nio.file.Path;
 
@@ -11,8 +11,8 @@ import java.nio.file.Path;
  */
 public class ProjectSourceRepo extends NonSysRepo<Path> {
 
-    public ProjectSourceRepo(PathConverter resolver) {
-        super(resolver);
+    public ProjectSourceRepo(PathConverter converter) {
+        super(converter);
     }
 
     public ProjectSourceRepo(Path projectRoot) {

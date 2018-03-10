@@ -2,8 +2,8 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
-import org.wso2.ballerinalang.compiler.packaging.resolve.PathConverter;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 
 import java.io.IOException;
 import java.net.URI;

@@ -3,7 +3,7 @@ package org.ballerinalang.test.packaging;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
 import java.nio.file.Path;
 import java.util.Arrays;

@@ -66,10 +66,10 @@ public class PathListPackageSource implements PackageSource {
     }
 
     private class PathSourceEntry implements PackageSourceEntry {
-        private final Path p;
+        private final Path path;
 
-        public PathSourceEntry(Path path) {
-            this.p = path;
+        PathSourceEntry(Path path) {
+            this.path = path;
         }
 
         @Override
@@ -79,14 +79,14 @@ public class PathListPackageSource implements PackageSource {
 
         @Override
         public String getEntryName() {
-            Path fileName = p.getFileName();
-            return fileName != null ? fileName.toString() : p.toString();
+            Path fileName = path.getFileName();
+            return fileName != null ? fileName.toString() : path.toString();
         }
 
         @Override
         public byte[] getCode() {
             try {
-                return Files.readAllBytes(p);
+                return Files.readAllBytes(path);
             } catch (IOException e) {
                 return new byte[]{};
             }

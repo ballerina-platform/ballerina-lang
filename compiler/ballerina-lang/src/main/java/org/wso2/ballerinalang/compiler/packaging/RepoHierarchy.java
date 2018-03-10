@@ -1,8 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.packaging.resolve.Converter;
 
 import java.io.PrintStream;
 import java.nio.file.Files;

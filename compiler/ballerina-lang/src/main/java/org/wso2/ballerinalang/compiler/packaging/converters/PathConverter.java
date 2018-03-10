@@ -1,4 +1,4 @@
-package org.wso2.ballerinalang.compiler.packaging.resolve;
+package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import com.sun.nio.zipfs.ZipFileSystem;
 
