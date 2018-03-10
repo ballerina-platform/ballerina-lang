@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * Implementation of {@link SelectClauseNode}.
  */
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {

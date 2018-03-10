@@ -23,13 +23,13 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.channels.SocketChannel;
+import java.nio.channels.ByteChannel;
 
 /**
  * Native function to close a Client socket.
@@ -48,12 +48,12 @@ public class CloseSocket extends AbstractNativeFunction {
         BStruct socket;
         try {
             socket = (BStruct) getRefArgument(context, 0);
-            SocketChannel socketChannel = (SocketChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
+            ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
-            AbstractChannel byteChannel = (AbstractChannel) byteChannelStruct
+            Channel channel = (Channel) byteChannelStruct
                     .getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            socketChannel.close();
             byteChannel.close();
+            channel.close();
         } catch (Throwable e) {
             String message = "Failed to close the socket:" + e.getMessage();
             throw new BallerinaException(message, e, context);

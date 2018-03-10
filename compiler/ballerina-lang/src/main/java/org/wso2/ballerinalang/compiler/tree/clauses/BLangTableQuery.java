@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * The implementation of {@link TableQuery}.
  */
 public class BLangTableQuery extends BLangNode implements TableQuery {

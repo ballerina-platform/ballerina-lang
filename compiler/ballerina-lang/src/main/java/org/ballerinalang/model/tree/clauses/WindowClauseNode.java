@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents the "window" clause in streams SQLish syntax.
  * <pre>Grammar:
  *      WINDOW functionInvocation

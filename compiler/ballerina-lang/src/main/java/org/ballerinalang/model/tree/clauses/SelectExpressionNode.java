@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents the SelectExpression in grammar.
  * <pre>Grammar:
  *  (expression (AS Identifier)?)

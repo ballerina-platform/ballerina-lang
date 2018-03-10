@@ -33,6 +33,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -44,6 +46,8 @@ import java.util.List;
 import java.util.Stack;
 
 /**
+ * @since 0.965.0
+ *
  * This class will generate the SQL query for stream/tables SQLish grammar for different classes.
  */
 
@@ -164,14 +168,14 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangOrderBy orderBy) {
         List<? extends ExpressionNode> varRefs = orderBy.getVariables();
         Iterator<? extends ExpressionNode> iterator = varRefs.iterator();
-        BLangSimpleVarRef variableRef = (BLangSimpleVarRef) iterator.next();
+        BLangExpression expr = (BLangExpression) iterator.next();
         orderByClause = new StringBuilder("order by ");
-        variableRef.accept(this);
+        expr.accept(this);
         orderByClause.append(exprStack.pop());
         while (iterator.hasNext()) {
             orderByClause.append(",").append(" ");
-            variableRef = (BLangSimpleVarRef) iterator.next();
-            variableRef.accept(this);
+            expr = (BLangExpression) iterator.next();
+            expr.accept(this);
             orderByClause.append(exprStack.pop());
         }
     }
@@ -200,6 +204,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
             ((BLangWhere) where).accept(this);
             streamingInputClause.append(" ").append(whereClause);
         }
+        streamingInputClause.append(")");
         if (streamingInput.getAlias() != null) {
             streamingInputClause.append(" as ").append(streamingInput.getAlias());
         }
@@ -278,7 +283,6 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangLiteral literalExpr) {
         exprStack.push(QUESTION_MARK);
         exprParams.add(literalExpr);
-
     }
 
     @Override
@@ -296,15 +300,22 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         List<? extends ExpressionNode> varList = groupBy.getVariables();
         Iterator<? extends ExpressionNode> iterator = varList.iterator();
         groupByClause = new StringBuilder("group by ");
-        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) iterator.next();
-        simpleVarRef.accept(this);
+        BLangExpression expr = (BLangExpression) iterator.next();
+        expr.accept(this);
         groupByClause.append(exprStack.pop());
         while (iterator.hasNext()) {
-            simpleVarRef = (BLangSimpleVarRef) iterator.next();
+            expr = (BLangExpression) iterator.next();
             groupByClause.append(", ");
-            simpleVarRef.accept(this);
+            expr.accept(this);
             groupByClause.append(exprStack.pop());
         }
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangSimpleVarRef expr = (BLangSimpleVarRef) fieldAccessExpr.expr;
+        String sqlQueryBuilder = expr.variableName.value + "." + fieldAccessExpr.field.value;
+        exprStack.push(sqlQueryBuilder);
     }
 
     private void createSQLSelectExpressionClause(BLangSelectClause select) {
@@ -338,6 +349,18 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        StringBuilder sqlStringBuilder = new StringBuilder(invocationExpr.getName().getValue()).append("(");
+        List<String> argList = new ArrayList<>();
+        for (BLangExpression arg : invocationExpr.argExprs) {
+            arg.accept(this);
+            argList.add(exprStack.pop());
+        }
+        sqlStringBuilder.append(String.join(", ", argList)).append(")");
+        exprStack.push(sqlStringBuilder.toString());
+    }
+
     /**
      * This function will append the parametrized SQL query to given String Builder and at the same time, this
      * function will add the parametrized params to the given list and finally clears the temporary param list.
@@ -347,7 +370,7 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
      * @param params           List to which the parameters are added
      */
     private void addParametrizedSQL(BLangExpression expr, StringBuilder sqlStringBuilder,
-                                    List<BLangExpression> params) {
+            List<BLangExpression> params) {
         expr.accept(this);
         sqlStringBuilder.append(exprStack.pop());
         params.addAll(exprParams);
