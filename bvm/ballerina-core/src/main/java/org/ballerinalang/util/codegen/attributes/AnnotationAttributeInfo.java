@@ -27,6 +27,7 @@ import java.util.List;
  *
  * @since 0.87
  */
+@Deprecated
 public class AnnotationAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

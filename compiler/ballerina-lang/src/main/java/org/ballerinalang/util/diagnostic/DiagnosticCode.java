@@ -67,6 +67,11 @@ public enum DiagnosticCode {
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
+    // Service, endpoint, & connectors related errors codes
+    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
+    ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
+
     // Transformer related error codes
     UNDEFINED_TRANSFORMER("undefined.transformer"),
     TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
@@ -133,11 +138,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
-    INVALID_DEFAULT_VALUE("invalid.default.value"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
-    NO_SUCH_ATTRIBUTE("no.such.attribute"),
-    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
@@ -157,10 +158,6 @@ public enum DiagnosticCode {
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
 
-    //Error code related to annotation processors
-    COMPILER_PLUGIN_NO_PACKAGE_FOUND("compiler.plugin.no.package.found"),
-    COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE("compiler.plugin.no.annotations.found.in.package"),
-
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),
     MISSING_TOKEN("missing.token"),
@@ -168,6 +165,13 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+
+    // Taint checking related codes
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
+    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    PARTIAL_TAINT_CHECKING_DONE_WITH_RETURN_ANNOTATIONS("partial.taint.checking.done.with.return.annotations"),
+    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
     ;
 
     private String value;

@@ -461,7 +461,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpointTypeNode endpointType) {
-        BType constraintType = resolveTypeNode(endpointType.constraint, env);
+        BType constraintType = resolveTypeNode(endpointType.endpointType, env);
         resultType = new BEndpointType(TypeTags.ENDPOINT, constraintType, null);
     }
 

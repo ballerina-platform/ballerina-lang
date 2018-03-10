@@ -41,39 +41,41 @@ function getParticipantPort () returns (int port) {
 }
 
 connector InitiatorClient (string registerAtURL) {
-    endpoint<http:HttpClient> coordinatorEP {
+    endpoint<http:HttpClient> initiatorEP {
         create http:HttpClient(registerAtURL, {});
     }
 
-    action register (string transactionId) returns (RegistrationResponse registrationRes,
-                                                    error err) {
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:localParticipantId};
+    action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
+                                                                            error err) {
+        string participantId = getParticipantId(transactionBlockId);
+        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
         //TODO: set the proper protocol
         string protocol = "durable";
-        Protocol[] protocols = [{name:"volatile", url:getParticipantProtocolAt(protocol)}];
+        Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
         regReq.participantProtocols = protocols;
 
-        var j, _ = <json>regReq;
+        json j = <json, regRequestToJson()>regReq;
         http:Request req = {};
         req.setJsonPayload(j);
-        var res, e = coordinatorEP.post("", req);
+        var res, e = initiatorEP.post("", req);
         if (e == null) {
             int statusCode = res.statusCode;
-            if (statusCode == 200) {
-                var payload, _ = res.getJsonPayload();
-                var regRes, transformErr = <RegistrationResponse>payload;
-                registrationRes = regRes;
-                err = (error)transformErr;
-            } else {
-                var payload, _ = res.getJsonPayload();
-                if (payload == null) {
-                    var stringPayload, _ = res.getStringPayload();
-                    err = {message:stringPayload};
+            var payload, payloadError = res.getJsonPayload();
+            if (payloadError == null) {
+                if (statusCode == 200) {
+                    registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
                 } else {
-                    var errMsg, _ = (string)payload.errorMessage;
-                    err = {message:errMsg};
+                    if (payload == null) {
+                        var stringPayload, _ = res.getStringPayload();
+                        err = {message:stringPayload};
+                    } else {
+                        var errMsg, _ = (string)payload.errorMessage;
+                        err = {message:errMsg};
+                    }
                 }
+            } else {
+                err = (error)payloadError;
             }
         } else {
             err = (error)e;

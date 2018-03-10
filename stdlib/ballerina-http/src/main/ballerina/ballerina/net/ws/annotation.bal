@@ -1,5 +1,7 @@
 package ballerina.net.ws;
 
+public annotation<service> configuration ServiceEndpointConfiguration;
+
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
@@ -10,7 +12,7 @@ package ballerina.net.ws;
 @Field {value:"keyStoreFile: File path to keystore file"}
 @Field {value:"keyStorePassword: The keystore password"}
 @Field {value:"certPassword: The certificate password"}
-public annotation configuration attach service<> {
+public struct ServiceEndpointConfiguration {
     string basePath;
     string[] subProtocols;
     string host;
@@ -23,5 +25,4 @@ public annotation configuration attach service<> {
 }
 
 @Description {value:"Service annotation to mark a WS service as a client service for a WS client connector."}
-public annotation clientService attach service<> {
-}
+public annotation<service> clientService;

@@ -239,7 +239,8 @@ public abstract class AbstractItemResolver {
                 return false;
             }
             String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (terminalTokens.contains(tokenString)) {
+            if (terminalTokens.contains(tokenString)
+                    && documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
             } else if (tokenString.equals(".") || tokenString.equals(":")) {

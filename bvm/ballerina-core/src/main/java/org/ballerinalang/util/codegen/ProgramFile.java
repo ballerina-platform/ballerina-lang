@@ -126,10 +126,12 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         this.servicesAvailable = servicesAvailable;
     }
 
+    @Deprecated
     public ServerConnectorRegistry getServerConnectorRegistry() {
         return serverConnectorRegistry;
     }
 
+    @Deprecated
     public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
         this.serverConnectorRegistry = serverConnectorRegistry;
     }

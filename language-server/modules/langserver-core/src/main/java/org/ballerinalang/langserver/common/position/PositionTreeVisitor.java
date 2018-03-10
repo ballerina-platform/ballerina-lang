@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -46,13 +47,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -619,11 +620,11 @@ public class PositionTreeVisitor extends NodeVisitor {
         }
     }
 
-    public void visit(BLangConnectorInit connectorInitExpr) {
+    public void visit(BLangTypeInit connectorInitExpr) {
         setPreviousNode(connectorInitExpr);
-        if (connectorInitExpr.connectorType != null) {
-            connectorInitExpr.connectorType.type = connectorInitExpr.type;
-            acceptNode(connectorInitExpr.connectorType);
+        if (connectorInitExpr.userDefinedType != null) {
+            connectorInitExpr.userDefinedType.type = connectorInitExpr.type;
+            acceptNode(connectorInitExpr.userDefinedType);
         }
 
         if (!connectorInitExpr.argsExpr.isEmpty()) {
@@ -675,8 +676,18 @@ public class PositionTreeVisitor extends NodeVisitor {
 
     public void visit(BLangEndpointTypeNode endpointType) {
         setPreviousNode(endpointType);
-        if (endpointType.constraint != null) {
-            acceptNode(endpointType.constraint);
+        if (endpointType.endpointType != null) {
+            acceptNode(endpointType.endpointType);
+        }
+    }
+
+    @Override
+    public void visit(BLangEnum enumNode) {
+        addTopLevelNodeToContext(enumNode, enumNode.name.getValue(), enumNode.symbol.pkgID,
+                enumNode.symbol.kind.name(), enumNode.symbol.kind.name(),
+                enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
+        if (enumNode.getPosition().sLine == this.position.getLine()) {
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
         }
     }
 
