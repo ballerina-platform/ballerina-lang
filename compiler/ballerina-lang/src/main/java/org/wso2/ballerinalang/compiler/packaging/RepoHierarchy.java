@@ -7,11 +7,8 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
@@ -26,48 +23,9 @@ public class RepoHierarchy {
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
 
-    private RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
+    RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {
         this.repos = repos;
         this.dags = dags;
-    }
-
-    public static RepoHierarchy build(RepoNode root) {
-        List<RepoNode> ordered = new ArrayList<>();
-        Queue<RepoNode> queue = new LinkedList<>();
-        queue.add(root);
-        ordered.add(root);
-        root.visited = true;
-        while (!queue.isEmpty()) {
-            RepoNode node = queue.remove();
-            for (RepoNode child : node.children) {
-                if (child != null && !child.visited) {
-                    child.visited = true;
-                    ordered.add(child);
-                    queue.add(child);
-                }
-            }
-        }
-
-        for (RepoNode repoNode : ordered) {
-            repoNode.visited = false;
-        }
-
-        int totalNodes = ordered.size();
-        Repo[] orderedRepos = new Repo[totalNodes];
-        RepoHierarchy[] orderedDAGs = new RepoHierarchy[totalNodes - 1];
-        for (int i = 0; i < totalNodes; i++) {
-            RepoNode repoNode = ordered.get(i);
-            orderedRepos[i] = repoNode.repo;
-            if (i != 0) {
-                orderedDAGs[i - 1] = build(repoNode);
-            }
-        }
-
-        return new RepoHierarchy(orderedRepos, orderedDAGs);
-    }
-
-    public static RepoNode node(Repo r, RepoNode... n) {
-        return new RepoNode(r, n);
     }
 
     public Resolution resolve(PackageID pkg) {
@@ -109,18 +67,4 @@ public class RepoHierarchy {
                 ", d:" + Arrays.toString(dags) + "}";
     }
 
-    /**
-     * Node in a directed acyclic graph containing repositories.
-     */
-    public static class RepoNode {
-        public final RepoNode[] children;
-        public final Repo repo;
-        private boolean visited;
-
-        RepoNode(Repo repo, RepoNode[] children) {
-            this.children = children;
-            this.repo = repo;
-        }
-
-    }
 }

@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
@@ -21,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchy.node;
+import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
 
 public class RepoHierarchyTest {
 
@@ -129,9 +130,10 @@ public class RepoHierarchyTest {
 
     /**
      * <pre>
-     *                    good/i.am:1                                     ugly/ok.pkg:4
-     *                        |           ,--- projectCacheRepo ---.            |
-     *                        v          /            2             \           v
+     *
+     *  easy/too:0        good/i.am:1                                     ugly/ok.pkg:4
+     *      |                 |           ,--- projectCacheRepo ---.            |
+     *      v                 v          /            2             \           v
      * projectSource --- projectRepo ---<                            >--- homeCacheRepo
      *            0           1          \                          /           4
      *                                    `------- homeRepo -------'
@@ -155,9 +157,9 @@ public class RepoHierarchyTest {
         Repo homeRepo = mockRepo(3, order);
         Repo homeCacheRepo = mockRepo(4, order);
 
-        RepoHierarchy.RepoNode homeCacheNode = node(homeCacheRepo);
-        return RepoHierarchy.build(node(projectSource,
-                                        node(projectRepo, null /* null nodes should be ignored */,
+        RepoHierarchyBuilder.RepoNode homeCacheNode = node(homeCacheRepo);
+        return RepoHierarchyBuilder.build(node(projectSource,
+                                               node(projectRepo, null /* null nodes should be ignored */,
                                              node(projectCacheRepo, homeCacheNode),
                                              node(homeRepo, homeCacheNode))));
     }
