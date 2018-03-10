@@ -195,8 +195,12 @@ public class SqlQueryBuilder extends BLangNodeVisitor {
         streamingInputClause = new StringBuilder();
         BLangExpression tableReference = (BLangExpression) streamingInput.getStreamReference();
         tableReference.accept(this);
-        streamingInputClause.append("{{").append(exprStack.pop()).append("}}");
+        exprStack.pop();
+        streamingInputClause.append("(select * from [[tableName]]");
         WhereNode where = streamingInput.getBeforeStreamingCondition();
+        if (where == null) {
+            where = streamingInput.getAfterStreamingCondition();
+        }
 
         /* for tables there can only be one whereClause and there is no windowClause.
          So we don't care about the windowClause. */
