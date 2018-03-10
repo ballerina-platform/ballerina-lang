@@ -47,6 +47,9 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -373,5 +376,47 @@ public class InRequestNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get(key).asText(), value);
+    }
+    
+    @Test(description = "Test whether getLocalAddress native function populates the correct value.")
+    public void testGetLocalAddress() {
+        String path = "/hello/localAddress";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String expectedAddress = null;
+        if (cMsg.getProperty(HttpConstants.LOCAL_ADDRESS) != null) {
+            expectedAddress =
+                    ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getAddress().getHostAddress()
+                            + ":" + ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getPort();
+        }
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        if (expectedAddress != null) {
+            Assert.assertEquals(bJson.value().get("localAddress").asText(), expectedAddress,
+                    "Local address is not correct.");
+        }
+    }
+
+    @Test(description = "Test whether getRemoteAddress native function populates the correct value.")
+    public void testGetRemoteAddress() throws UnknownHostException {
+        String path = "/hello/remoteAddress";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost(), 12345);
+        cMsg.setProperty(HttpConstants.REMOTE_ADDRESS, inetSocketAddress);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String expectedAddress = null;
+        if (cMsg.getProperty(HttpConstants.REMOTE_ADDRESS) != null) {
+            expectedAddress =
+                    ((InetSocketAddress) cMsg.getProperty(HttpConstants.REMOTE_ADDRESS)).getAddress().getHostAddress()
+                            + ":" + ((InetSocketAddress) cMsg.getProperty(HttpConstants.REMOTE_ADDRESS)).getPort();
+        }
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        if (expectedAddress != null) {
+            Assert.assertEquals(bJson.value().get("remoteAddress").asText(), expectedAddress,
+                    "Remote address is not correct.");
+        }
     }
 }

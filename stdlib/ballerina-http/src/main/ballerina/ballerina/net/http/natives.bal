@@ -97,6 +97,16 @@ public native function <InRequest req> getProperty (string propertyName) (string
 @Return {value:"A map of matrix paramters which can be found for a given path"}
 public native function <InRequest req> getMatrixParams (string path) (map);
 
+@Description {value:" Gets the string representation of the address of the remote host"}
+@Param {value:"req: The inbound request message"}
+@Return {value:" String representation of the address of the remote server"}
+public native function <InRequest req> getRemoteAddress () (string);
+
+@Description {value:" Gets the string representation of the address of the local server host"}
+@Param {value:"req: The inbound request message"}
+@Return {value:" String representation of the address of the local server"}
+public native function <InRequest req> getLocalAddress () (string);
+
 @Description {value:"Represents an HTTP outbound request message"}
 public struct OutRequest {
 }
