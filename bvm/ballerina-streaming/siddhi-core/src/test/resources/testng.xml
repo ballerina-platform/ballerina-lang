@@ -100,12 +100,12 @@
             <!--<class name="org.ballerinalang.siddhi.core.query.trigger.TriggerTestCase"/>-->
 
             <!--<class name="org.ballerinalang.siddhi.core.query.window.CronWindowTestCase"/>-->
-            <class name="org.ballerinalang.siddhi.core.query.window.ExternalTimeBatchWindowTestCase"/>
+            <!--<class name="org.ballerinalang.siddhi.core.query.window.ExternalTimeBatchWindowTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.ExternalTimeWindowTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.FrequentWindowTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.IncrementalStreamProcessorTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.LengthBatchWindowTestCase"/>-->
-            <!--<class name="org.ballerinalang.siddhi.core.query.window.LengthWindowTestCase"/>-->
+            <class name="org.ballerinalang.siddhi.core.query.window.LengthWindowTestCase"/>
             <!--<class name="org.ballerinalang.siddhi.core.query.window.LossyFrequentWindowTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.SortWindowTestCase"/>-->
             <!--<class name="org.ballerinalang.siddhi.core.query.window.TimeBatchWindowTestCase"/>-->
