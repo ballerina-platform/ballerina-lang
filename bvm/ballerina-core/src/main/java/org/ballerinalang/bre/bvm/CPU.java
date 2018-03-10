@@ -100,6 +100,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 
@@ -2633,7 +2634,7 @@ public class CPU {
                 notifyCoorinator = localTransactionInfo.onTransactionEnd();
                 if (notifyCoorinator) {
                     notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId());
-                    ctx.setLocalTransactionInfo(null);
+                    BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }
         } catch (Throwable e) {

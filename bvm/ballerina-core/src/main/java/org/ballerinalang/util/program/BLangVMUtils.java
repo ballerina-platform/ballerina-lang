@@ -38,6 +38,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
 
@@ -47,6 +48,8 @@ import java.io.PrintStream;
 public class BLangVMUtils {
     
     private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
+
+    private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
 
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -413,5 +416,16 @@ public class BLangVMUtils {
     public static ServiceInfo getServiceInfo(WorkerExecutionContext ctx) {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
-    
+
+    public static void setTransactionInfo(WorkerExecutionContext ctx, LocalTransactionInfo localTransactionInfo) {
+        ctx.globalProps.put(TRANSACTION_INFO_KEY, localTransactionInfo);
+    }
+
+    public static LocalTransactionInfo getTransactionInfo(WorkerExecutionContext ctx) {
+        return (LocalTransactionInfo) ctx.globalProps.get(TRANSACTION_INFO_KEY);
+    }
+
+    public static void removeTransactionInfo(WorkerExecutionContext ctx) {
+        ctx.globalProps.remove(TRANSACTION_INFO_KEY);
+    }
 }
