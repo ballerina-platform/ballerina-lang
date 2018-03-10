@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;

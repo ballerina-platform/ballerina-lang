@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.exceptions.BallerinaException;

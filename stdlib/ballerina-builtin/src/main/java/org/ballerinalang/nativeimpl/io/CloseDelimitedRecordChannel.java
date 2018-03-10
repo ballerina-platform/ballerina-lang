@@ -27,7 +27,6 @@ import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;

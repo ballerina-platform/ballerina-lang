@@ -28,7 +28,6 @@ import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;

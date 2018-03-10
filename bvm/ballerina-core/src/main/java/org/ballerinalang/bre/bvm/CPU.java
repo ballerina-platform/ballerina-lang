@@ -2584,7 +2584,7 @@ public class CPU {
         sf.refRegs[i] = bStruct;
     }
 
-    private static void beginTransaction(WorkerExecutionContext ctx, int transactionId, int retryCountRegIndex) {
+    private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
@@ -2597,43 +2597,51 @@ public class CPU {
             }
         }
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
+        boolean isInitiator = true;
         if (localTransactionInfo == null) {
-            localTransactionInfo = createTransactionInfo(ctx);
+            BValue[] returns = notifyTransactionBegin(ctx, null,  null, transactionBlockId,
+                            TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+            BStruct txDataStruct = (BStruct) returns[0];
+            String globalTransactionId = txDataStruct.getStringField(1);
+            String protocol = txDataStruct.getStringField(2);
+            String url = txDataStruct.getStringField(3);
+            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
+            isInitiator = false;
             notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(), localTransactionInfo.getURL(),
-                    localTransactionInfo.getProtocol());
+                    transactionBlockId, localTransactionInfo.getProtocol(), isInitiator);
         }
-        localTransactionInfo.beginTransactionBlock(transactionId, retryCount);
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void retryTransaction(WorkerExecutionContext ctx, int transactionId, int startOfAbortIP) {
+    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo.isRetryPossible(transactionId)) {
+        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
             ctx.ip = startOfAbortIP;
         }
-        localTransactionInfo.incrementCurrentRetryCount(transactionId);
+        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
 
-    private static void endTransaction(WorkerExecutionContext ctx, int transactionId, int status) {
+    private static void endTransaction(WorkerExecutionContext ctx, int transactionBlockId, int status) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean notifyCoorinator = false;
+        boolean notifyCoorinator;
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             if (status == TransactionStatus.FAILED.value()) {
-                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionId);
+                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
                 if (notifyCoorinator) {
-                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
                 notifyCoorinator = localTransactionInfo.onTransactionAbort();
                 if (notifyCoorinator) {
-                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                 }
             } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                notifyCoorinator = localTransactionInfo.onTransactionEnd();
+                notifyCoorinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
                 if (notifyCoorinator) {
-                    notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId());
+                    notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                     BLangVMUtils.removeTransactionInfo(ctx);
                 }
             }
@@ -2643,35 +2651,34 @@ public class CPU {
         }
     }
 
-    private static LocalTransactionInfo createTransactionInfo(WorkerExecutionContext ctx) {
-        BValue[] returns = notifyTransactionBegin(ctx, null, null, TransactionConstants.DEFAULT_COORDINATION_TYPE);
-        //Check if error occurs during registration
-        if (returns[1] != null) {
-            throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
-        }
-        BStruct txDataStruct = (BStruct) returns[0];
-        String transactionId = txDataStruct.getStringField(1);
-        String protocol = txDataStruct.getStringField(2);
-        String url = txDataStruct.getStringField(3);
-        return new LocalTransactionInfo(transactionId, url, protocol);
-    }
-
     private static BValue[] notifyTransactionBegin(WorkerExecutionContext ctx, String glbalTransactionId, String url,
-            String protocol) {
-        BValue[] args = { new BString(glbalTransactionId), new BString(url), new BString(protocol) };
-        return invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+                                            int transactionBlockId, String protocol, boolean isInitiator) {
+        BValue[] args = {
+                new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
+                new BString(protocol)
+        };
+        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+        if (isInitiator) {
+            if (returns[1] != null) {
+                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
+            }
+
+        }
+        return returns;
     }
 
-    private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId) {
-        BValue[] args = { new BString(globalTransactionId) };
+    private static void notifyTransactionEnd(WorkerExecutionContext ctx, String globalTransactionId,
+                                             int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         if (returns[1] != null) {
             throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
         }
     }
 
-    private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId) {
-        BValue[] args = { new BString(globalTransactionId) };
+    private static void notifyTransactionAbort(WorkerExecutionContext ctx, String globalTransactionId,
+                                        int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 

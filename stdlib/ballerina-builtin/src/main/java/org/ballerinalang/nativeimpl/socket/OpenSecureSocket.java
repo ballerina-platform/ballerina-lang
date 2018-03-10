@@ -19,13 +19,12 @@ package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -67,7 +66,7 @@ import javax.net.ssl.TrustManagerFactory;
                            structPackage = "ballerina.io") },
         returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io") },
         isPublic = true)
-public class OpenSecureSocket extends AbstractNativeFunction {
+public class OpenSecureSocket extends BlockingNativeCallableUnit {
 
     private static final String SEPARATOR = ",";
     private static final String SOCKET_PACKAGE = "ballerina.io";
@@ -75,10 +74,10 @@ public class OpenSecureSocket extends AbstractNativeFunction {
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
     @Override
-    public BValue[] execute(Context context) {
-        final String host = getStringArgument(context, 0);
-        final int port = (int) getIntArgument(context, 0);
-        final BStruct options = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        final String host = context.getStringArgument(0);
+        final int port = (int) context.getIntArgument(0);
+        final BStruct options = (BStruct) context.getRefArgument(0);
         Socket socket;
         try {
             SSLContext sslContext = getSslContext(options);
@@ -113,7 +112,7 @@ public class OpenSecureSocket extends AbstractNativeFunction {
             String msg = "Failed to start handshake with remote server [" + host + ":" + port + "] : " + e.getMessage();
             throw new BallerinaException(msg, e, context);
         }
-        return getBValues(socketStruct);
+        context.setReturnValues(socketStruct);
     }
 
     private BStruct createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) throws IOException {
