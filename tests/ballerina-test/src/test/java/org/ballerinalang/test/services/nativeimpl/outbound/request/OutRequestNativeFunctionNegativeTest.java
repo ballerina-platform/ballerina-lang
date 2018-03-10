@@ -185,9 +185,5 @@ public class OutRequestNativeFunctionNegativeTest {
                 "undefined function 'setStatusCode' in struct 'ballerina.net.http:Request'", 4, 5);
         BAssertUtil.validateError(resultNegative, 1,
                 "undefined field 'statusCode' in struct 'ballerina.net.http:Request'", 5, 5);
-//        BAssertUtil.validateError(resultNegative, 2,
-//                "undefined field 'method' in struct 'ballerina.net.http:Request'", 10, 21);
-//        BAssertUtil.validateError(resultNegative, 3,
-//                "undefined field 'rawPath' in struct 'ballerina.net.http:Request'", 15, 18);
     }
 }

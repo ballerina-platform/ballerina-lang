@@ -497,10 +497,11 @@ public class HttpUtil {
     @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
+        if (isRequestStruct(struct) || isResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
-            // Since now the InRequest and Response are merged to a single Request object, without returning
-            // need to populate all headers from the struct to the outbound message.
+            // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
+            // are merged to a single Response, without returning need to populate all headers from the struct
+            // to the HTTPCarbonMessage.
             // TODO: refactor this logic properly.
             //return;
         }
@@ -518,20 +519,16 @@ public class HttpUtil {
         }
     }
 
-    private static boolean isInboundRequestStruct(BStruct struct) {
+    private static boolean isRequestStruct(BStruct struct) {
         return struct.getType().getName().equals(HttpConstants.REQUEST);
     }
 
-    private static boolean isInboundResponseStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.RESPONSE);
-    }
-
-    private static boolean isOutboundResponseStruct(BStruct struct) {
+    private static boolean isResponseStruct(BStruct struct) {
         return struct.getType().getName().equals(HttpConstants.RESPONSE);
     }
 
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
-        if (isInboundRequestStruct(struct)) {
+        if (isRequestStruct(struct)) {
             if (!struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
                                      struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
@@ -545,7 +542,7 @@ public class HttpUtil {
     }
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
-        if (isOutboundResponseStruct(struct)) {
+        if (isResponseStruct(struct)) {
             if (struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX) != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
                         struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX)));

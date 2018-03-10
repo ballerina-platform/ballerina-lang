@@ -24,7 +24,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
@@ -35,6 +37,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -116,6 +119,16 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertNull(returnVals[0].stringValue());
     }
 
+    @Test(description = "Test getEntity method on a outRequest without a entity")
+    public void testGetEntityNegative() {
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BValue[] inputArg = {outRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertNotNull(returnVals[0]);
+    }
+
     @Test(description = "Test getStringPayload method without a paylaod")
     public void testGetStringPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
@@ -154,6 +167,42 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), "no url");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRemoveHeaderNegative() {
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        String range = "Range";
+        BMap<String, BStringArray> headersMap = new BMap<>();
+        headersMap.put("Expect", new BStringArray(new String[]{"100-continue"}));
+        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        outRequest.addNativeData(MESSAGE_ENTITY, entity);
+        BString key = new BString(range);
+        BValue[] inputArg = {outRequest, key};
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        Assert.assertNull(map.get(range));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testRemoveAllHeadersNegative() {
+        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BValue[] inputArg = {outRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BStruct);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
+        Assert.assertNull(map.get("Expect"));
     }
 
     @Test

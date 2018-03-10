@@ -34,3 +34,19 @@ function testGetBinaryPayload (http:Response res) (blob, mime:EntityError) {
 function testGetXmlPayload (http:Response res) (xml, mime:EntityError) {
     return res.getXmlPayload();
 }
+
+function testGetEntity (http:Response response) (mime:Entity, mime:EntityError) {
+    return response.getEntity();
+}
+
+
+function testRemoveHeader (http:Response res, string key) (http:Response) {
+    res.removeHeader(key);
+    return res;
+}
+
+function testRemoveAllHeaders (http:Response ress) (http:Response) {
+    http:Response res = {};
+    res.removeAllHeaders();
+    return res;
+}

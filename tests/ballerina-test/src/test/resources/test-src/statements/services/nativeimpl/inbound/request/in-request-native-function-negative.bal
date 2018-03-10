@@ -52,3 +52,17 @@ function testSetHeader (http:Request req, string key, string value) (http:Reques
     req.setHeader(key, value);
     return req;
 }
+
+function testGetEntity (http:Request req) (mime:Entity, mime:EntityError) {
+    return req.getEntity();
+}
+
+function testRemoveHeader (http:Request req, string key) (http:Request) {
+    req.removeHeader(key);
+    return req;
+}
+
+function testRemoveAllHeaders (http:Request req) (http:Request) {
+    req.removeAllHeaders();
+    return req;
+}
