@@ -166,6 +166,12 @@
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
                 <include>com.h2database:h2</include>
+                <include>io.ballerina.messaging:broker-core</include>
+                <include>io.ballerina.messaging:broker-common</include>
+                <include>io.ballerina.messaging:broker-rest-runner</include>
+                <include>io.ballerina.messaging:broker-coordination</include>
+                <include>com.google.guava:guava</include>
+                <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.wso2.siddhi:siddhi-core:jar</include>

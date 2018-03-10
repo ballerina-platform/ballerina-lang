@@ -47,7 +47,7 @@ import java.util.UUID;
 /**
  * The {@code BStream} represents a stream in Ballerina.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BStream implements BRefType<Object> {
 
@@ -64,7 +64,7 @@ public class BStream implements BRefType<Object> {
 
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
-            throw new BallerinaException("A stream cannot be created without a constraint");
+            throw new BallerinaException("a stream cannot be created without a constraint");
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
@@ -99,8 +99,8 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BStruct data) {
         if (data.getType() != this.constraintType) {
-            throw new BallerinaException("Incompatible Types: struct of type:" + data.getType().getName()
-                    + " cannot be added to a stream of type:" + this.constraintType.getName());
+            throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
+                                             + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
         BrokerUtils.publish(topicName, JSONUtils.convertStructToJSON(data).stringValue().getBytes());
     }
@@ -108,11 +108,17 @@ public class BStream implements BRefType<Object> {
     /**
      * Method to register a subscription to the underlying topic representing the stream in the broker.
      *
-     * @param context         the context object representing runtime state
-     * @param functionPointer represents the funtion pointer reference for the function to be invoked on receiving
-     *                        messages
+     * @param context           the context object representing runtime state
+     * @param functionPointer   represents the function pointer reference for the function to be invoked on receiving
+     *                          messages
      */
     public void subscribe(Context context, BFunctionPointer functionPointer) {
+        BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
+        if (!(parameters[0] instanceof BStructType)
+                || ((BStructType) parameters[0]).structInfo.getType() != constraintType) {
+            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
+                                                 + " a struct of type:" + this.constraintType.getName());
+        }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
 
@@ -174,7 +180,6 @@ public class BStream implements BRefType<Object> {
                 chunk.getBytes().getBytes(0, bytes);
             }
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
-//            BStruct data = JSONUtils.convertJSONToStruct(json, constraintType); TODO: replace with rebase
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             BValue[] args = {data};
             Context workerContext = new WorkerContext(context.getProgramFile(), context);
