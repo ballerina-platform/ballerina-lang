@@ -17,8 +17,9 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -160,19 +161,22 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
+
         //TODO Think of keeping struct type globally rather than creating for each request
-        BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
+        BStruct connection = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
-        BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
+        BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
 
-        BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.mime.util.Constants.ENTITY);
+        BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
 
-        BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
+        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
