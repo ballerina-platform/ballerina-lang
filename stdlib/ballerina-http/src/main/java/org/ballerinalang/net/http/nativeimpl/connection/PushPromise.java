@@ -32,9 +32,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * Native function to respond back the caller with outbound response.
- *
- * @since 0.964
+ * {@code PushPromise} is the native function to respond back to the client with a PUSH_PROMISE frame.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
