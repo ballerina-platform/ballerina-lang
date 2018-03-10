@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.jwt.crypto;
+package org.ballerinalang.test.jwt;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;

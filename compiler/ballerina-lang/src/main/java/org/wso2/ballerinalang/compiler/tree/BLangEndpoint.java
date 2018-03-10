@@ -22,10 +22,9 @@ import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.EndpointTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -40,7 +39,7 @@ import java.util.Set;
 public class BLangEndpoint extends BLangNode implements EndpointNode {
 
     public BLangIdentifier name;
-    public BLangEndpointTypeNode endpointTypeNode;
+    public BLangUserDefinedType endpointTypeNode;
     public BLangExpression configurationExpr;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
@@ -48,7 +47,7 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     public BEndpointVarSymbol symbol;
 
     public BLangEndpoint() {
-        flagSet = EnumSet.noneOf(Flag.class);
+        flagSet = EnumSet.of(Flag.ENDPOINT);
         annAttachments = new ArrayList<>();
     }
 
@@ -58,7 +57,7 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     }
 
     @Override
-    public EndpointTypeNode getEndPointType() {
+    public BLangUserDefinedType getEndPointType() {
         return endpointTypeNode;
     }
 
