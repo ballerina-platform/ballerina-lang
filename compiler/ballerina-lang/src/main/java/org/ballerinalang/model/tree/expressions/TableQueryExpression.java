@@ -21,6 +21,8 @@ package org.ballerinalang.model.tree.expressions;
 import org.ballerinalang.model.tree.clauses.TableQuery;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents the Expression wrapper for {@link TableQuery}.
  * @see TableQuery
  */

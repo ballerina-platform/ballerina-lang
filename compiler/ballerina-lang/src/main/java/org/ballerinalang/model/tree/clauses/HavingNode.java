@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * @since 0.965.0
+ *
  * The interface which represents the "having" clause in streams/tables in SQLish syntax.
  * <pre>Grammar:
  *      HAVING expression

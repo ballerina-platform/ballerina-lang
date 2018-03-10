@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * @since 0.965.0
+ *
  * Implementation of {@link HavingNode}.
  * @see HavingNode
  */

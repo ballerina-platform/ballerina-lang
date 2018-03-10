@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * @since 0.965.0
+ *
  * The interface with the APIs to implement the "where" in ballerina streams/table SQLish syntax.
  * <pre> Grammar:
  *      where expressionList

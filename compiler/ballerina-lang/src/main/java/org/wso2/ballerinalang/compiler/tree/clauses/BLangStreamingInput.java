@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * Implementation of {@link StreamingInput}.
  */
 public class BLangStreamingInput extends BLangNode implements StreamingInput {

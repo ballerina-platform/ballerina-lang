@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * This class represents the streaming input clause in streams/tables' SQLish syntax.
  * <pre>Grammar:
  *      Identifier whereClause?  windowClause? whereClause? (AS alias=Identifier)?

@@ -2241,9 +2241,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isWindowAvailable;
-        boolean isFirstWhereClauseAvailable;
-        boolean isSecondWhereClauseAvailable;
+        boolean isWindowAvailable, isFirstWhereClauseAvailable, isSecondWhereClauseAvailable;
         isWindowAvailable = ctx.windowClause() != null;
         isFirstWhereClauseAvailable = ctx.whereClause(0) != null;
         isSecondWhereClauseAvailable = ctx.whereClause(1) != null;

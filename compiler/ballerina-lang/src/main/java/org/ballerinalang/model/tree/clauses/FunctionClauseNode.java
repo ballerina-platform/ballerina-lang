@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents the function clause in streams/tables SQLish syntax.
  * <pre>Grammar:
  *      FUNCTION functionInvocation

@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Stack;
 
 /**
+ * @since 0.965.0
+ *
  * This class will generate the SQL query for stream/tables SQLish grammar for different classes.
  */
 
