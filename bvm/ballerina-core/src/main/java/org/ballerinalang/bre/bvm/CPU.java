@@ -164,11 +164,8 @@ public class CPU {
         int callersRetRegIndex;
 
         while (ctx.ip >= 0) {
-            if (debugEnabled) {
-                debug(ctx);
-                if (ctx.getDebugContext().isWorkerPaused()) {
-                    return;
-                }
+            if (debugEnabled && debug(ctx)) {
+                return;
             }
 
             Instruction instruction = ctx.code[ctx.ip];
@@ -2390,16 +2387,16 @@ public class CPU {
     /**
      * Method to calculate and detect debug points when the instruction point is given.
      */
-    private static void debug(WorkerExecutionContext ctx) {
+    private static boolean debug(WorkerExecutionContext ctx) {
         Debugger debugger = ctx.programFile.getDebugger();
         if (!debugger.isClientSessionActive()) {
-            return;
+            return false;
         }
         DebugContext debugContext = ctx.getDebugContext();
 
         if (debugContext.isWorkerPaused()) {
             debugContext.setWorkerPaused(false);
-            return;
+            return false;
         }
 
         LineNumberInfo currentExecLine = debugger
@@ -2408,9 +2405,11 @@ public class CPU {
          Below if check stops hitting the same debug line again and again in case that single line has
          multctx.iple instructions.
          */
-        if (currentExecLine.equals(debugContext.getLastLine())
-                || debugPointCheck(ctx, currentExecLine, debugger)) {
-            return;
+        if (currentExecLine.equals(debugContext.getLastLine())) {
+            return false;
+        }
+        if (debugPointCheck(ctx, currentExecLine, debugger)) {
+            return true;
         }
 
         switch (debugContext.getCurrentCommand()) {
@@ -2423,14 +2422,14 @@ public class CPU {
             case STEP_IN:
             case STEP_OVER:
                 debugHit(ctx, currentExecLine, debugger);
-                break;
+                return true;
             case STEP_OUT:
                 break;
             default:
-//                logger.warn("invalid debug command, exiting from debugging");
                 debugger.notifyExit();
                 debugger.stopDebugging();
         }
+        return false;
     }
 
     /**

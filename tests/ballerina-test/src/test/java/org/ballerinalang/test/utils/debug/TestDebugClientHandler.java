@@ -22,12 +22,13 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugException;
-import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -37,16 +38,16 @@ import java.util.concurrent.Semaphore;
  */
 public class TestDebugClientHandler implements DebugClientHandler {
 
-    volatile boolean isExit;
-    int hitCount = -1;
-    BreakPointDTO haltPosition;
+    private volatile boolean isExit;
     private volatile Semaphore executionSem;
-    private volatile String workerId;
+
+    private Queue<MessageDTO> debugHits;
 
     //key - workerId
     private Map<String, WorkerExecutionContext> contextMap;
 
     TestDebugClientHandler() {
+        this.debugHits = new LinkedBlockingQueue<>();
         this.contextMap = new ConcurrentHashMap<>();
         this.executionSem = new Semaphore(0);
     }
@@ -58,9 +59,12 @@ public class TestDebugClientHandler implements DebugClientHandler {
             //ignore
         }
     }
+    public boolean isExit() {
+        return isExit && debugHits.isEmpty();
+    }
 
-    public String getWorkerId() {
-        return workerId;
+    public MessageDTO getDebugHit() {
+        return debugHits.poll();
     }
 
     @Override
@@ -107,9 +111,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
 
     @Override
     public void notifyHalt(MessageDTO message) {
-        hitCount++;
-        haltPosition = message.getLocation();
-        workerId = message.getThreadId();
+        debugHits.offer(message);
         executionSem.release();
     }
 

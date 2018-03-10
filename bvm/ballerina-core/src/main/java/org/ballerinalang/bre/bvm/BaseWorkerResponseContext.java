@@ -239,6 +239,9 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             return;
         }
         DebugCommand crntCommand = child.getDebugContext().getCurrentCommand();
+        if (!child.getDebugContext().isCmdChanged()) {
+            return;
+        }
         if (crntCommand == DebugCommand.STEP_OUT) {
             parent.getDebugContext().setCurrentCommand(DebugCommand.STEP_OVER);
         } else {

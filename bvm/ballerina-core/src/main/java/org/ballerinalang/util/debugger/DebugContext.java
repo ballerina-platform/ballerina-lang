@@ -33,6 +33,8 @@ public class DebugContext {
 
     private boolean workerPaused;
 
+    private boolean cmdChanged = false;
+
     public DebugContext() {
         this.currentCommand = DebugCommand.RESUME;
     }
@@ -46,6 +48,7 @@ public class DebugContext {
     }
 
     public void setCurrentCommand(DebugCommand currentCommand) {
+        this.cmdChanged = true;
         this.currentCommand = currentCommand;
     }
 
@@ -75,5 +78,9 @@ public class DebugContext {
 
     public void setWorkerPaused(boolean workerPaused) {
         this.workerPaused = workerPaused;
+    }
+
+    public boolean isCmdChanged() {
+        return cmdChanged;
     }
 }
