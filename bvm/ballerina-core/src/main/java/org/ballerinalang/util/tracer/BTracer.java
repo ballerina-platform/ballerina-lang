@@ -102,6 +102,13 @@ public class BTracer {
     public void finishSpan() {
         if (traceable) {
             manager.finishSpan(this);
+            spans.clear();
+            properties.clear();
+            tags.clear();
+            spans = null;
+            properties = null;
+            tags = null;
+            traceable = false;
         }
     }
 
