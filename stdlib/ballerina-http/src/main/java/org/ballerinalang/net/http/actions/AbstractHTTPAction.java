@@ -20,9 +20,7 @@ package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -33,6 +31,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.RetryConfig;
@@ -190,30 +189,32 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    protected void executeNonBlockingAction(Context context, HTTPCarbonMessage outboundRequestMsg,
-                                            CallableUnitCallback connectorCallback)
+    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg)
             throws ClientConnectorException {
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
-            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
+            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
+                    dataContext.context.getProperty(HttpConstants.SRC_HANDLER));
         }
         Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteAddress == null) {
             outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
-                    context.getProperty(HttpConstants.REMOTE_ADDRESS));
+                    dataContext.context.getProperty(HttpConstants.REMOTE_ADDRESS));
         }
-        outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST, context.getProperty(HttpConstants.ORIGIN_HOST));
-        sendOutboundRequest(context, outboundRequestMsg, connectorCallback);
+        outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST,
+                dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
+        sendOutboundRequest(dataContext, outboundRequestMsg);
     }
 
-    private void sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg,
-                                     CallableUnitCallback connectorCallback) {
+    private void sendOutboundRequest(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) {
         try {
-            send(context, outboundRequestMsg, connectorCallback);
+            send(dataContext, outboundRequestMsg);
         } catch (BallerinaConnectorException e) {
-            throw new BallerinaException(e.getMessage(), e, context);
+            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
         } catch (Exception e) {
-            throw new BallerinaException("Failed to send outboundRequestMsg to the backend", e, context);
+            BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
+                    e, dataContext.context);
+            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
         }
     }
 
@@ -223,14 +224,13 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * info through wire. If a boundary string exist at this point, serialize multipart entity body, else serialize
      * entity body which can either be a message data source or a byte channel.
      *
-     * @param context                   Represent the ballerina context which is the runtime state of the program
+     * @param dataContext               holds the ballerina context and callback
      * @param outboundRequestMsg        Outbound request that needs to be sent across the wire
      * @return connector future for this particular request
      * @throws Exception When an error occurs while sending the outbound request via client connector
      */
-    private void send(Context context, HTTPCarbonMessage outboundRequestMsg,
-                      CallableUnitCallback connectorCallback) throws Exception {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+    private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) throws Exception {
+        BConnector bConnector = (BConnector) dataContext.context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
@@ -241,17 +241,17 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        RetryConfig retryConfig = getRetryConfiguration(context);
-        HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(context,
-                connectorCallback, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
+        RetryConfig retryConfig = getRetryConfiguration(dataContext.context);
+        HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(dataContext,
+                retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
         try {
             if (boundaryString != null) {
-                serializeMultiparts(context, messageOutputStream, boundaryString);
+                serializeMultiparts(dataContext.context, messageOutputStream, boundaryString);
             } else {
-                serializeDataSource(context, messageOutputStream);
+                serializeDataSource(dataContext.context, messageOutputStream);
             }
         } catch (Exception serializerException) {
             // We don't have to do anything here as the client connector will notify
@@ -345,18 +345,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     private class HTTPClientConnectorListener implements HttpConnectorListener {
 
-        private Context context;
-        private CallableUnitCallback connectorCallback;
+        private DataContext dataContext;
         private RetryConfig retryConfig;
         private HTTPCarbonMessage outboundReqMsg;
         private HttpMessageDataStreamer outboundMsgDataStreamer;
         // Reference for post validation.
 
-        private HTTPClientConnectorListener(Context context, CallableUnitCallback connectorCallback,
-                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg,
-                HttpMessageDataStreamer outboundMsgDataStreamer) {
-            this.context = context;
-            this.connectorCallback = connectorCallback;
+        private HTTPClientConnectorListener(DataContext dataContext, RetryConfig retryConfig,
+                                            HTTPCarbonMessage outboundReqMsg,
+                                            HttpMessageDataStreamer outboundMsgDataStreamer) {
+            this.dataContext = dataContext;
             this.retryConfig = retryConfig;
             this.outboundReqMsg = outboundReqMsg;
             this.outboundMsgDataStreamer = outboundMsgDataStreamer;
@@ -364,13 +362,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
+            BStruct inboundResponse = createStruct(this.dataContext.context, HttpConstants.IN_RESPONSE,
                     HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
-            BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
+            BStruct entity = createStruct(this.dataContext.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
+            BStruct mediaType = createStruct(this.dataContext.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            this.context.setReturnValues(inboundResponse);
-            connectorCallback.notifySuccess();
+            this.dataContext.notifyReply(inboundResponse, null);
         }
 
         @Override
@@ -381,9 +378,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
             }
             if (checkRetryState(throwable)) {
+                this.dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(this.dataContext.context, throwable));
                 return;
             }
-            sendOutboundRequest(context, outboundReqMsg, connectorCallback);
+            sendOutboundRequest(dataContext, outboundReqMsg);
         }
 
         private boolean checkRetryState(Throwable throwable) {
@@ -403,10 +401,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             BStruct httpConnectorError;
 
             if (throwable instanceof EndpointTimeOutException) {
-                httpConnectorError = createStruct(context, HttpConstants.HTTP_TIMEOUT_ERROR,
+                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_TIMEOUT_ERROR,
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else {
-                httpConnectorError = createStruct(context, HttpConstants.HTTP_CONNECTOR_ERROR,
+                httpConnectorError = createStruct(this.dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR,
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             }
 
@@ -416,7 +414,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
             }
-            connectorCallback.notifyFailure(httpConnectorError);
+            this.dataContext.notifyReply(null, httpConnectorError);
         }
 
         private BStruct createStruct(Context context, String structName, String protocolPackage) {

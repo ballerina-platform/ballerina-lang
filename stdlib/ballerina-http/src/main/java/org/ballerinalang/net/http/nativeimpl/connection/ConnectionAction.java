@@ -119,7 +119,7 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
         if (outboundResponseStatusFuture.getStatus().getCause() != null) {
             return new BValue[] {
-                    HttpUtil.getServerConnectorError(context, outboundResponseStatusFuture.getStatus().getCause()) };
+                    HttpUtil.getHttpConnectorError(context, outboundResponseStatusFuture.getStatus().getCause()) };
         }
         return new BValue[0];
     }

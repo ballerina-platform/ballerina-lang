@@ -24,7 +24,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -57,11 +59,13 @@ public class Options extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+        DataContext dataContext = new DataContext(context, callback);
         try {
-            executeNonBlockingAction(context, createOutboundRequestMsg(context), callback);
+            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'options' action in " + HttpConstants.CONNECTOR_NAME
-                    + ". " + clientConnectorException.getMessage(), context);
+            BallerinaException exception = new BallerinaException("Failed to invoke 'options' action in " +
+                    HttpConstants.CONNECTOR_NAME + ". " + clientConnectorException.getMessage(), context);
+            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
 
