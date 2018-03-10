@@ -508,30 +508,30 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The Error occured during HTTP client invocation" }
 	native action executeAsync (string httpVerb, string path, OutRequest req) (HttpHandle, HttpConnectorError);
 
-	@Description { value:"Retrieves response for async service invocation"}
+	@Description { value:"Retrieves response for async service invocation."}
 	@Param { value:"handle: The Handle which relates to previous async invocation" }
 	@Return { value:"The HTTP response message" }
 	@Return { value:"The Error occured during HTTP client invocation" }
 	native action getResponse (HttpHandle handle) (InResponse, HttpConnectorError);
 
-	@Description { value:"Checks whether server push exists"}
+	@Description { value:"Checks whether server push exists."}
 	@Param { value:"handle: The Handle which relates to previous async invocation" }
 	@Return { value:"Whether push promise exists" }
 	native action hasPromise (HttpHandle handle) (boolean);
 
-	@Description { value:"Retrieves the next available push promise"}
+	@Description { value:"Retrieves the next available push promise."}
 	@Param { value:"handle: The Handle which relates to previous async invocation" }
 	@Return { value:"The HTTP Push Promise message" }
 	@Return { value:"The Error occured during HTTP client invocation" }
 	native action getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError);
 
-	@Description { value:"Retrieves server push response"}
+	@Description { value:"Retrieves server push response."}
 	@Param { value:"promise: The related Push Promise message" }
 	@Return { value:"HTTP The Push Response message" }
 	@Return { value:"The Error occured during HTTP client invocation" }
 	native action getPushResponse (PushPromise promise) (InResponse, HttpConnectorError);
 
-	@Description { value:"Rejects a push promise"}
+	@Description { value:"Rejects a push promise."}
 	@Param { value:"promise: The Push Promise need to be rejected" }
 	@Return { value:"Whether operation is successful" }
 	native action rejectPromise (PushPromise promise) (boolean);

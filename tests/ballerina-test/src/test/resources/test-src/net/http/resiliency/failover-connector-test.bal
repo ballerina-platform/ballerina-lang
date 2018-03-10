@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
 import ballerina.net.http.resiliency;
+import ballerina.net.http;
 
 http:Retry retryConfiguration = {count:0};
 
@@ -113,6 +113,30 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
 
     action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
         return null, null;
+    }
+
+    action executeAsync (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getResponse (http:HttpHandle handle) (http:InResponse, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getPushResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
     }
 }
 
