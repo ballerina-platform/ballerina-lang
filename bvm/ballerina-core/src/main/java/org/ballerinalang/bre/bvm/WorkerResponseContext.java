@@ -22,14 +22,49 @@ package org.ballerinalang.bre.bvm;
  */
 public interface WorkerResponseContext {
     
+    /**
+     * This is called by the workers to signal the response context of any
+     * signal that needs to be passed into. For example, a worker returning, or
+     * reporting an error upstream.
+     * 
+     * @param signal the signal to be passed in
+     * @return the worker execution context, if not null, that should be
+     *         executed after returning from this call, this is used to re-use
+     *         the same calling thread to execute the following worker execution
+     */
     WorkerExecutionContext signal(WorkerSignal signal);
-        
+
+    /**
+     * This is called to (re-)execute the logic that would execute when the worker response context
+     * is fulfilled. That is, when the function call which represent this workder response context
+     * is returned, an error is generated etc.. An example implementation of this would be to set
+     * the return values to the parent context's local variables.
+     * 
+     * @param runInCaller if the execution after this should run in the calling thread
+     * @return the worker execution context that should be continued in the caller thread
+     */
     WorkerExecutionContext onFulfillment(boolean runInCaller);
     
+    /**
+     * Update the target worker execution context information
+     * 
+     * @param targetCtx the target worker execution context
+     * @param retRegIndexes  the return registry locations of the target execution context
+     *                       where the current worker execution context should report to
+     */
     void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
     
+    /**
+     * Creates and returns the data channels used to communicate between the workers.
+     * 
+     * @param name the unique name of the data channel name requested
+     * @return the data channel 
+     */
     WorkerDataChannel getWorkerDataChannel(String name);
     
+    /**
+     * This will block the calling thread until the current worker response context is fulfilled.
+     */
     void waitForResponse();
     
 }

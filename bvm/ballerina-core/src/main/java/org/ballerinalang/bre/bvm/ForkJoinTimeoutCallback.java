@@ -27,9 +27,9 @@ import org.ballerinalang.bre.bvm.AsyncTimer.TimerCallback;
  */
 public class ForkJoinTimeoutCallback implements TimerCallback {
 
-    private InvocableWorkerResponseContext reponseCtx;
+    private SyncCallableWorkerResponseContext reponseCtx;
 
-    public ForkJoinTimeoutCallback(InvocableWorkerResponseContext reponseCtx) {
+    public ForkJoinTimeoutCallback(SyncCallableWorkerResponseContext reponseCtx) {
         this.reponseCtx = reponseCtx;
     }
 

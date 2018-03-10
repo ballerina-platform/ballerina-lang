@@ -25,11 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This represents a basic invocation worker result context.
+ * This represents a invocation worker result context for supporting
+ * handling a single worker, i.e. non-synchronized.
  * 
  * @since 0.965.0
  */
-public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
+public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     protected BType[] responseTypes;
 
@@ -39,7 +40,7 @@ public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
     
     protected int haltCount;
 
-    public InvocableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
+    public CallableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
         super(workerCount, checkResponse);
         this.responseTypes = responseTypes;
     }
@@ -61,7 +62,7 @@ public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
     }
     
     @Override
-    protected synchronized void onMessage(WorkerSignal signal) { 
+    protected void onMessage(WorkerSignal signal) { 
         if (this.isFulfilled() && this.isReturnable()) {
             this.handleAlreadyFulfilled(signal);
         } else {
@@ -86,7 +87,7 @@ public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
     }
 
     @Override
-    protected synchronized WorkerExecutionContext onHalt(WorkerSignal signal) {
+    protected WorkerExecutionContext onHalt(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
         BLangScheduler.workerDone(sourceCtx);
@@ -134,7 +135,7 @@ public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
     }
     
     @Override
-    protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
+    protected WorkerExecutionContext onError(WorkerSignal signal) {
         this.initWorkerErrors();
         WorkerExecutionContext sourceCtx = signal.getSourceContext();
         if (this.isFulfilled()) {
@@ -162,7 +163,7 @@ public class InvocableWorkerResponseContext extends BaseWorkerResponseContext {
     }
 
     @Override
-    protected synchronized WorkerExecutionContext onReturn(WorkerSignal signal) {
+    protected WorkerExecutionContext onReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.isFulfilled() && this.isReturnable()) {
             this.handleAlreadyFulfilled(signal);

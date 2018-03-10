@@ -34,7 +34,7 @@ import java.util.Set;
  *
  * @since 0.965.0
  */
-public class ForkJoinWorkerResponseContext extends InvocableWorkerResponseContext {
+public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseContext {
 
     private int reqJoinCount;
 

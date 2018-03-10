@@ -146,12 +146,13 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
         ctx.state = WorkerState.RUNNING;
 
         int i;
         int j;
-        int cpIndex; // Index of the constant pool
+        int cpIndex;
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         TypeRefCPEntry typeRefCPEntry;
@@ -466,7 +467,7 @@ public class CPU {
                 case InstructionCodes.ERRSTORE:
                     i = operands[0];
                     sf.refRegs[i] = ctx.getError();
-                    // clear error.
+                    // clear error
                     ctx.setError(null);
                     break;
                 case InstructionCodes.FPCALL:
@@ -717,7 +718,8 @@ public class CPU {
         }
     }
 
-    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
+    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+            int[] operands) {
         int i;
         int j;
         int k;
@@ -833,6 +835,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1143,6 +1146,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void execStoreOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1414,8 +1418,6 @@ public class CPU {
 
                 structureType.setRefField(fieldIndex, sf.refRegs[j]);
                 break;
-
-
             case InstructionCodes.MAPSTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1428,8 +1430,6 @@ public class CPU {
 
                 bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 break;
-
-
             case InstructionCodes.JSONSTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1446,6 +1446,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void execBinaryOpCodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1654,6 +1655,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void execXMLOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1775,6 +1777,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void execTypeCastOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1963,6 +1966,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
             int[] operands) {
         int i;
@@ -2235,6 +2239,7 @@ public class CPU {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, WorkerData sf) {
         for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
@@ -2261,7 +2266,8 @@ public class CPU {
         }
     }
 
-    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
+    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+            int[] operands) {
         int i;
         int j;
         int k;
@@ -2464,6 +2470,7 @@ public class CPU {
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
+    @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, 
             BType targetType) {
         int i = operands[0];
@@ -2673,7 +2680,6 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, args);
     }
 
-
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
                                                                 int[] retRegs) {
@@ -2706,6 +2712,7 @@ public class CPU {
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
     }
 
+    @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
             BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
@@ -2717,6 +2724,7 @@ public class CPU {
         return ctx.respCtx.getWorkerDataChannel(name);
     }
     
+    @SuppressWarnings("rawtypes")
     private static BRefType[] extractValues(WorkerData data, BType[] types, int[] regs) {
         BRefType[] result = new BRefType[types.length];
         for (int i = 0; i < regs.length; i++) {
@@ -2751,6 +2759,7 @@ public class CPU {
                 forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
     }
 
+    @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
             BType[] types, int[] regs) {
         BRefType[] passedInValues = getWorkerChannel(
@@ -2764,6 +2773,7 @@ public class CPU {
         }
     }
     
+    @SuppressWarnings("rawtypes")
     public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
                                                      BRefType[] passedInValues) {
         for (int i = 0; i < argRegs.length; i++) {
@@ -2837,62 +2847,6 @@ public class CPU {
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
-    }
-
-    private static void copyWorkersReturnValues(WorkerData workerSF, WorkerData parentsSF) {
-//        int callersRetRegIndex;
-//        int longRegCount = 0;
-//        int doubleRegCount = 0;
-//        int stringRegCount = 0;
-//        int intRegCount = 0;
-//        int refRegCount = 0;
-//        int byteRegCount = 0;
-//        WorkerData workerCallerSF = workerSF.prevWorkerData;
-//        WorkerData parentCallersSF = parentsSF.prevWorkerData;
-//        BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
-//        for (int i = 0; i < retTypes.length; i++) {
-//            BType retType = retTypes[i];
-//            callersRetRegIndex = parentsSF.retRegIndexes[i];
-//            switch (retType.getTag()) {
-//                case TypeTags.INT_TAG:
-//                    parentCallersSF.longRegs[callersRetRegIndex] = workerCallerSF.longRegs[longRegCount++];
-//                    break;
-//                case TypeTags.FLOAT_TAG:
-//                    parentCallersSF.doubleRegs[callersRetRegIndex] = workerCallerSF.doubleRegs[doubleRegCount++];
-//                    break;
-//                case TypeTags.STRING_TAG:
-//                    parentCallersSF.stringRegs[callersRetRegIndex] = workerCallerSF.stringRegs[stringRegCount++];
-//                    break;
-//                case TypeTags.BOOLEAN_TAG:
-//                    parentCallersSF.intRegs[callersRetRegIndex] = workerCallerSF.intRegs[intRegCount++];
-//                    break;
-//                case TypeTags.BLOB_TAG:
-//                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
-//                    break;
-//                default:
-//                    parentCallersSF.refRegs[callersRetRegIndex] = workerCallerSF.refRegs[refRegCount++];
-//                    break;
-//            }
-//        }
-        //TODO
-    }
-
-    private String getOperandsLine(int[] operands) {
-        if (operands.length == 0) {
-            return "";
-        }
-
-        if (operands.length == 1) {
-            return "" + operands[0];
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(operands[0]);
-        for (int i = 1; i < operands.length; i++) {
-            sb.append(" ");
-            sb.append(operands[i]);
-        }
-        return sb.toString();
     }
 
     private static boolean checkCast(BValue sourceValue, BType targetType) {
@@ -3096,19 +3050,6 @@ public class CPU {
         // TODO Support function types, json/map constrained types etc.
 
         return false;
-    }
-
-    private static boolean isValueType(BType type) {
-        return type.getTag() <= TypeTags.BLOB_TAG;
-    }
-
-    private static boolean isUserDefinedType(BType type) {
-        return type.getTag() == TypeTags.STRUCT_TAG || type.getTag() == TypeTags.CONNECTOR_TAG ||
-                type.getTag() == TypeTags.ENUM_TAG || type.getTag() == TypeTags.ARRAY_TAG;
-    }
-
-    private static boolean isConstrainedType(BType type) {
-        return type.getTag() == TypeTags.JSON_TAG;
     }
 
     private static boolean checkArrayEquivalent(BType actualType, BType expType) {
@@ -3555,6 +3496,7 @@ public class CPU {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     private static void calculateLength(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];

@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
  * This class represents a {@link WorkerResponseContext} implementation which supports
  * a callback mechanism to notify an interested party when the response is available.
  */
-public class CallbackedInvocableWorkerResponseContext extends InvocableWorkerResponseContext {
+public class CallbackedInvocableWorkerResponseContext extends SyncCallableWorkerResponseContext {
 
     private CallableUnitCallback responseCallback;
     

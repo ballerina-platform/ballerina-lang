@@ -26,11 +26,12 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.CallbackedInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.InitWorkerResponseContext;
-import org.ballerinalang.bre.bvm.InvocableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
@@ -130,7 +131,7 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs,
             CallableUnitCallback responseCallback) {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
-        InvocableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
+        SyncCallableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length, false, responseCallback);
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
@@ -169,9 +170,15 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
-        InvocableWorkerResponseContext respCtx = new InvocableWorkerResponseContext(
-                callableUnitInfo.getRetParamTypes(),
-                workerSet.generalWorkers.length, waitForResponse);
+        int generalWorkersCount = workerSet.generalWorkers.length;
+        CallableWorkerResponseContext respCtx;
+        if (generalWorkersCount == 1) {
+            respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), generalWorkersCount,
+                    waitForResponse);
+        } else {
+            respCtx = new SyncCallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), generalWorkersCount,
+                    waitForResponse);
+        }
         respCtx.updateTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
@@ -187,7 +194,7 @@ public class BLangFunctions {
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
         }
 
-        for (int i = 1; i < workerSet.generalWorkers.length; i++) {
+        for (int i = 1; i < generalWorkersCount; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
                     wdi, initWorkerLocalData, initWorkerCAI, false);
         }
@@ -344,8 +351,9 @@ public class BLangFunctions {
             reqJoinCount = joinWorkerNames.size();
         }
 
-        InvocableWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(parentCtx, joinTargetIp, joinVarReg,
-                timeoutTargetIp, timeoutVarReg, workerInfos.length, reqJoinCount, joinWorkerNames, channels);
+        SyncCallableWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(parentCtx, joinTargetIp,
+                joinVarReg, timeoutTargetIp, timeoutVarReg, workerInfos.length, reqJoinCount, 
+                joinWorkerNames, channels);
         if (forkjoinInfo.isTimeoutAvailable()) {
             long timeout = parentCtx.workerLocal.longRegs[timeoutRegIndex];
             //fork join timeout is in seconds, hence converting to milliseconds
