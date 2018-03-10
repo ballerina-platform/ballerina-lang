@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -76,6 +78,25 @@ public class TableProvider {
         String sqlStmt = generateCreateTableStatment(tableName, constrainedType);
         executeStatement(sqlStmt);
         return tableName;
+    }
+
+
+    public String createTable(String fromTableName, String joinTableName,  String query, BStructType tableType,
+                              BRefValueArray params) {
+        String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()
+                           + "_" + getTableID();
+        String sqlStmt = query.replaceFirst(TableConstants.TABLE_NAME_REGEX, fromTableName);
+        if (joinTableName != null && !joinTableName.isEmpty()) {
+            sqlStmt = sqlStmt.replaceFirst(TableConstants.TABLE_NAME_REGEX, joinTableName);
+        }
+        sqlStmt = generateCreateTableStatment(sqlStmt, newTableName);
+        prepareAndExecuteStatement(sqlStmt, params);
+        return newTableName;
+    }
+
+    public String createTable(String fromTableName, String query, BStructType tableType,
+                              BRefValueArray params) {
+        return createTable(fromTableName, null, query, tableType, params);
     }
 
     public String insertData(String tableName, BStruct constrainedType) {
@@ -162,6 +183,13 @@ public class TableProvider {
         return sb.toString();
     }
 
+    private String generateCreateTableStatment(String query, String newTableName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(TableConstants.SQL_CREATE).append(newTableName).append(" ").append(TableConstants.SQL_AS);
+        sb.append(query);
+        return sb.toString();
+    }
+
     private String generateInsertDataStatment(String tableName, BStruct constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
@@ -198,6 +226,49 @@ public class TableProvider {
         try {
             stmt = conn.createStatement();
             stmt.executeUpdate(queryStatement);
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in executing statement : " + queryStatement + " error:" + e.getMessage());
+        } finally {
+            releaseResources(conn, stmt);
+        }
+    }
+
+    private void prepareAndExecuteStatement(String queryStatement, BRefValueArray params) {
+        PreparedStatement stmt = null;
+        Connection conn = this.getConnection();
+        try {
+            stmt = conn.prepareStatement(queryStatement);
+            for (int index = 1; index <= params.size(); index++) {
+                BRefType param = params.get(index - 1);
+                switch (param.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        stmt.setLong(index, (Long) param.value());
+                        break;
+                    case TypeTags.STRING_TAG:
+                        stmt.setString(index, (String) param.value());
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        stmt.setDouble(index, (Double) param.value());
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        stmt.setBoolean(index, (Boolean) param.value());
+                        break;
+                    case TypeTags.XML_TAG:
+                    case TypeTags.JSON_TAG:
+                        stmt.setString(index, (String) param.value());
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        byte[] blobData = (byte[]) param.value();
+                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        break;
+                    case TypeTags.ARRAY_TAG:
+                        Object[] arrayData = getArrayData(param);
+                        stmt.setObject(index, arrayData);
+                        break;
+                }
+            }
+            stmt.executeUpdate();
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());
