@@ -98,7 +98,7 @@ public class CryptoTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
     }
 
-    @Test
+    @Test(description = "Testing CRC32 generation for strings")
     public void testCRC32ForText() {
         String payload = "Ballerina CRC32 Hash Test";
         String expectedCRC32Hash = "e1ad4853";
@@ -109,7 +109,7 @@ public class CryptoTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
-    @Test
+    @Test(description = "Testing CRC32 generation for blobs")
     public void testCRC32ForBinary() {
         String payload = "Ballerina CRC32 Hash Test for Blob";
         String expectedCRC32Hash = "f3638b7f";
@@ -120,21 +120,21 @@ public class CryptoTest {
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
 
+    // CRC32 generation for JSON is not supported yet
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*message: failed to generate hash: unsupported data type: json.*")
     public void testCRC32ForJSON() {
         String payload = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
-                                                new BValue[]{new BJSON(payload)});
+        BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON", new BValue[]{new BJSON(payload)});
     }
 
+    // CRC32 generation for XML is not supported yet
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*message: failed to generate hash: unsupported data type: xml.*")
     public void testCRC32ForXML() {
         String payload = "<foo>hello</foo>";
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML",
-                                                new BValue[]{new BXMLItem(payload)});
+        BRunUtil.invoke(compileResult, "testHashWithCRC32ForXML", new BValue[]{new BXMLItem(payload)});
     }
 }

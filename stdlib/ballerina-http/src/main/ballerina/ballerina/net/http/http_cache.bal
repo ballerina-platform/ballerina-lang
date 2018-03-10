@@ -34,7 +34,7 @@ function createHttpCache (string name, CacheConfig cacheConfig) (HttpCache) {
     return httpCache;
 }
 
-function <HttpCache httpCache> isAllowedToCache(InResponse response) (boolean) {
+function <HttpCache httpCache> isAllowedToCache (InResponse response) (boolean) {
     if (httpCache.cachingLevel == CachingLevel.CACHE_CONTROL_AND_VALIDATORS) {
         map headers = response.getAllHeaders();
         return headers[CACHE_CONTROL] != null && (headers[ETAG] != null || headers[LAST_MODIFIED] != null);
@@ -46,7 +46,7 @@ function <HttpCache httpCache> isAllowedToCache(InResponse response) (boolean) {
 function <HttpCache httpCache> put (string key, RequestCacheControl requestCacheControl, InResponse inboundResponse) {
     if (inboundResponse.cacheControl.noStore ||
         requestCacheControl.noStore ||
-        inboundResponse.cacheControl.isPrivate && httpCache.isShared) {
+        (inboundResponse.cacheControl.isPrivate && httpCache.isShared)) {
         // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
         return;
     }
@@ -106,7 +106,7 @@ function <HttpCache httpCache> getAllByWeakETag (string key, string etag) (InRes
     return matchingResponses;
 }
 
-function <HttpCache httpCache> remove(string key) {
+function <HttpCache httpCache> remove (string key) {
     httpCache.cache.remove(key);
 }
 

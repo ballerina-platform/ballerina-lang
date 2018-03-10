@@ -445,7 +445,7 @@ public class HttpUtil {
 
     /**
      * Populate inbound response with headers and entity.
-     *  @param inboundResponse  Ballerina struct to represent response
+     * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
      * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
