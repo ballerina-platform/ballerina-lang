@@ -249,13 +249,16 @@ public class GrpcServicesBuilder {
             if (server != null) {
                 try {
                     server.start();
+                    blockUntilShutdown(server);
                     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
                 } catch (IOException e) {
                     throw new GrpcServerException("Error while starting gRPC server", e);
+                } catch (InterruptedException e) {
+                    throw new GrpcServerException("Error while block until Shutdown gRPC server", e);
                 }
             } else {
-                throw new GrpcServerException("No gRPC service is registered to start" +
-                        ". You need to register the service");
+                throw new GrpcServerException("No gRPC service is registered to Start" +
+                        ". You need to Register the service");
             }
             return server;
         }
@@ -265,7 +268,7 @@ public class GrpcServicesBuilder {
     /**
      * Shutdown grpc server.
      */
-    private static void stop(Server server) {
+    public static void stop(Server server) {
         if (server != null) {
             server.shutdown();
         }
@@ -274,7 +277,7 @@ public class GrpcServicesBuilder {
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
      */
-    void blockUntilShutdown(Server server) throws InterruptedException {
+    static void blockUntilShutdown(Server server) throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }

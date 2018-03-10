@@ -4,7 +4,12 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.natives.AbstractNativeFunction;
 
 public abstract class AbstractGrpcNativeFunction extends AbstractNativeFunction {
+    
     protected io.grpc.ServerBuilder getServiceBuilder(Struct serviceEndpoint) {
         return (io.grpc.ServerBuilder) serviceEndpoint.getNativeData("serviceBuilder");
+    }
+    
+    protected io.grpc.Server getService(Struct serviceEndpoint) {
+        return (io.grpc.Server) serviceEndpoint.getNativeData("service");
     }
 }

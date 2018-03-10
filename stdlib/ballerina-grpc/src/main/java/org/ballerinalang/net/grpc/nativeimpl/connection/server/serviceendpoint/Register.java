@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server;
+package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -24,9 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
@@ -42,25 +39,24 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
  */
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "response", type = TypeKind.STRING)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+        functionName = "register",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+                structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class start extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(start.class);
+public class Register extends AbstractGrpcNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(Register.class);
     
     @java.lang.Override
     public BValue[] execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
-            GrpcServicesBuilder.start(serverBuilder);
+            registerService(serverBuilder, service);
         } catch (GrpcServerException e) {
-            throw new GrpcServerValidationException("Error in starting gRPC service.", e);
+            throw new GrpcServerValidationException("Error in registering gRPC service.", e);
         }
         return new BValue[] {null};
     }

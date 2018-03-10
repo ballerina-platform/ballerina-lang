@@ -51,7 +51,7 @@ public class BallerinaGrpcServerConnector implements BallerinaServerConnector {
 
     @Override
     public void serviceRegistered(Service service) throws BallerinaConnectorException {
-        if (PROTOCOL_PACKAGE_GRPC.equals(service.getProtocolPackage())) {
+        if (PROTOCOL_PACKAGE_GRPC.equals(service.getPackage())) {
             try {
                 Annotation serviceAnnotation = MessageUtils.getMessageListenerAnnotation(service, MessageConstants
                         .PROTOCOL_PACKAGE_GRPC);

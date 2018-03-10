@@ -58,11 +58,11 @@ public struct ServerConnection {
 
 public native function <ServerConnection h> init (string epName, ServiceEndpointConfiguration c);
 
-public native function <ServerConnection h> register (type serviceType)(ConnectorError);
+public native function <ServerConnection h> register (type serviceType);
 
-public native function <ServerConnection h> start () (ConnectorError);
+public native function <ServerConnection h> start ();
 
-public native function <ServerConnection conn> stop ()(ConnectorError);
+public native function <ServerConnection conn> stop ();
 
 function <ServerConnection h> getConnector () returns (ResponseConnector) {
     Connection conn = {};
