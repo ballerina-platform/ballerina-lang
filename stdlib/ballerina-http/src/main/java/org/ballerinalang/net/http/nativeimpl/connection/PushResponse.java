@@ -74,10 +74,9 @@ public class PushResponse extends ConnectionAction {
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-        BValue[] outboundResponseStatus = pushResponseRobust(context, inboundRequestMsg,
-                                                             outboundResponseStruct, outboundResponseMsg,
-                                                             http2PushPromise);
-        return outboundResponseStatus;
+        return pushResponseRobust(context, inboundRequestMsg,
+                                  outboundResponseStruct, outboundResponseMsg,
+                                  http2PushPromise);
     }
 
     private BValue[] pushResponseRobust(Context context, HTTPCarbonMessage requestMessage,
