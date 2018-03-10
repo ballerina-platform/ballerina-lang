@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -46,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -439,6 +439,10 @@ public class TypeChecker extends BLangNodeVisitor {
             resultTypes = iExpr.iContext.operations.getLast().resultTypes;
             return;
         }
+        if (iExpr.actionInvocation) {
+            checkActionInvocationExpr(iExpr);
+            return;
+        }
         switch (iExpr.expr.type.tag) {
             case TypeTags.STRUCT:
                 // Invoking a function bound to a struct
@@ -446,12 +450,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Then perform arg and param matching
                 checkFunctionInvocationExpr(iExpr, (BStructType) iExpr.expr.type);
                 break;
-//            case TypeTags.ENDPOINT:
-//                checkActionInvocationExpr(iExpr, (BEndpointType) iExpr.expr.type);
-//                break;
             case TypeTags.CONNECTOR:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, iExpr.expr.type);
-                break;
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                return;
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
@@ -482,9 +484,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
 
-    }
-
-    public void visit(BLangActionInvocationExpr actionInvExpr) {
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -1005,27 +1004,31 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
-//    private void checkActionInvocationExpr(BLangInvocation iExpr) {
-//        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-//        BSymbol connectorSymbol = endpointType.constraint.tsymbol;
-//
-//        if (connectorSymbol == symTable.errSymbol || connectorSymbol == symTable.notFoundSymbol) {
-//            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR, connectorSymbol);
-//            resultTypes = getListWithErrorTypes(expTypes.size());
-//            return;
-//        }
-//
-//        Name actionName = names.fromIdNode(iExpr.name);
-//        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, connectorSymbol.type.tsymbol.scope,
-//                env, actionName, SymTag.ACTION);
-//        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-//            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, endpointType.constraint);
-//            resultTypes = actualTypes;
-//            return;
-//        }
-//        iExpr.symbol = actionSym;
-//        checkInvocationParamAndReturnType(iExpr);
-//    }
+    private void checkActionInvocationExpr(BLangInvocation iExpr) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BSymbol conSymbol = iExpr.expr.symbol;
+        if (conSymbol == symTable.notFoundSymbol
+                || conSymbol == symTable.errSymbol
+                || (conSymbol.tag != SymTag.ENDPOINT && conSymbol.type.tag != TypeTags.CONNECTOR)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
+            resultTypes = actualTypes;
+            return;
+        }
+        if (conSymbol.tag == SymTag.ENDPOINT) {
+            conSymbol = ((BEndpointVarSymbol) conSymbol).attachedConnector;
+        }
+
+        Name actionName = names.fromIdNode(iExpr.name);
+        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, conSymbol.type.tsymbol.scope,
+                env, actionName, SymTag.ACTION);
+        if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, conSymbol.type);
+            resultTypes = actualTypes;
+            return;
+        }
+        iExpr.symbol = actionSym;
+        checkInvocationParamAndReturnType(iExpr);
+    }
 
     private void checkInvocationReturnTypes(BLangInvocation iExpr, List<BType> actualTypes) {
         List<BType> newActualTypes = actualTypes;

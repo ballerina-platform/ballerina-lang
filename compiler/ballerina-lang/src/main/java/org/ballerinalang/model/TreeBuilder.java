@@ -39,7 +39,6 @@ import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.model.tree.expressions.ActionInvocationNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
@@ -117,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -496,9 +494,5 @@ public class TreeBuilder {
 
     public static IntRangeExpression createIntRangeExpression() {
         return new BLangIntRangeExpression();
-    }
-
-    public static ActionInvocationNode createActionInvocationExpr() {
-        return new BLangActionInvocationExpr();
     }
 }

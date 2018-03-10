@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -960,10 +959,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         Operand[] operands = getFuncOperands(iExpr);
         emit(InstructionCodes.CALL, operands);
-    }
-
-    @Override
-    public void visit(BLangActionInvocationExpr actionInvExpr) {
     }
 
     public void visit(BLangActionInvocation aIExpr) {

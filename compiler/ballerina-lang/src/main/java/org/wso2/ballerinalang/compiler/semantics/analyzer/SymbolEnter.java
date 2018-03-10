@@ -785,8 +785,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
-                                               SymbolEnv env) {
+    private BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name
+            varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,

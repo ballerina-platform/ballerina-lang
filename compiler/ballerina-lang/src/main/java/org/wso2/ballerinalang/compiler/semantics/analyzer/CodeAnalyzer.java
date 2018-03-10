@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -111,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -646,10 +644,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BLangActionInvocationExpr actionInvExpr) {
-    }
-
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
     }
@@ -981,18 +975,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
-                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR
-                        || invocationExpr.expr.type.tag == TypeTags.ENDPOINT) {
+                if (invocationExpr.isActionInvocation()) {
                     dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             "action invocation");
                 }
                 invocationExpr.expr.accept(this);
             }
             invocationExpr.argExprs.forEach(argExpr -> argExpr.accept(this));
-        }
-
-        @Override
-        public void visit(BLangActionInvocationExpr actionInvExpr) {
         }
 
         @Override

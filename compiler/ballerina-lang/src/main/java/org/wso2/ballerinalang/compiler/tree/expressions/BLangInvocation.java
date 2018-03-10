@@ -51,6 +51,7 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public boolean iterableOperationInvocation;
     public IterableContext iContext;
     protected RegIndex[] regIndexes;
+    public boolean actionInvocation;
 
     public boolean isMultiReturnExpr() {
         return true;
@@ -129,6 +130,11 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
         return iterableOperationInvocation;
     }
 
+    @Override
+    public boolean isActionInvocation() {
+        return this.actionInvocation;
+    }
+
     /**
      * @since 0.94
      */
@@ -181,7 +187,6 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     }
 
     /**
-     * @deprecated
      * @since 0.94
      */
     public static class BLangActionInvocation extends BLangInvocation {

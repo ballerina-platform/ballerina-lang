@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -330,11 +329,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangActionInvocationExpr actionInvocationExpr) {
-        throw new AssertionError();
-    }
-
-    @Deprecated
     public void visit(BLangActionInvocation actionInvocationExpr) {
         throw new AssertionError();
     }

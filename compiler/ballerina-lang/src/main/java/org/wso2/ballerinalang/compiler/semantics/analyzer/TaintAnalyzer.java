@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangActionInvocationExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -653,9 +652,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                 analyzeInvocation(invocationExpr);
             }
         }
-    }
-
-    public void visit(BLangActionInvocationExpr actionInvExpr) {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
