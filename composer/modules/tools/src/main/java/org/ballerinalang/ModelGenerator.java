@@ -57,8 +57,8 @@ public class ModelGenerator {
     static PrintStream out = System.out;
     static Map<String, String> alias = new HashMap<String, String>();
 
-    static final String TEMPLATE_PATH = "./modules/web/src/plugins/ballerina/model/templates/";
-    static final String GENERATE_PATH = "./modules/web/src/plugins/ballerina/model/gen/";
+    static final String TEMPLATE_PATH = "./composer/modules/web/src/plugins/ballerina/model/templates/";
+    static final String GENERATE_PATH = "./composer/modules/web/src/plugins/ballerina/model/gen/";
 
     public static void main(String args[]) {
         JsonObject nodes = getContext();
