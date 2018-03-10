@@ -27,8 +27,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import org.wso2.transport.http.netty.common.Constants;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,17 +39,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -196,19 +190,5 @@ public class SSLHandlerFactory {
 
     public TrustManagerFactory getTrustStoreFactory() {
         return tmf;
-    }
-
-    public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {
-        SSLParameters sslParameters = new SSLParameters();
-        List<SNIServerName> serverNames = new ArrayList<>();
-        serverNames.add(new SNIHostName(peerHost));
-        sslParameters.setServerNames(serverNames);
-        sslEngine.setSSLParameters(sslParameters);
-    }
-
-    public void setHostNameVerfication(SSLEngine sslEngine) {
-        SSLParameters sslParams = sslEngine.getSSLParameters();
-        sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
-        sslEngine.setSSLParameters(sslParams);
     }
 }
