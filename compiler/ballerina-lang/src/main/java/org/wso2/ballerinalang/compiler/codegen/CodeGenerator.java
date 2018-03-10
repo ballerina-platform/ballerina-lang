@@ -1200,7 +1200,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         RegIndex exprIndex = calcAndGetExprRegIndex(unaryExpr);
 
-        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+        if (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             unaryExpr.expr.regIndex = createLHSRegIndex(unaryExpr.regIndex);
             genNode(unaryExpr.expr, this.env);
             return;
@@ -2647,6 +2647,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
+        Operand transactionIndexOperand = getOperand(transactionIndex);
         Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
         if (transactionNode.retryCount != null) {
             this.genNode(transactionNode.retryCount, this.env);
@@ -2660,19 +2661,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionCodes.TR_BEGIN, getOperand(transactionIndex), retryCountRegIndex);
+        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex);
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
         Operand retryInsAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, getOperand(transactionIndex), retryInsAddr);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryInsAddr);
 
         //process transaction statements
         this.genNode(transactionNode.transactionBody, this.env);
 
         //end the transaction
         int transBlockEndAddr = nextIP();
-        this.emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.SUCCESS.value()));
+        this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
 
@@ -2680,14 +2681,14 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.FAILED.value()));
+        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.failedBody != null) {
             this.genNode(transactionNode.failedBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
         retryInsAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value,
@@ -2695,10 +2696,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         errorTable.addErrorTableEntry(errorTableEntry);
 
         transStmtAbortEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.ABORTED.value()));
+        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()));
 
         transStmtEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, getOperand(transactionIndex), getOperand(TransactionStatus.END.value()));
+        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {

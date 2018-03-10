@@ -25,8 +25,6 @@ import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,9 +48,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  * Compilation unit builder is for building ballerina compilation units.
  */
 public class TextDocumentServiceUtil {
-    private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
+    private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
     public static String getSourceRoot(Path filePath, String pkgName) {
         if (filePath == null || filePath.getParent() == null) {
@@ -151,7 +148,7 @@ public class TextDocumentServiceUtil {
         } else {
             packageNode = compiler.compile(pkgName);
         }
-
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, packageNode.symbol.getName().getValue());
         return packageNode;
     }
 }

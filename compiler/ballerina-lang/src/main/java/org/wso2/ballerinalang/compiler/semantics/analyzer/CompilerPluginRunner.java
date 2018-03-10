@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -218,7 +217,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         for (String annPackage : annotationPkgs) {
             // Check whether each annotation type definition is available in the AST.
-            List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage, plugin);
+            List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage);
             annotationSymbols.forEach(annSymbol -> {
                 AnnotationID annotationID = new AnnotationID(annSymbol.pkgID.name.value, annSymbol.name.value);
                 List<CompilerPlugin> processorList = processorMap.computeIfAbsent(
@@ -230,24 +229,16 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         plugin.init(dlog);
     }
 
-    private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage, CompilerPlugin plugin) {
+    private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
+
         BLangPackage pkgNode = this.packageCache.get(pkdID);
-
-        if (pkgNode == null || pkgNode.symbol == null) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_PACKAGE_FOUND,
-                    annPackage, plugin.getClass().getName());
-            return annotationSymbols;
-        }
-
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
-        for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
-            annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
-        }
-
-        if (annotationSymbols.isEmpty()) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE);
+        if (pkgEnv != null) {
+            for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
+                annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
+            }
         }
         return annotationSymbols;
     }

@@ -22,8 +22,10 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,6 +52,8 @@ public class CompilerDriver {
     private final SymbolEnter symbolEnter;
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
+    private final TaintAnalyzer taintAnalyzer;
+    private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
 
     private final CompilerPhase compilerPhase;
@@ -72,6 +76,8 @@ public class CompilerDriver {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
+        this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.compilerPhase = getCompilerPhase();
     }
@@ -104,6 +110,16 @@ public class CompilerDriver {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
+            return pkgNode;
+        }
+
+        pkgNode = taintAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
+            return pkgNode;
+        }
+
+        pkgNode = annotationProcess(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return pkgNode;
         }
@@ -114,19 +130,27 @@ public class CompilerDriver {
     }
 
     private BLangPackage define(BLangPackage pkgNode) {
-        return symbolEnter.definePackage(pkgNode);
+        return this.symbolEnter.definePackage(pkgNode);
     }
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
-        return semAnalyzer.analyze(pkgNode);
+        return this.semAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
-        return codeAnalyzer.analyze(pkgNode);
+        return this.codeAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
+        return this.taintAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage annotationProcess(BLangPackage pkgNode) {
+        return this.compilerPluginRunner.runPlugins(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
-        return desugar.perform(pkgNode);
+        return this.desugar.perform(pkgNode);
     }
 
     private CompilerPhase getCompilerPhase() {
@@ -139,9 +163,9 @@ public class CompilerDriver {
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
-        return compilerPhase.compareTo(nextPhase) < 0 ||
-                nextPhase == CompilerPhase.DESUGAR && (dlog.errorCount > 0 ||
-                        pkgNode.getCompilationUnits().isEmpty());
+        return (compilerPhase.compareTo(nextPhase) < 0 || nextPhase == CompilerPhase.TAINT_ANALYZE ||
+                nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR)
+                && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }
 
     private BLangPackage getBuiltInPackage(Name name) {

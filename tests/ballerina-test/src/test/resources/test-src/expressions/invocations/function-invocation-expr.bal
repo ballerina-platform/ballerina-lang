@@ -35,7 +35,7 @@ function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) (floa
     return math:sqrt(math:pow(x, 2));
 }
 
-function sum (int a) (int) {
+function sum (int a) (@untainted{} int) {
     int x;
     if (a > 0) {
         x = sum(a - 1);
