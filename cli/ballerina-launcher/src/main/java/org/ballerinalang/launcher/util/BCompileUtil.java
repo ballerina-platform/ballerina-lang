@@ -19,7 +19,6 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -27,13 +26,15 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -136,10 +137,12 @@ public class BCompileUtil {
                 // TODO: orgName is anon, fix it.
                 PackageID pkgId = new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
                 effectiveSource = pkgId.getName().getValue();
+                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
             } else {
                 effectiveSource = packageName;
+                return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN,
+                        new FileSystemProjectDirectory(rootPath));
             }
-            return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
@@ -207,15 +210,38 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
-        PackageNode pkgNode = compiler.getAST();
-        if (pkgNode != null) {
-            comResult.setAST(compiler.getAST());
+        return comResult;
+    }
+
+    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
+                                        SourceDirectory sourceDirectory) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        context.put(SourceDirectory.class, sourceDirectory);
+
+        CompileResult comResult = new CompileResult();
+
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName);
+        comResult.setAST(packageNode);
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
         return comResult;
@@ -245,10 +271,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
-
-        return compiledPkg;
+        return compiler.compile(packageName);
     }
 
     /**
@@ -343,8 +366,8 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(fileName);
-        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
+        BLangPackage entryPackageNode = compiler.compile(fileName);
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPackageNode);
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }

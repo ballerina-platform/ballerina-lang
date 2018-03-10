@@ -295,7 +295,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Attempt to load the imported package.
-        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId);
+        BLangPackage pkgNode = pkgLoader.loadPackage(pkgId, env.enclPkg.packageRepository);
         if (pkgNode == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
@@ -1062,7 +1062,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (pkgDecl == null) {
-            return pkgId == PackageID.DEFAULT;
+//            return pkgId == PackageID.DEFAULT;
+            return true;
         }
 
         return pkgId.name.value.equals(pkgDecl.getPackageNameStr());

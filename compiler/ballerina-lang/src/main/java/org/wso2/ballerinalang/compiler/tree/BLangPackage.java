@@ -34,6 +34,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.nio.file.Path;
@@ -62,10 +63,13 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTransformer> transformers;
     public List<TopLevelNode> topLevelNodes;
 
-    // TODO Revisit these instance variables
     public PackageID packageID;
-    public Path loadedFilePath;
     public BPackageSymbol symbol;
+    public PackageRepository packageRepository;
+
+    // TODO Revisit these instance variables
+    public Path loadedFilePath;
+    public boolean loadedFromProjectDir;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();

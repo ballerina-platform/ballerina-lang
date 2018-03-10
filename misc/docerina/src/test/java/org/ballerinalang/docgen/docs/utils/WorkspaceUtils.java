@@ -60,14 +60,14 @@ public class WorkspaceUtils {
 
     private static BLangPackage getBallerinaPackage(String fileName, CompilerContext context) {
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage balPkg = new BLangPackage();
+        BLangPackage balPkg = null;
         try {
-            compiler.compile(fileName);
+            balPkg = compiler.compile(fileName);
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
             catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
         }
-        balPkg = (BLangPackage) compiler.getAST();
+
         return balPkg;
     }
 }

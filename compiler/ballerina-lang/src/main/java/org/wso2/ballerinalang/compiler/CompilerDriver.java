@@ -43,16 +43,16 @@ public class CompilerDriver {
     private static final CompilerContext.Key<CompilerDriver> COMPILER_DRIVER_KEY =
             new CompilerContext.Key<>();
 
-    private CompilerOptions options;
-    private BLangDiagnosticLog dlog;
-    private PackageLoader pkgLoader;
-    private SymbolTable symbolTable;
-    private SymbolEnter symbolEnter;
-    private SemanticAnalyzer semAnalyzer;
-    private CodeAnalyzer codeAnalyzer;
-    private Desugar desugar;
+    private final CompilerOptions options;
+    private final BLangDiagnosticLog dlog;
+    private final PackageLoader pkgLoader;
+    private final SymbolTable symbolTable;
+    private final SymbolEnter symbolEnter;
+    private final SemanticAnalyzer semAnalyzer;
+    private final CodeAnalyzer codeAnalyzer;
+    private final Desugar desugar;
 
-    private CompilerPhase compilerPhase;
+    private final CompilerPhase compilerPhase;
 
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -73,7 +73,6 @@ public class CompilerDriver {
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-
         this.compilerPhase = getCompilerPhase();
     }
 

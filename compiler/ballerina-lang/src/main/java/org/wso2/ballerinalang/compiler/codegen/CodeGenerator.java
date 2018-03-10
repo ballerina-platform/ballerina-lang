@@ -24,8 +24,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.TransactionStatus;
-import org.wso2.ballerinalang.CompiledBinaryFile.PackageFile;
-import org.wso2.ballerinalang.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -147,6 +145,8 @@ import org.wso2.ballerinalang.programfile.AnnAttachmentInfo;
 import org.wso2.ballerinalang.programfile.AnnAttributeValue;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConnectorInfo;
 import org.wso2.ballerinalang.programfile.EnumInfo;
 import org.wso2.ballerinalang.programfile.EnumeratorInfo;
@@ -366,11 +366,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
+            if (!buildCompiledPackage) {
+                programFile.packageInfoMap.put(pkgNode.symbol.pkgID.name.value, pkgNode.symbol.packageInfo);
+            }
             return;
         }
 
         // TODO Improve this design without if/else
         PackageInfo packageInfo = new PackageInfo();
+        pkgNode.symbol.packageInfo = packageInfo;
         if (buildCompiledPackage) {
             // Generating the BALO
             pkgNode.imports.forEach(impPkgNode -> {

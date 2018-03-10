@@ -61,6 +61,7 @@ public class PackageLoader {
 
     private CompilerOptions options;
     private Parser parser;
+    private SourceDirectory sourceDirectory;
     private PackageCache packageCache;
     private SymbolEnter symbolEnter;
     private Names names;
@@ -79,6 +80,11 @@ public class PackageLoader {
     private PackageLoader(CompilerContext context) {
         context.put(PACKAGE_LOADER_KEY, this);
 
+        this.sourceDirectory = context.get(SourceDirectory.class);
+        if (this.sourceDirectory == null) {
+            throw new IllegalArgumentException("source directory has not been initialized");
+        }
+
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
@@ -87,7 +93,7 @@ public class PackageLoader {
         loadPackageRepository(context);
     }
 
-    public BLangPackage loadPackage(String source) {
+    public BLangPackage loadPackage(String source, PackageRepository packageRepo) {
         if (source == null || source.isEmpty()) {
             throw new IllegalArgumentException("source package/file cannot be null");
         }
@@ -103,7 +109,7 @@ public class PackageLoader {
             }
 
             pkgEntity = this.packageRepo.loadPackage(pkgId, source);
-            bLangPackage = loadPackage(pkgId, pkgEntity);
+            bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
             }
@@ -115,7 +121,7 @@ public class PackageLoader {
             }
 
             pkgEntity = getPackageEntity(pkgId);
-            bLangPackage = loadPackage(pkgId, pkgEntity);
+            bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve package '" + source + "'");
             }
@@ -126,13 +132,19 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId) {
+    public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        return loadPackage(pkgId, getPackageEntity(pkgId));
+        return loadPackageFromEntity(pkgId, getPackageEntity(pkgId));
+    }
+
+    public BLangPackage loadPackage(PackageID pkgId) {
+        BLangPackage packageNode = loadPackage(pkgId, null);
+        addImportPkg(packageNode, Names.RUNTIME_PACKAGE.value);
+        return packageNode;
     }
 
     public BLangPackage loadEntryPackage(String source) {
@@ -145,14 +157,14 @@ public class PackageLoader {
         BLangPackage bLangPackage;
         if (source.endsWith(PackageEntity.Kind.SOURCE.getExtension())) {
             pkgEntity = this.packageRepo.loadPackage(pkgId, source);
-            bLangPackage = loadPackage(pkgId, pkgEntity);
+            bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
             }
         } else {
             pkgId = getPackageID(source);
             pkgEntity = getPackageEntity(pkgId);
-            bLangPackage = loadPackage(pkgId, pkgEntity);
+            bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
                 throw new IllegalArgumentException("cannot resolve package '" + source + "'");
             }
@@ -183,8 +195,7 @@ public class PackageLoader {
     }
 
     private BLangPackage loadAndDefinePackage(PackageID pkgId) {
-        // TODO This is used by the SymbolEnter to load import packages.
-        BLangPackage bLangPackage = loadPackage(pkgId);
+        BLangPackage bLangPackage = loadPackage(pkgId, null);
         if (bLangPackage == null) {
             return null;
         }
@@ -235,6 +246,9 @@ public class PackageLoader {
     }
 
     private PackageEntity getPackageEntity(PackageID pkgId) {
+        if (pkgId.isUnnamed) {
+            return this.packageRepo.loadPackage(pkgId, pkgId.sourceFileName.value);
+        }
         return this.packageRepo.loadPackage(pkgId);
     }
 
@@ -251,7 +265,7 @@ public class PackageLoader {
                 .collect(Collectors.toList());
     }
 
-    private BLangPackage loadPackage(PackageID pkgId, PackageEntity pkgEntity) {
+    private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity) {
         if (pkgEntity == null) {
             return null;
         }

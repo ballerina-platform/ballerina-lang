@@ -15,11 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang;
+package org.wso2.ballerinalang.programfile;
 
 
-import org.wso2.ballerinalang.programfile.PackageInfo;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -132,12 +130,6 @@ public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
         public void setServiceEPAvailable(boolean servicesAvailable) {
             this.servicesAvailable = servicesAvailable;
-        }
-
-        // PackageInfo
-
-        public PackageInfo getPackageInfo(String packageName) {
-            return packageInfoMap.get(packageName);
         }
 
         public PackageInfo[] getPackageInfoEntries() {

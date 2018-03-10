@@ -101,9 +101,9 @@ public class Parser {
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
 
-            if (dlog.errorCount > prevErrCount) {
-                throw new BLangParserException("syntax errors in: " + entryName);
-            }
+//            if (dlog.errorCount > prevErrCount) {
+//                throw new BLangParserException("syntax errors in: " + entryName);
+//            }
 
             return compUnit;
         } catch (IOException e) {

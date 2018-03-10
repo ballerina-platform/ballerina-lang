@@ -38,7 +38,7 @@ public class PackageInitInvocationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/invocations/pkg/c");
+        result = BCompileUtil.compile(this, "test-src", "expressions.invocations.pkg.c");
     }
 
     @Test

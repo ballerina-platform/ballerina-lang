@@ -144,13 +144,14 @@ public class TextDocumentServiceUtil {
         BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(context);
         compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
 
+        BLangPackage packageNode;
         Compiler compiler = Compiler.getInstance(compilerContext);
         if ("".equals(pkgName)) {
-            compiler.compile(fileName);
+            packageNode = compiler.compile(fileName);
         } else {
-            compiler.compile(pkgName);
+            packageNode = compiler.compile(pkgName);
         }
 
-        return (BLangPackage) compiler.getAST();
+        return packageNode;
     }
 }

@@ -175,13 +175,13 @@ public class ParserUtils {
 
         BallerinaFile ballerinaFile = new BallerinaFile();
         try {
-            compiler.compile(fileName);
+            ballerinaFile.setBLangPackage(compiler.compile(fileName));
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
             catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
             diagnostics.add(catastrophic);
         }
-        ballerinaFile.setBLangPackage((BLangPackage) compiler.getAST());
+
         ballerinaFile.setDiagnostics(diagnostics);
         return ballerinaFile;
     }

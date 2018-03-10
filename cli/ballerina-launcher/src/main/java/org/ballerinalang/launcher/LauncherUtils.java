@@ -29,10 +29,11 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.CompiledBinaryFile;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 
 import java.io.BufferedReader;
@@ -229,9 +230,8 @@ public class LauncherUtils {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(sourcePath.toString());
-        CompiledBinaryFile.ProgramFile programFile = compiler.getCompiledProgram();
-
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
         if (programFile == null) {
             throw createLauncherException("compilation contains errors");
         }

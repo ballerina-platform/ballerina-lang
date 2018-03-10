@@ -270,8 +270,7 @@ public class BallerinaDocGenerator {
                 bLangPackage = loadBuiltInPackage(context);
             } else {
                 // compile the given file
-                compiler.compile(getPackageNameFromPath(path));
-                bLangPackage = (BLangPackage) compiler.getAST();
+                bLangPackage = compiler.compile(getPackageNameFromPath(path));
             }
 
             if (bLangPackage == null) {

@@ -155,6 +155,10 @@ public class GeneralFSPackageRepository implements PackageRepository {
     }
 
     protected Path generatePathOld(PackageID pkgID) {
+        if (pkgID.isUnnamed) {
+            return this.basePath;
+        }
+
         Path pkgDirPath = this.basePath;
         for (Name comp : pkgID.getNameComps()) {
             pkgDirPath = pkgDirPath.resolve(comp.value);

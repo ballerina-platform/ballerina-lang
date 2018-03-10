@@ -36,9 +36,9 @@ public class LengthOfOperatorTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions/unaryoperations/lengthof-operation.bal");
-        resNegative = BCompileUtil.compile(this, "test-src",
-                "expressions/unaryoperations/lengthof-operation-negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/unaryoperations/lengthof-operation.bal");
+        resNegative = BCompileUtil.compile(
+                "test-src/expressions/unaryoperations/lengthof-operation-negative.bal");
     }
 
     @Test(description = "Test lengthof unary expression")

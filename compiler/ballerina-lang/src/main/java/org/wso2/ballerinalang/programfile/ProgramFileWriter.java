@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
-import org.wso2.ballerinalang.CompiledBinaryFile.ProgramFile;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;

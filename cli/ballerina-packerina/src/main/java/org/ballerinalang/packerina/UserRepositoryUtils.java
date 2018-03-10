@@ -103,7 +103,6 @@ public class UserRepositoryUtils {
         compiler.compile(packagePath.toString());
 
         Path srcDirectoryPath = BLangPrograms.validateAndResolveSourcePath(sourceRootPath, packagePath);
-
         Path targetDirectoryPath = initializeUserRepository()
                 .resolve(USER_REPO_ARTIFACTS_DIRNAME)
                 .resolve(USER_REPO_SRC_DIRNAME)

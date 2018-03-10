@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,10 +35,13 @@ public class PackageID {
 
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
     private final Name orgName;
+    public Name name;
+    public Name version = Names.DEFAULT_VERSION;
+
+    public boolean isUnnamed;
+    public Name sourceFileName;
 
     public List<Name> nameComps;
-    public Name name = Names.DEFAULT_PACKAGE;
-    public Name version = Names.DEFAULT_VERSION;
 
     public PackageID(Name orgName, List<Name> nameComps, Name version) {
         this.orgName = orgName;
@@ -57,6 +61,21 @@ public class PackageID {
             this.nameComps = Arrays.stream(name.value.split("\\."))
                     .map(Name::new).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Creates a {@code PackageID} for an unnamed package.
+     *
+     * @param sourceFileName name of the .bal file
+     */
+    public PackageID(String sourceFileName) {
+        this.orgName = Names.ANON_ORG;
+        this.name = new Name(Names.DOT + sourceFileName);
+        this.nameComps = new ArrayList<Name>(1) {{
+            add(name);
+        }};
+        this.isUnnamed = true;
+        this.sourceFileName = new Name(sourceFileName);
     }
 
     public Name getName() {
