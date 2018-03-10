@@ -87,7 +87,11 @@ public class DebuggerExecutor implements Runnable {
 
         // Invoke package init function
         FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
-        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[]{arrayArgs});
+        try {
+            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[]{arrayArgs});
+        } catch (Exception e) {
+            log.debug("error occurred, invoking the function - " + e.getMessage(), e);
+        }
 
         debugger.notifyExit();
     }

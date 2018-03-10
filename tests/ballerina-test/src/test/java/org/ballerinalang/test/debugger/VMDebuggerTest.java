@@ -191,7 +191,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints, expRes);
     }
 
-//    @Test(description = "Testing try catch finally scenario for path")
+    @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
                 "try-catch-finally.bal", 19);
@@ -221,23 +221,29 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
     }
 
-////    @Test(description = "Testing debug paths in workers")
-//    public void testDebuggingWorkers() {
-//        BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-//                "test-worker.bal", 3, 9, 10, 18, 19, 23, 46);
-//
-//        WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-//                "test-worker.bal", 3), RESUME);
-//        WorkerResults worker1 = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-//                "test-worker.bal", 9, 10, 12, 31, 13), STEP_OVER, STEP_OVER, STEP_IN, STEP_OUT, RESUME);
-//        WorkerResults worker2 = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".", "test-worker.bal",
-//                18, 19, 46, 46, 46, 46, 46, 23), STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME);
-//        ExpectedResults expRes = new ExpectedResults(mainWorker, true);
-//        expRes.addWorkerResults(worker1);
-//        expRes.addWorkerResults(worker2);
-//
-//        VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
-//    }
+    @Test(description = "Testing debug paths in workers")
+    public void testDebuggingWorkers() {
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
+                "test-worker.bal", 3, 9, 10, 18, 19, 23, 46);
+
+        String file  = "test-worker.bal";
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 3, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 19, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 46, RESUME, 5));
+        debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 14);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
+    }
 
     @Test(description = "Testing debug paths in package init")
     public void testDebuggingPackageInit() {
