@@ -336,7 +336,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
 
 // This function will be called by the initiator
 function commitTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
-    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -356,7 +356,7 @@ function commitTransaction (string transactionId, int transactionBlockId) return
 
 // This function will be called by the initiator
 function abortInitiatorTransaction (string transactionId, int transactionBlockId) returns (string message, error e) {
-    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -398,7 +398,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
         return;
     }
-    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions[participatedTxnId];
+    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
     if (txn == null) {
         string msg = "Transaction-Unknown. Invalid TID:" + transactionId;
         log:printError(msg);
@@ -418,7 +418,7 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         if (err == null) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            participatedTransactions.remove(participatedTxnId);
+            // do not remove the transaction since we may get a msg from the initiator
         } else {
             log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
         }
@@ -473,12 +473,13 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
-    if (participatedTransactions[participatedTxnId] == null && initiatedTransactions.hasKey(transactionId)) {
-        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+    if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
+        var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
         if (txn.state != TransactionState.ABORTED) {
             msg, err = commitTransaction(transactionId, transactionBlockId);
             if (err == null) {
-                initiatedTransactions.remove(transactionId);
+                // do not remove the transaction since we may get a msg from the initiator
+                txn.state = TransactionState.COMMITTED;
             }
         }
     } // Nothing to do on endTransaction if you are a participant
@@ -501,30 +502,29 @@ documentation {
 function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        if (participatedTransactions[participatedTxnId] != null) {
+        if (participatedTransactions.hasKey(participatedTxnId)) {
             // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
             // and then call abort on the initiator
-            var txn, _ = (Transaction)initiatedTransactions[transactionId];
+            var txn, _ = (TwoPhaseCommitTransaction )initiatedTransactions.get(transactionId);
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
                 err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
                 return;
             }
             string participantId = getParticipantId(transactionBlockId);
-            txn.participants.remove(participantId);
-            participatedTransactions.remove(participatedTxnId);
+            // do not remove the transaction since we may get a msg from the initiator
             txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
+            if(err == null) {
+                txn.state = TransactionState.ABORTED;
+            }
         } else {
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
         msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId);
     }
-    if (err == null) {
-        initiatedTransactions.remove(transactionId);
-    }
-
+    // do not remove the transaction since we may get a msg from the initiator
     return;
 }
 
