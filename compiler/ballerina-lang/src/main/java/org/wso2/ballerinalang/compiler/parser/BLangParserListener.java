@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -88,6 +87,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
+    }
+
+    @Override
+    public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        this.pkgBuilder.startEndpointDecarationScope();
     }
 
     /**
@@ -163,8 +167,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier(0).getText(),
-                ctx.Identifier(1).getText());
+        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     /**
@@ -227,6 +230,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.startBlock();
+        this.pkgBuilder.startEndpointDecarationScope();
     }
 
     /**
@@ -447,7 +451,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(), publicAnnotation);
+        boolean isTypeAttached = ctx.userDefineTypeName() != null;
+        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(), publicAnnotation, isTypeAttached);
     }
 
     /**
@@ -526,150 +531,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName, paramsAvailable);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
+    public void exitAttachmentPoint(BallerinaParser.AttachmentPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        String pkgPath = null;
-        if (ctx.getChildCount() == 4) {
-            pkgPath = ctx.Identifier().getText();
-        } else if (ctx.getChildCount() == 3) {
-            pkgPath = "";
-        }
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE, pkgPath);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONNECTOR, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ACTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT, null);
-    }
-
-    @Override
-    public void exitEnumAttachPoint(BallerinaParser.EnumAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ENUM, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.CONST, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.PARAMETER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ANNOTATION, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitTransformerAttachPoint(BallerinaParser.TransformerAttachPointContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.TRANSFORMER, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterAnnotationBody(BallerinaParser.AnnotationBodyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startVarList();
+        this.pkgBuilder.addAttachPoint(
+                BLangAnnotationAttachmentPoint.AttachmentPoint.getAttachmentPoint(ctx.getText()));
     }
 
     @Override
@@ -856,44 +724,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx));
+        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null);
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttribute(BallerinaParser.AnnotationAttributeContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String attrName = ctx.Identifier().getText();
-        this.pkgBuilder.createAnnotAttachmentAttribute(getCurrentPos(ctx), getWS(ctx), attrName);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAnnotationAttributeValue(BallerinaParser.AnnotationAttributeValueContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        ParseTree childContext = ctx.getChild(0);
-        if (childContext instanceof BallerinaParser.SimpleLiteralContext) {
-            this.pkgBuilder.createLiteralTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.NameReferenceContext) {
-            this.pkgBuilder.createVarRefTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.AnnotationAttachmentContext) {
-            this.pkgBuilder.createAnnotationTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        } else if (childContext instanceof BallerinaParser.AnnotationAttributeArrayContext) {
-            this.pkgBuilder.createArrayTypeAttributeValue(getCurrentPos(ctx), getWS(ctx));
-        }
-    }
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
@@ -958,13 +792,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitConnectorInit(BallerinaParser.ConnectorInitContext ctx) {
+    public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         boolean argsAvailable = ctx.expressionList() != null;
-        this.pkgBuilder.addConnectorInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        this.pkgBuilder.addTypeInitExpression(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
     @Override
@@ -972,23 +806,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.endpointDefinition() == null) {
-            return;
-        }
-
-        String endpointName = ctx.endpointDefinition().Identifier().getText();
-
-        boolean exprAvailable = ctx.connectorInit() != null || ctx.variableReference() != null;
-        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                endpointName, exprAvailable, true);
+        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
+        String endpointName = ctx.Identifier().getText();
+        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName);
     }
 
     @Override
-    public void exitEndpointDefinition(BallerinaParser.EndpointDefinitionContext ctx) {
+    public void exitGlobalEndpointDefinition(BallerinaParser.GlobalEndpointDefinitionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
+        if (KEYWORD_PUBLIC.equals(ctx.getChild(0).getText())) {
+            this.pkgBuilder.markLastEndpointAsPublic();
+        }
     }
 
     /**
@@ -1817,8 +1647,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, false);
         } else if (ctx.parent instanceof BallerinaParser.PrivateStructBodyContext) {
             this.pkgBuilder.addVarToStruct(currentPos, ws, name, exprAvailable, 0, true);
-        } else if (ctx.parent instanceof BallerinaParser.AnnotationBodyContext) {
-            this.pkgBuilder.addVarToAnnotation(currentPos, ws, name, exprAvailable, 0);
         }
     }
 

@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
 
@@ -34,7 +35,13 @@ public interface AnnotationAttachmentNode extends Node {
 
     void setAnnotationName(IdentifierNode name);
 
+    ExpressionNode getExpression();
+
+    void setExpression(ExpressionNode expr);
+
+    @Deprecated
     List<? extends AnnotationAttachmentAttributeNode> getAttributes();
 
+    @Deprecated
     void addAttribute(AnnotationAttachmentAttributeNode attribute);
 }

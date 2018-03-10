@@ -46,4 +46,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     List<? extends WorkerNode> getWorkers();
 
+    List<? extends EndpointNode> getEndpointNodes();
+
 }

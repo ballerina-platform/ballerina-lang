@@ -18,10 +18,10 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * foo:Person.
+ * Represents <code>endpoint &lt; http:serviceEndpoint &gt;</code>.
  *
- * @since 0.95
+ * @since 0.965.0
  */
-public interface EndpointTypeNode extends ReferenceTypeNode {
-    TypeNode getConstraint();
+public interface EndpointTypeNode extends UserDefinedTypeNode {
+    UserDefinedTypeNode getEndpointStructType();
 }

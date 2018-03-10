@@ -32,6 +32,8 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -53,14 +55,13 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
  * @since 0.96.1
  */
 public class GrpcServicesBuilder {
-    private io.grpc.ServerBuilder serverBuilder = null;
+   
     
-    void registerService(Service service) throws GrpcServerException {
-        Annotation serviceAnnotation = MessageUtils.getServiceConfigAnnotation(service, MessageConstants
-                .PROTOCOL_PACKAGE_GRPC);
-        if (serviceAnnotation != null && serviceAnnotation.getAnnAttrValue("port") != null) {
-            serverBuilder = NettyServerBuilder.forPort((int)
-                    serviceAnnotation.getAnnAttrValue("port").getIntValue())
+    public static io.grpc.ServerBuilder initService( ServiceConfiguration serviceEndpointConfig) {
+        io.grpc.ServerBuilder  serverBuilder;
+        if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
+            serverBuilder = NettyServerBuilder.forPort(
+                    serviceEndpointConfig.getPort().intValue())
                     .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                             .availableProcessors()))
                     .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
@@ -72,6 +73,10 @@ public class GrpcServicesBuilder {
                     .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                             .availableProcessors() * 2));
         }
+        return serverBuilder;
+    }
+    
+    public static void registerService(io.grpc.ServerBuilder  serverBuilder,Service service) throws GrpcServerException {
         try {
             serverBuilder.addService(ServerInterceptors.intercept(getServiceDefinition(service), new
                     ServerHeaderInterceptor()));
@@ -80,7 +85,7 @@ public class GrpcServicesBuilder {
         }
     }
     
-    private ServerServiceDefinition getServiceDefinition(Service service) throws Descriptors
+    private static ServerServiceDefinition getServiceDefinition(Service service) throws Descriptors
             .DescriptorValidationException, GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
@@ -94,7 +99,7 @@ public class GrpcServicesBuilder {
         }
     }
     
-    private boolean isStreamService(Annotation serviceAnnotation) {
+    private static boolean isStreamService(Annotation serviceAnnotation) {
         if (serviceAnnotation == null) {
             return false;
         }
@@ -102,7 +107,7 @@ public class GrpcServicesBuilder {
         return clientStreamValue != null && clientStreamValue.getBooleanValue();
     }
     
-    private ServerServiceDefinition getUnaryServiceDefinition(Service service, Descriptors.ServiceDescriptor
+    private static ServerServiceDefinition getUnaryServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
@@ -159,7 +164,7 @@ public class GrpcServicesBuilder {
         return serviceDefBuilder.build();
     }
     
-    private ServerServiceDefinition getStreamingServiceDefinition(Service service, Descriptors.ServiceDescriptor
+    private static ServerServiceDefinition getStreamingServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
@@ -219,8 +224,8 @@ public class GrpcServicesBuilder {
         return serviceDefBuilder.build();
     }
     
-    private Descriptors.MethodDescriptor getMethodDescriptor(Descriptors.ServiceDescriptor serviceDescriptor,
-                                                             String resourceName) {
+    private static Descriptors.MethodDescriptor getMethodDescriptor(Descriptors.ServiceDescriptor serviceDescriptor,
+                                                                    String resourceName) {
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
             if (methodDescriptor == null || methodDescriptor.getName() == null) {
                 continue;
@@ -238,7 +243,7 @@ public class GrpcServicesBuilder {
      *
      * @throws GrpcServerException exception when there is an error in starting the server.
      */
-    public Server start() throws GrpcServerException {
+    public static Server start(io.grpc.ServerBuilder serverBuilder) throws GrpcServerException {
         if (serverBuilder != null) { //if no grpc service is not defined
             Server server = serverBuilder.build();
             if (server != null) {
@@ -260,7 +265,7 @@ public class GrpcServicesBuilder {
     /**
      * Shutdown grpc server.
      */
-    private void stop(Server server) {
+    private static void stop(Server server) {
         if (server != null) {
             server.shutdown();
         }

@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -65,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -484,10 +484,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     }
 
-    public void visit(BLangConnectorInit cIExpr) {
-        Name connectorName = names.fromIdNode(cIExpr.connectorType.getTypeName());
+    public void visit(BLangTypeInit cIExpr) {
+        Name connectorName = names.fromIdNode(cIExpr.userDefinedType.getTypeName());
         BSymbol symbol = symResolver.resolveConnector(cIExpr.pos, DiagnosticCode.UNDEFINED_CONNECTOR,
-                this.env, names.fromIdNode(cIExpr.connectorType.pkgAlias), connectorName);
+                this.env, names.fromIdNode(cIExpr.userDefinedType.pkgAlias), connectorName);
         if (symbol == symTable.errSymbol || symbol == symTable.notFoundSymbol) {
             resultTypes = getListWithErrorTypes(expTypes.size());
             return;
@@ -1047,7 +1047,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
 
-    private void checkConnectorInitTypes(BLangConnectorInit iExpr, BType actualType, Name connName) {
+    private void checkConnectorInitTypes(BLangTypeInit iExpr, BType actualType, Name connName) {
         int expected = expTypes.size();
         if (expTypes.size() > 1) {
             dlog.error(iExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT, connName);

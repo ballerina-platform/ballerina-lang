@@ -29,6 +29,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
 /**
  * @since 0.94
  */
+@Deprecated
 public class BAnnotationAttributeSymbol extends BSymbol implements AnnotationAttributeSymbol {
 
     public BLangExpression expr;

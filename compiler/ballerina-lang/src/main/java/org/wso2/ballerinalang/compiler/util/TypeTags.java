@@ -35,7 +35,8 @@ public class TypeTags {
     public static final int ANY = MAP + 1;
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
-    public static final int ENUM = CONNECTOR + 1;
+    public static final int SERVICE = CONNECTOR + 1;
+    public static final int ENUM = SERVICE + 1;
     public static final int ARRAY = ENUM + 1;
     public static final int NULL = ARRAY + 1;
     public static final int PACKAGE = NULL + 1;

@@ -52,6 +52,21 @@ public native function <ClientConnection conn> error (ServerError serverError) (
 @Field {value:"port: The server port"}
 public struct ServerConnection {
     int id;
+    string epName;
+    ServiceEndpointConfiguration config;
+}
+
+public native function <ServerConnection h> init (string epName, ServiceEndpointConfiguration c);
+
+public native function <ServerConnection h> register (type serviceType)(ConnectorError);
+
+public native function <ServerConnection h> start () (ConnectorError);
+
+public native function <ServerConnection conn> stop ()(ConnectorError);
+
+function <ServerConnection h> getConnector () returns (ResponseConnector) {
+    Connection conn = {};
+    return new ResponseConnector(conn);
 }
 
 @Description { value:"Sends outbound response to the caller"}
@@ -108,3 +123,37 @@ public struct ClientError {
     error cause;
     int statusCode;
 }
+
+public connector ResponseConnector (ServerConnection conn) {
+    action respondComplete () (ServerError) {
+        return conn.complete ();
+    }
+    action respondSend (any res)  (ServerError) {
+        return conn.send ();
+    }
+    action respondIsCancelled () (ServerError) {
+        return conn.isCancelled ();
+    }
+    action respondError (ServerError serverError) {
+        conn.error(serverError);
+    }
+}
+
+
+public struct ServiceConfiguration {
+    ServiceEndpoint[] endpoints;
+    int port;
+    string rpcEndpoint;
+    boolean clientStreaming;
+    boolean serverStreaming;
+    boolean generateClientConnector;
+}
+
+public function <ServiceConfiguration sc> ServiceConfiguration () {
+
+}
+
+public annotation <service> serviceConfig ServiceConfiguration;
+
+public annotation <resource> resourceConfig resourceConfigData;
+

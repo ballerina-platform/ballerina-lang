@@ -1,5 +1,8 @@
 package ballerina.net.http;
 
+// TODO : Remove this annotation
+public annotation<service> configuration ServiceEndpointConfiguration;
+
 @Description {value:"Configuration for HTTP service"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
@@ -31,7 +34,7 @@ package ballerina.net.http;
 @Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-public annotation configuration attach service<> {
+public struct ServiceEndpointConfiguration{
     string host;
     int port;
     int httpsPort;
@@ -61,13 +64,13 @@ public annotation configuration attach service<> {
     int maxUriLength;
     int maxHeaderSize;
     int maxEntityBodySize;
-    webSocket webSocket;
+    webSocketConfig webSocket;
 }
 
 @Description {value: "Annotation to upgrade connection from HTTP to WS in the same base path."}
 @Field {value:"upgradePath: Upgrade path for the WebSocket service from HTTP to WS."}
 @Field {value:"serviceName: Name of the WebSocket service where the HTTP service should upgrade to."}
-public annotation webSocket attach service<> {
+public struct webSocketConfig{
     string upgradePath;
     string serviceName;
 }
@@ -84,7 +87,7 @@ public annotation webSocket attach service<> {
 @Field {value:"allowHeaders: The array of allowed headers by the resource"}
 @Field {value:"maxAge: The duration to cache the preflight from client side"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
-public annotation resourceConfig attach resource {
+public struct resourceConfigData {
     string[] methods;
     string path;
     string body;
