@@ -42,13 +42,13 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLEngine;
 
 /**
@@ -61,7 +61,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private int socketIdleTimeout;
     private boolean httpTraceLogEnabled;
+    private boolean httpAccessLogEnabled;
     private ChunkConfig chunkConfig;
+    private KeepAliveConfig keepAliveConfig;
     private String interfaceId;
     private String serverName;
     private SSLConfig sslConfig;
@@ -100,10 +102,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
 
             if (validateCertEnabled) {
-                ch.pipeline().addLast("certificateValidation",
+                ch.pipeline().addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                                       new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
             }
-            serverPipeline.addLast("encoder", new HttpResponseEncoder());
+            serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
             configureHTTPPipeline(serverPipeline);
 
             if (socketIdleTimeout > 0) {
@@ -132,7 +134,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             serverPipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                              new HTTPTraceLoggingHandler("tracelog.http.downstream"));
         }
-
+        if (httpAccessLogEnabled) {
+            serverPipeline.addLast(Constants.HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler("accesslog.http"));
+        }
         serverPipeline.addLast("uriLengthValidator", new UriAndHeaderLengthValidator(this.serverName));
         if (reqSizeValidationConfig.getMaxEntityBodySize() > -1) {
             serverPipeline.addLast("maxEntityBodyValidator", new MaxEntityBodyValidator(this.serverName,
@@ -141,11 +145,16 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
-        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER, new SourceHandler(this.serverConnectorFuture,
-                this.interfaceId, this.chunkConfig, this.serverName, this.allChannels));
+        serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
+                               new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
+                                                 keepAliveConfig, this.serverName, this.allChannels));
     }
 
-    /* Configure HTTP/2 ClearText pipeline */
+    /**
+     * Configures HTTP/2 clear text pipeline.
+     *
+     * @param pipeline the channel pipeline
+     */
     private void configureH2cPipeline(ChannelPipeline pipeline) {
         // Add http2 upgrade decoder and upgrade handler
         final HttpServerCodec sourceCodec = new HttpServerCodec();
@@ -158,12 +167,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 return null;
             }
         };
-        pipeline.addLast("encoder", sourceCodec);
-        pipeline.addLast("http2-upgrade",
+        pipeline.addLast(Constants.HTTP_ENCODER, sourceCodec);
+        pipeline.addLast(Constants.HTTP2_UPGRADE_HANDLER,
                          new HttpServerUpgradeHandler(sourceCodec, upgradeCodecFactory, Integer.MAX_VALUE));
-        // Max size of the upgrade request is limited to 2GB. Need to see whether there is better approach to handle
-        // large upgrade requests
-        //Requests will be propagated to next handlers if no upgrade has been attempted
+        /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
+           large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
         configureHTTPPipeline(pipeline);
     }
 
@@ -184,6 +192,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
+    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+        this.httpAccessLogEnabled = httpAccessLogEnabled;
+    }
+
     void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
     }
@@ -200,7 +212,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    void setValidateCertEnabled(boolean validateCertEnabled) {
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
 
@@ -216,9 +232,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.serverName = serverName;
     }
 
-
     /**
-     * Set whether HTTP/2.0 is enabled for the connection
+     * Sets whether HTTP/2.0 is enabled for the connection.
      *
      * @param http2Enabled whether HTTP/2.0 is enabled
      */
@@ -236,6 +251,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         /**
          *  Configure pipeline after SSL handshake
          */
+        @Override
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake

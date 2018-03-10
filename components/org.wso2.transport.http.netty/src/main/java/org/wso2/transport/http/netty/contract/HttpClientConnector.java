@@ -50,42 +50,47 @@ public interface HttpClientConnector {
     boolean close();
 
     /**
-     * Fetch response related to the {@code ResponseHandle} in asynchronous manner.
+     * Fetches the response related to the {@link ResponseHandle} in asynchronous manner.
      *
-     * @param responseHandle Response Handle
+     * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous response fetch action
      */
     HttpResponseFuture getResponse(ResponseHandle responseHandle);
 
     /**
-     * Get the next available push promise related to the {@code ResponseHandle} in asynchronous manner.
+     * Gets the next available {@link Http2PushPromise} related to the {@link ResponseHandle} in asynchronous manner.
      *
-     * @param responseHandle Response Handle
+     * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous push promise fetch action
      */
     HttpResponseFuture getNextPushPromise(ResponseHandle responseHandle);
 
     /**
-     * Check whether a push promise exists in asynchronous manner.
+     * Checks whether a {@link Http2PushPromise} exists in asynchronous manner.
      *
-     * @param responseHandle Response Handle
+     * @param responseHandle the Response Handle which represent the asynchronous service invocation
      * @return the status of the asynchronous push promise check action
      */
     HttpResponseFuture hasPushPromise(ResponseHandle responseHandle);
 
     /**
-     * Reject a push promise
+     * Rejects a server push response which is expected to receive over a promised stream.
+     * This method will do the best to prevent receiving a server push which is promised by a particular
+     * PUSH_PROMISE frame.
+     * This basically sends a RST_STREAM referring the promised stream to reject the server push message.
+     * However invoking this does not guarantee that the server will not start sending the push message.
+     * As per the spec, server is allowed to start sending the push response without waiting for an acknowledgement
+     * from the client.
      *
-     * @param responseHandle Response Handle
-     * @param pushPromise    push promise need to be rejected
+     * @param pushPromise    push promise related to the server push which is need to be rejected
      */
-    void rejectPromise(ResponseHandle responseHandle, Http2PushPromise pushPromise);
+    void rejectPushResponse(Http2PushPromise pushPromise);
 
     /**
-     * Get the push response in asynchronous manner.
+     * Gets the push response in asynchronous manner.
      *
-     * @param responseHandle Response Handle
+     * @param pushPromise    push promise related to the server push
      * @return returns the status of the asynchronous push response fetch action
      */
-    HttpResponseFuture getPushResponse(ResponseHandle responseHandle);
+    HttpResponseFuture getPushResponse(Http2PushPromise pushPromise);
 }

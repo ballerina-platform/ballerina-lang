@@ -29,33 +29,32 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * {@code OutboundMsgHolder} holds data related to a single outbound invocation
+ * {@code OutboundMsgHolder} holds data related to a single outbound invocation.
  */
 public class OutboundMsgHolder {
 
     // Outbound request HTTPCarbonMessage
     private HTTPCarbonMessage requestCarbonMessage;
-    // Future which is used to notify the response listener upon response receive
-    private HttpResponseFuture responseFuture;
-
-    private Http2ClientChannel http2ClientChannel;
-
     private BlockingQueue<Http2PushPromise> promises;
     private ConcurrentHashMap<Integer, HttpCarbonResponse> pushResponsesMap;
     private HttpCarbonResponse response;
+
+    // Future which is used to notify the response listener upon response receive
+    private HttpResponseFuture responseFuture;
+    private Http2ClientChannel http2ClientChannel;
 
     private boolean allPromisesReceived = false;
 
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
         this.http2ClientChannel = http2ClientChannel;
-        promises = new LinkedBlockingQueue();
+        promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
     }
 
     /**
-     * Get Outbound request HTTPCarbonMessage
+     * Gets the outbound request {@code HTTPCarbonMessage}.
      *
      * @return request HTTPCarbonMessage
      */
@@ -64,7 +63,7 @@ public class OutboundMsgHolder {
     }
 
     /**
-     * Get the Future which is used to notify the response listener upon response receive
+     * Gets the Future which is used to notify the response listener upon response receive.
      *
      * @return the Future used to notify the response listener
      */
@@ -72,33 +71,70 @@ public class OutboundMsgHolder {
         return responseFuture;
     }
 
+    /**
+     * Gets the associated {@link Http2ClientChannel}.
+     *
+     * @return the associated Http2ClientChannel
+     */
     public Http2ClientChannel getHttp2ClientChannel() {
         return http2ClientChannel;
     }
 
-    public void addPromise(Http2PushPromise pushPromise) {
+    /**
+     * Adds a {@link Http2PushPromise} message.
+     *
+     * @param pushPromise push promise message
+     */
+    void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         responseFuture.notifyPromiseAvailability();
         responseFuture.notifyPushPromise();
     }
 
-    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+    /**
+     * Adds a push response message.
+     *
+     * @param streamId  id of the stream in which the push response received
+     * @param pushResponse  push response message
+     */
+    void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
         responseFuture.notifyPushResponse(streamId, pushResponse);
     }
 
+    /**
+     * Checks whether all push promises received.
+     *
+     * @return  whether all push promises received
+     */
     public boolean isAllPromisesReceived() {
         return allPromisesReceived;
     }
 
+    /**
+     * Gets a push response received over a particular stream.
+     *
+     * @param steamId id of the stream in which the push response is received
+     * @return the push response
+     */
     public HttpCarbonResponse getPushResponse(int steamId) {
         return pushResponsesMap.get(steamId);
     }
 
+    /**
+     * Gets the response {@code HttpCarbonResponse} message.
+     *
+     * @return the response {@code HttpCarbonResponse} message.
+     */
     public HttpCarbonResponse getResponse() {
         return response;
     }
 
+    /**
+     * Sets the response {@code HttpCarbonResponse} message.
+     *
+     * @param response the {@code HttpCarbonResponse} message
+     */
     public void setResponse(HttpCarbonResponse response) {
         this.response = response;
         allPromisesReceived = true;
@@ -106,11 +142,22 @@ public class OutboundMsgHolder {
         responseFuture.notifyHttpListener(response);
     }
 
+    /**
+     * Checks whether a push promise exists.
+     *
+     * @return whether a push promise exists
+     */
     public boolean hasPromise() {
         return !promises.isEmpty();
     }
 
+    /**
+     * Gets the next available push promise.
+     *
+     * @return next available push promise
+     */
     public Http2PushPromise getNextPromise() {
         return promises.poll();
     }
 }
+

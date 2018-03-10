@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -39,8 +40,6 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -57,16 +56,20 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private HandlerExecutor handlerExecutor;
     private HTTPCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
+    private KeepAliveConfig keepAliveConfig;
     private boolean isHeaderWritten = false;
     private int contentLength = 0;
     private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
 
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
-            ChunkConfig chunkConfig, String serverName) {
+                                    ChunkConfig chunkConfig,
+                                    KeepAliveConfig keepAliveConfig,
+                                    String serverName) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
+        this.keepAliveConfig = keepAliveConfig;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.chunkConfig = chunkConfig;
         this.serverName = serverName;
@@ -133,7 +136,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 HttpResponseFuture outboundRespStatusFuture =
                         inboundRequestMsg.getHttpOutboundRespStatusFuture();
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
-                notifyIfFailure(outboundRespStatusFuture, outboundResponseChannelFuture);
+                Util.addResponseWriteFailureListener(outboundRespStatusFuture, outboundResponseChannelFuture);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -157,44 +160,15 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
         isHeaderWritten = true;
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
-        checkForWriteStatus(outboundRespStatusFuture, outboundChannelFuture);
+        Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
-    }
-
-    private void checkForWriteStatus(HttpResponseFuture outboundRespStatusFuture, ChannelFuture outboundChannelFuture) {
-        outboundChannelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-                }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            } else {
-                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-            }
-        });
     }
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
-        checkForWriteStatus(outboundRespStatusFuture, outboundChannelFuture);
+        Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
-    }
-
-    private void notifyIfFailure(HttpResponseFuture outboundRespStatusFuture,
-            ChannelFuture outboundResponseChannelFuture) {
-        outboundResponseChannelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-                }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            }
-        });
     }
 
     private void resetState(HTTPCarbonMessage outboundResponseMsg) {
@@ -205,14 +179,17 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     // Decides whether to close the connection after sending the response
     private boolean isKeepAlive() {
-        String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
-
-        if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
-            return requestConnectionHeader != null && requestConnectionHeader
-                    .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+            String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
+            if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
+                return requestConnectionHeader != null && requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+            } else {
+                return requestConnectionHeader == null || !requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
+            }
         } else {
-            return requestConnectionHeader == null || !requestConnectionHeader
-                    .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
+            return keepAliveConfig == KeepAliveConfig.ALWAYS;
         }
     }
 

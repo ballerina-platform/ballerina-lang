@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -151,6 +152,9 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
+    public void addHttpAccessLogHandler(Boolean isHttpAccessLogEnabled) {
+        httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
+    }
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
@@ -169,6 +173,10 @@ public class ServerConnectorBootstrap {
 
     public void addChunkingBehaviour(ChunkConfig chunkConfig) {
         httpServerChannelInitializer.setChunkingConfig(chunkConfig);
+    }
+
+    public void addKeepAliveBehaviour(KeepAliveConfig keepAliveConfig) {
+        httpServerChannelInitializer.setKeepAliveConfig(keepAliveConfig);
     }
 
     public void addServerHeader(String serverName) {

@@ -109,7 +109,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
         String httpVersion = senderConfiguration.getHttpVersion();
         if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
-            this.isHttp2 = true;
+            isHttp2 = true;
         }
         connection = new DefaultHttp2Connection(false);
         clientInboundHandler = new ClientInboundHandler();
@@ -221,9 +221,9 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     /**
-     * Get the associated {@code Http2Connection}
+     * Gets the associated {@link Http2Connection}.
      *
-     * @return the associated Http2Connection
+     * @return the associated {@code Http2Connection}
      */
     public Http2Connection getConnection() {
         return connection;

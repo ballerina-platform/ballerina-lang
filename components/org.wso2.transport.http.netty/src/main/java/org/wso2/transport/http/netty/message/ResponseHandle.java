@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.message;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 /**
- * {@code ResponseHandle} represents an handler which return as a reference to an asynchronous invocation
+ * {@code ResponseHandle} represents an handler which return as a reference to an asynchronous invocation.
  */
 public class ResponseHandle {
 
@@ -31,8 +31,12 @@ public class ResponseHandle {
         this.outboundMsgHolder = outboundMsgHolder;
     }
 
+    /**
+     * Gets the {@link OutboundMsgHolder} associated with the response handle.
+     *
+     * @return the {@code OutboundMsgHolder} associated with the response handle
+     */
     public OutboundMsgHolder getOutboundMsgHolder() {
         return outboundMsgHolder;
     }
-
 }

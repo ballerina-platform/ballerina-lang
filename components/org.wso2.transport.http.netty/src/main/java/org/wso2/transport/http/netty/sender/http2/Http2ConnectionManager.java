@@ -29,7 +29,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * {@code Http2ConnectionManager} Manages HTTP/2 connections
+ * {@code Http2ConnectionManager} Manages HTTP/2 connections.
  */
 public class Http2ConnectionManager {
 
@@ -44,13 +44,13 @@ public class Http2ConnectionManager {
     }
 
     /**
-     * Borrow a {@code TargetChannel} for a given http route
+     * Borrows an already active {@link Http2ClientChannel} for a given http route.
+     * This will not try to create new connections.
      *
      * @param httpRoute http route
-     * @return TargetChannel
+     * @return an active {@code Http2ClientChannel}
      */
     public Http2ClientChannel borrowChannel(HttpRoute httpRoute) {
-
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
         Http2ClientChannel http2ClientChannel = null;
@@ -73,8 +73,8 @@ public class Http2ConnectionManager {
     }
 
     /**
-     * Add a Http2 Client Channel to the connection pool.
-     * Upgraded connection from HTTP/1.1 to HTTP/2 should return here
+     * Adds a Http2 Client Channel to the connection pool.
+     * Upgraded connection from HTTP/1.1 to HTTP/2 should arrive here.
      *
      * @param httpRoute          host:port pair
      * @param http2ClientChannel Http2 Client Channel
@@ -99,7 +99,6 @@ public class Http2ConnectionManager {
                 lock.unlock();
             }
         }
-
         // Configure a listener to remove connection from pool when it is closed
         http2ClientChannel.getChannel().closeFuture().
                 addListener(future -> {
@@ -109,17 +108,15 @@ public class Http2ConnectionManager {
                                 }
                             }
                 );
-
     }
 
-
     /**
-     * Return the previously exhausted {@code TargetChannel} back to the pool
+     * Returns the previously exhausted {@code Http2ClientChannel} back to the pool.
      *
      * @param httpRoute          http route
-     * @param http2ClientChannel previously exhausted TargetChannel
+     * @param http2ClientChannel previously exhausted Http2ClientChannel
      */
-    public void returnTargetChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
+    void returnClientChannel(HttpRoute httpRoute, Http2ClientChannel http2ClientChannel) {
         String key = generateKey(httpRoute);
         PerRouteConnectionPool perRouteConnectionPool = fetchConnectionPool(key);
         if (perRouteConnectionPool != null) {
@@ -128,12 +125,11 @@ public class Http2ConnectionManager {
     }
 
     /**
-     * Entity which holds the pool of connections for a given http route
+     * Entity which holds the pool of connections for a given http route.
      */
     private static class PerRouteConnectionPool {
 
         private BlockingQueue<Http2ClientChannel> http2ClientChannels = new LinkedBlockingQueue<>();
-
         // Maximum number of allowed active streams
         private int maxActiveStreams;
 
@@ -146,12 +142,11 @@ public class Http2ConnectionManager {
         }
 
         /**
-         * Fetch active {@code TargetChannel} from the pool
+         * Fetches an active {@code TargetChannel} from the pool.
          *
          * @return active TargetChannel
          */
         Http2ClientChannel fetchTargetChannel() {
-
             if (http2ClientChannels.size() != 0) {
                 Http2ClientChannel http2ClientChannel = http2ClientChannels.peek();
                 Channel channel = http2ClientChannel.getChannel();
@@ -184,5 +179,4 @@ public class Http2ConnectionManager {
             http2ClientChannels.remove(http2ClientChannel);
         }
     }
-
 }

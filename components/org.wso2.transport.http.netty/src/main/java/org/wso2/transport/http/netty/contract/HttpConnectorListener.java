@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  */
 public interface HttpConnectorListener {
     /**
-     * Each http message event triggered by connector ends up here.
+     * Gets notified for events on a http message.
      *
      * @param httpMessage contains the state change information of the event.
      */
@@ -35,24 +35,23 @@ public interface HttpConnectorListener {
 
     /**
      * Each error event triggered by connector ends up here.
-     *
      * @param throwable contains the error details of the event.
      */
     void onError(Throwable throwable);
 
     /**
-     * Events on Push Promises ends up here
+     * Gets notified for an event on a {@link Http2PushPromise}.
      *
-     * @param pushPromise push promise
+     * @param pushPromise the push promise message
      */
     default void onPushPromise(Http2PushPromise pushPromise) {
     }
 
     /**
-     * Events on Push responses ends up here
+     * Gets notified for events on Push responses.
      *
-     * @param promiseId related push promise id
-     * @param  httpMessage push response
+     * @param promiseId the promise id of the push response
+     * @param  httpMessage the push response message
      */
     default void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
     }

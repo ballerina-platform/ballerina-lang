@@ -47,7 +47,7 @@ import org.wso2.transport.http.netty.message.Http2Reset;
 import java.util.Locale;
 
 /**
- * {@code ClientOutboundHandler} is responsible for writing HTTP/2 Frames to the backend service
+ * {@code ClientOutboundHandler} is responsible for writing HTTP/2 Frames to the backend service.
  */
 public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
 
@@ -76,7 +76,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     }
 
     /**
-     * Get the associated {@code Http2Connection}
+     * Gets the associated {@code Http2Connection}.
      *
      * @return the associated Http2Connection
      */
@@ -85,25 +85,34 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     }
 
     /**
-     * Set the {@code TargetChannel}
+     * Sets the {@link Http2ClientChannel}.
      *
-     * @param http2ClientChannel TargetChannel related to the handler
+     * @param http2ClientChannel the client channel related to the handler
      */
     public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
         this.http2ClientChannel = http2ClientChannel;
     }
 
     /**
-     * Get the next available stream id
+     * Gets the {@link Http2ClientChannel}.
+     *
+     * @return the Http2ClientChannel
+     */
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
+    }
+
+    /**
+     * Gets the next available stream id in the connection.
      *
      * @return next available stream id
      */
-    private synchronized int getStreamId() {
+    private synchronized int getNextStreamId() {
         return connection.local().incrementAndGetNextStreamId();
     }
 
     /**
-     * This is used to write Http2 content to the connection
+     * {@code Http2RequestWriter} is used to write Http2 content to the connection.
      */
     private class Http2RequestWriter {
 
@@ -117,10 +126,9 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        public void writeContent(ChannelHandlerContext ctx) {
-            int streamId = getStreamId();
+        void writeContent(ChannelHandlerContext ctx) {
+            int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
-
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
@@ -128,11 +136,12 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                                                     try {
                                                         writeOutboundRequest(
                                                                 ctx, httpContent, streamId);
-                                                    } catch (Exception exception) {
+                                                    } catch (Exception ex) {
                                                         String errorMsg = "Failed to send the request : " +
-                                                                          exception.getMessage().
+                                                                          ex.getMessage().
                                                                                   toLowerCase(Locale.ENGLISH);
-                                                        log.error(errorMsg, exception);
+                                                        log.error(errorMsg, ex);
+                                                        outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                                                     }
                                                 })));
         }
@@ -162,7 +171,6 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 Http2Headers http2Trailers = EmptyHttp2Headers.INSTANCE;
                 if (msg instanceof LastHttpContent) {
                     isLastContent = true;
-
                     // Convert any trailing headers.
                     final LastHttpContent lastContent = (LastHttpContent) msg;
                     trailers = lastContent.trailingHeaders();
@@ -176,7 +184,6 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 encoder.writeData(ctx, streamId, content, 0, endStream, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
                 ctx.flush();
-
                 if (!trailers.isEmpty()) {
                     // Write trailing headers.
                     writeHttp2Headers(ctx, streamId, trailers, http2Trailers, true);
@@ -210,14 +217,13 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     }
 
     /**
-     * Terminate a stream
+     * Terminates a stream.
      *
-     * @param streamId stream to be terminated
-     * @param http2Error  Error code
+     * @param streamId   stream to be terminated
+     * @param http2Error cause for the termination
      */
     private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
         encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
         ctx.flush();
     }
-
 }

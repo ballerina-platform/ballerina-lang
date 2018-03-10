@@ -27,114 +27,135 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public interface HttpResponseFuture {
     /**
-     * Set listener for the connector future.
-     * @param connectorListener that receive http message events related to the connector.
+     * Sets listener for the connector future.
+     *
+     * @param connectorListener the listener that receive http message events related to the connector
      */
     void setHttpConnectorListener(HttpConnectorListener connectorListener);
 
     /**
-     * Remove the message listener set to the future.
+     * Removes the message listener set to the future.
      */
     void removeHttpListener();
 
     /**
-     * Notify the http message listener when there is an event
-     * @param httpMessage contains the data related to the event.
+     * Notifies the http message listener when there is an event.
+     *
+     * @param httpMessage the entity which contains the data related to the event
      */
     void notifyHttpListener(HTTPCarbonMessage httpMessage);
 
     /**
-     * Notify the listener when there is an event
-     * @param throwable contains the data related to the error.
+     * Notifies the listener when there is an event.
+     *
+     * @param throwable the entity which contains the data related to the error
      */
     void notifyHttpListener(Throwable throwable);
 
     /**
-     * Rerun the status of the future.
-     * @return status
+     * Reruns the status of the future.
+     *
+     * @return the status of the {@code HttpResponseFuture}
      */
     OperationStatus getStatus();
 
     /**
-     * Let make the async operation sync.
+     * Makes the async operation sync.
+     *
      * @return Status future
      * @throws InterruptedException if the connection is interrupted
      */
     HttpResponseFuture sync() throws InterruptedException;
 
     /**
-     * Set response handle listener
+     * Sets response handle listener.
      *
-     * @param responseHandleListener listener that receives events related to the handle.
+     * @param responseHandleListener the listener that receives events related to the handle
      */
     void setResponseHandleListener(HttpClientConnectorListener responseHandleListener);
 
     /**
-     * Remove the handle listener set to the future.
+     * Removes the handle listener set to the future.
      */
     void removeResponseHandleListener();
 
     /**
-     * Notify the response handle listener when there is an event
+     * Notifies the response handle listener when there is an event.
      *
-     * @param responseHandle contains the data related to the event.
+     * @param responseHandle the entity which contains the data related to the event
      */
     void notifyResponseHandle(ResponseHandle responseHandle);
 
     /**
-     * Set listener for the promise availability future
+     * Notifies the response handle listener when there is an error.
      *
-     * @param promiseAvailabilityListener listener that receives events related to the promise availability.
+     * @param throwable the error related to the error
+     */
+    void notifyResponseHandle(Throwable throwable);
+
+    /**
+     * Sets the listener for the promise availability future.
+     *
+     * @param promiseAvailabilityListener the listener that receives events related to the promise availability.
      */
     void setPromiseAvailabilityListener(HttpClientConnectorListener promiseAvailabilityListener);
 
     /**
-     * Remove the promise availability listener
+     * Removes the promise availability listener.
      */
     void removePromiseAvailabilityListener();
 
     /**
-     * Notify the promise listener when there is an event
+     * Notifies the promise listener when there is an event.
      */
     void notifyPromiseAvailability();
 
     /**
-     * Set listener for the push promise future.
+     * Sets listener for the push promise future.
      *
-     * @param pushPromiseListener that receives events related to the connector.
+     * @param pushPromiseListener the listener that receives events related to the connector
      */
     void setPushPromiseListener(HttpConnectorListener pushPromiseListener);
 
     /**
-     * Remove the push promise listener set to the future.
+     * Removes the push promise listener set to the future.
      */
     void removePushPromiseListener();
 
     /**
-     * Notify the push promise listener when there is an event
+     * Notifies the push promise listener when there is an event.
      */
     void notifyPushPromise();
 
     /**
-     * Set the Push Response listener
+     * Sets the Push Response listener.
      *
-     * @param pushResponseListener push response listener
-     * @param promiseId            push promise stream id
+     * @param pushResponseListener the push response listener
+     * @param promiseId            the promised stream id which the push response is suppose to arrive
      */
     void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId);
 
     /**
-     * Remove the Push Response listener
-     * @param promisedId push promise stream id
+     * Removes the Push Response listener.
+     *
+     * @param promisedId the promised stream id which the push response is suppose to arrive
      */
     void removePushResponseListener(int promisedId);
 
     /**
-     * Notify push response listener when there is a push response
+     * Notifies push response listener when there is a push response.
      *
-     * @param promisedId   promised stream id
+     * @param streamId     stream id of the received push response
      * @param pushResponse push response message
      */
-    void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse);
+    void notifyPushResponse(int streamId, HTTPCarbonMessage pushResponse);
+
+    /**
+     * Notifies the Push Response Listener when there is an error.
+     *
+     * @param streamId  stream id of the received or to be received push response
+     * @param throwable data related to the error
+     */
+    void notifyPushResponse(int streamId, Throwable throwable);
 
 }

@@ -39,20 +39,23 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private HttpClientConnectorListener promiseAvailabilityListener;
     private HttpConnectorListener pushPromiseListener;
     private ConcurrentHashMap<Integer, HttpConnectorListener> pushResponseListeners;
+    private ConcurrentHashMap<Integer, Throwable> pushResponseListenerErrors;
 
     private HTTPCarbonMessage httpCarbonMessage;
     private ResponseHandle responseHandle;
     private OutboundMsgHolder outboundMsgHolder;
 
-    private Throwable throwable, returnError;
+    private Throwable throwable, responseHandleError, returnError;
     private Semaphore executionWaitSem;
 
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
         pushResponseListeners = new ConcurrentHashMap<>();
+        pushResponseListenerErrors = new ConcurrentHashMap<>();
     }
 
     public DefaultHttpResponseFuture() {
+        this(null);
     }
 
     @Override
@@ -123,9 +126,9 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
             notifyResponseHandle(responseHandle);
             responseHandle = null;
         }
-        if (this.throwable != null) {
-            notifyHttpListener(this.throwable);
-            this.throwable = null;
+        if (responseHandleError != null) {
+            notifyHttpListener(responseHandleError);
+            this.responseHandleError = null;
         }
     }
 
@@ -138,8 +141,21 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public void notifyResponseHandle(ResponseHandle responseHandle) {
         this.responseHandle = responseHandle;
         if (responseHandleListener != null) {
-            responseHandleListener.onResponseHandle(responseHandle);
+            HttpClientConnectorListener listener = responseHandleListener;
             removeResponseHandleListener();
+            this.responseHandle = null;
+            listener.onResponseHandle(responseHandle);
+        }
+    }
+
+    @Override
+    public void notifyResponseHandle(Throwable throwable) {
+        responseHandleError = throwable;
+        if (responseHandleListener != null) {
+            HttpConnectorListener listener = responseHandleListener;
+            removeResponseHandleListener();
+            responseHandleError = null;
+            listener.onError(throwable);
         }
     }
 
@@ -147,10 +163,6 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public void setPromiseAvailabilityListener(HttpClientConnectorListener promiseAvailabilityListener) {
         this.promiseAvailabilityListener = promiseAvailabilityListener;
         notifyPromiseAvailability();
-        if (this.throwable != null) {
-            notifyHttpListener(this.throwable);
-            this.throwable = null;
-        }
     }
 
     @Override
@@ -178,10 +190,6 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         if (outboundMsgHolder.hasPromise()) {
             notifyPushPromise();
         }
-        if (this.throwable != null) {
-            notifyHttpListener(this.throwable);
-            this.throwable = null;
-        }
     }
 
     @Override
@@ -200,14 +208,13 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId) {
-        this.pushResponseListeners.put(promiseId, pushResponseListener);
+        pushResponseListeners.put(promiseId, pushResponseListener);
         HTTPCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
         if (pushResponse != null) {
             notifyPushResponse(promiseId, pushResponse);
         }
-        if (this.throwable != null) {
-            notifyHttpListener(this.throwable);
-            this.throwable = null;
+        if (pushResponseListenerErrors.get(promiseId) != null) {
+            notifyPushResponse(promiseId, pushResponseListenerErrors.get(promiseId));
         }
     }
 
@@ -217,11 +224,22 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void notifyPushResponse(int promisedId, HTTPCarbonMessage pushResponse) {
-        if (pushResponseListeners.get(promisedId) != null) {
-            pushResponseListeners.get(promisedId).onPushResponse(promisedId, pushResponse);
-            pushResponseListeners.remove(promisedId);
+    public void notifyPushResponse(int streamId, HTTPCarbonMessage pushResponse) {
+        HttpConnectorListener listener = pushResponseListeners.get(streamId);
+        if (listener != null) {
+            pushResponseListeners.remove(streamId);
+            listener.onPushResponse(streamId, pushResponse);
         }
     }
 
+    @Override
+    public void notifyPushResponse(int streamId, Throwable throwable) {
+        pushResponseListenerErrors.put(streamId, throwable);
+        HttpConnectorListener listener = pushResponseListeners.get(streamId);
+        if (listener != null) {
+            pushResponseListeners.remove(streamId);
+            pushResponseListenerErrors.remove(streamId);
+            listener.onError(throwable);
+        }
+    }
 }

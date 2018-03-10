@@ -37,9 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -177,35 +180,40 @@ public class Util {
         setTransferEncodingHeader(httpOutboundRequest);
     }
 
-    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId) {
+    /**
+     * Creates a {@link HttpRequest} using a {@link Http2Headers} received over a particular HTTP/2 stream.
+     *
+     * @param http2Headers the Http2Headers received over a HTTP/2 stream
+     * @param streamId     the stream id
+     * @return the HttpRequest formed using the HttpHeaders
+     * @throws Http2Exception if an error occurs while converting headers from HTTP/2 to HTTP
+     */
+    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId)
+            throws Http2Exception {
         String method = Constants.HTTP_GET_METHOD;
         if (http2Headers.method() != null) {
             method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
         }
-        String path = "";
+        String path = Constants.DEFAULT_BASE_PATH;
         if (http2Headers.path() != null) {
             path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
         }
         // Remove PseudoHeaderNames from headers
         http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
         http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
-
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
 
         // Construct new HTTP Carbon Request
         HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
-
-        try {
-            HttpConversionUtil.addHttp2ToHttpHeaders(
-                    streamId, http2Headers, httpRequest.headers(), version, false, true);
-        } catch (Http2Exception e) {
-            log.error("Error while setting http headers", e);
-        }
+        // Convert Http2Headers to HttpHeaders
+        HttpConversionUtil.addHttp2ToHttpHeaders(
+                streamId, http2Headers, httpRequest.headers(), version, false, true);
         return httpRequest;
     }
 
     public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
             httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
         }
@@ -553,5 +561,48 @@ public class Util {
         outboundRespFuture.addListener(
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
         ctx.channel().close();
+    }
+
+    /**
+     * Checks for status of the response write operation.
+     *
+     * @param inboundRequestMsg        request message received from the client
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+                                           HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+            }
+        });
+    }
+
+    /**
+     * Adds a listener to notify the outbound response future if an error occurs while writing the response message.
+     *
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
+                                                       ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
     }
 }

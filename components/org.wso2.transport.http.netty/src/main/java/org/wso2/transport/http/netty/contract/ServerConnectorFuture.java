@@ -48,19 +48,19 @@ public interface ServerConnectorFuture {
     void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
 
     /**
-     * Notify HTTP Server Push messages to the listener.
+     * Notifies HTTP Server Push messages to the listener.
      *
-     * @param httpMessage HTTP message
-     * @param pushPromise related push promise
-     * @throws ServerConnectorException if any error occurred during the notification.
+     * @param httpMessage the {@link HTTPCarbonMessage} receive as the push response
+     * @param pushPromise the related {@link Http2PushPromise}
+     * @throws ServerConnectorException if any error occurred during the notification
      */
     void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException;
 
     /**
-     * Notify HTTP Push promise to the listener
+     * Notifies {@link Http2PushPromise} to the listener.
      *
-     * @param pushPromise push promise
+     * @param pushPromise the push promise message
      */
     void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException;
 

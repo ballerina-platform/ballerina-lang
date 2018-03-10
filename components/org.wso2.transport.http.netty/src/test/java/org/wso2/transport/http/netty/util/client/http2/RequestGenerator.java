@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.EmptyLastHttpContent;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -33,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
- * A utility class which generates HTTP/2.0 requests
+ * A utility class which generates HTTP/2.0 requests.
  */
 public class RequestGenerator {
 
@@ -49,26 +48,8 @@ public class RequestGenerator {
             ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
             httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
         } else {
-            httpCarbonMessage.addHttpContent(new EmptyLastHttpContent());
+            httpCarbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         return httpCarbonMessage;
     }
-
-    public static HTTPCarbonMessage generateHttpsRequest(HttpMethod httpMethod, String payload) {
-        HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(
-                new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true), httpMethod,
-                        "https://" + TestUtil.TEST_HOST + ":" + 8443));
-        httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
-        httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
-        httpCarbonMessage.setProperty(Constants.HTTP_PORT, 8443);
-        httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + 8443);
-        if (payload != null) {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
-            httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
-        } else {
-            httpCarbonMessage.addHttpContent(new EmptyLastHttpContent());
-        }
-        return httpCarbonMessage;
-    }
-
 }

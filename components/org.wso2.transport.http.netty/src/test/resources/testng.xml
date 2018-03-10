@@ -61,6 +61,7 @@
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
+            <class name="org.wso2.transport.http.netty.unitfunction.ForwardedTestCase" />
 
             <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase" />
             <class name="org.wso2.transport.http.netty.http2.Http2ServerConnectorBasicTestCase" />
@@ -86,6 +87,10 @@
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolWaitingTimeoutTestCase" />
+
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedEnableTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
         </classes>
     </test>
 </suite>

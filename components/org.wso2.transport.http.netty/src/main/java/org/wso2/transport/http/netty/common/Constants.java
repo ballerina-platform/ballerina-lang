@@ -94,6 +94,7 @@ public final class Constants {
 
     public static final int DEFAULT_HTTP_PORT = 80;
     public static final int DEFAULT_HTTPS_PORT = 443;
+    public static final String DEFAULT_BASE_PATH = "/";
 
     public static final String TO = "TO";
     public static final String PROTOCOL = "PROTOCOL";
@@ -108,9 +109,15 @@ public final class Constants {
     public static final String ENCODING_DEFLATE = "deflate";
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
-    // TODO: Move string constants for HTTP header values to their own class
+    // TODO: Move string constants for HTTP headers and header values to their own class
+    public static final String HTTP_X_FORWARDED_FOR = "x-forwarded-for";
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
+    public static final String FORWARDED = "forwarded";
+    public static final String X_FORWARDED_FOR = "x-forwarded-for";
+    public static final String X_FORWARDED_BY = "x-forwarded-by";
+    public static final String X_FORWARDED_HOST = "x-forwarded-host";
+    public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
@@ -120,13 +127,7 @@ public final class Constants {
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
-    public static final String HOST = "host";
-    public static final String ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-    public static final String HTTP_CONTENT_TYPE = "Content-Type";
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-
-    public static final String HTTP_PORT = "PORT";
+    public static final String HTTP_PORT = "port";
     public static final String SCHEME = "scheme";
     public static final String KEEP_ALIVE = "keepAlive";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
@@ -159,6 +160,7 @@ public final class Constants {
     public static final String REMOTE_HOST = "REMOTE_HOST";
     public static final String REMOTE_PORT = "REMOTE_PORT";
     public static final String REQUEST_URL = "REQUEST_URL";
+    public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
 
@@ -199,14 +201,17 @@ public final class Constants {
     public static final String HTTP2_SCHEME = ":scheme";
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
+    public static final String HTTP_ENCODER = "encoder";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
-    public static final String HTTP2_SOURCE_HANDLER = "HTTP2SourceHandler";
-    public static final String HTTP2_ALPN_HANDLER = "HTTP2ALPNHandler";
+    public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
+    public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
+    public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String TARGET_HANDLER = "targetHandler";
-    public static final String HTTP2_UPGRADE_HANDLER = "http2UpgradeHandler";
+    public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
+    public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf
