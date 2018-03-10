@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
- * {@code ExecuteAsync} action can be used to invoke a http call with any httpVerb in asynchronous manner.
+ * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "executeAsync",
+        actionName = "submit",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -53,9 +53,9 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
                         structPackage = "ballerina.net.http")
         }
 )
-public class ExecuteAsync extends Execute {
+public class Submit extends Execute {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExecuteAsync.class);
+    private static final Logger logger = LoggerFactory.getLogger(Submit.class);
 
     @Override
     public ConnectorFuture execute(Context context) {

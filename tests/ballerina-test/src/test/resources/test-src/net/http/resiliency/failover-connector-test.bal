@@ -115,7 +115,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
         return null, null;
     }
 
-    action executeAsync (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
+    action submit (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
         return null, null;
     }
 
@@ -131,7 +131,7 @@ connector MockHttpFailOverClient (string serviceUri, http:Options connectorOptio
         return null, null;
     }
 
-    action getPushResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
+    action getPromisedResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
         return null, null;
     }
 

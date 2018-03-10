@@ -19,6 +19,8 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -27,26 +29,31 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.runtime.message.MessageDataSource;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code PushPromise} is the native function to respond back to the client with a PUSH_PROMISE frame.
+ * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "pushPromise",
+        functionName = "pushPromisedResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
+                structPackage = "ballerina.net.http"),
+                @Argument(name = "res", type = TypeKind.STRUCT, structType = "OutResponse",
+                structPackage = "ballerina.net.http")
+
         },
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                                  structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class PushPromise extends ConnectionAction {
+public class PushPromisedResponse extends ConnectionAction {
 
     @Override
     public BValue[] execute(Context context) {
@@ -55,9 +62,31 @@ public class PushPromise extends ConnectionAction {
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         BStruct pushPromiseStruct = (BStruct) getRefArgument(context, 1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                                                                    HttpUtil.createHttpPushPromise(pushPromiseStruct));
-        HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
+        if (http2PushPromise == null) {
+            throw new BallerinaException("invalid push promise");
+        }
+
+        BStruct outboundResponseStruct = (BStruct) getRefArgument(context, 2);
+        HTTPCarbonMessage outboundResponseMsg = HttpUtil
+                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
+
+        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
+        return pushResponseRobust(context, inboundRequestMsg,
+                                  outboundResponseStruct, outboundResponseMsg,
+                                  http2PushPromise);
+    }
+
+    private BValue[] pushResponseRobust(Context context, HTTPCarbonMessage requestMessage,
+                                        BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage,
+                                        Http2PushPromise http2PushPromise) {
+        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        HttpResponseFuture outboundRespStatusFuture =
+                HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
+        if (entityStruct != null) {
+            MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            serializeMsgDataSource(responseMessage, outboundMessageSource, outboundRespStatusFuture, entityStruct);
+        }
         return handleResponseStatus(context, outboundRespStatusFuture);
     }
 }

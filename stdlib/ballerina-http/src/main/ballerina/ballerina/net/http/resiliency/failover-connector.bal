@@ -143,13 +143,13 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
         return performFailoverAction(path, request, null, HttpOperation.GET, failoverInferredConfig);
     }
 
-    @Description { value:"The executeAsync implementation of the Failover Connector."}
+    @Description { value:"The submit implementation of the Failover Connector."}
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
     @Return { value:"The Handle for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action executeAsync (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
+    action submit (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Failover Connector";
         return null, httpConnectorError;
@@ -182,11 +182,11 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
         return null, httpConnectorError;
     }
 
-    @Description { value:"The getPushResponse implementation of the Failover Connector."}
+    @Description { value:"The getPromisedResponse implementation of the Failover Connector."}
     @Param { value:"promise: The related Push Promise message" }
     @Return { value:"HTTP The Push Response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action getPushResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
+    action getPromisedResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Failover Connector";
         return null, httpConnectorError;

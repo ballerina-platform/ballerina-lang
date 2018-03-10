@@ -45,14 +45,14 @@ public native function <Connection conn> forward (InResponse res) (HttpConnector
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> pushPromise (PushPromise promise) (HttpConnectorError);
+public native function <Connection conn> promise (PushPromise promise) (HttpConnectorError);
 
-@Description { value:"Sends a push response to the caller"}
+@Description { value:"Sends a promised push response to the caller"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> pushResponse (PushPromise promise, OutResponse res) (HttpConnectorError);
+public native function <Connection conn> pushPromisedResponse (PushPromise promise, OutResponse res) (HttpConnectorError);
 
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
@@ -506,7 +506,7 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Param { value:"req: An HTTP outbound request message" }
 	@Return { value:"The Handle for further interactions" }
 	@Return { value:"The Error occured during HTTP client invocation" }
-	native action executeAsync (string httpVerb, string path, OutRequest req) (HttpHandle, HttpConnectorError);
+	native action submit (string httpVerb, string path, OutRequest req) (HttpHandle, HttpConnectorError);
 
 	@Description { value:"Retrieves response for async service invocation."}
 	@Param { value:"handle: The Handle which relates to previous async invocation" }
@@ -525,11 +525,11 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
 	@Return { value:"The Error occured during HTTP client invocation" }
 	native action getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError);
 
-	@Description { value:"Retrieves server push response."}
+	@Description { value:"Retrieves the promised server push response."}
 	@Param { value:"promise: The related Push Promise message" }
 	@Return { value:"HTTP The Push Response message" }
 	@Return { value:"The Error occured during HTTP client invocation" }
-	native action getPushResponse (PushPromise promise) (InResponse, HttpConnectorError);
+	native action getPromisedResponse (PushPromise promise) (InResponse, HttpConnectorError);
 
 	@Description { value:"Rejects a push promise."}
 	@Param { value:"promise: The Push Promise need to be rejected" }

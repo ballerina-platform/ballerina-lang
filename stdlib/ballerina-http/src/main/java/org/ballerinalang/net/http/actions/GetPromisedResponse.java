@@ -36,12 +36,12 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code GetPushResponse} action can be used to get a push response message associated with a
+ * {@code GetPromisedResponse} action can be used to get a push response message associated with a
  * previous asynchronous invocation.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "getPushResponse",
+        actionName = "getPromisedResponse",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
@@ -59,9 +59,9 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
                         structPackage = "ballerina.net.http")
         }
 )
-public class GetPushResponse extends AbstractHTTPAction {
+public class GetPromisedResponse extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(GetPushResponse.class);
+    private static final Logger logger = LoggerFactory.getLogger(GetPromisedResponse.class);
 
     @Override
     public ConnectorFuture execute(Context context) {
