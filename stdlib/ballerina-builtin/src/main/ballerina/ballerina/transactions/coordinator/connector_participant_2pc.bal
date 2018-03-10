@@ -30,20 +30,24 @@ connector Participant2pcClient (string participantURL) {
         req.setJsonPayload(j);
         var res, communicationErr = participantEP.post("/prepare", req);
         if (communicationErr == null) {
-            var payload, _ = res.getJsonPayload();
-            var prepareRes, transformErr = <PrepareResponse>payload;
-            if (transformErr == null) {
-                int statusCode = res.statusCode;
-                string msg = prepareRes.message;
-                if (statusCode == 200) {
-                    status = msg;
-                } else if (statusCode == 404 && msg == "Transaction-Unknown") {
-                    err = {message:msg};
+            var payload, payloadError = res.getJsonPayload();
+            if (payloadError == null) {
+                var prepareRes, transformErr = <PrepareResponse>payload;
+                if (transformErr == null) {
+                    int statusCode = res.statusCode;
+                    string msg = prepareRes.message;
+                    if (statusCode == 200) {
+                        status = msg;
+                    } else if (statusCode == 404 && msg == "Transaction-Unknown") {
+                        err = {message:msg};
+                    } else {
+                        err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " + participantURL};
+                    }
                 } else {
-                    err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " + participantURL};
+                    err = (error)transformErr;
                 }
             } else {
-                err = (error)transformErr;
+                err = (error)payloadError;
             }
         } else {
             err = (error)communicationErr;
@@ -60,26 +64,30 @@ connector Participant2pcClient (string participantURL) {
         req.setJsonPayload(j);
         var res, commErr = participantEP.post("/notify", req);
         if (commErr == null) {
-            var payload, _ = res.getJsonPayload();
-            var notifyRes, transformErr = <NotifyResponse>payload;
-            if (transformErr == null) {
-                int statusCode = res.statusCode;
-                string msg = notifyRes.message;
-                if (statusCode == 200) {
-                    if (transformErr == null) {
-                        status = msg;
+            var payload, payloadError = res.getJsonPayload();
+            if (payloadError == null) {
+                var notifyRes, transformErr = <NotifyResponse>payload;
+                if (transformErr == null) {
+                    int statusCode = res.statusCode;
+                    string msg = notifyRes.message;
+                    if (statusCode == 200) {
+                        if (transformErr == null) {
+                            status = msg;
+                        } else {
+                            participantErr = (error)transformErr;
+                        }
+                    } else if ((statusCode == 400 && msg == "Not-Prepared") ||
+                               (statusCode == 404 && msg == "Transaction-Unknown") ||
+                               (statusCode == 500 && msg == "Failed-EOT")) {
+                        participantErr = {message:msg};
                     } else {
-                        participantErr = (error)transformErr;
+                        participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " + participantURL};
                     }
-                } else if ((statusCode == 400 && msg == "Not-Prepared") ||
-                           (statusCode == 404 && msg == "Transaction-Unknown") ||
-                           (statusCode == 500 && msg == "Failed-EOT")) {
-                    participantErr = {message:msg};
                 } else {
-                    participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " + participantURL};
+                    communicationErr = (error)transformErr;
                 }
             } else {
-                communicationErr = (error)transformErr;
+                communicationErr = (error)payloadError;
             }
         } else {
             communicationErr = (error)commErr;

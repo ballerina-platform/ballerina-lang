@@ -2761,7 +2761,7 @@ public class BLangVM {
     }
 
     private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, int transactionBlockId,
-                                            String protocol, boolean isInitiator) {
+            String protocol, boolean isInitiator) {
         BValue[] args = {
                 new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
                 new BString(protocol)

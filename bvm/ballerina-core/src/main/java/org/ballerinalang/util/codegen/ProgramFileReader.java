@@ -1538,6 +1538,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:

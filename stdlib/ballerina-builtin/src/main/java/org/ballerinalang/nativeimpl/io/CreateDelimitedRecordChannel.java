@@ -96,18 +96,14 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context context) {
-        BStruct textRecordChannelInfo;
-        BStruct textRecordChannel;
         BValue[] bValues;
-        String recordSeparator;
-        String fieldSeparator;
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
-            recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
-            fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
+            BStruct textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
+            String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
 
-            textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
+            BStruct textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants

@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Native function ballerina.io#hasNextTextRecord.
  *
@@ -54,16 +56,27 @@ public class HasNextTextRecord extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context context) {
-        BBoolean hasNext;
-        BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
-        if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
-            DelimitedRecordChannel textRecordChannel =
-                    (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            hasNext = new BBoolean(textRecordChannel.hasNext());
-        } else {
-            String message = "Error occurred while checking the next record availability: Null channel returned.";
+        try {
+            BBoolean hasNext;
+            BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
+            if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
+                DelimitedRecordChannel textRecordChannel =
+                        (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+                EventContext eventContext = new EventContext(context);
+                HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
+                        eventContext);
+                CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
+                EventResult eventResult = event.get();
+                boolean value = (boolean) eventResult.getResponse();
+                hasNext = new BBoolean(value);
+            } else {
+                String message = "Error occurred while checking the next record availability: Null channel returned.";
+                throw new BallerinaException(message, context);
+            }
+            context.setReturnValues(hasNext);
+        } catch (Throwable e) {
+            String message = "Error occurred while querying for hasNext:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        context.setReturnValues(hasNext);
     }
 }

@@ -24,7 +24,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -104,7 +104,7 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
             encoding = context.getStringArgument(ENCODING_INDEX);
             characterChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
             //Will get the relevant byte channel and will create a character channel
-            AbstractChannel byteChannel = (AbstractChannel) characterChannelInfo.getNativeData(IOConstants
+            Channel byteChannel = (Channel) characterChannelInfo.getNativeData(IOConstants
                     .BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);

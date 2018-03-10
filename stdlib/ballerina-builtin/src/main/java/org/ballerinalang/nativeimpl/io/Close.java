@@ -21,10 +21,16 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#close.
@@ -35,6 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         packageName = "ballerina.io",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -44,23 +51,33 @@ public class Close extends BlockingNativeCallableUnit {
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 
+    private static final Logger log = LoggerFactory.getLogger(Close.class);
+
     /**
      * Closes the byte channel.
-     *
+     * <p>
      * <p>
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context) {
-        BStruct channel;
+        BStruct errorStruct = null;
         try {
-            channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
-            AbstractChannel byteChannel = (AbstractChannel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byteChannel.close();
+            BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(context);
+            CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
+            CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+            EventResult eventResult = future.get();
+            Throwable error = ((EventContext) eventResult.getContext()).getError();
+            if (null != error) {
+                errorStruct = IOUtils.createError(context, error.getMessage());
+            }
         } catch (Throwable e) {
             String message = "Failed to close the channel:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            errorStruct = IOUtils.createError(context, message);
         }
-        context.setReturnValues();
+        context.setReturnValues(errorStruct);
     }
 }

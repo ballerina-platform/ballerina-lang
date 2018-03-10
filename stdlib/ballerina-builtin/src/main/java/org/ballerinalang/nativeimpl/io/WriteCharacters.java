@@ -23,11 +23,21 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#writeCharacters.
@@ -40,7 +50,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.STRING),
                 @Argument(name = "startOffset", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class WriteCharacters extends BlockingNativeCallableUnit {
@@ -60,29 +71,73 @@ public class WriteCharacters extends BlockingNativeCallableUnit {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes characters to a given file.
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    private static final Logger log = LoggerFactory.getLogger(WriteCharacters.class);
+
+/*
+    private static EventResult readCharactersResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        Integer numberOfBytes = result.getResponse();
+        return result;
+    }
+*/
+
+    /**
+     * Writes characters asynchronously.
      *
+     * @param characterChannel channel the characters should be written.
+     * @param text             the content which should be written.
+     * @param offset           the index the characters should be written.
+     * @param context          context of the event.
+     * @return the number of characters which was written.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt exception.
+     */
+    private int writeCharacters(CharacterChannel characterChannel, String text, int offset, EventContext context)
+            throws ExecutionException, InterruptedException {
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset, context);
+        CompletableFuture<EventResult> future = eventManager.publish(event);
+        EventResult eventResult = future.get();
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
+        return (int) eventResult.getResponse();
+    }
+
+    /**
+     * Writes characters to a given file.
+     * <p>
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context) {
-        BStruct channel;
-        String content;
-        long startOffset;
-        int numberOfCharactersWritten;
+        int numberOfCharactersWritten = 0;
+        BStruct errorStruct = null;
         try {
-            channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
-            content = context.getStringArgument(CONTENT_INDEX);
-            startOffset = context.getIntArgument(START_OFFSET_INDEX);
-
+            BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            String content = context.getStringArgument(CONTENT_INDEX);
+            long startOffset = context.getIntArgument(START_OFFSET_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
-
-            numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
+            EventContext eventContext = new EventContext(context);
+            //TODO when async functions are available this should be modified
+//            IOUtils.write(characterChannel,content,startOffset,WriteCharacters::readCharactersResponse);
+            numberOfCharactersWritten = writeCharacters(characterChannel, content, (int) startOffset, eventContext);
         } catch (Throwable e) {
             String message = "Error occurred while writing characters:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            errorStruct = IOUtils.createError(context, message);
         }
-        context.setReturnValues(new BInteger(numberOfCharactersWritten));
+        context.setReturnValues(new BInteger(numberOfCharactersWritten), errorStruct);
     }
 }

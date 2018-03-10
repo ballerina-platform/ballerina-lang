@@ -35,14 +35,17 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
         functionName = "commitResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
+        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
+                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class CommitResourceManagers extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         String transactionId = ctx.getStringArgument(0);
-        boolean commitSuccessful = TransactionResourceManager.getInstance().notifyCommit(transactionId);
+        int transactionBlockId = (int) ctx.getIntArgument(0);
+        boolean commitSuccessful =
+                TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
         ctx.setReturnValues(new BBoolean(commitSuccessful));
     }
 }
