@@ -22,11 +22,13 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
@@ -49,9 +51,12 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
+        BStruct clientEndPoint  = (BStruct)getRefArgument(context, 0);
+        BStruct clientEndpointConfig = (BStruct)clientEndPoint.getRefField(0);
         BConnector clientConnector = BLangConnectorSPIUtil.createBConnector(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                CLIENT_CONNECTOR, null);
+                CLIENT_CONNECTOR, clientEndpointConfig.getStringField(0));
+        clientConnector.setNativeData(HttpConstants.CLIENT_CONNECTOR, clientEndPoint.getNativeData
+                (HttpConstants.CLIENT_CONNECTOR));
         return new BValue[]{clientConnector};
     }
 }

@@ -72,7 +72,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
     public BValue[] execute(Context context) {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        String url = clientEndpoint.getStringField(SERVICE_URI);
+        String url = clientEndpointConfig.getStringField(SERVICE_URI);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
 
         String scheme;

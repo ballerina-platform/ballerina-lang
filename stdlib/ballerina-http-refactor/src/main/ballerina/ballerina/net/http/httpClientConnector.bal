@@ -3,8 +3,7 @@ package ballerina.net.http;
 @Description { value:"HTTP client connector for outbound HTTP requests"}
 @Param { value:"serviceUri: URI of the service" }
 @Param { value:"connectorOptions: connector options" }
-//public connector ClientConnector (string serviceUri, Options connectorOptions) {
-public connector ClientConnector () {
+public connector ClientConnector (string serviceUri, Options connectorOptions) {
 
     @Description {value:"The POST action implementation of the HTTP Connector."}
     @Param {value:"path: Resource path "}
