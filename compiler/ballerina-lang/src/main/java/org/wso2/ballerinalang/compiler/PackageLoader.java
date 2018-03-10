@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.repository.PackageEntity;
+import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.wso2.ballerinalang.compiler.packaging.PathListPackageSource;
@@ -168,6 +169,10 @@ public class PackageLoader {
         // Add runtime.
         addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
         return bLangPackage;
+    }
+
+    private PackageEntity loadPackageEntity(PackageID pkgId, String value) {
+        return loadPackageEntity(pkgId);
     }
 
     private PackageEntity loadPackageEntity(PackageID pkgId) {

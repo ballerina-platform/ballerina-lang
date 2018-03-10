@@ -160,8 +160,8 @@ public class RepoHierarchyTest {
         RepoHierarchyBuilder.RepoNode homeCacheNode = node(homeCacheRepo);
         return RepoHierarchyBuilder.build(node(projectSource,
                                                node(projectRepo, null /* null nodes should be ignored */,
-                                             node(projectCacheRepo, homeCacheNode),
-                                             node(homeRepo, homeCacheNode))));
+                                                    node(projectCacheRepo, homeCacheNode),
+                                                    node(homeRepo, homeCacheNode))));
     }
 
     private PackageID newPackageID(String org, String pkg, String version) {
