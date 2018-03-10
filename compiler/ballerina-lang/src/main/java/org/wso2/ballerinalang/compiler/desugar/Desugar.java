@@ -983,8 +983,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
-        if (iExpr.expr.symbol.tag == SymTag.ENDPOINT) {
-            // Convert to endpoint.getConnector()
+        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+            // Convert to endpoint.getConnector(). iExpr has to be a VarRef.
             final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
             final BStructSymbol.BAttachedFunction getConnectorFunction = ((BStructSymbol) epSymbol.type.tsymbol)
                     .attachedFuncs.stream()

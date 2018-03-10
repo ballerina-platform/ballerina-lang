@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -85,6 +86,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -432,7 +434,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Find the variable reference expression type
-        checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
+        final List<BType> exprTypes = checkExpr(iExpr.expr, this.env, Lists.of(symTable.noType));
         if (isIterableOperationInvocation(iExpr)) {
             iExpr.iterableOperationInvocation = true;
             iterableAnalyzer.handlerIterableOperation(iExpr, expTypes, env);
@@ -440,7 +442,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         if (iExpr.actionInvocation) {
-            checkActionInvocationExpr(iExpr);
+            if (exprTypes.size() != 1) {
+                dlog.error(iExpr.expr.pos, DiagnosticCode.SINGLE_VALUE_RETURN_EXPECTED);
+            }
+            checkActionInvocationExpr(iExpr, exprTypes.size() > 0 ? exprTypes.get(0) : symTable.errType);
             return;
         }
         switch (iExpr.expr.type.tag) {
@@ -1004,18 +1009,35 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationReturnTypes(iExpr, actualTypes);
     }
 
-    private void checkActionInvocationExpr(BLangInvocation iExpr) {
+    private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        BSymbol conSymbol = iExpr.expr.symbol;
-        if (conSymbol == symTable.notFoundSymbol
-                || conSymbol == symTable.errSymbol
-                || (conSymbol.tag != SymTag.ENDPOINT && conSymbol.type.tag != TypeTags.CONNECTOR)) {
+        if (conType == symTable.errType
+                || (conType.tag == TypeTags.STRUCT & (conType.tsymbol.flags & Flags.ENDPOINT) != Flags.ENDPOINT)
+                || conType.tag != TypeTags.CONNECTOR) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultTypes = actualTypes;
             return;
         }
-        if (conSymbol.tag == SymTag.ENDPOINT) {
-            conSymbol = ((BEndpointVarSymbol) conSymbol).attachedConnector;
+
+
+        BSymbol conSymbol;
+        if (iExpr.expr.getKind() == NodeKind.INVOCATION) {
+            final BInvokableSymbol invokableSymbol = (BInvokableSymbol) ((BLangInvocation) iExpr.expr).symbol;
+            conSymbol = ((BInvokableType) invokableSymbol.type).retTypes.get(0).tsymbol;
+        } else {
+            conSymbol = iExpr.expr.symbol;
+            if (conSymbol.tag == SymTag.ENDPOINT) {
+                conSymbol = ((BEndpointVarSymbol) conSymbol).attachedConnector;
+            } else if (conSymbol.tag == SymTag.VARIABLE) {
+                conSymbol = conSymbol.type.tsymbol;
+            }
+        }
+        if (conSymbol == symTable.notFoundSymbol
+                || conSymbol == symTable.errSymbol
+                || conSymbol.tag != SymTag.CONNECTOR) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
+            resultTypes = actualTypes;
+            return;
         }
 
         Name actionName = names.fromIdNode(iExpr.name);
