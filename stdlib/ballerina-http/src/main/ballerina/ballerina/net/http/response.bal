@@ -20,6 +20,13 @@ import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
 
+
+@Description {value:"Initializes the ResponseCacheControl struct of the OutResponse"}
+@Param {value:"res: The response to be initialized"}
+public function <OutResponse res> OutResponse() {
+    res.cacheControl = {};
+}
+
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The inbound response struct"}
 @Param {value:"headerName: The header name"}

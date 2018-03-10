@@ -16,8 +16,6 @@
 
 package ballerina.net.http;
 
-import ballerina.time;
-
 // TODO: Need to move this to the ballerina.time package. Currently cannot do so due to a bug.
 @Description {value:"This date/time format can be used for formatting date/time according to the RFC1123 specification."}
 public const string RFC_1123_DATE_TIME_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
@@ -193,35 +191,6 @@ public function <ResponseCacheControl cacheControl> buildCacheControlDirectives 
     }
 
     return buildCommaSeparatedString(directives);
-}
-
-@Description {value:"Convenience function for setting the Last-Modified header. This uses the current time when the function was called to set the header."}
-@Param {value:"response: The outbound response"}
-public function <OutResponse response> setLastModifiedHeader () {
-    time:Time currentT = time:currentTime();
-    // TODO: Need to look at a better way of doing this. Ideally, needs to use the actual RFC1123 formatter in JDK
-    string lastModifiedTime = currentT.format(RFC_1123_DATE_TIME_FORMAT);
-    response.setHeader(LAST_MODIFIED, lastModifiedTime);
-}
-
-@Description {value:"Build and set the Cache-Control header of the specified outbound request"}
-@Param {value:"request: The outbound request"}
-public function <OutRequest request> setCacheControlHeader () {
-    if (request.cacheControl == null) {
-        request.cacheControl = {};
-    }
-    string directives = request.cacheControl.buildCacheControlDirectives();
-    request.setHeader(CACHE_CONTROL, directives);
-}
-
-@Description {value:"Build and set the Cache-Control header of the specified outbound response"}
-@Param {value:"response: The outbound response"}
-public function <OutResponse response> setCacheControlHeader () {
-    if (response.cacheControl == null) {
-        response.cacheControl = {};
-    }
-    string directives = response.cacheControl.buildCacheControlDirectives();
-    response.setHeader(CACHE_CONTROL, directives);
 }
 
 function <InRequest request> parseInReqCacheControlHeader () {

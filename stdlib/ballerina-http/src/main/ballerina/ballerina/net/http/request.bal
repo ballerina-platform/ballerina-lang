@@ -23,6 +23,12 @@ import ballerina.io;
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";
 
+@Description {value:"Initializes the RequestCacheControl struct of the OutRequest"}
+@Param {value:"req: The request to be initialized"}
+public function <OutRequest req> OutRequest() {
+    req.cacheControl = {};
+}
+
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"req: The inbound request message"}
 @Param {value:"headerName: The header name"}
