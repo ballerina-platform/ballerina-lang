@@ -377,7 +377,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
             }
             if (checkRetryState(throwable)) {
-                this.dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(this.dataContext.context, throwable));
                 return;
             }
             sendOutboundRequest(dataContext, outboundReqMsg);
