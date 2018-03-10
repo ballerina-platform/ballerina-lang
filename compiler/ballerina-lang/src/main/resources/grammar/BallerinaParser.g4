@@ -44,11 +44,12 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   globalEndpointDefinition
     |   transformerDefinition
     ;
 
 serviceDefinition
-    :   SERVICE (LT Identifier GT) Identifier serviceBody
+    :   SERVICE LT nameReference GT Identifier serviceBody
     ;
 
 serviceBody
@@ -105,8 +106,7 @@ privateStructBody
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
-
+    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 enumDefinition
@@ -126,22 +126,19 @@ transformerDefinition
     ;
 
 attachmentPoint
-     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
-     | RESOURCE                             # resourceAttachPoint
-     | CONNECTOR                            # connectorAttachPoint
-     | ACTION                               # actionAttachPoint
-     | FUNCTION                             # functionAttachPoint
-     | STRUCT                               # structAttachPoint
-     | ENUM                                 # enumAttachPoint
-     | CONST                                # constAttachPoint
-     | PARAMETER                            # parameterAttachPoint
-     | ANNOTATION                           # annotationAttachPoint
-     | TRANSFORMER                          # transformerAttachPoint
+     : SERVICE
+     | RESOURCE
+     | CONNECTOR
+     | ACTION
+     | FUNCTION
+     | STRUCT
+     | ENUM
+     | ENDPOINT
+     | CONST
+     | PARAMETER
+     | ANNOTATION
+     | TRANSFORMER
      ;
-
-annotationBody
-    :  LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
 
 constantDefinition
     :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
@@ -153,6 +150,18 @@ workerDeclaration
 
 workerDefinition
     :   WORKER Identifier
+    ;
+
+globalEndpointDefinition
+    :   PUBLIC? endpointDeclaration
+    ;
+
+endpointDeclaration
+    :   annotationAttachment* endpointType Identifier recordLiteral?
+    ;
+
+endpointType
+    :   ENDPOINT (LT nameReference GT)
     ;
 
 typeName
@@ -213,28 +222,9 @@ xmlLocalName
     :   Identifier
     ;
 
- annotationAttachment
-     :   AT nameReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
-
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
-
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
-
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
-
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
-     ;
+annotationAttachment
+    :   AT nameReference recordLiteral?
+    ;
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -242,7 +232,6 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -261,7 +250,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -281,24 +270,12 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInit
-    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
-endpointDeclaration
-    :   endpointDefinition LEFT_BRACE ((variableReference | connectorInit) SEMICOLON)? RIGHT_BRACE
-    ;
-
-endpointDefinition
-    :   ENDPOINT (LT nameReference GT) Identifier
+typeInitExpr
+    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-bindStatement
-    :   BIND expression WITH Identifier SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 variableReferenceList
@@ -432,12 +409,16 @@ invocation
     : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
+actionInvocation
+    : variableReference RARROW functionInvocation
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
 expressionStmt
-    :   variableReference SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement
@@ -489,7 +470,7 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   connectorInit                                                       # connectorInitExpression
+    |   typeInitExpr                                                        # typeInitExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression

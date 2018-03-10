@@ -37,14 +37,18 @@ public class PackageVarInfo implements AttributeInfoPool {
     private int signatureCPIndex;
     private String typeSignature;
 
+    private int globalMemIndex;
+
     private BType type;
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public PackageVarInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
+    public PackageVarInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature,
+                          int globalMemIndex) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
         this.signatureCPIndex = signatureCPIndex;
         this.typeSignature = typeSignature;
+        this.globalMemIndex = globalMemIndex;
     }
 
     public int getNameCPIndex() {
@@ -77,6 +81,10 @@ public class PackageVarInfo implements AttributeInfoPool {
 
     public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    public int getGlobalMemIndex() {
+        return globalMemIndex;
     }
 
     public AttributeInfo[] getAttributeInfoEntries() {
