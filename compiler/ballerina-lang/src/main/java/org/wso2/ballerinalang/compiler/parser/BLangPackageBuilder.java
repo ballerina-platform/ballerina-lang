@@ -112,7 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -134,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -338,15 +336,7 @@ public class BLangPackageBuilder {
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
         constraintType.addWS(nameReference.ws);
-
-        BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
-        endpointTypeNode.pos = pos;
-        endpointTypeNode.endpointType = constraintType;
-        endpointVarWs = removeNthFromStart(ws, 3);
-        endpointKeywordWs = removeNthFromStart(ws, 0);
-        endpointTypeNode.addWS(ws);
-
-        addType(endpointTypeNode);
+        addType(constraintType);
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
@@ -497,7 +487,7 @@ public class BLangPackageBuilder {
         attachAnnotations(endpointNode);
         endpointNode.pos = pos;
         endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
-        endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();
+        endpointNode.endpointTypeNode = (BLangUserDefinedType) typeNodeStack.pop();
         if (initExprExist) {
             endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
         }
@@ -734,6 +724,15 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
+    }
+
+    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
+        invocationExpr.actionInvocation = true;
+        invocationExpr.pos = pos;
+        invocationExpr.addWS(ws);
+        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        exprNodeStack.push(invocationExpr);
     }
 
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName) {
@@ -1289,24 +1288,6 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
-    }
-
-    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws, String varName) {
-        ExpressionNode rExprNode = exprNodeStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.addWS(removeNthFromLast(ws, 1));
-        varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
-        varRef.variableName = (BLangIdentifier) createIdentifier(varName);
-
-
-        BLangBind bindNode = (BLangBind) TreeBuilder.createBindNode();
-        bindNode.setExpression(rExprNode);
-        bindNode.pos = pos;
-        bindNode.addWS(ws);
-        bindNode.setVariable(varRef);
-        addStmtToCurrentBlock(bindNode);
     }
 
     public void startForeachStatement() {

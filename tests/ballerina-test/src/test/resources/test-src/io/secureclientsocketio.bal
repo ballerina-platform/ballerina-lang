@@ -10,15 +10,17 @@ function closeSocket () {
     socket.closeSocket();
 }
 
-function write (blob content) (int) {
+function write (blob content, int size) (int) {
+    int numberOfBytesWritten;
     io:ByteChannel channel = socket.channel;
-    return channel.writeBytes(content, 0);
+    numberOfBytesWritten, _ = channel.write(content, 0, size);
+    return numberOfBytesWritten;
 }
 
 function read (int size) (blob, int) {
     io:ByteChannel channel = socket.channel;
     blob readContent;
     int readSize;
-    readContent, readSize = channel.readBytes(size);
+    readContent, readSize, _ = channel.read(size, 0);
     return readContent, readSize;
 }

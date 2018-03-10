@@ -19,7 +19,6 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BType;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +49,6 @@ public final class BConnector implements BRefType, StructureType {
         longFields = new long[fieldIndexes[0]];
         doubleFields = new double[fieldIndexes[1]];
         stringFields = new String[fieldIndexes[2]];
-        Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
         byteFields = new byte[fieldIndexes[4]][];
         refFields = new BRefType[fieldIndexes[5]];
