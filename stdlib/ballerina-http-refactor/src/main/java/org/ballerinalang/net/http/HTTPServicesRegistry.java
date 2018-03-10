@@ -23,7 +23,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.uri.DispatcherUtil;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This services registry holds all the services of HTTP + WebSocket.
@@ -83,13 +85,28 @@ public class HTTPServicesRegistry {
     public void registerService(HttpService service) {
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
+
+        Struct serviceConfig = annotation.getValue();
+        Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS);
+        service.setAllAllowMethods(populateListFromValueArray(allowedMethods));
+
         String basePath = discoverBasePathFrom(service, annotation);
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.
         servicesInfoMap.put(service.getBasePath(), service);
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-        postProcessService(service);
+        postProcessService(service, serviceConfig);
+    }
+
+    public List<String> populateListFromValueArray(Value[] valueArray) {
+        List<String> list = new ArrayList<>();
+        if (valueArray != null) {
+            for (Value method : valueArray) {
+                list.add(method.getStringValue());
+            }
+        }
+        return list;
     }
 
     private String discoverBasePathFrom(HttpService service, Annotation annotation) {
@@ -132,8 +149,8 @@ public class HTTPServicesRegistry {
         webSocketServicesRegistry.addUpgradableServiceByName(serviceInterface, uri, serviceName);
     }
 
-    private void postProcessService(HttpService httpService) {
-        CorsPopulator.populateServiceCors(httpService);
+    private void postProcessService(HttpService httpService, Struct serviceConfig) {
+        populateServiceCors(httpService, serviceConfig);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
             HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
@@ -147,7 +164,7 @@ public class HTTPServicesRegistry {
             resources.add(httpResource);
         }
         httpService.setResources(resources);
-        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
+//        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
@@ -178,5 +195,54 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    private void populateServiceCors(HttpService service, Struct serviceConfig) {
+        CorsHeaders corsHeaders = populateAndGetCorsHeaders(serviceConfig);
+        service.setCorsHeaders(corsHeaders);
+        if (!corsHeaders.isAvailable()) {
+            return;
+        }
+        if (corsHeaders.getAllowOrigins() == null) {
+            corsHeaders.setAllowOrigins(Stream.of("*").collect(Collectors.toList()));
+        }
+        if (corsHeaders.getAllowMethods() == null) {
+            corsHeaders.setAllowMethods(Stream.of("*").collect(Collectors.toList()));
+        }
+    }
+
+    private CorsHeaders populateAndGetCorsHeaders(Struct serviceConfig) {
+        CorsHeaders corsHeaders = new CorsHeaders();
+        if (serviceConfig == null) {
+            return corsHeaders;
+        }
+        if (serviceConfig.getArrayField(HttpConstants.ALLOW_ORIGIN) != null) {
+            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_ORIGIN);
+            corsHeaders.setAllowOrigins(populateListFromValueArray(allowedMethods));
+        }
+
+        corsHeaders.setAllowCredentials(serviceConfig.getBooleanField("allowCredentials") ? 1 : 0);
+
+
+        if (serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS) != null) {
+            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS);
+            corsHeaders.setAllowMethods(populateListFromValueArray(allowedMethods));
+        }
+
+        if (serviceConfig.getArrayField(HttpConstants.ALLOW_HEADERS) != null) {
+            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_HEADERS);
+            corsHeaders.setAllowHeaders(populateListFromValueArray(allowedMethods));
+        }
+
+        long maxAge = serviceConfig.getIntField("maxAge");
+        corsHeaders.setMaxAge(maxAge > 0 ? maxAge : -1);
+
+
+        if (serviceConfig.getArrayField(HttpConstants.EXPOSE_HEADERS) != null) {
+            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.EXPOSE_HEADERS);
+            corsHeaders.setExposeHeaders(populateListFromValueArray(allowedMethods));
+        }
+
+        return corsHeaders;
     }
 }
