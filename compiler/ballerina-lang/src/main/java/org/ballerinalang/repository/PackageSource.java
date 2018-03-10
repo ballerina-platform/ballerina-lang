@@ -18,6 +18,7 @@
 package org.ballerinalang.repository;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
 import java.util.List;
 
@@ -41,7 +42,13 @@ public interface PackageSource extends PackageEntity {
      * @return the package source entry names
      */
     List<String> getEntryNames();
-    
+
+    /**
+     * Repo structure used to load this and should be used for any import resolution.
+     * @return Repo structure used to load this.
+     */
+    RepoHierarchy getRepoHierarchy();
+
     /**
      * Returns a specific {@link PackageSourceEntry}.
      * 

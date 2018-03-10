@@ -22,6 +22,7 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.PackageSourceEntry;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -237,6 +238,11 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 }
             }
             return this.cachedEntryNames;
+        }
+
+        @Override
+        public RepoHierarchy getRepoHierarchy() {
+            return null;
         }
 
         @Override
