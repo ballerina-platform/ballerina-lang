@@ -410,7 +410,7 @@ invocation
     ;
 
 actionInvocation
-    : nameReference RARROW functionInvocation
+    : variableReference RARROW functionInvocation
     ;
 
 expressionList

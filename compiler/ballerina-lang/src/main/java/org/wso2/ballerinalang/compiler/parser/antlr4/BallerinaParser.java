@@ -6445,8 +6445,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class ActionInvocationContext extends ParserRuleContext {
-		public NameReferenceContext nameReference() {
-			return getRuleContext(NameReferenceContext.class,0);
+		public VariableReferenceContext variableReference() {
+			return getRuleContext(VariableReferenceContext.class,0);
 		}
 		public TerminalNode RARROW() { return getToken(BallerinaParser.RARROW, 0); }
 		public FunctionInvocationContext functionInvocation() {
@@ -6473,7 +6473,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1166);
-			nameReference();
+			variableReference(0);
 			setState(1167);
 			match(RARROW);
 			setState(1168);
@@ -11192,7 +11192,7 @@ public class BallerinaParser extends Parser {
 		"\u0486\u0487\7J\2\2\u0487\u009f\3\2\2\2\u0488\u0489\7E\2\2\u0489\u048a"+
 		"\5\u00f0y\2\u048a\u048c\7I\2\2\u048b\u048d\5\u00a4S\2\u048c\u048b\3\2"+
 		"\2\2\u048c\u048d\3\2\2\2\u048d\u048e\3\2\2\2\u048e\u048f\7J\2\2\u048f"+
-		"\u00a1\3\2\2\2\u0490\u0491\5\u00be`\2\u0491\u0492\7^\2\2\u0492\u0493\5"+
+		"\u00a1\3\2\2\2\u0490\u0491\5\u0096L\2\u0491\u0492\7^\2\2\u0492\u0493\5"+
 		"\u009eP\2\u0493\u00a3\3\2\2\2\u0494\u0499\5\u00bc_\2\u0495\u0496\7F\2"+
 		"\2\u0496\u0498\5\u00bc_\2\u0497\u0495\3\2\2\2\u0498\u049b\3\2\2\2\u0499"+
 		"\u0497\3\2\2\2\u0499\u049a\3\2\2\2\u049a\u00a5\3\2\2\2\u049b\u0499\3\2"+

@@ -727,17 +727,12 @@ public class BLangPackageBuilder {
     }
 
     public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.peek();
+        BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
-        BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-        varRef.pos = nameReference.pos;
-        varRef.addWS(nameReference.ws);
-        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-        varRef.variableName = (BLangIdentifier) nameReference.name;
-        invocationExpr.expr = varRef;
+        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        exprNodeStack.push(invocationExpr);
     }
 
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName) {
