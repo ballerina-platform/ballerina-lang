@@ -826,11 +826,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpointTypeNode endpointType) {
-        // No Implementation
-    }
-
-    @Override
     public void visit(BLangConstrainedType constrainedType) {
         // No Implementation
     }

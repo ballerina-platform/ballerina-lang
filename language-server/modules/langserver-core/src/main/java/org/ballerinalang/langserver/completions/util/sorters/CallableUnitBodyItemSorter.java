@@ -27,8 +27,6 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -63,10 +61,11 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
         } else if (previousNode instanceof BLangVariableDef) {
-            BType bLangType = ((BLangVariableDef) previousNode).var.type;
-            if (bLangType instanceof BEndpointType) {
-                this.populateWhenCursorBeforeOrAfterEp(completionItems);
-            } else if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
+//            BType bLangType = ((BLangVariableDef) previousNode).var.type;
+//            if (bLangType instanceof BEndpointType) {
+//                this.populateWhenCursorBeforeOrAfterEp(completionItems);
+//            } else
+            if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
                     || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
                 CompletionItem workerItem = this.getWorkerSnippet();
                 workerItem.setSortText(Priority.PRIORITY160.toString());

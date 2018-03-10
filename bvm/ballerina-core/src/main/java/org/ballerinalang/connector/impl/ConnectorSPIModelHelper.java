@@ -76,7 +76,7 @@ public class ConnectorSPIModelHelper {
             final String annotaionQName = key.split("\\$")[0];
             final String[] qNameParts = annotaionQName.split(":");
             final AnnotationImpl annotation = new AnnotationImpl(qNameParts[1], qNameParts[0], struct);
-            annotatableNode.addAnnotation(annotation.getName(), annotation);
+            annotatableNode.addAnnotation(annotaionQName, annotation);
         }
     }
 }
