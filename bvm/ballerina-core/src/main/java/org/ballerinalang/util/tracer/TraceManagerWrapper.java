@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_RESOURCE;
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstant.STR_NULL;
 import static org.ballerinalang.util.tracer.TraceConstant.TRACER_MANAGER_CLASS;
 import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
@@ -39,7 +41,6 @@ import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
 public class TraceManagerWrapper {
     private static final TraceManagerWrapper instance = new TraceManagerWrapper();
     private TraceManager manager;
-    private boolean enabled = true;
 
     private TraceManagerWrapper() {
         try {
@@ -47,9 +48,9 @@ public class TraceManagerWrapper {
                     .forName(TRACER_MANAGER_CLASS)
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
-            enabled = manager.isEnabled();
+            manager = (manager.isEnabled()) ? manager : new IdleTraceManager();
         } catch (Exception e) {
-            enabled = false;
+            manager = new IdleTraceManager();
         }
     }
 
@@ -57,88 +58,77 @@ public class TraceManagerWrapper {
         return instance;
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
     public void startSpan(Context context) {
         BTracer rBTracer = context.getRootBTracer();
         BTracer aBTracer = context.getActiveBTracer();
 
-        if (aBTracer.isTraceable()) {
-            String service = aBTracer.getServiceName();
-            String resource = aBTracer.getResourceName();
+        String service = aBTracer.getServiceName();
+        String resource = aBTracer.getResourceName();
 
-            if (aBTracer.isClientContext()) {
-                CallableUnitInfo cInfo = context.getControlStack()
-                        .getCurrentFrame().getCallableUnitInfo();
+        if (aBTracer.isClientContext()) {
+            CallableUnitInfo cInfo = context.getControlStack()
+                    .getCurrentFrame().getCallableUnitInfo();
 
-                if (cInfo != null && cInfo instanceof ActionInfo &&
-                        ((ActionInfo) cInfo).getConnectorInfo() != null) {
-                    ActionInfo aInfo = (ActionInfo) cInfo;
-                    service = aInfo.getConnectorInfo().getType().toString();
-                    resource = aInfo.getName();
-                } else if (cInfo != null) {
-                    service = cInfo.getPkgPath();
-                    resource = cInfo.getName();
-                } else {
-                    service = "ballerina:connector";
-                    resource = "ballerina:call";
-                }
-
-                aBTracer.setServiceName(service);
-                aBTracer.setResourceName(resource);
-            }
-
-            Long invocationId;
-            if (rBTracer.getInvocationID() == null ||
-                    STR_NULL.equalsIgnoreCase(rBTracer.getInvocationID())) {
-                rBTracer.generateInvocationID();
-                invocationId = Long.valueOf(rBTracer.getInvocationID());
+            if (cInfo != null && cInfo instanceof ActionInfo &&
+                    ((ActionInfo) cInfo).getConnectorInfo() != null) {
+                ActionInfo aInfo = (ActionInfo) cInfo;
+                service = aInfo.getConnectorInfo().getType().toString();
+                resource = aInfo.getName();
+            } else if (cInfo != null) {
+                service = cInfo.getPkgPath();
+                resource = cInfo.getName();
             } else {
-                invocationId = Long.valueOf(rBTracer.getInvocationID());
+                service = DEFAULT_SERVICE;
+                resource = DEFAULT_RESOURCE;
             }
-            aBTracer.setInvocationID(String.valueOf(invocationId));
 
-            // get the parent spans' span context
-            Map<String, String> spanHeaders = rBTracer
-                    .getProperties()
-                    .entrySet()
-                    .stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey,
-                            e -> String.valueOf(e.getValue())));
-
-            Map<String, ?> spanContext = manager
-                    .extract(null, removeTracePrefix(spanHeaders), service);
-
-            Map<String, ?> spanList = manager
-                    .startSpan(invocationId, resource, spanContext,
-                            aBTracer.getTags(), true, service);
-
-            Map<String, String> traceContextMap = manager
-                    .inject(spanList, null, service);
-
-            aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
-            aBTracer.setSpans(spanList);
+            aBTracer.setServiceName(service);
+            aBTracer.setResourceName(resource);
         }
+
+        Long invocationId;
+        if (rBTracer.getInvocationID() == null ||
+                STR_NULL.equalsIgnoreCase(rBTracer.getInvocationID())) {
+            rBTracer.generateInvocationID();
+            invocationId = Long.valueOf(rBTracer.getInvocationID());
+        } else {
+            invocationId = Long.valueOf(rBTracer.getInvocationID());
+        }
+        aBTracer.setInvocationID(String.valueOf(invocationId));
+
+        // get the parent spans' span context
+        Map<String, String> spanHeaders = rBTracer
+                .getProperties()
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> String.valueOf(e.getValue())));
+
+        Map<String, ?> spanContext = manager
+                .extract(null, removeTracePrefix(spanHeaders), service);
+
+        Map<String, ?> spanList = manager
+                .startSpan(invocationId, resource, spanContext,
+                        aBTracer.getTags(), true, service);
+
+        Map<String, String> traceContextMap = manager
+                .inject(spanList, null, service);
+
+        aBTracer.getProperties().putAll(addTracePrefix(traceContextMap));
+        aBTracer.setSpans(spanList);
     }
 
     public void finishSpan(BTracer bTracer) {
-        if (bTracer.isTraceable()) {
-            manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()));
-        }
+        manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()));
+
     }
 
     public void log(BTracer bTracer, Map<String, Object> fields) {
-        if (bTracer.isTraceable()) {
-            manager.log(new ArrayList<>(bTracer.getSpans().values()), fields);
-        }
+        manager.log(new ArrayList<>(bTracer.getSpans().values()), fields);
     }
 
     public void addTags(BTracer bTracer, Map<String, String> tags) {
-        if (bTracer.isTraceable()) {
-            manager.addTags(new ArrayList<>(bTracer.getSpans().values()), tags);
-        }
+        manager.addTags(new ArrayList<>(bTracer.getSpans().values()), tags);
     }
 
     private static Map<String, String> addTracePrefix(Map<String, String> map) {

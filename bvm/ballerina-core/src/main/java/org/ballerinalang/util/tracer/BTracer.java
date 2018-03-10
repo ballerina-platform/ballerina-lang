@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_RESOURCE;
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstant.INVOCATION_ID;
 import static org.ballerinalang.util.tracer.TraceConstant.STR_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstant.STR_TRUE;
@@ -56,15 +58,15 @@ public class BTracer {
     /**
      * Name of the service.
      */
-    private String serviceName = "ballerinaService";
+    private String serviceName = DEFAULT_SERVICE;
     /**
      * Name of the resource.
      */
-    private String resourceName = "ballerinaResource";
+    private String resourceName = DEFAULT_RESOURCE;
     /**
      * Indicates whether this context is traceable or not.
      */
-    private boolean isTraceable = false;
+    private boolean traceable = false;
     /**
      * Active Ballerina context.
      */
@@ -86,37 +88,46 @@ public class BTracer {
         this.tags.put(TraceConstant.KEY_SPAN_KIND, isClientContext
                 ? TraceConstant.SPAN_KIND_CLIENT
                 : TraceConstant.SPAN_KIND_SERVER);
-        this.isTraceable = !(isClientContext &&
-                bContext.getControlStack().getCurrentFrame()
-                        .getCallableUnitInfo().getName()
-                        .endsWith(TraceConstant.FUNCTION_INIT)) && manager.isEnabled();
+        this.traceable = !(isClientContext &&
+                bContext.getControlStack().getCurrentFrame().getCallableUnitInfo()
+                        .getName().endsWith(TraceConstant.FUNCTION_INIT));
     }
 
     public void startSpan() {
-        manager.startSpan(bContext);
+        if (traceable) {
+            manager.startSpan(bContext);
+        }
     }
 
     public void finishSpan() {
-        manager.finishSpan(this);
+        if (traceable) {
+            manager.finishSpan(this);
+        }
     }
 
     public void log(Map<String, Object> fields) {
-        manager.log(this, fields);
+        if (traceable) {
+            manager.log(this, fields);
+        }
     }
 
     public void logError(Map<String, Object> fields) {
-        addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
-        manager.log(this, fields);
+        if (traceable) {
+            addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
+            manager.log(this, fields);
+        }
     }
 
     public void addTags(Map<String, String> tags) {
-        if (spans != null) {
-            //span has started, there for add tags to the span.
-            manager.addTags(this, tags);
-        } else {
-            //otherwise keep the tags in a map, and add it once
-            //the span get created.
-            this.tags.putAll(tags);
+        if (traceable) {
+            if (spans != null) {
+                //span has started, there for add tags to the span.
+                manager.addTags(this, tags);
+            } else {
+                //otherwise keep the tags in a map, and add it once
+                //the span get created.
+                this.tags.putAll(tags);
+            }
         }
     }
 
@@ -155,10 +166,6 @@ public class BTracer {
 
     public Map<String, String> getTags() {
         return tags;
-    }
-
-    public boolean isTraceable() {
-        return isTraceable;
     }
 
     public boolean isClientContext() {

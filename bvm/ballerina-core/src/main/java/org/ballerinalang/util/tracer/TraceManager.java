@@ -43,7 +43,7 @@ public interface TraceManager {
      * @return {@link Map} of spans per tracer.
      */
     Map<String, Object> startSpan(long invocationId, String spanName, Map<String, ?> spanContextMap,
-                             Map<String, String> tags, boolean makeActive, String serviceName);
+                                  Map<String, String> tags, boolean makeActive, String serviceName);
 
     /**
      * Finishes the given list of spans.
