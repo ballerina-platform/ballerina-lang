@@ -511,6 +511,7 @@ public class CPU {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.B2JSON:
