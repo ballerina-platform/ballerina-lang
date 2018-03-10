@@ -97,7 +97,7 @@ service<http> InitiatorService {
             RegistrationRequest regReq = <RegistrationRequest, jsonToRegRequest()>(payload);
             string participantId = regReq.participantId;
             string txnId = regReq.transactionId;
-            var txn, _ = (Transaction)initiatedTransactions[txnId];
+            var txn, _ = (Transaction)initiatedTransactions.get(txnId);
 
             if (txn == null) {
                 res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);

@@ -96,18 +96,14 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct textRecordChannelInfo;
-        BStruct textRecordChannel;
         BValue[] bValues;
-        String recordSeparator;
-        String fieldSeparator;
         try {
             //File which holds access to the channel information
-            textRecordChannelInfo = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
-            fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
+            BStruct textRecordChannelInfo = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
+            String recordSeparator = getStringArgument(context, RECORD_SEPARATOR_INDEX);
+            String fieldSeparator = getStringArgument(context, FIELD_SEPARATOR_INDEX);
 
-            textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
+            BStruct textRecordChannel = BLangVMStructs.createBStruct(getCharacterChannelStructInfo(context));
 
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) textRecordChannelInfo.getNativeData(IOConstants
