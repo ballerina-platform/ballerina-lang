@@ -171,7 +171,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-        String constraintTypeName = null;
+//        String constraintTypeName = null;
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
 
         if (variable == null) {
@@ -211,17 +211,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
-            if (constraintTypeName != null) {
-                // If there is a constraint type for the variable, which means we are filtering the actions for the
-                // particular endpoint. Hence we get the particular ClientConnector entry and it's action entries
-                String filterName = constraintTypeName;
-                Map.Entry filteredEntry = entries.entrySet()
-                        .stream()
-                        .filter(nameScopeEntry -> nameScopeEntry.getKey().getValue().equals(filterName))
-                        .findFirst()
-                        .orElse(null);
-                entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
-            }
+//            if (constraintTypeName != null) {
+//                // If there is a constraint type for the variable, which means we are filtering the actions for the
+//                // particular endpoint. Hence we get the particular ClientConnector entry and it's action entries
+//                String filterName = constraintTypeName;
+//                Map.Entry filteredEntry = entries.entrySet()
+//                        .stream()
+//                        .filter(nameScopeEntry -> nameScopeEntry.getKey().getValue().equals(filterName))
+//                        .findFirst()
+//                        .orElse(null);
+//                entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
+//            }
         }
         
         entries.forEach((name, scopeEntry) -> {
