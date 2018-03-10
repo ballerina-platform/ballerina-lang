@@ -41,8 +41,8 @@ function main (string[] args) {
     io:println("Inserted row count:" + count);
     io:println("Generated key:" + ids[0]);
 
-    //Select data using select action. Select action returns a datatable
-    //and see datatables section for more details on how to access data.
+    //Select data using select action. Select action returns a table
+    //and see tables section for more details on how to access data.
     params = [para1];
     table dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;
