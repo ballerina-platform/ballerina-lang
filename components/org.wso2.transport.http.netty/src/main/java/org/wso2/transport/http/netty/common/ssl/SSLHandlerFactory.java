@@ -174,6 +174,7 @@ public class SSLHandlerFactory {
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
         SslProvider provider = SslProvider.JDK;
+
         return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
                 .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
                 .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(

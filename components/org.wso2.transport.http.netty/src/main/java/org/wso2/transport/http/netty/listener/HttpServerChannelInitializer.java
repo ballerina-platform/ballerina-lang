@@ -241,7 +241,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         isHttp2Enabled = http2Enabled;
     }
 
-    /* Handler which handles ALPN */
+    /**
+     * Handler which handles ALPN.
+     */
     class Http2PipelineConfiguratorForServer extends ApplicationProtocolNegotiationHandler {
 
         public Http2PipelineConfiguratorForServer() {
@@ -259,7 +261,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                         addLast(Constants.HTTP2_SOURCE_HANDLER,
                                 new Http2SourceHandlerBuilder(interfaceId, serverConnectorFuture, serverName).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
-                // handles pipeline for HTTP/1 requests after SSL handshake
+                // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHTTPPipeline(ctx.pipeline());
             } else {
                 throw new IllegalStateException("unknown protocol: " + protocol);

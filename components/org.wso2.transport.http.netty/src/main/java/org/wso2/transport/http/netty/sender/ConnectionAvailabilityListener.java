@@ -25,8 +25,7 @@ import io.netty.channel.ChannelFuture;
  * Listener for connection availability future.
  */
 public interface ConnectionAvailabilityListener {
-
     void onSuccess(String protocol, ChannelFuture channelFuture);
     void onFailure(ChannelFuture channelFuture);
-
 }
+

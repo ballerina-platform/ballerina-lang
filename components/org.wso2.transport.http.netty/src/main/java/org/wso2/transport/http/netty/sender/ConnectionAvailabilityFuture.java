@@ -83,13 +83,5 @@ public class ConnectionAvailabilityFuture {
     public void setFailure() {
         listener.onFailure(socketAvailabilityFuture);
     }
-
-    public ChannelFuture getSocketAvailabilityFuture() {
-        return socketAvailabilityFuture;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
 }
 

@@ -77,7 +77,7 @@ public class HostnameVerificationTest {
         String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
         String password = "ballerina";
         return new Object[][] {
-//                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
+                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
                 { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 }
         };
     }
@@ -139,7 +139,7 @@ public class HostnameVerificationTest {
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (throwable.getMessage()
-                            .contains("javax.net.ssl.SSLHandshakeException"))) {
+                            .contains("Connection refused"))) {
                         hasSSLException = true;
                         break;
                     }

@@ -163,13 +163,19 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
                 public void onSuccess(String protocol, ChannelFuture channelFuture) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Created the connection to address: {}",
+                                route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    }
+
                     if (protocol.equalsIgnoreCase(ApplicationProtocolNames.HTTP_2)) {
+
                         connectionManager.getHttp2ConnectionManager().
                                 addHttp2ClientChannel(route, freshHttp2ClientChannel);
-
                         freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
                             freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                         });
+
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     } else {
                         // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id

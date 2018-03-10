@@ -128,13 +128,13 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         if (proxyServerConfiguration != null) {
             if (proxyServerConfiguration.getProxyUsername() != null
                     && proxyServerConfiguration.getProxyPassword() != null) {
-                clientPipeline.addLast("proxyServer",
+                clientPipeline.addLast(Constants.PROXY_HANDLER,
                         new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress(),
                                 proxyServerConfiguration.getProxyUsername(),
                                 proxyServerConfiguration.getProxyPassword()));
             } else {
-                clientPipeline
-                        .addLast("proxyServer", new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
+                clientPipeline.addLast(Constants.PROXY_HANDLER,
+                        new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
             }
         }
         HttpClientCodec sourceCodec = new HttpClientCodec();
@@ -148,7 +148,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                 sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient();
                 clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
                 if (validateCertEnabled && sslEngine != null) {
-                    clientPipeline.addLast("certificateValidation",
+                    clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                             new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
                 }
                 clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
@@ -160,8 +160,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             if (sslEngine != null) {
                 log.debug("adding ssl handler");
                 connectionAvailabilityFuture.setSSLEnabled(true);
-                clientPipeline.addLast("ssl", new SslHandler(this.sslEngine));
-                clientPipeline.addLast("tlsHandshakeCompletionHandler",
+                clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(this.sslEngine));
+                clientPipeline.addLast(Constants.TLS_COMPLETION_HANDLER,
                         new TLSHandshakeCompletionHandler(connectionAvailabilityFuture));
             }
             configureHttpPipeline(clientPipeline, targetHandler);
@@ -176,6 +176,13 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         return http2ConnectionManager;
     }
 
+    /**
+     * Create the pipeline for requests with h2c.
+     *
+     * @param pipeline client channel pipeline.
+     * @param sourceCodec source codec handler.
+     * @param targetHandler target handler.
+     */
     private void configureH2cPipeline(ChannelPipeline pipeline, HttpClientCodec sourceCodec,
             TargetHandler targetHandler) {
         pipeline.addLast(sourceCodec);
@@ -187,25 +194,41 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
+    /**
+     * Create the pipe line for h2 negotiated requests over TLS.
+     *
+     * @param pipeline client channel pipeline.
+     */
     private void configureH2Pipeline(ChannelPipeline pipeline) {
-        pipeline.addLast("connectioHandler", http2ConnectionHandler);
-        pipeline.addLast("outboundHandler", clientOutboundHandler);
+        pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
+        pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
         addCommonHandlers(pipeline);
     }
 
+    /**
+     * Create pipeline for http requests.
+     *
+     * @param pipeline client channel pipeline.
+     * @param targetHandler target handler.
+     */
     private void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
         if (validateCertEnabled && sslEngine != null) {
-            pipeline.addLast("certificateValidation",
+            pipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
-        pipeline.addLast("decoder", new HttpResponseDecoder());
-        pipeline.addLast("encoder", new HttpRequestEncoder());
+        pipeline.addLast(Constants.HTTP_DECODER, new HttpResponseDecoder());
+        pipeline.addLast(Constants.HTTP_ENCODER, new HttpRequestEncoder());
         addCommonHandlers(pipeline);
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }
 
+    /**
+     * Add common handlers used in both http2 and http.
+     *
+     * @param pipeline client channel pipeline.
+     */
     private void addCommonHandlers(ChannelPipeline pipeline) {
-        pipeline.addLast("deCompressor", new HttpContentDecompressor());
+        pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler("tracelog.http.upstream"));
@@ -262,7 +285,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                 configureH2Pipeline(ctx.pipeline());
                 connectionAvailabilityFuture.notifyListener(ApplicationProtocolNames.HTTP_2);
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
-                // handles pipeline for HTTP/1 requests after SSL handshake
+                // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifyListener(Constants.HTTP_SCHEME);
             } else {
