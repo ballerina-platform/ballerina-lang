@@ -45,12 +45,10 @@
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-api</artifactId>
-            <version>${open.tracing.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-util</artifactId>
-            <version>${open.tracing.version}</version>
         </dependency>
         <!-- TODO Remove snakeyaml once TOML configs are working -->
         <dependency>

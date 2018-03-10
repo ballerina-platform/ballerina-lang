@@ -26,13 +26,13 @@ import java.util.Properties;
 
 public class TracerConfig {
 
-    private String name = "";
+    private String name;
 
-    private boolean enabled = false;
+    private boolean enabled;
 
-    private String className = "";
+    private String className;
 
-    private Properties configuration = new Properties();
+    private Properties configuration;
 
     TracerConfig() {
         this.name = "";

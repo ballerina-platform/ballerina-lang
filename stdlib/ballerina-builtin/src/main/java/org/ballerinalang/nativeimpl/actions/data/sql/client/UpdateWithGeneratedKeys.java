@@ -36,6 +36,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.util.tracer.TraceConstant.DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstant.KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstant.KEY_DB_TYPE;
+
 /**
  * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
@@ -73,8 +77,8 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
         }
 
         Map<String, String> tags = new HashMap<>();
-        tags.put("db.statement", query);
-        tags.put("db.type", "sql");
+        tags.put(KEY_DB_STATEMENT, query);
+        tags.put(KEY_DB_TYPE, DB_TYPE_SQL);
         context.getActiveBTracer().addTags(tags);
 
         executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);

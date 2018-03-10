@@ -93,7 +93,7 @@ public class OpenTracerBallerinaWrapper {
      * @return the map carrier holding the span context
      */
     public Map<String, String> inject(String spanId) {
-        HashMap<String, String> carrierMap = new HashMap<>();
+        Map<String, String> carrierMap = new HashMap<>();
         Map<String, Span> activeSpanMap = spanStore.getSpan(spanId);
         if (enabled) {
             for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {

@@ -53,7 +53,7 @@ public class OpenTracerManager implements TraceManager {
 
     @Override
     public Map<String, String> inject(Map<String, ?> activeSpanMap, Object format, String serviceName) {
-        HashMap<String, String> carrierMap = new HashMap<>();
+        Map<String, String> carrierMap = new HashMap<>();
         if (format == null) {
             format = Format.Builtin.HTTP_HEADERS;
         }

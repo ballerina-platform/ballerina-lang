@@ -31,6 +31,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.util.tracer.TraceConstant.EVENT_TYPE_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstant.KEY_ERROR_KIND;
+import static org.ballerinalang.util.tracer.TraceConstant.KEY_EVENT_TYPE;
+import static org.ballerinalang.util.tracer.TraceConstant.KEY_MESSAGE;
+import static org.ballerinalang.util.tracer.TraceConstant.STR_TRUE;
+
 /**
  * This function adds logs to a span.
  */
@@ -60,10 +66,10 @@ public class ErrorLog extends AbstractLogFunction {
         }
 
         Map<String, String> logMap = new HashMap<>();
-        logMap.put("event", "error");
-        logMap.put("error.kind", errorKind);
-        logMap.put("message", message);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, "error", "true");
+        logMap.put(KEY_EVENT_TYPE, EVENT_TYPE_ERROR);
+        logMap.put(KEY_ERROR_KIND, errorKind);
+        logMap.put(KEY_MESSAGE, message);
+        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, EVENT_TYPE_ERROR, STR_TRUE);
         OpenTracerBallerinaWrapper.getInstance().log(spanId, logMap);
         return VOID_RETURN;
     }

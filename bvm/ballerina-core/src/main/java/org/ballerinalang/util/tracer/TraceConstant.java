@@ -33,7 +33,25 @@ public class TraceConstant {
 
     static final String INVOCATION_ID = "invocationId";
 
-    static final String KEY_SPAN_KIND = "span.kind";
+    public static final String KEY_SPAN_KIND = "span.kind";
+
+    public static final String KEY_ERROR_KIND = "error.kind";
+
+    public static final String KEY_ERROR_OBJECT = "error.object";
+
+    public static final String KEY_EVENT_TYPE = "event";
+
+    public static final String KEY_MESSAGE = "message";
+
+    public static final String KEY_DB_STATEMENT = "db.statement";
+
+    public static final String KEY_DB_TYPE = "db.type";
+
+    public static final String DB_TYPE_SQL = "sql";
+
+    public static final String ERROR_KIND_EXCEPTION = "Exception";
+
+    public static final String EVENT_TYPE_ERROR = "error";
 
     public static final String SPAN_KIND_SERVER = "server";
 
