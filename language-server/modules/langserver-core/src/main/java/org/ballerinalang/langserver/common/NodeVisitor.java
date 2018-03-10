@@ -250,11 +250,6 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangThrow throwNode) {
         // No implementation
     }

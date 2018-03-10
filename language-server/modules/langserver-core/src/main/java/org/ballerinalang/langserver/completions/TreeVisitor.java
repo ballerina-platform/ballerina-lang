@@ -678,11 +678,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        // No Implementation
-    }
-
-    @Override
     public void visit(BLangThrow throwNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(throwNode.getPosition(),
                 throwNode, this, this.documentServiceContext);
