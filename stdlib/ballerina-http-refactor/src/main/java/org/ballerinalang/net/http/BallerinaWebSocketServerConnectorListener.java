@@ -125,25 +125,29 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketTextMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.
+                getConnectionInfo(webSocketTextMessage.getSessionID());
         WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketBinaryMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.
+                getConnectionInfo(webSocketBinaryMessage.getSessionID());
         WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(webSocketControlMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.
+                getConnectionInfo(webSocketControlMessage.getSessionID());
         WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.removeConnection(webSocketCloseMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.
+                removeConnection(webSocketCloseMessage.getSessionID());
         WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 

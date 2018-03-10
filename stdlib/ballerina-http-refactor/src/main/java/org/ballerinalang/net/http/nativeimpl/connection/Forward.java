@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "InResponse",
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                                  structPackage = "ballerina.net.http"),

@@ -76,16 +76,16 @@ public function <ServiceEndpoint h> addFilter () {}
 //////////////////////////////////////////
 
 public connector ResponseConnector (Connection conn) {
-    action respond (OutResponse res) (HttpConnectorError) {
+    action respond (Response res) (HttpConnectorError) {
         return conn.respond(res);
     }
-    action forward (InResponse res) (HttpConnectorError) {
+    action forward (Response res) (HttpConnectorError) {
         return conn.forward(res);
     }
     action respondContinue () (HttpConnectorError) {
         return conn.respondContinue();
     }
-    action redirect (OutResponse response, RedirectCode code, string[] locations) (HttpConnectorError) {
+    action redirect (Response response, RedirectCode code, string[] locations) (HttpConnectorError) {
         return conn.redirect(response, code, locations);
     }
 }

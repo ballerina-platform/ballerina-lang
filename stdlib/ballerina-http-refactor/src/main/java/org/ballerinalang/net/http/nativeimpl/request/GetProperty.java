@@ -15,32 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.ballerinalang.net.http.nativeimpl.inbound.response;
+package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Get the entity without the body of inbound response.
- *
- * @since 0.96
+ * Ballerina function to get a message property.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "getEntityWithoutBody",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)}
+        functionName = "getProperty",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+                             structPackage = "ballerina.net.http"),
+        args = {@Argument(name = "propertyName", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
+        isPublic = true
 )
-public class GetEntityWithoutBody extends AbstractNativeFunction {
+public class GetProperty extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(HttpUtil.getEntity(context, this, true, false));
+        return HttpUtil.getProperty(context, this, true);
     }
 }

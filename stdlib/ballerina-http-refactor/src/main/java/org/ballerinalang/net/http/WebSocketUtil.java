@@ -22,8 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 
 /**
  * Utility class for websockets.

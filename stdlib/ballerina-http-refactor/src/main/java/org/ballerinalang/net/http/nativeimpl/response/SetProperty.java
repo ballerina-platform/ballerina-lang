@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.net.http.nativeimpl.outbound.response;
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "propertyName", type = TypeKind.STRING),
                 @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type

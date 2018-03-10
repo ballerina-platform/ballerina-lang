@@ -49,13 +49,13 @@ public function <Response res> removeHeader (string key) {
 }
 
 @Description {value:"Removes all transport headers from the response"}
-@Param {value:"res: The outbound response message"}
+@Param {value:"res: The response message"}
 public function <Response res> removeAllHeaders () {
     mime:Entity entity = res.getEntityWithoutBody();
     entity.headers = {};
 }
 
-@Description {value:"Gets the Content-Length header value from the outbound response"}
+@Description {value:"Gets the Content-Length header value from the response"}
 @Param {value:"response: The response message"}
 @Return {value:"length of the message"}
 public function <Response response> getContentLength () (int) {
@@ -66,7 +66,7 @@ public function <Response response> getContentLength () (int) {
     return -1;
 }
 
-@Description {value:"Gets the inbound response payload in JSON format"}
+@Description {value:"Gets the response payload in JSON format"}
 @Param {value:"response: The response message"}
 @Return {value:"The JSON reresentation of the message payload"}
 public function <Response response> getJsonPayload () (json, mime:EntityError) {
@@ -77,7 +77,7 @@ public function <Response response> getJsonPayload () (json, mime:EntityError) {
     return entity.getJson();
 }
 
-@Description {value:"Gets the inbound response payload in XML format"}
+@Description {value:"Gets the response payload in XML format"}
 @Param {value:"response: The response message"}
 @Return {value:"The XML representation of the message payload"}
 public function <Response response> getXmlPayload () (xml, mime:EntityError) {
@@ -88,7 +88,7 @@ public function <Response response> getXmlPayload () (xml, mime:EntityError) {
     return entity.getXml();
 }
 
-@Description {value:"Gets the inbound response payload as a string"}
+@Description {value:"Gets the response payload as a string"}
 @Param {value:"response: The response message"}
 @Return {value:"The string representation of the message payload"}
 public function <Response response> getStringPayload () (string, mime:EntityError) {
@@ -99,7 +99,7 @@ public function <Response response> getStringPayload () (string, mime:EntityErro
     return entity.getText();
 }
 
-@Description {value:"Gets the inbound response payload in blob format"}
+@Description {value:"Gets the response payload in blob format"}
 @Param {value:"response: The response message"}
 @Return {value:"The blob representation of the message payload"}
 public function <Response response> getBinaryPayload () (blob, mime:EntityError) {
@@ -111,7 +111,7 @@ public function <Response response> getBinaryPayload () (blob, mime:EntityError)
     return entity.getBlob();
 }
 
-@Description {value:"Gets the inbound response payload as a byte channel except for multiparts. In case of multiparts,
+@Description {value:"Gets the response payload as a byte channel except for multiparts. In case of multiparts,
 please use 'getMultiparts()' instead."}
 @Param {value:"response: The response message"}
 @Return {value:"A byte channel as the message payload"}
@@ -123,7 +123,7 @@ public function <Response response> getByteChannel () (io:ByteChannel, mime:Enti
     return entity.getByteChannel();
 }
 
-@Description {value:"Get multiparts from inbound response"}
+@Description {value:"Get multiparts from response"}
 @Param {value:"response: The response message"}
 @Return {value:"Returns the body parts as an array of entities"}
 public function <Response response> getMultiparts () (mime:Entity[], mime:EntityError) {
@@ -135,7 +135,7 @@ public function <Response response> getMultiparts () (mime:Entity[], mime:Entity
 }
 
 @Description {value:"Sets a JSON as the outbound response payload"}
-@Param {value:"response: The outbound response message"}
+@Param {value:"response: The response message"}
 @Param {value:"payload: The JSON payload object"}
 public function <Response response> setJsonPayload (json payload) {
     mime:Entity entity = response.getEntityWithoutBody();
@@ -146,7 +146,7 @@ public function <Response response> setJsonPayload (json payload) {
 }
 
 @Description {value:"Sets an XML as the outbound response payload"}
-@Param {value:"response: The outbound response message"}
+@Param {value:"response: The response message"}
 @Param {value:"payload: The XML payload object"}
 public function <Response response> setXmlPayload (xml payload) {
     mime:Entity entity = response.getEntityWithoutBody();
@@ -157,7 +157,7 @@ public function <Response response> setXmlPayload (xml payload) {
 }
 
 @Description { value:"Sets a string as the outbound response payload"}
-@Param { value:"response: The outbound response message" }
+@Param { value:"response: The response message" }
 @Param { value:"payload: The payload to be set to the response as a string" }
 public function <Response response> setStringPayload (string payload) {
     mime:Entity entity = response.getEntityWithoutBody();
@@ -168,7 +168,7 @@ public function <Response response> setStringPayload (string payload) {
 }
 
 @Description {value:"Sets a blob as the outbound response payload"}
-@Param {value:"response: The outbound response message"}
+@Param {value:"response: The response message"}
 @Param {value:"payload: The blob representation of the message payload"}
 public function <Response response> setBinaryPayload (blob payload) {
     mime:Entity entity = response.getEntityWithoutBody();
@@ -194,7 +194,7 @@ public function <Response response> setMultiparts (mime:Entity[] bodyParts, stri
 }
 
 @Description {value:"Sets the entity body of the outbound response with the given file content"}
-@Param {value:"response: The outbound response message"}
+@Param {value:"response: The response message"}
 @Param {value:"fileHandler: File that needs to be set to the payload"}
 @Param {value:"contentType: Content-Type of the file"}
 public function <Response response> setFileAsPayload (file:File fileHandler, string contentType) {
@@ -206,7 +206,7 @@ public function <Response response> setFileAsPayload (file:File fileHandler, str
 }
 
 @Description {value:"Sets a byte channel as the outbound response payload"}
-@Param {value:"response: The outbound response message"}
+@Param {value:"response: The response message"}
 @Param {value:"payload: The byte channel representation of the message payload"}
 public function <Response response> setByteChannel (io:ByteChannel payload) {
     mime:Entity entity = response.getEntityWithoutBody();

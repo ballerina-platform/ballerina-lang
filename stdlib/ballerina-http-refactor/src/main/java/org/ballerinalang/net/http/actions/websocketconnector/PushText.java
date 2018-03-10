@@ -22,13 +22,10 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

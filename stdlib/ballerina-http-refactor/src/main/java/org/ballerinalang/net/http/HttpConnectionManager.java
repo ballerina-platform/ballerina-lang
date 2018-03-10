@@ -21,20 +21,17 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,11 +128,13 @@ public class HttpConnectionManager {
 //     * @param httpServerConnector {@link BallerinaHttpServerConnector} of the pending transport server connectors.
 //     * @throws ServerConnectorException if exception occurs while starting at least one connector.
 //     */
-//    void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector) throws ServerConnectorException {
+//    void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector)
+    // throws ServerConnectorException {
 //        ConnectorStartupSynchronizer startupSyncer =
 //                new ConnectorStartupSynchronizer(startupDelayedHTTPServerConnectors.size());
 //
-//        for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.entrySet()) {
+//        for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.
+    // entrySet()) {
 //            ServerConnector serverConnector = serverConnectorEntry.getValue();
 //            ServerConnectorFuture connectorFuture = serverConnector.start();
 //            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
@@ -212,7 +211,8 @@ public class HttpConnectionManager {
 //        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
 //        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
 //        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
-//        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
+//        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener
+    // (webSocketServicesRegistry));
 //        connectorFuture.setPortBindingEventListener(
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
 //    }

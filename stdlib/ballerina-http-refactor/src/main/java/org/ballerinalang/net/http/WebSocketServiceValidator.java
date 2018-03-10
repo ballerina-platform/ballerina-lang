@@ -24,8 +24,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStringType;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;

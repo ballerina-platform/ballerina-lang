@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.inbound.response;
+package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,14 +28,14 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Set the entity of the inbound response.
+ * Set the entity of the inbound request.
  *
- * @since 0.96
+ * @since 0.96.0
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setEntity",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "entity", type = TypeKind.STRUCT)},
         isPublic = true
@@ -44,6 +44,6 @@ public class SetEntity extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setEntity(context, this, false);
+        return HttpUtil.setEntity(context, this, true);
     }
 }

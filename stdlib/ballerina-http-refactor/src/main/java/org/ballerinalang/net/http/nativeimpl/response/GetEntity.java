@@ -15,33 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.net.http.nativeimpl.outbound.request;
+
+package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**
- * Ballerina function to set a message property.
+ * Get the 'Entity' of the inbound response.
+ *
+ * @since 0.96
  */
-@BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "setProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutRequest",
-                             structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "propertyName", type = TypeKind.STRING),
-                @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type
-        isPublic = true
-)
-public class SetProperty extends AbstractNativeFunction {
-
+@BallerinaFunction(packageName = "ballerina.net.http",
+                   functionName = "getEntity",
+                   receiver = @Receiver(type = TypeKind.STRUCT,
+                                        structType = "Response",
+                                        structPackage = "ballerina.net.http"),
+                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
+                   isPublic = true)
+public class GetEntity extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return HttpUtil.setProperty(context, this, true);
+        return getBValues(HttpUtil.getEntity(context, this, false, true));
     }
 }

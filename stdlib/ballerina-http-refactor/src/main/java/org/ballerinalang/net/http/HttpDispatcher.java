@@ -164,7 +164,7 @@ public class HttpDispatcher {
         BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
         BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
+                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
 
         BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
