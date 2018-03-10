@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -77,27 +77,26 @@ public class OpenSocket extends AbstractNativeFunction {
             socketChannel.connect(new InetSocketAddress(host, port));
             socket = socketChannel.socket();
             channel = socket.getChannel();
+            PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
+            // Create ByteChannel Struct
+            StructInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
+            Channel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
+            BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
+            channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
+
+            // Create Socket Struct
+            StructInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
+            BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
+            socketStruct.setRefField(0, channelStruct);
+            socketStruct.setIntField(0, socket.getPort());
+            socketStruct.setIntField(1, socket.getLocalPort());
+            socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
+            socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
+            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
+            return getBValues(socketStruct);
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             throw new BallerinaException(msg, e, context);
         }
-
-        PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
-        // Create ByteChannel Struct
-        StructInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-        AbstractChannel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
-        BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
-        channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
-
-        // Create Socket Struct
-        StructInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
-        BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.setRefField(0, channelStruct);
-        socketStruct.setIntField(0, socket.getPort());
-        socketStruct.setIntField(1, socket.getLocalPort());
-        socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
-        socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
-        socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
-        return getBValues(socketStruct);
     }
 }

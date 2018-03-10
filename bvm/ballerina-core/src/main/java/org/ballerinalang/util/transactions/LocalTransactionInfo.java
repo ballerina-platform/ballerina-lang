@@ -19,6 +19,7 @@ package org.ballerinalang.util.transactions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * {@code LocalTransactionInfo} stores the transaction related information.
@@ -35,6 +36,7 @@ public class LocalTransactionInfo {
     private Map<Integer, Integer> allowedTransactionRetryCounts;
     private Map<Integer, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
+    private Stack<Integer> transactionBlockIdStack;
 
     public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
@@ -44,10 +46,19 @@ public class LocalTransactionInfo {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
+        transactionBlockIdStack = new Stack<>();
     }
 
     public String getGlobalTransactionId() {
         return this.globalTransactionId;
+    }
+
+    public int getCurrentTransactionBlockId() {
+        return transactionBlockIdStack.peek();
+    }
+
+    public boolean hasTransactionBlock() {
+        return !transactionBlockIdStack.empty();
     }
 
     public String getURL() {
@@ -59,6 +70,7 @@ public class LocalTransactionInfo {
     }
 
     public void beginTransactionBlock(int localTransactionID, int retryCount) {
+        transactionBlockIdStack.push(localTransactionID);
         allowedTransactionRetryCounts.put(localTransactionID, retryCount);
         currentTransactionRetryCounts.put(localTransactionID, 0);
         ++transactionLevel;
@@ -91,18 +103,18 @@ public class LocalTransactionInfo {
         return retryPossible;
     }
 
-    public boolean onTransactionFailed(int transactionId) {
+    public boolean onTransactionFailed(int transactionBlockId) {
         boolean bNotifyCoordinator = false;
         if (transactionLevel == 1) {
-            int currentCount = getCurrentRetryCount(transactionId);
-            int allowedCount = getAllowedRetryCount(transactionId);
+            int currentCount = getCurrentRetryCount(transactionBlockId);
+            int allowedCount = getAllowedRetryCount(transactionBlockId);
             //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
             //the coordinator with transaction abort.
             if (currentCount == allowedCount) {
                 bNotifyCoordinator = true;
             } else {
                 transactionContextStore.clear();
-                TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId);
+                TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId, transactionBlockId);
             }
         }
         return bNotifyCoordinator;
@@ -112,11 +124,12 @@ public class LocalTransactionInfo {
         return (transactionLevel == 1);
     }
 
-    public boolean onTransactionEnd() {
+    public boolean onTransactionEnd(int transactionBlockId) {
         boolean bNotifyCoordinator = false;
+        transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
-            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId);
+            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
             resetTransactionInfo();
             bNotifyCoordinator = true;
         }
