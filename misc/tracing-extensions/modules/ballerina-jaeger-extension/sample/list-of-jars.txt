@@ -1,3 +1,0 @@
-jaeger-core-0.24.0.jar
-jaeger-thrift-0.24.0.jar
-libthrift-0.11.0.jar
