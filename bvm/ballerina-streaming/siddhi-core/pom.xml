@@ -80,6 +80,26 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
+                    </environmentVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExcludes>org.slf4j:slf4j-log4j12</classpathDependencyExcludes>
+                    </classpathDependencyExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <properties>
         <maven.checkstyleplugin.excludes>**/SiddhiDebuggerClient.java</maven.checkstyleplugin.excludes>
         <mavan.findbugsplugin.exclude.file>../findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
