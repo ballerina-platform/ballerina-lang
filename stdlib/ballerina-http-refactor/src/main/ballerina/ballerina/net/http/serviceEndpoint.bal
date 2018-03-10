@@ -155,13 +155,13 @@ public function <HttpService ep> stop () {
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public struct WsService{
+public struct WebSocketService{
     string epName;
     ServiceEndpointConfiguration config;
     ServiceEndpoint serviceEndpoint;
 }
 
-public function <WsService ep> WsService() {
+public function <WebSocketService ep> WebSocketService() {
     ep.serviceEndpoint = {};
 }
 
@@ -169,7 +169,7 @@ public function <WsService ep> WsService() {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WsService ep> init (string epName, ServiceEndpointConfiguration config) {
+public function <WebSocketService ep> init (string epName, ServiceEndpointConfiguration config) {
     ep.serviceEndpoint.init(epName, config);
 }
 
@@ -177,25 +177,25 @@ public function <WsService ep> init (string epName, ServiceEndpointConfiguration
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public function <WsService ep> register (type serviceType) {
+public function <WebSocketService ep> register (type serviceType) {
     ep.serviceEndpoint.register(serviceType);
 }
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WsService ep> start () {
+public function <WebSocketService ep> start () {
     ep.serviceEndpoint.start();
 }
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public function <WsService ep> getConnector () returns (ServerConnector repConn) {
+public function <WebSocketService ep> getConnector () returns (ServerConnector repConn) {
     return ep.serviceEndpoint.getConnector();
 }
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WsService ep> stop () {
+public function <WebSocketService ep> stop () {
     ep.serviceEndpoint.stop();
 }
