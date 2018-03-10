@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -508,9 +507,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpoint) {
-        endpoint.type = symResolver.resolveTypeNode(endpoint.endpointTypeNode, env);
+        BType varType = symResolver.resolveTypeNode(endpoint.endpointTypeNode, env);
         Name varName = names.fromIdNode(endpoint.name);
-        BType varType = ((BEndpointType) endpoint.type).constraint;
+        endpoint.type = varType;
         endpoint.symbol = defineEndpointVarSymbol(endpoint.pos, endpoint.flagSet, varType, varName, env);
     }
 
@@ -786,8 +785,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    public BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
-                                                      SymbolEnv env) {
+    private BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name
+            varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,

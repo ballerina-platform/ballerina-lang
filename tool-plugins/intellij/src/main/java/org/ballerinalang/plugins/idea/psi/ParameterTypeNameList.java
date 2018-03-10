@@ -21,11 +21,11 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an TypeList in PSI tree.
+ * Represents an ParameterTypeNameList in PSI tree.
  */
-public class TypeListNode extends ANTLRPsiNode {
+public class ParameterTypeNameList extends ANTLRPsiNode {
 
-    public TypeListNode(@NotNull ASTNode node) {
+    public ParameterTypeNameList(@NotNull ASTNode node) {
         super(node);
     }
 }

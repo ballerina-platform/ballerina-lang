@@ -110,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -976,8 +975,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
-                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR
-                        || invocationExpr.expr.type.tag == TypeTags.ENDPOINT) {
+                if (invocationExpr.isActionInvocation()) {
                     dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             "action invocation");
                 }
