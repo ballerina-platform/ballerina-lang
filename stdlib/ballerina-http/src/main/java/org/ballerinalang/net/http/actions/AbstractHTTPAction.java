@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
@@ -253,7 +254,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             } else {
                 serializeDataSource(dataContext.context, messageOutputStream);
             }
-        } catch (Exception serializerException) {
+        } catch (IOException | EncoderException serializerException) {
             // We don't have to do anything here as the client connector will notify
             // the error though the listener
             logger.warn("couldn't serialize the message", serializerException);
@@ -268,7 +269,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @param boundaryString      Boundary string that should be used in encoding body parts
      * @param messageOutputStream Output stream to which the payload is written
      */
-    private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString) {
+    private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString)
+            throws IOException {
         BStruct entityStruct = getEntityStruct(context);
         if (entityStruct != null) {
             BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
@@ -301,7 +303,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         HttpUtil.closeMessageOutputStream(messageOutputStream);
     }
 
-    private void serializeDataSource(Context context, OutputStream messageOutputStream) {
+    private void serializeDataSource(Context context, OutputStream messageOutputStream) throws IOException {
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
         BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
         if (entityStruct != null) {
@@ -312,9 +314,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             } else { //When the entity body is a byte channel
                 try {
                     EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                } catch (IOException e) {
-                    throw new BallerinaException("An error occurred while writing byte channel content to outputstream",
-                            context);
                 } finally {
                     HttpUtil.closeMessageOutputStream(messageOutputStream);
                 }

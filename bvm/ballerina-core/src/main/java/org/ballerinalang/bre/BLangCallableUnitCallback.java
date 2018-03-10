@@ -56,7 +56,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BStruct error) {
-        BLangScheduler.errorThrown(this.parentCtx, error);
+        BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
     }
 
 }
