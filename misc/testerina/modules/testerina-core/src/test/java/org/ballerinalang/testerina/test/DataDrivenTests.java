@@ -40,9 +40,9 @@ public class DataDrivenTests {
     public void dataSetTest() {
         BTestRunner testRunner = new BTestRunner();
         testRunner.runTest(filePaths, null);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 0);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 2);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 2);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
     }
 
     @Test
@@ -51,9 +51,9 @@ public class DataDrivenTests {
         List<String> groupList = new ArrayList<>();
         groupList.add("g1");
         testRunner.runTest(filePathsGrouped, groupList);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 2);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 4);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 2);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 2);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 4);
     }
 
     @Test
@@ -64,9 +64,9 @@ public class DataDrivenTests {
         groupList.add("g2");
         groupList.add("default");
         testRunner.runTest(filePathsGrouped, groupList);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 6);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 5);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 1);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 6);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 5);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 1);
     }
 
     @Test
@@ -75,8 +75,8 @@ public class DataDrivenTests {
         List<String> groupList = new ArrayList<>();
         groupList.add("default");
         testRunner.runTest(filePathsGrouped, groupList);
-        Assert.assertEquals(testRunner.getTesterinaReport().getPassedTestCount(), 1);
-        Assert.assertEquals(testRunner.getTesterinaReport().getFailedTestCount(), 0);
-        Assert.assertEquals(testRunner.getTesterinaReport().getSkippedTestCount(), 4);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 1);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
+        Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 4);
     }
 }

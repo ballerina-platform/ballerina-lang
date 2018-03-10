@@ -29,6 +29,22 @@ function testFunc2 (string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, "The sum is not correct");
 }
 
+@test:config{
+    dataProvider:"dataGen3"
+}
+function testFunc3 (json fValue, json sValue, json result) {
+    json a = {"a": "a"};
+    json b = {"b": "b"};
+    json c = {"c": "c"};
+    test:assertEquals(fValue, a, "json data provider failed");
+    test:assertEquals(sValue, b, "json data provider failed");
+    test:assertEquals(result, c, "json data provider failed");
+}
+
 function dataGen2()(string[][]) {
     return [["1", "2", "3"]];
+}
+
+function dataGen3()(json[][]) {
+    return [[{"a": "a"}, {"b": "b"}, {"c": "c"}]];
 }

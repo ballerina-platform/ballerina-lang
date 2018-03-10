@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,8 +41,10 @@ public class DataProviderTest {
     @Test
     public void testBefore() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/annotations-test/data-provider-test.bal")},
-                new ArrayList<>());
+        BTestRunner runner = new BTestRunner();
+        runner.runTest(new Path[]{Paths.get("src/test/resources/annotations-test/data-provider-test.bal")}, new
+                ArrayList<>());
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 5);
 
     }
 
