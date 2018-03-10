@@ -23,6 +23,7 @@ const string initiatorCoordinatorBasePath = basePath + "/initiator";
 const string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
 const string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
 const string registrationPath = "/register";
+const string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
 const string coordinatorHost = getCoordinatorHost();
 const int coordinatorPort = getCoordinatorPort();
