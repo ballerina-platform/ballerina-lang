@@ -86,7 +86,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
-import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -1012,13 +1011,11 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         if (conType == symTable.errType
-                || (conType.tag == TypeTags.STRUCT & (conType.tsymbol.flags & Flags.ENDPOINT) != Flags.ENDPOINT)
-                || conType.tag != TypeTags.CONNECTOR) {
+                || !(conType.tag == TypeTags.STRUCT || conType.tag == TypeTags.CONNECTOR)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultTypes = actualTypes;
             return;
         }
-
 
         BSymbol conSymbol;
         if (iExpr.expr.getKind() == NodeKind.INVOCATION) {
