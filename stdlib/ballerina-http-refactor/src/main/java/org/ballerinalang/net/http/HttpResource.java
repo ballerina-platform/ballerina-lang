@@ -214,6 +214,9 @@ public class HttpResource {
     }
 
     private static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
         List<String> valuesList = new ArrayList<>();
         for (Value val : values) {
             valuesList.add(val.getStringValue());
