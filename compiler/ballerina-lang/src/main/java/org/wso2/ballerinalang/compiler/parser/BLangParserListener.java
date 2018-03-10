@@ -2069,16 +2069,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2174,9 +2164,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean isSelectAll = ctx.MUL() == null ? false : true;
-        boolean isGroupByClauseAvailable = ctx.groupByClause() == null ? false : true;
-        boolean isHavingClauseAvailable = ctx.havingClause() == null ? false : true;
+
+        boolean isSelectAll = ctx.MUL() != null;
+        boolean isGroupByClauseAvailable = ctx.groupByClause() != null;
+        boolean isHavingClauseAvailable = ctx.havingClause() != null;
         this.pkgBuilder.endSelectClauseNode(isSelectAll, isGroupByClauseAvailable, isHavingClauseAvailable,
                 getCurrentPos(ctx), getWS(ctx));
     }
@@ -2386,9 +2377,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean isSelectClauseAvailable = ctx.selectClause() == null ? false : true;
-        boolean isOrderByClauseAvailable = ctx.orderByClause() == null ? false : true;
-        boolean isJoinClauseAvailable = ctx.joinStreamingInput() == null ? false : true;
+        boolean isSelectClauseAvailable = ctx.selectClause() != null;
+        boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
+        boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
         this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
                 getCurrentPos(ctx), getWS(ctx));
     }

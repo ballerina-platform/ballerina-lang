@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.Node;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents the SELECT clause in Streams/Tables grammar in Ballerina.
  * <pre>Grammar:
  *      SELECT (MUL| ( selectExpression (COMMA selectExpression)* ) ) groupByClause? havingClause?

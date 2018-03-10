@@ -1,9 +1,13 @@
 import images.jpeg;
 import images.gif;
 import images.png;
+import formats.yaml;
 import ballerina.net.http;
 
 @jpeg:IConfig {
+    value: "routerFunc"
+}
+@yaml:YAMLConfig {
     value: "routerFunc"
 }
 public function routerFunc() {
@@ -58,6 +62,9 @@ public connector routeCon() {
 
     @jpeg:IConfig {
         value: "getRoutes"
+    }
+    @yaml:YAMLConfig {
+        value: "routerFunc"
     }
     action getRoutes() {
 

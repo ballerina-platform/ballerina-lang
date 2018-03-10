@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * @since 0.965.0
+ *
  * The implementation of {@link JoinStreamingInput}.
  */
 public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingInput {

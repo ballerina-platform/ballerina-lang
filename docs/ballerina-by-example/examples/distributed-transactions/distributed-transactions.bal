@@ -1,4 +1,5 @@
 import ballerina.data.sql;
+import ballerina.io;
 
 function main (string[] args) {
     //Create an endpoint for the first database named testdb1. Since this endpoint is
@@ -18,11 +19,11 @@ function main (string[] args) {
         {maximumPoolSize:1, isXA:true});
     }
     //Create the table named CUSTOMER in the first database.
-    int ret = testDB1.updateQuery("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
+    int ret = testDB1.update("CREATE TABLE CUSTOMER (ID INT AUTO_INCREMENT PRIMARY KEY,
                                     NAME VARCHAR(30))", null);
     io:println("CUSTOMER table create status in first DB:" + ret);
     //Create the table named SALARY in the second database.
-    ret = testDB2.updateQuery("CREATE TABLE SALARY (ID INT, VALUE FLOAT)", null);
+    ret = testDB2.update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)", null);
     io:println("SALARY table create status in second DB:" + ret);
 
     boolean transactionSuccess = false;
@@ -39,7 +40,7 @@ function main (string[] args) {
         //salary info to the second DB along with the key generated in the first DB.
         sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:returnedKey};
         sql:Parameter[] params = [para1];
-        ret = testDB2.updateQuery("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", params);
+        ret = testDB2.update("INSERT INTO SALARY (ID, VALUE) VALUES (?, 2500)", params);
         io:println("Inserted count to SALARY table:" + ret);
 
         transactionSuccess = true;
@@ -51,9 +52,9 @@ function main (string[] args) {
         io:println("Transaction committed");
     }
     //Drop the tables created for this sample.
-    ret = testDB1.updateQuery("DROP TABLE CUSTOMER", null);
+    ret = testDB1.update("DROP TABLE CUSTOMER", null);
     io:println("CUSTOMER table drop status:" + ret);
-    ret = testDB2.updateQuery("DROP TABLE SALARY", null);
+    ret = testDB2.update("DROP TABLE SALARY", null);
     io:println("SALARY table drop status:" + ret);
 
     //Close the connection pool.

@@ -2036,61 +2036,57 @@ public class BLangPackageBuilder {
     public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         OrderByNode orderByNode = TreeBuilder.createOrderByNode();
         ((BLangOrderBy) orderByNode).pos = pos;
-        ((BLangOrderBy) orderByNode).addWS(ws);
+        orderByNode.addWS(ws);
         this.orderByClauseStack.push(orderByNode);
     }
 
-    public void endOrderByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        if (this.exprNodeListStack.empty()) {
-            throw new IllegalStateException("ExpressionList stack cannot be empty in processing an OrderBy clause");
-        }
+    public void endOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         OrderByNode orderByNode = this.orderByClauseStack.peek();
+        ((BLangOrderBy) orderByNode).pos = pos;
+        orderByNode.addWS(ws);
         this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
     }
 
     public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         GroupByNode groupByNode = TreeBuilder.createGroupByNode();
         ((BLangGroupBy) groupByNode).pos = pos;
-        ((BLangGroupBy) groupByNode).addWS(ws);
+        groupByNode.addWS(ws);
         this.groupByClauseStack.push(groupByNode);
     }
 
-    public void endGroupByClauseNode(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        if (this.exprNodeListStack.empty()) {
-            throw new IllegalStateException("ExpressionList stack cannot be empty in processing a GroupBy");
-        }
+    public void endGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         GroupByNode groupByNode = this.groupByClauseStack.peek();
+        ((BLangGroupBy) groupByNode).pos = pos;
+        groupByNode.addWS(ws);
         this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
     }
 
     public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         HavingNode havingNode = TreeBuilder.createHavingNode();
         ((BLangHaving) havingNode).pos = pos;
-        ((BLangHaving) havingNode).addWS(ws);
+        havingNode.addWS(ws);
         this.havingClauseStack.push(havingNode);
     }
 
     public void endHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing a having clause");
-        }
         HavingNode havingNode = this.havingClauseStack.peek();
+        ((BLangHaving) havingNode).pos = pos;
+        havingNode.addWS(ws);
         havingNode.setExpression(this.exprNodeStack.pop());
     }
 
     public void startSelectExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
         SelectExpressionNode selectExpr = TreeBuilder.createSelectExpressionNode();
         ((BLangSelectExpression) selectExpr).pos = pos;
-        ((BLangSelectExpression) selectExpr).addWS(ws);
+        selectExpr.addWS(ws);
         this.selectExpressionsStack.push(selectExpr);
     }
 
     public void endSelectExpressionNode(String identifier, DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing a select expression");
-        }
         SelectExpressionNode selectExpression = this.selectExpressionsStack.peek();
         selectExpression.setExpression(exprNodeStack.pop());
+        ((BLangSelectExpression) selectExpression).pos = pos;
+        selectExpression.addWS(ws);
         selectExpression.setIdentifier(identifier);
     }
 
@@ -2117,37 +2113,30 @@ public class BLangPackageBuilder {
     public void startWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         WhereNode whereNode = TreeBuilder.createWhereNode();
         ((BLangWhere) whereNode).pos = pos;
-        ((BLangWhere) whereNode).addWS(ws);
+        whereNode.addWS(ws);
         this.whereClauseStack.push(whereNode);
     }
 
     public void endWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("Expression stack cannot be empty in processing a Where");
-        }
         WhereNode whereNode = this.whereClauseStack.peek();
         ((BLangWhere) whereNode).pos = pos;
-        ((BLangWhere) whereNode).addWS(ws);
+        whereNode.addWS(ws);
         whereNode.setExpression(exprNodeStack.pop());
     }
 
     public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
         ((BLangSelectClause) selectClauseNode).pos = pos;
-        ((BLangSelectClause) selectClauseNode).addWS(ws);
+        selectClauseNode.addWS(ws);
         this.selectClausesStack.push(selectClauseNode);
     }
 
     public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
-                                    DiagnosticPos pos, Set<Whitespace> ws) {
+            DiagnosticPos pos, Set<Whitespace> ws) {
         SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
         ((BLangSelectClause) selectClauseNode).pos = pos;
-        ((BLangSelectClause) selectClauseNode).addWS(ws);
+        selectClauseNode.addWS(ws);
         if (!isSelectAll) {
-            if (this.selectExpressionsListStack.empty()) {
-                throw new IllegalStateException("Select Expressions List stack cannot be empty when processing " +
-                        "a select clause");
-            }
             selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
         } else {
             selectClauseNode.setSelectAll(true);
@@ -2163,15 +2152,14 @@ public class BLangPackageBuilder {
     public void startWindowClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         WindowClauseNode windowClauseNode = TreeBuilder.createWindowClauseNode();
         ((BLangWindow) windowClauseNode).pos = pos;
-        ((BLangWindow) windowClauseNode).addWS(ws);
+        windowClauseNode.addWS(ws);
         this.windowClausesStack.push(windowClauseNode);
     }
-
 
     public void endWindowsClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         WindowClauseNode windowClauseNode = this.windowClausesStack.peek();
         ((BLangWindow) windowClauseNode).pos = pos;
-        ((BLangWindow) windowClauseNode).addWS(ws);
+        windowClauseNode.addWS(ws);
         windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
 
         if (!this.whereClauseStack.isEmpty()) {
@@ -2184,7 +2172,7 @@ public class BLangPackageBuilder {
     public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
         ((BLangStreamingInput) streamingInput).pos = pos;
-        ((BLangStreamingInput) streamingInput).addWS(ws);
+        streamingInput.addWS(ws);
         this.streamingInputStack.push(streamingInput);
     }
 
@@ -2215,20 +2203,14 @@ public class BLangPackageBuilder {
     public void startJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
         JoinStreamingInput joinStreamingInput = TreeBuilder.createJoinStreamingInputNode();
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
-        ((BLangJoinStreamingInput) joinStreamingInput).addWS(ws);
+        joinStreamingInput.addWS(ws);
         this.joinStreamingInputsStack.push(joinStreamingInput);
     }
 
     public void endJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.streamingInputStack.empty()) {
-            throw new IllegalStateException("Streaming input cannot be empty when processing a Join clause");
-        }
-        if (this.exprNodeStack.empty()) {
-            throw new IllegalStateException("On expression cannot be empty when processing a Join clause");
-        }
         JoinStreamingInput joinStreamingInput = this.joinStreamingInputsStack.peek();
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
-        ((BLangJoinStreamingInput) joinStreamingInput).addWS(ws);
+        joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
         joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
     }
@@ -2236,7 +2218,7 @@ public class BLangPackageBuilder {
     public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
         TableQuery tableQuery = TreeBuilder.createTableQueryNode();
         ((BLangTableQuery) tableQuery).pos = pos;
-        ((BLangTableQuery) tableQuery).addWS(ws);
+        tableQuery.addWS(ws);
         this.tableQueriesStack.push(tableQuery);
     }
 
@@ -2258,12 +2240,9 @@ public class BLangPackageBuilder {
     }
 
     public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
-        if (this.tableQueriesStack.empty()) {
-            throw new IllegalStateException("Table query cannot be empty when processing a table query expression");
-        }
         TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
         ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
-        ((BLangTableQueryExpression) tableQueryExpression).addWS(ws);
+        tableQueryExpression.addWS(ws);
         tableQueryExpression.setTableQuery(tableQueriesStack.pop());
         this.exprNodeStack.push(tableQueryExpression);
     }

@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -43,10 +43,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "joinTable",
                         type = TypeKind.TABLE),
                 @Argument(name = "parameters",
-                        type = TypeKind.ARRAY)
+                        type = TypeKind.ARRAY),
+                @Argument(name = "retType",
+                        type = TypeKind.ANY)
         },
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
-        isPublic = true)
+        returnType = {@ReturnType(type = TypeKind.TABLE)})
 public class QueryTableWithJoinClause extends AbstractNativeFunction {
     /**
      * Where Native Function logic is implemented.
@@ -60,6 +61,7 @@ public class QueryTableWithJoinClause extends AbstractNativeFunction {
         BTable fromTable = (BTable) getRefArgument(context, 0);
         BTable joinTable = (BTable) getRefArgument(context, 1);
         BRefValueArray array = (BRefValueArray) getRefArgument(context, 2);
-        return getBValues(fromTable, joinTable, array, new BString(query));
+        BStruct tableTypeStruct = (BStruct) getRefArgument(context, 3);
+        return getBValues(new BTable(query, fromTable, joinTable, tableTypeStruct.getType(), array));
     }
 }

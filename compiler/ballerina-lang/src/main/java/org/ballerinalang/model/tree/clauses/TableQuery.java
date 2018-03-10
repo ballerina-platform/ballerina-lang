@@ -21,6 +21,8 @@ package org.ballerinalang.model.tree.clauses;
 import org.ballerinalang.model.tree.Node;
 
 /**
+ * @since 0.965.0
+ *
  * This interface represents syntax for querying tables in stream/tables' SQL syntax.
  * <pre>Grammar:
  *      FROM streamingInput joinStreamingInput? selectClause? orderByClause?

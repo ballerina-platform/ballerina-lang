@@ -24,11 +24,17 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.HasNextDelimitedRecordEvent;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#hasNextTextRecord.
@@ -55,16 +61,27 @@ public class HasNextTextRecord extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context context) {
-        BBoolean hasNext;
-        BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
-        if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
-            DelimitedRecordChannel textRecordChannel =
-                    (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            hasNext = new BBoolean(textRecordChannel.hasNext());
-        } else {
-            String message = "Error occurred while checking the next record availability: Null channel returned.";
+        try {
+            BBoolean hasNext;
+            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
+                DelimitedRecordChannel textRecordChannel =
+                        (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+                EventContext eventContext = new EventContext(context);
+                HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
+                        eventContext);
+                CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
+                EventResult eventResult = event.get();
+                boolean value = (boolean) eventResult.getResponse();
+                hasNext = new BBoolean(value);
+            } else {
+                String message = "Error occurred while checking the next record availability: Null channel returned.";
+                throw new BallerinaException(message, context);
+            }
+            return getBValues(hasNext);
+        } catch (Throwable e) {
+            String message = "Error occurred while querying for hasNext:" + e.getMessage();
             throw new BallerinaException(message, context);
         }
-        return getBValues(hasNext);
     }
 }

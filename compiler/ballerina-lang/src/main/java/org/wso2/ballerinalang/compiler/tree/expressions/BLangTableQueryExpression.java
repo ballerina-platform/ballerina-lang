@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @since 0.965.0
+ *
  * The Implementation of {@link TableQueryExpression}.
  */
 public class BLangTableQueryExpression extends BLangExpression implements TableQueryExpression {

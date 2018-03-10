@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -88,9 +90,18 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
+
+        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
+        if (accessLogConfig != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
+            }
+        }
+
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
-
         String basePath = discoverBasePathFrom(service, annotation);
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);

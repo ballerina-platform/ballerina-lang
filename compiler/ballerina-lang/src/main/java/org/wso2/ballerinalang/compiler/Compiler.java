@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -49,6 +50,7 @@ public class Compiler {
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private TaintAnalyzer taintAnalyzer;
     private CompilerPluginRunner annotationProcessor;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
@@ -77,6 +79,7 @@ public class Compiler {
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.annotationProcessor = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
@@ -102,6 +105,11 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+
+        pkgNode = taintAnalyze(pkgNode);
         if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
@@ -157,6 +165,10 @@ public class Compiler {
         return codeAnalyzer.analyze(pkgNode);
     }
 
+    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
+        return taintAnalyzer.analyze(pkgNode);
+    }
+  
     private BLangPackage annotationProcess(BLangPackage pkgNode) {
         return annotationProcessor.runPlugins(pkgNode);
     }
@@ -187,12 +199,12 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.COMPILER_PLUGIN || phase == CompilerPhase.DESUGAR ||
-                phase == CompilerPhase.CODE_GEN) &&
-                (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
+        return (phase == CompilerPhase.TAINT_ANALYZE || phase == CompilerPhase.COMPILER_PLUGIN 
+                || phase == CompilerPhase.DESUGAR || phase == CompilerPhase.CODE_GEN) 
+                && (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
+        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
     }
 }

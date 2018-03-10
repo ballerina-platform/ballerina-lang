@@ -47,4 +47,14 @@ public class IOConstants {
      * Name of the Socket which will be represented through the native struct.
      */
     public static final String CLIENT_SOCKET_NAME = "clientSocket";
+
+    /**
+     * Specifies the io package information.
+     */
+    public static final String IO_PACKAGE = "ballerina.io";
+
+    /**
+     * Struct which represents io error.
+     */
+    public static final String IO_ERROR_STRUCT = "IOError";
 }

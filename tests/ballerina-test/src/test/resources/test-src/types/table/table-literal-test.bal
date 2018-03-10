@@ -13,7 +13,7 @@ function getTableCount (string tablePrefix) (int count) {
     sql:Parameter[] parameters = [p1];
 
     try {
-        table dt = testDB.selectQuery("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
+        table dt = testDB.select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
                                  parameters, typeof ResultCount);
         if (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();
@@ -31,7 +31,7 @@ function getSessionCount () (int count) {
     bind create sql:ClientConnector(sql:DB.H2_MEM, "", 0, "TABLEDB", "sa", "", null) with testDB;
 
     try {
-        table dt = testDB.selectQuery("SELECT count(*) as count FROM information_schema.sessions",
+        table dt = testDB.select("SELECT count(*) as count FROM information_schema.sessions",
                                  null, typeof ResultCount);
         if (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();

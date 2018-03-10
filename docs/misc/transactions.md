@@ -22,10 +22,10 @@ A `transaction` is defined as follows:
 ```ballerina
 transaction { 
 
-   testdb1.updateQuery(...) 
+   testdb1.update(...) 
 
 
-   testdb2.updateQuery(...) 
+   testdb2.update(...) 
 
 	If ( ...) {
 		abort;
@@ -77,7 +77,7 @@ Ballerina allows you to have transactions within a transaction.  All internal tr
 
 ## Example
 
-The following is an example of a local transaction where the transaction gets aborted if any of the `updateQuery` actions fail.
+The following is an example of a local transaction where the transaction gets aborted if any of the `update` actions fail.
 
 ```ballerina
     import ballerina.data.sql;
@@ -89,8 +89,8 @@ The following is an example of a local transaction where the transaction gets ab
         }
         boolean transactionSuccess = false;
         transaction with retries(4){
-            int c = testDB.updateQuery("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
-            c = testDB.updateQuery("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
+            int c = testDB.update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')", null);
+            c = testDB.update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)", null);
             println("Inserted count:" + c);
             if (c == 0) {
                 abort;
