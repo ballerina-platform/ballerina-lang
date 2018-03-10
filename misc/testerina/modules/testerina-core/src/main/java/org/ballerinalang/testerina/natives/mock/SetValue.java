@@ -18,9 +18,8 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -47,7 +46,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "value",
                                                value = "Mock value to set (e.g.: endpoint URL)") })
-public class SetValue extends AbstractNativeCallableUnit {
+public class SetValue extends BlockingNativeCallableUnit {
 
 //   private static final String COULD_NOT_FIND_MATCHING_CONNECTOR =
 //                                                      "Could not find a matching connector for the name ";
