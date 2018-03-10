@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
@@ -101,23 +102,25 @@ public class PackageLoader {
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
     }
 
-    private RepoHierarchy genRepoHierarchy(Path projectDir) {
+    private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = Paths.get("~/.ballerina_home");
-        Path projectHiddenDir = projectDir.resolve(".ballerina");
+        Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
 
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
         Repo homeRepo = new ObjRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
         Repo projectRepo = new ObjRepo(projectHiddenDir);
-        Repo projectSource = new ProjectSourceRepo(projectDir);
+        Repo projectSource = new ProjectSourceRepo(sourceRoot);
+        Repo programingSource = new ProgramingSourceRepo(sourceRoot);
 
         RepoHierarchyBuilder.RepoNode homeCacheNode;
         homeCacheNode = node(homeCacheRepo, systemArr);
-        return RepoHierarchyBuilder.build(node(projectSource,
-                                               node(projectRepo,
-                                                    node(projectCacheRepo, homeCacheNode),
-                                                    node(homeRepo, homeCacheNode))));
+        return RepoHierarchyBuilder.build(node(programingSource,
+                                               node(projectSource,
+                                                    node(projectRepo,
+                                                         node(projectCacheRepo, homeCacheNode),
+                                                         node(homeRepo, homeCacheNode)))));
     }
 
     private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
