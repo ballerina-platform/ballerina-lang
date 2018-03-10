@@ -252,7 +252,7 @@ public class HttpConnectionManager {
      * @return the access logto value from the ConfigRegistry
      */
     public String getHttpAccessLoggerConfig() {
-        return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
+        return ConfigRegistry.getInstance().getConfiguration(HTTP_ACCESS_LOG, LOG_TO);
     }
 
     private String makeFirstLetterLowerCase(String str) {

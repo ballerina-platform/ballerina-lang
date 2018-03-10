@@ -18,8 +18,8 @@
 
 package org.ballerinalang.bcl.parser;
 
-import org.ballerinalang.bcl.parser.antlr4.TomlBaseListener;
-import org.ballerinalang.bcl.parser.antlr4.TomlParser;
+import org.ballerinalang.toml.antlr4.TomlBaseListener;
+import org.ballerinalang.toml.antlr4.TomlParser;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ public class BConfigLangListener extends TomlBaseListener {
     }
 
     @Override
-    public void exitKeyval(TomlParser.KeyvalContext context) {
+    public void exitKeyVal(TomlParser.KeyValContext context) {
         currentKey = null; // Reset current key once the config entry is added to the map
     }
 
