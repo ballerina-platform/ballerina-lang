@@ -23,11 +23,20 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#nextTextRecords.
@@ -40,7 +49,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class NextTextRecord extends AbstractNativeFunction {
@@ -50,23 +60,76 @@ public class NextTextRecord extends AbstractNativeFunction {
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
 
     /**
+     * Will be the I/O event handler.
+     */
+    private EventManager eventManager = EventManager.getInstance();
+
+    private static final Logger log = LoggerFactory.getLogger(NextTextRecord.class);
+
+    /*
+     * Response obtained after reading record.
+     *
+     * @param result the result obtained after processing the record.
+     * @return the response obtained after reading record.
+     */
+/*
+    private static EventResult readRecordResponse(EventResult<String[], EventContext> result) {
+        BStruct errorStruct;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        String[] fields = result.getResponse();
+        return result;
+    }
+*/
+
+    /**
+     * Reads bytes asynchronously.
+     *
+     * @param recordChannel channel the bytes should be read from.
+     * @param context       event context.
+     * @return the fields which were read.
+     * @throws ExecutionException   errors which occur during execution.
+     * @throws InterruptedException during interrupt error.
+     */
+    private String[] readRecord(DelimitedRecordChannel recordChannel, EventContext context) throws ExecutionException,
+            InterruptedException {
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel, context
+        );
+        CompletableFuture<EventResult> future = eventManager.publish(event);
+        //TODO when async functions are available this should be modified
+        //future.thenApply(NextTextRecord::readRecordResponse);
+        EventResult eventResult = future.get();
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        if (null != error) {
+            throw new ExecutionException(error);
+        }
+        return (String[]) eventResult.getResponse();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public BValue[] execute(Context context) {
-        BStruct channel;
-        BStringArray record;
+        BStringArray record = null;
+        BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
 
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
-            String[] recordValue = delimitedRecordChannel.read();
+            EventContext eventContext = new EventContext(context);
+            String[] recordValue = readRecord(delimitedRecordChannel, eventContext);
             record = new BStringArray(recordValue);
         } catch (Throwable e) {
             String message = "Error occurred while reading text records:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(record);
+        return getBValues(record, errorStruct);
     }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 /**
@@ -39,7 +40,7 @@ public class TempFileIOChannel extends FileIOChannel {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         super.close();
         if (tempFilePath != null && !tempFilePath.isEmpty()) {
             File tempFile = new File(tempFilePath);
