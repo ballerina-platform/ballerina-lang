@@ -19,7 +19,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
@@ -37,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 /**
  * This services registry holds all the services of HTTP + WebSocket.
@@ -138,7 +136,7 @@ public class HTTPServicesRegistry {
         CorsPopulator.populateServiceCors(httpService);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
-            HttpResource httpResource = buildHttpResource(resource);
+            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
             httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
@@ -146,7 +144,6 @@ public class HTTPServicesRegistry {
             } catch (URITemplateException | UnsupportedEncodingException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }
-            CorsPopulator.processResourceCors(httpResource, httpService);
             resources.add(httpResource);
         }
         httpService.setResources(resources);
@@ -163,60 +160,6 @@ public class HTTPServicesRegistry {
             throw new BallerinaConnectorException(e.getMessage());
         }
         return basePath;
-    }
-
-    private HttpResource buildHttpResource(Resource resource) {
-        HttpResource httpResource = new HttpResource(resource);
-        Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
-                                                                                   HttpConstants.HTTP_PACKAGE_PATH);
-        if (resourceConfigAnnotation == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("resourceConfig not specified in the Resource, using default sub path");
-            }
-            httpResource.setPath(resource.getName());
-            return httpResource;
-        }
-        String subPath;
-        AnnAttrValue pathAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_PATH);
-        if (pathAttrVal == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Path not specified in the Resource, using default sub path");
-            }
-            subPath = resource.getName();
-        } else {
-            subPath = pathAttrVal.getStringValue().trim();
-        }
-        if (subPath.isEmpty()) {
-            subPath = HttpConstants.DEFAULT_BASE_PATH;
-        }
-        httpResource.setPath(subPath);
-
-        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
-        if (methodsAttrVal != null) {
-            httpResource.setMethods(DispatcherUtil.getValueList(methodsAttrVal, null));
-        }
-        AnnAttrValue consumesAttrVal = resourceConfigAnnotation.getAnnAttrValue(
-                HttpConstants.ANN_RESOURCE_ATTR_CONSUMES);
-        if (consumesAttrVal != null) {
-            httpResource.setConsumes(DispatcherUtil.getValueList(consumesAttrVal, null));
-        }
-        AnnAttrValue producesAttrVal = resourceConfigAnnotation.getAnnAttrValue(
-                HttpConstants.ANN_RESOURCE_ATTR_PRODUCES);
-        if (producesAttrVal != null) {
-            httpResource.setProduces(DispatcherUtil.getValueList(producesAttrVal, null));
-        }
-        if (httpResource.getProduces() != null) {
-            List<String> subAttributeValues = httpResource.getProduces().stream()
-                    .map(mediaType -> mediaType.trim()
-                            .substring(0, mediaType.indexOf("/")))
-                    .distinct().collect(Collectors.toList());
-            httpResource.setProducesSubTypes(subAttributeValues);
-        }
-        AnnAttrValue bodyAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_BODY);
-        if (bodyAttrVal != null) {
-            httpResource.setEntityBodyAttributeValue(bodyAttrVal.getStringValue());
-        }
-        return httpResource;
     }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
