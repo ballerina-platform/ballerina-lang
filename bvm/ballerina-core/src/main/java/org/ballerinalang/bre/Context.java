@@ -65,8 +65,6 @@ public interface Context {
 
     ProgramFile getProgramFile();
 
-    void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo);
-
     LocalTransactionInfo getLocalTransactionInfo();
 
     long getIntArgument(int index);
