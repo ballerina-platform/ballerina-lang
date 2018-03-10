@@ -1324,7 +1324,7 @@
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
 
-        <siddhi.version>4.1.11-SNAPSHOT</siddhi.version>
+        <siddhi.version>4.1.11</siddhi.version>
         <metrics.version>3.1.0</metrics.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
