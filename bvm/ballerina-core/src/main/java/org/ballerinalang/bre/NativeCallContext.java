@@ -46,14 +46,11 @@ public class NativeCallContext implements Context {
 
     private BValue[] returnValues;
 
-    private LocalTransactionInfo localTransactionInfo;
-
     public NativeCallContext(WorkerExecutionContext parentCtx, CallableUnitInfo callableUnitInfo,
             WorkerData workerLocal) {
         this.parentCtx = parentCtx;
         this.callableUnitInfo = callableUnitInfo;
         this.workerLocal = workerLocal;
-        this.localTransactionInfo = parentCtx.getLocalTransactionInfo();
     }
 
     @Override
@@ -224,11 +221,7 @@ public class NativeCallContext implements Context {
         this.returnValues = values;
     }
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        this.localTransactionInfo = localTransactionInfo;
-    }
-
     public LocalTransactionInfo getLocalTransactionInfo() {
-        return this.localTransactionInfo;
+        return this.parentCtx.getLocalTransactionInfo();
     }
 }
