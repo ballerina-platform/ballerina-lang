@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.siddhi.core.debugger;
 
+import org.awaitility.Awaitility;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.ComplexEvent;
 import org.ballerinalang.siddhi.core.event.Event;
-import org.ballerinalang.siddhi.core.event.stream.StreamEvent;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -115,7 +115,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 2 && debugEventCount.get() == 4);
 
         AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
@@ -123,7 +124,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger1")
     public void testDebugger2() throws InterruptedException {
         log.info("Siddi Debugger Test 2: Test next traversal in a query with length batch window");
 
@@ -183,7 +184,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 3 && debugEventCount.get() == 6);
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 6, debugEventCount.get());
@@ -191,7 +193,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger2")
     public void testDebugger3() throws InterruptedException {
         log.info("Siddi Debugger Test 3: Test next traversal in a query with time batch window");
 
@@ -249,7 +251,9 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(3500);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> {
+            return inEventCount.get() == 3 && debugEventCount.get() == 3;
+        });
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
@@ -257,7 +261,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger3")
     public void testDebugger4() throws InterruptedException {
         log.info("Siddi Debugger Test 4: Test next traversal in a query with time batch window where next call delays" +
                 " 1 sec");
@@ -266,7 +270,7 @@ public class TestDebugger {
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
         final String query = "@info(name = 'query1')" +
-                "from cseEventStream#window.timeBatch(1 sec) " +
+                "from cseEventStream#window.timeBatch(5 sec) " +
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
@@ -309,7 +313,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(1500);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 3 && debugEventCount.get() == 3);
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
@@ -317,7 +322,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger4")
     public void testDebugger5() throws InterruptedException {
         log.info("Siddi Debugger Test 5: Test play in a simple query");
 
@@ -370,7 +375,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 2 && debugEventCount.get() == 2);
 
         AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 2, debugEventCount.get());
@@ -379,7 +385,7 @@ public class TestDebugger {
     }
 
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger5")
     public void testDebugger6() throws InterruptedException {
         log.info("Siddi Debugger Test 6: Test play traversal in a query with length batch window");
 
@@ -428,15 +434,14 @@ public class TestDebugger {
                 }
                 debugger.play();
             }
-
-
         });
 
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 3 && debugEventCount.get() == 3);
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
@@ -444,7 +449,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger6")
     public void testDebugger7() throws InterruptedException {
         log.info("Siddi Debugger Test 7: Test play traversal in a query with time batch window");
 
@@ -501,7 +506,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(3500);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 3 && debugEventCount.get() == 3);
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
@@ -509,7 +515,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger7")
     public void testDebugger8() throws InterruptedException {
         log.info("Siddi Debugger Test 8: Test play traversal in a query with time batch window where play call delays" +
                 " 1 sec");
@@ -560,7 +566,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
         inputHandler.send(new Object[]{"WSO2", 60f, 50});
 
-        Thread.sleep(1500);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 3 && debugEventCount.get() == 3);
 
         AssertJUnit.assertEquals("Invalid number of output events", 3, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
@@ -568,72 +575,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
-    public void testDebugger9() throws InterruptedException {
-        log.info("Siddi Debugger Test 9: Test state traversal in a simple query");
-
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String cseEventStream = "@config(async = 'true') define stream cseEventStream (symbol string, price float, " +
-                "volume int);";
-        final String query = "@info(name = 'query1')" +
-                "from cseEventStream#window.length(3) " +
-                "select symbol, price, sum(volume) as volume " +
-                "insert into OutputStream; ";
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
-
-        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
-            @Override
-            public void receive(Event[] events) {
-                inEventCount.addAndGet(events.length);
-            }
-        });
-        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
-
-        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
-        siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
-
-        siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
-            @Override
-            public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
-                                   SiddhiDebugger debugger) {
-                log.info("Query: " + queryName + ":" + queryTerminal);
-                log.info(event.toString());
-
-                int count = debugEventCount.addAndGet(getCount(event));
-                if (count == 2) {
-                    Map<String, Object> queryState = debugger.getQueryState(queryName);
-                    log.info(queryState.toString());
-                    log.info(queryState.values().toArray()[0].toString());
-                    StreamEvent streamEvent = null;
-
-                    // Order of the query state items is unpredictable
-                    for (Map.Entry<String, Object> entry : queryState.entrySet()) {
-                        if (entry.getKey().startsWith("AbstractStreamProcessor")) {
-                            streamEvent = (StreamEvent) ((Map<String, Object>) entry.getValue()).get
-                                    ("ExpiredEventChunk");
-                            break;
-                        }
-                    }
-                    AssertJUnit.assertArrayEquals(streamEvent.getOutputData(), new Object[]{"WSO2", 50.0f, null});
-                }
-                debugger.next();
-            }
-        });
-
-        inputHandler.send(new Object[]{"WSO2", 50f, 60});
-        inputHandler.send(new Object[]{"WSO2", 70f, 40});
-
-        Thread.sleep(3000);
-
-        AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
-        AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
-
-        siddhiAppRuntime.shutdown();
-    }
-
-    @Test
+    @Test(dependsOnMethods = "testDebugger8")
     public void testDebugger10() throws InterruptedException {
         log.info("Siddi Debugger Test 10: Test next traversal in a query with two consequent streams");
 
@@ -698,7 +640,8 @@ public class TestDebugger {
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
         inputHandler.send(new Object[]{"WSO2", 70f, 40});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 2 && debugEventCount.get() == 8);
 
         AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 8, debugEventCount.get());
@@ -706,7 +649,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger10")
     public void testDebugger11() throws InterruptedException {
         log.info("Siddi Debugger Test 11: Modify events during debug mode");
 
@@ -767,7 +710,8 @@ public class TestDebugger {
 
         inputHandler.send(new Object[]{"WSO2", 50f, 60});
 
-        Thread.sleep(100);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                inEventCount.get() == 1 && debugEventCount.get() == 4);
 
         AssertJUnit.assertEquals("Invalid number of output events", 1, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
@@ -775,7 +719,7 @@ public class TestDebugger {
         siddhiAppRuntime.shutdown();
     }
 
-    @Test
+    @Test(dependsOnMethods = "testDebugger11")
     public void testDebugger12() throws InterruptedException {
         log.info("Siddi Debugger Test 12: Test debugging two queries with concurrent input");
 
@@ -865,7 +809,9 @@ public class TestDebugger {
             }
         }.start();
 
-        Thread.sleep(2000);
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> {
+            return inEventCount.get() == 2 && debugEventCount.get() == 4;
+        });
 
         AssertJUnit.assertEquals("Invalid number of output events", 2, inEventCount.get());
         AssertJUnit.assertEquals("Invalid number of debug events", 4, debugEventCount.get());

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.siddhi.core.query.ratelimit;
 
+import org.awaitility.Awaitility;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -32,6 +33,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SnapshotOutputRateLimitTestCase {
@@ -100,6 +102,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
         siddhiAppRuntime.shutdown();
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1);
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event value", 1 == count.get());
@@ -215,6 +220,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.shutdown();
 
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event value", 3 == count.get());
         Thread.sleep(2000);
@@ -272,7 +280,10 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 3 && value == 7);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles ", 3, count.get());
         AssertJUnit.assertEquals("Number of output events  ", 7, value);
@@ -336,10 +347,12 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 3, count.get());
-
         siddhiAppRuntime.shutdown();
         Thread.sleep(2000);
     }
@@ -393,12 +406,14 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2 && value == 4);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 2, count.get());
         AssertJUnit.assertTrue("Number of output events", 4 == value);
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery6"})
@@ -449,13 +464,15 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(7200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 7 && value == 14);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 7, count.get());
         AssertJUnit.assertTrue("Number of output event value", 14 == value);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery7"})
@@ -506,12 +523,14 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 2, count.get());
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery8"})
@@ -564,12 +583,15 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        SiddhiTestHelper.waitForEvents(1000, 3, count, 60000);
+
+        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertTrue("Number of output event with value", count.get() == 3);
 
         siddhiAppRuntime.shutdown();
-
+        Thread.sleep(3000);
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery9"})
@@ -618,7 +640,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        SiddhiTestHelper.waitForEvents(100, 2, count, 120000);
+
+        Awaitility.await().atMost(60, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2);
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 2, count.get());
@@ -673,13 +697,14 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(1200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(2200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2);
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 2, count.get());
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery11"})
@@ -720,13 +745,14 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(2200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1);
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 1, count.get());
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery12"})
@@ -774,13 +800,14 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        Thread.sleep(2200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 4);
 
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event equal to 4 ", true, count.get() == 4);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery13"})
@@ -828,11 +855,12 @@ public class SnapshotOutputRateLimitTestCase {
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
-        SiddhiTestHelper.waitForEvents(1000, 2, count, 60000);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2);
 
         AssertJUnit.assertTrue("Event arrived", (eventArrived && count.get() == 2));
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery14"})
@@ -887,7 +915,6 @@ public class SnapshotOutputRateLimitTestCase {
         AssertJUnit.assertEquals("Number of output event value", 2, value);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery15"})
@@ -940,13 +967,15 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2 && value == 4);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles with inEvents", 2, count.get());
         AssertJUnit.assertEquals("Number of output event", 4, value);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery16"})
@@ -995,13 +1024,15 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(7200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 7 && value == 20);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles equal to 5 ", 7, count.get());
         AssertJUnit.assertEquals("Number of output event value", 20, value);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery17"})
@@ -1053,12 +1084,14 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 2);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 2, count.get());
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery18"})
@@ -1117,12 +1150,14 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(7100);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 7);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event value", 7, count.get());
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery19"})
@@ -1183,13 +1218,15 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(6200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 7 && value == 20);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 7, count.get());
         AssertJUnit.assertEquals("Number of output event value", 20, value);
 
         siddhiAppRuntime.shutdown();
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery20"})
@@ -1243,7 +1280,10 @@ public class SnapshotOutputRateLimitTestCase {
         Thread.sleep(2200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 4 && value == 4);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 4, count.get());
         AssertJUnit.assertEquals("Number of output events", 4, value);
@@ -1307,7 +1347,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 3, value);
@@ -1371,7 +1414,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 3, value);
@@ -1430,7 +1476,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 1);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 1, value);
@@ -1494,14 +1543,16 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
         Thread.sleep(2000);
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery25"})
@@ -1559,7 +1610,10 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 3, value);
@@ -1623,14 +1677,16 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() == 1 && value == 3);
+
         AssertJUnit.assertEquals("Event arrived", true, eventArrived);
         AssertJUnit.assertEquals("Number of output event bundles", 1, count.get());
         AssertJUnit.assertEquals("Number of output events", 3, value);
 
         siddhiAppRuntime.shutdown();
         Thread.sleep(2000);
-
     }
 
     @Test(dependsOnMethods = {"testSnapshotOutputRateLimitQuery27"})
@@ -1697,12 +1753,14 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.6", 1});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.7", 2});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.8", 10});
-        Thread.sleep(1200);
-        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
-        AssertJUnit.assertTrue("Number of output event bundles count > 2", count.get() > 2);
-        AssertJUnit.assertEquals("Number of output events", 6, value);
+
+        Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() ->
+                eventArrived && count.get() > 2 && value == 6);
 
         siddhiAppRuntime.shutdown();
 
+        AssertJUnit.assertEquals("Event arrived", true, eventArrived);
+        AssertJUnit.assertTrue("Number of output event bundles count > 2", count.get() > 2);
+        AssertJUnit.assertEquals("Number of output events", 6, value);
     }
 }
