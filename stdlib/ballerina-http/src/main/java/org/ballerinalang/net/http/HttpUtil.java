@@ -315,7 +315,7 @@ public class HttpUtil {
     }
 
     /**
-     * Sends a HTTP/2 Server Push message back to the client.
+     * Sends an HTTP/2 Server Push message back to the client.
      *
      * @param requestMsg    the request message associated to the server push response
      * @param pushResponse  the server push message
@@ -334,7 +334,7 @@ public class HttpUtil {
     }
 
     /**
-     * Sends a HTTP/2 Push Promise message back to the client.
+     * Sends an HTTP/2 Push Promise message back to the client.
      *
      * @param requestMsg    the request message associated to the push promise
      * @param pushPromise   the push promise message
@@ -349,7 +349,6 @@ public class HttpUtil {
         }
         return responseFuture;
     }
-
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
@@ -441,7 +440,6 @@ public class HttpUtil {
         pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX, pushPromise.getPath());
         pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX, pushPromise.getMethod());
     }
-
 
     /**
      * Creates native {@code Http2PushPromise} from PushPromise struct.
