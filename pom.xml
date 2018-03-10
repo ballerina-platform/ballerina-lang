@@ -800,6 +800,7 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
 
@@ -871,6 +872,7 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
+                <module>misc/tracing-extensions</module>
 
                 <module>composer</module>
 
@@ -1269,6 +1271,7 @@
         <apache.mina.core>2.0.16</apache.mina.core>
         <mimepull.version>1.9.7</mimepull.version>
         <open.tracing.version>0.31.0</open.tracing.version>
+        <jaeger.version>0.24.0</jaeger.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
