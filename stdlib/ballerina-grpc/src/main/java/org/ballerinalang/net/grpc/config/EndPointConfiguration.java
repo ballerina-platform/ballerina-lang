@@ -15,19 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc;
-
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+package org.ballerinalang.net.grpc.config;
 
 /**
- * Util class of connector functions.
+ * Endpoint configuration of gRPC Service.
  */
-public class ConnectorUtil {
-    public static EndPointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
-        EndPointConfiguration endPointConfiguration = new EndPointConfiguration();
-        endPointConfiguration.setPort(serviceEndpointConfig.getIntField("port"));
-        endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
-        return endPointConfiguration;
+public class EndPointConfiguration {
+    private long port;
+    private String host;
+    
+    public Long getPort() {
+        return port;
+    }
+    
+    public void setPort(Long port) {
+        this.port = port;
+    }
+    
+    public String getHost() {
+        return host;
+    }
+    
+    public void setHost(String host) {
+        this.host = host;
     }
 }

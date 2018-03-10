@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
+import org.ballerinalang.net.grpc.config.EndPointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class Init extends AbstractGrpcNativeFunction {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
-            ServiceConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            EndPointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration);
             serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
             return new BValue[] {null};

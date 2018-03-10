@@ -51,7 +51,7 @@ public class Start extends AbstractGrpcNativeFunction {
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             Server server = GrpcServicesBuilder.start(serverBuilder);
-            serviceEndpoint.addNativeData("server",server);
+            serviceEndpoint.addNativeData("server", server);
         } catch (GrpcServerException e) {
             throw new GrpcServerValidationException("Error in starting gRPC service.", e);
         }

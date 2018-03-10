@@ -1,8 +1,9 @@
 package ballerina.net.grpc;
 
-public annotation resourceConfig attach resource {
+public struct ResourceConfig {
     boolean streaming;
 }
+public annotation <resource> resourceConfig ResourceConfig;
 
 @Description { value:"gRPC service configuration"}
 @Field {value:"port: gRPC service listening port"}
@@ -12,8 +13,7 @@ where we can define only one resource. In order to generate proto file, we need 
 bidirectional streaming. Flag sets to true, if the service is client/bidirectional streaming."}
 @Field {value:"serverStreaming: gRPC server streaming service flag. This applies only for client streaming and
 bidirectional streaming. Flag sets to true, if the service is bidirectional streaming."}
-public annotation serviceConfig attach service {
-    int port;
+public struct ServiceConfig {
     string rpcEndpoint;
     boolean clientStreaming;
     boolean serverStreaming;
@@ -21,5 +21,11 @@ public annotation serviceConfig attach service {
 }
 
 @Description { value:"Identify the service as server message listener"}
-public annotation messageListener attach service {
+public struct MessageListener {
 }
+
+@Description {value:"HTTP Configuration for service"}
+public annotation <service> serviceConfig ServiceConfig;
+
+@Description {value:"HTTP Configuration for service"}
+public annotation <service> messageListener MessageListener;

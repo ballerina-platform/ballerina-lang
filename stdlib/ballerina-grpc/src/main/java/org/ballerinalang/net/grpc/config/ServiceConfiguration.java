@@ -17,21 +17,16 @@
  */
 package org.ballerinalang.net.grpc.config;
 
+/**
+ * Service configuration of gRPC Service.
+ */
 public class ServiceConfiguration {
-    private long port;
+
     private String rpcEndpoint;
     private boolean clientStreaming;
     private boolean serverStreaming;
     private boolean generateClientConnector;
     private boolean isListener;
-    
-    public Long getPort() {
-        return port;
-    }
-    
-    public void setPort(Long port) {
-        this.port = port;
-    }
     
     public String getRpcEndpoint() {
         return rpcEndpoint;

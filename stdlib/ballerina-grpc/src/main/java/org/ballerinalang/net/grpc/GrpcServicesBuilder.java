@@ -32,8 +32,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
+import org.ballerinalang.net.grpc.config.EndPointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -55,10 +54,10 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
  * @since 0.96.1
  */
 public class GrpcServicesBuilder {
-   
     
-    public static io.grpc.ServerBuilder initService( ServiceConfiguration serviceEndpointConfig) {
-        io.grpc.ServerBuilder  serverBuilder;
+    
+    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig) {
+        io.grpc.ServerBuilder serverBuilder;
         if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
             serverBuilder = NettyServerBuilder.forPort(
                     serviceEndpointConfig.getPort().intValue())
@@ -76,17 +75,17 @@ public class GrpcServicesBuilder {
         return serverBuilder;
     }
     
-    public static void registerService(io.grpc.ServerBuilder  serverBuilder,Service service) throws GrpcServerException {
+    public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
+            GrpcServerException {
         try {
             serverBuilder.addService(ServerInterceptors.intercept(getServiceDefinition(service), new
                     ServerHeaderInterceptor()));
-        } catch (Descriptors.DescriptorValidationException | GrpcServerException e) {
+        } catch (GrpcServerException e) {
             throw new GrpcServerException("Error while registering the service : " + service.getName(), e);
         }
     }
     
-    private static ServerServiceDefinition getServiceDefinition(Service service) throws Descriptors
-            .DescriptorValidationException, GrpcServerException {
+    private static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         
@@ -168,7 +167,7 @@ public class GrpcServicesBuilder {
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
-        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage()))  {
+        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
             serviceName = service.getName();
         } else {
             serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
