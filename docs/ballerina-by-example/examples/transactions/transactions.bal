@@ -3,7 +3,7 @@ import ballerina.io;
 
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
-      create sql:ClientConnector(
+        create sql:ClientConnector(
         sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create the tables required for the transaction.
