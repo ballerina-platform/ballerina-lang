@@ -64,7 +64,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -475,7 +477,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransformer transformerNode) {
         List<BVarSymbol> inputs = new ArrayList<>();
         inputs.add(transformerNode.source.symbol);
-        transformerNode.params.forEach(param -> inputs.add(param.symbol));
+        transformerNode.requiredParams.forEach(param -> inputs.add(param.symbol));
 
         List<BVarSymbol> outputs = new ArrayList<>();
         transformerNode.retParams.forEach(param -> outputs.add(param.symbol));
@@ -630,7 +632,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangInvocation invocationExpr) {
         analyzeExpr(invocationExpr.expr);
-        analyzeExprs(invocationExpr.argExprs);
+        analyzeExprs(invocationExpr.requiredArgs);
+        analyzeExprs(invocationExpr.namedArgs);
+        analyzeExprs(invocationExpr.restArgs);
+
+        checkDuplicateNamedArgs(invocationExpr.namedArgs);
+
         // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
@@ -639,6 +646,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         names.fromIdNode(invocationExpr.name));
             }
         }
+    }
+
+    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
+        List<BLangIdentifier> existingArgs = new ArrayList<>();
+        args.forEach(arg -> {
+            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
+            if (existingArgs.contains(namedArg.name)) {
+                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
+            }
+            existingArgs.add(namedArg.name);
+        });
     }
 
     public void visit(BLangConnectorInit cIExpr) {
@@ -746,6 +764,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         /* ignore */
     }
 

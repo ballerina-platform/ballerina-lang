@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,19 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
-
-import java.util.List;
+package org.ballerinalang.model.tree.expressions;
 
 /**
- * @since 0.94
+ * @since 0.965
  */
-public interface InvokableSymbol extends Symbol {
+public interface RestArgsNode extends ExpressionNode {
 
-    List<? extends VariableSymbol> getParameters();
+    ExpressionNode getExpression();
 
-    List<? extends VariableSymbol> getReturnParameters();
-
-    List<? extends VariableSymbol> getDefaultableParameters();
-
+    void setExpression(ExpressionNode expr);
 }

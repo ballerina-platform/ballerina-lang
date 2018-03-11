@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,33 +17,39 @@
 */
 package org.wso2.ballerinalang.programfile.attributes;
 
-
 import org.wso2.ballerinalang.programfile.DefaultValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@code DefaultValueAttributeInfo} contains default value details.
+ * {@code ParamDefaultValueAttributeInfo} contains metadata of default values for parameters of
+ * a function/resource/action/connector nodes.
  *
- * @since 0.92
+ * @since 0.956
  */
-public class DefaultValueAttributeInfo implements AttributeInfo {
+public class ParamDefaultValueAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
-    private DefaultValue defaultValue;
+    private List<DefaultValue> paramDefaultValues = new ArrayList<>();
 
-    public DefaultValueAttributeInfo(int attributeNameIndex, DefaultValue defaultValue) {
-        this.defaultValue = defaultValue;
+    public ParamDefaultValueAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;
     }
 
-    public DefaultValue getDefaultValue() {
-        return defaultValue;
+    public void addParamDefaultValueInfo(DefaultValue attachmentInfo) {
+        paramDefaultValues.add(attachmentInfo);
+    }
+
+    public DefaultValue[] getDefaultValueInfo() {
+        return paramDefaultValues.toArray(new DefaultValue[paramDefaultValues.size()]);
     }
 
     @Override
     public Kind getKind() {
-        return Kind.DEFAULT_VALUE_ATTRIBUTE;
+        return Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
     }
 
     @Override

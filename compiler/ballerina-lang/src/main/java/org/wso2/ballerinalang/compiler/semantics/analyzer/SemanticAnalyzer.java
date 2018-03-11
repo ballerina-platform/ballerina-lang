@@ -216,6 +216,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
+        funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
+        if (funcNode.restParam != null) {
+            this.analyzeDef(funcNode.restParam, funcEnv);
+        }
+        
         analyzeStmt(funcNode.body, funcEnv);
 
         this.processWorkers(funcNode, funcEnv);
@@ -745,7 +751,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        actionNode.params.forEach(p -> this.analyzeDef(p, actionEnv));
+        actionNode.requiredParams.forEach(p -> this.analyzeDef(p, actionEnv));
+        actionNode.defaultableParams.forEach(p -> this.analyzeDef(p, actionEnv));
+        if (actionNode.restParam != null) {
+            this.analyzeDef(actionNode.restParam, actionEnv);
+        }
         analyzeStmt(actionNode.body, actionEnv);
         this.processWorkers(actionNode, actionEnv);
     }
@@ -780,7 +790,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
 
-        resourceNode.params.forEach(p -> this.analyzeDef(p, resourceEnv));
+        resourceNode.requiredParams.forEach(p -> this.analyzeDef(p, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
     }

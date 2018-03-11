@@ -72,11 +72,11 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
 connectorDefinition
@@ -228,28 +228,29 @@ xmlLocalName
     :   Identifier
     ;
 
- annotationAttachment
-     :   AT nameReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
+annotationAttachment
+    :   AT nameReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
+    ;
 
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
+annotationAttributeList
+    :   annotationAttribute (COMMA annotationAttribute)*
+    ;
 
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
+annotationAttribute
+    :    Identifier COLON annotationAttributeValue
+    ;
 
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
+annotationAttributeValue
+    :   simpleLiteral
+    |   nameReference
+    |   annotationAttachment
+    |   annotationAttributeArray
+    ;
 
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
-     ;
+annotationAttributeArray
+    :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
+    ;
+
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -441,11 +442,21 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+invocationArgList
+    :   invocationArg (COMMA invocationArg)*
+    ;
+    
+invocationArg
+    :   expression  // required args
+    |   namedArgs   // named args
+    |   restArgs    // rest args
     ;
 
 expressionList
@@ -548,6 +559,19 @@ parameter
     :   annotationAttachment* typeName Identifier
     ;
 
+defaultableParameter
+    :   parameter ASSIGN expression
+    ;
+
+restParameter
+    :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+formalParameterList
+    :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
 fieldDefinition
     :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
     ;
@@ -558,6 +582,14 @@ simpleLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
+    ;
+
+namedArgs
+    :   Identifier ASSIGN expression
+    ;
+
+restArgs
+    :   ELLIPSIS expression
     ;
 
 // XML parsing

@@ -115,9 +115,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -222,8 +224,6 @@ public class BLangPackageBuilder {
 
     private List<BLangEnumerator> enumeratorList = new ArrayList<>();
 
-    private Stack<IdentifierNode> identifierStack = new Stack<>();
-
     private Stack<ConnectorNode> connectorNodeStack = new Stack<>();
 
     private Stack<List<ActionNode>> actionNodeStack = new Stack<>();
@@ -275,6 +275,10 @@ public class BLangPackageBuilder {
     private Stack<TableQuery> tableQueriesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
+
+    private List<VariableDefinitionNode> defaultableParamsList = new ArrayList<>();
+    
+    private Stack<VariableNode> restParamStack = new Stack<>();
 
     private Set<Whitespace> endpointVarWs;
 
@@ -518,7 +522,7 @@ public class BLangPackageBuilder {
     }
 
     public void endCallableUnitSignature(Set<Whitespace> ws, String identifier, boolean paramsAvail,
-                                         boolean retParamsAvail, boolean retParamTypeOnly) {
+                                         boolean retParamsAvail, boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
@@ -528,11 +532,23 @@ public class BLangPackageBuilder {
                 invNode.addReturnParameter(variableNode);
             });
         }
+
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
                 ((BLangVariable) variableNode).docTag = DocTag.PARAM;
                 invNode.addParameter(variableNode);
             });
+
+            this.defaultableParamsList.forEach(variableDef -> {
+                BLangVariableDef varDef = (BLangVariableDef) variableDef;
+                varDef.var.docTag = DocTag.PARAM;
+                invNode.addDefaultableParameter(varDef);
+            });
+            this.defaultableParamsList = new ArrayList<>();
+
+            if (restParamAvail) {
+                invNode.setRestParameter(this.restParamStack.pop());
+            }
         }
     }
 
@@ -544,10 +560,10 @@ public class BLangPackageBuilder {
     }
 
     public void addLambdaFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean retParamsAvail,
-                                     boolean retParamTypeOnly) {
+                                     boolean restParamAvail) {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.pos = pos;
-        endCallableUnitSignature(ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, retParamTypeOnly);
+        endCallableUnitSignature(ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, restParamAvail);
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
@@ -1899,6 +1915,46 @@ public class BLangPackageBuilder {
         intRangeExpr.includeStart = includeStart;
         intRangeExpr.includeEnd = includeEnd;
         exprNodeStack.push(intRangeExpr);
+    }
+
+    public void addNamedArgument(DiagnosticPos pos, Set<Whitespace> ws, String name) {
+        BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        namedArg.pos = pos;
+        namedArg.addWS(ws);
+        namedArg.name = (BLangIdentifier) this.createIdentifier(name);
+        namedArg.expr = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(namedArg);
+    }
+
+    public void addRestArgument(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangRestArgsExpression varArgs = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
+        varArgs.pos = pos;
+        varArgs.addWS(ws);
+        varArgs.expr = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(varArgs);
+    }
+
+    public void addDefaultableParam(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangVariableDef defaultableParam = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
+        defaultableParam.pos = pos;
+        defaultableParam.addWS(ws);
+        List<VariableNode> params = this.varListStack.peek();
+        BLangVariable var = (BLangVariable) params.remove(params.size() - 1);
+        var.expr = (BLangExpression) this.exprNodeStack.pop();
+        defaultableParam.var = var;
+        this.defaultableParamsList.add(defaultableParam);
+    }
+
+    public void addRestParam(DiagnosticPos pos, Set<Whitespace> ws, String identifier, int annotCount) {
+        BLangVariable restParam = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, false);
+        attachAnnotations(restParam, annotCount);
+        restParam.pos = pos;
+        
+        BLangArrayType typeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
+        typeNode.elemtype = restParam.typeNode;
+        typeNode.dimensions = 1;
+        restParam.typeNode = typeNode;
+        this.restParamStack.push(restParam);
     }
 
     // Private methods

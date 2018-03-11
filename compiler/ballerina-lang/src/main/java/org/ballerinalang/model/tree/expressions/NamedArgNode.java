@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,19 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.symbols;
+package org.ballerinalang.model.tree.expressions;
 
-import java.util.List;
+import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
- * @since 0.94
+ * @since 0.965
  */
-public interface InvokableSymbol extends Symbol {
+public interface NamedArgNode extends ExpressionNode {
 
-    List<? extends VariableSymbol> getParameters();
+    void setName(IdentifierNode name);
 
-    List<? extends VariableSymbol> getReturnParameters();
+    ExpressionNode getExpression();
 
-    List<? extends VariableSymbol> getDefaultableParameters();
+    void setExpression(ExpressionNode expr);
+
+    BLangIdentifier getName();
 
 }

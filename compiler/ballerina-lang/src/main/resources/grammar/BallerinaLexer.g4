@@ -143,6 +143,7 @@ LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
+ELLIPSIS    : '...' ;
 
 // §3.10.1 Integer Literals
 IntegerLiteral
