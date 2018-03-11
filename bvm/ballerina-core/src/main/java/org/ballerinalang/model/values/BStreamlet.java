@@ -21,8 +21,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BStreamletType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.Map;
 

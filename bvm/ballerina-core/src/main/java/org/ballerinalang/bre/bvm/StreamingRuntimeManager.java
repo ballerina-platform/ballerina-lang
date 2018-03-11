@@ -20,9 +20,9 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStreamlet;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
+import org.ballerinalang.siddhi.core.SiddhiManager;
+import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;

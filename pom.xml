@@ -697,6 +697,11 @@
 
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>siddhi-query-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
