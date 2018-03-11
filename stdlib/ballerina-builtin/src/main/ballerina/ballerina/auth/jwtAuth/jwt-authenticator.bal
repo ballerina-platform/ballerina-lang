@@ -93,9 +93,9 @@ public function <JWTAuthenticator authenticator> authenticate (string jwtToken) 
 
 function getAuthenticatorConfig () (jwt:JWTValidatorConfig) {
     jwt:JWTValidatorConfig jwtValidatorConfig = {};
-    jwtValidatorConfig.issuer = config:getInstanceValue(AUTHENTICATOR_JWT, ISSUER);
-    jwtValidatorConfig.audience = config:getInstanceValue(AUTHENTICATOR_JWT, AUDIENCE);
-    jwtValidatorConfig.certificateAlias = config:getInstanceValue(AUTHENTICATOR_JWT, CERTIFICATE_ALIAS);
+    jwtValidatorConfig.issuer = config:getAsString(AUTHENTICATOR_JWT + "." + ISSUER);
+    jwtValidatorConfig.audience = config:getAsString(AUTHENTICATOR_JWT + "." + AUDIENCE);
+    jwtValidatorConfig.certificateAlias = config:getAsString(AUTHENTICATOR_JWT + "." + CERTIFICATE_ALIAS);
     return jwtValidatorConfig;
 }
 

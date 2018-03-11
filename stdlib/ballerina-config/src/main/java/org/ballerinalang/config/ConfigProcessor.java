@@ -25,8 +25,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ballerinalang.bcl.parser.BConfigLangListener;
-import org.ballerinalang.bcl.parser.antlr4.TomlLexer;
-import org.ballerinalang.bcl.parser.antlr4.TomlParser;
+import org.ballerinalang.toml.antlr4.TomlLexer;
+import org.ballerinalang.toml.antlr4.TomlParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
