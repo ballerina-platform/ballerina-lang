@@ -108,7 +108,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture getPushResponse(Http2PushPromise pushPromise) {
-        return pushPromise.getOutboundMsgHolder().getResponseFuture();
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
+        if (pushPromise.isRejected()) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyPushResponse(pushPromise.getPromisedStreamId(),
+                                       new ClientConnectorException("Cannot fetch a response for an rejected promise",
+                                                                    HttpResponseStatus.BAD_REQUEST.code()));
+        }
+        return outboundMsgHolder.getResponseFuture();
     }
 
     @Override

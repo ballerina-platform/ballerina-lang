@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -107,7 +108,12 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushResponse(int promiseId, HTTPCarbonMessage outboundResponseMsg) {
-        writeMessage(outboundResponseMsg, promiseId);
+        if (isValidStreamId(promiseId)) {
+            writeMessage(outboundResponseMsg, promiseId);
+        } else {
+            inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(
+                    new ServerConnectorException("Promise is already rejected or stream is no longer valid"));
+        }
     }
 
     private void writeMessage(HTTPCarbonMessage outboundResponseMsg, int streamId) {
@@ -177,6 +183,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private synchronized int getNextStreamId() {
         return conn.local().incrementAndGetNextStreamId();
+    }
+
+    private boolean isValidStreamId(int streamId) {
+        return conn.stream(streamId) != null;
     }
 }
 
