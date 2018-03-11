@@ -459,7 +459,8 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 
     sql:Parameter[][] parameters = [parameters1, parameters2, parameters3, parameters4];
 
-    updateCount = testDB.batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
+    updateCount = testDB.batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
+    creditLimit,
         country) values (?,?,?,?,?,?)", parameters);
     table dt = testDB.select("SELECT count(*) as countval from Customers where customerId in (111,222,333)", null, typeof ResultCount);
     while (dt.hasNext()) {

@@ -53,7 +53,7 @@ import static org.ballerinalang.util.tracer.TraceConstant.KEY_DB_TYPE;
                 @Argument(name = "query", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                         structType = "Parameter")},
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
+        returnType = { @ReturnType(type = TypeKind.TABLE) },
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
