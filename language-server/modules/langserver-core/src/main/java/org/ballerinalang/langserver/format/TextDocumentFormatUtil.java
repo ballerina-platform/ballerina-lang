@@ -61,13 +61,11 @@ public class TextDocumentFormatUtil {
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
-
-        if (bLangPackage != null) {
-            BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElseGet(null);
-            JsonElement modelElement = CommonUtil.generateJSON(compilationUnit, new HashMap<>());
-            result.add("model", modelElement);
-        }
+        
+        BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream().
+                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElseGet(null);
+        JsonElement modelElement = CommonUtil.generateJSON(compilationUnit, new HashMap<>());
+        result.add("model", modelElement);
 
         return result;
     }
