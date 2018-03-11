@@ -37,12 +37,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@code BStream} represents a stream in Ballerina.
@@ -100,7 +102,7 @@ public class BStream implements BRefType<Object> {
     public void publish(BStruct data) {
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
-                                             + " cannot be added to a stream of type:" + this.constraintType.getName());
+                    + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
         BrokerUtils.publish(topicName, JSONUtils.convertStructToJSON(data).stringValue().getBytes());
     }
@@ -108,23 +110,28 @@ public class BStream implements BRefType<Object> {
     /**
      * Method to register a subscription to the underlying topic representing the stream in the broker.
      *
-     * @param context           the context object representing runtime state
-     * @param functionPointer   represents the function pointer reference for the function to be invoked on receiving
-     *                          messages
+     * @param context         the context object representing runtime state
+     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
+     *                        messages
      */
     public void subscribe(Context context, BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
         if (!(parameters[0] instanceof BStructType)
                 || ((BStructType) parameters[0]).structInfo.getType() != constraintType) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                                                 + " a struct of type:" + this.constraintType.getName());
+                    + " a struct of type:" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
 
         List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().getSiddhiAppRuntimeList();
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
-            addCallback(siddhiAppRuntime);
+            try {
+                addCallback(siddhiAppRuntime);
+            } catch (DefinitionNotExistException e) {
+                //ignore
+                //TODO fix properly
+            }
         }
     }
 
@@ -137,21 +144,21 @@ public class BStream implements BRefType<Object> {
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                int intVarIndex = -1;
-                int floatVarIndex = -1;
-                int boolVarIndex = -1;
-                int stringVarIndex = -1;
                 for (Event event : events) {
+                    AtomicInteger intVarIndex = new AtomicInteger(-1);
+                    AtomicInteger floatVarIndex = new AtomicInteger(-1);
+                    AtomicInteger boolVarIndex = new AtomicInteger(-1);
+                    AtomicInteger stringVarIndex = new AtomicInteger(-1);
                     BStruct output = new BStruct(constraintType);
                     for (Object field : event.getData()) {
                         if (field instanceof Long) {
-                            output.setIntField(++intVarIndex, (Long) field);
+                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
                         } else if (field instanceof Double) {
-                            output.setFloatField(++floatVarIndex, (Double) field);
+                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
                         } else if (field instanceof Boolean) {
-                            output.setBooleanField(++boolVarIndex, (Integer) field);
+                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
                         } else if (field instanceof String) {
-                            output.setStringField(++stringVarIndex, (String) field);
+                            output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
                         }
                     }
                     publish(output);

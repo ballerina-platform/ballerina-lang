@@ -1096,8 +1096,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
         if (globalVariableList != null) {
             for (BLangVariable variable : globalVariableList) {
-                if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                    ((BLangStreamlet) streamletNode).addGlobalVariable(variable);
+                if (((variable).type.tsymbol) != null) {
+                    if ("stream".equals((((variable).type.tsymbol)).name.value)) {
+                        ((BLangStreamlet) streamletNode).addGlobalVariable(variable);
+                    }
                 }
             }
         }
@@ -1203,6 +1205,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
+            ((BLangExpression) expressionNode).accept(this);
+        }
+    }
+
+    public void visit(BLangHaving having) {
+        ExpressionNode expressionNode = having.getExpression();
+        if (expressionNode != null) {
             ((BLangExpression) expressionNode).accept(this);
         }
     }
