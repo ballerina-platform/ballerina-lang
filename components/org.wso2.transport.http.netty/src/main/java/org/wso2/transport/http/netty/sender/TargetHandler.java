@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -80,7 +81,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (handlerExecutor != null) {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
-
+                OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
+                        getHttp2ClientChannel().getInFlightMessage(1);
+                if (msgHolder != null) {
+                    // Response received over HTTP/1.x connection, so mark no push promises available in the channel
+                    msgHolder.markNoPromisesReceived();
+                }
                 if (this.httpResponseFuture != null) {
                     httpResponseFuture.notifyHttpListener(targetRespMsg);
                 } else {
