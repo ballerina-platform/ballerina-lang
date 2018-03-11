@@ -24,13 +24,15 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.io#createDelimitedRecordChannel.
@@ -44,12 +46,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina.io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+                                  structPackage = "ballerina.io"),
+                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
 
     /**
      * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
@@ -111,12 +115,12 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
             DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            bValues = getBValues(textRecordChannel);
+            return getBValues(textRecordChannel, null);
         } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel:"
-                    + e.getMessage();
-            throw new BallerinaException(message, context);
+            String message =
+                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+            log.error(message, e);
+            return getBValues(null, IOUtils.createError(context, message));
         }
-        return bValues;
     }
 }

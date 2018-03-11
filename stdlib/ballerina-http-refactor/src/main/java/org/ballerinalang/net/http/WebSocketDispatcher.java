@@ -84,7 +84,8 @@ public class WebSocketDispatcher {
         }
     }
 
-    public static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage) {
+    public static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
+            WebSocketTextMessage textMessage) {
         WebSocketService wsService = connectionInfo.getService();
         Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
@@ -185,7 +186,8 @@ public class WebSocketDispatcher {
         future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
     }
 
-    public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage) {
+    public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
+            WebSocketCloseMessage closeMessage) {
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {

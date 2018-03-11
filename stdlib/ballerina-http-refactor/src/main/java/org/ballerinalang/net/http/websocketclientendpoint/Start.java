@@ -77,28 +77,43 @@ public class Start extends AbstractNativeFunction {
         }
         WebSocketService wsService = (WebSocketService) serviceConfig;
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
-            @Override
-            public void onSuccess(Session session) {
-                BConnector wsConnection = BLangConnectorSPIUtil.createBConnector(context.programFile,
-                                                                                 HttpConstants.HTTP_PACKAGE_PATH,
-                                                                                 WebSocketConstants.CONNECTOR_WEBSOCKET,
-                                                                                 new BMap<>());
-                clientEndpointConfig.addNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET, wsConnection);
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                //Check
-                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
-                WebSocketOpenConnectionInfo connectionInfo =
-                        new WebSocketOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
-                clientConnectorListener.setConnectionInfo(connectionInfo);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                throw new BallerinaConnectorException("Initialize the service before starting it");
-            }
-        });
+        handshakeFuture.setHandshakeListener(
+                new WsHandshakeListener(clientEndpointConfig, context, wsService, clientConnectorListener));
         return VOID_RETURN;
     }
 
+    static class WsHandshakeListener implements HandshakeListener {
+
+        Struct clientEndpointConfig;
+        Context context;
+        WebSocketService wsService;
+        BallerinaWebSocketClientConnectorListener clientConnectorListener;
+
+        WsHandshakeListener(Struct clientEndpointConfig, Context context, WebSocketService wsService,
+                BallerinaWebSocketClientConnectorListener clientConnectorListener) {
+            this.clientEndpointConfig = clientEndpointConfig;
+            this.context = context;
+            this.wsService = wsService;
+            this.clientConnectorListener = clientConnectorListener;
+        }
+
+        @Override
+        public void onSuccess(Session session) {
+            BConnector wsConnection = BLangConnectorSPIUtil
+                    .createBConnector(context.programFile, HttpConstants.HTTP_PACKAGE_PATH,
+                            WebSocketConstants.CONNECTOR_WEBSOCKET, new BMap<>());
+            clientEndpointConfig.addNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET, wsConnection);
+            wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            //Check
+            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, wsConnection,
+                    new HashMap<>());
+            clientConnectorListener.setConnectionInfo(connectionInfo);
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            throw new BallerinaConnectorException("Initialize the service before starting it");
+        }
+    }
 }

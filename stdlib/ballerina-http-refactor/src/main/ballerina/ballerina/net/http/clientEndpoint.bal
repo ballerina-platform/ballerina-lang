@@ -25,19 +25,21 @@ public struct TargetService {
 
 public struct ClientEndpointConfiguration {
     string serviceUri;
+    Options options;
     TargetService[] targets;
     Algorithm algorithm;
-    Options options;
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
 public function <ClientEndpoint ep> init (string epName, ClientEndpointConfiguration config) {
-    //if (config.hasSuffix("/")) {
-    //    int lastIndex = config.length() - 1;
-    //    epName = epName.substring(0, lastIndex);
-    //}
+    string uri = config.serviceUri;
+    if (uri.hasSuffix("/")) {
+        int lastIndex = uri.length() - 1;
+        uri = uri.subString(0, lastIndex);
+        config.serviceUri = uri;
+    }
     ep.epName = epName;
     ep.config = config;
     ep.initEndpoint();

@@ -25,14 +25,11 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 

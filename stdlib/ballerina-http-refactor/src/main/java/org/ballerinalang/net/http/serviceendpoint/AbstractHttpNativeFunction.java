@@ -7,6 +7,11 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
+/**
+ * Includes common functions to all the actions.
+ *
+ * @since 0.966
+ */
 public abstract class AbstractHttpNativeFunction extends AbstractNativeFunction {
 
     protected HTTPServicesRegistry getHttpServicesRegistry(Struct serviceEndpoint) {
