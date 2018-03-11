@@ -51,7 +51,7 @@ public class ConnectorUtil {
             return null;
         } else {
             SSLConfig sslConfig = new SSLConfig(new File(keyStoreFile.getStringValue())
-                    ,keyStorePassword.getStringValue());
+                    , keyStorePassword.getStringValue());
             sslConfig.setCertPass(certPassword.getStringValue());
             sslConfig.setTLSStoreType("PKCS12");
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);

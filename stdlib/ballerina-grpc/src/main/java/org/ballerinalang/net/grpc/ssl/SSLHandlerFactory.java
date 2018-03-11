@@ -112,9 +112,6 @@ public class SSLHandlerFactory {
         return ks;
     }
 
-    /**
-     * @return instance of {@code SslHandler}
-     */
     public SSLEngine buildServerSSLEngine() {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(false);
