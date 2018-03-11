@@ -57,7 +57,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_URI;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                 structPackage = "ballerina.net.http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},

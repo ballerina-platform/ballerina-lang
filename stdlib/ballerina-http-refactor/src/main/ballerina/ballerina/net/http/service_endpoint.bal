@@ -1,7 +1,7 @@
 package ballerina.net.http;
 
 ////////////////////////
-/// Service Endpoint ///
+/// HTTP Service Endpoint ///
 ////////////////////////
 public struct Service {
     // TODO : Make all field Read-Only
@@ -102,55 +102,6 @@ public native function <Service ep> getConnector () returns (ServerConnector rep
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public native function <Service ep> stop ();
-
-
-//////////////////////////////
-/// Http Service Endpoint ///
-/////////////////////////////
-//public struct HttpService {
-//    string epName;
-//    ServiceEndpointConfiguration config;
-//    ServiceEndpoint serviceEndpoint;
-//}
-//
-//public function <HttpService ep> HttpService() {
-//    ep.serviceEndpoint = {};
-//}
-//
-//@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-//@Param { value:"epName: The endpoint name" }
-//@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
-//@Return { value:"Error occured during initialization" }
-//public function <HttpService ep> init (string epName, ServiceEndpointConfiguration config) {
-//    ep.serviceEndpoint.init(epName, config);
-//}
-//
-//@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-//@Param { value:"conn: The server connector connection" }
-//@Param { value:"res: The outbound response message" }
-//@Return { value:"Error occured during registration" }
-//public function <HttpService ep> register (type serviceType) {
-//    ep.serviceEndpoint.register(serviceType);
-//}
-//
-//@Description { value:"Starts the registered service"}
-//@Return { value:"Error occured during registration" }
-//public function <HttpService ep> start () {
-//    ep.serviceEndpoint.start();
-//}
-//
-//@Description { value:"Returns the connector that client code uses"}
-//@Return { value:"The connector that client code uses" }
-//@Return { value:"Error occured during registration" }
-//public function <HttpService ep> getConnector () returns (ServerConnector repConn) {
-//    return ep.serviceEndpoint.getConnector();
-//}
-//
-//@Description { value:"Stops the registered service"}
-//@Return { value:"Error occured during registration" }
-//public function <HttpService ep> stop () {
-//    ep.serviceEndpoint.stop();
-//}
 
 //////////////////////////////////
 /// WebSocket Service Endpoint ///

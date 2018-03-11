@@ -46,7 +46,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_URL_INDEX;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                              structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true

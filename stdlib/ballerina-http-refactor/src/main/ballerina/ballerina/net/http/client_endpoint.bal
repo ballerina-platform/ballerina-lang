@@ -4,7 +4,7 @@ package ballerina.net.http;
 // HTTP Client Endpoint
 ///////////////////////////////
 
-public struct ClientEndpoint {
+public struct Client {
     string epName;
     ClientEndpointConfiguration config;
 }
@@ -62,7 +62,7 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <ClientEndpoint ep> init (string epName, ClientEndpointConfiguration config) {
+public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
     string uri = config.serviceUri;
     if (uri.hasSuffix("/")) {
         int lastIndex = uri.length() - 1;
@@ -74,23 +74,23 @@ public function <ClientEndpoint ep> init (string epName, ClientEndpointConfigura
     ep.initEndpoint();
 }
 
-public native function<ClientEndpoint ep> initEndpoint();
+public native function<Client ep> initEndpoint ();
 
-public function <ClientEndpoint ep> register (type serviceType){
+public function <Client ep> register (type serviceType) {
 
 }
 
-public function <ClientEndpoint ep> start (){
+public function <Client ep> start () {
 
 }
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ClientEndpoint ep> getConnector () returns (ClientConnector repConn);
+public native function <Client ep> getConnector () returns (ClientConnector repConn);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <ClientEndpoint ep> stop () {
+public function <Client ep> stop () {
 
 }
 
