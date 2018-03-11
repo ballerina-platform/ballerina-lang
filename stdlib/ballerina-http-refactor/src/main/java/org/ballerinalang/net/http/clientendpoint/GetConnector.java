@@ -55,8 +55,8 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct clientEndPoint  = (BStruct)getRefArgument(context, CLIENT_ENDPOINT_INDEX);
-        BStruct clientEndpointConfig = (BStruct)clientEndPoint.getRefField(CLIENT_ENDPOINT_CONFIG_INDEX);
+        BStruct clientEndPoint = (BStruct) getRefArgument(context, CLIENT_ENDPOINT_INDEX);
+        BStruct clientEndpointConfig = (BStruct) clientEndPoint.getRefField(CLIENT_ENDPOINT_CONFIG_INDEX);
         BConnector clientConnector = BLangConnectorSPIUtil.createBConnector(context.getProgramFile(), HTTP_PACKAGE_PATH,
                 CLIENT_CONNECTOR, clientEndpointConfig.getStringField(SERVICE_URL_INDEX),
                 clientEndpointConfig.getRefField(OPTIONS_INDEX));
