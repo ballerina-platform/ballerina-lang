@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BStruct;
 
 import java.util.Map;
 
