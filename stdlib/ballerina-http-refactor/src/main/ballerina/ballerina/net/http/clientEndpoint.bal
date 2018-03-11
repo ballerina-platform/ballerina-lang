@@ -23,11 +23,40 @@ public struct TargetService {
     //Filter[] rf;
 }
 
+@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Field {value:"serviceUri: Target service url"}
+@Field {value:"port: Port number of the remote service"}
+@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+@Field {value:"keepAlive: Keep the connection or close it"}
+@Field {value:"transferEncoding: The types of encoding applied to the request"}
+@Field {value:"chunking: The chunking behaviour of the request"}
+@Field {value:"httpVersion: The version of HTTP outbound request"}
+@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
+@Field {value:"followRedirects: Redirect related options"}
+@Field {value:"ssl: SSL/TLS related options"}
+@Field {value:"retryConfig: Retry related options"}
+@Field {value:"proxy: Proxy server related options"}
 public struct ClientEndpointConfiguration {
     string serviceUri;
-    Options options;
+    int port;
+    int endpointTimeout = 60000;
+    boolean keepAlive = true;
+    TransferEncoding transferEncoding;
+    Chunking chunking;
+    string httpVersion;
+    string forwarded = "disable";
+    FollowRedirects followRedirects;
+    SSL ssl;
+    Retry retryConfig;
+    Proxy proxy;
+    ConnectionThrottling connectionThrottling;
     TargetService[] targets;
     Algorithm algorithm;
+}
+
+public function <ClientEndpointConfiguration config> ClientEndpointConfiguration() {
+    config.chunking = Chunking.AUTO;
+    config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
@@ -65,32 +94,33 @@ public function <ClientEndpoint ep> stop () {
 
 }
 
-@Description { value:"Options struct represents options to be used for HTTP client invocation" }
-@Field {value:"port: Port number of the remote service"}
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"keepAlive: Keep the connection or close it"}
-@Field {value:"transferEncoding: The types of encoding applied to the request"}
-@Field {value:"chunking: The chunking behaviour of the request"}
-@Field {value:"httpVersion: The version of HTTP outbound request"}
-@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
-@Field {value:"followRedirects: Redirect related options"}
-@Field {value:"ssl: SSL/TLS related options"}
-@Field {value:"retryConfig: Retry related options"}
-@Field {value:"proxy: Proxy server related options"}
-public struct Options {
-    int port;
-    int endpointTimeout = 60000;
-    boolean keepAlive = true;
-    string transferEncoding = "chunking";
-    string chunking = "auto";
-    string httpVersion;
-    string forwarded = "disable";
-    FollowRedirects followRedirects;
-    SSL ssl;
-    Retry retryConfig;
-    Proxy proxy;
-    ConnectionThrottling connectionThrottling;
-}
+//@Description { value:"Options struct represents options to be used for HTTP client invocation" }
+//@Field {value:"port: Port number of the remote service"}
+//@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
+//@Field {value:"keepAlive: Keep the connection or close it"}
+//@Field {value:"transferEncoding: The types of encoding applied to the request"}
+//@Field {value:"chunking: The chunking behaviour of the request"}
+//@Field {value:"httpVersion: The version of HTTP outbound request"}
+//@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
+//@Field {value:"followRedirects: Redirect related options"}
+//@Field {value:"ssl: SSL/TLS related options"}
+//@Field {value:"retryConfig: Retry related options"}
+//@Field {value:"proxy: Proxy server related options"}
+//public struct Options {
+//    int port;
+//    int endpointTimeout = 60000;
+//    boolean keepAlive = true;
+//    string transferEncoding = "chunking";
+//    string chunking = "auto";
+//    string httpVersion;
+//    string forwarded = "disable";
+//    FollowRedirects followRedirects;
+//    SSL ssl;
+//    Retry retryConfig;
+//    Proxy proxy;
+//    ConnectionThrottling connectionThrottling;
+//}
+
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retries"}
