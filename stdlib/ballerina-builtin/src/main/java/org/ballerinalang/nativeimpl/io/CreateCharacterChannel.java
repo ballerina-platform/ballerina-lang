@@ -23,15 +23,16 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.io#createCharacterChannel.
@@ -44,12 +45,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
                     structPackage = "ballerina.io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "CharacterChannel",
-                structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "CharacterChannel",
+                                  structPackage = "ballerina.io"),
+                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateCharacterChannel extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateCharacterChannel.class);
     /**
      * Specifies the index of the character channel in ballerina.io#createCharacterChannel.
      */
@@ -96,7 +99,6 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct characterChannelInfo;
         BStruct characterChannel;
-        BValue[] bValues;
         String encoding;
         try {
             //File which holds access to the channel information
@@ -108,10 +110,11 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
                     .BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
-            context.setReturnValues(characterChannel);
+            context.setReturnValues(characterChannel, null);
         } catch (Throwable e) {
             String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            context.setReturnValues(null, IOUtils.createError(context, message));
         }
     }
 }

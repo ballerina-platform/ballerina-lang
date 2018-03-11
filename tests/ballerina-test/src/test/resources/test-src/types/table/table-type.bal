@@ -683,7 +683,7 @@ function testCloseConnectionPool () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                                             0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
-    table dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+    table dt = testDB.select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
         var rs, err = (ResultCount) dt.getNext();
@@ -1047,7 +1047,8 @@ function testTableAddInvalid () {
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof
+            ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         dt.add(row);
@@ -1062,7 +1063,8 @@ function testTableRemoveInvalid () {
                                    0, "TEST_DATA_TABLE_DB", "SA", "", {maximumPoolSize:1});
     }
 
-    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
+    table<ResultPrimitiveInt> dt = testDB.select("SELECT int_type from DataTableRep", null, typeof
+            ResultPrimitiveInt);
     try {
         ResultPrimitiveInt row = {INT_TYPE:443};
         _ = dt.remove(isDelete);

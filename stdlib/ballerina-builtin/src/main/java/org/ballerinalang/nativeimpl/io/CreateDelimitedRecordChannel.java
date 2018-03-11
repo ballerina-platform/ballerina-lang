@@ -22,15 +22,16 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.io#createDelimitedRecordChannel.
@@ -44,12 +45,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina.io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT,
-                structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+                                  structPackage = "ballerina.io"),
+                      @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
 
     /**
      * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
@@ -96,7 +99,6 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context context) {
-        BValue[] bValues;
         try {
             //File which holds access to the channel information
             BStruct textRecordChannelInfo = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
@@ -111,11 +113,12 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
             DelimitedRecordChannel bCharacterChannel = new DelimitedRecordChannel(characterChannel, recordSeparator,
                     fieldSeparator);
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, bCharacterChannel);
-            context.setReturnValues(textRecordChannel);
+            context.setReturnValues(textRecordChannel, null);
         } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel:"
-                    + e.getMessage();
-            throw new BallerinaException(message, context);
+            String message =
+                    "Error occurred while converting character channel to textRecord channel:" + e.getMessage();
+            log.error(message, e);
+            context.setReturnValues(null, IOUtils.createError(context, message));
         }
     }
 }

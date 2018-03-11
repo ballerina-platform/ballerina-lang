@@ -24,9 +24,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.channels.ByteChannel;
 
@@ -39,9 +42,13 @@ import java.nio.channels.ByteChannel;
         packageName = "ballerina.io",
         functionName = "closeSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
+        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CloseSocket extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CloseSocket.class);
+
     @Override
     public void execute(Context context) {
         BStruct socket;
@@ -55,7 +62,8 @@ public class CloseSocket extends BlockingNativeCallableUnit {
             channel.close();
         } catch (Throwable e) {
             String message = "Failed to close the socket:" + e.getMessage();
-            throw new BallerinaException(message, e, context);
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
         context.setReturnValues();
     }
