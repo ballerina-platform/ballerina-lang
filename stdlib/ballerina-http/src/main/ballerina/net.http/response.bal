@@ -1,8 +1,8 @@
-package ballerina.net.http;
+package net.http;
 
-import ballerina.mime;
-import ballerina.file;
-import ballerina.io;
+import ballerina/mime;
+import ballerina/file;
+import ballerina/io;
 
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The inbound response struct"}

@@ -1,6 +1,6 @@
-package ballerina.net.http;
+package net.http;
 
-import ballerina.mime;
+import ballerina/mime;
 
 function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
     var headerValue, _ = (string[]) entity.headers[headerName];

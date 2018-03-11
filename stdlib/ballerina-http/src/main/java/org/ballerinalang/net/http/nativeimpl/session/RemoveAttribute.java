@@ -36,10 +36,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         functionName = "removeAttribute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "net.http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING)},
         isPublic = true
 )

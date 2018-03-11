@@ -1,6 +1,6 @@
-package ballerina.net.http.resiliency;
+package net.http.resiliency;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 // Keeps to index which needs to be take the next load balance endpoint.
 int nextIndex;

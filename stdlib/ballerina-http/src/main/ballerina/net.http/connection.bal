@@ -1,4 +1,4 @@
-package ballerina.net.http;
+package net.http;
 
 const string HEADER_KEY_LOCATION = "Location";
 

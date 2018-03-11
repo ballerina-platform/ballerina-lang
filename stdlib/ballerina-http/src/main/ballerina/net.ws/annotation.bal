@@ -1,4 +1,4 @@
-package ballerina.net.ws;
+package net.ws;
 
 @Description {value:"Configuration for a WebSocket service."}
 @Field {value:"basePath: Path of the WebSocket service"}

@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.net.http.resiliency;
+package net.http.resiliency;
 
-import ballerina.log;
-import ballerina.net.http;
-import ballerina.time;
+import ballerina/log;
+import ballerina/net.http;
+import ballerina/time;
 
 enum CircuitState {
     OPEN, CLOSED, HALF_OPEN

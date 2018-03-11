@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.net.http.resiliency;
+package net.http.resiliency;
 
-import ballerina.net.http;
+import ballerina/net.http;
 
 //Constants to represent Failover connector actions.
 public const string FORWARD = "forward";

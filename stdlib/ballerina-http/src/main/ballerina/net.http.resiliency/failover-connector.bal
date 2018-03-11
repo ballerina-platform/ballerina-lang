@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.net.http.resiliency;
+package net.http.resiliency;
 
-import ballerina.net.http;
-import ballerina.runtime;
-import ballerina.mime;
+import ballerina/net.http;
+import ballerina/runtime;
+import ballerina/mime;
 
 @Description {value:"Represents Failover connector retry configuration."}
 @Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}

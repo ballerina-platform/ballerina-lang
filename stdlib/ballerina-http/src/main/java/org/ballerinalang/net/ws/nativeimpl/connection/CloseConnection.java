@@ -30,9 +30,9 @@ import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.IOException;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import java.io.IOException;
 
 /**
  * Get the ID of the connection.
@@ -41,10 +41,11 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "closeConnection",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         args = {@Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true

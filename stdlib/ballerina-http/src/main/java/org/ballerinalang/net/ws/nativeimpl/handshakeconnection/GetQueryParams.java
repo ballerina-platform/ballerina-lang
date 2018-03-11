@@ -34,10 +34,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.961.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "getQueryParams",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "HandshakeConnection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )

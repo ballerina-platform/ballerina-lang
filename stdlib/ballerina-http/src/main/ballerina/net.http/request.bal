@@ -1,8 +1,8 @@
-package ballerina.net.http;
+package net.http;
 
-import ballerina.mime;
-import ballerina.file;
-import ballerina.io;
+import ballerina/mime;
+import ballerina/file;
+import ballerina/io;
 
 const string HEADER_VAL_100_CONTINUE = "100-continue";
 const string HEADER_KEY_EXPECT = "Expect";

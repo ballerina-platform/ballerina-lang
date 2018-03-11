@@ -1,4 +1,4 @@
-package ballerina.net.ws;
+package net.ws;
 
 @Description {value:"Represents a WebSocket text frame in Ballerina."}
 @Field {value: "text: Text in the text frame"}

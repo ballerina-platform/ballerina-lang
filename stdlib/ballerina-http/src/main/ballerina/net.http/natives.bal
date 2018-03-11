@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.net.http;
+package net.http;
 
-import ballerina.mime;
+import ballerina/mime;
 
 @Description {value:"Represent 'content-length' header name"}
 public const string CONTENT_LENGTH = "content-length";
