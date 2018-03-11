@@ -41,6 +41,19 @@ public native function <Connection conn> respond (OutResponse res) (HttpConnecto
 @Return {value:"Error occured during HTTP server connector forward"}
 public native function <Connection conn> forward (InResponse res) (HttpConnectorError);
 
+@Description { value:"Sends a push promise to the caller"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"promise: Push promise message" }
+@Return { value:"Error occured during HTTP server connector forward" }
+public native function <Connection conn> promise (PushPromise promise) (HttpConnectorError);
+
+@Description { value:"Sends a promised push response to the caller"}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"promise: Push promise message" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during HTTP server connector forward" }
+public native function <Connection conn> pushPromisedResponse (PushPromise promise, OutResponse res) (HttpConnectorError);
+
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"HTTP Session struct"}
@@ -373,6 +386,51 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
+@Description { value:"Represents a handle for aynchronous http invocation"}
+public struct HttpHandle {
+}
+
+@Description { value:"Represents a HTTP/2 Push Promise"}
+@Field {value:"path: Resource path"}
+@Field {value:"method: Http method"}
+public struct PushPromise {
+	string path;
+    string method;
+}
+
+@Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
+@Param {value:"promise: A Push Promise"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
+public native function <PushPromise promise> getHeader (string headerName) (string);
+
+@Description {value:"Gets transport headers from the Push Promise"}
+@Param {value:"promise: A inbound request message"}
+@Param {value:"headerName: The header name"}
+@Return {value:"The header values struct array for a given header name"}
+public native function <PushPromise promise> getHeaders (string headerName) (string[]);
+
+@Description {value:"Adds the specified key/value pair as an HTTP header to the Push Promise"}
+@Param {value:"promise: A Push Promise"}
+@Param {value:"headerName: The header name"}
+@Param {value:"headerValue: The header value"}
+public native function <PushPromise promise> addHeader (string headerName, string headerValue);
+
+@Description {value:"Sets the value of a transport header in Push Promise"}
+@Param {value:"promise: A Push Promise"}
+@Param {value:"headerName: The header name"}
+@Param {value:"headerValue: The header value"}
+public native function <PushPromise promise> setHeader (string headerName, string headerValue);
+
+@Description {value:"Removes a transport header from the Push Promise"}
+@Param {value:"promise: A Push Promise"}
+@Param {value:"key: The header name"}
+public native function <PushPromise promise> removeHeader (string key);
+
+@Description {value:"Removes all transport headers from the Push Promise"}
+@Param {value:"promise: A Push Promise"}
+public native function <PushPromise promise> removeAllHeaders ();
+
 @Description {value:"HTTP client connector for outbound HTTP requests"}
 @Param {value:"serviceUri: URI of the service"}
 @Param {value:"connectorOptions: connector options"}
@@ -441,4 +499,40 @@ public connector HttpClient (string serviceUri, Options connectorOptions) {
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     native action forward (string path, InRequest req) (InResponse, HttpConnectorError);
+
+	@Description { value:"Invokes an HTTP call with the specified HTTP verb in asynchronous manner."}
+	@Param { value:"httpVerb: The HTTP verb value" }
+	@Param { value:"path: The Resource path " }
+	@Param { value:"req: An HTTP outbound request message" }
+	@Return { value:"The Handle for further interactions" }
+	@Return { value:"The Error occured during HTTP client invocation" }
+	native action submit (string httpVerb, string path, OutRequest req) (HttpHandle, HttpConnectorError);
+
+	@Description { value:"Retrieves response for async service invocation."}
+	@Param { value:"handle: The Handle which relates to previous async invocation" }
+	@Return { value:"The HTTP response message" }
+	@Return { value:"The Error occured during HTTP client invocation" }
+	native action getResponse (HttpHandle handle) (InResponse, HttpConnectorError);
+
+	@Description { value:"Checks whether server push exists."}
+	@Param { value:"handle: The Handle which relates to previous async invocation" }
+	@Return { value:"Whether push promise exists" }
+	native action hasPromise (HttpHandle handle) (boolean);
+
+	@Description { value:"Retrieves the next available push promise."}
+	@Param { value:"handle: The Handle which relates to previous async invocation" }
+	@Return { value:"The HTTP Push Promise message" }
+	@Return { value:"The Error occured during HTTP client invocation" }
+	native action getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError);
+
+	@Description { value:"Retrieves the promised server push response."}
+	@Param { value:"promise: The related Push Promise message" }
+	@Return { value:"HTTP The Push Response message" }
+	@Return { value:"The Error occured during HTTP client invocation" }
+	native action getPromisedResponse (PushPromise promise) (InResponse, HttpConnectorError);
+
+	@Description { value:"Rejects a push promise."}
+	@Param { value:"promise: The Push Promise need to be rejected" }
+	@Return { value:"Whether operation is successful" }
+	native action rejectPromise (PushPromise promise) (boolean);
 }

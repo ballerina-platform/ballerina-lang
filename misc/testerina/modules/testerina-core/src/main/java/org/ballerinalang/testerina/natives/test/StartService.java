@@ -221,6 +221,7 @@ public class StartService extends AbstractNativeFunction {
         AnnAttributeValue transferEncoding = configInfo.getAttributeValue(
                 HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttributeValue chunking = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
+        AnnAttributeValue versionAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -254,6 +255,10 @@ public class StartService extends AbstractNativeFunction {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
             }
 
+            if (versionAttrVal != null) {
+                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
+            }
+            
             listenerConfiguration
                     .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
             listenerConfSet.add(listenerConfiguration);

@@ -15,6 +15,7 @@ package ballerina.net.http;
 @Field {value:"ciphers: List of ciphers to be used"}
 @Field {value:"sslProtocol: The SSL protocol version"}
 @Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
@@ -46,6 +47,7 @@ public annotation configuration attach service<> {
     string ciphers;
     string sslProtocol;
     boolean validateCertEnabled;
+    string httpVersion;
     boolean compressionEnabled;
     int cacheSize;
     int cacheValidityPeriod;

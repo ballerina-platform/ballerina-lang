@@ -129,7 +129,7 @@ public class Init extends AbstractHTTPAction {
         return ballerinaFuture;
     }
 
-    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
+    protected void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {
         //TODO Define default values until we get Anonymous struct (issues #3635)
         ProxyServerConfiguration proxyServerConfiguration = null;
         int followRedirect = FALSE;
