@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -39,6 +40,11 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
  * @since 0.94
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
+
+    /**
+     * The identifier of this node.
+     */
+    public BLangIdentifier name;
 
     public List<BLangRecordKeyValue> keyValuePairs;
 
@@ -189,6 +195,41 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangTableLiteral(BType tableType) {
             this.type = tableType;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * This class represents a stream type literal expression.
+     *
+     * @since 0.964.0
+     */
+    public static class BLangStreamLiteral extends BLangRecordLiteral {
+
+        public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
+            this.type = streamType;
+            this.name = name;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * This class represents a streamlet type literal expression.
+     *
+     * @since 0.955.0
+     */
+    public static class BLangStreamletLiteral extends BLangRecordLiteral {
+
+        public BLangStreamletLiteral(BType streamletType) {
+            this.type = streamletType;
         }
 
         @Override

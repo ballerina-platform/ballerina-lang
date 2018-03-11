@@ -21,8 +21,6 @@ package org.ballerinalang.model.tree.clauses;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
-import java.util.List;
-
 /**
  * @since 0.965.0
  *
@@ -38,17 +36,25 @@ import java.util.List;
  */
 public interface StreamingInput extends Node {
 
-    void addStreamingCondition(WhereNode where);
+    ExpressionNode getStreamReference();
 
-    List<? extends WhereNode> getStreamingConditions();
+    void setStreamReference(ExpressionNode streamReference);
+
+    void setBeforeStreamingCondition(WhereNode where);
+
+    WhereNode getBeforeStreamingCondition();
+
+    void setAfterStreamingCondition(WhereNode where);
+
+    WhereNode getAfterStreamingCondition();
+
+    boolean isWindowTraversedAfterWhere();
+
+    void setWindowTraversedAfterWhere(boolean windowTraversedAfterWhere);
 
     void setWindowClause(WindowClauseNode windowClause);
 
     WindowClauseNode getWindowClause();
-
-    ExpressionNode getTableReference();
-
-    void setTableReference(ExpressionNode tableReference);
 
     void setAlias(String alias);
 

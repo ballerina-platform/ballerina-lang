@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -156,6 +158,7 @@ public class Desugar extends BLangNodeVisitor {
     private IterableCodeDesugar iterableCodeDesugar;
     private SqlQueryBuilder sqlQueryBuilder;
     private Types types;
+    private SiddhiQueryBuilder siddhiQueryBuilder;
 
     private BLangNode result;
 
@@ -182,6 +185,7 @@ public class Desugar extends BLangNodeVisitor {
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
+        this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -202,6 +206,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.transformers = rewrite(pkgNode.transformers);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
+        pkgNode.streamlets = rewrite(pkgNode.streamlets);
         pkgNode.services = rewrite(pkgNode.services);
         pkgNode.initFunction = rewrite(pkgNode.initFunction);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
@@ -241,6 +246,12 @@ public class Desugar extends BLangNodeVisitor {
         serviceNode.vars = rewrite(serviceNode.vars);
         serviceNode.initFunction = rewrite(serviceNode.initFunction);
         result = serviceNode;
+    }
+
+
+    public void visit(BLangStreamlet streamletNode) {
+        siddhiQueryBuilder.visit(streamletNode);
+        result = streamletNode;
     }
 
     @Override
@@ -322,12 +333,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
+        if (varDefNode.var.expr instanceof BLangRecordLiteral &&
+                ((BLangRecordLiteral) varDefNode.var.expr).type.tag == TypeTags.STREAM) {
+            ((BLangRecordLiteral) varDefNode.var.expr).name = varDefNode.var.name;
+        }
         varDefNode.var = rewrite(varDefNode.var);
         result = varDefNode;
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
+                ((BLangRecordLiteral) assignNode.expr).name =
+                        ((BLangSimpleVarRef) assignNode.varRefs.get(0)).variableName;
+        }
         assignNode.varRefs = rewriteExprs(assignNode.varRefs);
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
@@ -516,6 +535,10 @@ public class Desugar extends BLangNodeVisitor {
             result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
             result = new BLangTableLiteral(recordLiteral.type);
+        } else if (recordLiteral.type.tag == TypeTags.STREAM) {
+            result = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
+        } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
+            result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
             result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -547,6 +570,9 @@ public class Desugar extends BLangNodeVisitor {
             // Local variable in a function/resource/action/worker
             genVarRefExpr = new BLangLocalVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            // Field variable in a receiver
+            genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
+        } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
@@ -646,6 +672,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
             case TypeTags.MAP:
             case TypeTags.TABLE:
+            case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
@@ -1023,7 +1051,7 @@ public class Desugar extends BLangNodeVisitor {
         JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
         BLangSimpleVarRef joinTable = null;
         if (joinStreamingInput != null) {
-            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getTableReference();
+            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
             joinTable = new BLangLocalVarRef(joinTable.symbol);
         }
         return joinTable;
@@ -1031,7 +1059,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangLocalVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
         BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
-                .getTableReference();
+                .getStreamReference();
         return new BLangLocalVarRef(fromTable.symbol);
     }
 
@@ -1217,6 +1245,8 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.XML:
                 return;
             case TypeTags.TABLE:
+            case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
                 // TODO: add this once the able initializing is supported.
                 return;
             default:

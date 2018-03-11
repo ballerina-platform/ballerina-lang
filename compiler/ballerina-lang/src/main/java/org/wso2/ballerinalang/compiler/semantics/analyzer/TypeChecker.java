@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -240,6 +241,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 expTypeTag == TypeTags.STRUCT ||
                 expTypeTag == TypeTags.TABLE ||
                 expTypeTag == TypeTags.NONE ||
+                expTypeTag == TypeTags.STREAM ||
+                expTypeTag == TypeTags.STREAMLET ||
                 expTypeTag == TypeTags.ANY) {
             recordLiteral.keyValuePairs.forEach(keyValuePair ->
                     checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
@@ -477,6 +480,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.TABLE:
                 checkFunctionInvocationExpr(iExpr, symTable.tableType);
+                break;
+            case TypeTags.STREAM:
+                checkFunctionInvocationExpr(iExpr, symTable.streamType);
+                break;
+            case TypeTags.STREAMLET:
+                checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE_COLLECTION:
@@ -907,8 +916,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
-        BLangExpression varRef = (BLangExpression) streamingInput.getTableReference();
+        BLangExpression varRef = (BLangExpression) streamingInput.getStreamReference();
         varRef.accept(this);
+    }
+
+    public void visit(BLangStreamlet streamletNode){
+        /* ignore */
     }
 
     // Private methods
@@ -1063,6 +1076,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;

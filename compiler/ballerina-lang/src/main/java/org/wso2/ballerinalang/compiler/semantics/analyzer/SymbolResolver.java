@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -181,6 +182,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (rhsType.tag == TypeTags.STRUCT ||
                         rhsType.tag == TypeTags.CONNECTOR ||
                         rhsType.tag == TypeTags.ENUM ||
+                        rhsType.tag == TypeTags.STREAMLET ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
             List<BType> retTypes = Lists.of(symTable.booleanType);
@@ -191,6 +193,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if ((lhsType.tag == TypeTags.STRUCT ||
                 lhsType.tag == TypeTags.CONNECTOR ||
                 lhsType.tag == TypeTags.ENUM ||
+                lhsType.tag == TypeTags.STREAMLET ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NULL) {
             List<BType> paramTypes = Lists.of(lhsType, rhsType);
@@ -478,6 +481,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
         if (type.tag == TypeTags.TABLE) {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
+        } else if (type.tag == TypeTags.STREAM) {
+                      resultType = new BStreamType(TypeTags.STREAM, constraintType, type.tsymbol);
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
@@ -529,6 +534,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = symTable.errType;
             return;
         }
+
         if (symbol.kind == SymbolKind.CONNECTOR) {
             userDefinedTypeNode.flagSet = EnumSet.of(Flag.CONNECTOR);
         }
