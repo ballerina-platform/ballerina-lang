@@ -3,14 +3,16 @@ import ballerina.io;
 io:Socket socket;
 
 function openSocketConnection (string host, int port) {
-    socket = io:openSocket(host, port, {});
+    socket, _ = io:openSocket(host, port, {});
 }
 function openSocketConnectionWithProps (string host, int port, io:SocketProperties prop) (io:Socket) {
-    return io:openSocket(host, port, prop);
+    io:Socket socketProp;
+    socketProp, _ = io:openSocket(host, port, prop);
+    return socketProp;
 }
 
 function closeSocket () {
-    socket.closeSocket();
+    _ = socket.closeSocket();
 }
 
 function write (blob content, int size) (int) {
@@ -29,5 +31,5 @@ function read (int size) (blob, int) {
 }
 
 function close (io:Socket socket) {
-    socket.closeSocket();
+    _ = socket.closeSocket();
 }
