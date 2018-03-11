@@ -156,7 +156,7 @@ public class PackageLoader {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
             }
         } else {
-            pkgId = getPackageID(source);
+            pkgId = getPackageID(Names.ANON_ORG.getValue(), source);
             bLangPackage = packageCache.get(pkgId);
             if (bLangPackage != null) {
                 return bLangPackage;
@@ -170,7 +170,7 @@ public class PackageLoader {
         }
 
         // Add runtime.
-        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value, Names.BALLERINA.value);
         return bLangPackage;
     }
 
@@ -201,7 +201,7 @@ public class PackageLoader {
 
     public BLangPackage loadPackage(PackageID pkgId) {
         BLangPackage packageNode = loadPackage(pkgId, null);
-        addImportPkg(packageNode, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(packageNode, Names.RUNTIME_PACKAGE.value, Names.BALLERINA.value);
         return packageNode;
     }
 
@@ -220,7 +220,7 @@ public class PackageLoader {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
             }
         } else {
-            pkgId = getPackageID(source);
+            pkgId = getPackageID(Names.ANON_ORG.getValue() ,source);
             pkgEntity = getPackageEntity(pkgId);
             bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
@@ -229,16 +229,16 @@ public class PackageLoader {
         }
 
         // Add runtime.
-        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(bLangPackage, Names.RUNTIME_PACKAGE.value, Names.BALLERINA.value);
 
         // Define Package
         this.symbolEnter.definePackage(bLangPackage, pkgId);
         return bLangPackage;
     }
 
-    public BLangPackage loadAndDefinePackage(String sourcePkg) {
+    public BLangPackage loadAndDefinePackage(String orgName, String sourcePkg) {
         // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(sourcePkg);
+        PackageID pkgId = getPackageID(orgName, sourcePkg);
         return loadAndDefinePackage(pkgId);
     }
 
@@ -280,7 +280,7 @@ public class PackageLoader {
         return this.parser.parse(pkgSource);
     }
 
-    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName) {
+    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName, String orgName) {
         List<Name> nameComps = getPackageNameComps(sourcePkgName);
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(comp -> {
@@ -290,7 +290,7 @@ public class PackageLoader {
         });
 
         BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        orgNameNode.setValue(Names.ANON_ORG.value);
+        orgNameNode.setValue(orgName);
         BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         versionNode.setValue(Names.DEFAULT_VERSION.value);
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
@@ -311,10 +311,11 @@ public class PackageLoader {
         return loadPackageEntity(pkgId);
     }
 
-    private PackageID getPackageID(String sourcePkg) {
+    private PackageID getPackageID(String orgName,String sourcePkg) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        return new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+        Name orgN = new Name(orgName);
+        return new PackageID(orgN, pkgNameComps, Names.DEFAULT_VERSION);
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {
