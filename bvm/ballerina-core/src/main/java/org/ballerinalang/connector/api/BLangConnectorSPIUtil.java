@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -149,6 +150,18 @@ public final class BLangConnectorSPIUtil {
             throw new BallerinaConnectorException("Can't get service reference, not service type.");
         }
         return getService(programFile, (BServiceType) vmValue.value());
+    }
+
+    public static BStruct getPackageEndpoint(ProgramFile programFile, String pkgName, String endpointName) {
+        final PackageInfo packageInfo = programFile.getPackageInfo(pkgName);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("Incorrect package name");
+        }
+        final PackageVarInfo packageVarInfo = packageInfo.getPackageVarInfo(endpointName);
+        if (packageVarInfo == null) {
+            throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
+        }
+        return (BStruct) programFile.getGlobalMemoryBlock().getRefField(packageVarInfo.getGlobalMemIndex());
     }
 
     /* private utils */
