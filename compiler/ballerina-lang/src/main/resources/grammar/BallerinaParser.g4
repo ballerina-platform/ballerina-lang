@@ -756,7 +756,7 @@ windowClause
     ;
 
 outputEventType
-    : ALL EVENTS | EXPIRED EVENTS | CURRENT? EVENTS
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
     ;
 
 joinType

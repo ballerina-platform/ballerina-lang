@@ -38,6 +38,8 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
 
     private String identifierName;
 
+    private String outputEventType;
+
     private StreamActionType action;
 
     private List<SetAssignmentNode> setAssignmentNodeList;
@@ -104,6 +106,22 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
     @Override
     public String getActionType() {
         return action.toString();
+    }
+
+    @Override
+    public String getOutputEventType() {
+        return outputEventType;
+    }
+
+    @Override
+    public void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
+        if (isAllEvents) {
+            this.outputEventType = "all events";
+        } else if (isExpiredEvents) {
+            this.outputEventType = "expired events";
+        } else if (isCurrentEvents) {
+            this.outputEventType = "current events";
+        }
     }
 
     private enum StreamActionType {

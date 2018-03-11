@@ -322,9 +322,9 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
 
-    @Test(priority = 3)
-    public void testSessionCount() {
-        BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
-    }
+//    @Test(priority = 3)
+//    public void testSessionCount() {
+//        BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
+//        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+//    }
 }

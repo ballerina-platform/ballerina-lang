@@ -55,4 +55,8 @@ public interface StreamActionNode extends Node {
     ExpressionNode getExpression();
 
     String getActionType();
+
+    String getOutputEventType();
+
+    void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents);
 }

@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test aggregation behaviour of Ballerina Streaming.
+ * This contains methods to test stream join behaviour of Ballerina Streaming.
  *
  * @since 0.965.0
  */
@@ -38,22 +38,18 @@ public class StreamJoiningTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/aggregation-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/join-streaming-test.bal");
     }
 
-    @Test(description = "Test streaming aggregation query.")
-    public void testAggregationQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testAggregationQuery");
+    @Test(description = "Test streaming join query.")
+    public void testStreamJoinQuery() {
+        BValue[] returns = BRunUtil.invoke(result, "testJoinQuery");
 
         BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 1, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.size(), 4, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray.get(0);
-
-        Assert.assertEquals(statusCount0.getStringField(0), "single");
-        Assert.assertEquals(statusCount0.getIntField(0), 2);
     }
 
 }

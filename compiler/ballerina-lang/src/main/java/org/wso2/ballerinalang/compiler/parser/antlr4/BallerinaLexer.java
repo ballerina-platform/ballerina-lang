@@ -242,6 +242,7 @@ public class BallerinaLexer extends Lexer {
 	    boolean inDeprecatedTemplate = false;
 	    boolean inSiddhi = false;
 	    boolean inTableSqlQuery = false;
+	    boolean inSiddhiInsertQuery = false;
 
 
 	public BallerinaLexer(CharStream input) {
@@ -360,7 +361,7 @@ public class BallerinaLexer extends Lexer {
 	private void FROM_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 1:
-			 inSiddhi = true; inTableSqlQuery = true; 
+			 inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  
 			break;
 		}
 	}
@@ -402,7 +403,7 @@ public class BallerinaLexer extends Lexer {
 	private void EVENTS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 7:
-			 inSiddhi = false; 
+			 inSiddhiInsertQuery = false; 
 			break;
 		}
 	}
@@ -621,7 +622,7 @@ public class BallerinaLexer extends Lexer {
 	private boolean EVENTS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 5:
-			return inSiddhi;
+			return inSiddhiInsertQuery;
 		}
 		return true;
 	}

@@ -141,7 +141,16 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
         joinStreamingInputClause = new StringBuilder();
         streamingInput.accept(this);
-        joinStreamingInputClause.append("join ").append(streamingInputClause).append(" on ");
+        if (joinStreamingInput.isUnidirectionalBeforeJoin()) {
+            joinStreamingInputClause.append(" unidirectional ");
+        }
+        String joinType = joinStreamingInput.getJoinType();
+        joinStreamingInputClause.append(" ").append(joinType).append(" ");
+        if (joinStreamingInput.isUnidirectionalAfterJoin()) {
+            joinStreamingInputClause.append(" unidirectional ");
+        }
+        joinStreamingInputClause.append(streamingInputClause).append(" on ");
+        binaryExpr = new StringBuilder();
         expr.accept(this);
         joinStreamingInputClause.append(binaryExpr);
     }
@@ -193,6 +202,17 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
         if (streamingInput.getAlias() != null) {
             streamingInputClause.append(" as ").append(streamingInput.getAlias()).append(" ");
+        }
+
+        ExpressionNode streamReference = streamingInput.getStreamReference();
+        if (streamReference != null) {
+            ((BLangSimpleVarRef) streamReference).accept(this);
+            if (streamIdsAsString.length() == 0) {
+                streamIdsAsString.append(varRef);
+            } else {
+                streamIdsAsString.append(",").append(varRef);
+            }
+            varRef = "";
         }
     }
 
@@ -335,17 +355,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
             siddhiQuery.append(" ").append(streamingInputClause);
-
-            ExpressionNode streamReference = streamingInput.getStreamReference();
-            if (streamReference != null) {
-                ((BLangSimpleVarRef) streamReference).accept(this);
-                if (streamIdsAsString.length() == 0) {
-                    streamIdsAsString.append(varRef);
-                } else {
-                    streamIdsAsString.append(",").append(varRef);
-                }
-                varRef = "";
-            }
         }
 
         PatternStreamingInputNode patternStreamingInput = streamingQueryStatement.getPatternStreamingInput();
@@ -385,8 +394,11 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamActionClause = new StringBuilder();
         String streamActionType = streamAction.getActionType();
         if (streamActionType.equalsIgnoreCase("insert")) {
-            streamActionClause.append(" ").append("insert into");
-            streamActionClause.append(" ").append(streamAction.getIdentifier());
+            streamActionClause.append(" ").append("insert");
+            if (streamAction.getOutputEventType() != null) {
+                streamActionClause.append(" ").append(streamAction.getOutputEventType());
+            }
+            streamActionClause.append(" into").append(" ").append(streamAction.getIdentifier());
         } else if (streamActionType.equalsIgnoreCase("update")) {
             streamActionClause.append(" ").append("update");
             streamActionClause.append(" ").append(streamAction.getIdentifier());
