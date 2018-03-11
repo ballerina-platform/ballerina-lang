@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -38,7 +39,7 @@ import java.util.List;
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
                 @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "HttpService"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WsService")}
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -54,7 +55,7 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 return;
             }
             if (annotation.getAnnotationName().getValue().equals("httpServiceConfig")
-                    || annotation.getAnnotationName().getValue().equals("wsServiceConfig")) {
+                    || annotation.getAnnotationName().getValue().equals(WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
