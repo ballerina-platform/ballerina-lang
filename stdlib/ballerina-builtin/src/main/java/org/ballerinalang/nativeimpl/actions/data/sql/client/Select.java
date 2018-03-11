@@ -45,7 +45,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "query", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter")},
+                        structType = "Parameter")},
         returnType = { @ReturnType(type = TypeKind.TABLE) },
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
