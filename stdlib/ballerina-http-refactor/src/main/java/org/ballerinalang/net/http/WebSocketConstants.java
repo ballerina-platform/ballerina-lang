@@ -30,7 +30,7 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSocketService";
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
-    public static final String ANNOTATION_CONFIGURATION = "configuration";
+    public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "webSocketServiceConfig";
     public static final String ANNOTATION_WEBSOCKET_CLIENT_SERVICE = "clientService";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";

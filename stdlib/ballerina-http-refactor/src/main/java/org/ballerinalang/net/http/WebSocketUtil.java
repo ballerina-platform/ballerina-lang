@@ -20,12 +20,18 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.util.List;
+
 
 /**
  * Utility class for websockets.
@@ -49,5 +55,20 @@ public abstract class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+    }
+
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }
