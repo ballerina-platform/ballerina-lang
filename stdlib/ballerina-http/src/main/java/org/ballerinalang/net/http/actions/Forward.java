@@ -45,11 +45,11 @@ import java.util.Locale;
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.STRUCT, structType = "InRequest",
+                @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
         },
@@ -83,7 +83,7 @@ public class Forward extends AbstractHTTPAction {
         String path = getStringArgument(context, 0);
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
 
-        if (requestStruct.getNativeData(HttpConstants.IN_REQUEST) == null) {
+        if (requestStruct.getNativeData(HttpConstants.REQUEST) == null) {
             throw new BallerinaException("invalid inbound request parameter");
         }
 

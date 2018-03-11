@@ -51,9 +51,9 @@ public class SignatureParams {
             throw new BallerinaConnectorException("first parameter should be of type - "
                     + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.SERVER_CONNECTOR);
         }
-        if (!isValidResourceParam(paramDetails.get(1), HttpConstants.IN_REQUEST)) {
+        if (!isValidResourceParam(paramDetails.get(1), HttpConstants.REQUEST)) {
             throw new BallerinaConnectorException("second parameter should be of type - "
-                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.IN_REQUEST);
+                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.REQUEST);
         }
         if (paramDetails.size() == compulsoryParamCount) {
             return;

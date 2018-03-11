@@ -7,7 +7,7 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/"
     }
-    resource cbrResource (http:Connection conn, http:InRequest req) {
+    resource cbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> nasdaqEP {
             create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
@@ -18,8 +18,8 @@ service<http> contentBasedRouting {
         var jsonMsg, _ = req.getJsonPayload();
         var nameString, _ = (string)jsonMsg.name;
 
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Request clientRequest = {};
+        http:Response clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", clientRequest);
@@ -37,7 +37,7 @@ service<http> headerBasedRouting {
         methods:["GET"],
         path:"/"
     }
-    resource hbrResource (http:Connection conn, http:InRequest req) {
+    resource hbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> nasdaqEP {
             create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
@@ -47,8 +47,8 @@ service<http> headerBasedRouting {
         string nyseString = "nyse";
         var nameString = req.getHeader("name");
 
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Request clientRequest = {};
+        http:Response clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", clientRequest);
@@ -65,9 +65,9 @@ service<http> nasdaqStocksQuote {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource stocks (http:Connection conn, http:InRequest req) {
+    resource stocks (http:Connection conn, http:Request req) {
         json payload = {"exchange":"nasdaq", "name":"IBM", "value":"127.50"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = conn.respond(res);
     }
@@ -79,9 +79,9 @@ service<http> nyseStockQuote {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource stocks (http:Connection con, http:InRequest req) {
+    resource stocks (http:Connection con, http:Request req) {
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(payload);
         _ = con.respond(res);
     }

@@ -361,7 +361,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
+            BStruct inboundResponse = createStruct(this.context, HttpConstants.RESPONSE,
                     HttpConstants.PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);

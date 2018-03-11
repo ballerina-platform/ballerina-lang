@@ -13,7 +13,7 @@ public connector ServerConnector (){
     @Param { value:"conn: The server connector connection" }
     @Param { value:"res: The outbound response message" }
     @Return { value:"Error occured during HTTP server connector respond" }
-    action respond(OutResponse res) (HttpConnectorError) {
+    action respond(Response res) (HttpConnectorError) {
         return conn.respond(res);
     }
 
@@ -21,7 +21,7 @@ public connector ServerConnector (){
     @Param { value:"conn: The server connector connection" }
     @Param { value:"res: The inbound response message" }
     @Return { value:"Error occured during HTTP server connector forward" }
-    action forward(InResponse res) (HttpConnectorError) {
+    action forward(Response res) (HttpConnectorError) {
         return conn.forward(res);
     }
 
@@ -52,7 +52,7 @@ public connector ServerConnector (){
     @Param { value:"redirectCode: Status code of the specific redirect." }
     @Param { value:"locations: Array of locations where the redirection can happen." }
     @Return { value:"Returns an HttpConnectorError if there was any issue in sending the response." }
-    action redirect(OutResponse response, RedirectCode code, string[] locations) (HttpConnectorError) {
+    action redirect(Response response, RedirectCode code, string[] locations) (HttpConnectorError) {
         return conn.redirect(response, code, locations);
     }
 }

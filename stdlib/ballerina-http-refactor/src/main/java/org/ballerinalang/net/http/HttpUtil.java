@@ -375,7 +375,7 @@ public class HttpUtil {
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
                                               HTTPCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(HttpConstants.IN_REQUEST, true);
+        inboundRequestStruct.addNativeData(HttpConstants.REQUEST, true);
 
         enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
@@ -388,7 +388,7 @@ public class HttpUtil {
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
                                                         HTTPCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
-            inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX,
+            inboundRequestStruct.setStringField(HttpConstants.REQUEST_USER_AGENT_INDEX,
                                                 inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()));
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
@@ -396,15 +396,15 @@ public class HttpUtil {
 
     private static void enrichWithInboundRequestInfo(BStruct inboundRequestStruct,
                                                      HTTPCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_RAW_PATH_INDEX,
+        inboundRequestStruct.setStringField(HttpConstants.REQUEST_RAW_PATH_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL));
-        inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_METHOD_INDEX,
+        inboundRequestStruct.setStringField(HttpConstants.REQUEST_METHOD_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD));
-        inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_VERSION_INDEX,
+        inboundRequestStruct.setStringField(HttpConstants.REQUEST_VERSION_INDEX,
                 (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        inboundRequestStruct.setStringField(HttpConstants.IN_REQUEST_EXTRA_PATH_INFO_INDEX,
+        inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
                 resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
     }
 
@@ -428,12 +428,12 @@ public class HttpUtil {
                                                HTTPCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        inboundResponse.setIntField(HttpConstants.IN_RESPONSE_STATUS_CODE_INDEX, statusCode);
-        inboundResponse.setStringField(HttpConstants.IN_RESPONSE_REASON_PHRASE_INDEX,
+        inboundResponse.setIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX, statusCode);
+        inboundResponse.setStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
-            inboundResponse.setStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX,
+            inboundResponse.setStringField(HttpConstants.RESPONSE_SERVER_INDEX,
                                            inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
@@ -491,9 +491,13 @@ public class HttpUtil {
     private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
         BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isInboundRequestStruct(struct) || isInboundResponseStruct(struct)) {
+        if (isRequestStruct(struct) || isResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
-            return;
+            // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
+            // are merged to a single Response, without returning need to populate all headers from the struct
+            // to the HTTPCarbonMessage.
+            // TODO: refactor this logic properly.
+            // return;
         }
         BMap<String, BValue> entityHeaders = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
         if (entityHeaders == null) {
@@ -508,42 +512,41 @@ public class HttpUtil {
         }
     }
 
-    private static boolean isInboundRequestStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.IN_REQUEST);
+    private static boolean isRequestStruct(BStruct struct) {
+        return struct.getType().getName().equals(HttpConstants.REQUEST);
     }
 
-    private static boolean isInboundResponseStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.IN_RESPONSE);
-    }
-
-    private static boolean isOutboundResponseStruct(BStruct struct) {
-        return struct.getType().getName().equals(HttpConstants.OUT_RESPONSE);
+    private static boolean isResponseStruct(BStruct struct) {
+        return struct.getType().getName().equals(HttpConstants.RESPONSE);
     }
 
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
-        if (isInboundRequestStruct(struct)) {
-            if (!struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX).isEmpty()) {
+        if (isRequestStruct(struct)) {
+            if (struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX) != null && !struct.getStringField
+                    (HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
-                                     struct.getStringField(HttpConstants.IN_REQUEST_USER_AGENT_INDEX));
+                                     struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
             }
         } else {
-            if (!struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX) != null && !struct.getStringField
+                    (HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
                 transportHeaders.add(HttpHeaderNames.SERVER.toString(),
-                                     struct.getStringField(HttpConstants.IN_RESPONSE_SERVER_INDEX));
+                                     struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
             }
         }
     }
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
-        if (isOutboundResponseStruct(struct)) {
-            if (struct.getIntField(HttpConstants.OUT_RESPONSE_STATUS_CODE_INDEX) != 0) {
+        if (isResponseStruct(struct)) {
+            if (struct.getIntField(HttpConstants
+                    .RESPONSE_STATUS_CODE_INDEX) != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
-                        struct.getIntField(HttpConstants.OUT_RESPONSE_STATUS_CODE_INDEX)));
+                        struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX)));
             }
-            if (struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX) != null && !struct
-                    .getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX) != null && !struct
+                    .getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
-                        struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX));
+                        struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX));
             }
         }
     }

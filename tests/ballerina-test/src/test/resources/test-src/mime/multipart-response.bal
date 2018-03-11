@@ -7,7 +7,7 @@ service<http> multipart {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartOutResponse (http:Connection conn, http:InRequest request) {
+    resource multipartOutResponse (http:Connection conn, http:Request request) {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = {};
@@ -39,7 +39,7 @@ service<http> multipart {
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
 
         //Set the body parts to outbound response.
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setMultiparts(bodyParts, contentType);
 
@@ -50,11 +50,11 @@ service<http> multipart {
         methods:["POST"],
         path:"/nested_parts_in_outresponse"
     }
-    resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
+    resource nestedPartsInOutResponse (http:Connection conn, http:Request request) {
 
         var bodyParts, _ = request.getMultiparts();
         string contentType = request.getHeader("content-type");
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         outResponse.setMultiparts(bodyParts, contentType);
         _ = conn.respond(outResponse);
     }
