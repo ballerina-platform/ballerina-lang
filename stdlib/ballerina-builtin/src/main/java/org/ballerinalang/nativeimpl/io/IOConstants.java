@@ -51,7 +51,7 @@ public class IOConstants {
     /**
      * Specifies the io package information.
      */
-    public static final String IO_PACKAGE = "ballerina.io";
+    public static final String IO_PACKAGE = "io";
 
     /**
      * Struct which represents io error.

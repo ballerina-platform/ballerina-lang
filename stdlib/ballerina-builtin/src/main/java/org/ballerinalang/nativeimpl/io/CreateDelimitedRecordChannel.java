@@ -38,15 +38,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina",
+        packageName = "io",
         functionName = "createDelimitedRecordChannel",
         args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io")},
+                structPackage = "io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
@@ -70,7 +71,7 @@ public class CreateDelimitedRecordChannel extends AbstractNativeFunction {
     /**
      * The package path of the byte channel.
      */
-    private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
+    private static final String RECORD_CHANNEL_PACKAGE = "io";
     /**
      * The type of the byte channel.
      */

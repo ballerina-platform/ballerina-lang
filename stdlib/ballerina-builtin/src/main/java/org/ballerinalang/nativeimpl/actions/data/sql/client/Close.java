@@ -36,7 +36,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.8.4
  */
 @BallerinaAction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina",
+        packageName = "data.sql",
         actionName = "close",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},

@@ -41,14 +41,15 @@ import org.slf4j.LoggerFactory;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina",
+        packageName = "io",
         functionName = "read",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "io"),
         args = {@Argument(name = "numberOfBytes", type = TypeKind.INT),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BLOB),
                 @ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "io")},
         isPublic = true
 )
 public class Read extends AbstractNativeFunction {

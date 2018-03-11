@@ -32,7 +32,8 @@ import java.util.Properties;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.runtime",
+        orgName = "ballerina",
+        packageName = "runtime",
         functionName = "getProperties",
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true

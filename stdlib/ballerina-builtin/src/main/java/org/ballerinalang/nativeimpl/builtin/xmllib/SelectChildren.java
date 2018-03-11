@@ -34,7 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "xml.selectChildren",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},

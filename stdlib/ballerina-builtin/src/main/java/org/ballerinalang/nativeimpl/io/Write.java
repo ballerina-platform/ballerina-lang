@@ -40,14 +40,15 @@ import org.slf4j.LoggerFactory;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina",
+        packageName = "io",
         functionName = "write",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "io"),
         args = {@Argument(name = "content", type = TypeKind.BLOB),
                 @Argument(name = "startOffset", type = TypeKind.INT),
                 @Argument(name = "numberOfBytes", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "io")},
         isPublic = true
 )
 public class Write extends AbstractNativeFunction {

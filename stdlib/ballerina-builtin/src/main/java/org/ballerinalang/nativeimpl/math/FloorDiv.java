@@ -32,7 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina",
+        packageName = "math",
         functionName = "floorDiv",
         args = {@Argument(name = "a", type = TypeKind.INT),
                 @Argument(name = "b", type = TypeKind.INT)},

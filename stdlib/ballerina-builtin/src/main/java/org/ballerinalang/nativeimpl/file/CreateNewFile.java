@@ -44,9 +44,10 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina",
+        packageName = "file",
         functionName = "createNewFile",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "file"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT),
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true

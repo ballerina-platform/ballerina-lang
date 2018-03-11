@@ -33,6 +33,13 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,13 +53,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Native function to open a secure client socket.
@@ -60,17 +60,18 @@ import javax.net.ssl.TrustManagerFactory;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.io", functionName = "openSecureSocket",
+        orgName = "ballerina",
+        packageName = "io", functionName = "openSecureSocket",
         args = { @Argument(name = "host", type = TypeKind.STRING),
                  @Argument(name = "port", type = TypeKind.INT),
                  @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
-                           structPackage = "ballerina.io") },
-        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io") },
+                           structPackage = "io") },
+        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "io") },
         isPublic = true)
 public class OpenSecureSocket extends AbstractNativeFunction {
 
     private static final String SEPARATOR = ",";
-    private static final String SOCKET_PACKAGE = "ballerina.io";
+    private static final String SOCKET_PACKAGE = "io";
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 

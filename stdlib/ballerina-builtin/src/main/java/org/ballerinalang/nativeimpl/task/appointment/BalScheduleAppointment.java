@@ -35,7 +35,8 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
  * Native function ballerina.task:scheduleAppointment.
  */
 @BallerinaFunction(
-        packageName = "ballerina.task",
+        orgName = "ballerina",
+        packageName = "task",
         functionName = "scheduleAppointment",
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),

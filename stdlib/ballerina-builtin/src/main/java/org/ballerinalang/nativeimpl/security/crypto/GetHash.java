@@ -37,7 +37,8 @@ import java.security.NoSuchAlgorithmException;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.security.crypto",
+        orgName = "ballerina",
+        packageName = "security.crypto",
         functionName = "getHash",
         args = {@Argument(name = "baseString", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING)},
