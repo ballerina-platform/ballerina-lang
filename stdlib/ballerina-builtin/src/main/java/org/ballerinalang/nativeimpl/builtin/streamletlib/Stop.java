@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.builtin.streamletlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStreamlet;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -36,12 +35,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "s", type = TypeKind.STREAMLET)
         },
         isPublic = true)
-public class Stop extends AbstractNativeFunction {
+public class Stop extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStreamlet streamlet = (BStreamlet) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStreamlet streamlet = (BStreamlet) context.getRefArgument(0);
         streamlet.stopRuntime();
-        return VOID_RETURN;
+        context.getReturnValues();
     }
 }

@@ -122,7 +122,7 @@ public class BStream implements BRefType<Object> {
                     + " a struct of type:" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
-        BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, context, functionPointer));
+        BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
 
         List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().getSiddhiAppRuntimeList();
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
@@ -170,12 +170,10 @@ public class BStream implements BRefType<Object> {
     private class StreamSubscriber extends Consumer {
 
         final String queueName;
-        final Context context;
         final BFunctionPointer functionPointer;
 
-        StreamSubscriber(String queueName, Context context, BFunctionPointer functionPointer) {
+        StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
-            this.context = context;
             this.functionPointer = functionPointer;
         }
 
@@ -189,9 +187,7 @@ public class BStream implements BRefType<Object> {
             BJSON json = new BJSON(new String(bytes, StandardCharsets.UTF_8));
             BStruct data = JSONUtils.convertJSONToStruct(json, constraintType);
             BValue[] args = {data};
-            ProgramFile programFile = context.getProgramFile();
-            BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPackage(),
-                                                    functionPointer.value().getFunctionInfo(), args);
+            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), args);
         }
 
         @Override
