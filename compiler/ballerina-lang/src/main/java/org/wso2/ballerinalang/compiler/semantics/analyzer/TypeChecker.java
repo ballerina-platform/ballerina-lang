@@ -1120,7 +1120,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 conSymbol = conSymbol.type.tsymbol;
             }
         }
-        if (conSymbol == symTable.notFoundSymbol
+        if (conSymbol == null
+                || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
                 || conSymbol.tag != SymTag.CONNECTOR) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);

@@ -123,7 +123,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Names names;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
-
+    private EndpointSPIAnalyzer endpointSPIAnalyzer;
     private SymbolEnv env;
     private BLangPackageDeclaration currentPkgDecl = null;
 
@@ -145,6 +145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
 
         BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
@@ -511,6 +512,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name varName = names.fromIdNode(endpoint.name);
         endpoint.type = varType;
         endpoint.symbol = defineEndpointVarSymbol(endpoint.pos, endpoint.flagSet, varType, varName, env);
+        endpointSPIAnalyzer.resolveEndpointSymbol(endpoint.pos, endpoint.symbol);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {

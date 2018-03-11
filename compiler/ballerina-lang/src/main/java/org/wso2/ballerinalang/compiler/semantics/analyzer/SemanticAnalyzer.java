@@ -693,7 +693,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, env);
         });
         BType configType = symTable.errType;
-        endpointSPIAnalyzer.resolveEndpointSymbol(endpointNode.pos, endpointNode.symbol);
         if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.STRUCT) {
             configType = endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) endpointNode.symbol.type.tsymbol);
         }
