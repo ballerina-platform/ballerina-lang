@@ -93,24 +93,23 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        Struct options = clientEndpointConfig.getStructField(HttpConstants.OPTIONS_STRUCT_REFERENCE);
-        if (options != null) {
-            populateSenderConfigurationOptions(senderConfiguration, options);
-            Struct connectionThrottling = options.getStructField(HttpConstants.CONNECTION_THROTTLING_STRUCT_REFERENCE);
-            if (connectionThrottling != null) {
-                long maxActiveConnections = connectionThrottling
-                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-                if (!isInteger(maxActiveConnections)) {
-                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                            + maxActiveConnections);
-                }
-                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
-
-                long waitTime = connectionThrottling
-                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
+        populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig);
+        Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
+                CONNECTION_THROTTLING_STRUCT_REFERENCE);
+        if (connectionThrottling != null) {
+            long maxActiveConnections = connectionThrottling
+                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
+            if (!isInteger(maxActiveConnections)) {
+                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                        + maxActiveConnections);
             }
+            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+
+            long waitTime = connectionThrottling
+                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
+            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
         }
+
 
         HttpClientConnector httpClientConnector =
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
@@ -122,17 +121,18 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         return new BValue[]{null};
     }
 
-    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct options) {
+    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
+            clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration = null;
         boolean followRedirect = false;
         int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
-        Struct followRedirects = options.getStructField(HttpConstants.FOLLOW_REDIRECT_STRUCT_REFERENCE);
+        Struct followRedirects = clientEndpointConfig.getStructField(HttpConstants.FOLLOW_REDIRECT_STRUCT_REFERENCE);
         if (followRedirects != null) {
             followRedirect = followRedirects.getBooleanField(HttpConstants.FOLLOW_REDIRECT_ENABLED);
             maxRedirectCount = (int) followRedirects.getIntField(HttpConstants.FOLLOW_REDIRECT_MAXCOUNT);
         }
 
-        Struct ssl = options.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
+        Struct ssl = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
         if (ssl != null) {
             String trustStoreFile = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_FILE);
             String trustStorePassword = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_PASSWORD);
@@ -186,7 +186,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-        Struct proxy = options.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
+        Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
             String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
             int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT);
@@ -211,28 +211,29 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
 
         // For the moment we don't have to pass it down to transport as we only support
         // chunking. Once we start supporting gzip, deflate, etc, we need to parse down the config.
-        String transferEncoding = options.getStringField(HttpConstants.OPTIONS_TRNASFER_ENCODING);
+        String transferEncoding = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_TRNASFER_ENCODING);
         if (transferEncoding != null && !HttpConstants.ANN_CONFIG_ATTR_CHUNKING.equalsIgnoreCase(transferEncoding)) {
             throw new BallerinaConnectorException("Unsupported configuration found for Transfer-Encoding : "
                     + transferEncoding);
         }
 
-        String chunking = options.getStringField(HttpConstants.OPTIONS_CHUNKING);
+        String chunking = clientEndpointConfig.getEnumField(HttpConstants.CLIENT_EP_CHUNKING);
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
 
-        long endpointTimeout = options.getIntField(HttpConstants.OPTIONS_ENDPOINT_TIMEOUT);
+        long endpointTimeout = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (endpointTimeout < 0 || !isInteger(endpointTimeout)) {
             throw new BallerinaConnectorException("invalid idle timeout: " + endpointTimeout);
         }
         senderConfiguration.setSocketIdleTimeout((int) endpointTimeout);
 
-        boolean isKeepAlive = options.getBooleanField(HttpConstants.OPTIONS_IS_KEEP_ALIVE);
+        boolean isKeepAlive = clientEndpointConfig.getBooleanField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
         senderConfiguration.setKeepAlive(isKeepAlive);
 
-        String httpVersion = options.getStringField(HttpConstants.OPTIONS_HTTP_VERSION);
-        senderConfiguration.setHttpVersion(httpVersion);
-
-        String forwardedExtension = options.getStringField(HttpConstants.OPTIONS_FORWARDED);
+        String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        if (httpVersion != null) {
+            senderConfiguration.setHttpVersion(httpVersion);
+        }
+        String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 

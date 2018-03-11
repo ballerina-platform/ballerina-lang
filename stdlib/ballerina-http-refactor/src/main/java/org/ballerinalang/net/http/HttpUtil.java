@@ -912,7 +912,8 @@ public class HttpUtil {
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
 
         if (annotationList == null) {
             return null;

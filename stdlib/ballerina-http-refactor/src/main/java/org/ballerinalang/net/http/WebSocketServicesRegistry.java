@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;

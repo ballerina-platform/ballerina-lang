@@ -125,12 +125,12 @@ public class HttpConnectionManager {
 //     * @throws ServerConnectorException if exception occurs while starting at least one connector.
 //     */
 //    void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector)
-    // throws ServerConnectorException {
+//                                                                       throws ServerConnectorException {
 //        ConnectorStartupSynchronizer startupSyncer =
 //                new ConnectorStartupSynchronizer(startupDelayedHTTPServerConnectors.size());
 //
-//        for (Map.Entry<String, ServerConnector> serverConnectorEntry : startupDelayedHTTPServerConnectors.
-    // entrySet()) {
+//        for (Map.Entry<String, ServerConnector> serverConnectorEntry :
+//                                                        startupDelayedHTTPServerConnectors.entrySet()) {
 //            ServerConnector serverConnector = serverConnectorEntry.getValue();
 //            ServerConnectorFuture connectorFuture = serverConnector.start();
 //            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
@@ -208,7 +208,7 @@ public class HttpConnectionManager {
 //        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
 //        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
 //        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener
-    // (webSocketServicesRegistry));
+//        (webSocketServicesRegistry));
 //        connectorFuture.setPortBindingEventListener(
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
 //    }

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.AnnAttrValue;
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;

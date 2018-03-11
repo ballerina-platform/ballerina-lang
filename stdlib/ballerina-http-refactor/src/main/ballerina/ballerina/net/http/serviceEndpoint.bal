@@ -63,14 +63,14 @@ public enum KeepAlive {
     AUTO, ALWAYS, NEVER
 }
 
-
-public enum Chunking {
-    AUTO, ALWAYS, NEVER
-}
-
-public enum TransferEncoding {
-    CHUNKING
-}
+//
+//public enum Chunking {
+//    AUTO, ALWAYS, NEVER
+//}
+//
+//public enum TransferEncoding {
+//    CHUNKING
+//}
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
