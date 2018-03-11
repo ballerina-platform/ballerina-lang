@@ -146,7 +146,8 @@ IndexBasedAccessExpr
    ;
 
 Invocation
-   : <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
+   : <actionInvocation?>      <expression.source>  ->   <name.value> ( <argumentExpressions-joined-by,>* )
+   | <expression.source>  .   <name.value> ( <argumentExpressions-joined-by,>* )
    | <packageAlias.value> :   <name.value> ( <argumentExpressions-joined-by,>* )
    |                          <name.value> ( <argumentExpressions-joined-by,>* )
    ;

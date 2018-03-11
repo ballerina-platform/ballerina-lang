@@ -152,7 +152,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'annotation' + w(' ') + '<'
                  + join(node.attachmentPoints, pretty, replaceLambda, l, w, '', ',') + w() + '>'
-                 + w(' ') + node.name.valueWithBar + b(' ')
+                 + w(' ') + node.name.valueWithBar + a(' ') + b(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w() + ';';
         case 'AnnotationAttachment':
             if (node.builtin && node.annotationName.valueWithBar
@@ -448,7 +448,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '[' + getSourceOf(node.index, pretty, l, replaceLambda) + w()
                  + ']';
         case 'Invocation':
-            if (node.expression && node.name.valueWithBar
+            if (node.actionInvocation && node.expression
+                         && node.name.valueWithBar && node.argumentExpressions) {
+                return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
+                 + '->' + w() + node.name.valueWithBar + w() + '('
+                 + join(node.argumentExpressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
+            } else if (node.expression && node.name.valueWithBar
                          && node.argumentExpressions) {
                 return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '.' + w() + node.name.valueWithBar + w() + '('
