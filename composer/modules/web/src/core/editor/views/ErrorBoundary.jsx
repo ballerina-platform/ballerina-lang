@@ -16,8 +16,11 @@
  * under the License.
  */
 
+ /* eslint-disable react/no-will-update-set-state */
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Segment } from 'semantic-ui-react';
 import './ErrorBoundary.scss';
 
 class ErrorBoundary extends React.Component {
@@ -31,6 +34,15 @@ class ErrorBoundary extends React.Component {
     /**
      * @inheritdoc
      */
+    componentWillUpdate(nextProps, nextState) {
+        // component has recovered the error and need to set state hasError false.
+        if (this.state.hasError && nextState.hasError) {
+            this.setState({ hasError: false });
+        }
+    }
+    /**
+     * @inheritdoc
+     */
     componentDidCatch(error, info) {
         this.setState({ hasError: true });
     }
@@ -39,7 +51,11 @@ class ErrorBoundary extends React.Component {
      */
     render() {
         if (this.state.hasError) {
-            return <h2 className='renderingError'>Oops. Something went wrong.</h2>;
+            return (
+                <Segment raised inverted>
+                    <h2 className='renderingError'>Oops. Something went wrong.</h2>
+                </Segment>
+            );
         }
         return this.props.children || null;
     }
