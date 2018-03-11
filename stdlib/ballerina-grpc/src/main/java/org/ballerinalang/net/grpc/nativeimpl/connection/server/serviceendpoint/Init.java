@@ -68,6 +68,7 @@ public class Init extends AbstractGrpcNativeFunction {
             return new BValue[] {null};
         } catch (Throwable throwable) {
             // TODO: 3/10/18 write util to generate error struct
+            return new BValue[] {null};
             //BStruct errorStruct = null;
             return new BValue[] {null};
         }

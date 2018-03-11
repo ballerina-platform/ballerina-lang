@@ -58,14 +58,14 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         // TODO: 3/10/18 Fix
 //        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
 //                getBallerinaServerConnector(context, MessageConstants.PROTOCOL_PACKAGE_GRPC);
-//        Service listenerService = null;
-//        if (listenerService == null) {
-//            throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
-//        }
-//
-//        for (Resource resource : listenerService.getResources()) {
-//            resourceMap.put(resource.getName(), resource);
-//        }
+/*        Service listenerService = null;
+        if (listenerService == null) {
+            throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
+        }
+
+        for (Resource resource : listenerService.getResources()) {
+            resourceMap.put(resource.getName(), resource);
+        }*/
     }
 
     public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
