@@ -17,15 +17,17 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import Node from '../node';
 
-class AbstractCommentNode extends StatementNode {
+class AbstractXmlAttributeAccessExprNode extends Node {
 
 
-    setComment(newValue, silent, title) {
-        const oldValue = this.comment;
+    setIndex(newValue, silent, title) {
+        const oldValue = this.index;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.comment = newValue;
+        this.index = newValue;
+
+        this.index.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractCommentNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'comment',
+                    attributeName: 'index',
                     newValue,
                     oldValue,
                 },
@@ -41,11 +43,37 @@ class AbstractCommentNode extends StatementNode {
         }
     }
 
-    getComment() {
-        return this.comment;
+    getIndex() {
+        return this.index;
+    }
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
     }
 
 
 }
 
-export default AbstractCommentNode;
+export default AbstractXmlAttributeAccessExprNode;

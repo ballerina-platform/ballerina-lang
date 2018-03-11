@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractConnectorInitExprNode extends ExpressionNode {
+class AbstractTypeInitExprNode extends ExpressionNode {
 
 
     setExpressions(newValue, silent, title) {
@@ -141,12 +141,12 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
     }
 
 
-    setConnectorType(newValue, silent, title) {
-        const oldValue = this.connectorType;
+    setType(newValue, silent, title) {
+        const oldValue = this.type;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.connectorType = newValue;
+        this.type = newValue;
 
-        this.connectorType.parent = this;
+        this.type.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -154,7 +154,7 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'connectorType',
+                    attributeName: 'type',
                     newValue,
                     oldValue,
                 },
@@ -162,131 +162,11 @@ class AbstractConnectorInitExprNode extends ExpressionNode {
         }
     }
 
-    getConnectorType() {
-        return this.connectorType;
-    }
-
-
-
-    setFilterConnectos(newValue, silent, title) {
-        const oldValue = this.filterConnectos;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.filterConnectos = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'filterConnectos',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFilterConnectos() {
-        return this.filterConnectos;
-    }
-
-
-    addFilterConnectos(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.filterConnectos.push(node);
-            index = this.filterConnectos.length;
-        } else {
-            this.filterConnectos.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeFilterConnectos(node, silent) {
-        const index = this.getIndexOfFilterConnectos(node);
-        this.removeFilterConnectosByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeFilterConnectosByIndex(index, silent) {
-        this.filterConnectos.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceFilterConnectos(oldChild, newChild, silent) {
-        const index = this.getIndexOfFilterConnectos(oldChild);
-        this.filterConnectos[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceFilterConnectosByIndex(index, newChild, silent) {
-        this.filterConnectos[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfFilterConnectos(child) {
-        return _.findIndex(this.filterConnectos, ['id', child.id]);
-    }
-
-    filterFilterConnectos(predicateFunction) {
-        return _.filter(this.filterConnectos, predicateFunction);
+    getType() {
+        return this.type;
     }
 
 
 }
 
-export default AbstractConnectorInitExprNode;
+export default AbstractTypeInitExprNode;

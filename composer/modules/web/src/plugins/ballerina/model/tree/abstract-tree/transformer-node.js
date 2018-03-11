@@ -48,7 +48,6 @@ class AbstractTransformerNode extends Node {
     }
 
 
-
     setReturnParameters(newValue, silent, title) {
         const oldValue = this.returnParameters;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -165,6 +164,32 @@ class AbstractTransformerNode extends Node {
 
     filterReturnParameters(predicateFunction) {
         return _.filter(this.returnParameters, predicateFunction);
+    }
+
+
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.body = newValue;
+
+        this.body.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBody() {
+        return this.body;
     }
 
 
@@ -287,12 +312,10 @@ class AbstractTransformerNode extends Node {
     }
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
+    setEndpointNodes(newValue, silent, title) {
+        const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
+        this.endpointNodes = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -300,7 +323,7 @@ class AbstractTransformerNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'body',
+                    attributeName: 'endpointNodes',
                     newValue,
                     oldValue,
                 },
@@ -308,10 +331,104 @@ class AbstractTransformerNode extends Node {
         }
     }
 
-    getBody() {
-        return this.body;
+    getEndpointNodes() {
+        return this.endpointNodes;
     }
 
+
+    addEndpointNodes(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.endpointNodes.push(node);
+            index = this.endpointNodes.length;
+        } else {
+            this.endpointNodes.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEndpointNodes(node, silent) {
+        const index = this.getIndexOfEndpointNodes(node);
+        this.removeEndpointNodesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEndpointNodesByIndex(index, silent) {
+        this.endpointNodes.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEndpointNodes(oldChild, newChild, silent) {
+        const index = this.getIndexOfEndpointNodes(oldChild);
+        this.endpointNodes[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEndpointNodesByIndex(index, newChild, silent) {
+        this.endpointNodes[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfEndpointNodes(child) {
+        return _.findIndex(this.endpointNodes, ['id', child.id]);
+    }
+
+    filterEndpointNodes(predicateFunction) {
+        return _.filter(this.endpointNodes, predicateFunction);
+    }
 
 
     setName(newValue, silent, title) {
@@ -338,7 +455,6 @@ class AbstractTransformerNode extends Node {
     getName() {
         return this.name;
     }
-
 
 
     setParameters(newValue, silent, title) {
@@ -457,6 +573,30 @@ class AbstractTransformerNode extends Node {
 
     filterParameters(predicateFunction) {
         return _.filter(this.parameters, predicateFunction);
+    }
+
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
     }
 
 
@@ -579,10 +719,10 @@ class AbstractTransformerNode extends Node {
     }
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setDocumentationAttachments(newValue, silent, title) {
+        const oldValue = this.documentationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.documentationAttachments = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -590,7 +730,7 @@ class AbstractTransformerNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'documentationAttachments',
                     newValue,
                     oldValue,
                 },
@@ -598,10 +738,104 @@ class AbstractTransformerNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
+    getDocumentationAttachments() {
+        return this.documentationAttachments;
     }
 
+
+    addDocumentationAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.documentationAttachments.push(node);
+            index = this.documentationAttachments.length;
+        } else {
+            this.documentationAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachments(node, silent) {
+        const index = this.getIndexOfDocumentationAttachments(node);
+        this.removeDocumentationAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachmentsByIndex(index, silent) {
+        this.documentationAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDocumentationAttachments(oldChild);
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDocumentationAttachments(child) {
+        return _.findIndex(this.documentationAttachments, ['id', child.id]);
+    }
+
+    filterDocumentationAttachments(predicateFunction) {
+        return _.filter(this.documentationAttachments, predicateFunction);
+    }
 
 
     setDeprecatedAttachments(newValue, silent, title) {
@@ -720,125 +954,6 @@ class AbstractTransformerNode extends Node {
 
     filterDeprecatedAttachments(predicateFunction) {
         return _.filter(this.deprecatedAttachments, predicateFunction);
-    }
-
-
-    setDocumentationAttachments(newValue, silent, title) {
-        const oldValue = this.documentationAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.documentationAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'documentationAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDocumentationAttachments() {
-        return this.documentationAttachments;
-    }
-
-
-    addDocumentationAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.documentationAttachments.push(node);
-            index = this.documentationAttachments.length;
-        } else {
-            this.documentationAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDocumentationAttachments(node, silent) {
-        const index = this.getIndexOfDocumentationAttachments(node);
-        this.removeDocumentationAttachmentsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDocumentationAttachmentsByIndex(index, silent) {
-        this.documentationAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDocumentationAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfDocumentationAttachments(oldChild);
-        this.documentationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
-        this.documentationAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfDocumentationAttachments(child) {
-        return _.findIndex(this.documentationAttachments, ['id', child.id]);
-    }
-
-    filterDocumentationAttachments(predicateFunction) {
-        return _.filter(this.documentationAttachments, predicateFunction);
     }
 
 

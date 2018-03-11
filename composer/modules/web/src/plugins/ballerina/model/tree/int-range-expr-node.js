@@ -16,16 +16,10 @@
  * under the License.
  */
 
-import AbstractConnectorInitExprNode from './abstract-tree/connector-init-expr-node';
+import AbstractIntRangeExprNode from './abstract-tree/int-range-expr-node';
 
-class ConnectorInitExprNode extends AbstractConnectorInitExprNode {
-    setFullPackageName(fullPackageName) {
-        this._fullPackageName = fullPackageName;
-    }
+class IntRangeExprNode extends AbstractIntRangeExprNode {
 
-    getFullPackageName(fullPackageName) {
-        return this._fullPackageName;
-    }
 }
 
-export default ConnectorInitExprNode;
+export default IntRangeExprNode;

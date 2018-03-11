@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractCommentNode from './abstract-tree/comment-node';
+import AbstractEndpointNode from './abstract-tree/endpoint-node';
 
-class CommentNode extends AbstractCommentNode {
+class EndpointNode extends AbstractEndpointNode {
 
 }
 
-export default CommentNode;
+export default EndpointNode;

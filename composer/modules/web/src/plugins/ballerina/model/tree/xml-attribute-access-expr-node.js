@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlElementLiteralNode from './abstract-tree/xml-element-literal-node';
+import AbstractXmlAttributeAccessExprNode from './abstract-tree/xml-attribute-access-expr-node';
 
-class XmlElementLiteralNode extends AbstractXmlElementLiteralNode {
+class XmlAttributeAccessExprNode extends AbstractXmlAttributeAccessExprNode {
 
 }
 
-export default XmlElementLiteralNode;
+export default XmlAttributeAccessExprNode;

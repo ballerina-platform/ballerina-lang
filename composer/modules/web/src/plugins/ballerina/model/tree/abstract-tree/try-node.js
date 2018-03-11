@@ -22,6 +22,32 @@ import StatementNode from '../statement-node';
 class AbstractTryNode extends StatementNode {
 
 
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.body = newValue;
+
+        this.body.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBody() {
+        return this.body;
+    }
+
+
     setCatchBlocks(newValue, silent, title) {
         const oldValue = this.catchBlocks;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -165,34 +191,6 @@ class AbstractTryNode extends StatementNode {
     getFinallyBody() {
         return this.finallyBody;
     }
-
-
-
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
 
 
 }
