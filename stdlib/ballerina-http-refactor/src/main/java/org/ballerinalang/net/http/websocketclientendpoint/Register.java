@@ -67,7 +67,8 @@ public class Register extends AbstractNativeFunction {
         if (service.getEndpointName().equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)) {
             WebSocketService wsService = new WebSocketService(service);
             WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
-            Value[] subProtocolValues = clientEndpointConfig.getArrayField(WebSocketConstants.CLIENT_SUBPROTOCOLS_CONFIG);
+            Value[] subProtocolValues = clientEndpointConfig
+                    .getArrayField(WebSocketConstants.CLIENT_SUBPROTOCOLS_CONFIG);
             if (subProtocolValues != null) {
                 clientConnectorConfig.setSubProtocols(Arrays.stream(subProtocolValues).map(Value::getStringValue)
                                                               .toArray(String[]::new));

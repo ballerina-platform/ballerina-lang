@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.

@@ -49,7 +49,7 @@ import java.util.Map;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_URI;
 
 /**
- * Get the ID of the connection.
+ * Initialization of client endpoint.
  *
  * @since 0.966
  */
