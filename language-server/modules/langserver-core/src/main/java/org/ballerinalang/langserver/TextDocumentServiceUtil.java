@@ -44,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -102,14 +103,17 @@ public class TextDocumentServiceUtil {
      * Prepare the compiler context.
      * @param packageRepository             Package Repository
      * @param sourceRoot                    Source Root
+     * @param preserveWhitespace            Preserve Whitespace
      * @return  {@link CompilerContext}     Compiler context
      */
-    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot,
+                                                         boolean preserveWhitespace) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         return context;
     }
 
@@ -117,10 +121,12 @@ public class TextDocumentServiceUtil {
      * Get the BLangPackage for a given program.
      * @param context               Language Server Context
      * @param docManager            Document manager
+     * @param preserveWhitespace    Enable preserve whitespace
      * @return {@link BLangPackage} BLang Package
      */
     public static BLangPackage getBLangPackage(LanguageServerContext context,
-                                               WorkspaceDocumentManager docManager) {
+                                               WorkspaceDocumentManager docManager,
+                                               boolean preserveWhitespace) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = CommonUtil.getPath(uri);
@@ -133,8 +139,8 @@ public class TextDocumentServiceUtil {
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
-        CompilerContext compilerContext = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot);
-
+        CompilerContext compilerContext = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
+                preserveWhitespace);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
 

@@ -119,7 +119,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             completionContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
             try {
-                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager,
+                        false);
                 // Visit the package to resolve the symbols
                 TreeVisitor treeVisitor = new TreeVisitor(completionContext);
                 bLangPackage.accept(treeVisitor);
@@ -152,7 +153,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             Hover hover;
             try {
                 BLangPackage currentBLangPackage =
-                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager);
+                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager, false);
                 bLangPackageContext.addPackage(currentBLangPackage);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
             } catch (Exception | AssertionError e) {
@@ -176,7 +177,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             SignatureHelp signatureHelp;
             try {
-                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager);
+                BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
+                        false);
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
@@ -196,7 +198,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager, false);
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
@@ -219,7 +221,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager, false);
             bLangPackageContext.addPackage(currentBLangPackage);
 
             List<Location> contents = new ArrayList<>();
@@ -251,7 +253,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
 
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager);
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager, false);
 
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (uri.endsWith(cUnit.getName())))
@@ -290,18 +292,26 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            String textEditContent = null;
+
             TextDocumentServiceContext formatContext = new TextDocumentServiceContext();
             formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+
             String fileContent = documentManager.getFileContent(CommonUtil.getPath(params.getTextDocument().getUri()));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             int totalLines = contentComponents.length;
+
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+
+            // Source generation for given ast.
             JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-            // TODO: For the moment we replace the content with the ast. Need to implement the AST source-gen
-            String newDummyContent = ast.toString();
-            TextEdit textEdit = new TextEdit(range, newDummyContent);
+            SourceGen sourceGen = new SourceGen(0);
+            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true , false);
+
+            TextEdit textEdit = textEditContent != null ? new TextEdit(range, textEditContent) : null;
             return Collections.singletonList(textEdit);
         });
     }
@@ -357,7 +367,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(path, pkgName);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot);
+        CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
+                false);
 
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
