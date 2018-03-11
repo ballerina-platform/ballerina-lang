@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -128,7 +128,7 @@ public class ErrorTableEntry {
                         // exact match.
                         entry.status = 0;
                         rangeMatched.add(entry);
-                    } else if (BLangVM.checkStructEquivalency((BStructType) error.getType(),
+                    } else if (CPU.checkStructEquivalency((BStructType) error.getType(),
                             (BStructType) errorTableEntry.getError().getType())) {
                         entry.status = 1;
                         rangeMatched.add(entry);

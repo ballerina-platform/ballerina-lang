@@ -17,10 +17,9 @@
 package org.ballerinalang.nativeimpl.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,12 +39,12 @@ import java.util.Base64;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Base64Encode extends AbstractNativeFunction {
+public class Base64Encode extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String value = getStringArgument(context, 0);
+    public void execute(Context context) {
+        String value = context.getStringArgument(0);
         byte[] encodedValue = Base64.getEncoder().encode(value.getBytes(Charset.defaultCharset()));
-        return getBValues(new BString(new String(encodedValue, Charset.defaultCharset())));
+        context.setReturnValues(new BString(new String(encodedValue, Charset.defaultCharset())));
     }
 }

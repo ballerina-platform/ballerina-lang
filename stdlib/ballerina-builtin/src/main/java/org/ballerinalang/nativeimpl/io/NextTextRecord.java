@@ -18,17 +18,16 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -53,7 +52,7 @@ import java.util.concurrent.ExecutionException;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class NextTextRecord extends AbstractNativeFunction {
+public class NextTextRecord extends BlockingNativeCallableUnit {
     /**
      * Specifies the index which contains the byte channel in ballerina.io#nextTextRecord.
      */
@@ -114,11 +113,11 @@ public class NextTextRecord extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStringArray record = null;
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
 
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
@@ -130,6 +129,6 @@ public class NextTextRecord extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(record, errorStruct);
+        context.setReturnValues(record, errorStruct);
     }
 }

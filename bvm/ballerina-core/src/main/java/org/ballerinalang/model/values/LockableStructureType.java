@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+
 /**
  * The {@code LockableStructureType} represents a lockable structure type in Ballerina.
  *
@@ -24,27 +26,27 @@ package org.ballerinalang.model.values;
  */
 public interface LockableStructureType extends StructureType {
 
-    void lockIntField(int index);
+    boolean lockIntField(WorkerExecutionContext ctx, int index);
 
     void unlockIntField(int index);
 
-    void lockFloatField(int index);
+    boolean lockFloatField(WorkerExecutionContext ctx, int index);
 
     void unlockFloatField(int index);
 
-    void lockStringField(int index);
+    boolean lockStringField(WorkerExecutionContext ctx, int index);
 
     void unlockStringField(int index);
 
-    void lockBooleanField(int index);
+    boolean lockBooleanField(WorkerExecutionContext ctx, int index);
 
     void unlockBooleanField(int index);
 
-    void lockBlobField(int index);
+    boolean lockBlobField(WorkerExecutionContext ctx, int index);
 
     void unlockBlobField(int index);
 
-    void lockRefField(int index);
+    boolean lockRefField(WorkerExecutionContext ctx, int index);
 
     void unlockRefField(int index);
 }
