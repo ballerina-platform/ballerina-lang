@@ -58,7 +58,8 @@ public abstract class WebSocketUtil {
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
 
         if (annotationList == null) {
             return null;
