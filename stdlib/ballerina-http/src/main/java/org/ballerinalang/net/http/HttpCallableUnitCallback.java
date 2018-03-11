@@ -16,23 +16,22 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BStruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * {@code HttpConnectorFutureListener} is the responsible for acting on notifications received from Ballerina side.
+ * {@code HttpCallableUnitCallback} is the responsible for acting on notifications received from Ballerina side.
  *
  * @since 0.94
  */
-public class HttpConnectorFutureListener implements ConnectorFutureListener {
-    private static final Logger log = LoggerFactory.getLogger(HttpConnectorFutureListener.class);
+public class HttpCallableUnitCallback implements CallableUnitCallback {
+    private static final Logger log = LoggerFactory.getLogger(HttpCallableUnitCallback.class);
     private HTTPCarbonMessage requestMessage;
 
-    public HttpConnectorFutureListener(HTTPCarbonMessage requestMessage) {
+    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage) {
         this.requestMessage = requestMessage;
     }
 
@@ -42,12 +41,8 @@ public class HttpConnectorFutureListener implements ConnectorFutureListener {
     }
 
     @Override
-    public void notifyReply(BValue... response) {
-        //As the HTTP outbound response is synced, this method implementation is no longer required.
+    public void notifyFailure(BStruct error) {
+        HttpUtil.handleFailure(requestMessage, error);
     }
 
-    @Override
-    public void notifyFailure(BallerinaConnectorException ex) {
-        HttpUtil.handleFailure(requestMessage, ex);
-    }
 }

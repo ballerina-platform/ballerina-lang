@@ -19,10 +19,9 @@
 package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,18 +44,18 @@ import javax.websocket.Session;
         args = {@Argument(name = "text", type = TypeKind.STRING)},
         isPublic = true
 )
-public class PushText extends AbstractNativeFunction {
+public class PushText extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+            BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
-            String text = getStringArgument(context, 0);
+            String text = context.getStringArgument(0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

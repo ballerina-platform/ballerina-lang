@@ -249,7 +249,7 @@ function testThrow1 () (string) {
     try {
         testThrow1Callee();
     } catch (error e) {
-        output = output + e.message;
+        output = output + e.cause[0].message;
     }
     return output;
 }
@@ -273,8 +273,10 @@ function testThrow2 () (string) {
         testThrow2Callee();
     } catch (error e) {
         output = output + e.message;
-    } catch (runtime:NullReferenceException e){
-        output = output + "found null";
+    } catch (runtime:CallFailedException e){
+        if (e.cause[0].message == "") {
+            output = output + "found null";
+        }
     }
     return output;
 }

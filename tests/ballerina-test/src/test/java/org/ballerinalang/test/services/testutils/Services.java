@@ -19,7 +19,6 @@
 package org.ballerinalang.test.services.testutils;
 
 
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -43,11 +42,11 @@ public class Services {
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
-        TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
-        request.setFutureListener(futureListener);
+        TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
+        request.setCallback(callback);
         HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
         if (resource == null) {
-            return futureListener.getResponseMsg();
+            return callback.getResponseMsg();
         }
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
@@ -57,10 +56,9 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
-        ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
-        futureListener.setRequestStruct(signatureParams[0]);
-        future.setConnectorFutureListener(futureListener);
-        futureListener.sync();
-        return futureListener.getResponseMsg();
+        callback.setRequestStruct(signatureParams[0]);
+        Executor.submit(resource.getBalResource(), callback, properties, signatureParams);
+        callback.sync();
+        return callback.getResponseMsg();
     }
 }
