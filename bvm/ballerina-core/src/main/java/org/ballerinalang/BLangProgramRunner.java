@@ -53,8 +53,7 @@ public class BLangProgramRunner {
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
-        // TODO : handle init errors.
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getStartFunctionInfo());
+        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
 
         deployTransactionCoordinatorServices(programFile);
     }
@@ -64,7 +63,7 @@ public class BLangProgramRunner {
         if (coordinatorPkgInfo != null) {
             coordinatorPkgInfo.setProgramFile(programFile);
             BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getInitFunctionInfo());
-            BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getStartFunctionInfo());
+            BLangFunctions.invokeVMUtilFunction(coordinatorPkgInfo.getStartFunctionInfo());
         }
     }
 
@@ -79,15 +78,14 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
-        // TODO : handle init errors.
-        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getStartFunctionInfo());
-
-        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
-        if (debugger.isDebugEnabled()) {
-            debugger.notifyExit();
+        try {
+            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+        } finally {
+            if (debugger.isDebugEnabled()) {
+                debugger.notifyExit();
+            }
+            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
-        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getStopFunctionInfo());
     }
 
     private static BValue[] extractMainArgs(String[] args) {

@@ -1233,67 +1233,6 @@ public class ProgramFileReader {
     }
 
 
-    private AnnAttributeValue getAnnAttributeValue(DataInputStream dataInStream,
-                                                   ConstantPool constantPool) throws IOException {
-        AnnAttributeValue attributeValue;
-        int typeDescCPIndex = dataInStream.readInt();
-        UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
-        String typeDesc = typeDescCPEntry.getValue();
-
-        boolean isConstVarExpr = dataInStream.readBoolean();
-        if (isConstVarExpr) {
-            int constPkgCPIndex = dataInStream.readInt();
-            int constNameCPIndex = dataInStream.readInt();
-
-            UTF8CPEntry constPkgCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constPkgCPIndex);
-            UTF8CPEntry constNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(constNameCPIndex);
-            attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, constPkgCPIndex,
-                    constPkgCPEntry.getValue(), constNameCPIndex, constNameCPEntry.getValue());
-            attributeValue.setConstVarExpr(isConstVarExpr);
-            programFile.addUnresolvedAnnAttrValue(attributeValue);
-            return attributeValue;
-        }
-
-        int valueCPIndex;
-        switch (typeDesc) {
-            case TypeSignature.SIG_ARRAY:
-                int attributeValueCount = dataInStream.readShort();
-                AnnAttributeValue[] annAttributeValues = new AnnAttributeValue[attributeValueCount];
-                for (int i = 0; i < attributeValueCount; i++) {
-                    annAttributeValues[i] = getAnnAttributeValue(dataInStream, constantPool);
-                }
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc, annAttributeValues);
-                break;
-            case TypeSignature.SIG_BOOLEAN:
-                boolean boolValue = dataInStream.readBoolean();
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-                attributeValue.setBooleanValue(boolValue);
-                break;
-            case TypeSignature.SIG_INT:
-                valueCPIndex = dataInStream.readInt();
-                IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-                attributeValue.setIntValue(integerCPEntry.getValue());
-                break;
-            case TypeSignature.SIG_FLOAT:
-                valueCPIndex = dataInStream.readInt();
-                FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-                attributeValue.setFloatValue(floatCPEntry.getValue());
-                break;
-            case TypeSignature.SIG_STRING:
-                valueCPIndex = dataInStream.readInt();
-                UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
-                attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
-                attributeValue.setStringValue(stringCPEntry.getValue());
-                break;
-            default:
-                throw new ProgramFileFormatException("unknown annotation attribute value type " + typeDesc);
-        }
-
-        return attributeValue;
-    }
-
     private void readInstructions(DataInputStream dataInStream,
                                   PackageInfo packageInfo) throws IOException {
         int codeLength = dataInStream.readInt();
