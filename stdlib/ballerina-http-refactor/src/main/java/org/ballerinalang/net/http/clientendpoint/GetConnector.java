@@ -34,7 +34,6 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.OPTIONS_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_URL_INDEX;
 
 /**
