@@ -35,14 +35,12 @@ function init() {
 
 @test:config{before: "init"}
 function testService () {
-    endpoint<http:HttpClient> httpEndpoint {
-                              create http:HttpClient(url2, {});
-    }
+    endpoint<http:HttpClient> httpEndpoint {url : url2}
 
     http:OutRequest req = {};
     // Send a GET request to the specified endpoint
     http:InResponse resp = {};
-    resp, _ = httpEndpoint.get("/events", req);
+    resp, _ = httpEndpoint -> get("/events", req);
 
     io:println("GET request:");
     var jsonRes, _ = resp.getJsonPayload();
