@@ -31,10 +31,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.OPTIONS_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_URL_INDEX;
 
 /**
- * Get the ID of the connection.
+ * Get the client endpoint.
  *
  * @since 0.966
  */
@@ -51,12 +55,13 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct clientEndPoint  = (BStruct)getRefArgument(context, 0);
-        BStruct clientEndpointConfig = (BStruct)clientEndPoint.getRefField(0);
+        BStruct clientEndPoint  = (BStruct)getRefArgument(context, CLIENT_ENDPOINT_INDEX);
+        BStruct clientEndpointConfig = (BStruct)clientEndPoint.getRefField(CLIENT_ENDPOINT_CONFIG_INDEX);
         BConnector clientConnector = BLangConnectorSPIUtil.createBConnector(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                CLIENT_CONNECTOR, clientEndpointConfig.getStringField(0));
-        clientConnector.setNativeData(HttpConstants.CLIENT_CONNECTOR, clientEndPoint.getNativeData
-                (HttpConstants.CLIENT_CONNECTOR));
+                CLIENT_CONNECTOR, clientEndpointConfig.getStringField(SERVICE_URL_INDEX),
+                clientEndpointConfig.getRefField(OPTIONS_INDEX));
+        clientConnector.setNativeData(HttpConstants.CLIENT_CONNECTOR, clientEndPoint
+                .getNativeData(HttpConstants.CLIENT_CONNECTOR));
         return new BValue[]{clientConnector};
     }
 }
