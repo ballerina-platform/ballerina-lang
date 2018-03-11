@@ -21,11 +21,24 @@ import org.ballerinalang.model.values.BStruct;
 
 /**
  * @since 0.965.0
+ * 
+ * This interface represents a callback to report back a success or a 
+ * failure state back to the originator.
  */
 public interface CallableUnitCallback {
 
+    /**
+     * This should be called when you want to notify that your operation 
+     * is done successfully. 
+     */
     void notifySuccess();
 
+    /**
+     * This should be called to notify the listener that your operation 
+     * failed with a specific error.
+     * 
+     * @param error the error to be reported when the operation failed
+     */
     void notifyFailure(BStruct error);
 
 }

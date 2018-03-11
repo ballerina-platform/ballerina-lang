@@ -54,12 +54,15 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public BType attachedToType;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    
+    private WorkerInfo[] workerInfoEntries = new WorkerInfo[0];
 
     // Key - data channel name
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
+    protected WorkerInfo[] defaultWorkerInfoArray = new WorkerInfo[0];
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
     
     public WorkerDataIndex paramWorkerIndex;
@@ -189,9 +192,19 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerInfo getDefaultWorkerInfo() {
         return defaultWorkerInfo;
     }
+    
+    /**
+     * This method is implemented as an optimization mechanism, where in the BVM,
+     * we frequently need the default worker as an array.
+     * @return the default worker wrapped as an array
+     */
+    public WorkerInfo[] getDefaultWorkerInfoAsArray() {
+        return defaultWorkerInfoArray;
+    }
 
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
+        this.defaultWorkerInfoArray = new WorkerInfo[] { this.defaultWorkerInfo };
     }
 
     public WorkerInfo getWorkerInfo(String workerName) {
@@ -200,14 +213,19 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
+        this.populateWorkerInfoEntries();
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
+    
+    private void populateWorkerInfoEntries() {
+        this.workerInfoEntries = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
+    }
 
     public WorkerInfo[] getWorkerInfoEntries() {
-        return workerInfoMap.values().toArray(new WorkerInfo[0]);
+        return workerInfoEntries;
     }
 
     @Override
