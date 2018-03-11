@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -500,11 +499,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         visitReturnStatementsExprs(returnNode);
         emit(InstructionCodes.RET);
-    }
-
-    public void visit(BLangWorkerReturn returnNode) {
-        visitReturnStatementsExprs(returnNode);
-        this.emit(InstructionFactory.get(InstructionCodes.WRKRETURN));
     }
 
     private int typeTagToInstr(int typeTag) {
@@ -1379,19 +1373,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
             this.genNode(body, invokableSymbolEnv);
-            if (defaultWorker && invokableNode.workers.size() > 0) {
-                this.emit(InstructionCodes.WRKSTART);
-                if (invokableNode.retParams.size() == 0) {
-                    this.emit(InstructionCodes.RET);
-                } else {
-                    this.emit(InstructionCodes.HALT);
-                }
-            }
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
-        if (!defaultWorker) {
-            this.emit(InstructionCodes.HALT);
-        }
+        this.emit(InstructionCodes.HALT);
     }
 
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
@@ -2873,7 +2857,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             if (NodeKind.TRY == parent.getKind()) {
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
-                final BLangStatement body = current;
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
                     genNode(tryCatchFinally.finallyBody, env);
                 }

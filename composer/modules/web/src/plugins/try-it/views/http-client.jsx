@@ -225,9 +225,9 @@ class HttpClient extends React.Component {
      * @param {Object} event The change event.
      * @memberof HttpClient
      */
-    onHttpMethodChanged(event) {
+    onHttpMethodChanged(event, data) {
         this.setState({
-            httpMethod: event.target.value,
+            httpMethod: data.value,
         });
     }
 
@@ -372,7 +372,7 @@ class HttpClient extends React.Component {
                 }
             } else {
                 const responseHeaders = JSON.parse(this.state.responseHeaders);
-                const contentType = responseHeaders['Content-Type'];
+                const contentType = responseHeaders['Content-Type'] || [];
                 if (contentType.includes('json')) {
                     return 'json';
                 } else if (contentType.includes('xml')) {
@@ -508,7 +508,7 @@ class HttpClient extends React.Component {
                     >
                         <Form.Group inline>
                             <Form.Field >
-                                <Form.Select
+                                <Select
                                     search
                                     selection
                                     options={this.state.httpMethods}

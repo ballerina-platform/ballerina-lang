@@ -19,10 +19,9 @@ package org.ballerinalang.nativeimpl.file;
 
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,14 +48,14 @@ import java.util.Locale;
                 structPackage = "ballerina.file"), @Argument(name = "accessMode", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Open extends AbstractNativeFunction {
+public class Open extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(Open.class);
     
     @Override 
-    public BValue[] execute(Context context) {
-        BStruct struct = (BStruct) getRefArgument(context, 0);
-        String accessMode = getStringArgument(context, 0);
+    public void execute(Context context) {
+        BStruct struct = (BStruct) context.getRefArgument(0);
+        String accessMode = context.getStringArgument(0);
         try {
             File file = new File(struct.getStringField(0));
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
@@ -77,7 +76,8 @@ public class Open extends AbstractNativeFunction {
             
             // if opened for read only, then return.
             if (!write && !append) {
-                return VOID_RETURN;
+                context.setReturnValues();
+                return;
             }
             
             // if opened for both write and append, then give priority to append
@@ -94,7 +94,7 @@ public class Open extends AbstractNativeFunction {
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     private void createDirs(File destinationFile) {

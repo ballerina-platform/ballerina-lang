@@ -19,14 +19,13 @@ package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -71,7 +70,7 @@ import javax.net.ssl.TrustManagerFactory;
                 @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io") },
         isPublic = true)
-public class OpenSecureSocket extends AbstractNativeFunction {
+public class OpenSecureSocket extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(OpenSecureSocket.class);
 
@@ -81,14 +80,14 @@ public class OpenSecureSocket extends AbstractNativeFunction {
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
     @Override
-    public BValue[] execute(Context context) {
-        final String host = getStringArgument(context, 0);
-        final int port = (int) getIntArgument(context, 0);
+    public void execute(Context context) {
+        final String host = context.getStringArgument(0);
+        final int port = (int) context.getIntArgument(0);
         if (log.isDebugEnabled()) {
             log.debug("Remote host: " + host);
             log.debug("Remote port: " + port);
         }
-        final BStruct options = (BStruct) getRefArgument(context, 0);
+        final BStruct options = (BStruct) context.getRefArgument(0);
         Socket socket;
         BStruct socketStruct;
         try {
@@ -127,12 +126,12 @@ public class OpenSecureSocket extends AbstractNativeFunction {
             log.debug("Secure handshake successful.");
             channel = new SocketByteChannel(sslSocket.getInputStream(), sslSocket.getOutputStream());
             socketStruct = createReturnStruct(context, sslSocket, channel);
+            context.setReturnValues(socketStruct, null);
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);
-            return getBValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(null, IOUtils.createError(context, msg));
         }
-        return getBValues(socketStruct, null);
     }
 
     private BStruct createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) throws IOException {

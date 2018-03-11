@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.services.testutils;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test future implementation for service tests.
  */
-public class TestHttpFutureListener implements ConnectorFutureListener {
+public class TestCallableUnitCallback implements CallableUnitCallback {
 
     private volatile Semaphore executionWaitSem;
     private HTTPCarbonMessage requestMessage;
@@ -41,7 +41,7 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
     private HTTPCarbonMessage responseMsg;
     private int timeOut = 120;
 
-    public TestHttpFutureListener(HTTPCarbonMessage requestMessage) {
+    public TestCallableUnitCallback(HTTPCarbonMessage requestMessage) {
         executionWaitSem = new Semaphore(0);
         this.requestMessage = requestMessage;
     }
@@ -50,27 +50,27 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
     public void notifySuccess() {
     }
 
+    @Override
+    public void notifyFailure(BStruct error) {
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
+        String errorMsg = BLangVMErrors.getAggregatedRootErrorMessages(error);
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
+        this.executionWaitSem.release();
+    }
+
     public void setRequestStruct(BValue request) {
         this.request = request;
     }
 
-    @Override
-    public void notifyReply(BValue... response) {
-        //TODO check below line
-        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
-        this.responseMsg = responseMessage;
-        this.executionWaitSem.release();
-    }
-
-    @Override
-    public void notifyFailure(BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
-        String errorMsg = ex.getMessage();
-        ErrorHandlerUtils.printError(ex);
-        this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
-        this.executionWaitSem.release();
-    }
+//    @Override
+//    public void notifyReply(BValue... response) {
+//        //TODO check below line
+//        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
+//        this.responseMsg = responseMessage;
+//        this.executionWaitSem.release();
+//    }
 
     public void sync() {
         try {

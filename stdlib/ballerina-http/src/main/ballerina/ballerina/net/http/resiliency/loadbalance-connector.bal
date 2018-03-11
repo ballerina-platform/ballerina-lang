@@ -13,7 +13,7 @@ int nextIndex;
 @Field {value:"httpConnectorError: Array of HttpConnectorError error occurred at each endpoint."}
 public struct LoadBalanceConnectorError {
     string message;
-    error cause;
+    error[] cause;
     int statusCode;
     http:HttpConnectorError[] httpConnectorError;
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
@@ -34,12 +34,13 @@ import org.ballerinalang.util.codegen.StructInfo;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.websocket.Session;
 
 /**
  * Abstract class for WebSocket actions.
  */
-public abstract class AbstractNativeWsAction extends AbstractNativeAction {
+public abstract class AbstractNativeWsAction implements NativeCallableUnit {
 
     public BStruct createWsConnectionStruct(WebSocketService wsService, Session session, String parentConnectionID) {
         BStruct wsConnection = wsService.createConnectionStruct();
@@ -65,8 +66,7 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
 
     public String[] getSubProtocols(BRefType<BString[]> bSubProtocolsRefType) {
         BString[] bSubProtocols = bSubProtocolsRefType.value();
-        String[] arr = Arrays.stream(bSubProtocols).map(BString::stringValue).toArray(String[]::new);
-        return arr;
+        return Arrays.stream(bSubProtocols).map(BString::stringValue).toArray(String[]::new);
     }
 
     public Map<String, String> getCustomHeaders(BRefType<BMap<BString, BString>> bCustomHeaders) {
@@ -76,6 +76,10 @@ public abstract class AbstractNativeWsAction extends AbstractNativeAction {
                 key -> customHeaders.put(key.stringValue(), bHeadersMap.get(key).stringValue())
         );
         return customHeaders;
+    }
+
+    public boolean isBlocking() {
+        return false;
     }
 
     public String getUrlFromConnector(BConnector bConnector) {

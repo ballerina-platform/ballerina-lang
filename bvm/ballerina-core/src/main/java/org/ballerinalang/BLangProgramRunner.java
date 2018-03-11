@@ -17,23 +17,15 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -55,26 +47,24 @@ public class BLangProgramRunner {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        // This is required to invoke package/service init functions;
-        Context bContext = new Context(programFile);
-
         Debugger debugger = new Debugger(programFile);
-        initDebugger(bContext, debugger);
+        initDebugger(programFile, debugger);
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
-        // TODO : handle init errors.
-        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getStartFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
-        deployTransactionCoordinatorServices(programFile, bContext);
+        // TODO : handle init errors.
+        BLangFunctions.invokePackageInitFunction(servicesPackage.getStartFunctionInfo());
+
+        deployTransactionCoordinatorServices(programFile);
     }
 
-    private static void deployTransactionCoordinatorServices(ProgramFile programFile, Context bContext) {
+    private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
         PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
         if (coordinatorPkgInfo != null) {
             coordinatorPkgInfo.setProgramFile(programFile);
-            BLangFunctions.invokePackageInitFunction(programFile, coordinatorPkgInfo.getInitFunctionInfo(), bContext);
-            BLangFunctions.invokePackageInitFunction(programFile, coordinatorPkgInfo.getStartFunctionInfo(), bContext);
+            BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getInitFunctionInfo());
+            BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getStartFunctionInfo());
         }
     }
 
@@ -82,69 +72,37 @@ public class BLangProgramRunner {
         if (!programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-
-        // Get the main entry package
         PackageInfo mainPkgInfo = programFile.getEntryPackage();
         if (mainPkgInfo == null) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-
-        // Non blocking is not supported in the main program flow..
-        Context bContext = new Context(programFile);
-
         Debugger debugger = new Debugger(programFile);
-        initDebugger(bContext, debugger);
-
-        // Invoke package init function
+        initDebugger(programFile, debugger);
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getInitFunctionInfo());
         // TODO : handle init errors.
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getStartFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getStartFunctionInfo());
 
-        // Prepare main function arguments
+        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+        if (debugger.isDebugEnabled()) {
+            debugger.notifyExit();
+        }
+        BLangFunctions.invokePackageInitFunction(mainPkgInfo.getStopFunctionInfo());
+    }
+
+    private static BValue[] extractMainArgs(String[] args) {
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }
-
-        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
-
-        // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
-        callerSF.getRefRegs()[0] = arrayArgs;
-
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
-        stackFrame.getRefRegs()[0] = arrayArgs;
-        ControlStack controlStack = bContext.getControlStack();
-        controlStack.pushFrame(stackFrame);
-        bContext.startTrackWorker();
-        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-        BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.run(bContext);
-        bContext.await();
-        if (debugger.isDebugEnabled()) {
-            debugger.notifyExit();
-        }
-        try {
-            if (bContext.getError() != null) {
-                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-                throw new BLangRuntimeException("error: " + stackTraceStr);
-            }
-        } finally {
-            // Shutdown endpoints.
-            BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo.getStopFunctionInfo(), bContext);
-        }
+        return new BValue[] {arrayArgs};
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
             debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
+            debugger.waitTillDebuggeeResponds();
         }
     }
 
