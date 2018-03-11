@@ -233,20 +233,20 @@ public class HttpUtil {
         }
     }
 
-    /**
-     * Helper method to start pending http server connectors.
-     *
-     * @throws BallerinaConnectorException
-     */
-    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-            throws BallerinaConnectorException {
-        try {
-            // Starting up HTTP Server connectors
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-        } catch (ServerConnectorException e) {
-            throw new BallerinaConnectorException(e);
-        }
-    }
+//    /**
+//     * Helper method to start pending http server connectors.
+//     *
+//     * @throws BallerinaConnectorException
+//     */
+//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
+//            throws BallerinaConnectorException {
+//        try {
+//            // Starting up HTTP Server connectors
+//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
+//        } catch (ServerConnectorException e) {
+//            throw new BallerinaConnectorException(e);
+//        }
+//    }
 
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
@@ -542,7 +542,8 @@ public class HttpUtil {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
                         struct.getIntField(HttpConstants.OUT_RESPONSE_STATUS_CODE_INDEX)));
             }
-            if (!struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX) != null && !struct
+                    .getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
                         struct.getStringField(HttpConstants.OUT_RESPONSE_REASON_PHRASE_INDEX));
             }
@@ -910,6 +911,21 @@ public class HttpUtil {
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
 
         if (annotationList == null) {

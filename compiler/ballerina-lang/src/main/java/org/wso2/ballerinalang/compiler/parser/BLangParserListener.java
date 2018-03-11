@@ -806,9 +806,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
         String endpointName = ctx.Identifier().getText();
-        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName);
+        boolean isInitExprExist = ctx.recordLiteral() != null;
+        this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName, isInitExprExist);
+    }
+
+    @Override
+    public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
+        this.pkgBuilder.addEndpointType(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -835,15 +840,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             isVarDeclaration = true;
         }
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
-    }
-
-    @Override
-    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     @Override
@@ -1487,6 +1483,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createTypeAccessExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

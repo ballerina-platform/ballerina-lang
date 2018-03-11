@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -31,7 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -171,7 +170,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
-        notifyEndpointProcessors((BStructType) ((BServiceSymbol) serviceNode.symbol).endpointType, attachmentList,
+        notifyEndpointProcessors(((BServiceSymbol) serviceNode.symbol).endpointType, attachmentList,
                 (processor, list) -> processor.process(serviceNode, list));
         serviceNode.resources.forEach(resource -> resource.accept(this));
         serviceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
@@ -208,8 +207,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangEndpoint endpointNode) {
-        List<BLangAnnotationAttachment> attachmentList = Collections.emptyList();
+        List<BLangAnnotationAttachment> attachmentList = endpointNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(endpointNode, list));
+        notifyEndpointProcessors(endpointNode.symbol.type, attachmentList,
+                (processor, list) -> processor.process(endpointNode, list));
     }
 
     // private methods
@@ -258,19 +259,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
         PackageID pkdID = new PackageID(Names.ANON_ORG, names.fromString(annPackage), Names.EMPTY);
         BPackageSymbol pkgSymbol = this.symTable.pkgSymbolMap.get(pkdID);
-        if (pkgSymbol == null) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_PACKAGE_FOUND,
-                    annPackage, plugin.getClass().getName());
-            return annotationSymbols;
-        }
-
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-        for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
-            annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
-        }
-
-        if (annotationSymbols.isEmpty()) {
-            dlog.error(defaultPos, DiagnosticCode.COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE);
+        if (pkgEnv != null) {
+            for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
+                annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
+            }
         }
         return annotationSymbols;
     }
@@ -334,7 +327,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         return bSymbol != symTable.notFoundSymbol;
     }
 
-    private void notifyEndpointProcessors(BStructType endpointType, List<BLangAnnotationAttachment> attachments,
+    private void notifyEndpointProcessors(BType endpointType, List<BLangAnnotationAttachment> attachments,
                                           BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
         DefinitionID endpointID = new DefinitionID(endpointType.tsymbol.pkgID.name.value,
                 endpointType.tsymbol.name.value);

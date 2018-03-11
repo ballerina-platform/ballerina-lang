@@ -37,4 +37,6 @@ public interface InvocationNode extends VariableReferenceNode {
     VariableReferenceNode getExpression();
 
     boolean isIterableOperation();
+
+    boolean isActionInvocation();
 }

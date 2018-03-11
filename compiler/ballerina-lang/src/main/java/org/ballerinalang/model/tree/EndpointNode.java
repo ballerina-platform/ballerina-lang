@@ -17,18 +17,18 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.EndpointTypeNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
 /**
  * Represents endpoint &lt; type &gt;.
  *
  * @since 0.965.0
  */
-public interface EndpointNode extends TopLevelNode {
+public interface EndpointNode extends AnnotatableNode, TopLevelNode {
 
     IdentifierNode getName();
 
-    EndpointTypeNode getEndPointType();
+    UserDefinedTypeNode getEndPointType();
 
     ExpressionNode getConfigurationExpression();
 }

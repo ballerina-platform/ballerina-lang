@@ -17,18 +17,75 @@
  */
 package org.ballerinalang.net.grpc;
 
+import org.ballerinalang.connector.api.AnnAttrValue;
+import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
+import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.ssl.SSLConfig;
+import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.File;
+import java.util.List;
+
+/**
+ * Util class of connector functions.
+ */
 public class ConnectorUtil {
-    public static ServiceConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
-        serviceConfiguration.setPort(serviceEndpointConfig.getIntField("port"));
-        serviceConfiguration.setClientStreaming(serviceEndpointConfig.getBooleanField("clientStreaming"));
-        serviceConfiguration.setGenerateClientConnector(serviceEndpointConfig
-                .getBooleanField("generateClientConnector"));
-        serviceConfiguration.setRpcEndpoint(serviceEndpointConfig.getStringField("rpcEndpoint"));
-        serviceConfiguration.setServerStreaming(serviceEndpointConfig.getBooleanField("serverStreaming"));
-        return serviceConfiguration;
+    public static EndPointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
+        EndPointConfiguration endPointConfiguration = new EndPointConfiguration();
+        endPointConfiguration.setPort(serviceEndpointConfig.getIntField("port"));
+        endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
+        return endPointConfiguration;
+    }
+    public static SSLHandlerFactory getSSLConfigs(Annotation serviceAnnotation) {
+        if (serviceAnnotation == null) {
+            return null;
+        }
+        AnnAttrValue keyStoreFile = serviceAnnotation.getAnnAttrValue("keyStoreFile");
+        AnnAttrValue keyStorePassword = serviceAnnotation.getAnnAttrValue("keyStorePassword");
+        AnnAttrValue certPassword = serviceAnnotation.getAnnAttrValue("certPassword");
+        if (keyStoreFile == null || certPassword == null) {
+            return null;
+        } else {
+            SSLConfig sslConfig = new SSLConfig(new File(keyStoreFile.getStringValue())
+                    ,keyStorePassword.getStringValue());
+            sslConfig.setCertPass(certPassword.getStringValue());
+            sslConfig.setTLSStoreType("PKCS12");
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            return sslHandlerFactory;
+        }
+    }
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service.getAnnotationList(pkgPath, "serviceConfig");
+        
+        if (annotationList == null) {
+            return null;
+        }
+        
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+        
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+    
+    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
+        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, "resourceConfig");
+        
+        if (annotationList == null) {
+            return null;
+        }
+        
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple resource configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+        
+        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }

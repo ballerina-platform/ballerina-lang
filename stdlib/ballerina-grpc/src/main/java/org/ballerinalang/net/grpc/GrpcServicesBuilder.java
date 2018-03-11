@@ -28,12 +28,12 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.ServerCalls;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.ServiceConfiguration;
+import org.ballerinalang.net.grpc.config.EndPointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -55,38 +55,55 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
  * @since 0.96.1
  */
 public class GrpcServicesBuilder {
-   
     
-    public static io.grpc.ServerBuilder initService( ServiceConfiguration serviceEndpointConfig) {
-        io.grpc.ServerBuilder  serverBuilder;
-        if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
-            serverBuilder = NettyServerBuilder.forPort(
-                    serviceEndpointConfig.getPort().intValue())
-                    .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                            .availableProcessors()))
-                    .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                            .availableProcessors() * 2));
+    
+    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig, SslContext sslContext) {
+        io.grpc.ServerBuilder serverBuilder;
+        if (sslContext != null) {
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
+                serverBuilder = NettyServerBuilder.forPort((int)
+                        serviceEndpointConfig.getPort().intValue())
+                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors()))
+                        .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors() * 2)).sslContext(sslContext);
+            } else {
+                serverBuilder = NettyServerBuilder.forPort(9090)
+                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors()))
+                        .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors() * 2)).sslContext(sslContext);
+            }
         } else {
-            serverBuilder = NettyServerBuilder.forPort(9090)
-                    .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                            .availableProcessors()))
-                    .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                            .availableProcessors() * 2));
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
+                serverBuilder = NettyServerBuilder.forPort((int)
+                        serviceEndpointConfig.getPort().intValue())
+                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors()))
+                        .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors() * 2));
+            } else {
+                serverBuilder = NettyServerBuilder.forPort(9090)
+                        .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors()))
+                        .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
+                                .availableProcessors() * 2));
+            }
         }
         return serverBuilder;
     }
     
-    public static void registerService(io.grpc.ServerBuilder  serverBuilder,Service service) throws GrpcServerException {
+    public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
+            GrpcServerException {
         try {
             serverBuilder.addService(ServerInterceptors.intercept(getServiceDefinition(service), new
                     ServerHeaderInterceptor()));
-        } catch (Descriptors.DescriptorValidationException | GrpcServerException e) {
+        } catch (GrpcServerException e) {
             throw new GrpcServerException("Error while registering the service : " + service.getName(), e);
         }
     }
     
-    private static ServerServiceDefinition getServiceDefinition(Service service) throws Descriptors
-            .DescriptorValidationException, GrpcServerException {
+    private static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
         Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         
@@ -168,7 +185,7 @@ public class GrpcServicesBuilder {
             serviceDescriptor) throws GrpcServerException {
         // Generate full service name for the service definition. <package>.<service>
         final String serviceName;
-        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage()))  {
+        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
             serviceName = service.getName();
         } else {
             serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
@@ -249,13 +266,16 @@ public class GrpcServicesBuilder {
             if (server != null) {
                 try {
                     server.start();
+                    blockUntilShutdown(server);
                     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
                 } catch (IOException e) {
                     throw new GrpcServerException("Error while starting gRPC server", e);
+                } catch (InterruptedException e) {
+                    throw new GrpcServerException("Error while block until Shutdown gRPC server", e);
                 }
             } else {
-                throw new GrpcServerException("No gRPC service is registered to start" +
-                        ". You need to register the service");
+                throw new GrpcServerException("No gRPC service is registered to Start" +
+                        ". You need to Register the service");
             }
             return server;
         }
@@ -265,7 +285,7 @@ public class GrpcServicesBuilder {
     /**
      * Shutdown grpc server.
      */
-    private static void stop(Server server) {
+    public static void stop(Server server) {
         if (server != null) {
             server.shutdown();
         }
@@ -274,7 +294,7 @@ public class GrpcServicesBuilder {
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
      */
-    void blockUntilShutdown(Server server) throws InterruptedException {
+    static void blockUntilShutdown(Server server) throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }

@@ -27,8 +27,7 @@ public class WebSocketConstants {
     public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
-    public static final String PROTOCOL_PACKAGE_WS = "ballerina.net.ws";
-    public static final String WEBSOCKET_SERVICE_ENDPOINT_NAME = "ballerina.net.ws:WsService";
+    public static final String WEBSOCKET_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSocketService";
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
     public static final String ANNOTATION_CONFIGURATION = "configuration";
@@ -57,21 +56,22 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
     public static final String STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION = "HandshakeConnection";
-    public static final String STRUCT_WEBSOCKET_CONNECTION = "Connection";
     public static final String STRUCT_WEBSOCKET_TEXT_FRAME = "TextFrame";
     public static final String STRUCT_WEBSOCKET_BINARY_FRAME = "BinaryFrame";
     public static final String STRUCT_WEBSOCKET_PING_FRAME = "PingFrame";
     public static final String STRUCT_WEBSOCKET_PONG_FRAME = "PongFrame";
     public static final String STRUCT_WEBSOCKET_CLOSE_FRAME = "CloseFrame";
     public static final String STRUCT_WEBSOCKET_ERROR = "WsConnectorError";
+
+    public static final String CONNECTOR_WEBSOCKET = "WebSocketConnector";
+
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
-    public static final String NATIVE_DATA_PARENT_CONNECTION_ID = "NATIVE_DATA_PARENT_CONNECTION_ID";
     public static final String NATIVE_DATA_PING_TIME_VALIDATOR = "NATIVE_DATA_PING_TIME_VALIDATOR";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
-    public static final String WEBSOCKET_CONNECTOR = "WebSocketConnectorError";
+    public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";

@@ -23,15 +23,18 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.BallerinaWebSocketClientConnectorListener;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
+import org.ballerinalang.net.http.WebSocketService;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -50,7 +53,7 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -68,23 +71,31 @@ public class Start extends AbstractNativeFunction {
                 connectorFactory.createWsClientConnector((WsClientConnectorConfig) configs);
         BallerinaWebSocketClientConnectorListener
                 clientConnectorListener = new BallerinaWebSocketClientConnectorListener();
+        Object serviceConfig = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG);
+        if (serviceConfig == null || !(serviceConfig instanceof WebSocketService)) {
+            throw new BallerinaConnectorException("Initialize the service before starting it");
+        }
+        WebSocketService wsService = (WebSocketService) serviceConfig;
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = createWsConnectionStruct(wsService, session, wsParentConnectionID);
+                BConnector wsConnection = BLangConnectorSPIUtil.createBConnector(context.programFile,
+                                                                                 HttpConstants.HTTP_PACKAGE_PATH,
+                                                                                 WebSocketConstants.CONNECTOR_WEBSOCKET,
+                                                                                 new BMap<>());
+                clientEndpointConfig.addNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET, wsConnection);
+                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                //Check
                 context.getControlStack().currentFrame.returnValues[0] = wsConnection;
                 WebSocketOpenConnectionInfo connectionInfo =
                         new WebSocketOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
                 clientConnectorListener.setConnectionInfo(connectionInfo);
-                connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
-                BStruct wsError = createWsErrorStruct(context, t);
-                context.getControlStack().currentFrame.returnValues[1] = wsError;
-                connectorFuture.notifySuccess();
+                throw new BallerinaConnectorException("Initialize the service before starting it");
             }
         });
         return VOID_RETURN;

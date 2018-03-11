@@ -79,6 +79,7 @@ public class HttpConstants {
     public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
     public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
     public static final String ANN_NAME_CONFIG = "configuration";
+    public static final String ANN_NAME_HTTP_SERVICE_CONFIG = "httpServiceConfig";
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
@@ -135,7 +136,7 @@ public class HttpConstants {
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
-    public static final String CONNECTOR_NAME = "HttpClient";
+    public static final String CLIENT_CONNECTOR = "ClientConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -249,6 +250,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+
     public static final String ENDPOINT_CONFIG_SSL = "ssl";
 
     //SslConfiguration indexes
@@ -264,4 +266,35 @@ public class HttpConstants {
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String SSL_CONFIG_VALIDATE_CERT_ENABLED = "validateCertEnabled";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerificationEnabled";
+
+    //Client Endpoint
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+
+    //Client Endpoint Config
+    public static final String SERVICE_URI = "serviceUri";
+    public static final String OPTIONS_STRUCT_REFERENCE = "options";
+    public static final String OPTIONS_TRNASFER_ENCODING = "transferEncoding";
+    public static final String OPTIONS_CHUNKING = "chunking";
+    public static final String OPTIONS_ENDPOINT_TIMEOUT = "endpointTimeout";
+    public static final String OPTIONS_IS_KEEP_ALIVE = "keepAlive";
+    public static final String OPTIONS_HTTP_VERSION = "httpVersion";
+    public static final String OPTIONS_FORWARDED = "forwarded";
+
+    //Connection Throttling Indexes
+    public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
+    public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
+
+    //FollowRedirect Indexes
+    public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
+    public static final String FOLLOW_REDIRECT_ENABLED = "enabled";
+    public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
+
+    //Proxy Indexed
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
+    public static final String PROXY_HOST = "host";
+    public static final String PROXY_PORT = "port";
+    public static final String PROXY_USERNAME = "userName";
+    public static final String PROXY_PASSWORD = "pasword";
 }

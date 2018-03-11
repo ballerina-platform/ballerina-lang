@@ -41,7 +41,7 @@ import java.util.Locale;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "forward",
-        connectorName = HttpConstants.CONNECTOR_NAME,
+        connectorName = HttpConstants.CLIENT_CONNECTOR,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
@@ -73,7 +73,7 @@ public class Forward extends AbstractHTTPAction {
             // Execute the operation
             return executeNonBlockingAction(context, createOutboundRequestMsg(context));
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'forward' action in " + HttpConstants.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'forward' action in " + HttpConstants.CLIENT_CONNECTOR
                     + ". " + t.getMessage(), context);
         }
     }

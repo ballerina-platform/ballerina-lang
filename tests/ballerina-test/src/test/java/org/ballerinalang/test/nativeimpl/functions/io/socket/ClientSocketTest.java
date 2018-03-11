@@ -40,6 +40,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Unit tests for client socket.
+ */
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
@@ -135,7 +138,8 @@ public class ClientSocketTest {
           description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
-        BValue[] args = { new BBlob(content.getBytes()) };
+        byte[] contentBytes = content.getBytes();
+        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");

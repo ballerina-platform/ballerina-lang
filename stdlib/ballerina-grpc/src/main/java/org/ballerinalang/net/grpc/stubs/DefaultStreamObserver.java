@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.BallerinaGrpcServerConnector;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
@@ -57,9 +56,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
 
     public DefaultStreamObserver(Context context, String serviceName) throws
             GrpcClientException {
-        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(context, MessageConstants.PROTOCOL_PACKAGE_GRPC);
-        Service listenerService = grpcServerConnector.getListenerService(serviceName);
+        // TODO: 3/10/18 Fix
+//        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
+//                getBallerinaServerConnector(context, MessageConstants.PROTOCOL_PACKAGE_GRPC);
+        Service listenerService = null;
         if (listenerService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
         }

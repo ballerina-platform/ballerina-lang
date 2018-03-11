@@ -34,7 +34,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
@@ -354,7 +353,7 @@ public class MimeUtilityFunctionTest {
         String path = "/test/largepayload";
         try {
             ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+            Channel channel = new MockByteChannel(byteChannel, 10);
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();

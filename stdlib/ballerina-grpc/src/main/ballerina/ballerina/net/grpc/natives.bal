@@ -1,98 +1,40 @@
 package ballerina.net.grpc;
 
-public native function getHeader(string headerName) (string);
-
-@Description { value:"Represents the gRPC client connector connection"}
+@Description {value:"Represents the gRPC client connector connection"}
 @Field {value:"host: The server host name"}
 @Field {value:"port: The server port"}
 public struct ClientConnection {
     int port;
     string host;
 }
-
-@Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
-@Param {value:"serviceUri: Url of the service"}
-@Param {value:"connectorOptions: connector options"}
-public connector GRPCConnector (string host, int port, string subType, string descriptorKey, map describtorMap) {
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action blockingExecute (string methodID, any payload) (any , ConnectorError);
-
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
-
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action streamingExecute (string methodID, string listenerService) (ClientConnection , ConnectorError);
-}
-
-@Description { value:"Sends outbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during HTTP server connector respond" }
-public native function <ClientConnection conn> send (any res) (ConnectorError);
-
-@Description { value:"Informs the caller, server finished sending messages."}
-@Param { value:"conn: The server connector connection" }
-@Return { value:"Error occured during HTTP server connector respond" }
-public native function <ClientConnection conn> complete () (ConnectorError);
-
-@Description { value:"Forwards inbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The inbound response message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-public native function <ClientConnection conn> error (ServerError serverError) (ConnectorError);
-
-@Description { value:"Represents the gRPC server connector connection"}
+@Description {value:"Represents the gRPC server connector connection"}
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
-public struct ServerConnection {
-    int id;
+public struct SSL {
+    string keyStoreFile;
+    string keyStorePassword;
+    string certPassword;
+}
+@Description {value:"Represents the gRPC server connector connection"}
+@Field {value:"remoteHost: The server host name"}
+@Field {value:"port: The server port"}
+public struct ServiceEndpoint {
     string epName;
     ServiceEndpointConfiguration config;
 }
 
-public native function <ServerConnection h> init (string epName, ServiceEndpointConfiguration c);
-
-public native function <ServerConnection h> register (type serviceType)(ConnectorError);
-
-public native function <ServerConnection h> start () (ConnectorError);
-
-public native function <ServerConnection conn> stop ()(ConnectorError);
-
-function <ServerConnection h> getConnector () returns (ResponseConnector) {
-    Connection conn = {};
-    return new ResponseConnector(conn);
+@Description {value:"Represents the gRPC server connector connection"}
+@Field {value:"remoteHost: The server host name"}
+@Field {value:"port: The server port"}
+public struct ServiceEndpointConfiguration {
+    string host;
+    int port;
+    string keyStoreFile;
+    string keyStorePassword;
+    string certPassword;
 }
 
-@Description { value:"Sends outbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during HTTP server connector respond" }
-public native function <ServerConnection conn> send (any res) (ConnectorError);
-
-@Description { value:"Informs the caller, server finished sending messages."}
-@Param { value:"conn: The server connector connection" }
-@Return { value:"Error occured during HTTP server connector respond" }
-public native function <ServerConnection conn> complete () (ConnectorError);
-
-@Description { value:"Checks whether the connection is closed by the caller."}
-@Param { value:"conn: The server connector connection" }
-@Return { value:"Returns true if the connection is closed, false otherwise" }
-public native function <ServerConnection conn> isCancelled () (boolean);
-
-@Description { value:"Forwards inbound response to the caller"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The inbound response message" }
-@Return { value:"Error occured during HTTP server connector forward" }
-public native function <ServerConnection conn> error (ServerError serverError) (ConnectorError);
-
-
-@Description { value:"ConnectorError struct represents an error occured during the HTTP client invocation" }
+@Description {value:"ConnectorError struct represents an error occured during the HTTP client invocation"}
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused ConnectorError to get thrown"}
 @Field {value:"statusCode: HTTP status code"}
@@ -102,7 +44,7 @@ public struct ConnectorError {
     int statusCode;
 }
 
-@Description { value:"ServerError struct represents an error occured during gRPC server excution" }
+@Description {value:"ServerError struct represents an error occured during gRPC server excution"}
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused ServerError to get thrown"}
 @Field {value:"statusCode: gRPC server status code. refer: https://github
@@ -113,7 +55,7 @@ public struct ServerError {
     int statusCode;
 }
 
-@Description { value:"ClientError struct represents an error occured during gRPC client connector" }
+@Description {value:"ClientError struct represents an error occured during gRPC client connector"}
 @Field {value:"message:  An error message explaining about the error"}
 @Field {value:"cause: The error that caused ClientError to get thrown"}
 @Field {value:"statusCode: gRPC server status code. refer: https://github
@@ -124,36 +66,153 @@ public struct ClientError {
     int statusCode;
 }
 
-public connector ResponseConnector (ServerConnection conn) {
+@Description { value:"SSL struct represents SSL/TLS options to be used for gRPC client invocation" }
+@Field {value:"trustStoreFile: File path to trust store file"}
+@Field {value:"trustStorePassword: Trust store password"}
+public struct SSL {
+    string trustStoreFile;
+    string trustStorePassword;
+}
+
+@Description { value:"Options struct represents options to be used for gRPC client invocation" }
+@Field {value:"ssl: SSL/TLS related options"}
+@Field {value:"proxy: Proxy server related options"}
+public struct Options {
+    SSL ssl;
+}
+public native function getHeader (string headerName) (string);
+
+@Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
+@Param {value:"serviceUri: Url of the service"}
+@Param {value:"connectorOptions: connector options"}
+public connector GRPCConnector (string host, int port, string subType, string descriptorKey, map describtorMap,
+                                Options options) {
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action blockingExecute (string methodID, any payload) (any, ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
+
+    @Description {value:"The execute action implementation of the gRPC Connector."}
+    @Param {value:"Connection stub."}
+    @Param {value:"Any type of request parameters."}
+    native action streamingExecute (string methodID, string listenerService) (ClientConnection, ConnectorError);
+}
+
+@Description {value:"Sends outbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The outbound response message"}
+@Return {value:"Error occured during HTTP server connector respond"}
+public native function <ClientConnection conn> send (any res) (ConnectorError);
+
+@Description {value:"Informs the caller, server finished sending messages."}
+@Param {value:"conn: The server connector connection"}
+@Return {value:"Error occured during HTTP server connector respond"}
+public native function <ClientConnection conn> complete () (ConnectorError);
+
+@Description {value:"Forwards inbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The inbound response message"}
+@Return {value:"Error occured during HTTP server connector forward"}
+public native function <ClientConnection conn> error (ServerError serverError) (ConnectorError);
+
+public native function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c);
+
+public native function <ServiceEndpoint h> register (type serviceType);
+
+public native function <ServiceEndpoint h> start ();
+
+public native function <ServiceEndpoint conn> stop ();
+
+public native function <ServiceEndpoint h> getConnector () returns (ResponseConnector repConn);
+
+@Description {value:"Sends outbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The outbound response message"}
+@Return {value:"Error occured during HTTP server connector respond"}
+public native function <ServiceEndpoint conn> send (any res) (ConnectorError);
+
+@Description {value:"Informs the caller, server finished sending messages."}
+@Param {value:"conn: The server connector connection"}
+@Return {value:"Error occured during HTTP server connector respond"}
+public native function <ServiceEndpoint conn> complete () (ConnectorError);
+
+@Description {value:"Checks whether the connection is closed by the caller."}
+@Param {value:"conn: The server connector connection"}
+@Return {value:"Returns true if the connection is closed, false otherwise"}
+public native function <ServiceEndpoint conn> isCancelled () (boolean);
+
+@Description {value:"Forwards inbound response to the caller"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The inbound response message"}
+@Return {value:"Error occured during HTTP server connector forward"}
+public native function <ServiceEndpoint conn> error (ServerError serverError) (ConnectorError);
+
+
+public connector ResponseConnector (ServiceEndpoint conn) {
     action respondComplete () (ServerError) {
-        return conn.complete ();
+        return conn.complete();
     }
-    action respondSend (any res)  (ServerError) {
-        return conn.send ();
+    action respondSend (any res) (ServerError) {
+        return conn.send();
     }
     action respondIsCancelled () (ServerError) {
-        return conn.isCancelled ();
+        return conn.isCancelled();
     }
     action respondError (ServerError serverError) {
         conn.error(serverError);
     }
 }
 
-
-public struct ServiceConfiguration {
-    ServiceEndpoint[] endpoints;
-    int port;
-    string rpcEndpoint;
-    boolean clientStreaming;
-    boolean serverStreaming;
-    boolean generateClientConnector;
+//////////////////////////////
+/// Grpc Service Endpoint ///
+/////////////////////////////
+public struct GrpcService {
+    string epName;
+    ServiceEndpointConfiguration config;
+    ServiceEndpoint serviceEndpoint;
 }
 
-public function <ServiceConfiguration sc> ServiceConfiguration () {
-
+public function <GrpcService ep> GrpcService () {
+    ep.serviceEndpoint = {};
 }
 
-public annotation <service> serviceConfig ServiceConfiguration;
+@Description {value:"Gets called when the endpoint is being initialize during package init time"}
+@Param {value:"epName: The endpoint name"}
+@Param {value:"config: The ServiceEndpointConfiguration of the endpoint"}
+@Return {value:"Error occured during initialization"}
+public function <GrpcService ep> init (string epName, ServiceEndpointConfiguration config) {
+    ep.serviceEndpoint.init(epName, config);
+}
 
-public annotation <resource> resourceConfig resourceConfigData;
+@Description {value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
+@Param {value:"conn: The server connector connection"}
+@Param {value:"res: The outbound response message"}
+@Return {value:"Error occured during registration"}
+public function <GrpcService ep> register (type serviceType) {
+    ep.serviceEndpoint.register(serviceType);
+}
+
+@Description {value:"Starts the registered service"}
+@Return {value:"Error occured during registration"}
+public function <GrpcService ep> start () {
+    ep.serviceEndpoint.start();
+}
+
+@Description {value:"Returns the connector that client code uses"}
+@Return {value:"The connector that client code uses"}
+@Return {value:"Error occured during registration"}
+public function <GrpcService ep> getConnector () returns (ServerConnector repConn) {
+    return ep.serviceEndpoint.getConnector();
+}
+
+@Description {value:"Stops the registered service"}
+@Return {value:"Error occured during registration"}
+public function <GrpcService ep> stop () {
+    ep.serviceEndpoint.stop();
+}
 

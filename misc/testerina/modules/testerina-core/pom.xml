@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>testerina</artifactId>
-        <version>0.963.1-SNAPSHOT</version>
+        <version>0.964.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -156,23 +156,23 @@
             <!--</plugin>-->
 
             <!-- Generate API Doc -->
-            <plugin>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>docerina-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>docerina</goal>
-                        </goals>
-                        <configuration>
-                            <outputDir>${project.build.directory}/docs</outputDir>
-                            <sourceDir>${generated.testerina.source.directory}</sourceDir>
-                            <nativeCode>true</nativeCode>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.ballerinalang</groupId>-->
+                <!--<artifactId>docerina-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>compile</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>docerina</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<outputDir>${project.build.directory}/docs</outputDir>-->
+                            <!--<sourceDir>${generated.testerina.source.directory}</sourceDir>-->
+                            <!--<nativeCode>true</nativeCode>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
