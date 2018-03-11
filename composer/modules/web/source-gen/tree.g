@@ -24,23 +24,9 @@ Annotation
    ;
 
 AnnotationAttachment
-   : <builtin?> @                        <annotationName.value> { <attributes-joined-by,>* }
-   :            @ <packageAlias.value> : <annotationName.value> { <attributes-joined-by,>* }
-   |            @ <annotationName.value>                        { <attributes-joined-by,>* }
-   ;
-
-AnnotationAttachmentAttribute
-   : <name.value> : <value.source>
-   ;
-
-AnnotationAttachmentAttributeValue
-   : <value.source>
-   | [ <valueArray-joined-by,>+ ]
-   ;
-
-AnnotationAttribute
-   : <typeNode.source> <name.value> = <initialExpression.source>
-   | <typeNode.source> <name.value>
+   : <builtin?> @                        <annotationName.value> <expression.source>
+   :            @ <packageAlias.value> : <annotationName.value> <expression.source>
+   |            @ <annotationName.value>                        <expression.source>
    ;
 
 ArrayLiteralExpr
