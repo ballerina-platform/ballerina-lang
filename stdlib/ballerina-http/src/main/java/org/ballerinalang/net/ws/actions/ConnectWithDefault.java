@@ -42,8 +42,8 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
-import javax.websocket.Session;
 import java.util.HashMap;
+import javax.websocket.Session;
 
 /**
  * Connect to the remote endpoint.

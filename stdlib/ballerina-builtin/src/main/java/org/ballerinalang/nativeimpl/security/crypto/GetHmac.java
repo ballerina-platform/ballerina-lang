@@ -28,12 +28,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Native function ballerina.security.crypto:getHmac.

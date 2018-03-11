@@ -29,8 +29,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.websocket.Session;
 import java.nio.ByteBuffer;
+import javax.websocket.Session;
 
 /**
  * Push binary data to the other end of the connection.

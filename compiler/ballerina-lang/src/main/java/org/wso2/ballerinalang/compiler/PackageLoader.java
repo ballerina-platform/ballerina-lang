@@ -220,7 +220,7 @@ public class PackageLoader {
                 throw new IllegalArgumentException("cannot resolve file '" + source + "'");
             }
         } else {
-            pkgId = getPackageID(Names.ANON_ORG.getValue() ,source);
+            pkgId = getPackageID(Names.ANON_ORG.getValue(), source);
             pkgEntity = getPackageEntity(pkgId);
             bLangPackage = loadPackageFromEntity(pkgId, pkgEntity);
             if (bLangPackage == null) {
@@ -311,7 +311,7 @@ public class PackageLoader {
         return loadPackageEntity(pkgId);
     }
 
-    private PackageID getPackageID(String orgName,String sourcePkg) {
+    private PackageID getPackageID(String orgName, String sourcePkg) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
         Name orgN = new Name(orgName);

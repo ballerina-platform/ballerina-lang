@@ -33,13 +33,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,6 +46,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Native function to open a secure client socket.
@@ -62,11 +62,11 @@ import java.security.cert.CertificateException;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "io", functionName = "openSecureSocket",
-        args = { @Argument(name = "host", type = TypeKind.STRING),
-                 @Argument(name = "port", type = TypeKind.INT),
-                 @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
-                           structPackage = "io") },
-        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "io") },
+        args = {@Argument(name = "host", type = TypeKind.STRING),
+                @Argument(name = "port", type = TypeKind.INT),
+                @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
+                        structPackage = "io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "io")},
         isPublic = true)
 public class OpenSecureSocket extends AbstractNativeFunction {
 

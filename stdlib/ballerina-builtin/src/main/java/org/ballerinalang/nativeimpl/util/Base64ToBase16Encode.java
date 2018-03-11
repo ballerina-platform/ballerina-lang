@@ -27,8 +27,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Native function ballerina.util:base64ToBase16Encode.

@@ -30,9 +30,9 @@ import org.ballerinalang.net.ws.WebSocketConnectionManager;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
-import java.io.IOException;
 
 /**
  * Get the ID of the connection.

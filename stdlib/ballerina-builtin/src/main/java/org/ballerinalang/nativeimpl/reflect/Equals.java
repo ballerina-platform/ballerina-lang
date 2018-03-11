@@ -46,21 +46,21 @@ import java.util.stream.Collectors;
  * The ballerina.reflect:equals function which checks equality among 2 values. Currently supports string, int, float,
  * boolean, type, structs, maps, arrays, any, JSON.
  */
-@BallerinaFunction(orgName = "ballerina",packageName = "reflect",
-                   functionName = "equals",
-                   args = {@Argument(name = "value1", type = TypeKind.ANY),
-                           @Argument(name = "value2", type = TypeKind.ANY)},
-                   returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-                   isPublic = true)
+@BallerinaFunction(orgName = "ballerina", packageName = "reflect",
+        functionName = "equals",
+        args = {@Argument(name = "value1", type = TypeKind.ANY),
+                @Argument(name = "value2", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        isPublic = true)
 public class Equals extends AbstractNativeFunction {
-    
+
     @Override
     public BValue[] execute(Context context) {
         BValue value1 = context.getControlStack().getCurrentFrame().getRefRegs()[0];
         BValue value2 = context.getControlStack().getCurrentFrame().getRefRegs()[1];
         return getBValues(new BBoolean(isEqual(value1, value2)));
     }
-    
+
     /**
      * Deep equal or strict equal implementation for any value type.
      *
@@ -72,33 +72,33 @@ public class Equals extends AbstractNativeFunction {
         if (null == lhsValue && null == rhsValue) {
             return true;
         }
-        
+
         if (null == lhsValue || null == rhsValue) {
             return false;
         }
-        
+
         // Required for any == any.
         if (lhsValue.getType().getTag() != rhsValue.getType().getTag()) {
             return false;
         }
-        
+
         if (null != lhsValue.getType().getPackagePath() && null != rhsValue.getType().getPackagePath() && !lhsValue
                 .getType().getPackagePath().equals(rhsValue.getType().getPackagePath())) {
             return false;
         }
-        
-        if (null != lhsValue.getType().getName() && null != rhsValue.getType().getName() && !lhsValue.getType()
-                .getName().equals(rhsValue.getType().getName())) {
+
+        if (null != lhsValue.getType().getName() && null != rhsValue.getType().getName()
+                && !lhsValue.getType().getName().equals(rhsValue.getType().getName())) {
             return false;
         }
-        
+
         // Handling JSON.
         if (lhsValue instanceof BJSON && rhsValue instanceof BJSON) {
             JsonNode lhsJSON = ((BJSON) lhsValue).value();
             JsonNode rhsJSON = ((BJSON) rhsValue).value();
             return isEqual(lhsJSON, rhsJSON);
         }
-        
+
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -110,11 +110,11 @@ public class Equals extends AbstractNativeFunction {
                 if (null == lhsRef.value() && null == rhsRef.value()) {
                     return true;
                 }
-    
+
                 if (null == lhsRef.value() || null == rhsRef.value()) {
                     return false;
                 }
-                
+
                 return lhsRef.value().equals(rhsRef.value());
             case TypeTags.STRUCT_TAG:
                 BStructType lhsStructType = (BStructType) lhsValue.getType();
@@ -122,7 +122,7 @@ public class Equals extends AbstractNativeFunction {
                 if (!Arrays.equals(lhsStructType.getFieldTypeCount(), rhsStructType.getFieldTypeCount())) {
                     return false;
                 }
-    
+
                 return isEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
@@ -135,7 +135,7 @@ public class Equals extends AbstractNativeFunction {
                     if (lhsArray.size() != rhsArray.size()) {
                         return false;
                     }
-                    
+
                     for (int i = 0; i < lhsArray.size(); i++) {
                         if (!isEqual(lhsArray.getBValue(i), rhsArray.getBValue(i))) {
                             return false;
@@ -149,14 +149,15 @@ public class Equals extends AbstractNativeFunction {
             default:
                 return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check if Structs are deeply equals.
-     * @param lhsStruct Left hand side struct value.
-     * @param rhsStruct Rigth hand side struct value.
+     *
+     * @param lhsStruct  Left hand side struct value.
+     * @param rhsStruct  Rigth hand side struct value.
      * @param structType Struct type.
      * @return True if deeply equals, else false.
      */
@@ -167,35 +168,35 @@ public class Equals extends AbstractNativeFunction {
                 return false;
             }
         }
-        
+
         // Checking equality for float fields.
         for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
             if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
                 return false;
             }
         }
-        
+
         // Checking equality for string fields.
         for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
             if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
                 return false;
             }
         }
-        
+
         // Checking equality for boolean fields.
         for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
             if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
                 return false;
             }
         }
-        
+
         // Checking equality for byte fields.
         for (int i = 0; i < structType.getFieldTypeCount()[4]; i++) {
             if (!Arrays.equals(lhsStruct.getBlobField(i), rhsStruct.getBlobField(i))) {
                 return false;
             }
         }
-        
+
         // Checking equality for refs fields.
         for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
             if (!isEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
@@ -204,9 +205,10 @@ public class Equals extends AbstractNativeFunction {
         }
         return true;
     }
-    
+
     /**
      * Check if a map is deeply equals.
+     *
      * @param lhsMap Left hand side map.
      * @param rhsMap Right hand side map.
      * @return Return if maps are deeply equal.
@@ -216,12 +218,12 @@ public class Equals extends AbstractNativeFunction {
         if (lhsMap.size() != rhsMap.size()) {
             return false;
         }
-        
+
         // Check if key set is equal.
         if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
             return false;
         }
-        
+
         List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
                 (Collectors.toList());
         for (int i = 0; i < lhsMap.size(); i++) {
@@ -231,7 +233,7 @@ public class Equals extends AbstractNativeFunction {
         }
         return true;
     }
-    
+
     /**
      * Deep equals function for JSON type values.
      *
@@ -248,41 +250,41 @@ public class Equals extends AbstractNativeFunction {
                 Map.Entry<String, JsonNode> field = lhJsonFieldsIterator.next();
                 lhJsonFields.put(field.getKey(), field.getValue());
             }
-            
+
             Iterator<Map.Entry<String, JsonNode>> rhJsonFieldsIterator = rhsJson.fields();
             HashMap<String, JsonNode> rhJsonFields = new HashMap<>();
             while (rhJsonFieldsIterator.hasNext()) {
                 Map.Entry<String, JsonNode> field = rhJsonFieldsIterator.next();
                 rhJsonFields.put(field.getKey(), field.getValue());
             }
-            
+
             // Size of the fields should be same.
             if (lhJsonFields.size() != rhJsonFields.size()) {
                 return false;
             }
-    
+
             if (lhJsonFields.size() > 0) {
                 for (Map.Entry<String, JsonNode> entry : lhJsonFields.entrySet()) {
                     if (!rhJsonFields.keySet().contains(entry.getKey()) || !isEqual(entry.getValue(),
-                            rhJsonFields.get(entry.getKey()))) {
+                                                                                    rhJsonFields.get(entry.getKey()))) {
                         return false;
                     }
                 }
             }
         }
-        
+
         if (lhsJson.getType() == JsonNode.Type.ARRAY) {
             if (lhsJson.size() != rhsJson.size()) {
                 return false;
             }
-            
+
             for (int i = 0; i < lhsJson.size(); i++) {
                 if (!isEqual(lhsJson.get(i), rhsJson.get(i))) {
                     return false;
                 }
             }
         }
-        
+
         // If it is a value type, then equalize their text values.
         return lhsJson.asText().equals(rhsJson.asText());
     }
