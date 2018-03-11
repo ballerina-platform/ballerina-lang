@@ -21,4 +21,4 @@ class TypeNodeAbstract {
 
 }
 
-export default TypeNode;
+export default TypeNodeAbstract;
