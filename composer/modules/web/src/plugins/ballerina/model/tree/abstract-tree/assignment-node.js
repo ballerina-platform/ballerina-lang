@@ -177,6 +177,7 @@ class AbstractAssignmentNode extends StatementNode {
         const oldValue = this.declaredWithVar;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.declaredWithVar = newValue;
+        this.clearWS();
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,

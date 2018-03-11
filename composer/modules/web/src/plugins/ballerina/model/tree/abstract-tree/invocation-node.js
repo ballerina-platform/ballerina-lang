@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractInvocationNode extends Node {
+class AbstractInvocationNode extends ExpressionNode {
 
 
     setPackageAlias(newValue, silent, title) {
