@@ -2,19 +2,19 @@ import ballerina.runtime;
 
 public struct testError {
     string message;
-    error cause;
+    error[] cause;
     string code;
 }
 
 public struct testDataError {
     string message;
-    error cause;
+    error[] cause;
     string data;
 }
 
 public struct testInputError {
     string message;
-    error cause;
+    error[] cause;
     string input;
 }
 
@@ -88,14 +88,16 @@ function testUncaughtException () {
     _ = testNestedThrow(1);
 }
 
-function testStackTrace () (runtime:CallStackElement[]) {
-    runtime:CallStackElement[] trace;
+function testErrorCallStackFrame () (runtime:CallStackElement, runtime:CallStackElement) {
+    runtime:CallStackElement trace1; 
+    runtime:CallStackElement trace2;
     try {
         testUncaughtException();
     } catch (error e) {
-        trace = runtime:getErrorCallStack(e);
+        trace1 = runtime:getErrorCallStackFrame(e); 
+        trace2 = runtime:getErrorCallStackFrame(e.cause[0]);
     }
-    return trace;
+    return trace1, trace2;
 }
 
 function mockFunction () (string) {

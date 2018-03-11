@@ -841,14 +841,14 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
                     "invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: " +
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: " +
                     "index out of range: \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
@@ -856,7 +856,7 @@ public class XMLNativeFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
                     + "index out of range: \\[-4,10\\].*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
@@ -864,7 +864,7 @@ public class XMLNativeFunctionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message: failed to slice xml: "
+            expectedExceptionsMessageRegExp = ".*error, message: failed to slice xml: "
                     + "index out of range: \\[4,-10\\].*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
@@ -1341,9 +1341,9 @@ public class XMLNativeFunctionTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = "error: error, message: failed to add attribute " +
-            "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*failed to add attribute " +
+                    "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateAttributeWithDifferentUri");
         Assert.assertTrue(returns[0] instanceof BXML);

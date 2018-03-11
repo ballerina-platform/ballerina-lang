@@ -260,10 +260,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        // ignore
-    }
-
     public void visit(BLangThrow throwNode) {
         // ignore
     }

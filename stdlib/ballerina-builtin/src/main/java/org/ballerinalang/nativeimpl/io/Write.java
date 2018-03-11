@@ -19,14 +19,13 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class Write extends AbstractNativeFunction {
+public class Write extends BlockingNativeCallableUnit {
 
     /**
      * Index which holds the byte channel in ballerina.io#writeBytes.
@@ -102,14 +101,14 @@ public class Write extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         int numberOfBytesWritten = 0;
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            byte[] content = getBlobArgument(context, CONTENT_INDEX);
-            int numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-            int offset = (int) getIntArgument(context, START_OFFSET_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            byte[] content = context.getBlobArgument(CONTENT_INDEX);
+            int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
+            int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, offset, numberOfBytes, eventContext);
@@ -120,6 +119,6 @@ public class Write extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(new BInteger(numberOfBytesWritten), errorStruct);
+        context.setReturnValues(new BInteger(numberOfBytesWritten), errorStruct);
     }
 }
