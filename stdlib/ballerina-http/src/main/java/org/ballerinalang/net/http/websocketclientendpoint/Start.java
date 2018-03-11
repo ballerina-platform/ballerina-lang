@@ -19,14 +19,13 @@
 package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.BallerinaWebSocketClientConnectorListener;
@@ -41,8 +40,8 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
-import java.util.HashMap;
 import javax.websocket.Session;
+import java.util.HashMap;
 
 /**
  * Get the ID of the connection.
@@ -57,10 +56,10 @@ import javax.websocket.Session;
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Start extends AbstractNativeFunction {
+public class Start extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
@@ -79,7 +78,7 @@ public class Start extends AbstractNativeFunction {
         HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         handshakeFuture.setHandshakeListener(
                 new WsHandshakeListener(clientEndpointConfig, context, wsService, clientConnectorListener));
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     static class WsHandshakeListener implements HandshakeListener {
@@ -100,15 +99,16 @@ public class Start extends AbstractNativeFunction {
         @Override
         public void onSuccess(Session session) {
             BConnector wsConnection = BLangConnectorSPIUtil
-                    .createBConnector(context.programFile, HttpConstants.HTTP_PACKAGE_PATH,
+                    .createBConnector(context.getProgramFile(), HttpConstants.HTTP_PACKAGE_PATH,
                             WebSocketConstants.CONNECTOR_WEBSOCKET, new BMap<>());
             clientEndpointConfig.addNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET, wsConnection);
             wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            //Check
-            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
+            //TODO: check below line
+//            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
             WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, wsConnection,
                     new HashMap<>());
             clientConnectorListener.setConnectionInfo(connectionInfo);
+            context.setReturnValues(wsConnection);
         }
 
         @Override

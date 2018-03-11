@@ -17,20 +17,16 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.ByteBuffer;
 import javax.websocket.Session;
+import java.nio.ByteBuffer;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -47,26 +43,18 @@ import javax.websocket.Session;
                 @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
-public class Pong extends AbstractNativeAction {
-
-    private static final Logger logger = LoggerFactory.getLogger(Pong.class);
+public class Pong extends BlockingNativeCallableUnit {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
+    public void execute(Context context) {
         try {
-        BConnector wsConnector = (BConnector) getRefArgument(context, 0);
-        Session session = (Session) wsConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
-        byte[] binaryData = getBlobArgument(context, 0);
-        session.getBasicRemote().sendPong(ByteBuffer.wrap(binaryData));
-        connectorFuture.notifySuccess();
+            BStruct wsConnection = (BStruct) context.getRefArgument(0);
+            Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+            byte[] binaryData = context.getBlobArgument(0);
+            session.getBasicRemote().sendPong(ByteBuffer.wrap(binaryData));
         } catch (Throwable e) {
-            connectorFuture.notifyFailure(
-                    new BallerinaConnectorException("Cannot send the message. Error occurred.", e));
+            throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        return connectorFuture;
+        context.setReturnValues();
     }
 }

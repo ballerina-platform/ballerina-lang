@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
@@ -38,6 +39,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.LogManager;
+
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
+import static org.ballerinalang.logging.util.Constants.LOG_TO;
 
 /**
  * {@code HttpConnectionManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -212,6 +216,15 @@ public class HttpConnectionManager {
 //        connectorFuture.setPortBindingEventListener(
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
 //    }
+
+    /**
+     * Gets the access logto value if available.
+     * @return the access logto value from the ConfigRegistry
+     */
+    public String getHttpAccessLoggerConfig() {
+        return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
+    }
+
 
     private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
         int noOfExceptions = startupSyncer.getNoOfFailedConnectors();

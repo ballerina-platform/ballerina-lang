@@ -19,14 +19,13 @@
 package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -53,10 +52,10 @@ import java.util.Map;
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class Register extends AbstractNativeFunction {
+public class Register extends BlockingNativeCallableUnit {
 //TODO: move this method to init once creating a service instance is possible
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         String remoteUrl = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
         String clientServiceName = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
@@ -87,7 +86,7 @@ public class Register extends AbstractNativeFunction {
             clientEndpointConfig.addNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG, wsService);
             clientEndpointConfig.addNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS, clientConnectorConfig);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     Map<String, String> getCustomHeaders(Map<String, Value> headers) {

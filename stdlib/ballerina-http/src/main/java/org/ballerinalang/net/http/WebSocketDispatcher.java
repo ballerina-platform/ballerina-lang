@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -28,6 +27,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.uri.URIUtil;
+import org.ballerinalang.net.ws.WebSocketEmptyCallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -36,11 +36,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import javax.websocket.Session;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -104,8 +104,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsTextFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onTextMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -130,8 +130,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsBinaryFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onBinaryMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -162,8 +162,8 @@ public class WebSocketDispatcher {
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPingMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     private static void dispatchPongMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -182,8 +182,8 @@ public class WebSocketDispatcher {
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPongMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -202,8 +202,8 @@ public class WebSocketDispatcher {
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onCloseResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
@@ -218,8 +218,8 @@ public class WebSocketDispatcher {
         BConnector wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
-        ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,

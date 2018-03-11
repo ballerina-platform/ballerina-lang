@@ -19,9 +19,8 @@
 package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,9 +38,9 @@ import org.ballerinalang.net.http.HttpUtil;
                                         structPackage = "ballerina.net.http"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
-public class GetEntity extends AbstractNativeFunction {
+public class GetEntity extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        return getBValues(HttpUtil.getEntity(context, this, false, true));
+    public void execute(Context context) {
+        context.setReturnValues(HttpUtil.getEntity(context, false, true));
     }
 }

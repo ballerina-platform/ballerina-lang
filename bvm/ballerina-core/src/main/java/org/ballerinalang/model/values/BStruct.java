@@ -17,6 +17,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.VarLock;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
@@ -33,8 +34,8 @@ import java.util.StringJoiner;
  *
  * @since 1.0.0
  */
-public final class BStruct implements BRefType, LockableStructureType {
 
+public final class BStruct implements BRefType, LockableStructureType {
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
@@ -180,7 +181,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockIntField(int index) {
+    public boolean lockIntField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -202,7 +203,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        longLocks[index].lock();
+        return longLocks[index].lock(ctx);
     }
 
     @Override
@@ -211,7 +212,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockFloatField(int index) {
+    public boolean lockFloatField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -233,7 +234,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        doubleLocks[index].lock();
+        return doubleLocks[index].lock(ctx);
     }
 
     @Override
@@ -242,7 +243,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockStringField(int index) {
+    public boolean lockStringField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -263,7 +264,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        stringLocks[index].lock();
+        return stringLocks[index].lock(ctx);
     }
 
     @Override
@@ -272,7 +273,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockBooleanField(int index) {
+    public boolean lockBooleanField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -293,7 +294,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        intLocks[index].lock();
+        return intLocks[index].lock(ctx);
     }
 
     @Override
@@ -302,7 +303,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockBlobField(int index) {
+    public boolean lockBlobField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -323,7 +324,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        byteLocks[index].lock();
+        return byteLocks[index].lock(ctx);
     }
 
     @Override
@@ -332,7 +333,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public void lockRefField(int index) {
+    public boolean lockRefField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -353,7 +354,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 }
             }
         }
-        refLocks[index].lock();
+        return refLocks[index].lock(ctx);
     }
 
     @Override

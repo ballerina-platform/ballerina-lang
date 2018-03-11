@@ -34,13 +34,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class GetResourceAnnotations extends AbstractAnnotationReader {
 
     @Override
-    public BValue[] execute(Context context) {
-        BTypeValue bTypeValue = (BTypeValue) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BTypeValue bTypeValue = (BTypeValue) context.getRefArgument(0);
         if (!(bTypeValue.value() instanceof BServiceType)) {
-            return new BValue[] {null};
+            context.setReturnValues((BValue) null);
         }
         BServiceType serviceType = (BServiceType) bTypeValue.value();
-        String key = serviceType.getName() + DOT + getStringArgument(context, 0);
-        return new BValue[] {getAnnotationValue(context, serviceType.getPackagePath(), key)};
+        String key = serviceType.getName() + DOT + context.getStringArgument(0);
+        context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), key));
     }
 }

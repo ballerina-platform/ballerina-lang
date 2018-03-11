@@ -15,27 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.debugger;
-
-import org.ballerinalang.bre.Context;
+package org.ballerinalang.util.program;
 
 /**
- * Contains util methods for debugger.
- *
- * @since 0.96
+ * This class stores index values related to worker data.
  */
-public class DebuggerUtil {
-    /**
-     * Helper method to init debug context.
-     *
-     * @param context   of the code.
-     * @param debugger  instance for debug purposes.
-     */
-    public static void initDebugContext(Context context, Debugger debugger) {
-        DebugContext debugContext = new DebugContext();
-        debugContext.setCurrentCommand(DebugCommand.RESUME);
-        context.setDebugContext(debugContext);
-        debugger.addDebugContext(debugContext);
-    }
-
+public class WorkerDataIndex {
+    public int[] retRegs;
+    public int longRegCount = 0;
+    public int doubleRegCount = 0;
+    public int stringRegCount = 0;
+    public int intRegCount = 0;
+    public int refRegCount = 0;
+    public int byteRegCount = 0;
 }

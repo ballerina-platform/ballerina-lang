@@ -17,18 +17,14 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 import java.util.Map;
@@ -51,22 +47,14 @@ import java.util.Map;
                 @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
-public class GetUpgradeHeader extends AbstractNativeAction {
-
-    private static final Logger logger = LoggerFactory.getLogger(GetUpgradeHeader.class);
+public class GetUpgradeHeader extends BlockingNativeCallableUnit {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
-        BConnector wsConnector = (BConnector) getRefArgument(context, 0);
-        String key = getStringArgument(context, 0).toLowerCase(Locale.ENGLISH);
+    public void execute(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        String key = context.getStringArgument(0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
-                (Map<String, String>) wsConnector.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
-        connectorFuture.notifyReply(new BString(upgradeHeaders.get(key)));
-        connectorFuture.notifySuccess();
-        return connectorFuture;
+                (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
+        context.setReturnValues(new BString(upgradeHeaders.get(key)));
     }
 }

@@ -19,12 +19,11 @@
 package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,16 +49,16 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_URL_INDEX;
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends AbstractNativeFunction {
+public class GetConnector extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct clientEndPoint = (BStruct) getRefArgument(context, CLIENT_ENDPOINT_INDEX);
+    public void execute(Context context) {
+        BStruct clientEndPoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_INDEX);
         BStruct clientEndpointConfig = (BStruct) clientEndPoint.getRefField(CLIENT_ENDPOINT_CONFIG_INDEX);
         BConnector clientConnector = BLangConnectorSPIUtil.createBConnector(context.getProgramFile(), HTTP_PACKAGE_PATH,
                 CLIENT_CONNECTOR, clientEndpointConfig.getStringField(SERVICE_URL_INDEX), clientEndpointConfig);
         clientConnector.setNativeData(HttpConstants.CLIENT_CONNECTOR, clientEndPoint
                 .getNativeData(HttpConstants.CLIENT_CONNECTOR));
-        return new BValue[]{clientConnector};
+        context.setReturnValues(clientConnector);
     }
 }

@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -56,10 +57,10 @@ import java.util.List;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends AbstractHttpNativeFunction {
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
@@ -76,10 +77,10 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
 
-            return VOID_RETURN;
+            context.setReturnValues();
         } catch (Throwable throwable) {
-            BStruct errorStruct = HttpUtil.getServerConnectorError(context, throwable);
-            return new BValue[]{errorStruct};
+            BStruct errorStruct = HttpUtil.getHttpConnectorError(context, throwable);
+            context.setReturnValues(errorStruct);
         }
 
     }

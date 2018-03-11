@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,13 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.connector.impl;
+package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.bre.bvm.CallableUnitFutureListener;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -30,17 +26,18 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * {@code BClientConnectorFutureListener} Listener to listen to client side events and continue the execution.
+ * {@code BLangCallableUnitFutureListener} Listener to listen to events sent from
+ * callable units (functions and actions) and continue the execution.
  *
- * @since 0.94
+ * @since 0.964
  */
-public class BClientConnectorFutureListener implements ConnectorFutureListener {
+public class BLangCallableUnitFutureListener implements CallableUnitFutureListener {
 
     private Context context;
     private boolean nonBlocking = false;
     private volatile Semaphore executionWaitSem;
 
-    public BClientConnectorFutureListener(Context context, boolean nonBlocking) {
+    public BLangCallableUnitFutureListener(Context context, boolean nonBlocking) {
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
@@ -54,16 +51,16 @@ public class BClientConnectorFutureListener implements ConnectorFutureListener {
     @Override
     public void notifyReply(BValue... response) {
         for (int i = 0; i < response.length; i++) {
-            context.getControlStack().currentFrame.returnValues[i] = response[i];
+            //context.getControlStack().currentFrame.returnValues[i] = response[i];
         }
         done();
     }
 
     @Override
-    public void notifyFailure(BallerinaConnectorException ex) {
-        BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
-                ex.getMessage());
-        context.setError(err);
+    public void notifyFailure(Exception ex) {
+//        BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
+//                ex.getMessage());
+//        context.setError(err);
         done();
     }
 

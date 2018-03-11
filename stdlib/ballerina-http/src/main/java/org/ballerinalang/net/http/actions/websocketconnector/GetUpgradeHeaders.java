@@ -17,19 +17,15 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -50,24 +46,16 @@ import java.util.Map;
                 @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
-public class GetUpgradeHeaders extends AbstractNativeAction {
-
-    private static final Logger logger = LoggerFactory.getLogger(GetUpgradeHeaders.class);
+public class GetUpgradeHeaders extends BlockingNativeCallableUnit {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
-        BConnector wsConnector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         Map<String, String> upgradeHeaders =
-                (Map<String, String>) wsConnector.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
+                (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
         BMap<String, BString> bUpgradeHeaders = new BMap<>();
         upgradeHeaders.entrySet().forEach(
                 upgradeHeader -> bUpgradeHeaders.put(upgradeHeader.getKey(), new BString(upgradeHeader.getValue())));
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
-        connectorFuture.notifyReply(bUpgradeHeaders);
-        connectorFuture.notifySuccess();
-        return connectorFuture;
+        context.setReturnValues(bUpgradeHeaders);
     }
 }

@@ -42,9 +42,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class Stop extends AbstractHttpNativeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         getServerConnector(serverEndpoint).stop();
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

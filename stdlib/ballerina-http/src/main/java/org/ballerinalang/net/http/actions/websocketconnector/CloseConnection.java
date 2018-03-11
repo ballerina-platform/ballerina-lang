@@ -17,21 +17,18 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import java.io.IOException;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -49,29 +46,21 @@ import javax.websocket.Session;
                 @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
-public class CloseConnection extends AbstractNativeAction {
-
-    private static final Logger logger = LoggerFactory.getLogger(CloseConnection.class);
+public class CloseConnection extends BlockingNativeCallableUnit {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
-        BConnector wsConnector = (BConnector) getRefArgument(context, 0);
-        int statusCode = getIntArgument(context, 0);
-        String reason = getStringArgument(context, 0);
-        Session session = (Session) wsConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+    public void execute(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        int statusCode = (int) context.getIntArgument(0);
+        String reason = context.getStringArgument(0);
+        Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
-            connectorFuture.notifySuccess();
-        } catch (Throwable e) {
-            connectorFuture.notifyFailure(
-                    new BallerinaConnectorException("Could not close the connection: " + e.getMessage()));
+        } catch (IOException e) {
+            throw new BallerinaException("Could not close the connection: " + e.getMessage());
         } finally {
             WebSocketConnectionManager.getInstance().removeConnection(session.getId());
         }
-        return connectorFuture;
+        context.setReturnValues();
     }
 }

@@ -54,7 +54,7 @@ import java.util.logging.LogManager;
 public class Start extends AbstractHttpNativeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         if (isHTTPTraceLoggerEnabled()) {
@@ -71,7 +71,7 @@ public class Start extends AbstractHttpNativeFunction {
         serverConnectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
 
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     public boolean isHTTPTraceLoggerEnabled() {

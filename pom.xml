@@ -760,8 +760,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -797,8 +796,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
@@ -806,16 +804,16 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <module>tests/ballerina-test</module>
+                <!--<module>tests/ballerina-test</module>-->
                 <module>tests/ballerina-test-compiler-plugins</module>
 
-                <module>misc/docerina</module>
+                <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
 
                 <module>distribution/zip/ballerina</module>
 
-                <module>tests/ballerina-test-integration</module>
+                <!--<module>tests/ballerina-test-integration</module>-->
             </modules>
         </profile>
         <profile>
@@ -828,8 +826,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>

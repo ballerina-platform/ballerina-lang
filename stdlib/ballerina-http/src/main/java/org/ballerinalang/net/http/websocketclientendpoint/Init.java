@@ -19,9 +19,8 @@
 package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,11 +40,10 @@ import org.ballerinalang.natives.annotations.Receiver;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class Init extends AbstractNativeFunction {
+public class Init extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-
-        return VOID_RETURN;
+    public void execute(Context context) {
+        context.setReturnValues();
     }
 }

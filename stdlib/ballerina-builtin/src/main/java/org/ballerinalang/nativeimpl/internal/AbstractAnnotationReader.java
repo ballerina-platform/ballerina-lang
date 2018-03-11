@@ -18,13 +18,13 @@ package org.ballerinalang.nativeimpl.internal;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -33,14 +33,14 @@ import org.ballerinalang.util.codegen.StructInfo;
  *
  * @since 0.965.0
  */
-abstract class AbstractAnnotationReader extends AbstractNativeFunction {
+abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
 
     private static final String PKG_INTERNAL = "ballerina.internal";
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 
     BValue getAnnotationValue(Context context, String pkgPath, String key) {
-        final BMap bMap = ConnectorSPIModelHelper.getAnnotationVariable(pkgPath, context.programFile);
+        final BMap bMap = ConnectorSPIModelHelper.getAnnotationVariable(pkgPath, context.getProgramFile());
         return createAnnotationStructArray(context, bMap.get(key));
     }
 

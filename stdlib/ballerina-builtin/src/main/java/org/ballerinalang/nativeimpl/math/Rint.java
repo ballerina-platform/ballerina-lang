@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.math;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,10 +37,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Rint extends AbstractNativeFunction {
+public class Rint extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        double value = getFloatArgument(ctx, 0);
-        return getBValues(new BFloat(Math.rint(value)));
+    public void execute(Context ctx) {
+        double value = ctx.getFloatArgument(0);
+        ctx.setReturnValues(new BFloat(Math.rint(value)));
     }
 }

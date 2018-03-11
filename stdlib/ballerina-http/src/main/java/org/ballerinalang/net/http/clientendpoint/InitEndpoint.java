@@ -24,8 +24,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -69,7 +67,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         String url = clientEndpointConfig.getStringField(SERVICE_URI);
@@ -115,10 +113,10 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
         clientEndpoint.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
 
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        ballerinaFuture.notifySuccess();
+//        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+//        ballerinaFuture.notifySuccess();
 
-        return new BValue[]{null};
+        context.setReturnValues();
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct

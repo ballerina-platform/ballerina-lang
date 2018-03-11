@@ -17,18 +17,13 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -47,23 +42,15 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
-public class GetQueryParams extends AbstractNativeAction {
-
-    private static final Logger logger = LoggerFactory.getLogger(GetQueryParams.class);
+public class GetQueryParams extends BlockingNativeCallableUnit {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
+    public void execute(Context context) {
         try {
-            connectorFuture.notifyReply(WebSocketUtil.getQueryParams(context, this));
-            connectorFuture.notifySuccess();
+            context.setReturnValues(org.ballerinalang.net.ws.WebSocketUtil.getQueryParams(context));
         } catch (Throwable e) {
-            connectorFuture.notifyFailure(new BallerinaConnectorException(
-                    "Error occurred while retrieving query parameters from Connection: " + e.getMessage()));
+            throw new BallerinaException(
+                    "Error occurred while retrieving query parameters from Connection: " + e.getMessage());
         }
-        return connectorFuture;
     }
 }

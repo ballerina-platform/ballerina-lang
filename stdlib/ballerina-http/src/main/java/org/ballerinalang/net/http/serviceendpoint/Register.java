@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
@@ -49,7 +50,7 @@ import org.ballerinalang.net.http.WebSocketService;
 public class Register extends AbstractHttpNativeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
         Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
 
@@ -63,6 +64,6 @@ public class Register extends AbstractHttpNativeFunction {
             getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
         }
 
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

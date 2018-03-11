@@ -19,12 +19,11 @@
 package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -46,11 +45,11 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetQueryParams extends AbstractNativeFunction {
+public class GetQueryParams extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct requestStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct requestStruct  = ((BStruct) context.getRefArgument(0));
             HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
 
@@ -58,9 +57,9 @@ public class GetQueryParams extends AbstractNativeFunction {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
                 BMap<String, BString> params = new BMap<>();
                 URIUtil.populateQueryParamMap(queryString, params);
-                return getBValues(params);
+                context.setReturnValues(params);
             } else {
-                return getBValues(new BMap<>());
+                context.setReturnValues(new BMap<>());
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());

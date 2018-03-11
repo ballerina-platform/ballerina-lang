@@ -17,18 +17,17 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.WorkerCounter;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,172 +35,57 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class Context {
+public interface Context {
 
-    //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
-    //TODO remove below after jms and ftp full migration.
-    private CarbonMessage cMsg;
-    private BServerConnectorFuture connectorFuture;
-    protected Map<String, Object> properties = new HashMap<>();
-    private ServiceInfo serviceInfo;
-    private LocalTransactionInfo localTransactionInfo;
-    private DebugContext debugContext;
-
-    private int startIP;
-    private BStruct unhandledError;
-
-    protected WorkerCounter workerCounter;
-
-    public ProgramFile programFile;
-    // TODO : Temporary solution to make non-blocking working.
-    public NonBlockingContext nonBlockingContext;
-    // TODO : Fix this. Added this for fork-join. Issue #3718.
-    public boolean blockingInvocation;
-
-    @Deprecated
-    public Context() {
-        this.controlStack = new ControlStack();
-    }
-
-    public Context(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.controlStack = new ControlStack();
-        this.workerCounter = new WorkerCounter();
-    }
-
-    public DebugContext getDebugContext() {
-        return debugContext;
-    }
+    WorkerExecutionContext getParentWorkerExecutionContext();
     
-    public void setDebugContext(DebugContext debugContext) {
-        this.debugContext = debugContext;
-    }
+    CallableUnitInfo getCallableUnitInfo();
 
-    public ControlStack getControlStack() {
-        return controlStack;
-    }
+    WorkerData getLocalWorkerData();
 
-    public CarbonMessage getCarbonMessage() {
-        return this.cMsg;
-    }
+    DebugContext getDebugContext();
 
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-    }
+    void setDebugContext(DebugContext debugContext);
 
-    public Object getProperty(String key) {
-        return this.properties.get(key);
-    }
+    Object getProperty(String key);
 
-    public Map<String, Object> getProperties() {
-        return this.properties;
-    }
+    Map<String, Object> getProperties();
 
-    public void setProperty(String key, Object value) {
-        this.properties.put(key, value);
-    }
+    void setProperty(String key, Object value);
 
-    public BServerConnectorFuture getConnectorFuture() {
-        return connectorFuture;
-    }
+    ServiceInfo getServiceInfo();
 
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        this.connectorFuture = connectorFuture;
-    }
+    void setServiceInfo(ServiceInfo serviceInfo);
 
-    public ServiceInfo getServiceInfo() {
-        return this.serviceInfo;
-    }
+    boolean isInTransaction();
 
-    public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.serviceInfo = serviceInfo;
-    }
+    BStruct getError();
 
-    public boolean isInTransaction() {
-        return this.localTransactionInfo != null;
-    }
+    void setError(BStruct error);
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        this.localTransactionInfo = localTransactionInfo;
-    }
+    ProgramFile getProgramFile();
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
-        return this.localTransactionInfo;
-    }
+    LocalTransactionInfo getLocalTransactionInfo();
 
-    public BStruct getError() {
-        if (controlStack.currentFrame != null) {
-            return controlStack.currentFrame.getErrorThrown();
-        }
-        return this.unhandledError;
-    }
+    long getIntArgument(int index);
 
-    public void setError(BStruct error) {
-        if (controlStack.currentFrame != null) {
-            controlStack.currentFrame.setErrorThrown(error);
-        } else {
-            this.unhandledError = error;
-        }
-    }
+    String getStringArgument(int index);
 
-    public int getStartIP() {
-        return startIP;
-    }
+    String getNullableStringArgument(int index);
 
-    public void setStartIP(int startIP) {
-        this.startIP = startIP;
-    }
+    double getFloatArgument(int index);
 
-    public ProgramFile getProgramFile() {
-        return programFile;
-    }
+    boolean getBooleanArgument(int index);
 
-    /**
-     * start tracking current worker.
-     */
-    public void startTrackWorker() {
-        workerCounter.countUp();
-    }
+    byte[] getBlobArgument(int index);
 
-    /**
-     * end tracking current worker.
-     */
-    public void endTrackWorker() {
-        workerCounter.countDown();
-    }
+    BValue getRefArgument(int index);
 
-    /**
-     * Wait until all spawned workers are completed.
-     */
-    public void await() {
-        workerCounter.await();
-    }
+    BValue getNullableRefArgument(int index);
 
-    /**
-     * Wait until all spawned worker are completed within the given waiting time.
-     *
-     * @param timeout time out duration in seconds.
-     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
-     */
-    public boolean await(int timeout) {
-        return workerCounter.await(timeout);
-    }
+    void setReturnValues(BValue... values);
 
-    /**
-     * Mark this context is associated with a resource.
-     */
-    public void setAsResourceContext() {
-        this.workerCounter.setResourceContext(this);
-    }
-
-    public void resetWorkerContextFlow() {
-        this.workerCounter = new WorkerCounter();
-    }
-
-    public WorkerCounter getWorkerCounter() {
-        return workerCounter;
-    }
+    BValue[] getReturnValues();
 
     /**
      * Data holder for Non-Blocking Action invocation.

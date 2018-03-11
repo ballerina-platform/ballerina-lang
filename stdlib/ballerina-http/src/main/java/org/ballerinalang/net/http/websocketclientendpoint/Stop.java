@@ -19,14 +19,13 @@
 package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 /**
- * Get the ID of the connection.
+ * Check whether the connection is secure connection or not.
  *
  * @since 0.966
  */
@@ -38,10 +37,10 @@ import org.ballerinalang.natives.annotations.Receiver;
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Stop extends AbstractNativeFunction {
+public class Stop extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        return VOID_RETURN;
+    public void execute(Context context) {
+        context.setReturnValues();
     }
 }

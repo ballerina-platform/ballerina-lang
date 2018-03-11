@@ -1,7 +1,7 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -12,7 +12,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
  *
  * @since 0.966
  */
-public abstract class AbstractHttpNativeFunction extends AbstractNativeFunction {
+public abstract class AbstractHttpNativeFunction extends BlockingNativeCallableUnit {
 
     protected HTTPServicesRegistry getHttpServicesRegistry(Struct serviceEndpoint) {
         return (HTTPServicesRegistry) serviceEndpoint.getNativeData(HttpConstants.HTTP_SERVICE_REGISTRY);

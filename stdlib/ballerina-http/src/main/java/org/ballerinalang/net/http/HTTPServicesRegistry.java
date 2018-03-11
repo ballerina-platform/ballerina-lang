@@ -24,10 +24,12 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -83,6 +85,15 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
+        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
+        if (accessLogConfig != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
+            }
+        }
+
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
 
@@ -91,6 +102,9 @@ public class HTTPServicesRegistry {
         service.setAllAllowMethods(populateListFromValueArray(allowedMethods));
 
         String basePath = discoverBasePathFrom(service, annotation);
+        //TODO check with new method
+//        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
+
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.

@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -180,23 +179,20 @@ public class NotSoBasicWorkerTest {
 //    @Test
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
-        Context ctx = new Context(result.getProgFile());
-        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0], ctx);
+        BValue[] vals = BRunUtil.invoke(result, "testForkJoin", new BValue[0]);
         Assert.assertEquals(vals.length, 2);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
         Assert.assertTrue(((BInteger) vals[1]).intValue() > 0);
-        ctx.await(20);
+        //ctx.await(20);
         Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
     }
 
     @Test
     public void testVoidFunctionWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
-        Context ctx = new Context(result.getProgFile());
-        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0], ctx);
+        BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 0);
-        ctx.await(20);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
+        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
+        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 5);
     }
 }

@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
@@ -37,8 +36,8 @@ import java.util.List;
  * Utility class for websockets.
  */
 public abstract class WebSocketUtil {
-    public static BMap getQueryParams(Context context, AbstractNativeAction abstractNativeFunction) {
-        BStruct wsConnection = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+    public static BMap getQueryParams(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         Object queryParams = wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
         if (queryParams != null && queryParams instanceof BMap) {
             return (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);

@@ -91,7 +91,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
-        this.pkgBuilder.startEndpointDecarationScope();
     }
 
     /**
@@ -230,7 +229,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.startBlock();
-        this.pkgBuilder.startEndpointDecarationScope();
     }
 
     /**
