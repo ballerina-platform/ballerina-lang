@@ -484,6 +484,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 checkFunctionInvocationExpr(iExpr, symTable.streamType);
                 break;
+            case TypeTags.STREAMLET:
+                checkFunctionInvocationExpr(iExpr, symTable.streamletType);
+                break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE_COLLECTION:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
@@ -918,7 +921,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamlet streamletNode){
-
+        /* ignore */
     }
 
     // Private methods
@@ -1074,6 +1077,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
             case TypeTags.TABLE:
             case TypeTags.TUPLE_COLLECTION:
                 return IterableKind.getFromString(iExpr.name.value) != IterableKind.UNDEFINED;

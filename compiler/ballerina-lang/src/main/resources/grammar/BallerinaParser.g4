@@ -200,6 +200,7 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
+    |   STREAMLET
     |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;

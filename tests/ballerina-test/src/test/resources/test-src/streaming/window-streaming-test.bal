@@ -44,6 +44,7 @@ function testWindowQuery () (StatusCount []) {
     teacherStream.publish(t3);
 
     runtime:sleepCurrentWorker(1000);
+    pStreamlet.stop();
     return globalStatusCountArray;
 }
 
