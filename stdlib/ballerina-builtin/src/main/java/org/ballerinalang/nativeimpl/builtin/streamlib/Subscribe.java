@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStream;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -38,14 +37,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "func", type = TypeKind.ANY)
         },
         isPublic = true)
-public class Subscribe extends AbstractNativeFunction {
+public class Subscribe extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStream stream = (BStream) getRefArgument(context, 0);
-        BFunctionPointer functionPointer = (BFunctionPointer) getRefArgument(context, 1);
+    public void execute(Context context) {
+        BStream stream = (BStream) context.getRefArgument(0);
+        BFunctionPointer functionPointer = (BFunctionPointer) context.getRefArgument(1);
         stream.subscribe(context, functionPointer);
-        return VOID_RETURN;
+        context.getReturnValues();
     }
-
 }

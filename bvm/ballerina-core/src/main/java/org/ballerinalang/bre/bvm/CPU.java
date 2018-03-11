@@ -53,7 +53,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStreamlet;
-import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -83,8 +82,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -97,7 +94,6 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
@@ -640,14 +636,14 @@ public class CPU {
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];
                     cpIndex = operands[1];
-                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    StringCPEntry name = (StringCPEntry) constPool[operands[2]];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
                     BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                     StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
                     sf.refRegs[i] = stream;
                     break;
                 case InstructionCodes.NEWSTREAMLET:
-                    createNewStreamlet(operands, sf);
+                    createNewStreamlet(ctx, operands, sf);
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -2608,10 +2604,10 @@ public class CPU {
         sf.refRegs[i] = bStruct;
     }
 
-    private void createNewStreamlet(int[] operands, StackFrame sf) {
+    private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int cpIndex = operands[0];
         int i = operands[1];
-        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) constPool[cpIndex];
+        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
         StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
         BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
         streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
