@@ -21,9 +21,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -36,6 +34,8 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,15 +110,20 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             } else {
                 if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                     String[] vals = new String[2];
-                    attachmentNode.getAttributes().stream().forEach(attributeNode -> {
-                        IdentifierNode name = attributeNode.getName();
-                        if (PACKAGE.equals(name.getValue())) {
-                            vals[0] = attributeNode.getValue().getValue().toString();
-                        } else if (FUNCTION.equals(name.getValue())) {
-                            vals[1] = attributeNode.getValue().getValue().toString();
-                        }
-                    });
-                    suite.addMockFunction(vals[0] + "#" + vals[1], functionName);
+                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                        List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral)
+                                attachmentNode.getExpression()).getKeyValuePairs();
+                        attributes.forEach(attributeNode -> {
+                            String name = attributeNode.getKey().toString();
+                            String value = attributeNode.getValue().toString();
+                            if (PACKAGE.equals(name)) {
+                                vals[0] = value;
+                            } else if (FUNCTION.equals(name)) {
+                                vals[1] = value;
+                            }
+                        });
+                        suite.addMockFunction(vals[0] + "#" + vals[1], functionName);
+                    }
                 } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
                     Test test = new Test();
                     test.setTestName(functionName);
@@ -127,58 +132,67 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     List<String> groups = registry.getGroups();
                     boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
-                    attachmentNode.getAttributes().forEach(attributeNode -> {
-                        String name = attributeNode.getName().getValue();
-                        // Check if enable property is present in the annotation
-                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
-                                .getValue().toString())) {
-                            // If enable is false, disable the test, no further processing is needed
-                            shouldSkip.set(true);
-                            return;
-                        }
-                        // Check whether user has provided a group list
-                        if (groups != null && !groups.isEmpty()) {
-                            // check if groups attribute is present in the annotation
-                            if (GROUP_ANNOTATION_NAME.equals(name)) {
-                                boolean isGroupPresent = isGroupAvailable(groups, attributeNode.getValue()
-                                        .getValueArray().stream().map
-                                                (AnnotationAttachmentAttributeValueNode::getValue).map(v -> v
-                                                .toString()).collect(Collectors.toList()));
-                                if (shouldIncludeGroups) {
-                                    // include only if the test belong to one of these groups
-                                    if (!isGroupPresent) {
-                                        // skip the test if this group is not defined in this test
-                                        shouldSkip.set(true);
-                                        return;
-                                    }
-                                } else {
-                                    // exclude only if the test belong to one of these groups
-                                    if (isGroupPresent) {
-                                        // skip if this test belongs to one of the excluded groups
-                                        shouldSkip.set(true);
-                                        return;
+                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                        List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral)
+                                attachmentNode.getExpression()).getKeyValuePairs();
+
+                        attributes.forEach(attributeNode -> {
+                            String name = attributeNode.getKey().toString();
+                            // Check if enable property is present in the annotation
+                            if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
+                                    .toString())) {
+                                // If enable is false, disable the test, no further processing is needed
+                                shouldSkip.set(true);
+                                return;
+                            }
+                            // Check whether user has provided a group list
+                            if (groups != null && !groups.isEmpty()) {
+                                // check if groups attribute is present in the annotation
+                                if (GROUP_ANNOTATION_NAME.equals(name)) {
+                                    if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                        BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                        boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map
+                                                (node -> node.toString()).collect(Collectors.toList()));
+                                        if (shouldIncludeGroups) {
+                                            // include only if the test belong to one of these groups
+                                            if (!isGroupPresent) {
+                                                // skip the test if this group is not defined in this test
+                                                shouldSkip.set(true);
+                                                return;
+                                            }
+                                        } else {
+                                            // exclude only if the test belong to one of these groups
+                                            if (isGroupPresent) {
+                                                // skip if this test belongs to one of the excluded groups
+                                                shouldSkip.set(true);
+                                                return;
+                                            }
+                                        }
+                                        groupsFound.set(true);
                                     }
                                 }
-                                groupsFound.set(true);
                             }
-                        }
-                        if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
-                            test.setDataProvider(attributeNode.getValue().getValue().toString());
-                        }
+                            if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
+                                test.setDataProvider(attributeNode.getValue().toString());
+                            }
 
-                        if (BEFORE_FUNCTION.equals(name)) {
-                            test.setBeforeTestFunction(attributeNode.getValue().getValue().toString());
-                        }
+                            if (BEFORE_FUNCTION.equals(name)) {
+                                test.setBeforeTestFunction(attributeNode.getValue().toString());
+                            }
 
-                        if (AFTER_FUNCTION.equals(name)) {
-                            test.setAfterTestFunction(attributeNode.getValue().getValue().toString());
-                        }
+                            if (AFTER_FUNCTION.equals(name)) {
+                                test.setAfterTestFunction(attributeNode.getValue().toString());
+                            }
 
-                        if (DEPENDS_ON_FUNCTIONS.equals(name)) {
-                            attributeNode.getValue().getValueArray().stream().map(node -> node.getValue().toString())
-                                    .forEach(test::addDependsOnTestFunction);
-                        }
-                    });
+                            if (DEPENDS_ON_FUNCTIONS.equals(name)) {
+                                if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                    BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                    values.exprs.stream().map(node -> node.toString()).forEach
+                                            (test::addDependsOnTestFunction);
+                                }
+                            }
+                        });
+                    }
                     if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
                         // if the user has asked to run only a specific list of groups and this test doesn't have
                         // that group, we should skip the test
