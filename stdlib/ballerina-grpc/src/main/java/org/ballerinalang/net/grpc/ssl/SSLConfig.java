@@ -40,7 +40,6 @@ public class SSLConfig {
     private String trustStorePass;
     private String sslProtocol = "TLS";
     private String tlsStoreType = "PKCS12";
-    
     private String[] cipherSuites;
     private String[] enableProtocols;
     private boolean enableSessionCreation;
@@ -48,10 +47,10 @@ public class SSLConfig {
     private boolean wantClientAuth;
     private String[] serverNames;
     private String[] sniMatchers;
-    
+
     public SSLConfig() {
     }
-    
+
     public SSLConfig(File keyStore, String keyStorePass) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using key store" + keyStore);

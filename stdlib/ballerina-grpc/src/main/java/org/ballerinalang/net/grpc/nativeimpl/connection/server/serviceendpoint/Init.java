@@ -21,7 +21,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -69,8 +68,7 @@ public class Init extends AbstractGrpcNativeFunction {
             return new BValue[] {null};
         } catch (Throwable throwable) {
             // TODO: 3/10/18 write util to generate error struct
-            BStruct errorStruct = null;
-            return new BValue[] {errorStruct};
+            return new BValue[] {null};
         }
     }
 }
