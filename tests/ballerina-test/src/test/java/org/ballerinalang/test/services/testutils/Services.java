@@ -19,15 +19,20 @@
 package org.ballerinalang.test.services.testutils;
 
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHttpServerConnector;
+import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -40,12 +45,16 @@ import java.util.Map;
  */
 public class Services {
 
-    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
-        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
+                                              HTTPTestRequest request) {
+//        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+//                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
+        ProgramFile programFile = compileResult.getProgFile();
+        BStruct connectorEndpoint = BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, endpointName);
+        HTTPServicesRegistry httpServicesRegistry = (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
         TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
         request.setFutureListener(futureListener);
-        HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
+        HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         if (resource == null) {
             return futureListener.getResponseMsg();
         }
@@ -58,6 +67,10 @@ public class Services {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
+
+//        CallableUnitCallback callback = new HttpCallableUnitCallback(request);
+//        Executor.submit(resource.getBalResource(), callback, properties, signatureParams);
+
         futureListener.setRequestStruct(signatureParams[0]);
         future.setConnectorFutureListener(futureListener);
         futureListener.sync();
