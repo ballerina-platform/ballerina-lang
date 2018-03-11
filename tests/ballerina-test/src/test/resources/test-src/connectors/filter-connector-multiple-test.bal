@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 function testArgumentPassing (string var1) (int) {
     TestConnector testConnector = create TestConnector(var1) with FilterConnector1(500), FilterConnector2(5.34);

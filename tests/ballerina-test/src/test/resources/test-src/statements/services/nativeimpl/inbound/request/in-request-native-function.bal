@@ -1,6 +1,6 @@
-import ballerina.net.http;
-import ballerina.io;
-import ballerina.mime;
+import ballerina/net.http;
+import ballerina/io;
+import ballerina/mime;
 
 function testGetContentLength (http:InRequest req) (int) {
     int length = req.getContentLength();

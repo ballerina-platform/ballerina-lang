@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/runtime;
 
 function forkJoinWithTimeoutTest1() (map) {
     map m = {};

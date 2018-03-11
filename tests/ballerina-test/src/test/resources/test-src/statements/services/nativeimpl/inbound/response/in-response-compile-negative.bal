@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 function testResponseSetStatusCode (http:InResponse res, string statusCode) (http:InResponse) {
     res.statusCode = statusCode;

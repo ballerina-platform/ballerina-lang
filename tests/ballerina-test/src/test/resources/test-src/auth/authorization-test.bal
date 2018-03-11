@@ -1,7 +1,7 @@
-import ballerina.auth.authz;
-import ballerina.auth.authz.permissionstore;
-import ballerina.caching;
-import ballerina.auth.utils;
+import ballerina/auth.authz;
+import ballerina/auth.authz.permissionstore;
+import ballerina/caching;
+import ballerina/auth.utils;
 
 function testAuthzCheckerCreationWithoutCache () (authz:AuthzChecker,
                                                   permissionstore:PermissionStore,

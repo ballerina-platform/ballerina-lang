@@ -1,4 +1,4 @@
-import ballerina.data.sql;
+import ballerina/data.sql;
 
 function testSelectData () (string firstName) {
     endpoint<sql:ClientConnector> testDB {}

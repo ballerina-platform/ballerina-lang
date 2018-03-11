@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.runtime;
+import ballerina/io;
+import ballerina/runtime;
 function workerDeclTest() {
    worker wx {
      int a = 20;

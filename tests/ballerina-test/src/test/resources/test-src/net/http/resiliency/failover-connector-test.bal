@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina.net.http;
-import ballerina.net.http.resiliency;
+import ballerina/net.http;
+import ballerina/net.http.resiliency;
 
 http:Retry retryConfiguration = {count:0};
 

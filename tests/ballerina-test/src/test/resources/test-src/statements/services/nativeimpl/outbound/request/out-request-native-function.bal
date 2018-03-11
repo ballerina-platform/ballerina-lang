@@ -1,7 +1,7 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
-import ballerina.mime;
-import ballerina.file;
+import ballerina/mime;
+import ballerina/file;
 
 function testAddHeader (string key, string value) (http:OutRequest) {
     http:OutRequest req = {};

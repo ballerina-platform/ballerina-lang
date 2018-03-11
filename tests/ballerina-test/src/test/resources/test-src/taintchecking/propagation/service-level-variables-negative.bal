@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 string globalLevelVariable = "";
 service<http> sample {

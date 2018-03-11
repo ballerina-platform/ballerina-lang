@@ -1,6 +1,6 @@
-import ballerina.auth.basic;
-import ballerina.net.http;
-import ballerina.mime;
+import ballerina/auth.basic;
+import ballerina/net.http;
+import ballerina/mime;
 
 function testCanHandleHttpBasicAuthWithoutHeader () (boolean) {
     basic:HttpBasicAuthnHandler handler = {};

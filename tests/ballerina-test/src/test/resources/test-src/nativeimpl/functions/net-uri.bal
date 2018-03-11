@@ -1,4 +1,4 @@
-import ballerina.net.uri;
+import ballerina/net.uri;
 
 function testEncode (string url) (string, error) {
     var encodedUrl, err = uri:encode(url, "UTF-8");
