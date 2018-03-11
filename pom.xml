@@ -673,34 +673,42 @@
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-core</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-compiler</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-annotations</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.orbit.com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${disruptor.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
                 <version>${metrics.version}</version>
+            </dependency>
+            <!-- Compile time dependencies -->
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <scope>compile</scope>
+                <version>${mvel2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-annotations</artifactId>
+                <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
@@ -806,6 +814,7 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -842,6 +851,7 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -872,6 +882,7 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -1325,10 +1336,10 @@
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
 
-        <siddhi.version>4.1.11</siddhi.version>
-        <metrics.version>3.1.0</metrics.version>
+        <mvel2.version>2.2.1.Final</mvel2.version>
         <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <log4j.version>1.2.17.wso2v1</log4j.version>
+        <guava.version>19.0</guava.version>
+        <metrics.version>3.1.0</metrics.version>
     </properties>
 
 </project>
