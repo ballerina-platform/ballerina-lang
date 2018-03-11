@@ -60,6 +60,11 @@ public interface HttpResponseFuture {
     OperationStatus getStatus();
 
     /**
+     * Reset the states associated with the future.
+     */
+    void resetStatus();
+
+    /**
      * Makes the async operation sync.
      *
      * @return Status future

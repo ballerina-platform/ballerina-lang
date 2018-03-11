@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +98,18 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                         }
                     }));
         });
+    }
+
+    @Override
+    public void onPushPromise(Http2PushPromise pushPromise) {
+        inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
+                "Sending a PUSH_PROMISE is not supported for HTTP/1.x connections"));
+    }
+
+    @Override
+    public void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
+        inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
+                "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }
 
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
