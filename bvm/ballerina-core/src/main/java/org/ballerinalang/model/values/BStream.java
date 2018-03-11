@@ -32,7 +32,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.util.BrokerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
@@ -70,7 +69,7 @@ public class BStream implements BRefType<Object> {
         }
         this.constraintType = (BStructType) ((BStreamType) type).getConstrainedType();
         this.topicName = TOPIC_NAME_PREFIX + ((BStreamType) type).getConstrainedType().getName().toUpperCase() + "_"
-                         + name;
+                + name;
         this.streamId = name;
     }
 
@@ -265,7 +264,7 @@ public class BStream implements BRefType<Object> {
                         break;
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +
-                                                     "float, boolean and string");
+                                "float, boolean and string");
 
                 }
             }
