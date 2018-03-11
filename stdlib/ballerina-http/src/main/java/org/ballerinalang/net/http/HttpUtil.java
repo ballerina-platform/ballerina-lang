@@ -45,7 +45,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
-import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;
@@ -54,7 +53,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
@@ -171,25 +169,20 @@ public class HttpUtil {
      */
     public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
                                      boolean isEntityBodyRequired) {
-        try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
-            BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-            boolean isByteChannelAlreadySet = false;
+        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+        BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
+        boolean isByteChannelAlreadySet = false;
 
-            if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-                isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-            }
-            if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
-                populateEntityBody(context, httpMessageStruct, entity, isRequest);
-            }
-            if (entity == null) {
-                entity = createNewEntity(context, httpMessageStruct);
-            }
-            return abstractNativeFunction.getBValues(entity);
-        } catch (Throwable throwable) {
-            return abstractNativeFunction.getBValues(MimeUtil.createEntityError(context,
-                    "Error occurred during entity construction: " + throwable.getMessage()));
+        if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+            isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
+        if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
+            populateEntityBody(context, httpMessageStruct, entity, isRequest);
+        }
+        if (entity == null) {
+            entity = createNewEntity(context, httpMessageStruct);
+        }
+        return abstractNativeFunction.getBValues(entity);
     }
 
     /**
@@ -200,8 +193,8 @@ public class HttpUtil {
      * @param entity            Represent an entity
      * @param isRequest         boolean representing whether the message is a request or a response
      */
-    static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
-                                   boolean isRequest) {
+    protected static void populateEntityBody(Context context, BStruct httpMessageStruct, BStruct entity,
+                                             boolean isRequest) {
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
@@ -238,20 +231,20 @@ public class HttpUtil {
         }
     }
 
-    /**
-     * Helper method to start pending http server connectors.
-     *
-     * @throws BallerinaConnectorException
-     */
-    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
-            throws BallerinaConnectorException {
-        try {
-            // Starting up HTTP Server connectors
-            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
-        } catch (ServerConnectorException e) {
-            throw new BallerinaConnectorException(e);
-        }
-    }
+//    /**
+//     * Helper method to start pending http server connectors.
+//     *
+//     * @throws BallerinaConnectorException
+//     */
+//    public static void startPendingHttpConnectors(BallerinaHttpServerConnector httpServerConnector)
+//            throws BallerinaConnectorException {
+//        try {
+//            // Starting up HTTP Server connectors
+//            HttpConnectionManager.getInstance().startPendingHTTPConnectors(httpServerConnector);
+//        } catch (ServerConnectorException e) {
+//            throw new BallerinaConnectorException(e);
+//        }
+//    }
 
     public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
                                                HTTPCarbonMessage outboundResponseMsg, BStruct outboundResponseStruct) {
@@ -496,6 +489,7 @@ public class HttpUtil {
 
     @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
+        BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
         if (isRequestStruct(struct) || isResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
@@ -503,9 +497,8 @@ public class HttpUtil {
             // are merged to a single Response, without returning need to populate all headers from the struct
             // to the HTTPCarbonMessage.
             // TODO: refactor this logic properly.
-            //return;
+            // return;
         }
-        BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
         BMap<String, BValue> entityHeaders = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
         if (entityHeaders == null) {
             return;
@@ -529,12 +522,14 @@ public class HttpUtil {
 
     private static void addRemovedPropertiesBackToHeadersMap(BStruct struct, HttpHeaders transportHeaders) {
         if (isRequestStruct(struct)) {
-            if (!struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX) != null && !struct.getStringField
+                    (HttpConstants.REQUEST_USER_AGENT_INDEX).isEmpty()) {
                 transportHeaders.add(HttpHeaderNames.USER_AGENT.toString(),
                                      struct.getStringField(HttpConstants.REQUEST_USER_AGENT_INDEX));
             }
         } else {
-            if (!struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX) != null && !struct.getStringField
+                    (HttpConstants.RESPONSE_SERVER_INDEX).isEmpty()) {
                 transportHeaders.add(HttpHeaderNames.SERVER.toString(),
                                      struct.getStringField(HttpConstants.RESPONSE_SERVER_INDEX));
             }
@@ -543,11 +538,13 @@ public class HttpUtil {
 
     private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg, BStruct struct) {
         if (isResponseStruct(struct)) {
-            if (struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX) != 0) {
+            if (struct.getIntField(HttpConstants
+                    .RESPONSE_STATUS_CODE_INDEX) != 0) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(
                         struct.getIntField(HttpConstants.RESPONSE_STATUS_CODE_INDEX)));
             }
-            if (!struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
+            if (struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX) != null && !struct
+                    .getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX).isEmpty()) {
                 outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
                         struct.getStringField(HttpConstants.RESPONSE_REASON_PHRASE_INDEX));
             }
@@ -633,11 +630,14 @@ public class HttpUtil {
         return listenerConfSet;
     }
 
-    private static String getListenerInterface(String host, int port) {
+    public static String getListenerInterface(String host, int port) {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }
 
+
+
+    @Deprecated
     private static void extractBasicConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
         AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
         AnnAttrValue portAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_PORT);
@@ -716,28 +716,30 @@ public class HttpUtil {
     }
 
     public static ChunkConfig getChunkConfig(String chunkConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(chunkConfig)) {
-            return ChunkConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for Transfer-Encoding: " + chunkConfig);
+        switch (chunkConfig) {
+            case HttpConstants.AUTO:
+                return ChunkConfig.AUTO;
+            case HttpConstants.ALWAYS:
+                return ChunkConfig.ALWAYS;
+            case HttpConstants.NEVER:
+                return ChunkConfig.NEVER;
+            default:
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for Transfer-Encoding: " + chunkConfig);
         }
     }
 
     public static KeepAliveConfig getKeepAliveConfig(String keepAliveConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(keepAliveConfig)) {
-            return KeepAliveConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for Keep-Alive: " + keepAliveConfig);
+        switch (keepAliveConfig) {
+            case HttpConstants.AUTO:
+                return KeepAliveConfig.AUTO;
+            case HttpConstants.ALWAYS:
+                return KeepAliveConfig.ALWAYS;
+            case HttpConstants.NEVER:
+                return KeepAliveConfig.NEVER;
+            default:
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for Keep-Alive: " + keepAliveConfig);
         }
     }
 
@@ -910,6 +912,22 @@ public class HttpUtil {
     }
 
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+
+        if (annotationList == null) {
+            return null;
+        }
+
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+
+        return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
 
         if (annotationList == null) {
