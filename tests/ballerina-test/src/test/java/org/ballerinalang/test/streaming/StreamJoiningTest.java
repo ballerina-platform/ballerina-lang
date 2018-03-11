@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
