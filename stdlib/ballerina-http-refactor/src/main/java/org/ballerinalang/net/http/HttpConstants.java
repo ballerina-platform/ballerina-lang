@@ -148,6 +148,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
+    public static final String SERVER_CONNECTOR = "ServerConnector";
     public static final String CONNECTION = "Connection";
     public static final String IN_REQUEST = "InRequest";
     public static final String OUT_REQUEST = "OutRequest";
@@ -188,6 +189,9 @@ public class HttpConstants {
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
+
+    // ServeConnector struct indices
+    public static final int SERVER_CON_CONNECTION_INDEX = 0;
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
