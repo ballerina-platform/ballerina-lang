@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -45,6 +45,6 @@ public class Stop extends AbstractHttpNativeFunction {
     public BValue[] execute(Context context) {
         Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         getServerConnector(serverEndpoint).stop();
-        return new BValue[]{null};
+        return VOID_RETURN;
     }
 }

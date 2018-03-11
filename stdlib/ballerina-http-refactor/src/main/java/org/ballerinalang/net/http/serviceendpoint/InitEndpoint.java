@@ -50,7 +50,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
@@ -76,7 +76,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
 
-            return new BValue[]{null};
+            return VOID_RETURN;
         } catch (Throwable throwable) {
             BStruct errorStruct = HttpUtil.getServerConnectorError(context, throwable);
             return new BValue[]{errorStruct};

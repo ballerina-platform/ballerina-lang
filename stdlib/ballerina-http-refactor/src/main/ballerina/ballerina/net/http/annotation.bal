@@ -18,7 +18,7 @@ package ballerina.net.http;
 @Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
 @Field {value:"webSocketConfig: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfiguration {
-    ServiceEndpoint[] endpoints;
+    Service[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
     boolean compressionEnabled;
@@ -47,7 +47,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public struct WebSocketServiceConfiguration {
-    ServiceEndpoint[] endpoints;
+    Service[] endpoints;
     string basePath;
     string[] subProtocols;
     int idleTimeoutInSeconds;
@@ -66,7 +66,7 @@ public enum HttpServiceLifeTime {
 }
 
 @Description {value:"HTTP Configuration for service"}
-public annotation <service> httpServiceConfig HttpServiceConfiguration;
+public annotation <service> serviceConfig HttpServiceConfiguration;
 
 @Description {value:"WebSocket Configuration for service"}
 public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;

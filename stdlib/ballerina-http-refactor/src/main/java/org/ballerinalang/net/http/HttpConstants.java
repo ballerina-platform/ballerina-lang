@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:HttpService";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:Service";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -79,7 +79,7 @@ public class HttpConstants {
     public static final String ANN_RESOURCE_ATTR_CONSUMES = "consumes";
     public static final String ANN_RESOURCE_ATTR_PRODUCES = "produces";
     public static final String ANN_NAME_CONFIG = "configuration";
-    public static final String ANN_NAME_HTTP_SERVICE_CONFIG = "httpServiceConfig";
+    public static final String ANN_NAME_HTTP_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";

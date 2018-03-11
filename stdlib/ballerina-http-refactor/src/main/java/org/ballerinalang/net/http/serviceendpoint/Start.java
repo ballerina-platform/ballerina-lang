@@ -47,7 +47,7 @@ import java.util.logging.LogManager;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -71,7 +71,7 @@ public class Start extends AbstractHttpNativeFunction {
         serverConnectorFuture.setPortBindingEventListener(
                 new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
 
-        return new BValue[]{null};
+        return VOID_RETURN;
     }
 
     public boolean isHTTPTraceLoggerEnabled() {
