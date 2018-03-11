@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.ArrayList;
@@ -142,6 +143,15 @@ public class StructImpl extends AnnotatableNode implements Struct {
             return null;
         }
         return refField.getName();
+    }
+
+    @Override
+    public Value getTypeField(String fieldName) {
+        final BTypeValue refField = (BTypeValue) value.getRefField(getFieldIndex(fieldName));
+        if (refField == null) {
+            return null;
+        }
+        return ValueImpl.createValue(refField);
     }
 
     private int getFieldIndex(String fieldName) {
