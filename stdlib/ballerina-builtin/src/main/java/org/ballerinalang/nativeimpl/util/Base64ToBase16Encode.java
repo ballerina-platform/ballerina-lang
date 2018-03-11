@@ -27,8 +27,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 
 /**
  * Native function ballerina.util:base64ToBase16Encode.
@@ -36,7 +36,8 @@ import javax.xml.bind.DatatypeConverter;
  * @since 0.95.2
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
+        orgName = "ballerina",
+        packageName = "util",
         functionName = "base64ToBase16Encode",
         args = {@Argument(name = "baseString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

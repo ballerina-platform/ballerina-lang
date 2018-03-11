@@ -36,11 +36,12 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:matchesWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "string.matchesWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
-                        structPackage = "ballerina.builtin")},
+                        structPackage = "builtin")},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )

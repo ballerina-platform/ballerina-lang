@@ -33,9 +33,10 @@ import org.ballerinalang.net.http.HttpUtil;
  * @since 0.96
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         functionName = "getEntityWithoutBody",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InRequest", structPackage = "ballerina.net.http"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "InRequest", structPackage = "net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)}
 )
 public class GetEntityWithoutBody extends AbstractNativeFunction {

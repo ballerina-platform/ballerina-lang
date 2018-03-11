@@ -31,7 +31,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.os",
+        orgName = "ballerina",
+        packageName = "os",
         functionName = "getEnv",
         args = {@Argument(name = "name", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

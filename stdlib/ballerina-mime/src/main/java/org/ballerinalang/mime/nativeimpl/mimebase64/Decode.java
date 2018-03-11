@@ -37,11 +37,13 @@ import static org.ballerinalang.mime.util.Constants.BLOB_INDEX;
  *
  * @since 0.96
  */
-@BallerinaFunction(packageName = "ballerina.mime",
+@BallerinaFunction(
+                   orgName = "ballerina",
+                   packageName = "mime",
                    functionName = "decode",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Decoder",
-                                        structPackage = "ballerina.mime"),
+                                        structPackage = "mime"),
                    args = { @Argument(name = "content", type = TypeKind.BLOB) },
                    returnType = { @ReturnType(type = TypeKind.BLOB) },
                    isPublic = true)

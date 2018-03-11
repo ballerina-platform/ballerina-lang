@@ -32,7 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina",
+        packageName = "math",
         functionName = "atan2",
         args = {@Argument(name = "a", type = TypeKind.FLOAT),
                 @Argument(name = "b", type = TypeKind.FLOAT)},

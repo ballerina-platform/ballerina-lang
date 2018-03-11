@@ -34,7 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.95
  */
 @BallerinaFunction(
-        packageName = "ballerina.config",
+        orgName = "ballerina",
+        packageName = "config",
         functionName = "getInstanceValue",
         args = {@Argument(name = "instance", type = TypeKind.STRING),
                 @Argument(name = "property", type = TypeKind.STRING)},

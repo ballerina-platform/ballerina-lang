@@ -27,7 +27,7 @@ public class WebSocketConstants {
     public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
-    public static final String PROTOCOL_PACKAGE_WS = "ballerina.net.ws";
+    public static final String PROTOCOL_PACKAGE_WS = "net.ws";
     public static final String PROTOCOL_WEBSOCKET = "ws";
 
     public static final String ANNOTATION_CONFIGURATION = "configuration";

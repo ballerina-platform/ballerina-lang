@@ -38,10 +38,11 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "getNegotiatedSubProtocol",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )

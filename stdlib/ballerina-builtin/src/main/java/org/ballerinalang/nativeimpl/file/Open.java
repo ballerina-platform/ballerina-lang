@@ -41,12 +41,13 @@ import java.util.Locale;
  * Gets the streams from a local file.
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina",
+        packageName = "file",
         functionName = "open",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
-                             structPackage = "ballerina.file"),
+                             structPackage = "file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "ballerina.file"), @Argument(name = "accessMode", type = TypeKind.STRING)},
+                structPackage = "file"), @Argument(name = "accessMode", type = TypeKind.STRING)},
         isPublic = true
 )
 public class Open extends AbstractNativeFunction {

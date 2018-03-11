@@ -35,7 +35,8 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
  * Native function ballerina.task:scheduleTimer.
  */
 @BallerinaFunction(
-        packageName = "ballerina.task",
+        orgName = "ballerina",
+        packageName = "task",
         functionName = "scheduleTimer",
         args = {@Argument(name = "onTrigger", type = TypeKind.ANY),
                 @Argument(name = "onError", type = TypeKind.ANY),

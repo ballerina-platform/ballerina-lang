@@ -168,13 +168,13 @@ public class CompilerDriver {
                 && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }
 
-    private BLangPackage getBuiltInPackage(Name name) {
-        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
+    private BLangPackage getBuiltInPackage(Name orgName, Name name) {
+        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(orgName.getValue(), name.getValue())));
     }
 
     private BLangPackage loadBuiltInPackage() {
         // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_PACKAGE);
+        BLangPackage builtInPkg = getBuiltInPackage(Names.BALLERINA, Names.BUILTIN_PACKAGE);
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

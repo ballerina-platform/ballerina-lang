@@ -38,7 +38,8 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
  * @since 0.8.5
  */
 @BallerinaAction(
-        packageName = "ballerina.data.sql",
+        orgName = "ballerina",
+        packageName = "data.sql",
         actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
