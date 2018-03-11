@@ -14,15 +14,34 @@ patterns:
     - name: entity.name.function.ballerina
       match: '([_$[:alpha:]][_$[:alnum:]]*) | (\|.+\|)'
 
-- begin: \b(documentation)\s*(\{)
+- begin: \b(documentation|deprecated)\s*(\{)
   beginCaptures:
-    '1': { name: keyword.other.ballerina }
-    '2': { name: punctuation.definition.block.ballerina }
+    '1': { name: keyword.other.ballerina.documentation }
+    '2': { name: punctuation.definition.block.ballerina.documentation }
   end: \}
   endCaptures:
-    '0': { name: punctuation.definition.block.ballerina }
+    '0': { name: punctuation.definition.block.ballerina.documentation }
   patterns:
-    - name: string.quoted.double.ballerina
+    - match: (P|R|T|F|V)({{)(.+)(}})
+      captures:
+        '1': {name: keyword.other.ballerina.documentation}
+        '2': {name: keyword.other.ballerina.documentation}
+        '3': {name: variable.parameter.ballerina.documentation}
+        '4': {name: keyword.other.ballerina.documentation}
+
+    - name: comment.block.code.ballerina.documentation
+      begin: \```
+      end: \```
+
+    - name: comment.block.code.ballerina.documentation
+      begin: \``
+      end: \``
+
+    - name: comment.block.code.ballerina.documentation
+      begin: \`
+      end: \`
+
+    - name: comment.block.ballerina.documentation
       match: .
 
 - include: '#keywords'
@@ -48,13 +67,13 @@ repository:
   keywords:
     patterns:
     - name: keyword.control.ballerina
-      match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b
+      match: \b(if|else|iterator|try|catch|finally|fork|join|all|some|while|foreach|in|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b
 
     - name: keyword.other.ballerina
       match: \b(import|version|public|attach|as|native|documentation|lock)\b
 
     - name: storage.type.ballerina
-      match: \b(boolean|int|float|string|var|any|datatable|blob)\b
+      match: \b(boolean|int|float|string|var|any|datatable|table|blob)\b
 
     - name: storage.type.ballerina
       match: \b(map|exception|json|xml|xmlns|error)\b

@@ -15,7 +15,7 @@ export default {
     ],
 
     typeKeywords: [
-        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'blob',
+        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'table', 'blob',
         'map', 'exception', 'json', 'xml', 'xmlns', 'error', 'type',
     ],
 
@@ -45,13 +45,14 @@ export default {
                     '@controlKeywords': 'keyword.control.ballerina',
                     '@otherKeywords': 'keyword.other.ballerina',
                     '@typeKeywords': 'type.ballerina',
+                    '(documentation|deprecated)': {token: 'keyword.other.ballerina', next: '@documentation'},
                     '@default': 'identifier',
                 },
             }],
             [/[A-Z][\w\$]*/, 'type.identifier'],  // to show class names nicely
 
-            // whitespace
-            { include: '@whitespace' },
+            // comments
+            ['\s*((//).*$\n?)', 'comment'],
 
             // delimiters and operators
             [/[{}()\[\]]/, '@brackets'],
@@ -77,33 +78,29 @@ export default {
             [/[;,.]/, 'delimiter'],
 
             // strings
-            [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
             [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
-
-            // characters
-            [/'[^\\']'/, 'string'],
-            [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
-            [/'/, 'string.invalid'],
-        ],
-
-        comment: [
-          [/[^\/*]+/, 'comment'],
-          [/\/\*/, 'comment', '@push'], // nested comment
-          ['\\*/', 'comment', '@pop'],
-          [/[\/*]/, 'comment'],
         ],
 
         string: [
-          [/[^\\"]+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
+            [/[^\\"]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
         ],
 
-        whitespace: [
-          [/[ \t\r\n]+/, 'white'],
-          [/\/\*/, 'comment', '@comment'],
-          [/\/\/.*$/, 'comment'],
-        ],
+        documentation: [
+            ['(P|R|T|F|V)({{)(.+)(}})', 
+                ['keyword.other.documentation', 'keyword.other.documentation',
+                'variable.parameter.documentation', 'keyword.other.documentation' ]
+            ],
+            ['```(.+)```', 'comment.code.documentation'],
+            ['``(.+)``', 'comment.code.documentation'],
+            ['`(.+)`', 'comment.code.documentation'],
+            ['\\\\{', 'comment.documentation'], // escaped bracket
+            ['\\\\}', 'comment.documentation'], // escaped bracket
+            ['{', '@brackets'],
+            ['}', { token: '@brackets', next: '@pop'}],
+            ['.', 'comment.documentation'],
+        ]
     },
 };

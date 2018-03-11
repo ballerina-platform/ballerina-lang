@@ -36,14 +36,17 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
         functionName = "prepareResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
+        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
+                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
 public class PrepareResourceManagers extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         String transactionId = getStringArgument(ctx, 0);
-        boolean prepareSuccessful = TransactionResourceManager.getInstance().prepare(transactionId);
+        int transactionBlockId = (int) getIntArgument(ctx, 0);
+        boolean prepareSuccessful =
+                TransactionResourceManager.getInstance().prepare(transactionId, transactionBlockId);
         return getBValues(new BBoolean(prepareSuccessful));
     }
 }
