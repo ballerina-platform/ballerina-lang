@@ -26,7 +26,7 @@ public struct HttpServiceConfiguration {
     boolean allowCredentials;
     string[] allowMethods;
     string[] allowHeaders;
-    int maxAge;
+    int maxAge = -1;
     string[] exposeHeaders;
     int maxUriLength;
     int maxHeaderSize;
@@ -97,7 +97,7 @@ public struct ResourceConfig {
     boolean allowCredentials;
     string[] allowMethods;
     string[] allowHeaders;
-    int maxAge;
+    int maxAge = -1;
     string[] exposeHeaders;
 }
 
