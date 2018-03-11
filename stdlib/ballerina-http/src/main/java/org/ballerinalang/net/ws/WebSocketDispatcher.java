@@ -18,7 +18,6 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -39,6 +38,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import javax.websocket.Session;
 
 /**
@@ -110,8 +110,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsTextFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onTextMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchBinaryMessage(WsOpenConnectionInfo connectionInfo,
@@ -136,8 +136,8 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsBinaryFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onBinaryMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchControlMessage(WsOpenConnectionInfo connectionInfo,
@@ -168,8 +168,8 @@ public class WebSocketDispatcher {
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPingMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     private static void dispatchPongMessage(WsOpenConnectionInfo connectionInfo,
@@ -188,8 +188,8 @@ public class WebSocketDispatcher {
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPongMessageResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchCloseMessage(WsOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage) {
@@ -207,8 +207,8 @@ public class WebSocketDispatcher {
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onCloseResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void dispatchIdleTimeout(WsOpenConnectionInfo connectionInfo,
@@ -223,8 +223,8 @@ public class WebSocketDispatcher {
         BStruct wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
-        ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, bValues);
-        future.setConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,

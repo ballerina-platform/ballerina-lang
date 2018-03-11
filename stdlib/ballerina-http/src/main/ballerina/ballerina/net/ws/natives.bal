@@ -148,7 +148,7 @@ public struct ClientConnectorConfig {
 @Field {value:"cause: The error that caused HttpConnectorError to be returned"}
 public struct WsConnectorError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description {value:"WebSocket client connector for connecting to a WebSocket backend"}

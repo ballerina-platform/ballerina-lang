@@ -19,15 +19,14 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class Read extends AbstractNativeFunction {
+public class Read extends BlockingNativeCallableUnit {
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
@@ -100,14 +99,14 @@ public class Read extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BBlob readByteBlob = null;
         BInteger numberOfReadBytes = null;
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
-            int numberOfBytes = (int) getIntArgument(context, NUMBER_OF_BYTES_INDEX);
-            int offset = (int) getIntArgument(context, OFFSET_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
+            int offset = (int) context.getIntArgument(OFFSET_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byte[] content = new byte[numberOfBytes];
             EventContext eventContext = new EventContext(context);
@@ -121,6 +120,6 @@ public class Read extends AbstractNativeFunction {
             log.error(message);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(readByteBlob, numberOfReadBytes, errorStruct);
+        context.setReturnValues(readByteBlob, numberOfReadBytes, errorStruct);
     }
 }

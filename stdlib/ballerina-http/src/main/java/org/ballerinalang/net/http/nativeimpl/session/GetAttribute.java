@@ -19,10 +19,9 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,15 +44,15 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class GetAttribute extends AbstractNativeFunction {
+public class GetAttribute extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            String attributeKey = getStringArgument(context, 0);
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            String attributeKey = context.getStringArgument(0);
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
-                return getBValues(session.getAttributeValue(attributeKey));
+                context.setReturnValues(session.getAttributeValue(attributeKey));
             } else {
                 throw new IllegalStateException("Failed to get attribute: No such session in progress");
             }

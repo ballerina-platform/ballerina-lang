@@ -19,13 +19,12 @@ package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,31 +42,32 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class BalScheduleTimer extends AbstractNativeFunction {
+public class BalScheduleTimer extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
+    public void execute(Context ctx) {
         FunctionRefCPEntry onTriggerFunctionRefCPEntry;
         FunctionRefCPEntry onErrorFunctionRefCPEntry = null;
-        if (ctx.getControlStack().getCurrentFrame().getRefRegs()[0] != null && ctx.getControlStack()
-                .getCurrentFrame().getRefRegs()[0] instanceof BFunctionPointer) {
-            onTriggerFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 0)).value();
+        if (ctx.getLocalWorkerData().refRegs[0] != null &&
+                ctx.getLocalWorkerData().refRegs[0] instanceof BFunctionPointer) {
+            onTriggerFunctionRefCPEntry = ((BFunctionPointer) ctx.getRefArgument(0)).value();
         } else {
-            return getBValues(new BString(""),
+            ctx.setReturnValues(new BString(""),
                     BLangVMErrors.createError(ctx, 0, "The onTrigger function is not provided"));
+            return;
         }
-        if (ctx.getControlStack().getCurrentFrame().getRefRegs()[1] != null && ctx.getControlStack()
-                .getCurrentFrame().getRefRegs()[1] instanceof BFunctionPointer) {
-            onErrorFunctionRefCPEntry = ((BFunctionPointer) getRefArgument(ctx, 1)).value();
+        if (ctx.getLocalWorkerData().refRegs[1] != null &&
+                ctx.getLocalWorkerData().refRegs[1] instanceof BFunctionPointer) {
+            onErrorFunctionRefCPEntry = ((BFunctionPointer) ctx.getRefArgument(1)).value();
         }
-        BStruct scheduler = (BStruct) getRefArgument(ctx, 2);
+        BStruct scheduler = (BStruct) ctx.getRefArgument(2);
         long delay = scheduler.getIntField(0);
         long interval = scheduler.getIntField(1);
 
         try {
             Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            return getBValues(new BString(timer.getId()), null);
+            ctx.setReturnValues(new BString(timer.getId()), null);
         } catch (SchedulingException e) {
-            return getBValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
+            ctx.setReturnValues(new BString(""), BLangVMErrors.createError(ctx, 0, e.getMessage()));
         }
     }
 }
