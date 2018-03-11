@@ -25,6 +25,6 @@ var payload, _ = req.getBinaryPayload();
 http:OutRequest req2 = {};
 var connectorrr = ep2.getConnector();
 var resp, err = connectorrr->get("/v2/5aa3a485310000461026e292", req2);
-_ = conn->forward(resp);
+_ = conn.forward(resp);
 }
 }
