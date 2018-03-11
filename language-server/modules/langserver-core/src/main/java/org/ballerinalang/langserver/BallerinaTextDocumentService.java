@@ -318,7 +318,23 @@ public class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-        return null;
+        return CompletableFuture.supplyAsync(() -> {
+            TextDocumentServiceContext renameContext = new TextDocumentServiceContext();
+
+            BLangPackage currentBLangPackage =
+                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager);
+            bLangPackageContext.addPackage(currentBLangPackage);
+
+            WorkspaceEdit workspaceEdit;
+
+            try {
+                workspaceEdit = new WorkspaceEdit();
+            } catch (Exception e) {
+                workspaceEdit = new WorkspaceEdit();
+            }
+
+            return workspaceEdit;
+        });
     }
 
     @Override

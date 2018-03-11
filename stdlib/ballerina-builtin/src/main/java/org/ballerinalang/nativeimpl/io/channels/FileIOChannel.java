@@ -19,6 +19,10 @@ package org.ballerinalang.nativeimpl.io.channels;
 
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.AsyncReader;
+import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -36,18 +40,22 @@ public class FileIOChannel extends Channel {
      */
     private FileChannel channel;
 
-    public FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
-        super(channel, size);
+    FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
+        super(channel, new BlockingReader(), new BlockingWriter(), size);
         this.channel = channel;
+    }
+
+    public FileIOChannel(FileChannel channel) throws BallerinaIOException {
+        super(channel, new AsyncReader(), new AsyncWriter());
     }
 
     /**
      * Transfer file content to the specified destination.
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         try {
             channel.transferTo(position, count, dstChannel);
         } catch (IOException e) {
