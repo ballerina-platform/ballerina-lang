@@ -281,13 +281,12 @@ public class HttpConstants {
 
     //Client Endpoint Config
     public static final String SERVICE_URI = "serviceUri";
-    public static final String OPTIONS_STRUCT_REFERENCE = "options";
-    public static final String OPTIONS_TRNASFER_ENCODING = "transferEncoding";
-    public static final String OPTIONS_CHUNKING = "chunking";
-    public static final String OPTIONS_ENDPOINT_TIMEOUT = "endpointTimeout";
-    public static final String OPTIONS_IS_KEEP_ALIVE = "keepAlive";
-    public static final String OPTIONS_HTTP_VERSION = "httpVersion";
-    public static final String OPTIONS_FORWARDED = "forwarded";
+    public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
+    public static final String CLIENT_EP_CHUNKING = "chunking";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "endpointTimeout";
+    public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
+    public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
+    public static final String CLIENT_EP_FORWARDED = "forwarded";
 
     //Connection Throttling Indexes
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";

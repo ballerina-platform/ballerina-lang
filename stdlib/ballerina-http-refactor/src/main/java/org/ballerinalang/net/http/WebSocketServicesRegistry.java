@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
@@ -29,11 +29,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Store all the WebSocket serviceEndpointsTemplate here.
@@ -41,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
+    private final Map<String, WebSocketService> servicesInfoMap = new ConcurrentHashMap<>();
 
     // Map<interface, URITemplate<WebSocketService, messageType>>
     private final Map<String, URITemplate<WebSocketService, WebSocketMessage>>
@@ -50,30 +54,104 @@ public class WebSocketServicesRegistry {
 
     private Map<String, WebSocketService> slaveServices = new HashMap<>();
     private List<UpgradableServiceInfo> httpToWsUpgradableServices = new LinkedList<>();
+    private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
     public WebSocketServicesRegistry() {
     }
 
-    /**
-     * Register the service. Check for WebSocket upgrade path and client service.
-     *
-     * @param service service to register.
-     */
     public void registerService(WebSocketService service) {
-        //TODO: check if client does not have enpoints annotation
-        if (WebSocketServiceValidator.validateServiceEndpoint(service)) {
-            Annotation configAnnotation =
-                    HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            if (configAnnotation == null) {
-                slaveServices.put(service.getName(), service);
-                return;
-            }
+        String basePath = findFullWebSocketUpgradePath(service);
+        basePath = urlDecode(basePath);
+        service.setBasePath(basePath);
+        // TODO: Add websocket services to the service registry when service creation get available.
+        servicesInfoMap.put(service.getBasePath(), service);
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+        postProcessService(service);
+    }
 
-            String basePath = findFullWebSocketUpgradePath(service);
-            if (basePath == null) {
-                slaveServices.put(service.getName(), service);
+    private void postProcessService(WebSocketService service) {
+        WebSocketServiceValidator.validateServiceEndpoint(service);
+        //basePath will get cached after registering service
+        sortedServiceURIs.add(service.getBasePath());
+        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+    }
+
+    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, WebSocketService> services) {
+        for (Object key : sortedServiceURIs) {
+            if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
+                continue;
+            }
+            if (requestURIPath.length() <= key.toString().length()) {
+                return key.toString();
+            }
+            if (requestURIPath.charAt(key.toString().length()) == '/') {
+                return key.toString();
             }
         }
+        if (services.containsKey(HttpConstants.DEFAULT_BASE_PATH)) {
+            return HttpConstants.DEFAULT_BASE_PATH;
+        }
+        return null;
+    }
+
+    /**
+     * Get ServiceInfo map for given interfaceId.
+     *
+     * @return the serviceInfo map if exists else null.
+     */
+    public Map<String, WebSocketService> getServicesInfoByInterface() {
+        return servicesInfoMap;
+    }
+
+    private String urlDecode(String basePath) {
+        try {
+            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        }
+        return basePath;
+    }
+
+    /**
+     * Find the Full path for WebSocket upgrade.
+     *
+     * @param service {@link WebSocketService} which the full path should be found.
+     * @return the full path of the WebSocket upgrade.
+     */
+    private String findFullWebSocketUpgradePath(WebSocketService service) {
+        // Find Base path for WebSocket
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service,
+                                                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        String basePath = null;
+        if (configAnnotation != null) {
+            Struct annStruct = configAnnotation.getValue();
+            String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
+            if (annotationValue != null && !annotationValue.trim().isEmpty()) {
+                basePath = refactorUri(annotationValue);
+            }
+        }
+        return basePath;
+    }
+
+    /**
+     * Refactor the given URI.
+     *
+     * @param uri URI to refactor.
+     * @return refactored URI.
+     */
+    public String refactorUri(String uri) {
+        if (uri.startsWith("\"")) {
+            uri = uri.substring(1, uri.length() - 1);
+        }
+
+        if (!uri.startsWith("/")) {
+            uri = "/".concat(uri);
+        }
+
+        if (uri.endsWith("/")) {
+            uri = uri.substring(0, uri.length() - 1);
+        }
+        return uri;
     }
 
 
@@ -143,49 +221,6 @@ public class WebSocketServicesRegistry {
     public WebSocketService matchServiceEndpoint(String listenerInterface, String uri, Map<String, String> variables) {
         // Message can be null here since WebSocketDataElement does not use inbound message to match services.
         return serviceEndpointsTemplate.get(listenerInterface).matches(uri, variables, null);
-    }
-
-    /**
-     * Refactor the given URI.
-     *
-     * @param uri URI to refactor.
-     * @return refactored URI.
-     */
-    public String refactorUri(String uri) {
-        if (uri.startsWith("\"")) {
-            uri = uri.substring(1, uri.length() - 1);
-        }
-
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
-    }
-
-    /**
-     * Find the Full path for WebSocket upgrade.
-     *
-     * @param service {@link WebSocketService} which the full path should be found.
-     * @return the full path of the WebSocket upgrade.
-     */
-    private String findFullWebSocketUpgradePath(WebSocketService service) {
-        // Find Base path for WebSocket
-        Annotation configAnnotation = HttpUtil.getServiceConfigAnnotation(service,
-                                                                          HttpConstants.PROTOCOL_PACKAGE_HTTP);
-        String basePath = null;
-        if (configAnnotation != null) {
-            AnnAttrValue annotationAttributeBasePathValue = configAnnotation.getAnnAttrValue
-                    (HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-            if (annotationAttributeBasePathValue != null && annotationAttributeBasePathValue.getStringValue() != null
-                    && !annotationAttributeBasePathValue.getStringValue().trim().isEmpty()) {
-                basePath = refactorUri(annotationAttributeBasePathValue.getStringValue());
-            }
-        }
-        return basePath;
     }
 
     private class UpgradableServiceInfo {

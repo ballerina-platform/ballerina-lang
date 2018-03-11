@@ -60,7 +60,6 @@ public class WebSocketDispatcher {
                                                Map<String, String> variables, WebSocketMessage webSocketMessage,
                                                BMap<String, BString> queryParams) {
         try {
-            String interfaceId = webSocketMessage.getListenerInterface();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
             URI requestUri;
@@ -69,8 +68,9 @@ public class WebSocketDispatcher {
             } catch (IllegalArgumentException e) {
                 throw new BallerinaConnectorException(e.getMessage());
             }
-            WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, requestUri.getPath(),
-                                                                             variables);
+            Map<String, WebSocketService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
+            WebSocketService service = servicesOnInterface.get(
+                    servicesRegistry.findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface));
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
@@ -85,7 +85,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
-            WebSocketTextMessage textMessage) {
+                                           WebSocketTextMessage textMessage) {
         WebSocketService wsService = connectionInfo.getService();
         Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT_MESSAGE);
         if (onTextMessageResource == null) {
@@ -187,7 +187,7 @@ public class WebSocketDispatcher {
     }
 
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
-            WebSocketCloseMessage closeMessage) {
+                                            WebSocketCloseMessage closeMessage) {
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         if (onCloseResource == null) {
@@ -223,11 +223,11 @@ public class WebSocketDispatcher {
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,
-                                      int defaultArgSize) {
+                                     int defaultArgSize) {
         int parameterDetailsSize = paramDetails.size();
         if (parameterDetailsSize > defaultArgSize) {
             for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i]  = new BString(variables.get(paramDetails.get(i).getVarName()));
+                bValues[i] = new BString(variables.get(paramDetails.get(i).getVarName()));
             }
         }
     }

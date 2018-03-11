@@ -2,6 +2,14 @@ package ballerina.net.http;
 
 import ballerina.mime;
 
+public enum Chunking {
+    AUTO, ALWAYS, NEVER
+}
+
+public enum TransferEncoding {
+    CHUNKING
+}
+
 
 //////////////////////////////
 /// Native implementations ///

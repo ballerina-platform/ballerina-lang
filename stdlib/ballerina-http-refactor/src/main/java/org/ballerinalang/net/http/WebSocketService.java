@@ -39,6 +39,7 @@ public class WebSocketService implements Service {
     private final String[] negotiableSubProtocols;
     private final int idleTimeoutInSeconds;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
+    private String basePath;
 
     public WebSocketService(Service service) {
         this.service = service;
@@ -158,5 +159,13 @@ public class WebSocketService implements Service {
             return 0;
         }
         return new Long(annAttrIdleTimeout.getIntValue()).intValue();
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 }
