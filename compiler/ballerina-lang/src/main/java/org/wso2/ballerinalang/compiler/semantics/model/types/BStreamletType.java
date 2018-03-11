@@ -18,9 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.tree.StreamletType;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -29,21 +27,12 @@ import java.util.List;
 /**
  * @since 0.955.0
  */
-public class BStreamletType extends BType implements StreamletType {
+public class BStreamletType extends BBuiltInRefType implements StreamletType {
     public List<BType> paramTypes;
 
     public BStreamletType(List<BType> paramTypes, BTypeSymbol tsymbol) {
         super(TypeTags.STREAMLET, tsymbol);
         this.paramTypes = paramTypes;
-    }
-
-    public String getDesc() {
-        return TypeDescriptor.SIG_STREAMLET + getQualifiedTypeName() + ";";
-    }
-
-    @Override
-    public TypeKind getKind() {
-        return TypeKind.STREAMLET;
     }
 
     @Override
@@ -53,25 +42,13 @@ public class BStreamletType extends BType implements StreamletType {
 
     @Override
     public String toString() {
-        return Names.DEFAULT_PACKAGE.equals(tsymbol.pkgID.name) ? tsymbol.name.value : getQualifiedTypeName();
+        //TODO check, not aligned with connector impl
+        return tsymbol.name.value;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BStreamletType that = (BStreamletType) o;
-
-        return paramTypes != null ? paramTypes.equals(that.paramTypes) : that.paramTypes == null;
+    public String getDesc() {
+        return TypeDescriptor.SIG_STREAMLET + ";";
     }
 
-    @Override
-    public int hashCode() {
-        return paramTypes != null ? paramTypes.hashCode() : 0;
-    }
 }

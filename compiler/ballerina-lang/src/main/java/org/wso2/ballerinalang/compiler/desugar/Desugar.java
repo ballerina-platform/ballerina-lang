@@ -673,6 +673,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
             case TypeTags.STRUCT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
                 argExprs.add(0, iExpr.expr);
@@ -1245,6 +1246,7 @@ public class Desugar extends BLangNodeVisitor {
                 return;
             case TypeTags.TABLE:
             case TypeTags.STREAM:
+            case TypeTags.STREAMLET:
                 // TODO: add this once the able initializing is supported.
                 return;
             default:

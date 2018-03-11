@@ -190,7 +190,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamlet streamletNode) {
-
+        /* Ignore */
     }
 
 

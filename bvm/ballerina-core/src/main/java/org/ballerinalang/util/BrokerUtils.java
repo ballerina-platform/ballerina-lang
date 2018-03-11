@@ -32,6 +32,7 @@ import io.ballerina.messaging.broker.core.Metadata;
 import io.ballerina.messaging.broker.core.configuration.BrokerCoreConfiguration;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ import java.util.Map;
  * Class providing utility methods to interact with the broker operating in in-memory mode.
  * TODO: Needs refactoring once the broker core is moved to the Ballerina core
  *
- * @since @since 0.955.0
+ * @since @since 0.965.0
  */
 public class BrokerUtils {
 
@@ -51,7 +52,11 @@ public class BrokerUtils {
     private static Broker broker;
 
     static {
-        startupBroker();
+        try {
+            broker = startupBroker();
+        } catch (Exception e) {
+            throw new BallerinaException("Error starting up in-memory broker: ", e);
+        }
     }
 
     /**
@@ -69,6 +74,15 @@ public class BrokerUtils {
         } catch (BrokerException | ValidationException e) {
             logger.error("Error adding subscription: ", e);
         }
+    }
+
+    /**
+     * Method to remove a subscription to the broker operating in in-memory mode.
+     *
+     * @param consumer  the consumer representing the subscription to remove
+     */
+    public static void removeSubscription(Consumer consumer) {
+        broker.removeConsumer(consumer);
     }
 
     /**
@@ -93,7 +107,7 @@ public class BrokerUtils {
     /**
      * Method to start up the Ballerina Broker. TODO: change
      */
-    private static void startupBroker() {
+    private static Broker startupBroker() throws Exception {
         BallerinaBrokerConfigProvider configProvider = new BallerinaBrokerConfigProvider();
         BrokerCommonConfiguration brokerCommonConfiguration = new BrokerCommonConfiguration();
         brokerCommonConfiguration.setEnableInMemoryMode(true);
@@ -103,13 +117,9 @@ public class BrokerUtils {
         configProvider.registerConfigurationObject(BrokerCoreConfiguration.NAMESPACE, brokerCoreConfiguration);
         StartupContext startupContext = new StartupContext();
         startupContext.registerService(BrokerConfigProvider.class, configProvider);
-
-        try {
-            broker = new Broker(startupContext);
-        } catch (Exception e) {
-            logger.error("Error occurred initializing the in-memory broker: ", e);
-        }
-        broker.startMessageDelivery();
+        Broker brokerInstance = new Broker(startupContext);
+        brokerInstance.startMessageDelivery();
+        return brokerInstance;
     }
 
     /**

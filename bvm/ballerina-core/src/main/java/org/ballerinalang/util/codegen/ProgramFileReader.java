@@ -935,6 +935,7 @@ public class ProgramFileReader {
             case 'E':
             case 'D':
             case 'H':
+            case 'M':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -1045,6 +1046,8 @@ public class ProgramFileReader {
                         return BTypes.typeTable;
                     } else if (ch == 'H') { //TODO:CHECK
                         return BTypes.typeStream;
+                    } else if (ch == 'M') {
+                        return BTypes.typeStreamlet;
                     }
                 }
 

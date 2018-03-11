@@ -205,6 +205,10 @@ public class Types {
             return true;
         }
 
+        if (target.tag == TypeTags.STREAMLET && source.tag == TypeTags.STREAMLET) {
+            return true;
+        }
+
         if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
                 && checkConnectorEquivalency(source, ((BEndpointType) target).constraint)) {
             //TODO do we need to resolve a nop implicit cast operation?

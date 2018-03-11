@@ -80,6 +80,10 @@ public final class BStreamlet implements BRefType {
         this.streamSpecificInputHandlerMap = streamSpecificInputHandlerMap;
     }
 
+    public void stopRuntime() {
+        siddhiAppRuntime.shutdown();
+    }
+
     @Override
     public BStreamlet value() {
         return null;

@@ -138,6 +138,7 @@ public class SymbolTable {
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
+        initializeType(streamletType, TypeKind.STREAMLET.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
 
@@ -179,6 +180,8 @@ public class SymbolTable {
                 return tableType;
             case TypeTags.STREAM:
                 return streamType;
+            case TypeTags.STREAMLET:
+                return streamletType;
             case TypeTags.NULL:
                 return nullType;
             default:
@@ -371,6 +374,7 @@ public class SymbolTable {
         defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineExplicitCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineExplicitCastOperator(anyType, streamType, false, InstructionCodes.ANYSTM);
+        defineExplicitCastOperator(anyType, streamletType, false, InstructionCodes.ANY2M);
 
         defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);
         defineExplicitCastOperator(jsonType, floatType, false, InstructionCodes.JSON2F);
