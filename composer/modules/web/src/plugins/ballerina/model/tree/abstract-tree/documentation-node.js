@@ -17,15 +17,15 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import Node from '../node';
 
-class AbstractTryNode extends StatementNode {
+class AbstractDocumentationNode extends Node {
 
 
-    setCatchBlocks(newValue, silent, title) {
-        const oldValue = this.catchBlocks;
+    setDocumentationText(newValue, silent, title) {
+        const oldValue = this.documentationText;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.catchBlocks = newValue;
+        this.documentationText = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractTryNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'catchBlocks',
+                    attributeName: 'documentationText',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,44 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    getCatchBlocks() {
-        return this.catchBlocks;
+    getDocumentationText() {
+        return this.documentationText;
     }
 
 
-    addCatchBlocks(node, i = -1, silent) {
+
+    setAttributes(newValue, silent, title) {
+        const oldValue = this.attributes;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.attributes = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'attributes',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAttributes() {
+        return this.attributes;
+    }
+
+
+    addAttributes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.catchBlocks.push(node);
-            index = this.catchBlocks.length;
+            this.attributes.push(node);
+            index = this.attributes.length;
         } else {
-            this.catchBlocks.splice(i, 0, node);
+            this.attributes.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +93,9 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    removeCatchBlocks(node, silent) {
-        const index = this.getIndexOfCatchBlocks(node);
-        this.removeCatchBlocksByIndex(index, silent);
+    removeAttributes(node, silent) {
+        const index = this.getIndexOfAttributes(node);
+        this.removeAttributesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +109,8 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    removeCatchBlocksByIndex(index, silent) {
-        this.catchBlocks.splice(index, 1);
+    removeAttributesByIndex(index, silent) {
+        this.attributes.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +124,9 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    replaceCatchBlocks(oldChild, newChild, silent) {
-        const index = this.getIndexOfCatchBlocks(oldChild);
-        this.catchBlocks[index] = newChild;
+    replaceAttributes(oldChild, newChild, silent) {
+        const index = this.getIndexOfAttributes(oldChild);
+        this.attributes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +141,8 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    replaceCatchBlocksByIndex(index, newChild, silent) {
-        this.catchBlocks[index] = newChild;
+    replaceAttributesByIndex(index, newChild, silent) {
+        this.attributes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,69 +157,15 @@ class AbstractTryNode extends StatementNode {
         }
     }
 
-    getIndexOfCatchBlocks(child) {
-        return _.findIndex(this.catchBlocks, ['id', child.id]);
+    getIndexOfAttributes(child) {
+        return _.findIndex(this.attributes, ['id', child.id]);
     }
 
-    filterCatchBlocks(predicateFunction) {
-        return _.filter(this.catchBlocks, predicateFunction);
+    filterAttributes(predicateFunction) {
+        return _.filter(this.attributes, predicateFunction);
     }
-
-
-    setFinallyBody(newValue, silent, title) {
-        const oldValue = this.finallyBody;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.finallyBody = newValue;
-
-        this.finallyBody.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'finallyBody',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFinallyBody() {
-        return this.finallyBody;
-    }
-
-
-
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
 
 
 }
 
-export default AbstractTryNode;
+export default AbstractDocumentationNode;

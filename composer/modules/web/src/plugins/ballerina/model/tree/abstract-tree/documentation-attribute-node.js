@@ -19,15 +19,13 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractLambdaNode extends ExpressionNode {
+class AbstractDocumentationAttributeNode extends ExpressionNode {
 
 
-    setFunctionNode(newValue, silent, title) {
-        const oldValue = this.functionNode;
+    setDocumentationText(newValue, silent, title) {
+        const oldValue = this.documentationText;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.functionNode = newValue;
-
-        this.functionNode.parent = this;
+        this.documentationText = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractLambdaNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'functionNode',
+                    attributeName: 'documentationText',
                     newValue,
                     oldValue,
                 },
@@ -43,12 +41,39 @@ class AbstractLambdaNode extends ExpressionNode {
         }
     }
 
-    getFunctionNode() {
-        return this.functionNode;
+    getDocumentationText() {
+        return this.documentationText;
+    }
+
+
+
+    setDocumentationField(newValue, silent, title) {
+        const oldValue = this.documentationField;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.documentationField = newValue;
+
+        this.documentationField.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'documentationField',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDocumentationField() {
+        return this.documentationField;
     }
 
 
 
 }
 
-export default AbstractLambdaNode;
+export default AbstractDocumentationAttributeNode;

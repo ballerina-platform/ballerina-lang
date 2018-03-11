@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import StatementNode from '../statement-node';
 
-class AbstractExpressionStatementNode extends StatementNode {
+class AbstractLockNode extends StatementNode {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.body = newValue;
 
-        this.expression.parent = this;
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractExpressionStatementNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -43,12 +43,12 @@ class AbstractExpressionStatementNode extends StatementNode {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getBody() {
+        return this.body;
     }
 
 
 
 }
 
-export default AbstractExpressionStatementNode;
+export default AbstractLockNode;

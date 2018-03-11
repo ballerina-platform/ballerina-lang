@@ -48,31 +48,6 @@ class AbstractInvocationNode extends ExpressionNode {
     }
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
 
     setArgumentExpressions(newValue, silent, title) {
         const oldValue = this.argumentExpressions;
@@ -193,6 +168,33 @@ class AbstractInvocationNode extends ExpressionNode {
     }
 
 
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
+    }
+
+
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -218,6 +220,30 @@ class AbstractInvocationNode extends ExpressionNode {
         return this.name;
     }
 
+
+
+
+    isIterableOperation() {
+        return this.iterableOperation;
+    }
+
+    setIterableOperation(newValue, silent, title) {
+        const oldValue = this.iterableOperation;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.iterableOperation = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'iterableOperation',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
 
 }
 

@@ -22,32 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractXmlQnameNode extends ExpressionNode {
 
 
-    setPrefix(newValue, silent, title) {
-        const oldValue = this.prefix;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.prefix = newValue;
-
-        this.prefix.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'prefix',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPrefix() {
-        return this.prefix;
-    }
-
-
     setLocalname(newValue, silent, title) {
         const oldValue = this.localname;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +48,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
     }
 
 
+
     setNamespaceUri(newValue, silent, title) {
         const oldValue = this.namespaceUri;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -96,6 +71,34 @@ class AbstractXmlQnameNode extends ExpressionNode {
     getNamespaceUri() {
         return this.namespaceUri;
     }
+
+
+
+    setPrefix(newValue, silent, title) {
+        const oldValue = this.prefix;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.prefix = newValue;
+
+        this.prefix.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'prefix',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getPrefix() {
+        return this.prefix;
+    }
+
 
 
 }

@@ -240,6 +240,26 @@
     "before >": "",
     "after >": ""
   },
+  "Documentation": {
+    "before documentation": "",
+    "after documentation": " ",
+    "before {": "",
+    "after {": "",
+    "before documentationText": "",
+    "after documentationText": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Deprecated": {
+    "before deprecated": "",
+    "after deprecated": " ",
+    "before {": "",
+    "after {": "",
+    "before documentationText": "",
+    "after documentationText": "",
+    "before }": "",
+    "after }": ""
+  },
   "EndpointType": {
     "before <": "",
     "after <": "",

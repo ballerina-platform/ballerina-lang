@@ -1913,6 +1913,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endDocumentationAttachment(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitDocumentationTemplateContent(BallerinaParser.DocumentationTemplateContentContext ctx) {
         if (ctx.exception != null) {
             return;

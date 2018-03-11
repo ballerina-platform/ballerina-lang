@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractXmlnsNode extends Node {
 
 
+    setNamespaceURI(newValue, silent, title) {
+        const oldValue = this.namespaceURI;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.namespaceURI = newValue;
+
+        this.namespaceURI.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'namespaceURI',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getNamespaceURI() {
+        return this.namespaceURI;
+    }
+
+
+
     setPrefix(newValue, silent, title) {
         const oldValue = this.prefix;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -47,31 +74,6 @@ class AbstractXmlnsNode extends Node {
         return this.prefix;
     }
 
-
-    setNamespaceURI(newValue, silent, title) {
-        const oldValue = this.namespaceURI;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.namespaceURI = newValue;
-
-        this.namespaceURI.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'namespaceURI',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getNamespaceURI() {
-        return this.namespaceURI;
-    }
 
 
 }

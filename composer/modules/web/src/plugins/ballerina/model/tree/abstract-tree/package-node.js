@@ -22,10 +22,10 @@ import Node from '../node';
 class AbstractPackageNode extends Node {
 
 
-    setImports(newValue, silent, title) {
-        const oldValue = this.imports;
+    setConnectors(newValue, silent, title) {
+        const oldValue = this.connectors;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.imports = newValue;
+        this.connectors = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractPackageNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'imports',
+                    attributeName: 'connectors',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,19 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    getImports() {
-        return this.imports;
+    getConnectors() {
+        return this.connectors;
     }
 
 
-    addImports(node, i = -1, silent) {
+    addConnectors(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.imports.push(node);
-            index = this.imports.length;
+            this.connectors.push(node);
+            index = this.connectors.length;
         } else {
-            this.imports.splice(i, 0, node);
+            this.connectors.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +68,9 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    removeImports(node, silent) {
-        const index = this.getIndexOfImports(node);
-        this.removeImportsByIndex(index, silent);
+    removeConnectors(node, silent) {
+        const index = this.getIndexOfConnectors(node);
+        this.removeConnectorsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +84,8 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    removeImportsByIndex(index, silent) {
-        this.imports.splice(index, 1);
+    removeConnectorsByIndex(index, silent) {
+        this.connectors.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +99,9 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    replaceImports(oldChild, newChild, silent) {
-        const index = this.getIndexOfImports(oldChild);
-        this.imports[index] = newChild;
+    replaceConnectors(oldChild, newChild, silent) {
+        const index = this.getIndexOfConnectors(oldChild);
+        this.connectors[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +116,8 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    replaceImportsByIndex(index, newChild, silent) {
-        this.imports[index] = newChild;
+    replaceConnectorsByIndex(index, newChild, silent) {
+        this.connectors[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,12 +132,12 @@ class AbstractPackageNode extends Node {
         }
     }
 
-    getIndexOfImports(child) {
-        return _.findIndex(this.imports, ['id', child.id]);
+    getIndexOfConnectors(child) {
+        return _.findIndex(this.connectors, ['id', child.id]);
     }
 
-    filterImports(predicateFunction) {
-        return _.filter(this.imports, predicateFunction);
+    filterConnectors(predicateFunction) {
+        return _.filter(this.connectors, predicateFunction);
     }
 
 
@@ -284,6 +284,7 @@ class AbstractPackageNode extends Node {
     getPackageDeclaration() {
         return this.packageDeclaration;
     }
+
 
 
     setNamespaceDeclarations(newValue, silent, title) {
@@ -524,244 +525,6 @@ class AbstractPackageNode extends Node {
     }
 
 
-    setServices(newValue, silent, title) {
-        const oldValue = this.services;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.services = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'services',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getServices() {
-        return this.services;
-    }
-
-
-    addServices(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.services.push(node);
-            index = this.services.length;
-        } else {
-            this.services.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeServices(node, silent) {
-        const index = this.getIndexOfServices(node);
-        this.removeServicesByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeServicesByIndex(index, silent) {
-        this.services.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceServices(oldChild, newChild, silent) {
-        const index = this.getIndexOfServices(oldChild);
-        this.services[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceServicesByIndex(index, newChild, silent) {
-        this.services[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfServices(child) {
-        return _.findIndex(this.services, ['id', child.id]);
-    }
-
-    filterServices(predicateFunction) {
-        return _.filter(this.services, predicateFunction);
-    }
-
-
-    setConnectors(newValue, silent, title) {
-        const oldValue = this.connectors;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.connectors = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'connectors',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getConnectors() {
-        return this.connectors;
-    }
-
-
-    addConnectors(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.connectors.push(node);
-            index = this.connectors.length;
-        } else {
-            this.connectors.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeConnectors(node, silent) {
-        const index = this.getIndexOfConnectors(node);
-        this.removeConnectorsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeConnectorsByIndex(index, silent) {
-        this.connectors.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceConnectors(oldChild, newChild, silent) {
-        const index = this.getIndexOfConnectors(oldChild);
-        this.connectors[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceConnectorsByIndex(index, newChild, silent) {
-        this.connectors[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfConnectors(child) {
-        return _.findIndex(this.connectors, ['id', child.id]);
-    }
-
-    filterConnectors(predicateFunction) {
-        return _.filter(this.connectors, predicateFunction);
-    }
-
-
     setFunctions(newValue, silent, title) {
         const oldValue = this.functions;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -997,6 +760,482 @@ class AbstractPackageNode extends Node {
 
     filterStructs(predicateFunction) {
         return _.filter(this.structs, predicateFunction);
+    }
+
+
+    setEnums(newValue, silent, title) {
+        const oldValue = this.enums;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.enums = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'enums',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getEnums() {
+        return this.enums;
+    }
+
+
+    addEnums(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.enums.push(node);
+            index = this.enums.length;
+        } else {
+            this.enums.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEnums(node, silent) {
+        const index = this.getIndexOfEnums(node);
+        this.removeEnumsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEnumsByIndex(index, silent) {
+        this.enums.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEnums(oldChild, newChild, silent) {
+        const index = this.getIndexOfEnums(oldChild);
+        this.enums[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEnumsByIndex(index, newChild, silent) {
+        this.enums[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfEnums(child) {
+        return _.findIndex(this.enums, ['id', child.id]);
+    }
+
+    filterEnums(predicateFunction) {
+        return _.filter(this.enums, predicateFunction);
+    }
+
+
+    setTransformers(newValue, silent, title) {
+        const oldValue = this.transformers;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.transformers = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'transformers',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTransformers() {
+        return this.transformers;
+    }
+
+
+    addTransformers(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.transformers.push(node);
+            index = this.transformers.length;
+        } else {
+            this.transformers.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTransformers(node, silent) {
+        const index = this.getIndexOfTransformers(node);
+        this.removeTransformersByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTransformersByIndex(index, silent) {
+        this.transformers.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTransformers(oldChild, newChild, silent) {
+        const index = this.getIndexOfTransformers(oldChild);
+        this.transformers[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTransformersByIndex(index, newChild, silent) {
+        this.transformers[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfTransformers(child) {
+        return _.findIndex(this.transformers, ['id', child.id]);
+    }
+
+    filterTransformers(predicateFunction) {
+        return _.filter(this.transformers, predicateFunction);
+    }
+
+
+    setServices(newValue, silent, title) {
+        const oldValue = this.services;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.services = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'services',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getServices() {
+        return this.services;
+    }
+
+
+    addServices(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.services.push(node);
+            index = this.services.length;
+        } else {
+            this.services.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeServices(node, silent) {
+        const index = this.getIndexOfServices(node);
+        this.removeServicesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeServicesByIndex(index, silent) {
+        this.services.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceServices(oldChild, newChild, silent) {
+        const index = this.getIndexOfServices(oldChild);
+        this.services[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceServicesByIndex(index, newChild, silent) {
+        this.services[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfServices(child) {
+        return _.findIndex(this.services, ['id', child.id]);
+    }
+
+    filterServices(predicateFunction) {
+        return _.filter(this.services, predicateFunction);
+    }
+
+
+    setImports(newValue, silent, title) {
+        const oldValue = this.imports;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.imports = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'imports',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getImports() {
+        return this.imports;
+    }
+
+
+    addImports(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.imports.push(node);
+            index = this.imports.length;
+        } else {
+            this.imports.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeImports(node, silent) {
+        const index = this.getIndexOfImports(node);
+        this.removeImportsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeImportsByIndex(index, silent) {
+        this.imports.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceImports(oldChild, newChild, silent) {
+        const index = this.getIndexOfImports(oldChild);
+        this.imports[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceImportsByIndex(index, newChild, silent) {
+        this.imports[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfImports(child) {
+        return _.findIndex(this.imports, ['id', child.id]);
+    }
+
+    filterImports(predicateFunction) {
+        return _.filter(this.imports, predicateFunction);
     }
 
 

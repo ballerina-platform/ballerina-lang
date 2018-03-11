@@ -1,0 +1,172 @@
+diff -ruN gen/tree/abstract-tree/assignment-node.js tree/abstract-tree/assignment-node.js
+--- gen/tree/abstract-tree/assignment-node.js	2018-03-10 16:14:03.688341962 +0530
++++ tree/abstract-tree/assignment-node.js	2018-02-06 11:33:09.266718950 +0530
+@@ -177,6 +177,7 @@
+         const oldValue = this.declaredWithVar;
+         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+         this.declaredWithVar = newValue;
++        this.clearWS();
+         if (!silent) {
+             this.trigger('tree-modified', {
+                 origin: this,
+diff -ruN gen/tree/abstract-tree/field-based-access-expr-node.js tree/abstract-tree/field-based-access-expr-node.js
+--- gen/tree/abstract-tree/field-based-access-expr-node.js	2018-03-10 16:14:03.004310021 +0530
++++ tree/abstract-tree/field-based-access-expr-node.js	2018-02-06 11:33:09.266718950 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractFieldBasedAccessExprNode extends Node {
++class AbstractFieldBasedAccessExprNode extends ExpressionNode {
+ 
+ 
+     setExpression(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/index-based-access-expr-node.js tree/abstract-tree/index-based-access-expr-node.js
+--- gen/tree/abstract-tree/index-based-access-expr-node.js	2018-03-10 16:14:03.056312449 +0530
++++ tree/abstract-tree/index-based-access-expr-node.js	2018-03-11 07:39:16.440223977 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractIndexBasedAccessExprNode extends Node {
++class AbstractIndexBasedAccessExprNode extends ExpressionNode {
+ 
+ 
+     setIndex(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/invocation-node.js tree/abstract-tree/invocation-node.js
+--- gen/tree/abstract-tree/invocation-node.js	2018-03-10 16:14:03.080313570 +0530
++++ tree/abstract-tree/invocation-node.js	2018-03-11 10:14:14.871639478 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractInvocationNode extends Node {
++class AbstractInvocationNode extends ExpressionNode {
+ 
+ 
+     setPackageAlias(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/package-declaration-node.js tree/abstract-tree/package-declaration-node.js
+--- gen/tree/abstract-tree/package-declaration-node.js	2018-03-10 16:14:02.048265290 +0530
++++ tree/abstract-tree/package-declaration-node.js	2018-02-06 11:33:09.270718987 +0530
+@@ -48,7 +48,6 @@
+     }
+ 
+ 
+-
+     setPackageName(newValue, silent, title) {
+         const oldValue = this.packageName;
+         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+@@ -72,6 +71,14 @@
+         return this.packageName;
+     }
+ 
++    getPackageNameString() {
++        const packageName = this.packageName || [];
++        const packageNameString = packageName.map((pkgName) => {
++            return pkgName.value;
++        }).join('.');
++        return packageNameString;
++    }
++
+ 
+     addPackageName(node, i = -1, silent) {
+         node.parent = this;
+diff -ruN gen/tree/abstract-tree/record-literal-key-value-node.js tree/abstract-tree/record-literal-key-value-node.js
+--- gen/tree/abstract-tree/record-literal-key-value-node.js	2018-03-10 16:14:02.160270531 +0530
++++ tree/abstract-tree/record-literal-key-value-node.js	2018-02-06 11:33:09.270718987 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractRecordLiteralKeyValueNode extends Node {
++class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
+ 
+ 
+     setValue(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/simple-variable-ref-node.js tree/abstract-tree/simple-variable-ref-node.js
+--- gen/tree/abstract-tree/simple-variable-ref-node.js	2018-03-10 16:14:03.188318613 +0530
++++ tree/abstract-tree/simple-variable-ref-node.js	2018-03-11 07:39:16.440223977 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractSimpleVariableRefNode extends Node {
++class AbstractSimpleVariableRefNode extends ExpressionNode {
+ 
+ 
+     setPackageAlias(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/xml-comment-literal-node.js tree/abstract-tree/xml-comment-literal-node.js
+--- gen/tree/abstract-tree/xml-comment-literal-node.js	2018-03-10 16:14:03.640339720 +0530
++++ tree/abstract-tree/xml-comment-literal-node.js	2018-02-06 11:33:09.270718987 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractXmlCommentLiteralNode extends Node {
++class AbstractXmlCommentLiteralNode extends ExpressionNode {
+ 
+ 
+     setTextFragments(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/xml-element-literal-node.js tree/abstract-tree/xml-element-literal-node.js
+--- gen/tree/abstract-tree/xml-element-literal-node.js	2018-03-10 16:14:03.548335424 +0530
++++ tree/abstract-tree/xml-element-literal-node.js	2018-03-11 07:39:16.440223977 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractXmlElementLiteralNode extends Node {
++class AbstractXmlElementLiteralNode extends ExpressionNode {
+ 
+ 
+     setStartTagName(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/xml-pi-literal-node.js tree/abstract-tree/xml-pi-literal-node.js
+--- gen/tree/abstract-tree/xml-pi-literal-node.js	2018-03-10 16:14:03.652340281 +0530
++++ tree/abstract-tree/xml-pi-literal-node.js	2018-03-11 07:39:16.440223977 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractXmlPiLiteralNode extends Node {
++class AbstractXmlPiLiteralNode extends ExpressionNode {
+ 
+ 
+     setDataTextFragments(newValue, silent, title) {
+diff -ruN gen/tree/abstract-tree/xml-text-literal-node.js tree/abstract-tree/xml-text-literal-node.js
+--- gen/tree/abstract-tree/xml-text-literal-node.js	2018-03-10 16:14:03.604338039 +0530
++++ tree/abstract-tree/xml-text-literal-node.js	2018-02-06 11:33:09.270718987 +0530
+@@ -17,9 +17,9 @@
+  */
+ 
+ import _ from 'lodash';
+-import Node from '../node';
++import ExpressionNode from '../expression-node';
+ 
+-class AbstractXmlTextLiteralNode extends Node {
++class AbstractXmlTextLiteralNode extends ExpressionNode {
+ 
+ 
+     setTextFragments(newValue, silent, title) {

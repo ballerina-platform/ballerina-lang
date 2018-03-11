@@ -22,6 +22,31 @@ import ExpressionNode from '../expression-node';
 class AbstractXmlElementLiteralNode extends ExpressionNode {
 
 
+    setNamespaces(newValue, silent, title) {
+        const oldValue = this.namespaces;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.namespaces = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'namespaces',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getNamespaces() {
+        return this.namespaces;
+    }
+
+
+
     setStartTagName(newValue, silent, title) {
         const oldValue = this.startTagName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -46,6 +71,7 @@ class AbstractXmlElementLiteralNode extends ExpressionNode {
     getStartTagName() {
         return this.startTagName;
     }
+
 
 
     setEndTagName(newValue, silent, title) {
@@ -73,29 +99,6 @@ class AbstractXmlElementLiteralNode extends ExpressionNode {
         return this.endTagName;
     }
 
-
-    setNamespaces(newValue, silent, title) {
-        const oldValue = this.namespaces;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.namespaces = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'namespaces',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getNamespaces() {
-        return this.namespaces;
-    }
 
 
     setAttributes(newValue, silent, title) {
