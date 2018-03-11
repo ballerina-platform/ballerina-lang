@@ -70,6 +70,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     function outdent() {
         --l;
         if (shouldIndent) {
+            if (node.documentationText) {
+                const indent = _.last(node.documentationText.split('\n'));
+                if(indent === _.repeat(tab, l)) {
+                    // if documentation text already contains the correct dent
+                    return '';
+                }
+            }
             return '\n' + _.repeat(tab, l);
         }
         return '';
