@@ -57,7 +57,8 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 public class GrpcServicesBuilder {
     
     
-    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig, SslContext sslContext) {
+    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig,
+                                                    SslContext sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
             if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {

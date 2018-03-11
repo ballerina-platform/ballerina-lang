@@ -28,16 +28,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.ConnectorUtil;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndPointConfiguration;
-import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLException;
 
 import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfiguration;
 

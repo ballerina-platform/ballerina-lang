@@ -40,6 +40,7 @@ public class ConnectorUtil {
         endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
         return endPointConfiguration;
     }
+    
     public static SSLHandlerFactory getSSLConfigs(Annotation serviceAnnotation) {
         if (serviceAnnotation == null) {
             return null;
@@ -51,13 +52,14 @@ public class ConnectorUtil {
             return null;
         } else {
             SSLConfig sslConfig = new SSLConfig(new File(keyStoreFile.getStringValue())
-                    ,keyStorePassword.getStringValue());
+                    , keyStorePassword.getStringValue());
             sslConfig.setCertPass(certPassword.getStringValue());
             sslConfig.setTLSStoreType("PKCS12");
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             return sslHandlerFactory;
         }
     }
+    
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, "serviceConfig");
         

@@ -113,7 +113,7 @@ public class SSLHandlerFactory {
     }
 
     /**
-     * @return instance of {@code SslHandler}
+     * @return instance of {@code SslHandler}.
      */
     public SSLEngine buildServerSSLEngine() {
         SSLEngine engine = sslContext.createSSLEngine();
