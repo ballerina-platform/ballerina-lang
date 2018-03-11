@@ -60,11 +60,6 @@ public native function <Request req> getEntity () (mime:Entity, mime:EntityError
 @Return {value:"Entity of the request"}
 native function <Request req> getEntityWithoutBody () (mime:Entity);
 
-@Description {value:"Set the entity to the request"}
-@Param {value:"req: The request message"}
-@Return {value:"Entity of the request"}
-public native function <Request req> setEntity (mime:Entity entity);
-
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////

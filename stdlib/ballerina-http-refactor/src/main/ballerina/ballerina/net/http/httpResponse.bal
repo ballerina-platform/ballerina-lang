@@ -46,13 +46,6 @@ public native function <Response res> setEntity (mime:Entity entity);
 @Param {value:"propertyValue: The value of the property"}
 public native function <Response res> setProperty (string propertyName, string propertyValue);
 
-@Description {value:"Retrieve a response property"}
-@Param {value:"res: The response message"}
-@Param {value:"propertyName: The name of the property"}
-@Return {value:"The property value"}
-public native function <Response res> getProperty (string propertyName) (string);
-
-
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////

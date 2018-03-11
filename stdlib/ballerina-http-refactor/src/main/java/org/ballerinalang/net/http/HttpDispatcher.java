@@ -178,7 +178,7 @@ public class HttpDispatcher {
 
         BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
 
         BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
