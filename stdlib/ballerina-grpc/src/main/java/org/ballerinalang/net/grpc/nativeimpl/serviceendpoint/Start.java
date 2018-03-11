@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import io.grpc.Server;
 import org.ballerinalang.bre.Context;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
         packageName = "ballerina.net.grpc",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.net.grpc"),
         isPublic = true
 )
 public class Start extends AbstractGrpcNativeFunction {

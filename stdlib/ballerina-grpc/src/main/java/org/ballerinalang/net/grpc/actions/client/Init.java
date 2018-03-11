@@ -21,10 +21,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.codec.http2.Http2SecurityUtil;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ApplicationProtocolNames;
-import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslProvider;
@@ -44,15 +40,22 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.ssl.SSLConfig;
-import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.SSLException;
+
+import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.MessageConstants.PATH;
+import static org.ballerinalang.net.grpc.SSLCertificateUtils.loadX509Cert;
+import static org.ballerinalang.net.grpc.SSLCertificateUtils.preferredTestCiphers;
+import static org.ballerinalang.net.grpc.SSLCertificateUtils.testServerAddress;
 
 /**
  * {@code Init} is the Init action implementation of the gRPC Connector.
@@ -107,36 +110,25 @@ public class Init extends AbstractNativeAction {
             SSLConfig clientSslConfigs;
             ManagedChannel channel;
             if (options != null) {
+                // TODO: 3/11/18 keystore file should get from this
                 clientSslConfigs = populateClientConfigurationOptions(options);
-                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(clientSslConfigs);
                 SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
-                List<String> ciphers =  Http2SecurityUtil.CIPHERS;
                 SslContext sslContext = GrpcSslContexts.forClient()
-                        .trustManager(sslHandlerFactory.getTrustStoreFactory())
+                        .trustManager(loadX509Cert(PATH + "ca.pem"))
+                        .ciphers(preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
                         .sslProvider(provider)
-                        .ciphers(ciphers,
-                                SupportedCipherSuiteFilter.INSTANCE)
-                        .clientAuth(ClientAuth.NONE)
-                        .applicationProtocolConfig(new ApplicationProtocolConfig(
-                                ApplicationProtocolConfig.Protocol.ALPN,
-                                // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
-                                ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                                // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
-                                ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                                ApplicationProtocolNames.HTTP_2,
-                                ApplicationProtocolNames.HTTP_1_1))
                         .build();
-                channel = NettyChannelBuilder.forAddress(host, port)
-                        .sslContext(sslContext)
-                        .usePlaintext(true)
-                        .build();
+                channel = NettyChannelBuilder
+                        .forAddress(testServerAddress(port))
+                        .flowControlWindow(65 * 1024)
+                        .maxInboundMessageSize(MAX_MESSAGE_SIZE)
+                        .sslContext(sslContext).build();
             } else {
                 channel = ManagedChannelBuilder.forAddress(host, port)
                         .usePlaintext(true)
                         .build();
             }
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
-            
             if ("blocking".equalsIgnoreCase(subtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
                 bConnector.setNativeData("stub", grpcBlockingStub);
@@ -156,6 +148,12 @@ public class Init extends AbstractNativeAction {
             future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error when generating SSL " +
                     "configuration.", e));
             return future;
+        } catch (CertificateException e) {
+            future.notifyFailure(new BallerinaConnectorException("gRPC Connector SSL Certificate Error.", e));
+            return future;
+        } catch (IOException e) {
+            future.notifyFailure(new BallerinaConnectorException("gRPC Connector I/O Error.", e));
+            return future;
         }
     }
     
@@ -169,6 +167,7 @@ public class Init extends AbstractNativeAction {
         }
         return new SSLConfig();
     }
+    
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];

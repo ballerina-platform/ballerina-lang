@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
@@ -30,8 +30,11 @@ import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.config.EndPointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfiguration;
 
@@ -44,7 +47,7 @@ import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfigurat
         packageName = "ballerina.net.grpc",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                structPackage = "ballerina.net.http"),
+                structPackage = "ballerina.net.grpc"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
@@ -56,9 +59,10 @@ public class Init extends AbstractGrpcNativeFunction {
     public BValue[] execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
+            getServiceConfigAnnotation(service, service.getPackage()).getValue();
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
             EndPointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
-            Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
             Annotation annotation = ConnectorUtil.getServiceConfigAnnotation(service,
                     "ballerina.net.grpc");
             SSLHandlerFactory sslHandlerFactory = ConnectorUtil.getSSLConfigs(annotation);
@@ -69,8 +73,22 @@ public class Init extends AbstractGrpcNativeFunction {
         } catch (Throwable throwable) {
             // TODO: 3/10/18 write util to generate error struct
             return new BValue[] {null};
-            //BStruct errorStruct = null;
-            return new BValue[] {null};
         }
+    }
+    
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, "serviceConfig");
+        
+        if (annotationList == null) {
+            return null;
+        }
+        
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple service configuration annotations found in service: " + service.getName());
+        }
+        
+        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }

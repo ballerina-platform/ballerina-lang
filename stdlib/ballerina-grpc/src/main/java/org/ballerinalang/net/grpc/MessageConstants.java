@@ -29,7 +29,9 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
  * Proto Message Constants Class.
  */
 public class MessageConstants {
-
+    public static final  String PATH = "/home/yasara/Desktop/PR_ORG/ballerina/distribution/zip/ballerina" +
+            "/resources/security/";
+    public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
     public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
     public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
             ASCII_STRING_MARSHALLER);

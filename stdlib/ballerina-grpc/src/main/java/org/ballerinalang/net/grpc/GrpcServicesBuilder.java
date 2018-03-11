@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 
 /**
@@ -62,22 +63,28 @@ public class GrpcServicesBuilder {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
             if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
-                serverBuilder = NettyServerBuilder.forPort((int)
+                serverBuilder = NettyServerBuilder.forPort(
                         serviceEndpointConfig.getPort().intValue())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                .availableProcessors() * 2)).sslContext(sslContext);
+                                .availableProcessors() * 2))
+                        .flowControlWindow(65 * 1024)
+                        .maxMessageSize(MAX_MESSAGE_SIZE)
+                        .sslContext(sslContext);
             } else {
                 serverBuilder = NettyServerBuilder.forPort(9090)
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                .availableProcessors() * 2)).sslContext(sslContext);
+                                .availableProcessors() * 2))
+                        .flowControlWindow(65 * 1024)
+                        .maxMessageSize(MAX_MESSAGE_SIZE)
+                        .sslContext(sslContext);
             }
         } else {
             if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
-                serverBuilder = NettyServerBuilder.forPort((int)
+                serverBuilder = NettyServerBuilder.forPort(
                         serviceEndpointConfig.getPort().intValue())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))

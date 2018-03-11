@@ -13,24 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
+import io.grpc.Server;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
+import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
 
 /**
  * Native function to respond the caller.
@@ -39,25 +36,19 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
  */
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "register",
+        functionName = "stop",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
+                structPackage = "ballerina.net.grpc"),
         isPublic = true
 )
-public class Register extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(Register.class);
+public class Stop extends AbstractGrpcNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(Stop.class);
     
-    @java.lang.Override
+    @Override
     public BValue[] execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
-        io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
-        try {
-            registerService(serverBuilder, service);
-        } catch (GrpcServerException e) {
-            throw new GrpcServerValidationException("Error in registering gRPC service.", e);
-        }
+        Server server = getService(serviceEndpoint);
+        stop(server);
         return new BValue[] {null};
     }
 }
