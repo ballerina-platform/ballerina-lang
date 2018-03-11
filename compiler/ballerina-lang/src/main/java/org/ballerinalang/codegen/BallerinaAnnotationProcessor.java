@@ -22,15 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -43,6 +34,14 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This represents the Ballerina annotation processor, which checks for specific annotations
@@ -123,6 +122,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private NativeElementCodeDef functionToDef(BallerinaFunction func, Element element) {
         NativeFunctionCodeDef def = new NativeFunctionCodeDef();
+        def.org = func.orgName();
         def.pkg = func.packageName();
         if (func.receiver().type() == TypeKind.STRUCT) {
             def.name = func.receiver().structType() + "." + func.functionName();
@@ -137,6 +137,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     
     private NativeElementCodeDef actionToDef(BallerinaAction action, Element element) {
         NativeActionCodeDef def = new NativeActionCodeDef();
+        def.org = action.orgName();
         def.pkg = action.packageName();
         def.connectorName = action.connectorName();
         def.name = action.actionName();
@@ -220,8 +221,10 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      */
     private class NativeFunctionCodeDef implements NativeElementCodeDef {
         
+        public String org;
+
         public String pkg;
-        
+
         public String name;
         
         public String className;
@@ -239,9 +242,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
         
         public String code() {
-            return "registerNativeFunction(new NativeFunctionDef(\"" + this.pkg + "\", \"" + this.name + "\", "
-                    + this.typeArrayToCode(this.argTypes) + ", " + this.typeArrayToCode(this.retTypes) + ", \""
-                    + this.className + "\"))";
+            return "registerNativeFunction(new NativeFunctionDef(\"" + this.org + "\", \"" + this.pkg + "\", " +
+                    "\"" + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", " +
+                    this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }
         
     }
@@ -254,7 +257,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         public String connectorName;
         
         public String code() {
-            return "registerNativeAction(new NativeActionDef(\"" + this.pkg + "\", \"" + this.connectorName + "\", \""
+            return "registerNativeAction(new NativeActionDef(\"" + this.org + "\", \"" + this.pkg + "\", \"" + this.connectorName + "\", \""
                     + this.name + "\", " + this.typeArrayToCode(this.argTypes) + ", "
                     + this.typeArrayToCode(this.retTypes) + ", \"" + this.className + "\"))";
         }
