@@ -45,18 +45,17 @@ public final class Http2SourceHandlerBuilder
 
     @Override
     public Http2SourceHandler build() {
+        Http2Connection conn = new DefaultHttp2Connection(true);
+        connection(conn);
         return super.build();
     }
 
     @Override
     protected Http2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
-        Http2Connection conn = new DefaultHttp2Connection(true);
-        Http2SourceHandler handler =
-                new Http2SourceHandler(
-                        decoder, encoder, initialSettings, interfaceId, conn, serverConnectorFuture, serverName);
+        Http2SourceHandler handler = new Http2SourceHandler(
+                decoder, encoder, initialSettings, interfaceId, connection(), serverConnectorFuture, serverName);
         frameListener(handler.getHttp2FrameListener());
-        connection(conn);
         return handler;
     }
 }
