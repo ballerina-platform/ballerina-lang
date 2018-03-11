@@ -692,6 +692,12 @@
                 <artifactId>opentracing-util</artifactId>
                 <version>${open.tracing.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-mock</artifactId>
+                <version>${open.tracing.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -808,6 +814,7 @@
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
 
                 <module>tool-plugins/intellij</module>
@@ -840,6 +847,7 @@
 
                 <module>distribution/zip/ballerina</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
             </modules>
         </profile>
@@ -880,6 +888,7 @@
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
+                <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-test-integration</module>
 
                 <!-- Intellij build disabled in default build -->

@@ -83,6 +83,9 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
+                        <observability-test-natives.jar>
+                            ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
+                        </observability-test-natives.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
