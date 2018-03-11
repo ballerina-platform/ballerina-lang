@@ -21,8 +21,6 @@ import ballerina.log;
 
 @Description {value:"Configuration key for groups in userstore"}
 const string PERMISSIONSTORE_GROUPS_ENTRY = "groups";
-@Description {value:"Configuration key for userids in userstore"}
-const string PERMISSIONSTORE_USERIDS_ENTRY = "userids";
 
 @Description {value:"Represents the permission store"}
 public struct FileBasedPermissionStore { 
@@ -102,5 +100,5 @@ public function <FileBasedPermissionStore permissionStore> readGroupsOfUser (str
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) (string) {
-    return config:getInstanceValue(PERMISSIONSTORE_USERIDS_ENTRY, username);
+    return config:getInstanceValue(username, "userid");
 }
