@@ -19,6 +19,7 @@
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.net.uri.parser.DataElement;
+import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 /**
@@ -39,7 +40,11 @@ public class WsDataElement implements DataElement<WebSocketService, WebSocketMes
     }
 
     @Override
-    public WebSocketService getData(WebSocketMessage inboundMessage) {
-        return webSocketService;
+    public boolean getData(WebSocketMessage inboundMessage, DataReturnAgent<WebSocketService> dataReturnAgent) {
+        if (webSocketService == null) {
+            return false;
+        }
+        dataReturnAgent.setData(webSocketService);
+        return true;
     }
 }
