@@ -70,10 +70,10 @@ public struct SocketProperties {
     string sslProtocol;
 }
 
-@Description {value:"Opens a byte channel from a specified file location."}
-@Param {value:"path: path to the file location."}
-@Param {value:"accessMode: whether the file should be opened for read,write or append."}
-@Return {value:"Channel which will allow to source/sink."}
+@Description {value:"Opens a byte channel from a specified file location"}
+@Param {value:"path: path to the file location"}
+@Param {value:"accessMode: whether the file should be opened for read,write or append"}
+@Return {value:"Channel which will allow to source/sink"}
 public native function openFile (string path, string accessMode) (ByteChannel);
 
 @Description {value:"Opens a socket from a specified network location"}
@@ -81,22 +81,24 @@ public native function openFile (string path, string accessMode) (ByteChannel);
 @Param {value:"port: Remote server port"}
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
-public native function openSocket (string host, int port, SocketProperties options) (Socket);
+@Return {value:"Returns an IOError if unable to open the socket connection"}
+public native function openSocket (string host, int port, SocketProperties options) (Socket, IOError);
 
 @Description {value:"Function to create a CharacterChannel from ByteChannel"}
 @Param {value:"channel: The ByteChannel to be converted"}
 @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
 @Return {value:"CharacterChannel converted from ByteChannel"}
-public native function createCharacterChannel (ByteChannel byteChannel, string encoding) (CharacterChannel);
+@Return {value:"Returns an IOError if CharacterChannel could not be created"}
+public native function createCharacterChannel (ByteChannel byteChannel, string encoding) (CharacterChannel, IOError);
 
 @Description {value:"Function to create a CharacterChannel to DelimitedRecordChannel"}
 @Param {value:"channel: The CharacterChannel to be converted"}
 @Param {value:"recordSeparator: Terminating expression to distinguish between records"}
 @Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
 @Return {value:"DelimitedRecordChannel converted from CharacterChannel"}
-public native function createDelimitedRecordChannel (CharacterChannel channel,
-                                                     string recordSeparator,
-                                                     string fieldSeparator) (DelimitedRecordChannel);
+@Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
+public native function createDelimitedRecordChannel (CharacterChannel channel, string recordSeparator,
+                                                     string fieldSeparator) (DelimitedRecordChannel, IOError);
 
 @Description {value:"Function to read bytes"}
 @Param {value:"channel: The ByteChannel to read bytes from"}
@@ -166,8 +168,10 @@ public native function <CharacterChannel channel> closeCharacterChannel () (IOEr
 @Param {value:"port: Remote server port"}
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
-public native function openSecureSocket (string host, int port, SocketProperties options) (Socket);
+@Return {value:"Returns an IOError if unable to open the socket connection"}
+public native function openSecureSocket (string host, int port, SocketProperties options) (Socket, IOError);
 
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}
-public native function <Socket socket> closeSocket ();
+@Return {value:"Returns an IOError if socket could not be closed"}
+public native function <Socket socket> closeSocket () (IOError);

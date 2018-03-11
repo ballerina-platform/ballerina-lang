@@ -458,10 +458,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         taintedStatusList = returnTaintedStatusList;
     }
 
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        /* ignore */
-    }
-
     public void visit(BLangThrow throwNode) {
         /* ignore */
     }

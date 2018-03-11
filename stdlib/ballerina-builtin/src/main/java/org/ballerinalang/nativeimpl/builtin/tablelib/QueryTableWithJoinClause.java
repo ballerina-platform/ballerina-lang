@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -48,20 +47,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
                         type = TypeKind.ANY)
         },
         returnType = {@ReturnType(type = TypeKind.TABLE)})
-public class QueryTableWithJoinClause extends AbstractNativeFunction {
+public class QueryTableWithJoinClause extends BlockingNativeCallableUnit {
     /**
      * Where Native Function logic is implemented.
      *
      * @param context Current Context instance
-     * @return Native function return BValue arrays
      */
     @Override
-    public BValue[] execute(Context context) {
-        String query = getStringArgument(context, 0);
-        BTable fromTable = (BTable) getRefArgument(context, 0);
-        BTable joinTable = (BTable) getRefArgument(context, 1);
-        BRefValueArray array = (BRefValueArray) getRefArgument(context, 2);
-        BStruct tableTypeStruct = (BStruct) getRefArgument(context, 3);
-        return getBValues(new BTable(query, fromTable, joinTable, tableTypeStruct.getType(), array));
+    public void execute(Context context) {
+        String query = context.getStringArgument(0);
+        BTable fromTable = (BTable) context.getRefArgument(0);
+        BTable joinTable = (BTable) context.getRefArgument(1);
+        BRefValueArray array = (BRefValueArray) context.getRefArgument(2);
+        BStruct tableTypeStruct = (BStruct) context.getRefArgument(3);
+        context.setReturnValues(new BTable(query, fromTable, joinTable, tableTypeStruct.getType(), array));
     }
 }

@@ -328,9 +328,7 @@ public class HTTPSessionEssentialMethodsTest {
         responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 92);
-        Assert.assertEquals(error, "error, message: failed to get session: /sample2 is not an allowed path\n"
-                + "\tat ballerina.net.htt");
+        Assert.assertTrue(responseMsgPayload.contains("failed to get session: /sample2 is not an allowed path"));
     }
 
     @Test(description = "Test for path limitation with getSession")
@@ -355,9 +353,8 @@ public class HTTPSessionEssentialMethodsTest {
         responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(0, 70);
-        Assert.assertEquals(error, "error, message: failed to get session: " +
-                "/counter is not an allowed path");
+        Assert.assertTrue(responseMsgPayload.contains("failed to get session: " +
+                "/counter is not an allowed path"));
     }
 
     @Test(description = "Test for incorrect Cookie")
@@ -570,8 +567,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(47, 74);
-        Assert.assertEquals(error, "No such session in progress");
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for null session with getsession")
@@ -583,7 +579,6 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "ballerina.runtime:NullReferenceException\n" +
-                "\tat .:sample.echo5(http-session-test.bal:89)");
+        Assert.assertEquals(responseMsgPayload, "");
     }
 }

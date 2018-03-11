@@ -18,11 +18,10 @@
 package org.ballerinalang.nativeimpl.builtin.streamlib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -38,14 +37,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "data", type = TypeKind.ANY)
         },
         isPublic = true)
-public class Publish extends AbstractNativeFunction {
+public class Publish extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStream stream = (BStream) getRefArgument(context, 0);
-        BStruct data = (BStruct) getRefArgument(context, 1);
+    public void execute(Context context) {
+        BStream stream = (BStream) context.getRefArgument(0);
+        BStruct data = (BStruct) context.getRefArgument(1);
         stream.publish(data);
-        return VOID_RETURN;
+        context.getReturnValues();
     }
-
 }

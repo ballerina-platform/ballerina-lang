@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DeprecatedTextNode;
 import org.ballerinalang.plugins.idea.psi.DocumentationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.DocumentationTemplateAttributeDescriptionNode;
 import org.ballerinalang.plugins.idea.psi.DoubleBackTickDeprecatedInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.DoubleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
@@ -211,11 +212,33 @@ public class BallerinaAnnotator implements Annotator {
             annotateStringLiteralTemplateEnd(element, holder);
         } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
             // Doc type.
+            String msg = null;
+            switch (element.getText().charAt(0)) {
+                case 'T':
+                    msg = "Receiver";
+                    break;
+                case 'P':
+                    msg = "Parameter";
+                    break;
+                case 'R':
+                    msg = "Return Value";
+                    break;
+                case 'F':
+                    msg = "Field";
+                    break;
+                case 'V':
+                    msg = "Variable";
+                    break;
+            }
             TextRange textRange = element.getTextRange();
             TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
-            Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+            Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
         } else if (element instanceof IdentifierPSINode) {
+            if (element.getParent() instanceof DocumentationTemplateAttributeDescriptionNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+            }
             PsiReference reference = element.getReference();
             if (reference == null || reference instanceof RecordKeyReference) {
                 return;
