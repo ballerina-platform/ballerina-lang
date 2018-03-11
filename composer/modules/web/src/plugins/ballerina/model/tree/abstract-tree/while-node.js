@@ -22,33 +22,6 @@ import StatementNode from '../statement-node';
 class AbstractWhileNode extends StatementNode {
 
 
-    setCondition(newValue, silent, title) {
-        const oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
-    }
-
-
-
     setBody(newValue, silent, title) {
         const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +47,31 @@ class AbstractWhileNode extends StatementNode {
         return this.body;
     }
 
+
+    setCondition(newValue, silent, title) {
+        const oldValue = this.condition;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.condition = newValue;
+
+        this.condition.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'condition',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCondition() {
+        return this.condition;
+    }
 
 
 }

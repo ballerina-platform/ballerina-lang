@@ -16,16 +16,10 @@
  * under the License.
  */
 
-import AbstractConnectorInitExprNode from './abstract-tree/connector-init-expr-node';
+import AbstractEndpointNode from './abstract-tree/endpoint-node';
 
-class ConnectorInitExprNode extends AbstractConnectorInitExprNode {
-    setFullPackageName(fullPackageName) {
-        this._fullPackageName = fullPackageName;
-    }
+class EndpointNode extends AbstractEndpointNode {
 
-    getFullPackageName(fullPackageName) {
-        return this._fullPackageName;
-    }
 }
 
-export default ConnectorInitExprNode;
+export default EndpointNode;

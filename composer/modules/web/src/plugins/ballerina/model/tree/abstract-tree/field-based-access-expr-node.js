@@ -22,33 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractFieldBasedAccessExprNode extends ExpressionNode {
 
 
-    setFieldName(newValue, silent, title) {
-        const oldValue = this.fieldName;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.fieldName = newValue;
-
-        this.fieldName.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'fieldName',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFieldName() {
-        return this.fieldName;
-    }
-
-
-
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +47,31 @@ class AbstractFieldBasedAccessExprNode extends ExpressionNode {
         return this.expression;
     }
 
+
+    setFieldName(newValue, silent, title) {
+        const oldValue = this.fieldName;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.fieldName = newValue;
+
+        this.fieldName.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'fieldName',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFieldName() {
+        return this.fieldName;
+    }
 
 
 }

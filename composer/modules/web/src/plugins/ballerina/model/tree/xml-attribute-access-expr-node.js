@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractCommentNode from './abstract-tree/comment-node';
+import AbstractXmlAttributeAccessExprNode from './abstract-tree/xml-attribute-access-expr-node';
 
-class CommentNode extends AbstractCommentNode {
+class XmlAttributeAccessExprNode extends AbstractXmlAttributeAccessExprNode {
 
 }
 
-export default CommentNode;
+export default XmlAttributeAccessExprNode;

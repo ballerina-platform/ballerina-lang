@@ -22,6 +22,30 @@ import Node from '../node';
 class AbstractUserDefinedTypeNode extends Node {
 
 
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
+
+
     setPackageAlias(newValue, silent, title) {
         const oldValue = this.packageAlias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -48,32 +72,6 @@ class AbstractUserDefinedTypeNode extends Node {
     }
 
 
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
-
-
     setTypeName(newValue, silent, title) {
         const oldValue = this.typeName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,7 +96,6 @@ class AbstractUserDefinedTypeNode extends Node {
     getTypeName() {
         return this.typeName;
     }
-
 
 
 }

@@ -22,6 +22,32 @@ import StatementNode from '../statement-node';
 class AbstractIfNode extends StatementNode {
 
 
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.body = newValue;
+
+        this.body.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'body',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getBody() {
+        return this.body;
+    }
+
+
     setCondition(newValue, silent, title) {
         const oldValue = this.condition;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -48,7 +74,6 @@ class AbstractIfNode extends StatementNode {
     }
 
 
-
     setElseStatement(newValue, silent, title) {
         const oldValue = this.elseStatement;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,34 +98,6 @@ class AbstractIfNode extends StatementNode {
     getElseStatement() {
         return this.elseStatement;
     }
-
-
-
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'body',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getBody() {
-        return this.body;
-    }
-
 
 
 }

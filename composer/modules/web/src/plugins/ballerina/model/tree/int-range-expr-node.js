@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import Node from '../node';
+import AbstractIntRangeExprNode from './abstract-tree/int-range-expr-node';
 
-class AbstractTypeNode extends Node {
+class IntRangeExprNode extends AbstractIntRangeExprNode {
 
 }
 
-export default AbstractTypeNode;
+export default IntRangeExprNode;

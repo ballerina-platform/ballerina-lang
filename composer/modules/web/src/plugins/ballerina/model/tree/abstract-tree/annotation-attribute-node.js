@@ -48,7 +48,6 @@ class AbstractAnnotationAttributeNode extends Node {
     }
 
 
-
     setInitialExpression(newValue, silent, title) {
         const oldValue = this.initialExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,7 +72,6 @@ class AbstractAnnotationAttributeNode extends Node {
     getInitialExpression() {
         return this.initialExpression;
     }
-
 
 
     setName(newValue, silent, title) {
@@ -101,6 +99,29 @@ class AbstractAnnotationAttributeNode extends Node {
         return this.name;
     }
 
+
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.flags = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'flags',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getFlags() {
+        return this.flags;
+    }
 
 
     setAnnotationAttachments(newValue, silent, title) {
@@ -220,31 +241,6 @@ class AbstractAnnotationAttributeNode extends Node {
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
     }
-
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getFlags() {
-        return this.flags;
-    }
-
 
 
 }

@@ -19,15 +19,15 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractAnnotationAttachmentNode extends Node {
+class AbstractEndpointNode extends Node {
 
 
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
+    setEndPointType(newValue, silent, title) {
+        const oldValue = this.endPointType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
+        this.endPointType = newValue;
 
-        this.packageAlias.parent = this;
+        this.endPointType.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractAnnotationAttachmentNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'packageAlias',
+                    attributeName: 'endPointType',
                     newValue,
                     oldValue,
                 },
@@ -43,17 +43,17 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    getPackageAlias() {
-        return this.packageAlias;
+    getEndPointType() {
+        return this.endPointType;
     }
 
 
-    setAnnotationName(newValue, silent, title) {
-        const oldValue = this.annotationName;
+    setConfigurationExpression(newValue, silent, title) {
+        const oldValue = this.configurationExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.annotationName = newValue;
+        this.configurationExpression = newValue;
 
-        this.annotationName.parent = this;
+        this.configurationExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -61,7 +61,7 @@ class AbstractAnnotationAttachmentNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'annotationName',
+                    attributeName: 'configurationExpression',
                     newValue,
                     oldValue,
                 },
@@ -69,17 +69,17 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    getAnnotationName() {
-        return this.annotationName;
+    getConfigurationExpression() {
+        return this.configurationExpression;
     }
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setName(newValue, silent, title) {
+        const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
+        this.name = newValue;
 
-        this.expression.parent = this;
+        this.name.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -87,7 +87,7 @@ class AbstractAnnotationAttachmentNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'name',
                     newValue,
                     oldValue,
                 },
@@ -95,15 +95,15 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getName() {
+        return this.name;
     }
 
 
-    setAttributes(newValue, silent, title) {
-        const oldValue = this.attributes;
+    setFlags(newValue, silent, title) {
+        const oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.attributes = newValue;
+        this.flags = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -111,7 +111,7 @@ class AbstractAnnotationAttachmentNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'attributes',
+                    attributeName: 'flags',
                     newValue,
                     oldValue,
                 },
@@ -119,19 +119,43 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    getAttributes() {
-        return this.attributes;
+    getFlags() {
+        return this.flags;
     }
 
 
-    addAttributes(node, i = -1, silent) {
+    setAnnotationAttachments(newValue, silent, title) {
+        const oldValue = this.annotationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.annotationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'annotationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAnnotationAttachments() {
+        return this.annotationAttachments;
+    }
+
+
+    addAnnotationAttachments(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.attributes.push(node);
-            index = this.attributes.length;
+            this.annotationAttachments.push(node);
+            index = this.annotationAttachments.length;
         } else {
-            this.attributes.splice(i, 0, node);
+            this.annotationAttachments.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -146,9 +170,9 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    removeAttributes(node, silent) {
-        const index = this.getIndexOfAttributes(node);
-        this.removeAttributesByIndex(index, silent);
+    removeAnnotationAttachments(node, silent) {
+        const index = this.getIndexOfAnnotationAttachments(node);
+        this.removeAnnotationAttachmentsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -162,8 +186,8 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    removeAttributesByIndex(index, silent) {
-        this.attributes.splice(index, 1);
+    removeAnnotationAttachmentsByIndex(index, silent) {
+        this.annotationAttachments.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -177,9 +201,9 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    replaceAttributes(oldChild, newChild, silent) {
-        const index = this.getIndexOfAttributes(oldChild);
-        this.attributes[index] = newChild;
+    replaceAnnotationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfAnnotationAttachments(oldChild);
+        this.annotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -194,8 +218,8 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    replaceAttributesByIndex(index, newChild, silent) {
-        this.attributes[index] = newChild;
+    replaceAnnotationAttachmentsByIndex(index, newChild, silent) {
+        this.annotationAttachments[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -210,15 +234,15 @@ class AbstractAnnotationAttachmentNode extends Node {
         }
     }
 
-    getIndexOfAttributes(child) {
-        return _.findIndex(this.attributes, ['id', child.id]);
+    getIndexOfAnnotationAttachments(child) {
+        return _.findIndex(this.annotationAttachments, ['id', child.id]);
     }
 
-    filterAttributes(predicateFunction) {
-        return _.filter(this.attributes, predicateFunction);
+    filterAnnotationAttachments(predicateFunction) {
+        return _.filter(this.annotationAttachments, predicateFunction);
     }
 
 
 }
 
-export default AbstractAnnotationAttachmentNode;
+export default AbstractEndpointNode;

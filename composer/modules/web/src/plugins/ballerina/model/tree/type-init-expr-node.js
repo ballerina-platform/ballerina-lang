@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractXmlCommentLiteralNode from './abstract-tree/xml-comment-literal-node';
+import AbstractTypeInitExprNode from './abstract-tree/type-init-expr-node';
 
-class XmlCommentLiteralNode extends AbstractXmlCommentLiteralNode {
+class TypeInitExprNode extends AbstractTypeInitExprNode {
 
 }
 
-export default XmlCommentLiteralNode;
+export default TypeInitExprNode;
