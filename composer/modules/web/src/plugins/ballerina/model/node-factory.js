@@ -96,7 +96,6 @@ import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
 import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
-import TypeNode from './tree/type-node';
 import VariableReferenceNode from './tree/variable-reference-node';
 
 class NodeFactory {
@@ -141,7 +140,6 @@ class NodeFactory {
     createAnnotationAttribute(json = {}) {
         json.kind = 'AnnotationAttribute';
         let node = new AnnotationAttributeNode();
-        node.typeNode = new TypeNode();
         node.initialExpression = new ExpressionNode();
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
@@ -351,10 +349,12 @@ class NodeFactory {
     createVariable(json = {}) {
         json.kind = 'Variable';
         let node = new VariableNode();
-        node.typeNode = new ValueTypeNode();
+        node.typeNode = new TypeNode();
         node.initialExpression = new ExpressionNode();
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -366,9 +366,12 @@ class NodeFactory {
         node.returnParameters = [];
         node.body = new BlockNode();
         node.workers = [];
+        node.endpointNodes = [];
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -388,12 +391,15 @@ class NodeFactory {
         json.kind = 'Transformer';
         let node = new TransformerNode();
         node.source = new VariableNode();
+        node.returnParameters = [];
+        node.body = new BlockNode();
+        node.workers = [];
+        node.endpointNodes = [];
         node.name = new IdentifierNode();
         node.parameters = [];
-        node.body = new BlockNode();
-        node.returnParameters = [];
-        node.workers = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -566,8 +572,8 @@ class NodeFactory {
     createTypeCastExpr(json = {}) {
         json.kind = 'TypeCastExpr';
         let node = new TypeCastExprNode();
-        node.typeNode = new TypeNode();
         node.expression = new ExpressionNode();
+        node.typeNode = new TypeNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -576,8 +582,9 @@ class NodeFactory {
     createTypeConversionExpr(json = {}) {
         json.kind = 'TypeConversionExpr';
         let node = new TypeConversionExprNode();
-        node.typeNode = new TypeNode();
         node.expression = new ExpressionNode();
+        node.typeNode = new TypeNode();
+        node.transformerInvocation = new InvocationNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -897,7 +904,8 @@ class NodeFactory {
     createEndpointType(json = {}) {
         json.kind = 'EndpointType';
         let node = new EndpointTypeNode();
-        node.constraint = new TypeNode();
+        node.packageAlias = new IdentifierNode();
+        node.typeName = new IdentifierNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
