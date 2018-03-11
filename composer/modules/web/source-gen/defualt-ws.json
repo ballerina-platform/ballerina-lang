@@ -56,18 +56,14 @@
   "Annotation": {
     "before annotation": "",
     "after annotation": "",
+    "before <": " ",
+    "before attachmentPoints": "",
+    "after attachmentPoints": "",
+    "after >": "",
     "before name": " ",
-    "after name": "",
-    "before {": " ",
-    "after {": "",
-    "before attributes": "",
-    "after attributes": "",
-    "before }": "",
-    "after }": "",
-    "before attach": "",
-    "after attach": "",
-    "before resource": "",
-    "after resource": ""
+    "after name": " ",
+    "before typeNode": " ",
+    "after typeNode": ""
   },
   "AnnotationAttachment": {
     "before @": "",

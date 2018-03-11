@@ -86,6 +86,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     if (replaceLambda && node.kind === 'Lambda') {
         return '$ function LAMBDA $';
     }
+    // if this is a primitive value, return value directly
+    if (Object(node) !== node) {
+        return node;
+    }
 
     switch (node.kind) {
         case 'CompilationUnit':
@@ -135,27 +139,23 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             }
         case 'Annotation':
-            if (node.name.valueWithBar && node.attributes) {
-                return dent() + w() + 'annotation' + w(' ') + node.name.valueWithBar
-                 + w(' ') + '{' + indent()
-                 + join(node.attributes, pretty, replaceLambda, l, w, '', ';', true) + outdent() + w() + '}';
-            } else {
-                return dent() + w() + 'annotation' + w(' ') + node.name.valueWithBar
-                 + w() + 'attach' + w() + 'resource' + w(' ') + '{' + indent()
-                 + outdent() + w() + '}';
-            }
+            return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '') + w() + 'annotation' + w(' ') + '<'
+                 + join(node.attachmentPoints, pretty, replaceLambda, l, w, '', ',') + w() + '>'
+                 + w(' ') + node.name.valueWithBar + b(' ')
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w() + ';';
         case 'AnnotationAttachment':
             if (node.builtin && node.annotationName.valueWithBar
                          && node.expression) {
-                return w() + '@' + w() + node.annotationName.valueWithBar
+                return w() + '@' + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             } else if (node.packageAlias.valueWithBar
                          && node.annotationName.valueWithBar && node.expression) {
                 return w() + '@' + w() + node.packageAlias.valueWithBar + w() + ':'
-                 + w() + node.annotationName.valueWithBar
+                 + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             } else {
-                return w() + '@' + w() + node.annotationName.valueWithBar
+                return w() + '@' + w() + node.annotationName.valueWithBar + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
             }
         case 'ArrayLiteralExpr':

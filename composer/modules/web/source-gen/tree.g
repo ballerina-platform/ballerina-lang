@@ -19,8 +19,7 @@ Action
    ;
 
 Annotation
-   : annotation <name.value> { <attributes-suffixed-by-;>* }
-   | annotation <name.value> attach resource { }
+   : <annotationAttachments>* annotation < <attachmentPoints-joined-by-,>* > <name.value> <typeNode.source> ;
    ;
 
 AnnotationAttachment

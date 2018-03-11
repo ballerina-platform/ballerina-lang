@@ -86,6 +86,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     if (replaceLambda && node.kind === 'Lambda') {
         return '$ function LAMBDA $';
     }
+    // if this is a primitive value, return value directly
+    if (Object(node) !== node) {
+        return node;
+    }
 
     switch (node.kind) {
         case 'CompilationUnit':
