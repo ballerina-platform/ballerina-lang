@@ -40,6 +40,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -100,6 +101,17 @@ structBody
     :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
+    ;
 
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
@@ -132,6 +144,7 @@ attachmentPoint
      | ACTION
      | FUNCTION
      | STRUCT
+     | STREAMLET
      | ENUM
      | ENDPOINT
      | CONST
@@ -207,6 +220,8 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
+    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_AGGREGTION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -232,7 +247,6 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -248,10 +262,11 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -276,11 +291,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-bindStatement
-    :   BIND expression WITH Identifier SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 variableReferenceList
@@ -414,12 +425,16 @@ invocation
     : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
+actionInvocation
+    : variableReference RARROW functionInvocation
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
 expressionStmt
-    :   variableReference SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement
@@ -472,6 +487,7 @@ expression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
+    |   tableQuery                                                          # tableQueryExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
@@ -524,26 +540,26 @@ simpleLiteral
     |   BooleanLiteral
     |   NullLiteral
     ;
-    
+
 // XML parsing
 
 xmlLiteral
     :   XMLLiteralStart xmlItem XMLLiteralEnd
     ;
 
-xmlItem 
+xmlItem
     :   element
     |   procIns
     |   comment
     |   text
     |   CDATA
     ;
-    
+
 content
     :   text? ((element | CDATA | procIns | comment) text?)*
     ;
-                
-comment 
+
+comment
     :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
     ;
 
@@ -567,7 +583,7 @@ emptyTag
 procIns
     :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
     ;
-    
+
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
@@ -614,6 +630,106 @@ reservedWord
     |   TYPE_MAP
     ;
 
+tableQuery
+    :   FROM streamingInput joinStreamingInput?
+        selectClause?
+        orderByClause?
+    ;
+
+aggregationQuery
+    :   FROM streamingInput
+        selectClause?
+        orderByClause?
+
+    ;
+
+streamingQueryStatement
+    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+        selectClause?
+        orderByClause?
+        streamingAction
+    ;
+
+orderByClause
+    :   ORDER BY variableReferenceList
+    ;
+
+selectClause
+    :   SELECT (MUL| selectExpressionList )
+            groupByClause?
+            havingClause?
+    ;
+
+selectExpressionList
+    :   selectExpression (COMMA selectExpression)*
+    ;
+
+selectExpression
+    :   expression (AS Identifier)?
+    ;
+
+groupByClause
+    : GROUP BY variableReferenceList
+    ;
+
+havingClause
+    :   HAVING expression
+    ;
+
+streamingAction
+    :   INSERT INTO Identifier
+    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
+    |   DELETE Identifier ON expression
+    ;
+
+setClause
+    :   SET setAssignmentClause (COMMA setAssignmentClause)*
+    ;
+
+setAssignmentClause
+    :   variableReference ASSIGN expression
+    ;
+
+streamingInput
+    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    ;
+
+joinStreamingInput
+    :   JOIN streamingInput ON expression
+    ;
+
+pattenStreamingInput
+    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
+    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH pattenStreamingInput
+    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
+    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
+    |   pattenStreamingEdgeInput
+    ;
+
+pattenStreamingEdgeInput
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
+    ;
+
+queryDeclaration
+     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+     ;
+
+queryDefinition
+     :   QUERY Identifier
+     ;
 // Deprecated parsing.
 
 deprecatedAttachment

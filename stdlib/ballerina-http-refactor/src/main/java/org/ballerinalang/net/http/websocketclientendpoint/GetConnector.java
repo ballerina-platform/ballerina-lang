@@ -19,12 +19,15 @@
 package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.WebSocketConstants;
 
 /**
  * Get the ID of the connection.
@@ -44,6 +47,9 @@ public class GetConnector extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return VOID_RETURN;
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+
+        return getBValues((BValue) clientEndpointConfig.getNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET));
     }
 }

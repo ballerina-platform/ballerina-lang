@@ -46,7 +46,19 @@ import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
+import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
+import org.ballerinalang.model.tree.clauses.GroupByNode;
+import org.ballerinalang.model.tree.clauses.HavingNode;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.SelectClauseNode;
+import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.clauses.StreamingInput;
+import org.ballerinalang.model.tree.clauses.TableQuery;
+import org.ballerinalang.model.tree.clauses.WhereNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
@@ -80,6 +92,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
@@ -95,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -112,7 +135,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -134,7 +156,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -224,6 +245,30 @@ public class BLangPackageBuilder {
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
     private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+
+    private Stack<OrderByNode> orderByClauseStack = new Stack<>();
+
+    private Stack<GroupByNode> groupByClauseStack = new Stack<>();
+
+    private Stack<HavingNode> havingClauseStack = new Stack<>();
+
+    private Stack<WhereNode> whereClauseStack = new Stack<>();
+
+    private Stack<SelectExpressionNode> selectExpressionsStack = new Stack<>();
+
+    private Stack<List<SelectExpressionNode>> selectExpressionsListStack = new Stack<>();
+
+    private Stack<SelectClauseNode> selectClausesStack = new Stack<>();
+
+    private Stack<FunctionClauseNode> functionClausesStack = new Stack<>();
+
+    private Stack<WindowClauseNode> windowClausesStack = new Stack<>();
+
+    private Stack<StreamingInput> streamingInputStack = new Stack<>();
+
+    private Stack<JoinStreamingInput> joinStreamingInputsStack = new Stack<>();
+
+    private Stack<TableQuery> tableQueriesStack = new Stack<>();
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
@@ -338,15 +383,7 @@ public class BLangPackageBuilder {
         constraintType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         constraintType.typeName = (BLangIdentifier) nameReference.name;
         constraintType.addWS(nameReference.ws);
-
-        BLangEndpointTypeNode endpointTypeNode = (BLangEndpointTypeNode) TreeBuilder.createEndpointTypeNode();
-        endpointTypeNode.pos = pos;
-        endpointTypeNode.endpointType = constraintType;
-        endpointVarWs = removeNthFromStart(ws, 3);
-        endpointKeywordWs = removeNthFromStart(ws, 0);
-        endpointTypeNode.addWS(ws);
-
-        addType(endpointTypeNode);
+        addType(constraintType);
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
@@ -497,7 +534,7 @@ public class BLangPackageBuilder {
         attachAnnotations(endpointNode);
         endpointNode.pos = pos;
         endpointNode.name = (BLangIdentifier) this.createIdentifier(identifier);
-        endpointNode.endpointTypeNode = (BLangEndpointTypeNode) typeNodeStack.pop();
+        endpointNode.endpointTypeNode = (BLangUserDefinedType) typeNodeStack.pop();
         if (initExprExist) {
             endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
         }
@@ -734,6 +771,15 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
+    }
+
+    public void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
+        invocationExpr.actionInvocation = true;
+        invocationExpr.pos = pos;
+        invocationExpr.addWS(ws);
+        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+        exprNodeStack.push(invocationExpr);
     }
 
     public void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName) {
@@ -1289,24 +1335,6 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
-    }
-
-    public void addBindStatement(DiagnosticPos pos, Set<Whitespace> ws, String varName) {
-        ExpressionNode rExprNode = exprNodeStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
-        varRef.pos = pos;
-        varRef.addWS(removeNthFromLast(ws, 1));
-        varRef.pkgAlias = (BLangIdentifier) createIdentifier(null);
-        varRef.variableName = (BLangIdentifier) createIdentifier(varName);
-
-
-        BLangBind bindNode = (BLangBind) TreeBuilder.createBindNode();
-        bindNode.setExpression(rExprNode);
-        bindNode.pos = pos;
-        bindNode.addWS(ws);
-        bindNode.setVariable(varRef);
-        addStmtToCurrentBlock(bindNode);
     }
 
     public void startForeachStatement() {
@@ -1900,5 +1928,207 @@ public class BLangPackageBuilder {
     private List<String> getPackageNameComps(String sourcePkg) {
         String[] pkgParts = sourcePkg.split("\\.|\\\\|\\/");
         return Arrays.asList(pkgParts);
+    }
+
+    public void startOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OrderByNode orderByNode = TreeBuilder.createOrderByNode();
+        ((BLangOrderBy) orderByNode).pos = pos;
+        orderByNode.addWS(ws);
+        this.orderByClauseStack.push(orderByNode);
+    }
+
+    public void endOrderByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OrderByNode orderByNode = this.orderByClauseStack.peek();
+        ((BLangOrderBy) orderByNode).pos = pos;
+        orderByNode.addWS(ws);
+        this.exprNodeListStack.pop().forEach(orderByNode::addVariableReference);
+    }
+
+    public void startGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        GroupByNode groupByNode = TreeBuilder.createGroupByNode();
+        ((BLangGroupBy) groupByNode).pos = pos;
+        groupByNode.addWS(ws);
+        this.groupByClauseStack.push(groupByNode);
+    }
+
+    public void endGroupByClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        GroupByNode groupByNode = this.groupByClauseStack.peek();
+        ((BLangGroupBy) groupByNode).pos = pos;
+        groupByNode.addWS(ws);
+        this.exprNodeListStack.pop().forEach(groupByNode::addVariableReference);
+    }
+
+    public void startHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        HavingNode havingNode = TreeBuilder.createHavingNode();
+        ((BLangHaving) havingNode).pos = pos;
+        havingNode.addWS(ws);
+        this.havingClauseStack.push(havingNode);
+    }
+
+    public void endHavingClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        HavingNode havingNode = this.havingClauseStack.peek();
+        ((BLangHaving) havingNode).pos = pos;
+        havingNode.addWS(ws);
+        havingNode.setExpression(this.exprNodeStack.pop());
+    }
+
+    public void startSelectExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectExpressionNode selectExpr = TreeBuilder.createSelectExpressionNode();
+        ((BLangSelectExpression) selectExpr).pos = pos;
+        selectExpr.addWS(ws);
+        this.selectExpressionsStack.push(selectExpr);
+    }
+
+    public void endSelectExpressionNode(String identifier, DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectExpressionNode selectExpression = this.selectExpressionsStack.peek();
+        selectExpression.setExpression(exprNodeStack.pop());
+        ((BLangSelectExpression) selectExpression).pos = pos;
+        selectExpression.addWS(ws);
+        selectExpression.setIdentifier(identifier);
+    }
+
+    public void startSelectExpressionList() {
+        this.selectExpressionsListStack.push(new ArrayList<>());
+    }
+
+    public void endSelectExpressionList(Set<Whitespace> ws, int selectExprCount) {
+        List<SelectExpressionNode> selectExprList = this.selectExpressionsListStack.peek();
+        addSelectExprToSelectExprNodeList(selectExprList, selectExprCount);
+    }
+
+    private void addSelectExprToSelectExprNodeList(List<SelectExpressionNode> selectExprList, int n) {
+        if (this.selectExpressionsStack.isEmpty()) {
+            throw new IllegalStateException("Select expression stack cannot be empty in processing a SelectClause");
+        }
+        SelectExpressionNode expr = this.selectExpressionsStack.pop();
+        if (n > 1) {
+            addSelectExprToSelectExprNodeList(selectExprList, n - 1);
+        }
+        selectExprList.add(expr);
+    }
+
+    public void startWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WhereNode whereNode = TreeBuilder.createWhereNode();
+        ((BLangWhere) whereNode).pos = pos;
+        whereNode.addWS(ws);
+        this.whereClauseStack.push(whereNode);
+    }
+
+    public void endWhereClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WhereNode whereNode = this.whereClauseStack.peek();
+        ((BLangWhere) whereNode).pos = pos;
+        whereNode.addWS(ws);
+        whereNode.setExpression(exprNodeStack.pop());
+    }
+
+    public void startSelectClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectClauseNode selectClauseNode = TreeBuilder.createSelectClauseNode();
+        ((BLangSelectClause) selectClauseNode).pos = pos;
+        selectClauseNode.addWS(ws);
+        this.selectClausesStack.push(selectClauseNode);
+    }
+
+    public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
+                                    DiagnosticPos pos, Set<Whitespace> ws) {
+        SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
+        ((BLangSelectClause) selectClauseNode).pos = pos;
+        selectClauseNode.addWS(ws);
+        if (!isSelectAll) {
+            selectClauseNode.setSelectExpressions(this.selectExpressionsListStack.pop());
+        } else {
+            selectClauseNode.setSelectAll(true);
+        }
+        if (isGroupByAvailable) {
+            selectClauseNode.setGroupBy(this.groupByClauseStack.pop());
+        }
+        if (isHavingAvailable) {
+            selectClauseNode.setHaving(this.havingClauseStack.pop());
+        }
+    }
+
+    public void startWindowClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowClauseNode windowClauseNode = TreeBuilder.createWindowClauseNode();
+        ((BLangWindow) windowClauseNode).pos = pos;
+        windowClauseNode.addWS(ws);
+        this.windowClausesStack.push(windowClauseNode);
+    }
+
+    public void endWindowsClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        WindowClauseNode windowClauseNode = this.windowClausesStack.peek();
+        ((BLangWindow) windowClauseNode).pos = pos;
+        windowClauseNode.addWS(ws);
+        windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
+    }
+
+    public void startStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamingInput streamingInput = TreeBuilder.createStreamingInputNode();
+        ((BLangStreamingInput) streamingInput).pos = pos;
+        streamingInput.addWS(ws);
+        this.streamingInputStack.push(streamingInput);
+    }
+
+    public void endStreamingInputNode(boolean isFirstWhereAvailable, boolean isSecondWhereAvailable,
+                                      boolean isWindowAvailable, String alias, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangStreamingInput streamingInput = (BLangStreamingInput) this.streamingInputStack.peek();
+        streamingInput.pos = pos;
+        streamingInput.addWS(ws);
+        if (isSecondWhereAvailable) {
+            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
+        }
+        if (isFirstWhereAvailable) {
+            streamingInput.addStreamingCondition(this.whereClauseStack.pop());
+        }
+        if (isWindowAvailable) {
+            streamingInput.setWindowClause(this.windowClausesStack.pop());
+        }
+        streamingInput.setTableReference(this.exprNodeStack.pop());
+        streamingInput.setAlias(alias);
+    }
+
+    public void startJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        JoinStreamingInput joinStreamingInput = TreeBuilder.createJoinStreamingInputNode();
+        ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
+        joinStreamingInput.addWS(ws);
+        this.joinStreamingInputsStack.push(joinStreamingInput);
+    }
+
+    public void endJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        JoinStreamingInput joinStreamingInput = this.joinStreamingInputsStack.peek();
+        ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
+        joinStreamingInput.addWS(ws);
+        joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
+        joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+    }
+
+    public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQuery tableQuery = TreeBuilder.createTableQueryNode();
+        ((BLangTableQuery) tableQuery).pos = pos;
+        tableQuery.addWS(ws);
+        this.tableQueriesStack.push(tableQuery);
+    }
+
+    public void endTableQueryNode(boolean isJoinClauseAvailable, boolean isSelectClauseAvailable,
+                                  boolean isOrderByClauseAvailable, DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableQuery tableQuery = (BLangTableQuery) this.tableQueriesStack.peek();
+        tableQuery.pos = pos;
+        tableQuery.addWS(ws);
+        tableQuery.setStreamingInput(this.streamingInputStack.pop());
+        if (isJoinClauseAvailable) {
+            tableQuery.setJoinStreamingInput(this.joinStreamingInputsStack.pop());
+        }
+        if (isSelectClauseAvailable) {
+            tableQuery.setSelectClause(this.selectClausesStack.pop());
+        }
+        if (isOrderByClauseAvailable) {
+            tableQuery.setOrderByClause(this.orderByClauseStack.pop());
+        }
+    }
+
+    public void addTableQueryExpression(DiagnosticPos pos, Set<Whitespace> ws) {
+        TableQueryExpression tableQueryExpression = TreeBuilder.createTableQueryExpression();
+        ((BLangTableQueryExpression) tableQueryExpression).pos = pos;
+        tableQueryExpression.addWS(ws);
+        tableQueryExpression.setTableQuery(tableQueriesStack.pop());
+        this.exprNodeStack.push(tableQueryExpression);
     }
 }

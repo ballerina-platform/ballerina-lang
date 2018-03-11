@@ -18,12 +18,14 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -125,29 +127,29 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.
-                getConnectionInfo(webSocketTextMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(
+                webSocketTextMessage.getSessionID());
         WebSocketDispatcher.dispatchTextMessage(wsService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.
-                getConnectionInfo(webSocketBinaryMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(
+                webSocketBinaryMessage.getSessionID());
         WebSocketDispatcher.dispatchBinaryMessage(wsService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.
-                getConnectionInfo(webSocketControlMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.getConnectionInfo(
+                webSocketControlMessage.getSessionID());
         WebSocketDispatcher.dispatchControlMessage(wsService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketOpenConnectionInfo wsService = connectionManager.
-                removeConnection(webSocketCloseMessage.getSessionID());
+        WebSocketOpenConnectionInfo wsService = connectionManager.removeConnection(
+                webSocketCloseMessage.getSessionID());
         WebSocketDispatcher.dispatchCloseMessage(wsService, webSocketCloseMessage);
     }
 
@@ -171,11 +173,11 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BStruct wsConnection = wsService.createConnectionStruct();
-                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
-                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
-                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
+                BConnector wsConnection = WebSocketUtil.createAndGetConnector(wsService.getResources()[0]);
+                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                wsConnection.setNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
+                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
+                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
                 connectionManager.addConnection(session.getId(),
                                                 new WebSocketOpenConnectionInfo(wsService, wsConnection, variables));
 

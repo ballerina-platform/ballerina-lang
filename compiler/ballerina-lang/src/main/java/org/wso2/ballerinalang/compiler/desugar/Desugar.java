@@ -21,12 +21,16 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -34,11 +38,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -83,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -123,6 +131,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -142,12 +152,16 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
+    private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
+    private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private IterableCodeDesugar iterableCodeDesugar;
     private AnnotationDesugar annotationDesugar;
     private EndpointDesugar endpointDesugar;
+    private SqlQueryBuilder sqlQueryBuilder;
+    private Types types;
 
     private BLangNode result;
 
@@ -174,6 +188,8 @@ public class Desugar extends BLangNodeVisitor {
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.endpointDesugar = EndpointDesugar.getInstance(context);
+        this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -656,6 +672,9 @@ public class Desugar extends BLangNodeVisitor {
             visitIterableOperationInvocation(iExpr);
             return;
         }
+        if (iExpr.actionInvocation) {
+            visitActionInvocationEndpoint(iExpr);
+        }
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
@@ -678,7 +697,7 @@ public class Desugar extends BLangNodeVisitor {
                 result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol,
                         iExpr.types, iExpr.expr);
                 break;
-            case TypeTags.ENDPOINT:
+            case TypeTags.CONNECTOR:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
                 actionArgExprs.add(0, iExpr.expr);
                 result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
@@ -949,6 +968,118 @@ public class Desugar extends BLangNodeVisitor {
         result = intRangeExpression;
     }
 
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        sqlQueryBuilder.visit(tableQueryExpression);
+
+        /*replace the table expression with a function invocation,
+         so that we manually call a native function "queryTable". */
+        result = createInvocationFromTableExpr(tableQueryExpression);
+    }
+
+    private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
+        List<BLangExpression> args = new ArrayList<>();
+        List<BType> retTypes = new ArrayList<>();
+        String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
+        //Order matters, because these are the args for a function invocation.
+        args.add(getSQLPreparedStatement(tableQueryExpression));
+        args.add(getFromTableVarRef(tableQueryExpression));
+       // BLangTypeofExpr
+        retTypes.add(tableQueryExpression.type);
+        BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
+        if (joinTable != null) {
+            args.add(joinTable);
+            functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
+        }
+        args.add(getSQLStatementParameters(tableQueryExpression));
+        args.add(getReturnType(tableQueryExpression));
+        return createQueryTableInvocation(functionName, args, retTypes);
+    }
+
+    private BLangInvocation createQueryTableInvocation(String functionName, List<BLangExpression> args, List<BType>
+            retTypes) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        // TODO: 2/28/18 need to find a good way to refer to symbols
+        invocationNode.symbol = symTable.rootScope.lookup(new Name(functionName)).symbol;
+        invocationNode.types = retTypes;
+        invocationNode.argExprs = args;
+        return invocationNode;
+    }
+
+    private BLangLiteral getSQLPreparedStatement(BLangTableQueryExpression
+            tableQueryExpression) {
+        //create a literal to represent the sql query.
+        BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        sqlQueryLiteral.typeTag = TypeTags.STRING;
+
+        //assign the sql query from table expression to the literal.
+        sqlQueryLiteral.value = tableQueryExpression.getSqlQuery();
+        sqlQueryLiteral.type = symTable.getTypeFromTag(sqlQueryLiteral.typeTag);
+        return sqlQueryLiteral;
+    }
+
+    private BLangStructLiteral getReturnType(BLangTableQueryExpression
+                                                         tableQueryExpression) {
+        //create a literal to represent the sql query.
+        BTableType tableType = (BTableType) tableQueryExpression.type;
+        BStructType structType = (BStructType) tableType.constraint;
+        return new BLangStructLiteral(new ArrayList<>(), structType);
+    }
+
+    private BLangArrayLiteral getSQLStatementParameters(BLangTableQueryExpression tableQueryExpression) {
+        BLangArrayLiteral expr = createArrayLiteralExprNode();
+        List<BLangExpression> params = tableQueryExpression.getParams();
+
+        params.stream().map(param -> (BLangLiteral) param).forEach(literal -> {
+            Object value = literal.getValue();
+            int type = TypeTags.STRING;
+            if (value instanceof Integer || value instanceof Long) {
+                type = TypeTags.INT;
+            } else if (value instanceof Double || value instanceof Float) {
+                type = TypeTags.FLOAT;
+            } else if (value instanceof Boolean) {
+                type = TypeTags.BOOLEAN;
+            } else if (value instanceof Byte[]) {
+                type = TypeTags.BLOB;
+            } else if (value instanceof Object[]) {
+                type = TypeTags.ARRAY;
+            }
+            literal.type = symTable.getTypeFromTag(type);
+            types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
+            expr.exprs.add(literal.impCastExpr);
+        });
+        return expr;
+    }
+
+    private BLangArrayLiteral createArrayLiteralExprNode() {
+        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        expr.exprs = new ArrayList<>();
+        expr.type = symTable.anyType;
+        return expr;
+    }
+
+    private BLangSimpleVarRef getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
+        BLangSimpleVarRef joinTable = null;
+        if (joinStreamingInput != null) {
+            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getTableReference();
+            joinTable = new BLangLocalVarRef(joinTable.symbol);
+        }
+        return joinTable;
+    }
+
+    private BLangLocalVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
+                .getTableReference();
+        return new BLangLocalVarRef(fromTable.symbol);
+    }
+
     // private functions
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
@@ -974,6 +1105,21 @@ public class Desugar extends BLangNodeVisitor {
         }
         iterableCodeDesugar.desugar(iExpr.iContext);
         result = rewriteExpr(iExpr.iContext.iteratorCaller);
+    }
+
+    private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
+        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+            // Convert to endpoint.getConnector(). iExpr has to be a VarRef.
+            final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+            final BStructSymbol.BAttachedFunction getConnectorFunction = ((BStructSymbol) epSymbol.type.tsymbol)
+                    .attachedFuncs.stream()
+                    .filter(f -> f.funcName.equals(Names.EP_SPI_GET_CONNECTOR))
+                    .findAny().get();
+            final BLangInvocation invocationExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
+                    getConnectorFunction.symbol, Collections.emptyList(), symResolver);
+            invocationExpr.expr = iExpr.expr;
+            iExpr.expr = invocationExpr;
+        }
     }
 
     @SuppressWarnings("unchecked")

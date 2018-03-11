@@ -843,15 +843,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBindStatement(BallerinaParser.BindStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addBindStatement(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1495,6 +1486,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1896,6 +1896,234 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createStringTemplateLiteral(getCurrentPos(ctx), getWS(ctx), stringFragments, endingText);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitTableQueryExpression(BallerinaParser.TableQueryExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTableQueryExpression(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endOrderByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitGroupByClause(BallerinaParser.GroupByClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endGroupByClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterHavingClause(BallerinaParser.HavingClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitHavingClause(BallerinaParser.HavingClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endHavingClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterSelectExpression(BallerinaParser.SelectExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startSelectExpressionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitSelectExpression(BallerinaParser.SelectExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String identifier = ctx.Identifier() == null ? null : ctx.Identifier().getText();
+        this.pkgBuilder.endSelectExpressionNode(identifier, getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterSelectClause(BallerinaParser.SelectClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startSelectClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isSelectAll = ctx.MUL() != null;
+        boolean isGroupByClauseAvailable = ctx.groupByClause() != null;
+        boolean isHavingClauseAvailable = ctx.havingClause() != null;
+        this.pkgBuilder.endSelectClauseNode(isSelectAll, isGroupByClauseAvailable, isHavingClauseAvailable,
+                getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterSelectExpressionList(BallerinaParser.SelectExpressionListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startSelectExpressionList();
+    }
+
+    @Override
+    public void exitSelectExpressionList(BallerinaParser.SelectExpressionListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endSelectExpressionList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+    }
+
+    @Override
+    public void enterWhereClause(BallerinaParser.WhereClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endWhereClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterWindowClause(BallerinaParser.WindowClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startWindowClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitWindowClause(BallerinaParser.WindowClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endWindowsClauseNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitStreamingInput(BallerinaParser.StreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isWindowAvailable, isFirstWhereClauseAvailable, isSecondWhereClauseAvailable;
+        isWindowAvailable = ctx.windowClause() != null;
+        isFirstWhereClauseAvailable = ctx.whereClause(0) != null;
+        isSecondWhereClauseAvailable = ctx.whereClause(1) != null;
+        String alias = null;
+        if (ctx.alias != null) {
+            alias = ctx.alias.getText();
+        }
+
+        this.pkgBuilder.endStreamingInputNode(isFirstWhereClauseAvailable, isSecondWhereClauseAvailable,
+                isWindowAvailable, alias, getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startTableQueryNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableQuery(BallerinaParser.TableQueryContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        boolean isSelectClauseAvailable = ctx.selectClause() != null;
+        boolean isOrderByClauseAvailable = ctx.orderByClause() != null;
+        boolean isJoinClauseAvailable = ctx.joinStreamingInput() != null;
+        this.pkgBuilder.endTableQueryNode(isJoinClauseAvailable, isSelectClauseAvailable, isOrderByClauseAvailable,
+                getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

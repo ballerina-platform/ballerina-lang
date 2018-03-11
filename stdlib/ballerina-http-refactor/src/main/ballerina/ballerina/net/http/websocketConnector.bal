@@ -37,11 +37,6 @@ public connector WebSocketConnector (map attributes){
     @Return {value:"Value of the header if it exists, else it is null"}
     native action getUpgradeHeader(string key) (string);
 
-    @Description {value:"Gets the parent connection if there is one"}
-    @Param {value:"conn: Connection for which the parent connection should be retrieved"}
-    @Return {value:"The parent connection if it exists, else it is null"}
-    native action getParentConnection() (WebSocketConnector);
-
     @Description {value:"Push text to the connection"}
     @Param {value:"conn: A Connection struct"}
     @Param {value:"text: Text to be sent"}

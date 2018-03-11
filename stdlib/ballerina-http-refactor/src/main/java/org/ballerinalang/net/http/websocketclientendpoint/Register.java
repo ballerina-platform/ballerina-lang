@@ -30,6 +30,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
@@ -63,7 +64,7 @@ public class Register extends AbstractNativeFunction {
         if (service == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceName);
         }
-        if (service.getEndpointName().equals(WebSocketConstants.PROTOCOL_PACKAGE_WS)) {
+        if (service.getEndpointName().equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)) {
             WebSocketService wsService = new WebSocketService(service);
             WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);
             Value[] subProtocolValues =

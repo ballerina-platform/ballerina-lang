@@ -161,11 +161,11 @@ function testGetJsonDataSource (io:ByteChannel byteChannel) (json, mime:EntityEr
     return entity.getJson();
 }
 
-function consumeChannel(io:ByteChannel channel) {
+function consumeChannel (io:ByteChannel channel) {
     int numberOfBytesRead = 1;
     blob readContent;
     while (numberOfBytesRead != 0) {
-        readContent, numberOfBytesRead = channel.readBytes(10000);
+        readContent, numberOfBytesRead, _ = channel.read(10000, 0);
     }
 }
 

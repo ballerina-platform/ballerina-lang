@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.Map;
@@ -29,10 +30,10 @@ import java.util.Map;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BStruct wsConnection;
+    private final BConnector wsConnection;
     private final Map<String, String> varialbles;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct wsConnection,
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BConnector wsConnection,
                                        Map<String, String> varialbles) {
         this.webSocketService = webSocketService;
         this.wsConnection = wsConnection;
@@ -43,7 +44,7 @@ public class WebSocketOpenConnectionInfo {
         return webSocketService;
     }
 
-    public BStruct getWsConnection() {
+    public BConnector getWsConnection() {
         return wsConnection;
     }
 

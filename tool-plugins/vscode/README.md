@@ -10,7 +10,7 @@ If you plan on using ballerina libraries other than the ones in the standard bal
 
 To get to the settings in vscode use <kbd>CTRL</kbd> + <kbd>,</kbd> in Windows and Linux and <kbd>⌘</kbd> + <kbd>,</kbd> in macOS. [More info](https://code.visualstudio.com/docs/getstarted/settings).
 
-![set sdk](docs/set-sdk.png)
+![set sdk](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/set-sdk.gif?raw=true)
 
 ## Usage
 
@@ -49,7 +49,7 @@ To launch the debugger, the path to the ballerina sdk needs to be configured. In
 
 ## Contributing
 
-Pull requests are welcome. See [information for developers](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/developer-info.md).
+If you want to help develop the ballerina vscode plugin or want to build from source and try out the latest features see [information for developers](https://github.com/ballerina-lang/ballerina/blob/master/tool-plugins/vscode/docs/developer-info.md).
 
 ## About Ballerina
 

@@ -28,13 +28,20 @@ documentation {
 }
 string localParticipantId = util:uuid();
 
-map initiatedTransactions = {};
-map participatedTransactions = {};
+documentation {
+    This cache is used for caching transaction that are initiated.
+}
+caching:Cache initiatedTransactions = caching:createCache("ballerina.transactions.initiated.cache", 600000, 10, 0.1);
+
+documentation {
+    This cache is used for caching transaction that are this Ballerina instance participates in.
+}
+caching:Cache participatedTransactions = caching:createCache("ballerina.transactions.participated.cache", 600000, 10, 0.1);
 
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 3600000, 10, 0.1);
+caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 10, 0.1);
 
 struct Transaction {
     string transactionId;
@@ -214,7 +221,7 @@ function createTransactionContext (string coordinationType,
         Transaction txn = createNewTransaction(coordinationType);
         string txnId = txn.transactionId;
 
-        initiatedTransactions[txnId] = txn;
+        initiatedTransactions.put(txnId, txn);
         txnContext = {transactionId:txnId,
                          transactionBlockId:transactionBlockId,
                          coordinationType:coordinationType,
@@ -233,7 +240,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
     //TODO: Protocol name should be passed down from the transaction statement
     Protocol participantProtocol = {name:"durable", transactionBlockId:transactionBlockId,
                                        protocolFn:localParticipantProtocolFn};
-    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions[transactionId];
+    var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
     if (txn == null) {
         err = {message:"Transaction-Unknown. Invalid TID:" + transactionId};
     } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
@@ -251,7 +258,7 @@ function registerParticipantWithLocalInitiator (string transactionId,
         twopcTxn.coordinatorProtocols = [initiatorProto];
 
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        participatedTransactions[participatedTxnId] = twopcTxn;
+        participatedTransactions.put(participatedTxnId, twopcTxn);
         txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
                      coordinationType:"2pc", registerAtURL:registerAtURL};
         log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
@@ -290,7 +297,7 @@ function registerParticipantWithRemoteInitiator (string transactionId,
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
-    if (participatedTransactions[participatedTxnId] != null) {
+    if (participatedTransactions.hasKey(participatedTxnId)) {
         log:printError("Already registered with initiator for transaction:" + participatedTxnId);
         return;
     }
@@ -313,7 +320,7 @@ function registerParticipantWithRemoteInitiator (string transactionId,
         Protocol[] coordinatorProtocols = regRes.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = {transactionId:transactionId, coordinationType:TWO_PHASE_COMMIT};
         twopcTxn.coordinatorProtocols = coordinatorProtocols;
-        participatedTransactions[participatedTxnId] = twopcTxn;
+        participatedTransactions.put(participatedTxnId, twopcTxn);
         txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
                      coordinationType:"2pc", registerAtURL:registerAtURL};
         log:printInfo("Registered with coordinator for transaction: " + transactionId);
