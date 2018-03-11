@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.connector.api;
 
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.threadpool.BallerinaWorkerThread;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
 import java.util.Map;
 
@@ -35,21 +33,6 @@ import java.util.Map;
 public class Executor {
 
     /**
-     * This method will execute Ballerina resource in blocking manner.
-     * So connector thread will have to wait until execution finishes.
-     *
-     * @param resource  to be executed.
-     * @param properties to be passed to context.
-     * @param values    required for the resource.
-     * @return future object to listen to events if any.
-     */
-    public static ConnectorFuture execute(Resource resource, Map<String, Object> properties, BValue... values) {
-        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ResourceExecutor.execute(resource, connectorFuture, properties, values);
-        return connectorFuture;
-    }
-
-    /**
      * This method will execute Ballerina resource in non-blocking manner.
      * It will use Ballerina worker-pool for the execution and will return the
      * connector thread immediately.
@@ -57,13 +40,10 @@ public class Executor {
      * @param resource  to be executed.
      * @param properties to be passed to context.
      * @param values    required for the resource.
-     * @return future object to listen to events if any.
      */
-    public static ConnectorFuture submit(Resource resource, Map<String, Object> properties, BValue... values) {
-        BServerConnectorFuture connectorFuture = new BServerConnectorFuture();
-        ThreadPoolFactory.getInstance().getExecutor().
-                execute(new BallerinaWorkerThread(resource, connectorFuture, properties, values));
-        return connectorFuture;
+    public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
+                              BValue... values) throws BallerinaConnectorException {
+        ResourceExecutor.execute(resource, responseCallback, properties, values);
     }
 
 

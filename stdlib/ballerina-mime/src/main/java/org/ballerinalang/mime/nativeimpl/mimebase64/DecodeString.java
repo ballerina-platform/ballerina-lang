@@ -19,10 +19,9 @@
 package org.ballerinalang.mime.nativeimpl.mimebase64;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,11 +49,11 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
                                                                         type = TypeKind.STRING) },
                    returnType = { @ReturnType(type = TypeKind.STRING) },
                    isPublic = true)
-public class DecodeString extends AbstractNativeFunction {
+public class DecodeString extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        String encodedContent = this.getStringArgument(context, STRING_INDEX);
-        String charset = this.getStringArgument(context, CHARSET_INDEX);
+    public void execute(Context context) {
+        String encodedContent = context.getStringArgument(STRING_INDEX);
+        String charset = context.getStringArgument(CHARSET_INDEX);
         byte[] decodedBytes;
         String decodedContent = "";
         try {
@@ -68,6 +67,6 @@ public class DecodeString extends AbstractNativeFunction {
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Error occured while decoding mime string: " + e.getMessage());
         }
-        return getBValues(new BString(decodedContent));
+        context.setReturnValues(new BString(decodedContent));
     }
 }

@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -43,7 +44,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -99,56 +99,50 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
 
-    public static BValue[] getProperty(Context context,
-                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+    public static BValue[] getProperty(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
+        String propertyName = context.getStringArgument(0);
 
         Object propertyValue = httpCarbonMessage.getProperty(propertyName);
 
         if (propertyValue == null) {
-            return AbstractNativeFunction.VOID_RETURN;
+            return new BValue[0];
         }
 
         if (propertyValue instanceof String) {
-            return abstractNativeFunction.getBValues(new BString((String) propertyValue));
+            return new BValue[] { new BString((String) propertyValue) };
         } else {
             throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
         }
     }
 
-    public static BValue[] setProperty(Context context,
-                                       AbstractNativeFunction abstractNativeFunction, boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
-        String propertyName = abstractNativeFunction.getStringArgument(context, 0);
-        String propertyValue = abstractNativeFunction.getStringArgument(context, 1);
+    public static void setProperty(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(0);
+        String propertyName = context.getStringArgument(0);
+        String propertyValue = context.getStringArgument(1);
 
         if (propertyName != null && propertyValue != null) {
             HTTPCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     /**
      * Set the given entity to request or response message.
      *
      * @param context                Ballerina context
-     * @param abstractNativeFunction Reference to abstract native ballerina function
      * @param isRequest              boolean representing whether the message is a request or a response
-     * @return void return
      */
-    public static BValue[] setEntity(Context context, AbstractNativeFunction abstractNativeFunction,
-                                     boolean isRequest) {
-        BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+    public static void setEntity(Context context, boolean isRequest) {
+        BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
         HTTPCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         httpCarbonMessage.waitAndReleaseAllEntities();
-        BStruct entity = (BStruct) abstractNativeFunction.getRefArgument(context, ENTITY_INDEX);
+        BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
         if (contentType == null) {
             contentType = OCTET_STREAM;
@@ -157,22 +151,19 @@ public class HttpUtil {
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
-        return AbstractNativeFunction.VOID_RETURN;
     }
 
     /**
      * Get the entity from request or response.
      *
      * @param context                Ballerina context
-     * @param abstractNativeFunction Reference to abstract native ballerina function
      * @param isRequest              boolean representing whether the message is a request or a response
      * @param isEntityBodyRequired   boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, AbstractNativeFunction abstractNativeFunction, boolean isRequest,
-                                     boolean isEntityBodyRequired) {
+    public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
         try {
-            BStruct httpMessageStruct = (BStruct) abstractNativeFunction.getRefArgument(context, HTTP_MESSAGE_INDEX);
+            BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
             BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
             boolean isByteChannelAlreadySet = false;
 
@@ -185,10 +176,10 @@ public class HttpUtil {
             if (entity == null) {
                 entity = createNewEntity(context, httpMessageStruct);
             }
-            return abstractNativeFunction.getBValues(entity);
+            return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return abstractNativeFunction.getBValues(MimeUtil.createEntityError(context,
-                    "Error occurred during entity construction: " + throwable.getMessage()));
+            return new BValue[]{MimeUtil.createEntityError(context,
+                    "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
 
@@ -322,6 +313,15 @@ public class HttpUtil {
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
+    public static void handleFailure(HTTPCarbonMessage requestMessage, BStruct error) {
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
+        String errorMsg = error.getStringField(0);
+        log.error(errorMsg);
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
         HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         response.waitAndReleaseAllEntities();
@@ -352,7 +352,7 @@ public class HttpUtil {
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
-    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+    public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP);
         StructInfo errorStructInfo = httpPackageInfo.getStructInfo(HttpConstants.HTTP_CONNECTOR_ERROR);
@@ -595,6 +595,22 @@ public class HttpUtil {
      * @param context         ballerina context.
      * @param outboundMessage transport message.
      */
+    public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
+        HttpService service = (HttpService) context.getProperty(HttpConstants.HTTP_SERVICE);
+
+        if (!service.isCompressionEnabled()) {
+            outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                    Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
+        }
+
+        if (service.isKeepAlive()) {
+            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
+                    HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
+            return;
+        }
+        outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
+    }
+
     public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
         AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
@@ -922,6 +938,22 @@ public class HttpUtil {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
+        if (annotation == null) {
+            return;
+        }
+        AnnAttrValue keepAliveAttrVal = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
+        if (keepAliveAttrVal != null) {
+            service.setKeepAlive(keepAliveAttrVal.getBooleanValue());
+        }
+
+        AnnAttrValue compressionEnabled = annotation.getAnnAttrValue(
+                HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+        if (compressionEnabled != null) {
+            service.setCompressionEnabled(compressionEnabled.getBooleanValue());
+        }
     }
 
     public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {

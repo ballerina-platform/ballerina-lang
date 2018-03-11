@@ -17,26 +17,21 @@
 */
 package org.ballerinalang.net.ws;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.values.BStruct;
 
 /**
- * Empty connector future impl for web socket.
+ * Empty callback impl for web socket.
  */
-public class WebSocketEmptyConnFutureListener implements ConnectorFutureListener {
+public class WebSocketEmptyCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         //nothing
     }
 
     @Override
-    public void notifyReply(BValue... response) {
+    public void notifyFailure(BStruct error) {
         //nothing
     }
 
-    @Override
-    public void notifyFailure(BallerinaConnectorException ex) {
-        //nothing
-    }
 }

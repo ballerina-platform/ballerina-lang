@@ -18,15 +18,17 @@
 package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugClientHandler;
-import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.DebugException;
-import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -36,80 +38,85 @@ import java.util.concurrent.Semaphore;
  */
 public class TestDebugClientHandler implements DebugClientHandler {
 
-        volatile boolean isExit;
-        int hitCount = -1;
-        BreakPointDTO haltPosition;
-        private volatile Semaphore executionSem;
-        private volatile String threadId;
+    private volatile boolean isExit;
+    private volatile Semaphore executionSem;
 
-        //key - threadid
-        private Map<String, DebugContext> contextMap;
+    private Queue<MessageDTO> debugHits;
 
-        TestDebugClientHandler() {
-            this.contextMap = new ConcurrentHashMap<>();
-            this.executionSem = new Semaphore(0);
-        }
+    //key - workerId
+    private Map<String, WorkerExecutionContext> contextMap;
 
-        public void aquireSem() {
-            try {
-                executionSem.acquire();
-            } catch (InterruptedException e) {
-                //ignore
-            }
-        }
+    TestDebugClientHandler() {
+        this.debugHits = new LinkedBlockingQueue<>();
+        this.contextMap = new ConcurrentHashMap<>();
+        this.executionSem = new Semaphore(0);
+    }
 
-        public String getThreadId() {
-            return threadId;
-        }
-
-        @Override
-        public void addContext(DebugContext debugContext) {
-            //for debugging tests, only single threaded execution supported
-            String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-            debugContext.setThreadId(threadId);
-            //TODO check if that thread id already exist in the map
-            this.contextMap.put(threadId, debugContext);
-        }
-
-        @Override
-        public DebugContext getContext(String threadId) {
-            return this.contextMap.get(threadId);
-        }
-
-        @Override
-        public void updateAllDebugContexts(DebugCommand debugCommand) {
-            contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
-        }
-
-        @Override
-        public void setChannel(Channel channel) throws DebugException {
-        }
-
-        @Override
-        public void clearChannel() {
-        }
-
-        @Override
-        public boolean isChannelActive() {
-            return true;
-        }
-
-        @Override
-        public void notifyExit() {
-            isExit = true;
-            executionSem.release();
-        }
-
-        @Override
-        public void notifyHalt(MessageDTO message) {
-            hitCount++;
-            haltPosition = message.getLocation();
-            threadId = message.getThreadId();
-            executionSem.release();
-        }
-
-        @Override
-        public void sendCustomMsg(MessageDTO message) {
+    public void aquireSem() {
+        try {
+            executionSem.acquire();
+        } catch (InterruptedException e) {
+            //ignore
         }
     }
+    public boolean isExit() {
+        return isExit && debugHits.isEmpty();
+    }
+
+    public MessageDTO getDebugHit() {
+        return debugHits.poll();
+    }
+
+    @Override
+    public void addWorkerContext(WorkerExecutionContext ctx) {
+        String workerId = generateAndGetWorkerId(ctx.workerInfo);
+        ctx.getDebugContext().setWorkerId(workerId);
+        //TODO check if that thread id already exist in the map
+        this.contextMap.put(workerId, ctx);
+    }
+
+    private String generateAndGetWorkerId (WorkerInfo workerInfo) {
+        UUID uuid = UUID.randomUUID();
+        return workerInfo.getWorkerName() + "-" + uuid.toString();
+    }
+
+    @Override
+    public WorkerExecutionContext getWorkerContext(String workerId) {
+        return this.contextMap.get(workerId);
+    }
+
+    @Override
+    public Map<String, WorkerExecutionContext> getAllWorkerContexts() {
+        return contextMap;
+    }
+
+    @Override
+    public void setChannel(Channel channel) throws DebugException {
+    }
+
+    @Override
+    public void clearChannel() {
+    }
+
+    @Override
+    public boolean isChannelActive() {
+        return true;
+    }
+
+    @Override
+    public void notifyExit() {
+        isExit = true;
+        executionSem.release();
+    }
+
+    @Override
+    public void notifyHalt(MessageDTO message) {
+        debugHits.offer(message);
+        executionSem.release();
+    }
+
+    @Override
+    public void sendCustomMsg(MessageDTO message) {
+    }
+}
 
