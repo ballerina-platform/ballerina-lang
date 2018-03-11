@@ -332,7 +332,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext renameContext = new TextDocumentServiceContext();
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager);
+                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false);
             bLangPackageContext.addPackage(currentBLangPackage);
 
             WorkspaceEdit workspaceEdit;
