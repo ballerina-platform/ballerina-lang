@@ -55,14 +55,12 @@ function testAfterAlone () {
     reset();
 }
 
-@test:config{
-}
+@test:config
 function test3 () {
     j = j + 1;
 }
 
-@test:config{
-}
+@test:config
 function test4 () {
     j = j + 2;
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,10 +39,11 @@ public class ConfigAnnotationTest {
 
     @Test
     public void testBefore() {
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/annotations-test/config-test.bal")}, new
+        BTestRunner runner = new BTestRunner();
+        runner.runTest(new Path[]{Paths.get("src/test/resources/annotations-test/config-test.bal")}, new
                 ArrayList<>());
         cleanup();
-
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 8);
     }
 
     private void cleanup() {
