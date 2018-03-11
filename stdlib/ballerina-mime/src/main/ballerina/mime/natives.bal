@@ -1,7 +1,7 @@
-package ballerina.mime;
+package mime;
 
-import ballerina.file;
-import ballerina.io;
+import ballerina/file;
+import ballerina/io;
 
 @Description {value:"Describes the nature of the data in the body of a MIME entity."}
 @Field {value:"primaryType: Declares the general type of data"}

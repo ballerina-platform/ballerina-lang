@@ -41,11 +41,12 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
  *
  * @since 0.96
  */
-@BallerinaFunction(packageName = "ballerina.mime",
+@BallerinaFunction(orgName = "ballerina",
+                   packageName = "mime",
                    functionName = "decodeString",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "MimeBase64Decoder",
-                                        structPackage = "ballerina.mime"),
+                                        structPackage = "mime"),
                    args = { @Argument(name = "content", type = TypeKind.STRING), @Argument(name = "charset",
                                                                         type = TypeKind.STRING) },
                    returnType = { @ReturnType(type = TypeKind.STRING) },
