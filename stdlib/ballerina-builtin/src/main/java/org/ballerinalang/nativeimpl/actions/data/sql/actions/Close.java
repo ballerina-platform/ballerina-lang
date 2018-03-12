@@ -15,55 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.client;
-
+package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BEnumerator;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 
 /**
- * {@code Init} is the Init action implementation of the SQL Connector.
+ * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
  *
- * @since 0.8.5
+ * @since 0.8.4
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "<init>",
+        actionName = "close",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)
-        },
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Init extends AbstractSQLAction {
+public class Close extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
-        BEnumerator db = (BEnumerator) bConnector.getRefField(0);
-        BStruct optionStruct = (BStruct) bConnector.getRefField(1);
-        BMap sharedMap = (BMap) bConnector.getRefField(2);
-        String dbType = db.getName();
-        String hostOrPath = bConnector.getStringField(0);
-        String dbName = bConnector.getStringField(1);
-        String username = bConnector.getStringField(2);
-        String password = bConnector.getStringField(3);
-        int port = (int) bConnector.getIntField(0);
-        if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
-            SQLDatasource datasource = new SQLDatasource();
-            datasource.init(optionStruct, dbType, hostOrPath, port, username, password, dbName);
-            sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
-        }
-
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+        closeConnections(datasource);
         context.setReturnValues();
     }
 }

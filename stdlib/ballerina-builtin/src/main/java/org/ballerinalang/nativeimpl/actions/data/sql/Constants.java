@@ -122,6 +122,53 @@ public final class Constants {
 
     }
 
+    /**
+     * Constants for Endpoint Configs.
+     */
+    public static final class EndpointConfig {
+        public static final String DATABASE = "database";
+        public static final String HOST = "host";
+        public static final String PORT = "port";
+        public static final String NAME = "name";
+        public static final String USERNAME = "username";
+        public static final String PASSWORD = "password";
+        public static final String OPTIONS = "options";
+    }
+
+    /**
+     * Constants for Endpoint Configs.
+     */
+    public static final class Options {
+        //String
+        public static final String URL = "url";
+        public static final String DATASOURCE_CLASSNAME = "dataSourceClassName";
+        public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
+        public static final String POOL_NAME = "poolName";
+        public static final String CATALOG = "catalog";
+        public static final String CONNECTION_INIT_SQL = "connectionInitSql";
+        public static final String DRIVER_CLASSNAME = "driverClassName";
+        public static final String TRANSACTION_ISOLATION = "transactionIsolation";
+
+        //Boolean
+        public static final String AUTOCOMMIT = "autoCommit";
+        public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
+        public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
+        public static final String READ_ONLY = "readOnly";
+        public static final String IS_XA = "isXA";
+
+        //Int
+        public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
+        public static final String CONNECTION_TIMEOUT = "connectionTimeout";
+        public static final String IDLE_TIMEOUT = "idleTimeout";
+        public static final String MINIMUM_IDLE = "minimumIdle";
+        public static final String MAX_LIFE_TIME = "maxLifetime";
+        public static final String VALIDATION_TIMEOUT = "validationTimeout";
+        public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
+
+        //Map
+        public static final String DATASOURCE_PROPERTIES = "datasourceProperties";
+    }
+
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String DATASOURCE_KEY = "datasource_key";
     public static final String TIMEZONE_UTC = "UTC";
@@ -131,4 +178,8 @@ public final class Constants {
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
+
+    public static final String CLIENT_CONNECTOR = "ClientConnector";
+    public static final String SQL_PACKAGE_PATH = "ballerina.data.sql";
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
 }

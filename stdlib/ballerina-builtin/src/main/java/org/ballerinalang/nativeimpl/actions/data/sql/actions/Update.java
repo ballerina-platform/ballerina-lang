@@ -15,46 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.client;
+package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * {@code Close} is the Close action implementation of the SQL Connector Connection pool.
+ * {@code Update} is the Update action implementation of the SQL Connector.
  *
- * @since 0.8.4
+ * @since 0.8.0
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "close",
+        actionName = "update",
         connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "query", type = TypeKind.STRING),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
+                          structType = "Parameter")},
+        returnType = { @ReturnType(type = TypeKind.INT) },
         connectorArgs = {
                 @Argument(name = "options", type = TypeKind.MAP)
         })
-public class Close extends AbstractSQLAction {
+public class Update extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
-        BMap sharedMap = (BMap) bConnector.getRefField(2);
-        SQLDatasource datasource = null;
-        if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
-            datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));
-        } else {
-            throw new BallerinaException("Datasource have not been initialized properly at " +
-                    "Init native action invocation.");
-        }
-        closeConnections((SQLDatasource) datasource);
-        context.setReturnValues();
+        String query = context.getStringArgument(0);
+        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
+        executeUpdate(context, datasource, query, parameters);
     }
 }
