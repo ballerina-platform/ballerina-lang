@@ -69,7 +69,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -813,6 +815,14 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
         /* ignore */
+    }
+
+    public void visit(BLangRestArgsExpression varArgsExpression) {
+        varArgsExpression.expr.accept(this);
+    }
+
+    public void visit(BLangNamedArgsExpression namedArgsExpression) {
+        namedArgsExpression.expr.accept(this);
     }
 
     // Private
