@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Implementation of {@link PatternStreamingInputNode}.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 
 public class BLangPatternStreamingInput extends BLangNode implements PatternStreamingInputNode {

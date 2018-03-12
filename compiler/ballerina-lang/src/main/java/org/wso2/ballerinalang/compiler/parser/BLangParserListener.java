@@ -2258,9 +2258,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+        boolean isAllEvents = ctx.outputEventType() != null && ctx.outputEventType().ALL() != null;
+        boolean isCurentEvents = ctx.outputEventType() != null && ctx.outputEventType().CURRENT() != null;
+        boolean isExpiredEvents = ctx.outputEventType() != null && ctx.outputEventType().EXPIRED() != null;
 
         this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                ctx.getChild(0).getText());
+                ctx.getChild(0).getText(), isAllEvents, isCurentEvents, isExpiredEvents);
     }
 
     @Override
@@ -2406,7 +2409,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx));
+        boolean unidirectionalJoin = ctx.UNIDIRECTIONAL() != null;
+
+        if (!unidirectionalJoin) {
+            String joinType = (ctx).children.get(0).getText();
+            this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx), false,
+                    false, joinType);
+        } else {
+            if (ctx.getChild(0).getText().equals("unidirectional")) {
+                String joinType = (ctx).children.get(1).getText();
+                this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx), true,
+                        false, joinType);
+            } else {
+                String joinType = (ctx).children.get(0).getText();
+                this.pkgBuilder.endJoinStreamingInputNode(getCurrentPos(ctx), getWS(ctx), false,
+                        true, joinType);
+            }
+        }
     }
 
     @Override

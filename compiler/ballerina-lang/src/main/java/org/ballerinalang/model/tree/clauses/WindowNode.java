@@ -29,7 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      window time(20min)
  * </pre>
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 
 public interface WindowNode extends Node {
@@ -37,5 +37,4 @@ public interface WindowNode extends Node {
     void setFunction(ExpressionNode function);
 
     ExpressionNode getFunction();
-
 }

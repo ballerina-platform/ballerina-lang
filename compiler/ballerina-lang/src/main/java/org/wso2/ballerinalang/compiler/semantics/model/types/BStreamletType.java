@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.List;
 
 /**
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BStreamletType extends BBuiltInRefType implements StreamletType {
     public List<BType> paramTypes;

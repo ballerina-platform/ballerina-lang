@@ -361,6 +361,7 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
         throw new AssertionError();
     }
+
     public void visit(BLangWorkerSend workerSendNode) {
         throw new AssertionError();
     }

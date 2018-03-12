@@ -244,6 +244,7 @@ StringTemplateText=209
 'set'=39
 'for'=40
 'window'=41
+'query'=42
 'expired'=43
 'current'=44
 'every'=46

@@ -6,6 +6,7 @@ lexer grammar BallerinaLexer;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
+    boolean inSiddhiInsertQuery = false;
 }
 
 // Reserved words
@@ -36,7 +37,7 @@ VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -52,10 +53,10 @@ DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;
-QUERY       : {inSiddhi}? 'query' { inSiddhi = false; } ;
+QUERY       : 'query' ;
 EXPIRED     : 'expired' ;
 CURRENT     : 'current' ;
-EVENTS      : {inSiddhi}? 'events' { inSiddhi = false; } ;
+EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
 WITHIN      : 'within' ;
 LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;

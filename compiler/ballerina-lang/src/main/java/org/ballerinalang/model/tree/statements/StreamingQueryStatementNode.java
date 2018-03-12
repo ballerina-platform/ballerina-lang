@@ -42,7 +42,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
  *      insert into test1
  * </pre>
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 
 public interface StreamingQueryStatementNode extends StatementNode {
@@ -70,5 +70,4 @@ public interface StreamingQueryStatementNode extends StatementNode {
     OrderByNode getOrderbyClause();
 
     StreamActionNode getStreamingAction();
-
 }

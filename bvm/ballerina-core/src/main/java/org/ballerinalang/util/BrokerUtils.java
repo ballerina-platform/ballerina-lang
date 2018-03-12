@@ -43,7 +43,7 @@ import java.util.Map;
  * Class providing utility methods to interact with the broker operating in in-memory mode.
  * TODO: Needs refactoring once the broker core is moved to the Ballerina core
  *
- * @since @since 0.965.0
+ * @since 0.965.0
  */
 public class BrokerUtils {
 
@@ -137,7 +137,5 @@ public class BrokerUtils {
         void registerConfigurationObject(String namespace, Object configObject) {
             configMap.put(namespace, configObject);
         }
-
     }
-
 }

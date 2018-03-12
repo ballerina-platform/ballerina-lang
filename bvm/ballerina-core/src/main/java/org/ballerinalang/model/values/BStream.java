@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.values;
 
-
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.ContentChunk;
@@ -33,7 +32,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.event.Event;
-import org.ballerinalang.siddhi.core.exception.DefinitionNotExistException;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.util.BrokerUtils;
@@ -123,14 +121,10 @@ public class BStream implements BRefType<Object> {
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
 
-        List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().getSiddhiAppRuntimeList();
+        List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().
+                getStreamSpecificSiddhiAppRuntimes(streamId);
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
-            try {
-                addCallback(siddhiAppRuntime);
-            } catch (DefinitionNotExistException e) {
-                //ignore
-                //TODO fix properly
-            }
+            addCallback(siddhiAppRuntime);
         }
     }
 
@@ -167,7 +161,6 @@ public class BStream implements BRefType<Object> {
     }
 
     private class StreamSubscriber extends Consumer {
-
         final String queueName;
         final BFunctionPointer functionPointer;
 
@@ -265,7 +258,6 @@ public class BStream implements BRefType<Object> {
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +
                                 "float, boolean and string");
-
                 }
             }
             return event;
@@ -291,5 +283,4 @@ public class BStream implements BRefType<Object> {
             return true;
         }
     }
-
 }

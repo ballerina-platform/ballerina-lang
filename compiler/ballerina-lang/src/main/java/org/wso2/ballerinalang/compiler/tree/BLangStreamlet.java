@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BLangStreamlet extends BLangNode implements StreamletNode {
 
