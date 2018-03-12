@@ -89,10 +89,10 @@ public class TesterinaFunction {
      * @param args function arguments
      */
     public BValue[] invoke(BValue[] args) {
-        Context ctx = new Context(programFile);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
-        initDebugger(ctx, debugger);
-        return BLangFunctions.invokeFunction(programFile, bFunction, args, ctx);
+        initDebugger(programFile, debugger);
+        return BLangFunctions.invokeCallable(bFunction, ctx, args);
     }
 
     public String getName() {
@@ -127,8 +127,8 @@ public class TesterinaFunction {
         this.runTest = false;
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
