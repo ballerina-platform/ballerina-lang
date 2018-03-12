@@ -48,6 +48,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.tracer.TraceUtil;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
@@ -232,6 +233,7 @@ public class BLangFunctions {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
                 /* we want the parent to continue, since we got the response of the native call already */
+                TraceUtil.finishTraceSpan(parentCtx.getTracer());
                 return parentCtx;
             } else {
                 BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, parentCtx, retRegs, retTypes);

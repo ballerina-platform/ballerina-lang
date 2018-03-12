@@ -46,6 +46,7 @@ public class ResourceExecutor {
      * @param resource         to be executed.
      * @param responseCallback to notify.
      * @param properties       to be passed to context.
+     * @param bTracer          to be passed to context.
      * @param bValues          for parameters.
      */
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
@@ -65,21 +66,7 @@ public class ResourceExecutor {
             }
         }
 
-//        if (bTracer == null) {
-//            bTracer = new BTracer(context, false);
-//        } else {
-//            bTracer.setContext(context);
-//        }
-//        context.setRootBTracer(bTracer);
-//        context.setActiveBTracer(bTracer);
-//
-//        bTracer.setServiceName(resourceInfo.getServiceInfo().getName());
-//        bTracer.setResourceName(resourceInfo.getName());
-//
-//        TraceFutureListener listener = new TraceFutureListener(bTracer);
-//        connectorFuture.registerConnectorFutureListener(listener);
-//
-
+        BLangVMUtils.initServerConnectorTrace(context, resource, bTracer);
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
     }

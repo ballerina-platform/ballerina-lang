@@ -72,7 +72,7 @@ public class Options extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
-        context.getActiveBTracer().getProperties().forEach((key, value) ->
+        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
                 outboundRequestMsg.setHeader(key, String.valueOf(value)));
         return outboundRequestMsg;
     }

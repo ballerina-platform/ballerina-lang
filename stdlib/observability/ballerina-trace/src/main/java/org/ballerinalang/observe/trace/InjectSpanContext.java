@@ -19,17 +19,11 @@
 package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Map;
 
 /**
  * This function returns the span context of a given span.
@@ -41,18 +35,18 @@ import java.util.Map;
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
-public class InjectSpanContext extends AbstractNativeFunction {
+public class InjectSpanContext extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct span = (BStruct) getRefArgument(context, 0);
-        String spanId = span.getStringField(0);
-
-        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
-
-        BMap<String, BString> headerMap = new BMap<>();
-        propertiesToInject.forEach((key, value) -> {
-            headerMap.put(key, new BString(value));
-        });
-        return getBValues(headerMap);
+    public void execute(Context context) {
+//        BStruct span = (BStruct) getRefArgument(context, 0);
+//        String spanId = span.getStringField(0);
+//
+//        Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
+//
+//        BMap<String, BString> headerMap = new BMap<>();
+//        propertiesToInject.forEach((key, value) -> {
+//            headerMap.put(key, new BString(value));
+//        });
+//        return getBValues(headerMap);
     }
 }

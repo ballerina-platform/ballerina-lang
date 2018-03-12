@@ -18,17 +18,11 @@
 
 package org.ballerina.testing;
 
-import io.opentracing.mock.MockTracer;
-import org.ballerina.testing.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Map;
 
 /**
  * This function returns the span context of a given span.
@@ -39,13 +33,13 @@ import java.util.Map;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class GetFinishedSpansCount extends AbstractNativeFunction {
+public class GetFinishedSpansCount extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        Map<String, MockTracer> mockTracer = BMockTracer.getTracerMap();
-        final int[] count = {0};
-        mockTracer.forEach((tracerName, tracer) -> count[0] += tracer.finishedSpans().size());
-        return getBValues(new BInteger(count[0]));
+    public void execute(Context context) {
+//        Map<String, MockTracer> mockTracer = BMockTracer.getTracerMap();
+//        final int[] count = {0};
+//        mockTracer.forEach((tracerName, tracer) -> count[0] += tracer.finishedSpans().size());
+//        return getBValues(new BInteger(count[0]));
     }
 }

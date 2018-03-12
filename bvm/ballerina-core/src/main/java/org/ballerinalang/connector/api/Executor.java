@@ -47,5 +47,4 @@ public class Executor {
         ResourceExecutor.execute(resource, responseCallback, properties, bTracer, values);
     }
 
-
 }

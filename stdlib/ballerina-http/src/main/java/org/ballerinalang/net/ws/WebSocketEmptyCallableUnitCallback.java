@@ -19,11 +19,16 @@ package org.ballerinalang.net.ws;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.tracer.BTracer;
 
 /**
  * Empty callback impl for web socket.
  */
-public class WebSocketEmptyCallableUnitCallback implements CallableUnitCallback {
+public class WebSocketEmptyCallableUnitCallback extends CallableUnitCallback {
+    public WebSocketEmptyCallableUnitCallback(BTracer bTracer) {
+        super(bTracer);
+    }
+
     @Override
     public void notifySuccess() {
         //nothing

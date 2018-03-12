@@ -18,17 +18,12 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.codegen.ActionInfo;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_RESOURCE;
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_SERVICE;
-import static org.ballerinalang.util.tracer.TraceConstant.STR_NULL;
 import static org.ballerinalang.util.tracer.TraceConstant.TRACER_MANAGER_CLASS;
 import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
 
@@ -58,49 +53,16 @@ public class TraceManagerWrapper {
         return instance;
     }
 
-    public void startSpan(Context context) {
-        BTracer rBTracer = context.getRootBTracer();
-        BTracer aBTracer = context.getActiveBTracer();
-
-        String service = aBTracer.getServiceName();
-        String resource = aBTracer.getResourceName();
-
-        if (aBTracer.isClientContext()) {
-            CallableUnitInfo cInfo = context.getControlStack()
-                    .getCurrentFrame().getCallableUnitInfo();
-
-            if (cInfo != null && cInfo instanceof ActionInfo &&
-                    ((ActionInfo) cInfo).getConnectorInfo() != null) {
-                ActionInfo aInfo = (ActionInfo) cInfo;
-                service = aInfo.getConnectorInfo().getType().toString();
-                resource = aInfo.getName();
-            } else if (cInfo != null) {
-                service = cInfo.getPkgPath();
-                resource = cInfo.getName();
-            } else {
-                service = DEFAULT_SERVICE;
-                resource = DEFAULT_RESOURCE;
-            }
-
-            aBTracer.setServiceName(service);
-            aBTracer.setResourceName(resource);
-        }
-
-        Long invocationId;
-        if (rBTracer.getInvocationID() == null ||
-                STR_NULL.equalsIgnoreCase(rBTracer.getInvocationID())) {
-            rBTracer.generateInvocationID();
-            invocationId = Long.valueOf(rBTracer.getInvocationID());
-        } else {
-            invocationId = Long.valueOf(rBTracer.getInvocationID());
-        }
-        aBTracer.setInvocationID(String.valueOf(invocationId));
+    public void startSpan(WorkerExecutionContext ctx) {
+        BTracer aBTracer = ctx.getTracer();
+        BTracer rBTracer = TraceUtil.getParentTracer(ctx);
+        String service = aBTracer.getConnectorName();
+        String resource = aBTracer.getActionName();
+        Long invocationId = Long.valueOf(aBTracer.getInvocationID());
 
         // get the parent spans' span context
-        Map<String, String> spanHeaders = rBTracer
-                .getProperties()
-                .entrySet()
-                .stream()
+        rBTracer = (rBTracer != null) ? rBTracer : aBTracer;
+        Map<String, String> spanHeaders = rBTracer.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> String.valueOf(e.getValue())));
 

@@ -71,7 +71,7 @@ public class Post extends AbstractHTTPAction {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);
-        context.getActiveBTracer().getProperties().forEach((key, value) ->
+        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
                 outboundRequestMsg.setHeader(key, String.valueOf(value)));
         return outboundRequestMsg;
     }

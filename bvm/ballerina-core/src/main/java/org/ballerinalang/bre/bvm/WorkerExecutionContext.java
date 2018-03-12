@@ -27,6 +27,7 @@ import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
@@ -70,6 +71,8 @@ public class WorkerExecutionContext {
     private BStruct error;
 
     private DebugContext debugContext;
+
+    private BTracer tracer;
 
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
@@ -167,6 +170,14 @@ public class WorkerExecutionContext {
 
     public DebugContext getDebugContext() {
         return debugContext;
+    }
+
+    public BTracer getTracer() {
+        return this.tracer;
+    }
+
+    public void setTracer(BTracer tracer) {
+        this.tracer = tracer;
     }
 
     @Override

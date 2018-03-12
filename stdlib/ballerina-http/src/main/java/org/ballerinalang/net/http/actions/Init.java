@@ -122,7 +122,7 @@ public class Init extends AbstractHTTPAction {
                 httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
         connector.setNativeData(HttpConstants.CONNECTOR_NAME, httpClientConnector);
 
-        callback.notifySuccess();
+        callback.onSuccess();
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, BStruct options) {

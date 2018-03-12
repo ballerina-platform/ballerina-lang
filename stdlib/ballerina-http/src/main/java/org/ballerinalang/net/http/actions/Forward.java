@@ -89,7 +89,7 @@ public class Forward extends AbstractHTTPAction {
 
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        context.getActiveBTracer().getProperties().forEach((key, value) ->
+        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
                 outboundRequestMsg.setHeader(key, String.valueOf(value)));
         return outboundRequestMsg;
     }

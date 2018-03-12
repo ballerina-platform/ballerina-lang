@@ -19,20 +19,10 @@
 package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * This function injects a span context and returns the spans Id.
@@ -43,33 +33,33 @@ import java.util.Map;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ExtractSpanContext extends AbstractNativeFunction {
+public class ExtractSpanContext extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        BStruct httpRequest = (BStruct) getRefArgument(context, 0);
-        String group = getStringArgument(context, 0);
-
-        HTTPCarbonMessage carbonMessage = HttpUtil.getCarbonMsg(httpRequest, null);
-        Iterator<Map.Entry<String, String>> entryIterator = carbonMessage.getHeaders().iteratorAsString();
-        Map<String, String> spanHeaders = new HashMap<>();
-
-        while (entryIterator.hasNext()) {
-            Map.Entry<String, String> headers = entryIterator.next();
-            if (headers.getKey().startsWith(group)) {
-                spanHeaders.put(headers.getKey().substring(group.length()), headers.getValue());
-            } else {
-                spanHeaders.put(headers.getKey(), headers.getValue());
-            }
-        }
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
-
-        if (spanId != null) {
-            return getBValues(new BString(spanId));
-        } else {
-            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
-                    "Check tracing configurations and dependencies.");
-        }
+//        BStruct httpRequest = (BStruct) getRefArgument(context, 0);
+//        String group = getStringArgument(context, 0);
+//
+//        HTTPCarbonMessage carbonMessage = HttpUtil.getCarbonMsg(httpRequest, null);
+//        Iterator<Map.Entry<String, String>> entryIterator = carbonMessage.getHeaders().iteratorAsString();
+//        Map<String, String> spanHeaders = new HashMap<>();
+//
+//        while (entryIterator.hasNext()) {
+//            Map.Entry<String, String> headers = entryIterator.next();
+//            if (headers.getKey().startsWith(group)) {
+//                spanHeaders.put(headers.getKey().substring(group.length()), headers.getValue());
+//            } else {
+//                spanHeaders.put(headers.getKey(), headers.getValue());
+//            }
+//        }
+//
+//        String spanId = OpenTracerBallerinaWrapper.getInstance().extract(spanHeaders);
+//
+//        if (spanId != null) {
+//            return getBValues(new BString(spanId));
+//        } else {
+//            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
+//                    "Check tracing configurations and dependencies.");
+//        }
     }
 }

@@ -19,7 +19,6 @@
 package org.ballerinalang.runtime.threadpool;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.tracer.BTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +29,9 @@ public class ResponseWorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ResponseWorkerThread.class);
     private Context context;
-    private BTracer bTracer;
 
     public ResponseWorkerThread(Context context) {
         this.context = context;
-        this.bTracer = context.getActiveBTracer();
     }
 
     public void run() {

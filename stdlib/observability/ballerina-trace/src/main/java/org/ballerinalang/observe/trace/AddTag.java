@@ -19,10 +19,8 @@
 package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,14 +36,14 @@ import org.ballerinalang.natives.annotations.Receiver;
                 @Argument(name = "tagValue", type = TypeKind.STRING)},
         isPublic = true
 )
-public class AddTag extends AbstractNativeFunction {
+public class AddTag extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct span = (BStruct) getRefArgument(context, 0);
-        String spanId = span.getStringField(0);
-        String tagKey = getStringArgument(context, 0);
-        String tagValue = getStringArgument(context, 1);
-        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
-        return VOID_RETURN;
+    public void execute(Context context) {
+//        BStruct span = (BStruct) getRefArgument(context, 0);
+//        String spanId = span.getStringField(0);
+//        String tagKey = getStringArgument(context, 0);
+//        String tagValue = getStringArgument(context, 1);
+//        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, tagKey, tagValue);
+//        return VOID_RETURN;
     }
 }

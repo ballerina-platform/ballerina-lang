@@ -91,9 +91,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
         bTracer.addTags(tags);
 
-        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage, bTracer);
         //TODO handle BallerinaConnectorException
-        //TODO how to pass bTracer??
         Executor.submit(httpResource.getBalResource(), callback, properties, bTracer, signatureParams);
     }
 

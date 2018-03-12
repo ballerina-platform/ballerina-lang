@@ -18,8 +18,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -27,11 +26,11 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  *
  * @since 0.94
  */
-public class HttpCallableUnitCallback implements CallableUnitCallback {
-    private static final Logger log = LoggerFactory.getLogger(HttpCallableUnitCallback.class);
+public class HttpCallableUnitCallback extends CallableUnitCallback {
     private HTTPCarbonMessage requestMessage;
 
-    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage) {
+    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage, BTracer bTracer) {
+        super(bTracer);
         this.requestMessage = requestMessage;
     }
 

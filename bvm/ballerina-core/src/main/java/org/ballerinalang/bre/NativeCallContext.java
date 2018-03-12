@@ -224,4 +224,5 @@ public class NativeCallContext implements Context {
     public LocalTransactionInfo getLocalTransactionInfo() {
         return this.parentCtx.getLocalTransactionInfo();
     }
+
 }

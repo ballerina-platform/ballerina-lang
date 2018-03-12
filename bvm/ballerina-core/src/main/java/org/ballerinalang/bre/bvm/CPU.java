@@ -2718,6 +2718,8 @@ public class CPU {
         ActionInfo actionInfo = ctx.programFile.getPackageInfo(actualCon.getPackagePath())
                 .getConnectorInfo(actualCon.getName()).getActionInfo(actionName);
 
+        BLangVMUtils.initClientConnectorTrace(ctx, actualCon, actionName);
+
         return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
     }
 

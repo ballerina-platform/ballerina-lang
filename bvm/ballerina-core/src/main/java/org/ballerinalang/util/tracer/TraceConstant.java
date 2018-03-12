@@ -67,7 +67,7 @@ public class TraceConstant {
 
     public static final String FUNCTION_INIT = "<init>";
 
-    public static final String DEFAULT_SERVICE = "BallerinaService";
+    public static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
 
-    public static final String DEFAULT_RESOURCE = "BallerinaResource";
+    public static final String DEFAULT_ACTION_NAME = "BallerinaAction";
 }

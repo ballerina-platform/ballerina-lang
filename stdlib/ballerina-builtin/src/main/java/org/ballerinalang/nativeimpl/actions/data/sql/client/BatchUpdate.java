@@ -76,7 +76,7 @@ public class BatchUpdate extends AbstractSQLAction {
         Map<String, String> tags = new HashMap<>();
         tags.put(KEY_DB_STATEMENT, query);
         tags.put(KEY_DB_TYPE, DB_TYPE_SQL);
-        context.getActiveBTracer().addTags(tags);
+        context.getParentWorkerExecutionContext().getTracer().addTags(tags);
 
         executeBatchUpdate(context, datasource, query, parameters);
     }

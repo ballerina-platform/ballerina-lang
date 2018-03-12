@@ -27,6 +27,7 @@ import org.ballerinalang.net.http.BallerinaHttpServerConnector;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -42,7 +43,8 @@ public class Services {
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
                 getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
-        TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
+        BTracer bTracer = new BTracer(null, false);
+        TestCallableUnitCallback callback = new TestCallableUnitCallback(request, bTracer);
         request.setCallback(callback);
         HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
         if (resource == null) {
@@ -57,8 +59,7 @@ public class Services {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         callback.setRequestStruct(signatureParams[0]);
-        //TODO find a way to pass bTrace to the submit?
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+        Executor.submit(resource.getBalResource(), callback, properties, bTracer, signatureParams);
         callback.sync();
         return callback.getResponseMsg();
     }

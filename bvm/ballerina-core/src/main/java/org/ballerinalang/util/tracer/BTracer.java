@@ -18,15 +18,15 @@
 
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_RESOURCE;
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_SERVICE;
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_ACTION_NAME;
+import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_CONNECTOR_NAME;
 import static org.ballerinalang.util.tracer.TraceConstant.INVOCATION_ID;
 import static org.ballerinalang.util.tracer.TraceConstant.STR_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstant.STR_TRUE;
@@ -58,100 +58,78 @@ public class BTracer {
     /**
      * Name of the service.
      */
-    private String serviceName = DEFAULT_SERVICE;
+    private String connectorName = DEFAULT_CONNECTOR_NAME;
     /**
      * Name of the resource.
      */
-    private String resourceName = DEFAULT_RESOURCE;
+    private String actionName = DEFAULT_ACTION_NAME;
     /**
-     * Indicates whether this context is traceable or not.
+     * Active Ballerina {@link WorkerExecutionContext}.
      */
-    private boolean traceable = false;
-    /**
-     * Active Ballerina context.
-     */
-    private Context bContext = null;
+    private WorkerExecutionContext executionContext = null;
     /**
      * Map of spans belongs to each open tracer.
      */
     private Map<String, ?> spans;
 
     private BTracer() {
-        this.properties = new HashMap<>();
-        this.tags = new HashMap<>();
+
     }
 
-    public BTracer(Context bContext, boolean isClientContext) {
-        this();
-        this.bContext = bContext;
+    public BTracer(WorkerExecutionContext executionContext, boolean isClientContext) {
+        this.properties = new HashMap<>();
+        this.tags = new HashMap<>();
+        this.executionContext = executionContext;
         this.isClientContext = isClientContext;
         this.tags.put(TraceConstant.KEY_SPAN_KIND, isClientContext
                 ? TraceConstant.SPAN_KIND_CLIENT
                 : TraceConstant.SPAN_KIND_SERVER);
-        this.traceable = !(isClientContext &&
-                bContext.getControlStack().getCurrentFrame().getCallableUnitInfo()
-                        .getName().endsWith(TraceConstant.FUNCTION_INIT));
     }
 
     public void startSpan() {
-        if (traceable) {
-            manager.startSpan(bContext);
-        }
+        manager.startSpan(executionContext);
     }
 
     public void finishSpan() {
-        if (traceable) {
-            manager.finishSpan(this);
-            spans.clear();
-            properties.clear();
-            tags.clear();
-            spans = null;
-            properties = null;
-            tags = null;
-            traceable = false;
-        }
+        manager.finishSpan(this);
     }
 
     public void log(Map<String, Object> fields) {
-        if (traceable) {
-            manager.log(this, fields);
-        }
+        manager.log(this, fields);
     }
 
     public void logError(Map<String, Object> fields) {
-        if (traceable) {
-            addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
-            manager.log(this, fields);
-        }
+        addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
+        manager.log(this, fields);
+
     }
 
     public void addTags(Map<String, String> tags) {
-        if (traceable) {
-            if (spans != null) {
-                //span has started, there for add tags to the span.
-                manager.addTags(this, tags);
-            } else {
-                //otherwise keep the tags in a map, and add it once
-                //the span get created.
-                this.tags.putAll(tags);
-            }
+        if (spans != null) {
+            //span has started, there for add tags to the span.
+            manager.addTags(this, tags);
+        } else {
+            //otherwise keep the tags in a map, and add it once
+            //the span get created.
+            this.tags.putAll(tags);
         }
+
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public String getActionName() {
+        return actionName;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
     }
 
     public Map<String, String> getProperties() {
@@ -187,8 +165,8 @@ public class BTracer {
         addProperty(TRACE_PREFIX + INVOCATION_ID, invocationId);
     }
 
-    public void setContext(Context bContext) {
-        this.bContext = bContext;
+    public void setExecutionContext(WorkerExecutionContext executionContext) {
+        this.executionContext = executionContext;
     }
 
     public Map getSpans() {

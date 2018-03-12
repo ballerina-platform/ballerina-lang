@@ -19,16 +19,10 @@
 package org.ballerinalang.observe.trace;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This function which implements the startSpan method for tracing.
@@ -39,34 +33,34 @@ import java.util.concurrent.ThreadLocalRandom;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class StartSpan extends AbstractNativeFunction {
+public class StartSpan extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        String serviceName = getStringArgument(context, 0);
-        String spanName = getStringArgument(context, 1);
-        BMap tags = (BMap) getRefArgument(context, 0);
-        String reference = getRefArgument(context, 1).stringValue();
-        String parentSpanId = ReferenceType.valueOf(reference) == ReferenceType.ROOT ?
-                OpenTracerBallerinaWrapper.ROOT_CONTEXT : getStringArgument(context, 2);
-
-        long invocationId;
-        if (context.getProperties().get(Constants.INVOCATION_ID_PROPERTY) != null) {
-            invocationId = (Long) context.getProperties().get(Constants.INVOCATION_ID_PROPERTY);
-        } else {
-            invocationId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
-            context.setProperty(Constants.INVOCATION_ID_PROPERTY, invocationId);
-        }
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(String.valueOf(invocationId), serviceName,
-                spanName, Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
-
-        if (spanId != null) {
-            return getBValues(new BString(spanId));
-        } else {
-            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
-                    "Check tracing configurations and dependencies.");
-        }
+//        String serviceName = getStringArgument(context, 0);
+//        String spanName = getStringArgument(context, 1);
+//        BMap tags = (BMap) getRefArgument(context, 0);
+//        String reference = getRefArgument(context, 1).stringValue();
+//        String parentSpanId = ReferenceType.valueOf(reference) == ReferenceType.ROOT ?
+//                OpenTracerBallerinaWrapper.ROOT_CONTEXT : getStringArgument(context, 2);
+//
+//        long invocationId;
+//        if (context.getProperties().get(Constants.INVOCATION_ID_PROPERTY) != null) {
+//            invocationId = (Long) context.getProperties().get(Constants.INVOCATION_ID_PROPERTY);
+//        } else {
+//            invocationId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
+//            context.setProperty(Constants.INVOCATION_ID_PROPERTY, invocationId);
+//        }
+//
+//        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(String.valueOf(invocationId), serviceName,
+//                spanName, Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
+//
+//        if (spanId != null) {
+//            return getBValues(new BString(spanId));
+//        } else {
+//            throw new BallerinaException("Can not use tracing API when tracing is disabled. " +
+//                    "Check tracing configurations and dependencies.");
+//        }
     }
 }

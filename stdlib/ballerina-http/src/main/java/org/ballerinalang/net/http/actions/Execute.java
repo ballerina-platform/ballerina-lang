@@ -97,7 +97,7 @@ public class Execute extends AbstractHTTPAction {
             outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
                                          ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
-        context.getActiveBTracer().getProperties().forEach((key, value) ->
+        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
                 outboundRequestMsg.setHeader(key, String.valueOf(value)));
         return outboundRequestMsg;
     }

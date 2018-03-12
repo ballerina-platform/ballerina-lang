@@ -29,6 +29,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.TraceConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
@@ -89,7 +91,13 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = handshakeStruct;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-            Executor.submit(onHandshakeResource, new CallableUnitCallback() {
+
+            BTracer bTracer = new BTracer(null, false);
+            upgradeHeaders.entrySet().stream()
+                    .filter(c -> c.getKey().startsWith(TraceConstant.TRACE_PREFIX))
+                    .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
+
+            Executor.submit(onHandshakeResource, new CallableUnitCallback(bTracer) {
                 @Override
                 public void notifySuccess() {
                     isResourceExeSuccessful.set(true);
@@ -101,7 +109,8 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            }, null, null, bValues);
+            }, null, bTracer, bValues);
+
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {
@@ -177,9 +186,11 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsConnection;
                 WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
+
+                BTracer bTracer = new BTracer(null, false);
                 //TODO handle BallerinaConnectorException
-                //TODO way to pass bTracers to submit()?
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
+                        bTracer, bValues);
             }
 
             @Override

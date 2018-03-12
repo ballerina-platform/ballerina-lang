@@ -21,17 +21,9 @@ import org.ballerinalang.bre.bvm.CallableUnitFutureListener;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.tracer.BTracer;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import static org.ballerinalang.util.tracer.TraceConstant.ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstant.KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstant.KEY_ERROR_OBJECT;
-import static org.ballerinalang.util.tracer.TraceConstant.KEY_MESSAGE;
 
 /**
  * {@code BLangCallableUnitFutureListener} Listener to listen to events sent from
@@ -42,7 +34,6 @@ import static org.ballerinalang.util.tracer.TraceConstant.KEY_MESSAGE;
 public class BLangCallableUnitFutureListener implements CallableUnitFutureListener {
 
     private Context context;
-    private BTracer bTracer;
     private boolean nonBlocking = false;
     private volatile Semaphore executionWaitSem;
 
@@ -50,21 +41,6 @@ public class BLangCallableUnitFutureListener implements CallableUnitFutureListen
         this.context = context;
         this.nonBlocking = nonBlocking;
         this.executionWaitSem = new Semaphore(0);
-        this.bTracer = initActiveBTracer();
-    }
-
-    private BTracer initActiveBTracer() {
-        BTracer root = context.getRootBTracer();
-        BTracer active = new BTracer(context, true);
-        if (root == null) {
-            root = active;
-            active.generateInvocationID();
-            context.setRootBTracer(root);
-        }
-        active.setInvocationID(root.getInvocationID());
-        context.setActiveBTracer(active);
-        active.startSpan();
-        return active;
     }
 
     @Override
@@ -85,13 +61,6 @@ public class BLangCallableUnitFutureListener implements CallableUnitFutureListen
 //        BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1,
 //                ex.getMessage());
 //        context.setError(err);
-
-        Map<String, Object> logProps = new HashMap<>();
-        logProps.put(KEY_ERROR_KIND, ERROR_KIND_EXCEPTION);
-        logProps.put(KEY_ERROR_OBJECT, ex);
-        logProps.put(KEY_MESSAGE, ex.getMessage());
-        bTracer.logError(logProps);
-
         done();
     }
 
@@ -101,7 +70,6 @@ public class BLangCallableUnitFutureListener implements CallableUnitFutureListen
                     .execute(new ResponseWorkerThread(context));
         } else {
             executionWaitSem.release();
-            bTracer.finishSpan();
 //            synchronized (context) {
 //                context.notifyAll();
 //            }
