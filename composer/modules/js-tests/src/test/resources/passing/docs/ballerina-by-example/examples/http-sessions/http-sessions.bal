@@ -6,7 +6,7 @@ service<http> sessionTest {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
         http:Session session = conn.createSessionIfAbsent();
         string result;
@@ -18,7 +18,7 @@ service<http> sessionTest {
         }
         //Binds a string attribute to this session with a key(string).
         session.setAttribute(key, "Session sample");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(result);
         _ = conn.respond(res);
     }
@@ -26,7 +26,7 @@ service<http> sessionTest {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource doTask (http:Connection conn, http:InRequest req) {
+    resource doTask (http:Connection conn, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
         http:Session session = conn.getSession();
         string attributeValue;
@@ -36,7 +36,7 @@ service<http> sessionTest {
         } else {
             attributeValue = "Session unavailable";
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(attributeValue);
         _ = conn.respond(res);
     }
@@ -44,9 +44,9 @@ service<http> sessionTest {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayBye (http:Connection conn, http:InRequest req) {
+    resource sayBye (http:Connection conn, http:Request req) {
         http:Session session = conn.getSession();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (session != null) {
             //Returns session id.
             string id = session.getId();

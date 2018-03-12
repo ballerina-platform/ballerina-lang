@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -45,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -461,11 +459,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         visitBuiltInTypeNode(builtInRefType, builtInRefType.typeKind, this.env);
-    }
-
-    public void visit(BLangEndpointTypeNode endpointType) {
-        BType constraintType = resolveTypeNode(endpointType.constraint, env);
-        resultType = new BEndpointType(TypeTags.ENDPOINT, constraintType, null);
     }
 
     public void visit(BLangArrayType arrayTypeNode) {

@@ -91,6 +91,8 @@ public class DebuggerExecutor implements Runnable {
             BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, new BValue[]{arrayArgs});
         } catch (Exception e) {
             log.debug("error occurred, invoking the function - " + e.getMessage(), e);
+        } finally {
+            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
 
         debugger.notifyExit();

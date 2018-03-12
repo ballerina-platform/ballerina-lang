@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
+@Deprecated
 public interface AnnotationAttachmentAttributeValueNode extends ExpressionNode {
 
     Node getValue();

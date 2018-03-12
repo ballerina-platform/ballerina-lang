@@ -96,7 +96,7 @@ public class MimeUtilityFunctionTest {
         BStruct mediaType = (BStruct) returns[0];
         Assert.assertEquals(mediaType.getStringField(PRIMARY_TYPE_INDEX), "multipart");
         Assert.assertEquals(mediaType.getStringField(SUBTYPE_INDEX), "form-data");
-        Assert.assertEquals(mediaType.getStringField(SUFFIX_INDEX), "");
+        Assert.assertNull(mediaType.getStringField(SUFFIX_INDEX));
         BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
@@ -359,7 +359,7 @@ public class MimeUtilityFunctionTest {
             characterChannel.close();
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
                     responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
             Assert.assertNotNull(response, "Response message not found");
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
             Assert.assertNotNull(inputStream, "Inputstream is null");

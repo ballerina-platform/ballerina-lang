@@ -65,6 +65,7 @@ public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
 
     private CompileResult result, serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -195,11 +196,11 @@ public class MultipartEncoderTest {
                 "form-data");
     }
 
-    @Test(description = "Test whether the encoded body parts can be sent through OutResponse, with a given boundary")
+    @Test(description = "Test whether the encoded body parts can be sent through Response, with a given boundary")
     public void testMultipartsInOutResponse() {
         String path = "/multipart/encode_out_response";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
@@ -215,11 +216,11 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Retrieve body parts from the InRequest and send it across OutResponse")
+    @Test(description = "Retrieve body parts from the Request and send it across Response")
     public void testNestedPartsInOutResponse() {
         String path = "/multipart/nested_parts_in_outresponse";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {

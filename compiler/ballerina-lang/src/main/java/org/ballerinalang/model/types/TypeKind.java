@@ -58,6 +58,7 @@ public enum TypeKind {
     PACKAGE("package"),
     STRUCT("struct"),
     ENUM("enum"),
+    SERVICE("service"),
     CONNECTOR("connector"),
     STREAMLET("streamlet"),
     ENDPOINT("endpoint"),

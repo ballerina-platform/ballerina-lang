@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -75,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpressio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -185,6 +184,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangEndpoint endpointNode) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangIdentifier identifierNode) {
         throw new AssertionError();
     }
@@ -193,6 +196,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangAnnotAttribute annotationAttribute) {
         throw new AssertionError();
     }
@@ -402,7 +406,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangConnectorInit connectorInitExpr) {
+    public void visit(BLangTypeInit connectorInitExpr) {
         throw new AssertionError();
     }
 
@@ -509,10 +513,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangEndpointTypeNode endpointType) {
         throw new AssertionError();
     }
 

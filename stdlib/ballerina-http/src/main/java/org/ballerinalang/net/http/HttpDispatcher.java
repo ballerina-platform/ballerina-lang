@@ -17,14 +17,16 @@
 */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -45,6 +47,10 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_CON_CONNECTION_INDEX;
+
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
  *
@@ -56,7 +62,7 @@ public class HttpDispatcher {
 
     private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
-            Map<String, HttpService> servicesOnInterface = getServicesOnInterface(servicesRegistry, inboundReqMsg);
+            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
 
             String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
             inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
@@ -69,31 +75,20 @@ public class HttpDispatcher {
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             // Most of the time we will find service from here
-            String basePath =
-                    servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
-            HttpService service = servicesOnInterface.get(basePath);
-            if (service == null) {
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
+
+            if (basePath == null) {
                 inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
                         validatedUri.getRawPath());
             }
 
+            HttpService service = servicesOnInterface.get(basePath);
             setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
-
             return service;
         } catch (Throwable e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
-    }
-
-    private static Map<String, HttpService> getServicesOnInterface(HTTPServicesRegistry servicesRegistry,
-                                                                   HTTPCarbonMessage inboundReqMsg) {
-        String interfaceId = getInterface(inboundReqMsg);
-        Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface(interfaceId);
-        if (servicesOnInterface == null) {
-            throw new BallerinaConnectorException("no services found for interface : " + interfaceId);
-        }
-        return servicesOnInterface;
     }
 
     private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
@@ -170,26 +165,35 @@ public class HttpDispatcher {
     }
 
     public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
+
         //TODO Think of keeping struct type globally rather than creating for each request
-        BStruct connection = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
-        BStruct inRequest = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.IN_REQUEST);
+        BConnector serverConnector = BLangConnectorSPIUtil.createBConnector(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, SERVER_CONNECTOR);
 
-        BStruct inRequestEntity = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.mime.util.Constants.ENTITY);
+        BStruct connection = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
 
-        BStruct mediaType = ConnectorUtils.createStruct(httpResource.getBalResource(),
-                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME,
-                org.ballerinalang.mime.util.Constants.MEDIA_TYPE);
+        BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
 
+        BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+
+        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(
+                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
+
+        serverConnector.setRefField(SERVER_CON_CONNECTION_INDEX, connection);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = connection;
+        bValues[0] = serverConnector;
         bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;

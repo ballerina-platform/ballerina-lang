@@ -90,7 +90,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);
 
-    private static final String REQUEST_STRUCT = HttpConstants.IN_REQUEST;
+    private static final String REQUEST_STRUCT = HttpConstants.REQUEST;
     private static final String PROTOCOL_PACKAGE_HTTP = HttpConstants.PROTOCOL_PACKAGE_HTTP;
     private static final String PACKAGE_MIME = org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
     private static final String ENTITY_STRUCT = HttpConstants.ENTITY;

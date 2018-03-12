@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
+import org.ballerinalang.model.tree.types.TypeNode;
+
 import java.util.List;
 
 /**
@@ -26,9 +28,15 @@ public interface AnnotationNode extends AnnotatableNode, DocumentableNode, TopLe
 
     IdentifierNode getName();
 
-    public void setName(IdentifierNode name);
+    void setName(IdentifierNode name);
 
+    TypeNode getTypeNode();
+
+    void setTypeNode(TypeNode type);
+
+    @Deprecated
     List<? extends AnnotationAttributeNode> getAttributes();
 
+    @Deprecated
     void addAttribute(AnnotationAttributeNode attribute);
 }

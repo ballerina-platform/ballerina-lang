@@ -36,8 +36,8 @@ service<http> Initiator2pcService {
     documentation {
         When a participant wants to abort a transaction, it will make a call to this resource.
     }
-    resource abortTransaction (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        http:OutResponse res;
+    resource abortTransaction (http:Connection conn, http:Request req, string transactionBlockId) {
+        http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
 

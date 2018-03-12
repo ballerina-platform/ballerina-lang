@@ -42,10 +42,18 @@ public class Names {
     public static final Name TRANSFORMER = new Name("transformer");
     public static final Name ERROR = new Name("error");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
+    public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
+    public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name CONNECTOR = new Name("connector");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
+
+    public static final Name EP_SPI_INIT = new Name("init");
+    public static final Name EP_SPI_REGISTER = new Name("register");
+    public static final Name EP_SPI_GET_CONNECTOR = new Name("getConnector");
+    public static final Name EP_SPI_START = new Name("start");
+    public static final Name EP_SPI_STOP = new Name("stop");
 
     public CompilerContext context;
 

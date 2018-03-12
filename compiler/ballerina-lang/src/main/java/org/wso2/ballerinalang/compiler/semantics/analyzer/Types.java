@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
