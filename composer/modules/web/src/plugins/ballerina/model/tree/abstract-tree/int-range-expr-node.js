@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractRecordLiteralKeyValueNode extends Node {
+class AbstractIntRangeExprNode extends ExpressionNode {
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
+    setStartExpression(newValue, silent, title) {
+        const oldValue = this.startExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
+        this.startExpression = newValue;
 
-        this.value.parent = this;
+        this.startExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'value',
+                    attributeName: 'startExpression',
                     newValue,
                     oldValue,
                 },
@@ -43,17 +43,17 @@ class AbstractRecordLiteralKeyValueNode extends Node {
         }
     }
 
-    getValue() {
-        return this.value;
+    getStartExpression() {
+        return this.startExpression;
     }
 
 
-    setKey(newValue, silent, title) {
-        const oldValue = this.key;
+    setEndExpression(newValue, silent, title) {
+        const oldValue = this.endExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.key = newValue;
+        this.endExpression = newValue;
 
-        this.key.parent = this;
+        this.endExpression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -61,7 +61,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'key',
+                    attributeName: 'endExpression',
                     newValue,
                     oldValue,
                 },
@@ -69,11 +69,10 @@ class AbstractRecordLiteralKeyValueNode extends Node {
         }
     }
 
-    getKey() {
-        return this.key;
+    getEndExpression() {
+        return this.endExpression;
     }
-
 
 }
 
-export default AbstractRecordLiteralKeyValueNode;
+export default AbstractIntRangeExprNode;
