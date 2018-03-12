@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ConnectorInfo;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -35,8 +34,6 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-
-import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 
 /**
  * Utils for accessing runtime information for Ballerina Connector SPI.
@@ -132,12 +129,7 @@ public final class BLangConnectorSPIUtil {
         if (connectorInfo == null) {
             throw new BallerinaConnectorException("connector - " + connectorName + " does not exist");
         }
-        final BConnector bConnector = BLangVMStructs.createBConnector(connectorInfo, args);
-        final FunctionInfo initFunction = packageInfo.getFunctionInfo(connectorName + INIT_FUNCTION_SUFFIX);
-        if (initFunction != null) {
-            BLangFunctions.invokePackageInitFunction(initFunction);
-        }
-        return bConnector;
+        return BLangVMStructs.createBConnector(connectorInfo, args);
     }
 
     public static Service getServiceFromType(ProgramFile programFile, Value value) {
