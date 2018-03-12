@@ -861,7 +861,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <module>tests/ballerina-test</module>
+                <!--<module>tests/ballerina-test</module>-->
 
                 <module>language-server</module>
                 <module>misc/docerina</module>
@@ -870,16 +870,16 @@
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
                 <module>misc/protobuf-ballerina</module>
-                <module>composer</module>
+                <!--<module>composer</module>-->
 
                 <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
-                <module>distribution/zip/ballerina-tools</module>
+                <!--<module>distribution/zip/ballerina-tools</module>-->
 
                 <!--<module>tests/ballerina-test-integration</module>-->
 
-                <module>tool-plugins/intellij</module>
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/intellij</module>-->
+                <!--<module>tool-plugins/vscode</module>-->
             </modules>
         </profile>
         <profile>
@@ -899,8 +899,8 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <!--<module>tests/ballerina-test</module>-->
+                <!--<module>tests/ballerina-test-compiler-plugins</module>-->
 
                 <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
@@ -931,8 +931,8 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <!--<module>tests/ballerina-test</module>-->
+                <!--<module>tests/ballerina-test-compiler-plugins</module>-->
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
@@ -941,17 +941,17 @@
                 <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
                 <module>misc/protobuf-ballerina</module>
-                <module>composer</module>
+                <!--<module>composer</module>-->
 
                 <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
-                <module>distribution/zip/ballerina-tools</module>
+                <!--<module>distribution/zip/ballerina-tools</module>-->
 
                 <!--<module>tests/ballerina-test-integration</module>-->
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
-                <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/vscode</module>-->
             </modules>
         </profile>
         <profile>

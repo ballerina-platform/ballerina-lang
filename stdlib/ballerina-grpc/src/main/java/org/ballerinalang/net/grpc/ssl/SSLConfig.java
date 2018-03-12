@@ -40,7 +40,6 @@ public class SSLConfig {
     private String trustStorePass;
     private String sslProtocol = "TLS";
     private String tlsStoreType = "PKCS12";
-
     private String[] cipherSuites;
     private String[] enableProtocols;
     private boolean enableSessionCreation;
