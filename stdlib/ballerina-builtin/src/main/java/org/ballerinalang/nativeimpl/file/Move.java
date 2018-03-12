@@ -33,13 +33,12 @@ import java.io.File;
  * Moves a file from a given location to another.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "move",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "file"),
+                structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
-                        structPackage = "file")},
+                        structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Move extends AbstractNativeFunction {

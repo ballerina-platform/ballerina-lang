@@ -28,8 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "runtime",
+        packageName = "ballerina.runtime",
         functionName = "sleepCurrentWorker",
         args = {@Argument(name = "millis", type = TypeKind.INT)},
         isPublic = true

@@ -44,14 +44,13 @@ import java.util.concurrent.ExecutionException;
  * @since 0.94
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "io",
+        packageName = "ballerina.io",
         functionName = "nextTextRecord",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
-                structPackage = "io"),
+                structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "io")},
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class NextTextRecord extends AbstractNativeFunction {

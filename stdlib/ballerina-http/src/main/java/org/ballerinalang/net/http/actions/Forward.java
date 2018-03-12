@@ -39,25 +39,24 @@ import java.util.Locale;
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
  */
 @BallerinaAction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         actionName = "forward",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "InRequest",
-                        structPackage = "net.http")
+                        structPackage = "ballerina.net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "net.http"),
+                        structPackage = "ballerina.net.http"),
         },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                        structPackage = "net.http")
+                        structPackage = "ballerina.net.http")
         }
 )
 public class Forward extends AbstractHTTPAction {

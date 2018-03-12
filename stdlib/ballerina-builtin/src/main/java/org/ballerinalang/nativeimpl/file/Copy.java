@@ -40,13 +40,12 @@ import java.io.OutputStream;
  * Copies a file from a given location to another.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "copy",
         args = {@Argument(name = "source", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "file"),
+                structPackage = "ballerina.file"),
                 @Argument(name = "destination", type = TypeKind.STRUCT, structType = "File",
-                        structPackage = "file")},
+                        structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Copy extends AbstractNativeFunction {

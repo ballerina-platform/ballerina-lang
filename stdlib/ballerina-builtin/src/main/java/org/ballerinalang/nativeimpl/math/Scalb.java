@@ -32,8 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "math",
+        packageName = "ballerina.math",
         functionName = "scalb",
         args = {@Argument(name = "a", type = TypeKind.FLOAT),
                 @Argument(name = "scaleFactor", type = TypeKind.INT)},

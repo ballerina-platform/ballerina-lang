@@ -33,11 +33,10 @@ import org.ballerinalang.util.codegen.StructInfo;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "user",
+        packageName = "ballerina.user",
         functionName = "getLocale",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Locale",
-                                  structPackage = "utils")},
+                                  structPackage = "ballerina.utils")},
         isPublic = true
 )
 public class GetLocale extends AbstractNativeFunction {
@@ -56,7 +55,7 @@ public class GetLocale extends AbstractNativeFunction {
         if (country == null) {
             country = BTypes.typeString.getZeroValue().stringValue();
         }
-        PackageInfo utilsPackageInfo = context.getProgramFile().getPackageInfo("util");
+        PackageInfo utilsPackageInfo = context.getProgramFile().getPackageInfo("ballerina.util");
         StructInfo localeStructInfo = utilsPackageInfo.getStructInfo("Locale");
         return BLangVMStructs.createBStruct(localeStructInfo, language, country);
     }

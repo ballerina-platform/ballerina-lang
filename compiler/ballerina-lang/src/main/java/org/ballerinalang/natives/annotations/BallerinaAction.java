@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BallerinaAction {
-    String orgName() default "";
     String packageName() default "";
     String actionName() default "";
     String connectorName() default "";

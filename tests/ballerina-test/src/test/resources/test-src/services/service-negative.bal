@@ -1,5 +1,5 @@
-import ballerina/io;
-import ballerina/net.http;
+import ballerina.io;
+import ballerina.net.http;
 service<http> FooService {
 
     resource test1 (string dummyParam) {

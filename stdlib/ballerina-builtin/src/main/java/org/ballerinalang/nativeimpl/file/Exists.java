@@ -36,13 +36,12 @@ import java.nio.file.Paths;
  * Can be used to check whether a file exists.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "exists",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
-                             structPackage = "file"),
+                             structPackage = "ballerina.file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "file")},
+                structPackage = "ballerina.file")},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

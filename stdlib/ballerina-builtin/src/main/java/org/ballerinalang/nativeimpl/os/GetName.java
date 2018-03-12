@@ -29,8 +29,7 @@ import org.ballerinalang.util.BuiltInUtils;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "os",
+        packageName = "ballerina.os",
         functionName = "getName",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

@@ -33,8 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "xml.getElementName",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

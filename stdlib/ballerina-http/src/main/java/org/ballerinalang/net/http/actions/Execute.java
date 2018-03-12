@@ -42,8 +42,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
 @BallerinaAction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         actionName = "execute",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
@@ -51,17 +50,17 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",
-                        structPackage = "net.http")
+                        structPackage = "ballerina.net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "net.http"),
+                        structPackage = "ballerina.net.http"),
         },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "net.http")
+                          structPackage = "ballerina.net.http")
         }
 )
 public class Execute extends AbstractHTTPAction {

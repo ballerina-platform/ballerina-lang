@@ -37,8 +37,7 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
  *
  * @since 0.96
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "mime",
+@BallerinaFunction(packageName = "ballerina.mime",
                    functionName = "getMediaType",
                    args = { @Argument(name = "contentType",
                                      type = TypeKind.STRING) },

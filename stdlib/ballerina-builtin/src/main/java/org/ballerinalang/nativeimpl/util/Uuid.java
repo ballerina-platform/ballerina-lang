@@ -32,8 +32,7 @@ import java.util.UUID;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "util",
+        packageName = "ballerina.util",
         functionName = "uuid",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

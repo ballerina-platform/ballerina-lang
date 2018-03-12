@@ -33,8 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.95
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "xml.removeAttribute",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true

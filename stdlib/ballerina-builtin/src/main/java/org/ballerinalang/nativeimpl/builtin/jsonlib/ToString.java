@@ -35,8 +35,7 @@ import org.slf4j.LoggerFactory;
  * Native function ballerina.model.json:toString.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "json.toString",
         args = {@Argument(name = "j", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

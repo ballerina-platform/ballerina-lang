@@ -48,12 +48,11 @@ import java.util.Set;
  * @since 0.94
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "openChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "file"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         args = {@Argument(name = "accessMode", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "io")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class OpenChannel extends AbstractNativeChannel {

@@ -42,12 +42,11 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.961.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "io",
+        packageName = "ballerina.io",
         functionName = "hasNextTextRecord",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
-                structPackage = "io"),
+                structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

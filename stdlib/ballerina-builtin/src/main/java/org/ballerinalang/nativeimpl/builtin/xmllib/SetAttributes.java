@@ -34,8 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.90
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "xml.setAttributes",
         args = {@Argument(name = "attributes", type = TypeKind.MAP)},
         isPublic = true
