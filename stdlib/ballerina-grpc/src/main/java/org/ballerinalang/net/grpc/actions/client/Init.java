@@ -60,7 +60,7 @@ import javax.net.ssl.SSLException;
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "<init>",
-        connectorName = "GRPCConnector",
+        connectorName = "ClientConnector",
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR)},
         connectorArgs = {
                 @Argument(name = "host", type = TypeKind.STRING),

@@ -40,7 +40,7 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "streamingExecute",
-        connectorName = "GRPCConnector",
+        connectorName = "ClientConnector",
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.STRING)

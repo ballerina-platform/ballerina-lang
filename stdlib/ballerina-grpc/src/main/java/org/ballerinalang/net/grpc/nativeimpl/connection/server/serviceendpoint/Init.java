@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.ConnectorUtil;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class Init extends AbstractGrpcNativeFunction {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
-            EndPointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            EndpointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
             Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
             Annotation annotation = ConnectorUtil.getServiceConfigAnnotation(service,
                     "ballerina.net.grpc");

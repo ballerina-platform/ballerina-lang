@@ -39,7 +39,7 @@ import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "blockingExecute",
-        connectorName = "GRPCConnector",
+        connectorName = "ClientConnector",
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)

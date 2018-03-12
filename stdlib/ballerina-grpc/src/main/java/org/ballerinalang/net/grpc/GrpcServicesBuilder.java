@@ -33,7 +33,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -57,13 +57,13 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 public class GrpcServicesBuilder {
     
     
-    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig, SslContext
+    public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
             sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
-            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != 0) {
                 serverBuilder = NettyServerBuilder.forPort((int)
-                        serviceEndpointConfig.getPort().intValue())
+                        serviceEndpointConfig.getPort())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
@@ -76,9 +76,9 @@ public class GrpcServicesBuilder {
                                 .availableProcessors() * 2)).sslContext(sslContext);
             }
         } else {
-            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != 0) {
                 serverBuilder = NettyServerBuilder.forPort((int)
-                        serviceEndpointConfig.getPort().intValue())
+                        serviceEndpointConfig.getPort())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()

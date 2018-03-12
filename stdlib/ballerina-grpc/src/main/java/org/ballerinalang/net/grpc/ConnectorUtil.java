@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.ssl.SSLConfig;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -34,9 +34,9 @@ import java.util.List;
  * Util class of connector functions.
  */
 public class ConnectorUtil {
-    public static EndPointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
-        EndPointConfiguration endPointConfiguration = new EndPointConfiguration();
-        endPointConfiguration.setPort(serviceEndpointConfig.getIntField("port"));
+    public static EndpointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
+        EndpointConfiguration endPointConfiguration = new EndpointConfiguration();
+        endPointConfiguration.setPort((Math.toIntExact(serviceEndpointConfig.getIntField("port"))));
         endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
         return endPointConfiguration;
     }
