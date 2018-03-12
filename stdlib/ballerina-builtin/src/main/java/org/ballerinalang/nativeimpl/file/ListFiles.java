@@ -47,10 +47,9 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "list",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "file"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRUCT),
                 @ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true

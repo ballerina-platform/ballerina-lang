@@ -29,8 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "runtime",
+        packageName = "ballerina.runtime",
         functionName = "getCallStack"
 )
 public class GetCallStack extends AbstractNativeFunction {

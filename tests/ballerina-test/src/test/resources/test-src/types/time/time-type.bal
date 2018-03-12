@@ -1,4 +1,4 @@
-import ballerina/time;
+import ballerina.time;
 
 function testCurrentTime () (int timeValue, string zoneId, int zoneoffset) {
     time:Time timeStruct = time:currentTime();

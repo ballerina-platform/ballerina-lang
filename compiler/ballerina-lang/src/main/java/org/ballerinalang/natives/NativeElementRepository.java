@@ -65,10 +65,8 @@ public class NativeElementRepository {
      */
     public static class NativeFunctionDef {
 
-        private String orgName;
-
         private String pkgName;
-
+        
         private String callableName;
         
         private String className;
@@ -77,18 +75,13 @@ public class NativeElementRepository {
         
         private TypeKind[] retTypes;
         
-        public NativeFunctionDef(String orgName, String pkgName, String callableName, TypeKind[] argTypes,
+        public NativeFunctionDef(String pkgName, String callableName, TypeKind[] argTypes, 
                 TypeKind[] retTypes, String className) {
-            this.orgName = orgName;
             this.pkgName = pkgName;
             this.callableName = callableName;
             this.argTypes = argTypes;
             this.retTypes = retTypes;
             this.className = className;
-        }
-
-        public String getOrgName() {
-            return pkgName;
         }
 
         public String getPkgName() {
@@ -122,9 +115,9 @@ public class NativeElementRepository {
 
         private String connectorName;
         
-        public NativeActionDef(String orgName, String pkgName, String connectorName, String actionDef,
+        public NativeActionDef(String pkgName, String connectorName, String actionDef, 
                 TypeKind[] argTypes, TypeKind[] retTypes, String className) {
-            super(orgName, pkgName, actionDef, argTypes, retTypes, className);
+            super(pkgName, actionDef, argTypes, retTypes, className);
             this.connectorName = connectorName;
         }
 

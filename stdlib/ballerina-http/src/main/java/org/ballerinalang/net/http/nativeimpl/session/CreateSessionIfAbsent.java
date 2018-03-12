@@ -43,13 +43,12 @@ import java.util.NoSuchElementException;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         functionName = "createSessionIfAbsent",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "net.http"),
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
-                structPackage = "net.http")},
+                structPackage = "ballerina.net.http")},
         isPublic = true
 )
 public class CreateSessionIfAbsent extends AbstractNativeFunction {

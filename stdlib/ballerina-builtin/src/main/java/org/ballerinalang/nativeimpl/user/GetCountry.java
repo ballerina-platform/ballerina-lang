@@ -29,8 +29,7 @@ import org.ballerinalang.util.BuiltInUtils;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "user",
+        packageName = "ballerina.user",
         functionName = "getCountry",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

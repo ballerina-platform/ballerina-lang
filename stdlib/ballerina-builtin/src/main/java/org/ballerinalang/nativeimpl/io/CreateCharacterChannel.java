@@ -39,15 +39,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.94
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "io",
+        packageName = "ballerina.io",
         functionName = "createCharacterChannel",
         args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT, structType = "ByteChannel",
-                    structPackage = "io"),
+                    structPackage = "ballerina.io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT,
                 structType = "CharacterChannel",
-                structPackage = "io")},
+                structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateCharacterChannel extends AbstractNativeFunction {
@@ -68,7 +67,7 @@ public class CreateCharacterChannel extends AbstractNativeFunction {
     /**
      * The package path of the byte channel.
      */
-    private static final String CHAR_CHANNEL_PACKAGE = "io";
+    private static final String CHAR_CHANNEL_PACKAGE = "ballerina.io";
 
     /**
      * The type of the byte channel struct.

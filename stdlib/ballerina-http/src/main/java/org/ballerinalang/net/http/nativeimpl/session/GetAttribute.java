@@ -37,11 +37,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         functionName = "getAttribute",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "net.http"),
+                             structPackage = "ballerina.net.http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

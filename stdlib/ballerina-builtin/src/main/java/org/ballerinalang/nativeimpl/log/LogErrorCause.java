@@ -32,8 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.95.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "log",
+        packageName = "ballerina.log",
         functionName = "printErrorCause",
         args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
         isPublic = true

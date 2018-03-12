@@ -32,8 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "math",
+        packageName = "ballerina.math",
         functionName = "absInt",
         args = {@Argument(name = "val", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},

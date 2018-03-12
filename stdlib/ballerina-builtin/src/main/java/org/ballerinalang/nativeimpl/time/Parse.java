@@ -30,13 +30,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "time",
+        packageName = "ballerina.time",
         functionName = "parse",
         args = {@Argument(name = "dateString", type = TypeKind.STRING),
                 @Argument(name = "patter", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "time")},
+                                  structPackage = "ballerina.time")},
         isPublic = true
 )
 public class Parse extends  AbstractTimeFunction {

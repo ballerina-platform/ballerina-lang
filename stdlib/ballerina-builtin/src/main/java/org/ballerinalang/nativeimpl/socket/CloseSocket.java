@@ -37,10 +37,9 @@ import java.nio.channels.ByteChannel;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "io",
+        packageName = "ballerina.io",
         functionName = "closeSocket",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "io"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
         isPublic = true
 )
 public class CloseSocket extends AbstractNativeFunction {

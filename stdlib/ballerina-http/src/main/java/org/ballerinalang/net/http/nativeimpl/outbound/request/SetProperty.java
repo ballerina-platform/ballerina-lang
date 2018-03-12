@@ -30,11 +30,10 @@ import org.ballerinalang.net.http.HttpUtil;
  * Ballerina function to set a message property.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         functionName = "setProperty",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "OutRequest",
-                             structPackage = "net.http"),
+                             structPackage = "ballerina.net.http"),
         args = {@Argument(name = "propertyName", type = TypeKind.STRING),
                 @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type
         isPublic = true

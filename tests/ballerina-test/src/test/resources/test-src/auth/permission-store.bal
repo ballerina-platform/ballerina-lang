@@ -1,4 +1,4 @@
-import ballerina/auth.authz.permissionstore;
+import ballerina.auth.authz.permissionstore;
 
 function testCreatePermissionstore () (permissionstore:FileBasedPermissionStore) {
     permissionstore:FileBasedPermissionStore permissionStore = {};

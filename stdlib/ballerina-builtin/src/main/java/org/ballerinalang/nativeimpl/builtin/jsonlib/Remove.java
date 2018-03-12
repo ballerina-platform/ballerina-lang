@@ -32,8 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * Remove the element(s) that matches the given key.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "json.remove",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "key", type = TypeKind.STRING)},

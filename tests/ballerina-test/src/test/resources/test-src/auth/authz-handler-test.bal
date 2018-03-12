@@ -1,6 +1,6 @@
-import ballerina/auth.authz;
-import ballerina/net.http;
-import ballerina/mime;
+import ballerina.auth.authz;
+import ballerina.net.http;
+import ballerina.mime;
 
 function testHandleHttpAuthzFailure () (boolean) {
     authz:HttpAuthzHandler handler = {};

@@ -37,11 +37,9 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "mime",
+@BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setXml",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "xmlContent", type = TypeKind.XML)},
         isPublic = true
 )

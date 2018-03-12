@@ -1,5 +1,5 @@
-import ballerina/data.sql;
-import ballerina/time;
+import ballerina.data.sql;
+import ballerina.time;
 
 struct ResultCustomers {
     string FIRSTNAME;

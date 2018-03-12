@@ -1,7 +1,7 @@
 package lang.annotations.foo;
 
 import lang.annotations.doc;
-import ballerina/net.http;
+import ballerina.net.http;
 
 @doc:Description{value:"Constant holding the name of the current ballerina program"}
 const string programName = "TestAnnotations";
