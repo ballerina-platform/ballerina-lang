@@ -72,7 +72,7 @@ public class DelimitedRecordReadAllEvent implements Event {
             try {
                 channel.close();
             } catch (IOException e) {
-                // Do nothing.
+                log.warn(e.getMessage(), e);
             }
         }
     }
