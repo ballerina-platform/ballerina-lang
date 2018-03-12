@@ -6,8 +6,8 @@ function testServiceType () returns (type) {
 }
 
 service<http> HelloWorld {
-    resource hello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource hello (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("Hello, World!");
         _ = conn.respond(res);
     }

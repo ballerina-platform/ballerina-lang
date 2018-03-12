@@ -195,7 +195,7 @@ public class MultipartEncoderTest {
                 "form-data");
     }
 
-    @Test(description = "Test whether the encoded body parts can be sent through OutResponse, with a given boundary")
+    @Test(description = "Test whether the encoded body parts can be sent through Response, with a given boundary")
     public void testMultipartsInOutResponse() {
         String path = "/multipart/encode_out_response";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
@@ -215,7 +215,7 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test(description = "Retrieve body parts from the InRequest and send it across OutResponse")
+    @Test(description = "Retrieve body parts from the Request and send it across Response")
     public void testNestedPartsInOutResponse() {
         String path = "/multipart/nested_parts_in_outresponse";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
