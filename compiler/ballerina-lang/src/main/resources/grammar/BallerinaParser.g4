@@ -170,11 +170,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* endpointType Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
     ;
 
 endpointType
-    :   ENDPOINT (LT nameReference GT)
+    :   nameReference
     ;
 
 typeName
