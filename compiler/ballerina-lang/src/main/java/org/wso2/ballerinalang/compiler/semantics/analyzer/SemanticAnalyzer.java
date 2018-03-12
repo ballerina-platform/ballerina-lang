@@ -658,18 +658,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
         }
         this.typeChecker.checkExpr(compoundAssignment.expr, env).get(0);
-        BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
-                compoundAssignment.expr.type);
-        if (opSymbol == symTable.notFoundSymbol) {
-            dlog.error(compoundAssignment.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                    compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
-        } else {
-            compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
-                    compoundAssignment.expr,
-                    compoundAssignment.opKind,
-                    opSymbol);
-            this.types.checkTypes(compoundAssignment.modifiedExpr,
-                    Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+        if (expTypes.get(0) != symTable.errType && compoundAssignment.expr.type != symTable.errType) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
+                    compoundAssignment.expr.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                dlog.error(compoundAssignment.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                        compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
+            } else {
+                compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
+                        compoundAssignment.expr,
+                        compoundAssignment.opKind,
+                        opSymbol);
+                this.types.checkTypes(compoundAssignment.modifiedExpr,
+                        Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+            }
         }
     }
 

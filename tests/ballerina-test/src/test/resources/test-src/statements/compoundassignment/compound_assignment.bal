@@ -1,3 +1,5 @@
+xmlns "http://sample.com/wso2/a1" as ns0;
+
 function testCompoundAssignmentAddition()(int){
     int x = 5;
     x += 10;
@@ -120,4 +122,37 @@ function testDecrementOperatorStructElement()(int){
     ibm.count = 888;
     ibm.count--;
     return ibm.count;
+}
+
+function testStringIntCompoundAssignmentAddition()(string){
+    int x = 5;
+    string a = "test";
+    a += x;
+    return a;
+}
+
+function testIncrementOperatorFloat()(float){
+    float x = 100;
+    x++;
+    return x;
+}
+
+function testDecrementOperatorFloat()(float){
+    float x = 100;
+    x--;
+    return x;
+}
+
+function testIntFloatCompoundAssignmentAddition()(float){
+    int x = 5;
+    float d = 2.5;
+    d += x;
+    return d;
+}
+
+function testXMLAttributeWithCompoundAssignment()(string){
+    var x1, _ = <xml> "<root xmlns:ns3=\"http://sample.com/wso2/f\"></root>";
+    x1@[ns0:foo1] = "bar1";
+    x1@[ns0:foo1] += "bar2";
+    return x1@[ns0:foo1];
 }
