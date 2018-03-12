@@ -201,7 +201,7 @@ public class ParserUtils {
             String builtInPackageName = builtInPackage.getPackageDeclaration().getPackageName().stream()
                     .map(name -> name.getValue()).collect(Collectors.joining("."));
             loadPackageMap(builtInPackageName, builtInPackage, modelPackage);
-        }catch (Exception e) {
+        } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
             logger.warn("Error while loading package ballerina.builtin");
         }
