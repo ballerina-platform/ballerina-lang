@@ -138,4 +138,12 @@ public interface Struct {
      * @return BValue instance.
      */
     BValue getVMValue();
+
+    /**
+     * Add native data to the struct.
+     *
+     * @param key key to identify native value.
+     * @param data value to be added.
+     */
+    void addNativeData(String key, Object data);
 }
