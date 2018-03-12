@@ -48,13 +48,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
- *  Test annotation processor.
+ * Responsible of processing testerina annotations. This class is an implementation of the
+ * {@link org.ballerinalang.compiler.plugins.CompilerPlugin}. Lifetime of an instance of this class will end upon the
+ * completion of processing a ballerina package.
  */
 @SupportedAnnotationPackages(
         value = "ballerina.test"
 )
 public class TestAnnotationProcessor extends AbstractCompilerPlugin {
-    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private static final String TEST_ANNOTATION_NAME = "config";
     private static final String BEFORE_SUITE_ANNOTATION_NAME = "beforeSuite";
     private static final String AFTER_SUITE_ANNOTATION_NAME = "afterSuite";
@@ -69,7 +70,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+
+    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private TestSuite suite;
+    /**
+     * this property is used as a work-around to initialize test suites only once for a package as Compiler
+     * Annotation currently emits package import events too to the process method.
+     */
     private boolean packageInit;
 
     @Override
@@ -82,7 +90,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             String packageName = packageNode.getPackageDeclaration() == null ? "." : packageNode
                     .getPackageDeclaration().getPackageName().stream().map(pkg -> pkg.getValue()).collect(Collectors
                             .joining("."));
-
             suite = registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
             packageInit = true;
         }
@@ -90,9 +97,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
-        if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
-            return;
-        }
+        // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
             String functionName = functionNode.getName().getValue();
@@ -105,137 +110,148 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addAfterEachFunction(functionName);
-            } else {
-                if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
-                    String[] vals = new String[2];
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
-                        List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral)
-                                attachmentNode.getExpression()).getKeyValuePairs();
-                        attributes.forEach(attributeNode -> {
-                            String name = attributeNode.getKey().toString();
-                            String value = attributeNode.getValue().toString();
-                            if (PACKAGE.equals(name)) {
-                                vals[0] = value;
-                            } else if (FUNCTION.equals(name)) {
-                                vals[1] = value;
-                            }
-                        });
-                        suite.addMockFunction(vals[0] + "#" + vals[1], functionName);
-                    }
-                } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
-                    Test test = new Test();
-                    test.setTestName(functionName);
-                    AtomicBoolean shouldSkip = new AtomicBoolean();
-                    AtomicBoolean groupsFound = new AtomicBoolean();
-                    List<String> groups = registry.getGroups();
-                    boolean shouldIncludeGroups = registry.shouldIncludeGroups();
+            } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                String[] vals = new String[2];
+                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getKeyValuePairs();
+                    attributes.forEach(attributeNode -> {
+                        String name = attributeNode.getKey().toString();
+                        String value = attributeNode.getValue().toString();
+                        if (PACKAGE.equals(name)) {
+                            vals[0] = value;
+                        } else if (FUNCTION.equals(name)) {
+                            vals[1] = value;
+                        }
+                    });
+                    suite.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
+                }
+            } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
+                Test test = new Test();
+                test.setTestName(functionName);
+                AtomicBoolean shouldSkip = new AtomicBoolean();
+                AtomicBoolean groupsFound = new AtomicBoolean();
+                List<String> groups = registry.getGroups();
+                boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
-                        List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral)
-                                attachmentNode.getExpression()).getKeyValuePairs();
+                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getKeyValuePairs();
 
-                        attributes.forEach(attributeNode -> {
-                            String name = attributeNode.getKey().toString();
-                            // Check if enable property is present in the annotation
-                            if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
-                                    .toString())) {
-                                // If enable is false, disable the test, no further processing is needed
-                                shouldSkip.set(true);
-                                return;
-                            }
-                            // Check whether user has provided a group list
-                            if (groups != null && !groups.isEmpty()) {
-                                // check if groups attribute is present in the annotation
-                                if (GROUP_ANNOTATION_NAME.equals(name)) {
-                                    if (attributeNode.getValue() instanceof BLangArrayLiteral) {
-                                        BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                        boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map
-                                                (node -> node.toString()).collect(Collectors.toList()));
-                                        if (shouldIncludeGroups) {
-                                            // include only if the test belong to one of these groups
-                                            if (!isGroupPresent) {
-                                                // skip the test if this group is not defined in this test
-                                                shouldSkip.set(true);
-                                                return;
-                                            }
-                                        } else {
-                                            // exclude only if the test belong to one of these groups
-                                            if (isGroupPresent) {
-                                                // skip if this test belongs to one of the excluded groups
-                                                shouldSkip.set(true);
-                                                return;
-                                            }
-                                        }
-                                        groupsFound.set(true);
-                                    }
-                                }
-                            }
-                            if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
-                                test.setDataProvider(attributeNode.getValue().toString());
-                            }
-
-                            if (BEFORE_FUNCTION.equals(name)) {
-                                test.setBeforeTestFunction(attributeNode.getValue().toString());
-                            }
-
-                            if (AFTER_FUNCTION.equals(name)) {
-                                test.setAfterTestFunction(attributeNode.getValue().toString());
-                            }
-
-                            if (DEPENDS_ON_FUNCTIONS.equals(name)) {
+                    attributes.forEach(attributeNode -> {
+                        String name = attributeNode.getKey().toString();
+                        // Check if enable property is present in the annotation
+                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(attributeNode.getValue()
+                                .toString())) {
+                            // If enable is false, disable the test, no further processing is needed
+                            shouldSkip.set(true);
+                            return;
+                        }
+                        // Check whether user has provided a group list
+                        if (groups != null && !groups.isEmpty()) {
+                            // check if groups attribute is present in the annotation
+                            if (GROUP_ANNOTATION_NAME.equals(name)) {
                                 if (attributeNode.getValue() instanceof BLangArrayLiteral) {
                                     BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
-                                    values.exprs.stream().map(node -> node.toString()).forEach
-                                            (test::addDependsOnTestFunction);
+                                    boolean isGroupPresent = isGroupAvailable(groups, values.exprs.stream().map(node
+                                            -> node.toString()).collect(Collectors.toList()));
+                                    if (shouldIncludeGroups) {
+                                        // include only if the test belong to one of these groups
+                                        if (!isGroupPresent) {
+                                            // skip the test if this group is not defined in this test
+                                            shouldSkip.set(true);
+                                            return;
+                                        }
+                                    } else {
+                                        // exclude only if the test belong to one of these groups
+                                        if (isGroupPresent) {
+                                            // skip if this test belongs to one of the excluded groups
+                                            shouldSkip.set(true);
+                                            return;
+                                        }
+                                    }
+                                    groupsFound.set(true);
                                 }
                             }
-                        });
-                    }
-                    if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
-                        // if the user has asked to run only a specific list of groups and this test doesn't have
-                        // that group, we should skip the test
-                        shouldSkip.set(true);
-                    }
-                    if (!shouldSkip.get()) {
-                        suite.addTests(test);
-                    }
+                        }
+                        if (VALUE_SET_ANNOTATION_NAME.equals(name)) {
+                            test.setDataProvider(attributeNode.getValue().toString());
+                        }
+
+                        if (BEFORE_FUNCTION.equals(name)) {
+                            test.setBeforeTestFunction(attributeNode.getValue().toString());
+                        }
+
+                        if (AFTER_FUNCTION.equals(name)) {
+                            test.setAfterTestFunction(attributeNode.getValue().toString());
+                        }
+
+                        if (DEPENDS_ON_FUNCTIONS.equals(name)) {
+                            if (attributeNode.getValue() instanceof BLangArrayLiteral) {
+                                BLangArrayLiteral values = (BLangArrayLiteral) attributeNode.getValue();
+                                values.exprs.stream().map(node -> node.toString()).forEach
+                                        (test::addDependsOnTestFunction);
+                            }
+                        }
+                    });
                 }
+                if (groups != null && !groups.isEmpty() && !groupsFound.get() && shouldIncludeGroups) {
+                    // if the user has asked to run only a specific list of groups and this test doesn't have
+                    // that group, we should skip the test
+                    shouldSkip.set(true);
+                }
+                if (!shouldSkip.get()) {
+                    suite.addTests(test);
+                }
+            } else {
+                // disregard this annotation
             }
         }
+
     }
 
     /**
      * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
-     * @param programFile
+     * This method will get executed at the completion of the processing of a ballerina package.
+     *
+     * @param programFile {@link ProgramFile} corresponds to the current ballerina package
      */
     public void packageProcessed(ProgramFile programFile) {
         packageInit = false;
+        // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
         suite = TesterinaRegistry.getInstance().getTestSuites().get(programFile.getEntryPkgName());
         suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
                 TesterinaFunction.Type.INIT));
+        // add all functions of the package as utility functions
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
         });
-        int[] sortedElts = checkCyclicDependencies(suite.getTests());
+        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         resolveFunctions(suite);
-        List<Test> sortedTests = orderTests(suite.getTests(), sortedElts);
+        List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(programFile);
         injectMocks(suite);
     }
 
+    /**
+     * Process a given {@link TestSuite} and inject the user defined mock functions.
+     *
+     * @param suite a @{@link TestSuite}
+     */
     public static void injectMocks(TestSuite suite) {
         ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         mockFunctions.forEach((k, v) -> {
-            String[] info = k.split("#");
+            String[] info = k.split(MOCK_ANNOTATION_DELIMITER);
             if (info.length != 2) {
                 return;
             }
 
-            for (PackageInfo packageInfo: programFile.getPackageInfoEntries()) {
+            for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
                 for (Instruction ins : packageInfo.getInstructions()) {
                     if (ins instanceof Instruction.InstructionCALL) {
+                        // replace the function pointer of the instruction with the mock function pointer
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
                         if (call.functionInfo.getName().equals(info[1])) {
                             suite.addMockedRealFunction(k, call.functionInfo);
@@ -247,13 +263,18 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         });
     }
 
+    /**
+     * Process a given {@link TestSuite} and reset the mock functions with their original pointers.
+     *
+     * @param suite a @{@link TestSuite}
+     */
     public static void resetMocks(TestSuite suite) {
         ProgramFile programFile = suite.getProgramFile();
         Map<String, TesterinaFunction> mockFunctions = suite.getMockFunctionsMap();
         Map<String, FunctionInfo> mockedRealFunctionsMap = suite.getMockedRealFunctionsMap();
 
         mockFunctions.forEach((k, v) -> {
-            String[] info = k.split("#");
+            String[] info = k.split(MOCK_ANNOTATION_DELIMITER);
             if (info.length != 2) {
                 return;
             }
@@ -271,10 +292,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         });
     }
 
-    private static List<Test> orderTests(List<Test> tests, int[] sortedElts) {
+    private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
         List<Test> sortedTests = new ArrayList<>();
 //        outStream.println("Test execution order: ");
-        for (int idx : sortedElts) {
+        for (int idx : testExecutionOrder) {
             sortedTests.add(tests.get(idx));
 //            outStream.println(sortedTests.get(sortedTests.size() - 1).getTestFunction().getName());
         }
@@ -282,6 +303,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         return sortedTests;
     }
 
+    /**
+     * Resolve function names to {@link TesterinaFunction}s.
+     *
+     * @param suite {@link TestSuite} whose functions to be resolved.
+     */
     private static void resolveFunctions(TestSuite suite) {
         List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
         List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
@@ -315,16 +341,19 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         if (bType.getTag() == TypeTags.ARRAY_TAG) {
                             BArrayType bArrayType = (BArrayType) bType;
                             if (bArrayType.getElementType().getTag() != TypeTags.ARRAY_TAG) {
-                                throw new BallerinaException(String.format("Data provider function [%s] should " +
-                                        "return an array of arrays.", dataProvider));
+                                String message = String.format("Data provider function [%s] should return an array of" +
+                                        " arrays.", dataProvider);
+                                throw new BallerinaException(message);
                             }
                         } else {
-                            throw new BallerinaException(String.format("Data provider function [%s] should return" +
-                                    " an array of arrays.", dataProvider));
+                            String message = String.format("Data provider function [%s] should return an array of " +
+                                    "arrays.", dataProvider);
+                            throw new BallerinaException(message);
                         }
                     } else {
-                        throw new BallerinaException(String.format("Data provider function [%s] should have only" +
-                                " one return type.", dataProvider));
+                        String message = String.format("Data provider function [%s] should have only one return type" +
+                                ".", dataProvider);
+                        throw new BallerinaException(message);
                     }
                     return func;
                 }).get());
@@ -378,11 +407,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         for (int i = 0; i < numberOfNodes; i++) {
             dependencyMatrix[i] = new ArrayList<>();
         }
-//        for (int i=0; i<tests.size();i++) {
-//            for (int j = 0; j < tests.size(); j++) {
-//                dependencyMatrix[i][j] = 0;
-//            }
-//        }
         List<String> testNames = tests.stream().map(k -> k.getTestName()).collect(Collectors.toList());
 
         int i = 0;
@@ -391,8 +415,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 for (String dependsOnFn : test.getDependsOnTestFunctions()) {
                     int idx = testNames.indexOf(dependsOnFn);
                     if (idx == -1) {
-                        throw new BallerinaException(String.format("Test [%s] depends on function [%s], but it " +
-                                "couldn't be found.", test.getTestFunction().getName(), dependsOnFn));
+                        String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
+                                ".", test.getTestFunction().getName(), dependsOnFn);
+                        throw new BallerinaException(message);
                     }
                     dependencyMatrix[i].add(idx);
                 }
@@ -420,18 +445,14 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         // Initialize count of visited vertices
         int cnt = 0;
 
-        // Create a vector to store result (A topological
-        // ordering of the vertices)
+        // Create a vector to store result (A topological ordering of the vertices)
         Vector<Integer> topOrder = new Vector<Integer>();
         while (!q.isEmpty()) {
-            // Extract front of queue (or perform dequeue)
-            // and add it to topological order
+            // Extract front of queue (or perform dequeue) and add it to topological order
             int u = q.poll();
             topOrder.add(u);
 
-            // Iterate through all its neighbouring nodes
-            // of dequeued node u and decrease their in-degree
-            // by 1
+            // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
             for (int node : dependencyMatrix[u]) {
                 // If in-degree becomes zero, add it to queue
                 if (--indegrees[node] == 0) {
@@ -443,7 +464,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
         // Check if there was a cycle
         if (cnt != numberOfNodes) {
-            throw new BallerinaException("Cyclic test dependency detected");
+            String message = "Cyclic test dependency detected";
+            throw new BallerinaException(message);
         }
 
         i = numberOfNodes - 1;
@@ -453,7 +475,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
 
         return sortedElts;
-
     }
 
     /**
@@ -473,6 +494,4 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
         return false;
     }
-
-
 }

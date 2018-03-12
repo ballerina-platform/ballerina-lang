@@ -102,10 +102,14 @@ public class BTestRunner {
             ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
             processorServiceLoader.forEach(plugin -> {
                 if (plugin instanceof TestAnnotationProcessor) {
-                    ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                    try {
+                        ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                    } catch (Exception e) {
+                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
+                        throw new BallerinaException(e);
+                    }
                 }
             });
-
         });
         // execute the test programs
         execute();
