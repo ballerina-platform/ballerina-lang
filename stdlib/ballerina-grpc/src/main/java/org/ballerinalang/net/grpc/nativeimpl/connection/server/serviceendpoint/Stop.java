@@ -20,7 +20,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
@@ -45,10 +44,9 @@ public class Stop extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Stop.class);
     
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Server server = getService(serviceEndpoint);
         stop(server);
-        return new BValue[] {null};
     }
 }

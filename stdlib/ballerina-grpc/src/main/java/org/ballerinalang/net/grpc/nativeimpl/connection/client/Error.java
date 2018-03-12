@@ -19,10 +19,10 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,26 +48,26 @@ import org.slf4j.LoggerFactory;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class Error extends AbstractNativeFunction {
+public class Error extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Error.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BValue responseValue = getRefArgument(context, 1);
+    public void execute(Context context) {
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BValue responseValue = context.getRefArgument( 1);
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
             StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
             if (responseObserver == null) {
-                return getBValues(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
+                context.setError(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                                 " observer not found."))));
+            } else {
+                responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
+                        (errorMsg)));
             }
-            responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
-                    (errorMsg)));
         }
-        return new BValue[0];
     }
 }

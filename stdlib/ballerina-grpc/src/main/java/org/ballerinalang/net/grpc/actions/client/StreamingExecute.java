@@ -20,7 +20,6 @@ package org.ballerinalang.net.grpc.actions.client;
 import io.grpc.MethodDescriptor;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
@@ -57,31 +56,35 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 )
 public class StreamingExecute extends AbstractExecute {
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BConnector bConnector = (BConnector) context.getRefArgument( 0);
         if (bConnector == null) {
-            return notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
+            notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
+            return;
         }
 
         Object connectionStub = bConnector.getNativeData("stub");
         if (connectionStub == null) {
-            return notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
+            notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
                     "is not initialized properly");
+            return;
         }
-        String methodName = getStringArgument(context, 0);
+        String methodName = context.getStringArgument( 0);
         if (methodName == null) {
-            return notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
+            notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");
+            return;
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
         if (methodDescriptor == null) {
-            return notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+            notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+            return;
         }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            String listenerService = getStringArgument(context, 1);
+            String listenerService = context.getStringArgument(1);
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
@@ -94,19 +97,19 @@ public class StreamingExecute extends AbstractExecute {
                     requestSender = grpcNonBlockingStub.executeBidiStreaming
                             (responseObserver, methodName);
                 } else {
-                    return notifyErrorReply(context, "Error while executing the client call. Method type " +
+                    notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
+                    return;
                 }
                 responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
                 BStruct connStruct = createStruct(context, "ClientConnection");
                 connStruct.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
                 connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                return notifyReply(connStruct);
+                context.setReturnValues(connStruct);
             } catch (RuntimeException | GrpcClientException e) {
-                return notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
+                notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
             }
         }
-        return null;
     }
 }

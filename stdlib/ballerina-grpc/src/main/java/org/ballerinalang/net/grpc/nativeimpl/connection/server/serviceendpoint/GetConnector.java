@@ -19,9 +19,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,12 +39,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends AbstractNativeFunction {
+public class GetConnector extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-
-        // TODO: Create and return ballerina connector.
-        return new BValue[]{null};
+    public void execute(Context context) {
     }
 }

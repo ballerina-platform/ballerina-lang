@@ -18,10 +18,10 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -47,16 +47,16 @@ import org.slf4j.LoggerFactory;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class Send extends AbstractNativeFunction {
+public class Send extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
-        BValue responseValue = getRefArgument(context, 1);
+    public void execute(Context context) {
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BValue responseValue = context.getRefArgument(1);
         StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
         if (requestSender == null) {
-            return new BValue[0];
+            return;
         }
         Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                 .REQUEST_MESSAGE_DEFINITION);
@@ -64,10 +64,9 @@ public class Send extends AbstractNativeFunction {
         try {
             Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
             requestSender.onNext(requestMessage);
-            return new BValue[0];
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
-            return getBValues(MessageUtils.getServerConnectorError(context, e));
+            context.setError(MessageUtils.getServerConnectorError(context, e));
         }
     }
 }

@@ -18,11 +18,13 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.ServerCalls;
 import io.grpc.stub.StreamObserver;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -53,7 +55,8 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         List<ParamDetail> paramDetails = onOpen.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(responseObserver);
-        Executor.execute(onOpen, null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver);
+        Executor.submit(onOpen, callback,null, signatureParams);
 
         return new StreamObserver<Message>() {
             @Override
@@ -65,7 +68,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
-                Executor.execute(resource, null, signatureParams);
+                Executor.submit(resource, callback,null, signatureParams);
             }
 
             @Override
@@ -87,7 +90,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                 }
                 BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
                 signatureParams[1] = errorStruct;
-                Executor.execute(onError, null, signatureParams);
+                Executor.submit(onError, callback, null, signatureParams);
             }
 
             @Override
@@ -101,7 +104,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(responseObserver);
-                Executor.execute(onCompleted, null, signatureParams);
+                Executor.submit(onCompleted, callback, null, signatureParams);
             }
         };
     }

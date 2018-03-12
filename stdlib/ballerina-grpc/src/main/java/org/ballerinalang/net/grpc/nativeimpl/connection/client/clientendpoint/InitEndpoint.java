@@ -21,13 +21,13 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,28 +52,23 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends AbstractNativeFunction {
-
-
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating server connector
             Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
             EndpointConfiguration configuration = getEndpointConfiguration(endpointConfig);
-
-            endpointConfig
             ManagedChannel channel = ManagedChannelBuilder.forAddress(configuration.getHost(), configuration.getPort())
                     .usePlaintext(true)
                     .build();
             clientEndpoint.addNativeData(EndpointConstants.CHANNEL_KEY, channel);
-
-            return new BValue[]{null};
+            Value stubValue = clientEndpoint.getTypeField("stub");
         } catch (Throwable throwable) {
             BStruct errorStruct = MessageUtils.getServerConnectorError(context, throwable);
-            return new BValue[]{errorStruct};
+            context.setError(errorStruct);
         }
 
     }

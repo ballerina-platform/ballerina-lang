@@ -19,9 +19,11 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
@@ -35,12 +37,14 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.List;
@@ -51,14 +55,15 @@ import java.util.Map;
  * Message Utils.
  */
 public class MessageUtils {
+    private static final Logger log = LoggerFactory.getLogger(MessageUtils.class);
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     public static final String UNKNOWN_ERROR = "Unknown Error";
 
-    public static BValue[] getHeader(Context context, AbstractNativeFunction abstractNativeFunction) {
-        String headerName = abstractNativeFunction.getStringArgument(context, 0);
+    public static BValue getHeader(Context context) {
+        String headerName = context.getStringArgument(0);
         String headerValue = getHeaderValue(headerName);
 
-        return abstractNativeFunction.getBValues(new BString(headerValue));
+        return new BString(headerValue);
     }
 
     private static String getHeaderValue(String keyName) {
@@ -128,6 +133,17 @@ public class MessageUtils {
             }
         }
         return errorStruct;
+    }
+
+    public static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
+        int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
+        String errorMsg = error.getStringField(0);
+        log.error(errorMsg);
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        if (streamObserver != null) {
+            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
+                    (errorMsg)));
+        }
     }
 
     /**

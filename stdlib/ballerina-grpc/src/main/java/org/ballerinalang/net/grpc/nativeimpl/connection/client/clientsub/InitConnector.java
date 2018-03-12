@@ -18,9 +18,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientsub;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,10 +35,9 @@ import org.ballerinalang.natives.annotations.Receiver;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class InitConnector extends AbstractNativeFunction {
+public class InitConnector extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        return new BValue[0];
+    public void execute(Context context) {
     }
 }

@@ -21,7 +21,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -53,7 +52,7 @@ public class Init extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Init.class);
     
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
@@ -65,10 +64,8 @@ public class Init extends AbstractGrpcNativeFunction {
             io.grpc.ServerBuilder serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration,
                     sslHandlerFactory.createHttp2TLSContext());
             serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
-            return new BValue[] {null};
         } catch (Throwable throwable) {
             // TODO: 3/10/18 write util to generate error struct
-            return new BValue[] {null};
         }
     }
 }

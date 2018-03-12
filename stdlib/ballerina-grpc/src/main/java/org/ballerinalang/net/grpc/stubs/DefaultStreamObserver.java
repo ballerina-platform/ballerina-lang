@@ -18,6 +18,7 @@ package org.ballerinalang.net.grpc.stubs;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -31,6 +32,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
@@ -110,7 +112,8 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        Executor.execute(resource, null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(resource, callback,null, signatureParams);
     }
     
     @Override
@@ -132,7 +135,8 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
         signatureParams[1] = errorStruct;
-        Executor.execute(onError, null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(onError, callback, null, signatureParams);
     }
     
     @Override
@@ -146,7 +150,8 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);
-        Executor.execute(onCompleted, null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(onCompleted, callback,null, signatureParams);
     }
 
     private BValue getRequestParameter(Resource resource, Message requestMessage) {

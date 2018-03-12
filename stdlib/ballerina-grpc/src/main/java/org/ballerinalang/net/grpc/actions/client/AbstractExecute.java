@@ -21,13 +21,11 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,7 +34,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
  */
-abstract class AbstractExecute extends AbstractNativeAction {
+abstract class AbstractExecute extends BlockingNativeCallableUnit {
 
     /**
      * Returns corresponding Ballerina type for the proto buffer type.
@@ -93,17 +91,9 @@ abstract class AbstractExecute extends AbstractNativeAction {
         return new BStruct(structType);
     }
 
-    ClientConnectorFuture notifyErrorReply(Context context, String errorMessage) {
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+    void notifyErrorReply(Context context, String errorMessage) {
         BStruct outboundError = createStruct(context, "ConnectorError");
         outboundError.setStringField(0, errorMessage);
-        ballerinaFuture.notifyReply(null, outboundError);
-        return ballerinaFuture;
-    }
-
-    ClientConnectorFuture notifyReply(BValue responseBValue) {
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        ballerinaFuture.notifyReply(responseBValue, null);
-        return ballerinaFuture;
+        context.setError(outboundError);
     }
 }

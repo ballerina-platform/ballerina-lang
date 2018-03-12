@@ -17,10 +17,9 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client;
 
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,21 +42,20 @@ import org.slf4j.LoggerFactory;
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class Complete extends AbstractNativeFunction {
+public class Complete extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Complete.class);
     @Override
-    public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
         if (requestSender == null) {
-            return new BValue[0];
+            return;
         }
         try {
             requestSender.onCompleted();
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
-            return getBValues(MessageUtils.getServerConnectorError(context, e));
+            context.setError(MessageUtils.getServerConnectorError(context, e));
         }
-        return new BValue[0];
     }
 }

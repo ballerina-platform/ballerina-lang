@@ -20,13 +20,12 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
 
 import io.grpc.ManagedChannel;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,13 +45,13 @@ import org.ballerinalang.net.grpc.MessageConstants;
         args = {@Argument(name = "serviceDescriptor", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class GenerateConnector extends AbstractNativeFunction {
+public class GenerateConnector extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct clientEndpoint = (BStruct) getRefArgument(context, 0);;
+    public void execute(Context context) {
+        BStruct clientEndpoint = (BStruct) context.getRefArgument( 0);;
         // Creating server connector
-        BStruct serviceDescriptor = (BStruct) getRefArgument(context, 1);
+        BStruct serviceDescriptor = (BStruct) context.getRefArgument( 1);
         if (serviceDescriptor == null) {
             throw new BallerinaConnectorException("Service Descriptor not defined in client connector sub. Please " +
                     "revisit client sub implementation");
@@ -63,7 +62,6 @@ public class GenerateConnector extends AbstractNativeFunction {
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, "ClientConnector", channel, serviceDescriptor);
 
         clientEndpoint.addNativeData("clientConnector", clientConnector);
-        return new BValue[]{null};
     }
 
 }

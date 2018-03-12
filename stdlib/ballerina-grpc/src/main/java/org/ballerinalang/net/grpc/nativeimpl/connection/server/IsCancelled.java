@@ -18,11 +18,10 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.server;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,19 +41,17 @@ import org.ballerinalang.net.grpc.MessageUtils;
         returnType = @ReturnType(type = TypeKind.BOOLEAN),
         isPublic = true
 )
-public class IsCancelled extends AbstractNativeFunction {
+public class IsCancelled extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct connectionStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct connectionStruct = (BStruct) context.getRefArgument( 0);
         StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
         if (responseObserver == null) {
-            return new BValue[0];
+            return;
         }
         if (responseObserver instanceof ServerCallStreamObserver) {
             ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) responseObserver;
-            return new BValue[] {new BBoolean(serverCallStreamObserver.isCancelled())};
-        } else {
-            return new BValue[0];
+            context.setReturnValues(new BBoolean(serverCallStreamObserver.isCancelled()));
         }
     }
 }

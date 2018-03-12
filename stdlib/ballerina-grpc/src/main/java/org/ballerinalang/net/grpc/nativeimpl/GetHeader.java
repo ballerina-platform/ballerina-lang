@@ -17,9 +17,8 @@
 package org.ballerinalang.net.grpc.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -35,10 +34,9 @@ import org.ballerinalang.net.grpc.MessageUtils;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetHeader extends AbstractNativeFunction {
-
+public class GetHeader extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        return MessageUtils.getHeader(context, this);
+    public void execute(Context context) {
+        context.setReturnValues(MessageUtils.getHeader(context));
     }
 }
