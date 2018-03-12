@@ -32,11 +32,13 @@ import org.ballerinalang.net.http.HttpUtil;
  *
  * @since 0.96.0
  */
-@BallerinaFunction(packageName = "ballerina.net.http",
+@BallerinaFunction(
+                   orgName = "ballerina",
+                   packageName = "net.http",
                    functionName = "getEntity",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "OutResponse",
-                                        structPackage = "ballerina.net.http"),
+                                        structPackage = "net.http"),
                    returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
 public class GetEntity extends AbstractNativeFunction {

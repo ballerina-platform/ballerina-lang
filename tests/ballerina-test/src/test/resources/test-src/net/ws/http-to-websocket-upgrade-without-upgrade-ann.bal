@@ -1,6 +1,6 @@
-import ballerina.io;
-import ballerina.net.http;
-import ballerina.net.ws;
+import ballerina/io;
+import ballerina/net.http;
+import ballerina/net.ws;
 
 @http:configuration {
     basePath:"/test",

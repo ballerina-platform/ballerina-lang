@@ -34,7 +34,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "xml.setChildren",
         args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true

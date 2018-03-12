@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 function testVariableIfScope () (int) {
     int a = 90;

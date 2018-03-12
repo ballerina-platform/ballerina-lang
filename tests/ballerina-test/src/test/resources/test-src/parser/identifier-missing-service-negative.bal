@@ -1,5 +1,5 @@
-import ballerina.connectors.twitter;
-import ballerina.connectors.salesforce as sf;
+import ballerina/connectors.twitter;
+import ballerina/connectors.salesforce as sf;
 
 service<http> HelloService {
 

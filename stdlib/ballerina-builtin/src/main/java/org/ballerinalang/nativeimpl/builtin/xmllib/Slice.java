@@ -34,7 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "xml.slice",
         args = { @Argument(name = "startIndex", type = TypeKind.INT),
                 @Argument(name = "endIndex", type = TypeKind.INT) },

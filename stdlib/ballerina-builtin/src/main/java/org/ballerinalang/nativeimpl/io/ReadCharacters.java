@@ -45,12 +45,13 @@ import java.util.concurrent.ExecutionException;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.io",
+        orgName = "ballerina",
+        packageName = "io",
         functionName = "readCharacters",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "io")},
         isPublic = true
 )
 public class ReadCharacters extends AbstractNativeFunction {

@@ -1,4 +1,4 @@
-import ballerina.config;
+import ballerina/config;
 
 function testGetGlobalValues(string key) (string) {
     return config:getGlobalValue(key);

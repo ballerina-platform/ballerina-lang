@@ -48,7 +48,7 @@ public abstract class AbstractNativeChannel extends AbstractNativeFunction {
     /**
      * The package path of the byte channel.
      */
-    private static final String BYTE_CHANNEL_PACKAGE = "ballerina.io";
+    private static final String BYTE_CHANNEL_PACKAGE = "io";
 
     /**
      * The struct type of the byte channel.

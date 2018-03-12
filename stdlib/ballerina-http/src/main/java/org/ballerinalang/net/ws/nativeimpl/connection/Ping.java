@@ -39,10 +39,11 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "ping",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         args = {@Argument(name = "binaryData", type = TypeKind.BLOB),
                 @Argument(name = "timeoutInSecs", type = TypeKind.INT)},
         isPublic = true

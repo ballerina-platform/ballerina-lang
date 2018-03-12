@@ -1,4 +1,4 @@
-import ballerina.lang.system;
+import ballerina/lang.system;
 
 @BasePath {value:"/samples"}
 service<http> SampleService {

@@ -30,7 +30,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina",
+        packageName = "time",
         functionName = "createTime",
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
@@ -41,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "milliseconds", type = TypeKind.INT),
                 @Argument(name = "zoneID", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+                                  structPackage = "time")},
         isPublic = true
 )
 public class CreateTime extends AbstractTimeFunction {

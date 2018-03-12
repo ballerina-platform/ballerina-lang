@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 
 io:ByteChannel channel;
 

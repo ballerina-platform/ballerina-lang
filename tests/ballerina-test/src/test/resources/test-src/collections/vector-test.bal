@@ -1,4 +1,4 @@
-import ballerina.collections;
+import ballerina/collections;
 
 function testAdd (string[] values) (collections:Vector) {
     collections:Vector vector = {vec:[]};

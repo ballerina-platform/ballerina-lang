@@ -36,10 +36,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "cancelHandshake",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "HandshakeConnection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         args = {@Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true

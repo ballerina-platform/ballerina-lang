@@ -31,7 +31,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native function ballerina.model.strings:split(string, string).
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "string.split",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "regex", type = TypeKind.STRING)},

@@ -31,7 +31,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Make a deep copy of an XML.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "xml.copy",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true

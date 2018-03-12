@@ -32,14 +32,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.96
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         functionName = "forward",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "net.http"),
         args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "InResponse",
-                structPackage = "ballerina.net.http")},
+                structPackage = "net.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
+                                 structPackage = "net.http"),
         isPublic = true
 )
 public class Forward extends ConnectionAction {

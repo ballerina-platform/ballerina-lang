@@ -1,4 +1,4 @@
-import ballerina.auth.userstore;
+import ballerina/auth.userstore;
 
 function testCreateFileBasedUserstore () (userstore:FilebasedUserstore) {
     userstore:FilebasedUserstore fileBasedUserstore = {};

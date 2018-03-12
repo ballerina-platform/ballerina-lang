@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 int i = getInt();
 

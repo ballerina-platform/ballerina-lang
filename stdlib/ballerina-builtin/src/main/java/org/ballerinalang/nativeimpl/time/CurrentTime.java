@@ -29,10 +29,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina",
+        packageName = "time",
         functionName = "currentTime",
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+                                  structPackage = "time")},
         isPublic = true
 )
 public class CurrentTime extends  AbstractTimeFunction {

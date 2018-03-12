@@ -32,7 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94
  */
 @BallerinaFunction(
-        packageName = "ballerina.math",
+        orgName = "ballerina",
+        packageName = "math",
         functionName = "copySign",
         args = {@Argument(name = "magnitude", type = TypeKind.FLOAT),
                 @Argument(name = "sign", type = TypeKind.FLOAT)},

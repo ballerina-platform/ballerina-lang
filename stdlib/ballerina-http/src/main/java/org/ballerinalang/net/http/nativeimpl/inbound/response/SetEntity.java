@@ -33,10 +33,11 @@ import org.ballerinalang.net.http.HttpUtil;
  * @since 0.96
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         functionName = "setEntity",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "net.http"),
         args = {@Argument(name = "entity", type = TypeKind.STRUCT)},
         isPublic = true
 )

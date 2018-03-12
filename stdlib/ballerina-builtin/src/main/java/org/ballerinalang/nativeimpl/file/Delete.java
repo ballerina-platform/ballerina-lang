@@ -33,12 +33,13 @@ import java.io.File;
  * Deletes a file from a given location.
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina",
+        packageName = "file",
         functionName = "delete",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
-                             structPackage = "ballerina.file"),
+                             structPackage = "file"),
         args = {@Argument(name = "target", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "ballerina.file")},
+                structPackage = "file")},
         isPublic = true
 )
 public class Delete extends AbstractNativeFunction {
