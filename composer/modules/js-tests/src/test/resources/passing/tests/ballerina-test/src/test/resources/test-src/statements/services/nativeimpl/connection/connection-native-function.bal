@@ -8,8 +8,8 @@ service<http> helloServer {
         path:"/redirect",
         methods:["GET"]
     }
-    resource redirect(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource redirect(http:Connection conn, http:Request req) {
+        http:Response res = {};
         _ = conn.redirect(res, http:RedirectCode.MOVED_PERMANENTLY_301, ["location1"]);
     }
 }

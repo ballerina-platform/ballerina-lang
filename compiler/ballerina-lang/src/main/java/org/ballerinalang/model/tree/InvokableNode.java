@@ -48,6 +48,8 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     List<? extends WorkerNode> getWorkers();
 
+    List<? extends EndpointNode> getEndpointNodes();
+
     void addDefaultableParameter(VariableDefinitionNode param);
 
     List<BLangVariableDef> getDefaultableParameters();

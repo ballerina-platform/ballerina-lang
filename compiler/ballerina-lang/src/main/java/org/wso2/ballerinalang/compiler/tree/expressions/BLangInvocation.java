@@ -51,7 +51,8 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     public boolean iterableOperationInvocation;
     public IterableContext iContext;
     protected RegIndex[] regIndexes;
-    
+    public boolean actionInvocation;
+
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
      * Above phases must rely on below expr lists, rather than {@link #argExprs}
@@ -135,6 +136,11 @@ public class BLangInvocation extends BLangVariableReference implements Invocatio
     @Override
     public boolean isIterableOperation() {
         return iterableOperationInvocation;
+    }
+
+    @Override
+    public boolean isActionInvocation() {
+        return this.actionInvocation;
     }
 
     /**

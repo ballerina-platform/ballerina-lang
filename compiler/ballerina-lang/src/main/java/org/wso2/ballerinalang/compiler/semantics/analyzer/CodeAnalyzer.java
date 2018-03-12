@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -55,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpressio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -112,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -284,6 +284,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         worker.body.accept(this);
         this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         this.workerCount--;
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
     }
 
     @Override
@@ -647,19 +651,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-
-    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
-        List<BLangIdentifier> existingArgs = new ArrayList<>();
-        args.forEach(arg -> {
-            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
-            if (existingArgs.contains(namedArg.name)) {
-                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
-            }
-            existingArgs.add(namedArg.name);
-        });
-    }
-
-    public void visit(BLangConnectorInit cIExpr) {
+    public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
     }
 
@@ -870,6 +862,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkNextBreakValidityInTransaction() {
         return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
     }
+    
+    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
+        List<BLangIdentifier> existingArgs = new ArrayList<>();
+        args.forEach(arg -> {
+            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
+            if (existingArgs.contains(namedArg.name)) {
+                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
+            }
+            existingArgs.add(namedArg.name);
+        });
+    }
 
     /**
      * This class contains the state machines for a set of workers.
@@ -1005,8 +1008,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
-                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR
-                        || invocationExpr.expr.type.tag == TypeTags.ENDPOINT) {
+                if (invocationExpr.isActionInvocation()) {
                     dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             "action invocation");
                 }
@@ -1064,7 +1066,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             indexAccessExpr.indexExpr.accept(this);
         }
 
-        public void visit(BLangConnectorInit connectorInitExpr) {
+        public void visit(BLangTypeInit connectorInitExpr) {
             dlog.error(connectorInitExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "connector init");
         }
 
