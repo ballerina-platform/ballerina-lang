@@ -303,6 +303,42 @@ public class HttpUtil {
         return responseFuture;
     }
 
+    /**
+     * Sends an HTTP/2 Server Push message back to the client.
+     *
+     * @param requestMsg    the request message associated to the server push response
+     * @param pushResponse  the server push message
+     * @param pushPromise   the push promise associated with the server push
+     * @return              the future to get notifications of the operation asynchronously
+     */
+    public static HttpResponseFuture pushResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage pushResponse,
+                                                  Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
+        }
+        return responseFuture;
+    }
+
+    /**
+     * Sends an HTTP/2 Push Promise message back to the client.
+     *
+     * @param requestMsg    the request message associated to the push promise
+     * @param pushPromise   the push promise message
+     * @return              the future to get notifications of the operation asynchronously
+     */
+    public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.pushPromise(pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred during response", e);
+        }
+        return responseFuture;
+    }
+
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
@@ -717,6 +753,7 @@ public class HttpUtil {
         AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
         AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(
                 HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
+        AnnAttrValue versionAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -776,6 +813,9 @@ public class HttpUtil {
                     throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
                             + maxEntityBodySize.getIntValue());
                 }
+            }
+            if (versionAttrVal != null) {
+                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
             }
 
             listenerConfiguration
@@ -969,7 +1009,7 @@ public class HttpUtil {
         }
     }
 
-    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+    public static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
         if (reqMsg == null) {
             throw new BallerinaException("operation not allowed:invalid Connection variable");
         }

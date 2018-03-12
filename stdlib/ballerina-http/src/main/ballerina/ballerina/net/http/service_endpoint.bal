@@ -23,6 +23,7 @@ public struct Service {
 @Field {value:"ciphers: List of ciphers to be used"}
 @Field {value:"sslProtocol: The SSL protocol version"}
 @Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"cacheSize: Maximum size of the cache"}
 @Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
@@ -36,6 +37,7 @@ public struct ServiceEndpointConfiguration {
     TransferEncoding transferEncoding;
     Chunking chunking;
     SslConfiguration ssl;
+    string httpVersion;
 }
 
 public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {

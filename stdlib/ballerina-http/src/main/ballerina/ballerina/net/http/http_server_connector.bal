@@ -25,6 +25,23 @@ public connector ServerConnector (){
         return conn.forward(res);
     }
 
+    @Description { value:"Sends a push promise to the caller"}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"promise: Push promise message" }
+    @Return { value:"Error occured during HTTP server connector forward" }
+    action promise (PushPromise promise) (HttpConnectorError) {
+        return conn.promise(promise);
+    }
+
+    @Description { value:"Sends a promised push response to the caller"}
+    @Param { value:"conn: The server connector connection" }
+    @Param { value:"promise: Push promise message" }
+    @Param { value:"res: The outbound response message" }
+    @Return { value:"Error occured during HTTP server connector forward" }
+    action pushPromisedResponse (PushPromise promise, OutResponse res) (HttpConnectorError) {
+        return conn.pushPromisedResponse(promise, res);
+    }
+
     @Description { value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct." }
     @Param { value:"conn: The server connector connection" }
     @Return { value:"HTTP Session struct" }
