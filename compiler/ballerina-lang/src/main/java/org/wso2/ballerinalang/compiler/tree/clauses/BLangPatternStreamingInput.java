@@ -24,6 +24,9 @@ import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Implementation of {@link PatternStreamingInputNode}.
  *
@@ -33,10 +36,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangPatternStreamingInput extends BLangNode implements PatternStreamingInputNode {
 
     private PatternStreamingInputNode patternStreamingInput;
-    private PatternStreamingEdgeInputNode patternStreamingEdgeInputNode;
+    private List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
     private boolean isFollowedBy;
-    private boolean isLeftParenthesisEnabled;
-    private boolean isRightParenthesisEnabled;
+    private boolean isEnclosedInParanthesis;
+    private boolean isForEach;
+    private boolean isNotWithFor;
+    private boolean isNotWithAnd;
+    private boolean isOrAndOnly;
 
     @Override
     public NodeKind getKind() {
@@ -54,8 +60,8 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public void setPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput) {
-        this.patternStreamingEdgeInputNode = patternStreamingEdgeInput;
+    public void addPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput) {
+        this.patternStreamingEdgeInputNodeList.add(patternStreamingEdgeInput);
     }
 
     @Override
@@ -64,8 +70,8 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
-    public PatternStreamingEdgeInputNode getPatternStreamingEdgeInput() {
-        return patternStreamingEdgeInputNode;
+    public List<PatternStreamingEdgeInputNode> getPatternStreamingEdgeInputs() {
+        return patternStreamingEdgeInputNodeList;
     }
 
     @Override
@@ -74,27 +80,57 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
     }
 
     @Override
+    public void setEnclosedInParanthesis(boolean enclosedInParanthesis) {
+        this.isEnclosedInParanthesis = enclosedInParanthesis;
+    }
+
+    @Override
+    public boolean enclosedInParanthesis() {
+        return isEnclosedInParanthesis;
+    }
+
+    @Override
+    public void setForEach(boolean isForEach) {
+        this.isForEach = isForEach;
+    }
+
+    @Override
+    public boolean isForEach() {
+        return isForEach;
+    }
+
+    @Override
+    public void setAndWithNot(boolean isAndWithNot) {
+        this.isNotWithAnd = isAndWithNot;
+    }
+
+    @Override
+    public boolean isAndWithNot() {
+        return isNotWithAnd;
+    }
+
+    @Override
+    public void setForWithNot(boolean isForWithNot) {
+        this.isNotWithFor = isForWithNot;
+    }
+
+    @Override
+    public boolean isForWithNot() {
+        return isNotWithFor;
+    }
+
+    @Override
+    public void setAndOrOnly(boolean isAndOrOnly) {
+        this.isOrAndOnly = isAndOrOnly;
+    }
+
+    @Override
+    public boolean isAndOrOnly() {
+        return isOrAndOnly;
+    }
+
+    @Override
     public void setFollowedBy(boolean followedBy) {
         isFollowedBy = followedBy;
-    }
-
-    @Override
-    public boolean isLeftParenthesisEnabled() {
-        return isLeftParenthesisEnabled;
-    }
-
-    @Override
-    public void setLeftParenthesisEnabled(boolean leftParenthesisEnabled) {
-        isLeftParenthesisEnabled = leftParenthesisEnabled;
-    }
-
-    @Override
-    public boolean isRightParenthesisEnabled() {
-        return isRightParenthesisEnabled;
-    }
-
-    @Override
-    public void setRightParenthesisEnabled(boolean rightParenthesisEnabled) {
-        isRightParenthesisEnabled = rightParenthesisEnabled;
     }
 }

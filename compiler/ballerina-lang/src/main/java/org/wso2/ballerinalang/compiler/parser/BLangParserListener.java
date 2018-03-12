@@ -2304,6 +2304,45 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterWithinClause(BallerinaParser.WithinClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startWithinClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitWithinClause(BallerinaParser.WithinClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endWithinClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void enterPatternClause(BallerinaParser.PatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startPatternClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitPatternClause(BallerinaParser.PatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isForAllEvents = ctx.EVERY() != null;
+        boolean isWithinClauseAvailable = ctx.withinClause() != null;
+
+        this.pkgBuilder.endPatternClause(isForAllEvents, isWithinClauseAvailable, getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void enterPatternStreamingInput(BallerinaParser.PatternStreamingInputContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2318,8 +2357,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), ctx.FOLLOWED() != null,
-                ctx.LEFT_PARENTHESIS() != null, ctx.RIGHT_PARENTHESIS() != null);
+        boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
+        boolean enclosedInParanthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
+        boolean forEachAvailable = ctx.FOREACH() != null;
+        boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
+        boolean forWithNotAvailable = ctx.NOT() != null && ctx.FOR() != null;
+        boolean onlyAndOrAvailable = (ctx.AND() != null || ctx.OR() != null) && ctx.NOT() == null &&
+                ctx.FOR() == null;
+        this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
+                enclosedInParanthesis);
     }
 
     @Override

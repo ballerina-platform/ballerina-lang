@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
-import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
+import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
@@ -35,7 +35,7 @@ public class BLangStreamingQueryStatement extends BLangStatement implements Stre
 
     private StreamingInput streamingInput;
     private JoinStreamingInput joinStreamingInput;
-    private PatternStreamingInputNode patternStreamingInputNode;
+    private PatternClause patternClause;
     private SelectClauseNode selectClauseNode;
     private OrderByNode orderByNode;
     private StreamActionNode streamActionNode;
@@ -61,8 +61,8 @@ public class BLangStreamingQueryStatement extends BLangStatement implements Stre
     }
 
     @Override
-    public void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInputNode) {
-        this.patternStreamingInputNode = patternStreamingInputNode;
+    public void setPatternClause(PatternClause patternClause) {
+        this.patternClause = patternClause;
     }
 
     @Override
@@ -91,8 +91,8 @@ public class BLangStreamingQueryStatement extends BLangStatement implements Stre
     }
 
     @Override
-    public PatternStreamingInputNode getPatternStreamingInput() {
-        return patternStreamingInputNode;
+    public PatternClause getPatternClause() {
+        return patternClause;
     }
 
     @Override

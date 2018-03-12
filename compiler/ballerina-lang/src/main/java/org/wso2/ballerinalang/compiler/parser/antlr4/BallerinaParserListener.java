@@ -1,4 +1,22 @@
-// Generated from /home/mohan/ballerina/git-new/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+// Generated from /home/gimantha/GitRepo/Forked/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1830,6 +1848,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStreamingQueryStatement(BallerinaParser.StreamingQueryStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#patternClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterPatternClause(BallerinaParser.PatternClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#patternClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitPatternClause(BallerinaParser.PatternClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withinClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithinClause(BallerinaParser.WithinClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withinClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithinClause(BallerinaParser.WithinClauseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#orderByClause}.
 	 * @param ctx the parse tree
 	 */
@@ -2203,12 +2241,14 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void enterDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void enterDocumentationTemplateAttributeDescription(
+            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void exitDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void exitDocumentationTemplateAttributeDescription(
+            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docText}.
 	 * @param ctx the parse tree

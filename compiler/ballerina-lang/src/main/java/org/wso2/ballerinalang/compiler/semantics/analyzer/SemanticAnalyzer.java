@@ -91,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1246,6 +1247,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         VariableReferenceNode variableReferenceNode = fieldAccessExpr.getExpression();
         ((BLangVariableReference) variableReferenceNode).accept(this);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        // ignore
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

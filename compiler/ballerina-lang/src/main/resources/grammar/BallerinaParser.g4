@@ -332,7 +332,7 @@ foreachStatement
 
 intRangeExpression
     : expression RANGE expression
-    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -670,11 +670,19 @@ queryStatement
     ;
 
 streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)?  | patternStreamingInput)
+    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
         orderByClause?
         outputRate?
         streamingAction
+    ;
+
+patternClause
+    :   EVERY? patternStreamingInput withinClause?
+    ;
+
+withinClause
+    :   WITHIN expression
     ;
 
 orderByClause

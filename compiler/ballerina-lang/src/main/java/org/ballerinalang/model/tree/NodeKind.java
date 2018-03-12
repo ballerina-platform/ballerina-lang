@@ -135,4 +135,6 @@ public enum NodeKind {
     STREAMING_QUERY,
     QUERY,
     STREAMING_QUERY_DECLARATION,
+    WITHIN,
+    PATTERN_CLAUSE,
 }

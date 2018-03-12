@@ -20,6 +20,8 @@ package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
 
+import java.util.List;
+
 /**
  * The interface with the APIs to implement the "pattern" in ballerina streams/table SQLish syntax.
  * <pre>Grammar:
@@ -42,22 +44,33 @@ public interface PatternStreamingInputNode extends Node {
 
     void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInput);
 
-    void setPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput);
+    PatternStreamingInputNode getPatternStreamingInput();
+
+    void addPatternStreamingEdgeInput(PatternStreamingEdgeInputNode patternStreamingEdgeInput);
+
+    List<PatternStreamingEdgeInputNode> getPatternStreamingEdgeInputs();
 
     void setFollowedBy(boolean followedBy);
 
     boolean isFollowedBy();
 
-    PatternStreamingInputNode getPatternStreamingInput();
+    void setEnclosedInParanthesis(boolean enclosedInParanthesis);
 
-    PatternStreamingEdgeInputNode getPatternStreamingEdgeInput();
+    boolean enclosedInParanthesis();
 
-    boolean isLeftParenthesisEnabled();
+    void setForEach(boolean isForEach);
 
-    void setLeftParenthesisEnabled(boolean leftParenthesisEnabled);
+    boolean isForEach();
 
-    boolean isRightParenthesisEnabled();
+    void setAndWithNot(boolean isAndWithNot);
 
-    void setRightParenthesisEnabled(boolean rightParenthesisEnabled);
+    boolean isAndWithNot();
 
+    void setForWithNot(boolean isForWithNot);
+
+    boolean isForWithNot();
+
+    void setAndOrOnly(boolean isAndOrOnly);
+
+    boolean isAndOrOnly();
 }
