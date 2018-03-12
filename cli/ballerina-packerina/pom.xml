@@ -56,6 +56,20 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>ballerina/**</exclude>
+                </excludes>
+            </resource>
+
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>${ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -85,6 +99,7 @@
     </build>
 
     <properties>
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <mavan.findbugsplugin.exclude.file>findbugs-exclude.xml</mavan.findbugsplugin.exclude.file>
     </properties>
 </project>
