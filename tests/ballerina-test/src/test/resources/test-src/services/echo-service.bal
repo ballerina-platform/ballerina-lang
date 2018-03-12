@@ -18,8 +18,8 @@ service<http> echo {
         methods:["GET"],
         path:"/message"
     }
-    resource echo (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource echo (http:Connection conn, http:Request req) {
+        http:Response res = {};
         _ = conn.respond(res);
     }
     
@@ -27,9 +27,9 @@ service<http> echo {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource echo_worker (http:Connection conn, http:InRequest req) {
+    resource echo_worker (http:Connection conn, http:Request req) {
         worker w1 {
-            http:OutResponse res = {};
+            http:Response res = {};
             _ = conn.respond(res);
         }
         worker w2 {
@@ -42,8 +42,8 @@ service<http> echo {
         methods:["POST"],
         path:"/setString"
     }
-    resource setString (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource setString (http:Connection conn, http:Request req) {
+        http:Response res = {};
         string payloadData;
         payloadData, _ = req.getStringPayload();
         serviceLevelStr = untaint payloadData;
@@ -55,8 +55,8 @@ service<http> echo {
         methods:["GET"],
         path:"/getString"
     }
-    resource getString (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource getString (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload(serviceLevelStr);
         _ = conn.respond(res);
     }
@@ -64,8 +64,8 @@ service<http> echo {
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource removeHeaders (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource removeHeaders (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
@@ -77,8 +77,8 @@ service<http> echo {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    resource getServiceLevelString (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource getServiceLevelString (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload(serviceLevelStringVar);
         _ = conn.respond(res);
     }
@@ -87,8 +87,8 @@ service<http> echo {
         methods:["GET"],
         path:constPath
     }
-    resource connstValueAsAttributeValue (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource connstValueAsAttributeValue (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("constant path test");
         _ = conn.respond(res);
     }
@@ -97,13 +97,13 @@ service<http> echo {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    resource testEmptyResourceBody (http:Connection conn, http:InRequest req) {
+    resource testEmptyResourceBody (http:Connection conn, http:Request req) {
     }
 
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource getFormParams (http:Connection conn, http:InRequest req) {
+    resource getFormParams (http:Connection conn, http:Request req) {
         var params, _ = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
@@ -111,7 +111,7 @@ service<http> echo {
         team,_ = (string)params.team;
         json responseJson = {"Name":name , "Team":team};
 
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
         _ = conn.respond(res);
     }
@@ -120,8 +120,8 @@ service<http> echo {
         methods:["PATCH"],
         path:"/modify"
     }
-    resource modify11 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource modify11 (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.statusCode = 204;
         _ = conn.respond(res);
     }

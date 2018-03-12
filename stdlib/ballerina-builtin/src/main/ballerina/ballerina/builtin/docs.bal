@@ -16,18 +16,19 @@
 
 package ballerina.builtin;
 
-public annotation Description {
+deprecated {}
+public annotation Description docData;
+
+deprecated {}
+struct docData {
     string value;
 }
 
-public annotation Param attach resource, function, connector, action {
-    string value;
-}
+deprecated {}
+public annotation<resource, function, connector, action> Param docData;
 
-public annotation Return attach function, action {
-    string value;
-}
+deprecated {}
+public annotation<function, action> Return docData;
 
-public annotation Field attach annotation, enum, struct {
-    string value;
-}
+deprecated {}
+public annotation<annotation, enum, struct> Field docData;

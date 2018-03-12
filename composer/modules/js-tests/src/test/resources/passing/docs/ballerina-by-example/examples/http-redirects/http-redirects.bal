@@ -5,10 +5,10 @@ function main (string[] args) {
     endpoint<http:HttpClient> httpEndoint {
         create http:HttpClient("http://www.mocky.io", getConnectorConfigs());
     }
-    http:OutRequest req = {};
+    http:Request req = {};
 
     //Send a GET request to the specified endpoint
-    http:InResponse resp;
+    http:Response resp;
     resp, _ = httpEndoint.get("/v2/59d590762700000a049cd694", req);
     var payload, payloadError = resp.getStringPayload();
     if (payloadError == null) {
