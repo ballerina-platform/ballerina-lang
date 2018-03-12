@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +61,7 @@ public class RenameUtil {
             if (documentLocationMap.containsKey(location.getUri())) {
                 documentLocationMap.get(location.getUri()).add(location);
             } else {
-                ArrayList<Location> locations = new ArrayList<>();
-                locations.add(location);
-                documentLocationMap.put(location.getUri(), locations);
+                documentLocationMap.put(location.getUri(), (ArrayList<Location>) Lists.of(location));
             }
         });
         
