@@ -64,6 +64,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -371,6 +372,53 @@ public class HttpUtil {
         }
         addCarbonMsg(struct, defaultMsg);
         return defaultMsg;
+    }
+
+    /**
+     * Gets the {@code Http2PushPromise} represented by the PushPromise struct.
+     *
+     * @param pushPromiseStruct  the push promise struct
+     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native data of a push promise
+     * @return the {@code Http2PushPromise} represented by the PushPromise struct
+     */
+    public static Http2PushPromise getPushPromise(BStruct pushPromiseStruct, Http2PushPromise defaultPushPromise) {
+        Http2PushPromise pushPromise =
+                (Http2PushPromise) pushPromiseStruct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
+        if (pushPromise != null) {
+            return pushPromise;
+        }
+        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
+        return defaultPushPromise;
+    }
+
+    /**
+     * Populates the push promise struct from native {@code Http2PushPromise}.
+     *
+     * @param pushPromiseStruct the push promise struct
+     * @param pushPromise the native Http2PushPromise
+     */
+    public static void populatePushPromiseStruct(BStruct pushPromiseStruct, Http2PushPromise pushPromise) {
+        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX, pushPromise.getPath());
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX, pushPromise.getMethod());
+    }
+
+    /**
+     * Creates native {@code Http2PushPromise} from PushPromise struct.
+     *
+     * @param struct the PushPromise struct
+     * @return the populated the native {@code Http2PushPromise}
+     */
+    public static Http2PushPromise createHttpPushPromise(BStruct struct) {
+        String method = HttpConstants.HTTP_METHOD_GET;
+        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX).isEmpty()) {
+            method = struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX);
+        }
+        String path = HttpConstants.DEFAULT_BASE_PATH;
+        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX).isEmpty()) {
+            path = struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX);
+        }
+        return new Http2PushPromise(method, path);
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
