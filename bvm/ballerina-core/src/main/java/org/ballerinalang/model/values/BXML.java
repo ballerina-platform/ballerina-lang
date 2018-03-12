@@ -283,19 +283,11 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     protected static void handleXmlException(String message, Throwable t) {
         // Here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
-        String finalMessage;
         if (t.getCause() != null) {
-            finalMessage = message + t.getCause().getMessage();
+            throw new BallerinaException(message + t.getCause().getMessage());
         } else {
-            finalMessage = message + t.getMessage();
+            throw new BallerinaException(message + t.getMessage());
         }
-        if (finalMessage.contains("javax.xml.stream.")) {
-            // This will prevent Java error information related to parser properties from getting exposed
-            // Example error message: Encountered a reference to external entity "entityName", but stream reader has
-            // feature "javax.xml.stream.isSupportingExternalEntities" disabled.
-            finalMessage = finalMessage.replaceAll("javax.xml.stream.", "");
-        }
-        throw new BallerinaException(finalMessage);
     }
 
     /**
