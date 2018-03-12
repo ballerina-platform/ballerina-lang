@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.ConnectorFuture;
@@ -115,6 +114,9 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
@@ -487,7 +489,8 @@ public class BLangVM {
                     break;
                 case InstructionCodes.TR_END:
                     i = operands[0];
-                    endTransaction(i);
+                    j = operands[1];
+                    endTransaction(i, j);
                     break;
                 case InstructionCodes.WRKSEND:
                     InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -516,7 +519,7 @@ public class BLangVM {
                             break;
                         }
 
-                        BLangVMErrors.setStackTrace(context, ip, error);
+                        BLangVMErrors.attachCallStack(error, context, ip);
                         context.setError(error);
                     }
                     handleError();
@@ -567,6 +570,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
                 case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.B2JSON:
@@ -603,6 +607,7 @@ public class BLangVM {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.XML2S:
+                case InstructionCodes.ANY2SCONV:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -679,7 +684,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWTABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BTable(null);
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
@@ -2211,8 +2218,7 @@ public class BLangVM {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.XML_TNAME);
+                    handleTypeConversionError(sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.S2JSONX:
@@ -2226,14 +2232,24 @@ public class BLangVM {
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
-                    handleTypeConversionError(sf, k, e.getMessage(), TypeConstants.STRING_TNAME,
-                            TypeConstants.JSON_TNAME);
+                    handleTypeConversionError(sf, k, e.getMessage());
                 }
                 break;
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];
                 sf.stringRegs[j] = sf.refRegs[i].stringValue();
+                break;
+            case InstructionCodes.ANY2SCONV:
+                i = operands[0];
+                j = operands[1];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.stringRegs[j] = STRING_NULL_VALUE;
+                } else {
+                    sf.stringRegs[j] = bRefType.stringValue();
+                }
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2587,7 +2603,7 @@ public class BLangVM {
 
     private void handleTypeCastError(StackFrame sf, int errorRegIndex, String sourceType, String targetType) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType.toString(), targetType.toString());
+        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2600,13 +2616,12 @@ public class BLangVM {
     private void handleTypeConversionError(StackFrame sf, int errorRegIndex,
                                            String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
-        handleTypeConversionError(sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
+        handleTypeConversionError(sf, errorRegIndex, errorMsg);
     }
 
-    private void handleTypeConversionError(StackFrame sf, int errorRegIndex, String errorMessage,
-                                           String sourceTypeName, String targetTypeName) {
+    private void handleTypeConversionError(StackFrame sf, int errorRegIndex, String errorMessage) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(context, ip, errorMessage, sourceTypeName, targetTypeName);
+        errorVal = BLangVMErrors.createTypeConversionError(context, ip, errorMessage);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2678,31 +2693,9 @@ public class BLangVM {
         sf.refRegs[i] = bStruct;
     }
 
-    private void endTransaction(int status) {
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager != null) {
-            try {
-                if (status == TransactionStatus.SUCCESS.value()) {
-                    ballerinaTransactionManager.commitTransactionBlock();
-                } else if (status == TransactionStatus.FAILED.value()) {
-                    ballerinaTransactionManager.rollbackTransactionBlock();
-                } else { //status = 1 Transaction end
-                    ballerinaTransactionManager.endTransactionBlock();
-                    if (ballerinaTransactionManager.isOuterTransaction()) {
-                        context.setBallerinaTransactionManager(null);
-                    }
-                }
-            } catch (Throwable e) {
-                context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-                handleError();
-                return;
-            }
-        }
-    }
-
-    private void beginTransaction(int transactionId, int retryCountRegIndex) {
+    private void beginTransaction(int transactionBlockId, int retryCountRegIndex) {
         //Transaction is attempted three times by default to improve resiliency
-        int retryCount = 3;
+        int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
             retryCount = (int) controlStack.currentFrame.getLongRegs()[retryCountRegIndex];
             if (retryCount < 0) {
@@ -2712,25 +2705,94 @@ public class BLangVM {
                 return;
             }
         }
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        if (ballerinaTransactionManager == null) {
-            ballerinaTransactionManager = new BallerinaTransactionManager();
-            context.setBallerinaTransactionManager(ballerinaTransactionManager);
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        boolean isInitiator = true;
+        if (localTransactionInfo == null) {
+            BValue[] returns = notifyTransactionBegin(null,  null, transactionBlockId,
+                    TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
+            BStruct txDataStruct = (BStruct) returns[0];
+            String globalTransactionId = txDataStruct.getStringField(1);
+            String protocol = txDataStruct.getStringField(2);
+            String url = txDataStruct.getStringField(3);
+            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
+            context.setLocalTransactionInfo(localTransactionInfo);
+        } else {
+            isInitiator = false;
+            notifyTransactionBegin(localTransactionInfo.getGlobalTransactionId(),
+                    localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol(), isInitiator);
         }
-        ballerinaTransactionManager.beginTransactionBlock(transactionId, retryCount);
-
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private void retryTransaction(int transactionId, int startOfAbortIP) {
-        BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-        int allowedRetryCount = ballerinaTransactionManager.getAllowedRetryCount(transactionId);
-        int currentRetryCount = ballerinaTransactionManager.getCurrentRetryCount(transactionId);
-        if (currentRetryCount >= allowedRetryCount) {
-            if (currentRetryCount != 0) {
-                ip = startOfAbortIP;
+    private void retryTransaction(int transactionBlockId, int startOfAbortIP) {
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
+            ip = startOfAbortIP;
+        }
+        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+    }
+
+    private void endTransaction(int transactionBlockId, int status) {
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        boolean notifyCoorinator;
+        try {
+            //In success case no need to do anything as with the transaction end phase it will be committed.
+            if (status == TransactionStatus.FAILED.value()) {
+                notifyCoorinator = localTransactionInfo.onTransactionFailed(transactionBlockId);
+                if (notifyCoorinator) {
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                }
+            } else if (status == TransactionStatus.ABORTED.value()) {
+                notifyCoorinator = localTransactionInfo.onTransactionAbort();
+                if (notifyCoorinator) {
+                    notifyTransactionAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                }
+            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
+                notifyCoorinator = localTransactionInfo.onTransactionEnd(transactionBlockId);
+                if (notifyCoorinator) {
+                    notifyTransactionEnd(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                    context.setLocalTransactionInfo(null);
+                }
+            }
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            handleError();
+        }
+    }
+
+    private BValue[] notifyTransactionBegin(String glbalTransactionId, String url, int transactionBlockId,
+            String protocol, boolean isInitiator) {
+        BValue[] args = {
+                new BString(glbalTransactionId), new BInteger(transactionBlockId), new BString(url),
+                new BString(protocol)
+        };
+        BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
+        if (isInitiator) {
+            if (returns[1] != null) {
+                throw new BallerinaException("error in transaction start: " + ((BStruct) returns[1]).getStringField(0));
             }
         }
-        ballerinaTransactionManager.incrementCurrentRetryCount(transactionId);
+        return returns;
+    }
+
+    private void notifyTransactionEnd(String globalTransactionId, int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
+        BValue[] returns = invokeCoordinatorFunction(TransactionConstants.COORDINATOR_END_TRANSACTION, args);
+        if (returns[1] != null) {
+            throw new BallerinaException("error in transaction end: " + ((BStruct) returns[1]).getStringField(0));
+        }
+    }
+
+    private void notifyTransactionAbort(String globalTransactionId, int transactionBlockId) {
+        BValue[] args = { new BString(globalTransactionId), new BInteger(transactionBlockId) };
+        invokeCoordinatorFunction(TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
+    }
+
+    private BValue[] invokeCoordinatorFunction(String functionName, BValue[] args) {
+        Context newContext = new WorkerContext(context.getProgramFile(), context);
+        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        return BLangFunctions.invokeFunction(context.getProgramFile(), functionInfo, args, newContext);
     }
 
     private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, int[] argRegs, int[] retRegs) {
@@ -2758,7 +2820,7 @@ public class BLangVM {
     private void invokeVirtualFunction(int receiver, FunctionInfo virtualFuncInfo, int[] argRegs, int[] retRegs) {
         BStruct structVal = (BStruct) controlStack.currentFrame.refRegs[receiver];
         if (structVal == null) {
-            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            context.setError(BLangVMErrors.createNullRefException(this.context, ip));
             handleError();
             return;
         }
@@ -2772,7 +2834,7 @@ public class BLangVM {
     public void invokeAction(String actionName, int[] argRegs, int[] retRegs) {
         StackFrame callerSF = controlStack.currentFrame;
         if (callerSF.refRegs[argRegs[0]] == null) {
-            context.setError(BLangVMErrors.createNullRefError(this.context, ip));
+            context.setError(BLangVMErrors.createNullRefException(this.context, ip));
             handleError();
             return;
         }
@@ -3130,7 +3192,7 @@ public class BLangVM {
         try {
             nativeFunction.executeNative(context);
         } catch (BLangNullReferenceException e) {
-            context.setError(BLangVMErrors.createNullRefError(context, ip));
+            context.setError(BLangVMErrors.createNullRefException(context, ip));
             handleError();
             return;
         } catch (Throwable e) {
@@ -3326,8 +3388,14 @@ public class BLangVM {
             return false;
         }
 
+        // Adjust the number of the attached functions of the lhs struct based on
+        //  the availability of the initializer function.
+        int lhsAttachedFunctionCount = lhsType.initializer != null ?
+                lhsType.getAttachedFunctions().length - 1 :
+                lhsType.getAttachedFunctions().length;
+
         if (lhsType.getStructFields().length > rhsType.getStructFields().length ||
-                lhsType.getAttachedFunctions().length > rhsType.getAttachedFunctions().length) {
+                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
 
@@ -3351,6 +3419,10 @@ public class BLangVM {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer) {
+                continue;
+            }
+
             BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
@@ -3387,6 +3459,10 @@ public class BLangVM {
         BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
         BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
         for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsType.initializer) {
+                continue;
+            }
+
             if (!Flags.isFlagOn(lhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
@@ -3684,7 +3760,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3732,7 +3808,7 @@ public class BLangVM {
 
         BStruct bStruct = (BStruct) sf.refRegs[i];
         if (bStruct == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3742,7 +3818,7 @@ public class BLangVM {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
                     e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, bStruct.getType().toString(), TypeConstants.JSON_TNAME);
+            handleTypeConversionError(sf, k, errorMsg);
         }
     }
 
@@ -3755,7 +3831,7 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
@@ -3841,7 +3917,7 @@ public class BLangVM {
                 sf.refRegs[j] = null;
                 String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
                         e.getMessage();
-                handleTypeConversionError(sf, k, errorMsg, TypeConstants.MAP_TNAME, structType.toString());
+                handleTypeConversionError(sf, k, errorMsg);
                 return;
             }
         }
@@ -3859,24 +3935,23 @@ public class BLangVM {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
-            sf.refRegs[j] = null;
+            handleNullRefError();
             return;
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType(),
-                    sf.packageInfo);
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
             sf.refRegs[k] = null;
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
                     typeRefCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeRefCPEntry.getType().toString());
+            handleTypeConversionError(sf, k, errorMsg);
         }
     }
 
     private void handleNullRefError() {
-        context.setError(BLangVMErrors.createNullRefError(context, ip));
+        context.setError(BLangVMErrors.createNullRefException(context, ip));
         handleError();
     }
 

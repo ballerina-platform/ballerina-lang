@@ -227,14 +227,13 @@ public class Main {
                 throw LauncherUtils.createUsageException("no ballerina program given");
             }
 
-            ConfigRegistry.getInstance().initRegistry(configRuntimeParams);
-
             // Enable remote debugging
             if (null != debugPort) {
                 System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+            ConfigRegistry.getInstance().initRegistry(configRuntimeParams, sourceRootPath.resolve("ballerina.conf"));
 
             // Start all services, if the services flag is set.
             if (runServices) {

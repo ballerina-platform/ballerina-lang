@@ -54,7 +54,7 @@ public class BTableType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BTable(null);
+        return (V) new BTable();
     }
 
     @Override

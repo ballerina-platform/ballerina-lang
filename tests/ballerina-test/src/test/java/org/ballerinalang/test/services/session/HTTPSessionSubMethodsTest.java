@@ -21,6 +21,7 @@ package org.ballerinalang.test.services.session;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.test.services.testutils.CookieUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -54,7 +55,7 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertNotNull(response);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
@@ -71,7 +72,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertTrue(responseMsgPayload.contains("nullReferenceException\n" +
+        Assert.assertTrue(responseMsgPayload.contains("ballerina.runtime:NullReferenceException\n" +
                 "\tat .:sample2.id2(http-session-test.bal:392)"));
     }
 
@@ -100,7 +101,7 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertEquals(responseMsgPayload, "true");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new1", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -125,7 +126,7 @@ public class HTTPSessionSubMethodsTest {
 
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -165,7 +166,7 @@ public class HTTPSessionSubMethodsTest {
 
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new4", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -216,7 +217,7 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertEquals(timeInterval, 900);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new6", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -256,7 +257,7 @@ public class HTTPSessionSubMethodsTest {
         Assert.assertEquals(timeInterval, 900);
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new8", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);

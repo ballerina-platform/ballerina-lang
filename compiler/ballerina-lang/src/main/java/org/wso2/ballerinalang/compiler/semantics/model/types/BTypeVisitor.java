@@ -39,6 +39,8 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BStructType t, T s);
 
+    R visit(BTableType t, T s);
+
     R visit(BConnectorType t, T s);
 
     R visit(BEnumType t, T s);

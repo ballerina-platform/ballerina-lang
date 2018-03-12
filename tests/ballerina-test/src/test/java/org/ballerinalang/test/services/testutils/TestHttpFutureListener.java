@@ -21,10 +21,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.CorsHeaderGenerator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -60,14 +58,6 @@ public class TestHttpFutureListener implements ConnectorFutureListener {
     public void notifyReply(BValue... response) {
         //TODO check below line
         HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
-        Session session = (Session) ((BStruct) request).getNativeData(HttpConstants.HTTP_SESSION);
-        if (session != null) {
-            session.generateSessionHeader(responseMessage);
-        }
-        //Process CORS if exists.
-        if (requestMessage.getHeader("Origin") != null) {
-            CorsHeaderGenerator.process(requestMessage, responseMessage, true);
-        }
         this.responseMsg = responseMessage;
         this.executionWaitSem.release();
     }

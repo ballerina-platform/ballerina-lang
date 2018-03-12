@@ -628,7 +628,6 @@ stringTemplateContent
     |   StringTemplateText
     ;
 
-
 anyIdentifierName
     : Identifier
     | reservedWord

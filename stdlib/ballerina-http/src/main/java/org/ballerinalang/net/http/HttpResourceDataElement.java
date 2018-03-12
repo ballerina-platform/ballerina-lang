@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,6 +36,12 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
 
     private List<HttpResource> resource;
     private boolean isFirstTraverse = true;
+    private boolean hasData = false;
+
+    @Override
+    public boolean hasData() {
+        return hasData;
+    }
 
     @Override
     public void setData(HttpResource newResource) {
@@ -42,6 +49,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             this.resource = new ArrayList<>();
             this.resource.add(newResource);
             isFirstTraverse = false;
+            hasData = true;
             return;
         }
         List<String> newMethods = newResource.getMethods();
@@ -54,6 +62,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
                 }
             }
             this.resource.add(newResource);
+            hasData = true;
             return;
         }
         this.resource.forEach(r -> {
@@ -65,6 +74,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             }
         });
         this.resource.add(newResource);
+        hasData = true;
     }
 
     @Override
@@ -119,7 +129,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
 
     private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
         if (httpMethod.equals(HttpConstants.HTTP_METHOD_OPTIONS)) {
-            cMsg.setHeader(HttpConstants.ALLOW, getAllowHeaderValues(cMsg));
+            cMsg.setHeader(HttpHeaderNames.ALLOW.toString(), getAllowHeaderValues(cMsg));
             return true;
         }
         return false;
@@ -140,7 +150,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     public HttpResource validateConsumes(HttpResource resource, HTTPCarbonMessage cMsg) {
-        String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpConstants.CONTENT_TYPE_HEADER));
+        String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()));
         List<String> consumesList = resource.getConsumes();
 
         if (consumesList == null) {
@@ -168,7 +178,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     public HttpResource validateProduces(HttpResource resource, HTTPCarbonMessage cMsg) {
-        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpConstants.ACCEPT_HEADER));
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpHeaderNames.ACCEPT.toString()));
         List<String> producesList = resource.getProduces();
 
         if (producesList == null || acceptMediaTypes == null) {

@@ -1,10 +1,13 @@
 {
-    "name": "Ballerina",
+    "name": "ballerina",
     "displayName": "Ballerina",
     "description": " Ballerina is a flexible, powerful, beautiful programming language designed for integration",
-    "version": "0.96.0",
+    "version": "0.963.1-SNAPSHOT",
     "publisher": "WSO2",
-    "repository": "https://github.com/ballerinalang/plugin-vscode",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ballerina-lang/ballerina"
+    },
     "icon": "images/ballerina.png",
     "engines": {
         "vscode": "^1.0.0"
@@ -121,7 +124,9 @@
     "main": "./extension.js",
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
+        "test": "node ./node_modules/vscode/bin/test",
+        "clean": "rimraf server-build target",
+        "package": "vsce package"
     },
     "dependencies": {
         "openport": "0.0.4",
@@ -129,5 +134,8 @@
         "vscode-debugadapter": "^1.25.0",
         "vscode-languageclient": "^3.4.2",
         "ws": "^4.0.0"
+    },
+    "devDependencies": {
+        "vsce": "^1.36.2"
     }
 }

@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.services.session;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.test.services.testutils.CookieUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -141,7 +143,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "session created");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 15);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -166,7 +168,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "FirstName");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 15);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/new9", "GET");
         cMsg.setHeader(COOKIE_HEADER, "A=5454252;  " + SESSION_ID + sessionId + "; JSESSIONID=5454252");
@@ -191,7 +193,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "session created");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 15);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
         cMsg.setHeader(COOKIE_HEADER, "A=5454252;  " + SESSION_ID + sessionId + "; JSESSIONID=5454252");
@@ -226,9 +228,19 @@ public class HTTPSessionEssentialMethodsTest {
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         Assert.assertNotNull(cookie);
-        String path = cookie.substring(SESSION_ID.length() + 40, cookie.length() - 1);
-        Assert.assertEquals(path, "sample");
+        Assert.assertEquals(CookieUtils.getCookie(cookie).path, "/sample");
 
+    }
+
+    @Test(description = "Test for HttpOnly flag in session cookie")
+    public void testHttpOnlyFlagInSessionCookie() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, cMsg);
+        Assert.assertNotNull(responseMsg);
+
+        String cookie = responseMsg.getHeader(RESPONSE_COOKIE_HEADER);
+        Assert.assertNotNull(cookie);
+        Assert.assertTrue(CookieUtils.getCookie(cookie).httpOnly);
     }
 
     @Test(description = "Test for Get Attribute Function")
@@ -256,7 +268,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "1");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -281,7 +293,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "arraysize:2");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -306,7 +318,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "1");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -333,7 +345,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "wso2");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/counter/echo2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -384,7 +396,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "wso2");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -400,7 +412,7 @@ public class HTTPSessionEssentialMethodsTest {
     @Test(description = "Test for struct attribute")
     public void testSessionForStructAttribute() {
         List<Header> headers = new ArrayList<Header>();
-        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "wso2");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
@@ -411,7 +423,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "wso2");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "chamil");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -427,7 +439,7 @@ public class HTTPSessionEssentialMethodsTest {
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
         List<Header> headers = new ArrayList<Header>();
-        headers.add(new Header("Content-Type", TEXT_PLAIN));
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "chamil");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, cMsg);
         Assert.assertNotNull(response);
@@ -438,7 +450,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "chamil");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "wso2");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -499,7 +511,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(responseMsgPayload, "Name:chamil");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
-        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 14);
+        String sessionId = CookieUtils.getCookie(cookie).value;
 
         cMsg = MessageUtils.generateHTTPMessage("/sample2/map", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
@@ -571,7 +583,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "nullReferenceException\n" +
+        Assert.assertEquals(responseMsgPayload, "ballerina.runtime:NullReferenceException\n" +
                 "\tat .:sample.echo5(http-session-test.bal:89)");
     }
 }

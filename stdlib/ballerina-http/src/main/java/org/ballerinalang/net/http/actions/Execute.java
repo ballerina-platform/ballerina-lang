@@ -16,6 +16,7 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,6 +34,9 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Locale;
+
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
@@ -87,13 +91,17 @@ public class Execute extends AbstractHTTPAction {
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
         HTTPCarbonMessage outboundRequestMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareOutboundRequest(bConnector, path, outboundRequestMsg);
+        prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
+        if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
+            outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
+                                         ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        }
         return outboundRequestMsg;
     }
 }

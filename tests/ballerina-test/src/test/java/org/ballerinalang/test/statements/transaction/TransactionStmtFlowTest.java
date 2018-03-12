@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
  */
 public class TransactionStmtFlowTest {
 
-    CompileResult programFile;
-    CompileResult resultNegative;
+    private CompileResult programFile;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -57,7 +57,6 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "BeforeTR WithinTR BeforAbort AfterTR ");
     }
-
 
     @Test
     public void testTransactionStmt2() {

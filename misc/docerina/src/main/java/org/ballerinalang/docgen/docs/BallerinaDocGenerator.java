@@ -308,16 +308,9 @@ public class BallerinaDocGenerator {
     }
 
     private static BLangPackage loadBuiltInPackage(CompilerContext context) {
-        BLangPackage builtInCorePkg = getBuiltInPackage(context, Names.BUILTIN_CORE_PACKAGE);
         SymbolTable symbolTable = SymbolTable.getInstance(context);
-        symbolTable.createErrorTypes();
-        symbolTable.loadOperators();
         // Load built-in packages.
         BLangPackage builtInPkg = getBuiltInPackage(context, Names.BUILTIN_PACKAGE);
-        builtInCorePkg.getStructs().forEach(s -> {
-            builtInPkg.getStructs().add(s);
-            builtInPkg.topLevelNodes.add(s);
-        });
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }
@@ -326,7 +319,7 @@ public class BallerinaDocGenerator {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadEntryPackage(name.getValue())));
+        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
     }
 
     private static String refinePackagePath(BLangPackage bLangPackage) {

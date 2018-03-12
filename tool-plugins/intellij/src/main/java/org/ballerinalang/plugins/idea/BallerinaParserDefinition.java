@@ -61,6 +61,12 @@ import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.DeprecatedAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.DeprecatedTextNode;
+import org.ballerinalang.plugins.idea.psi.DocumentationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.DocumentationTemplateInlineCodeNode;
+import org.ballerinalang.plugins.idea.psi.DoubleBackTickDeprecatedInlineCodeNode;
+import org.ballerinalang.plugins.idea.psi.DoubleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.EndpointBodyNode;
 import org.ballerinalang.plugins.idea.psi.EndpointDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
@@ -101,6 +107,8 @@ import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
+import org.ballerinalang.plugins.idea.psi.SingleBackTickDeprecatedInlineCodeNode;
+import org.ballerinalang.plugins.idea.psi.SingleBackTickDocInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StringTemplateContentNode;
@@ -111,6 +119,8 @@ import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TimeoutClauseNode;
 import org.ballerinalang.plugins.idea.psi.TransformerDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
+import org.ballerinalang.plugins.idea.psi.TripleBackTickDeprecatedInlineCodeNode;
+import org.ballerinalang.plugins.idea.psi.TripleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.TryCatchStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeCastNode;
 import org.ballerinalang.plugins.idea.psi.TypeConversionNode;
@@ -168,7 +178,9 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PACKAGE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PARAMETER;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PRIVATE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.PUBLIC;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.QuotedStringLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RARROW;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RESOURCE;
@@ -234,13 +246,13 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, CATCH, CONNECTOR, CONST, CREATE, ELSE, ENDPOINT,
             ENUM, FAILED, FINALLY, FOREACH, FORK, FUNCTION, IF, IMPORT, IN, JOIN, LENGTHOF, LOCK, NATIVE, NEXT, PACKAGE,
-            PARAMETER, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
+            PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT,
             TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_BOOL, TYPE_INT, TYPE_FLOAT,
             TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_TABLE, TYPE_ANY, TYPE_TYPE, VERSION,
             WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON);
+            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON, QUESTION_MARK);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);
@@ -481,6 +493,26 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new UserDefinedTypeName(node);
             case BallerinaParser.RULE_anyIdentifierName:
                 return new AnyIdentifierNameNode(node);
+            case BallerinaParser.RULE_documentationAttachment:
+                return new DocumentationAttachmentNode(node);
+            case BallerinaParser.RULE_documentationTemplateInlineCode:
+                return new DocumentationTemplateInlineCodeNode(node);
+            case BallerinaParser.RULE_singleBackTickDocInlineCode:
+                return new SingleBackTickDocInlineCodeNode(node);
+            case BallerinaParser.RULE_doubleBackTickDocInlineCode:
+                return new DoubleBackTickInlineCodeNode(node);
+            case BallerinaParser.RULE_tripleBackTickDocInlineCode:
+                return new TripleBackTickInlineCodeNode(node);
+            case BallerinaParser.RULE_deprecatedAttachment:
+                return new DeprecatedAttachmentNode(node);
+            case BallerinaParser.RULE_deprecatedText:
+                return new DeprecatedTextNode(node);
+            case BallerinaParser.RULE_singleBackTickDeprecatedInlineCode:
+                return new SingleBackTickDeprecatedInlineCodeNode(node);
+            case BallerinaParser.RULE_doubleBackTickDeprecatedInlineCode:
+                return new DoubleBackTickDeprecatedInlineCodeNode(node);
+            case BallerinaParser.RULE_tripleBackTickDeprecatedInlineCode:
+                return new TripleBackTickDeprecatedInlineCodeNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

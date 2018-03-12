@@ -197,7 +197,7 @@ public class IterableCodeDesugar {
         }
 
         final BPackageSymbol packageSymbol = firstOperation.env.enclPkg.symbol;
-        final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
+        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
         ctx.iteratorFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);
@@ -216,9 +216,10 @@ public class IterableCodeDesugar {
     private void generateSimpleIteratorBlock(IterableContext ctx, BLangFunction funcNode) {
         final Operation firstOperation = ctx.getFirstOperation();
         final DiagnosticPos pos = firstOperation.pos;
-        generateCounterVariable(funcNode.body, ctx, funcNode);
-        generateResultVariable(funcNode.body, ctx, ctx.resultVar);
-
+        if (isReturningIteratorFunction(ctx)) {
+            generateCounterVariable(funcNode.body, ctx, funcNode);
+            generateResultVariable(funcNode.body, ctx, ctx.resultVar);
+        }
         // Create variables required.
         final List<BLangVariable> foreachVars = copyOf(ctx.getFirstOperation().argVars, COPY_OF);
         ctx.streamRetVars = new ArrayList<>();
@@ -232,10 +233,14 @@ public class IterableCodeDesugar {
         foreach.varTypes = firstOperation.argTypes;
         foreach.body = createBlockStmt(pos);
 
-        generateAggregator(foreach.body, ctx);
-        generateFinalResult(funcNode.body, ctx);
+        if (isReturningIteratorFunction(ctx)) {
+            generateAggregator(foreach.body, ctx);
+            generateFinalResult(funcNode.body, ctx);
+        }
         final BLangReturn returnStmt = createReturnStmt(firstOperation.pos, funcNode.body);
-        returnStmt.addExpression(createVariableRef(pos, ctx.resultVar.symbol));
+        if (isReturningIteratorFunction(ctx)) {
+            returnStmt.addExpression(createVariableRef(pos, ctx.resultVar.symbol));
+        }
     }
 
     private void generateStreamingIteratorBlock(IterableContext ctx, BLangFunction funcNode,
@@ -410,7 +415,7 @@ public class IterableCodeDesugar {
         funcNode.retParams.addAll(retParmVars);
 
         final BPackageSymbol packageSymbol = ctx.getFirstOperation().env.enclPkg.symbol;
-        final SymbolEnv packageEnv = symbolEnter.packageEnvs.get(packageSymbol);
+        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
         symbolEnter.defineNode(funcNode, packageEnv);
         ctx.streamFuncSymbol = funcNode.symbol;
         packageEnv.enclPkg.functions.add(funcNode);

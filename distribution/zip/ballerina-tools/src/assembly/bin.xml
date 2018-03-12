@@ -48,6 +48,13 @@
             </directory>
             <outputDirectory>docs/api</outputDirectory>
         </fileSet>
+        <!-- TODO remove below and find a better solution later -->
+        <fileSet>
+            <directory>
+                ../../../composer/samples
+            </directory>
+            <outputDirectory>resources/composer/samples</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -70,19 +77,19 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>LICENSE.txt</source>
+            <source>LICENSE</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README.txt</source>
+            <source>README</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../COPYRIGHT.txt</source>
+            <source>COPYRIGHT</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -107,13 +114,13 @@
         </file>
         <file>
             <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
-            <outputDirectory>bre/conf</outputDirectory>
+            <outputDirectory>resources/composer/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>conf/composer-config.yml</source>
-            <outputDirectory>bre/conf</outputDirectory>
+            <outputDirectory>resources/composer/conf</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -125,7 +132,7 @@
             <includes>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
-                <include>org.ballerinalang:swagger-ballerina-generator:jar</include>
+                <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>

@@ -18,6 +18,7 @@ package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -215,8 +216,6 @@ public class RecordKeyReference extends BallerinaElementReference {
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
             results.addAll(getVariantsFromCurrentPackage());
-        } else {
-            results.addAll(getVariantsFromPackage(packageNameNode));
         }
         return results.toArray(new LookupElement[results.size()]);
     }
@@ -249,7 +248,7 @@ public class RecordKeyReference extends BallerinaElementReference {
                 if (definitionNode instanceof AnonStructTypeNameNode) {
                     StructBodyNode structBodyNode = PsiTreeUtil.findChildOfType(definitionNode, StructBodyNode.class);
                     if (structBodyNode == null) {
-                        return null;
+                        return results;
                     }
                     List<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.getChildrenOfTypeAsList(structBodyNode,
                             FieldDefinitionNode.class);
@@ -293,21 +292,38 @@ public class RecordKeyReference extends BallerinaElementReference {
                     return results;
                 }
                 PsiElement resolvedElementParent = resolvedElement.getParent();
-                if (resolvedElementParent instanceof StructDefinitionNode) {
-                    Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                            PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
-                    results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
-                            (IdentifierPSINode) resolvedElement,
-                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                if (!(resolvedElementParent instanceof StructDefinitionNode)) {
+                    return results;
                 }
+                StructBodyNode structBodyNode = PsiTreeUtil.getChildOfType(resolvedElementParent, StructBodyNode.class);
+                if (structBodyNode == null) {
+                    return results;
+                }
+                Collection<FieldDefinitionNode> fieldDefinitionNodes;
+                if (isInSamePackage(identifier, resolvedElement)) {
+                    fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(structBodyNode, FieldDefinitionNode.class);
+                } else {
+                    fieldDefinitionNodes = PsiTreeUtil.getChildrenOfTypeAsList(structBodyNode,
+                            FieldDefinitionNode.class);
+                }
+                results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                        (IdentifierPSINode) resolvedElement, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             }
         }
         return results;
     }
 
-    @NotNull
-    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
-        return new LinkedList<>();
+    /**
+     * Checks whether the given two elements are in the same package or not.
+     *
+     * @param element1 an element
+     * @param element2 an element
+     * @return true if the both elements are in the same package, false otherwise.
+     */
+    private boolean isInSamePackage(@NotNull PsiElement element1, @NotNull PsiElement element2) {
+        PsiFile file1 = element1.getContainingFile().getOriginalFile();
+        PsiFile file2 = element2.getContainingFile().getOriginalFile();
+        return file1.equals(file2);
     }
 
     @Nullable

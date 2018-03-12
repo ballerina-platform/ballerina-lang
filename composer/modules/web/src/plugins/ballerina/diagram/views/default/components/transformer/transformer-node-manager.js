@@ -174,7 +174,7 @@ class TransformerNodeManager {
     removeStatementEdge(connection) {
         const { source, target } = connection;
 
-        if (source.endpointKind === 'input' && target.endpointKind === 'output') {
+        if (source.endpointKind === 'input' && (target.endpointKind === 'output' || target.endpointKind === 'param')) {
             this._mapper.removeInputToOutputMapping(source.name, target.name);
             return;
         }
@@ -232,6 +232,7 @@ class TransformerNodeManager {
      */
     getFunctionVertices(functionInvocationExpression) {
         let fullPackageName = functionInvocationExpression.getFullPackageName();
+        let type = 'function';
 
         if (!fullPackageName) {
             // TODO: Fix obtaining the full package name for bound functions
@@ -248,56 +249,83 @@ class TransformerNodeManager {
         }
 
         const funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
-
-        if (!funcDef) {
+        let parameters = [];
+        let returnParams = [];
+        let receiver;
+        if (functionInvocationExpression.iterableOperation) {
+            const inputParamName = `${functionInvocationExpression.getID()}:0:receiver`;
+            const returnParamName = `${functionInvocationExpression.getID()}:0:return`;
+            let dataType = '[]';
+            let dataReturnType = '[]';
+            type = 'iterable';
+            if (functionInvocationExpression.getExpression().symbolType
+                && functionInvocationExpression.getExpression().symbolType.length > 0) {
+                dataType = functionInvocationExpression.getExpression().symbolType[0];
+            }
+            if (functionInvocationExpression.symbolType && functionInvocationExpression.symbolType.length > 0) {
+                dataReturnType = functionInvocationExpression.symbolType[0];
+            }
+            const argType = dataType.replace('intermediate_collection', '[]');
+            if (functionInvocationExpression.argumentExpressions.length === 0) {
+                receiver = {
+                    name: inputParamName,
+                    type: argType,
+                    funcInv: functionInvocationExpression,
+                };
+            } else {
+                parameters = [{ name: inputParamName,
+                    type: argType,
+                    index: 0 }];
+            }
+            returnParams = [{
+                index: 0,
+                name: returnParamName,
+                type: dataReturnType.replace('intermediate_collection', '[]'),
+                funcInv: functionInvocationExpression }];
+        } else if (!funcDef) {
             log.error('Cannot find function definition for ' + functionInvocationExpression.getFunctionName());
             return;
-        }
-
-        const parameters = [];
-        const returnParams = [];
-        let receiver;
-
-        if (funcDef.getReceiverType()) {
-            receiver = {
-                name: `${functionInvocationExpression.getID()}:0:receiver`,
-                type: funcDef.getReceiverType(),
-                funcInv: functionInvocationExpression,
-            };
-        }
-
-        _.forEach(funcDef.getParameters(), (param, index) => {
-            const structDef = this.getStructDefinition(param.packageName, param.type);
-            let paramObj;
-            const paramName = `${functionInvocationExpression.getID()}:${index}`;
-            if (structDef) {
-                paramObj = this.getStructType(paramName, param.type, structDef);
-            } else {
-                paramObj = {
-                    name: paramName,
-                    type: param.type,
+        } else {
+            if (funcDef.getReceiverType()) {
+                receiver = {
+                    name: `${functionInvocationExpression.getID()}:0:receiver`,
+                    type: funcDef.getReceiverType(),
+                    funcInv: functionInvocationExpression,
                 };
             }
 
-            paramObj.displayName = param.name;
-            paramObj.index = index;
-            paramObj.funcInv = functionInvocationExpression;
+            _.forEach(funcDef.getParameters(), (param, index) => {
+                const structDef = this.getStructDefinition(param.packageName, param.type);
+                let paramObj;
+                const paramName = `${functionInvocationExpression.getID()}:${index}`;
+                if (structDef) {
+                    paramObj = this.getStructType(paramName, param.type, structDef);
+                } else {
+                    paramObj = {
+                        name: paramName,
+                        type: param.type,
+                    };
+                }
 
-            parameters.push(paramObj);
-        });
+                paramObj.displayName = param.name;
+                paramObj.index = index;
+                paramObj.funcInv = functionInvocationExpression;
+                parameters.push(paramObj);
+            });
 
-        _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
-            const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
-            const paramObj = {
-                name: paramName,
-                type: returnParam.type,
-                index,
-                funcInv: functionInvocationExpression,
-            };
-            returnParams.push(paramObj);
-        });
-
+            _.forEach(funcDef.getReturnParams(), (returnParam, index) => {
+                const paramName = `${functionInvocationExpression.getID()}:${index}:return`;
+                const paramObj = {
+                    name: paramName,
+                    type: returnParam.type,
+                    index,
+                    funcInv: functionInvocationExpression,
+                };
+                returnParams.push(paramObj);
+            });
+        }
         return {
+            type,
             parameters,
             returnParams,
             receiver,
@@ -546,6 +574,16 @@ class TransformerNodeManager {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Generate iterable operation to the given connection
+     * @param {*} connection where iterable operation should be added
+     * @param {*} type iterable operation type
+     * @param {*} isLamda is given iterable operation has a lambda function
+     */
+    addIterableOperator(connection, type, isLamda) {
+        this._mapper.addIterableOperator(connection, type, isLamda);
     }
  }
 

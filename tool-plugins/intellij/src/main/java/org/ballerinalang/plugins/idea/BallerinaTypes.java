@@ -48,6 +48,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expres
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expressionList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_failedClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_fieldDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_finallyClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_foreachStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_forkJoinStatement;
@@ -62,6 +63,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinCo
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterList;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_privateStructBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordKeyValue;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_resourceDefinition;
@@ -120,13 +122,25 @@ public class BallerinaTypes {
     public static final TokenIElementType STRING_TEMPLATE_TEXT =
             tokenIElementTypes.get(BallerinaLexer.StringTemplateText);
 
-    public static final TokenIElementType XML_START = tokenIElementTypes.get(BallerinaLexer.XMLStart);
+    public static final TokenIElementType XML_START = tokenIElementTypes.get(BallerinaLexer.XMLLiteralStart);
     public static final TokenIElementType XML_EXPRESSION_START =
             tokenIElementTypes.get(BallerinaLexer.XMLExpressionStart);
     public static final TokenIElementType XML_TEXT = tokenIElementTypes.get(BallerinaLexer.XMLText);
 
     public static final TokenIElementType EXPRESSION_END =
             tokenIElementTypes.get(BallerinaLexer.ExpressionEnd);
+
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_START =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateStart);
+
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_START =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeStart);
+
+    public static final TokenIElementType DOCUMENTATION_TEMPLATE_ATTRIBUTE_END =
+            tokenIElementTypes.get(BallerinaLexer.DocumentationTemplateAttributeEnd);
+
+    public static final TokenIElementType DEPRECATED_TEMPLATE_START =
+            tokenIElementTypes.get(BallerinaLexer.DeprecatedTemplateStart);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
 
@@ -142,6 +156,8 @@ public class BallerinaTypes {
     public static final RuleIElementType CONNECTOR_DEFINITION = ruleIElementTypes.get(RULE_connectorDefinition);
     public static final RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(RULE_actionDefinition);
     public static final RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(RULE_structDefinition);
+    public static final RuleIElementType PRIVATE_STRUCT_BODY = ruleIElementTypes.get(RULE_privateStructBody);
+    public static final RuleIElementType FIELD_DEFINITION = ruleIElementTypes.get(RULE_fieldDefinition);
 
     public static final RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(RULE_ifElseStatement);
     public static final RuleIElementType IF_CLAUSE = ruleIElementTypes.get(RULE_ifClause);
@@ -288,7 +304,8 @@ public class BallerinaTypes {
     public static final TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.POW);
     public static final TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
+    public static final TokenIElementType QUESTION_MARK = tokenIElementTypes.get(BallerinaLexer.QUESTION_MARK);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
-                                                             BITAND, BITOR, CARET, MOD);
+            BITAND, BITOR, CARET, MOD);
 }

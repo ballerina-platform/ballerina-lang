@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.TextRecordChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,7 +38,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         packageName = "ballerina.io",
         functionName = "hasNextTextRecord",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TextRecordChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.STRUCT,
+                structType = "DelimitedRecordChannel",
+                structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
@@ -56,8 +58,8 @@ public class HasNextTextRecord extends AbstractNativeFunction {
         BBoolean hasNext;
         BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
-            TextRecordChannel textRecordChannel =
-                    (TextRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
+            DelimitedRecordChannel textRecordChannel =
+                    (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             hasNext = new BBoolean(textRecordChannel.hasNext());
         } else {
             String message = "Error occurred while checking the next record availability: Null channel returned.";

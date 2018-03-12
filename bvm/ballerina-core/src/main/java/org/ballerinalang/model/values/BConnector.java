@@ -18,7 +18,6 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,7 +88,7 @@ public final class BConnector implements BRefType, StructureType {
 
     @Override
     public BType getType() {
-        return BTypes.typeConnector;
+        return this.connectorType;
     }
 
     @Override

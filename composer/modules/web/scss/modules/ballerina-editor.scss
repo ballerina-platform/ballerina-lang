@@ -4,9 +4,9 @@
       &.ballerina-design-view {
         background-color: white;
         color: #7D7D7D;
-
         .close-tab {
-          color: #7D7D7D;
+          color: #7D7D7D ;
+          background-color: white;
 
           &:hover {
             color: #474747;
@@ -328,6 +328,14 @@
     width: 30px;
     right: 25px;
   }
+
+  .background-empty-rect{
+    fill: #f9f9f9;
+  }
+
+  .fork-bar{
+    fill: #a5a5a5;
+  }
 }
 
 .syntax-error-overlay {
@@ -424,7 +432,7 @@ to {
 .swagger-view-container {
   background: #FFF;
 }
-    
+
 .swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-weight: normal;
   line-height: normal;

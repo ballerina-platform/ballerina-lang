@@ -22,11 +22,6 @@ package org.ballerinalang.nativeimpl.lang.utils;
 public class Constants {
     
     /**
-     * Content type HTTP header.
-     */
-    public static final String CONTENT_TYPE = "Content-Type";
-    
-    /**
      * HTTP content-type application/json.
      */
     public static final String APPLICATION_JSON = "application/json";

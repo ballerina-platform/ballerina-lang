@@ -153,10 +153,10 @@ public class VMDebuggerTest {
     @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                "try-catch-finally.bal", 22);
+                "try-catch-finally.bal", 19);
 
         WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                "try-catch-finally.bal", 22, 30, 32, 34, 35, 36, 37, 38, 46, 47, 48, 53, 58, 59, 61, 63),
+                "try-catch-finally.bal", 19, 27, 29, 31, 32, 33, 34, 35, 43, 44, 45, 50, 55, 56, 58, 60),
                 STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
                 STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME);
 
@@ -185,10 +185,10 @@ public class VMDebuggerTest {
     @Test(description = "Testing debug paths in package init")
     public void testDebuggingPackageInit() {
         BreakPointDTO[] breakPoints = VMDebuggerUtil.createBreakNodeLocations(".",
-                "test-package-init.bal", 1, 7);
+                "test-package-init.bal", 3, 7);
 
         WorkerResults mainWorker = new WorkerResults(VMDebuggerUtil.createWorkerBreakPoints(".",
-                "test-package-init.bal", 1, 3, 12, 13, 14, 18, 12, 13, 14, 18, 12, 20, 7),
+                "test-package-init.bal", 3, 5, 14, 15, 16, 20, 14, 15, 16, 20, 14, 22, 9),
                 STEP_OVER, STEP_IN, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER,
                 STEP_OVER, STEP_OVER, RESUME, RESUME);
         ExpectedResults expRes = new ExpectedResults(mainWorker, false);

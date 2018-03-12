@@ -23,6 +23,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -36,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -48,7 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
@@ -88,7 +89,7 @@ public class Types {
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -104,7 +105,7 @@ public class Types {
 
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -218,6 +219,10 @@ public class Types {
             }
         }
 
+        if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
+            return checkStructEquivalency(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
     }
@@ -264,13 +269,17 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (!isSameType(source.paramTypes.get(i), target.paramTypes.get(i))) {
+            if (target.paramTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.paramTypes.get(i), target.paramTypes.get(i))
+                    && !isAssignable(source.paramTypes.get(i), target.paramTypes.get(i))) {
                 return false;
             }
         }
 
         for (int i = 0; i < source.retTypes.size(); i++) {
-            if (!isSameType(source.retTypes.get(i), target.retTypes.get(i))) {
+            if (target.retTypes.get(i).tag != TypeTags.ANY
+                    && !isSameType(source.retTypes.get(i), target.retTypes.get(i))
+                    && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
                 return false;
             }
         }
@@ -313,8 +322,7 @@ public class Types {
         //RHS type should have at least all the fields as well attached functions of LHS type.
         BStructType lhsStructType = (BStructType) lhsType;
         BStructType rhsStructType = (BStructType) rhsType;
-        if (lhsStructType.fields.size() > rhsStructType.fields.size() ||
-                lhsStructType.attachedFuncs.size() > rhsStructType.attachedFuncs.size()) {
+        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
             return false;
         }
 
@@ -503,7 +511,7 @@ public class Types {
                                                          BType targetType,
                                                          boolean safe,
                                                          int opcode) {
-        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errTypeCastType,
+        return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errStructType,
                 false, safe, opcode, null, null);
     }
 
@@ -511,7 +519,7 @@ public class Types {
                                                                      BType targetType,
                                                                      boolean safe,
                                                                      int opcode) {
-        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errTypeConversionType, safe,
+        return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errStructType, safe,
                 opcode, null, null);
     }
 
@@ -720,6 +728,15 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2DT);
+            }
+
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
@@ -812,6 +829,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTableType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -885,6 +907,11 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BTableType t, BType s) {
+            return t == s;
+        }
+
+        @Override
         public Boolean visit(BConnectorType t, BType s) {
             return t == s;
         }
@@ -917,9 +944,19 @@ public class Types {
             return false;
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
@@ -952,9 +989,19 @@ public class Types {
             }
         }
 
-        List<BAttachedFunction> lhsFuncs = lhsType.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = rhsType.attachedFuncs;
+        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
+        if (lhsAttachedFuncCount > rhsFuncs.size()) {
+            return false;
+        }
+
         for (BAttachedFunction lhsFunc : lhsFuncs) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
+                continue;
+            }
+
             if (Symbols.isPrivate(lhsFunc.symbol)) {
                 return false;
             }
@@ -979,7 +1026,7 @@ public class Types {
                                                        BAttachedFunction lhsFunc) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
     }

@@ -416,15 +416,21 @@ public class ProgramFileReader {
                 // Read function name
                 int nameCPIndex = dataInStream.readInt();
                 UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+                String attachedFuncName = nameUTF8Entry.getValue();
 
                 // Read function type signature
                 int typeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
 
                 int funcFlags = dataInStream.readInt();
-                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, nameUTF8Entry.getValue(),
+                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+
+                // Setting the initializer function info, if any.
+                if (structName.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
             }
 
             // Read attributes of the struct info
@@ -1383,9 +1389,7 @@ public class ProgramFileReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
-                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1426,6 +1430,7 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
+                case InstructionCodes.TR_END:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1454,6 +1459,7 @@ public class ProgramFileReader {
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
+                case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1534,6 +1540,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
@@ -1575,6 +1582,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.ANY2SCONV:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1756,6 +1764,9 @@ public class ProgramFileReader {
                 BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
                         attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
                 attachedFunctions[count++] = attachedFunction;
+                if (structInfo.initializer == attachedFuncInfo) {
+                    structType.initializer = attachedFunction;
+                }
             }
             structType.setAttachedFunctions(attachedFunctions);
         }

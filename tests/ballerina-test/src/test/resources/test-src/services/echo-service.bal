@@ -2,6 +2,11 @@ import ballerina.net.http;
 
 const string constPath = getConstPath();
 
+struct Person {
+    string name;
+    int age;
+}
+
 @http:configuration {basePath:"/echo"}
 service<http> echo {
 
@@ -39,7 +44,9 @@ service<http> echo {
     }
     resource setString (http:Connection conn, http:InRequest req) {
         http:OutResponse res = {};
-        serviceLevelStr = req.getStringPayload();
+        string payloadData;
+        payloadData, _ = req.getStringPayload();
+        serviceLevelStr = untaint payloadData;
         //res.setStringPayload(res, serviceLevelStr);
         _ = conn.respond(res);
     }
@@ -97,7 +104,7 @@ service<http> echo {
         methods:["POST"]
     }
     resource getFormParams (http:Connection conn, http:InRequest req) {
-        map params = req.getFormParams();
+        var params, _ = req.getFormParams();
         string name;
         name,_ = (string)params.firstName;
         string team;

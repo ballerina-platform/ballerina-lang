@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -186,11 +187,11 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.imports = rewrite(pkgNode.imports);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList);
         pkgNode.globalVars = rewrite(pkgNode.globalVars);
+        pkgNode.transformers = rewrite(pkgNode.transformers);
         pkgNode.functions = rewrite(pkgNode.functions);
         pkgNode.connectors = rewrite(pkgNode.connectors);
         pkgNode.services = rewrite(pkgNode.services);
         pkgNode.initFunction = rewrite(pkgNode.initFunction);
-        pkgNode.transformers = rewrite(pkgNode.transformers);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -198,7 +199,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
         rewrite(pkgEnv.node);
         result = importPkgNode;
     }
@@ -506,6 +507,8 @@ public class Desugar extends BLangNodeVisitor {
             result = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
             result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+        } else if (recordLiteral.type.tag == TypeTags.TABLE) {
+            result = new BLangTableLiteral(recordLiteral.type);
         } else {
             result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -1062,7 +1065,7 @@ public class Desugar extends BLangNodeVisitor {
             DiagnosticPos invPos = transformerNode.pos;
             DiagnosticPos pos = new DiagnosticPos(invPos.src, invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
             returnStmt.pos = pos;
-            
+
             if (!transformerNode.retParams.isEmpty()) {
                 returnStmt.namedReturnVariables = transformerNode.retParams;
             }

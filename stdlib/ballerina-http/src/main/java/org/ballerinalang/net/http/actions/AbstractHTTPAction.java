@@ -18,13 +18,18 @@
 
 package org.ballerinalang.net.http.actions;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.AbstractNativeAction;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.net.http.HttpConstants;
@@ -34,12 +39,15 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -47,15 +55,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
@@ -65,6 +71,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     private static final String CACHE_BALLERINA_VERSION;
+
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
@@ -74,30 +81,27 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
-        BStruct requestStruct  = ((BStruct) getRefArgument(context, 1));
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
         HTTPCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(bConnector, path, requestMsg);
-        try {
-            String contentType = requestMsg.getHeader(CONTENT_TYPE);
-            if (contentType != null) {
-                if (MULTIPART_FORM_DATA.equals(new MimeType(contentType).getBaseType())) {
-                    HttpUtil.prepareRequestWithMultiparts(requestMsg, requestStruct);
-                }
-            }
-        } catch (MimeTypeParseException e) {
-            logger.error("Error occurred while parsing Content-Type header in createOutboundRequestMsg",
-                    e.getMessage());
+        prepareOutboundRequest(context, bConnector, path, requestMsg);
+        if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
+            requestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(BConnector connector, String path, HTTPCarbonMessage outboundRequest) {
-
+    protected void prepareOutboundRequest(Context context, BConnector connector, String path,
+                                          HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
+        if (context.isInTransaction()) {
+            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
+        }
         try {
             String uri = connector.getStringField(0) + path;
             URL url = new URL(uri);
@@ -123,8 +127,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
-        outboundRequest.setProperty(org.wso2.transport.http.netty.common.Constants.HOST, host);
-        outboundRequest.setProperty(HttpConstants.PORT, port);
+        outboundRequest.setProperty(Constants.HTTP_HOST, host);
+        outboundRequest.setProperty(Constants.HTTP_PORT, port);
 
         String outboundReqPath = getOutboundReqPath(url);
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
@@ -134,16 +138,16 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private void setHostHeader(String host, int port, HttpHeaders headers) {
         if (port == 80 || port == 443) {
-            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host);
+            headers.set(HttpHeaderNames.HOST, host);
         } else {
-            headers.set(org.wso2.transport.http.netty.common.Constants.HOST, host + ":" + port);
+            headers.set(HttpHeaderNames.HOST, host + ":" + port);
         }
     }
 
     private void removeConnectionHeader(HttpHeaders headers) {
         // Remove existing Connection header
-        if (headers.contains(HttpConstants.CONNECTION_HEADER)) {
-            headers.remove(HttpConstants.CONNECTION_HEADER);
+        if (headers.contains(HttpHeaderNames.CONNECTION)) {
+            headers.remove(HttpHeaderNames.CONNECTION);
         }
     }
 
@@ -155,8 +159,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             userAgent = "ballerina";
         }
 
-        if (!headers.contains(HttpConstants.USER_AGENT_HEADER)) { // If User-Agent is not already set from program
-            headers.set(HttpConstants.USER_AGENT_HEADER, userAgent);
+        if (!headers.contains(HttpHeaderNames.USER_AGENT)) { // If User-Agent is not already set from program
+            headers.set(HttpHeaderNames.USER_AGENT, userAgent);
         }
     }
 
@@ -187,25 +191,22 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     protected ClientConnectorFuture executeNonBlockingAction(Context context, HTTPCarbonMessage outboundRequestMsg)
             throws ClientConnectorException {
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-
-        RetryConfig retryConfig = getRetryConfiguration(context);
-        HTTPClientConnectorListener httpClientConnectorLister =
-                new HTTPClientConnectorListener(context, ballerinaFuture, retryConfig, outboundRequestMsg);
-
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
-            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
-                                           context.getProperty(HttpConstants.SRC_HANDLER));
+            outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER, context.getProperty(HttpConstants.SRC_HANDLER));
         }
-        sendOutboundRequest(context, outboundRequestMsg, httpClientConnectorLister);
-        return ballerinaFuture;
+        Object remoteAddress = outboundRequestMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
+        if (remoteAddress == null) {
+            outboundRequestMsg.setProperty(HttpConstants.REMOTE_ADDRESS,
+                    context.getProperty(HttpConstants.REMOTE_ADDRESS));
+        }
+        outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST, context.getProperty(HttpConstants.ORIGIN_HOST));
+        return sendOutboundRequest(context, outboundRequestMsg);
     }
 
-    private void sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg,
-                                     HTTPClientConnectorListener httpClientConnectorLister) {
+    private ClientConnectorFuture sendOutboundRequest(Context context, HTTPCarbonMessage outboundRequestMsg) {
         try {
-            send(context, outboundRequestMsg, httpClientConnectorLister);
+            return send(context, outboundRequestMsg);
         } catch (BallerinaConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         } catch (Exception e) {
@@ -213,38 +214,109 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    private void send(Context context, HTTPCarbonMessage outboundRequestMsg,
-                      HTTPClientConnectorListener httpClientConnectorLister) throws Exception {
+    /**
+     * Send outbound request through the client connector. If the Content-Type is multipart, check whether the boundary
+     * exist. If not get a new boundary string and add it as a parameter to Content-Type, just before sending header
+     * info through wire. If a boundary string exist at this point, serialize multipart entity body, else serialize
+     * entity body which can either be a message data source or a byte channel.
+     *
+     * @param context                   Represent the ballerina context which is the runtime state of the program
+     * @param outboundRequestMsg        Outbound request that needs to be sent across the wire
+     * @return connector future for this particular request
+     * @throws Exception When an error occurs while sending the outbound request via client connector
+     */
+    private ClientConnectorFuture send(Context context, HTTPCarbonMessage outboundRequestMsg) throws Exception {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
+        String boundaryString = null;
+        if (HeaderUtil.isMultipart(contentType)) {
+            boundaryString = HttpUtil.addBoundaryIfNotExist(outboundRequestMsg, contentType);
+        }
+
+        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
+        HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundRequestMsg);
+        OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
+        RetryConfig retryConfig = getRetryConfiguration(context);
+        HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(context,
+                ballerinaFuture, retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         future.setHttpConnectorListener(httpClientConnectorLister);
-        if (isMultiPartRequest(outboundRequestMsg)) {
-            BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-            HttpUtil.addMultipartsToCarbonMessage(outboundRequestMsg,
-                    (HttpPostRequestEncoder) requestStruct.getNativeData(MULTIPART_ENCODER));
-        } else {
-            serializeDataSource(context, outboundRequestMsg, httpClientConnectorLister);
+        try {
+            if (boundaryString != null) {
+                serializeMultiparts(context, messageOutputStream, boundaryString);
+            } else {
+                serializeDataSource(context, messageOutputStream);
+            }
+        } catch (Exception serializerException) {
+            // We don't have to do anything here as the client connector will notify
+            // the error though the listener
+            logger.warn("couldn't serialize the message", serializerException);
+        }
+        return ballerinaFuture;
+    }
+
+    /**
+     * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
+     * if it exist as a byte channel.
+     *
+     * @param context             Represent the ballerina context which is the runtime state of the program
+     * @param boundaryString      Boundary string that should be used in encoding body parts
+     * @param messageOutputStream Output stream to which the payload is written
+     */
+    private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString) {
+        BStruct entityStruct = getEntityStruct(context);
+        if (entityStruct != null) {
+            BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+            if (bodyParts != null && bodyParts.size() > 0) {
+                serializeMultipartDataSource(messageOutputStream, boundaryString,
+                        entityStruct);
+            } else { //If the content is in a byte channel
+                serializeDataSource(context, messageOutputStream);
+            }
         }
     }
 
-    private boolean isMultiPartRequest(HTTPCarbonMessage outboundRequestMsg) throws MimeTypeParseException {
-        return outboundRequestMsg.getHeader(CONTENT_TYPE) != null &&
-                MULTIPART_FORM_DATA.equals(new MimeType(outboundRequestMsg.getHeader(CONTENT_TYPE)).getBaseType());
+    private BStruct getEntityStruct(Context context) {
+        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        return requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
+                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
     }
 
-    private void serializeDataSource(Context context, HTTPCarbonMessage outboundReqMsg,
-                                     HTTPClientConnectorListener httpClientConnectorListener) {
+    /**
+     * Encode body parts with the given boundary and send it across the wire.
+     *
+     * @param boundaryString      Boundary string of multipart entity
+     * @param entityStruct        Represent ballerina entity struct
+     * @param messageOutputStream Output stream to which the payload is written
+     */
+    private void serializeMultipartDataSource(OutputStream messageOutputStream,
+            String boundaryString, BStruct entityStruct) {
+        MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
+        multipartDataSource.serializeData(messageOutputStream);
+        HttpUtil.closeMessageOutputStream(messageOutputStream);
+    }
+
+    private void serializeDataSource(Context context, OutputStream messageOutputStream) {
         BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
-        MessageDataSource messageDataSource = HttpUtil.readMessageDataSource(requestStruct);
-        if (messageDataSource != null) {
-            HttpMessageDataStreamer outboundMsgDataStreamer = new HttpMessageDataStreamer(outboundReqMsg);
-            OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-            httpClientConnectorListener.setOutboundMsgDataStreamer(outboundMsgDataStreamer);
-            messageDataSource.serializeData(messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+        if (entityStruct != null) {
+            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (messageDataSource != null) {
+                messageDataSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else { //When the entity body is a byte channel
+                try {
+                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                } catch (IOException e) {
+                    throw new BallerinaException("An error occurred while writing byte channel content to outputstream",
+                            context);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                }
+            }
         }
     }
 
@@ -279,17 +351,19 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         // Reference for post validation.
 
         private HTTPClientConnectorListener(Context context, ClientConnectorFuture ballerinaFuture,
-                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg) {
+                                            RetryConfig retryConfig, HTTPCarbonMessage outboundReqMsg,
+                HttpMessageDataStreamer outboundMsgDataStreamer) {
             this.context = context;
             this.ballerinaFuture = ballerinaFuture;
             this.retryConfig = retryConfig;
             this.outboundReqMsg = outboundReqMsg;
+            this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             BStruct inboundResponse = createStruct(this.context, HttpConstants.IN_RESPONSE,
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                    HttpConstants.PROTOCOL_PACKAGE_HTTP);
             BStruct entity = createStruct(this.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
             BStruct mediaType = createStruct(this.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
             HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
@@ -300,12 +374,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         public void onError(Throwable throwable) {
             if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+            } else {
+                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
             }
             if (checkRetryState(throwable)) {
                 return;
             }
 
-            sendOutboundRequest(context, outboundReqMsg, this);
+            sendOutboundRequest(context, outboundReqMsg);
         }
 
         private boolean checkRetryState(Throwable throwable) {
@@ -322,9 +398,18 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
 
         private void notifyError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants
-                    .PROTOCOL_PACKAGE_HTTP);
+            BStruct httpConnectorError;
+
+            if (throwable instanceof EndpointTimeOutException) {
+                httpConnectorError = createStruct(context, HttpConstants.HTTP_TIMEOUT_ERROR,
+                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            } else {
+                httpConnectorError = createStruct(context, HttpConstants.HTTP_CONNECTOR_ERROR,
+                        HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            }
+
             httpConnectorError.setStringField(0, throwable.getMessage());
+
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
@@ -339,10 +424,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
             BStructType structType = structInfo.getType();
             return new BStruct(structType);
-        }
-
-        public void setOutboundMsgDataStreamer(HttpMessageDataStreamer outboundMsgDataStreamer) {
-            this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
     }
 }

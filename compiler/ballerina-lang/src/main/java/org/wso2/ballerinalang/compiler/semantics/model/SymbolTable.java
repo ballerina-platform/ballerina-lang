@@ -1,22 +1,21 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.model;
-
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
@@ -27,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymb
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -53,7 +53,9 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 0.94
@@ -63,8 +65,7 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
-
+    public static final PackageID BUILTIN = new PackageID(Names.ANON_ORG, Names.BUILTIN_PACKAGE, Names.DEFAULT_VERSION);
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -84,7 +85,6 @@ public class SymbolTable {
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType nullType = new BNullType();
-    public final BType voidType = new BNoType(TypeTags.VOID);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
     public final BType arrayType = new BArrayType(noType);
@@ -93,14 +93,13 @@ public class SymbolTable {
     public final BType errType;
 
     public BStructType errStructType;
-    public BStructType errTypeConversionType;
-    public BStructType errTypeCastType;
 
     public BPackageSymbol builtInPackageSymbol;
 
     private Names names;
 
-    private CompilerContext context;
+    public Map<PackageID, BPackageSymbol> pkgSymbolMap = new HashMap<>();
+    public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -112,8 +111,7 @@ public class SymbolTable {
     }
 
     private SymbolTable(CompilerContext context) {
-        this.context = context;
-        this.context.put(SYM_TABLE_KEY, this);
+        context.put(SYM_TABLE_KEY, this);
 
         this.names = Names.getInstance(context);
 
@@ -143,15 +141,15 @@ public class SymbolTable {
         this.errSymbol = new BTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, errType, rootPkgSymbol);
         defineType(errType, errSymbol);
-    }
 
-    public void createErrorTypes() {
-        this.errStructType = (BStructType) rootScope.lookup(Names.ERROR).symbol.type;
-        this.errTypeCastType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CAST).symbol.type;
-        this.errTypeConversionType = (BStructType) rootScope.lookup(Names.ERROR_TYPE_CONVERSION).symbol.type;
-    }
+        // Initialize Ballerina error struct type temporally.
+        BTypeSymbol errorStructSymbol = new BStructSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+                rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        this.errStructType = new BStructType(errorStructSymbol);
+        errorStructSymbol.type = this.errStructType;
+        errorStructSymbol.scope = new Scope(errorStructSymbol);
+        defineType(this.errStructType, errorStructSymbol);
 
-    public void loadOperators() {
         // Define all operators e.g. binary, unary, cast and conversion
         defineOperators();
     }
@@ -313,6 +311,20 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
 
+        defineUnaryOperator(OperatorKind.UNTAINT, intType, intType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, floatType, floatType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, booleanType, booleanType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, stringType, stringType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, typeType, typeType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, jsonType, jsonType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, xmlType, xmlType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, tableType, tableType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, anyType, anyType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, mapType, mapType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, connectorType, connectorType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, arrayType, arrayType, InstructionCodes.NOP);
+        defineUnaryOperator(OperatorKind.UNTAINT, nullType, nullType, InstructionCodes.NOP);
+
         defineCastOperators();
         defineConversionOperators();
     }
@@ -352,6 +364,7 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define conversion operators
+        defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
         defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
@@ -411,7 +424,7 @@ public class SymbolTable {
                                     boolean safe,
                                     int opcode) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
-        List<BType> retTypes = Lists.of(targetType, this.errTypeCastType);
+        List<BType> retTypes = Lists.of(targetType, this.errStructType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BCastOperatorSymbol symbol = new BCastOperatorSymbol(this.rootPkgSymbol.pkgID, opType, this.rootPkgSymbol,
                 implicit, safe, opcode);
@@ -428,7 +441,7 @@ public class SymbolTable {
         if (safe) {
             retTypes = Lists.of(targetType);
         } else {
-            retTypes = Lists.of(targetType, this.errTypeConversionType);
+            retTypes = Lists.of(targetType, this.errStructType);
         }
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(this.rootPkgSymbol.pkgID, opType,
