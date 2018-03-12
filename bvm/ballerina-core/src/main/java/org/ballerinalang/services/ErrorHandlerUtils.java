@@ -36,4 +36,15 @@ public class ErrorHandlerUtils {
             outStream.println(errorMessage);
         }
     }
+
+    /**
+     * Print the error.
+     *
+     * @param error message to be printed.
+     */
+    public static void printError(String error) {
+        if (error != null) {
+            outStream.println(error);
+        }
+    }
 }

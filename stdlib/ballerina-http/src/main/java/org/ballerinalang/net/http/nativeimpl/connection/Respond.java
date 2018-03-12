@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "respond",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "OutResponse",
+        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
                 structPackage = "ballerina.net.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                                  structPackage = "ballerina.net.http"),
@@ -45,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Respond extends ConnectionAction {
 
     @Override
-    public BValue[] execute(Context context) {
-        return super.execute(context);
+    public void execute(Context context) {
+        super.execute(context);
     }
 }

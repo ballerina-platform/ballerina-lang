@@ -19,11 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,14 +43,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class GetMaxInactiveInterval extends AbstractNativeFunction {
+public class GetMaxInactiveInterval extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
-                return getBValues(new BInteger(session.getMaxInactiveInterval()));
+                context.setReturnValues(new BInteger(session.getMaxInactiveInterval()));
             } else {
                 throw new IllegalStateException("Failed to get max inactive interval: No such session in progress");
             }

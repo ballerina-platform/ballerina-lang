@@ -19,15 +19,15 @@
 package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerContext;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.nativeimpl.task.TaskException;
 import org.ballerinalang.nativeimpl.task.TaskExecutor;
 import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 public class Timer {
     private String id = TaskIdGenerator.generate();
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-    private Context context;
 
     /**
      * Triggers the timer.
@@ -49,7 +48,7 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    public Timer(AbstractNativeFunction fn, Context ctx, long delay, long interval,
+    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
                  FunctionRefCPEntry onTriggerFunction,
                  FunctionRefCPEntry onErrorFunction) throws SchedulingException {
 
@@ -60,8 +59,7 @@ public class Timer {
         final Runnable schedulerFunc = () -> {
             callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
         };
-        ctx.startTrackWorker();
-        this.context = ctx;
+        
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
         TaskRegistry.getInstance().addTimer(this);
     }
@@ -73,13 +71,11 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    private static void callTriggerFunction(AbstractNativeFunction fn, Context parentCtx,
+    private static void callTriggerFunction(NativeCallableUnit fn, Context parentCtx,
                                             FunctionRefCPEntry onTriggerFunction,
                                             FunctionRefCPEntry onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();
-        //Create new instance of the context and set required properties.
-        Context newContext = new WorkerContext(programFile, parentCtx);
-        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile, newContext);
+        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile);
     }
 
     public String getId() {
@@ -89,7 +85,6 @@ public class Timer {
     public void stop() throws TaskException {
         executorService.shutdown();
         TaskRegistry.getInstance().remove(id);
-        context.endTrackWorker();
     }
 
 

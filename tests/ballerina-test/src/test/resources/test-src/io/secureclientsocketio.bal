@@ -3,11 +3,11 @@ import ballerina.io;
 io:Socket socket;
 
 function openSocketConnection (string host, int port, io:SocketProperties prop) {
-    socket = io:openSecureSocket(host, port, prop);
+    socket, _ = io:openSecureSocket(host, port, prop);
 }
 
 function closeSocket () {
-    socket.closeSocket();
+    _ = socket.closeSocket();
 }
 
 function write (blob content, int size) (int) {

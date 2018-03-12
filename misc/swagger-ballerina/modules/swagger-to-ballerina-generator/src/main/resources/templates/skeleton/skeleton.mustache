@@ -17,9 +17,9 @@ service<http> {{cut info.title " "}} {
         methods:["GET"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub de - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -30,9 +30,9 @@ service<http> {{cut info.title " "}} {
         methods:["POST"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -43,9 +43,9 @@ service<http> {{cut info.title " "}} {
         methods:["PUT"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -56,9 +56,9 @@ service<http> {{cut info.title " "}} {
         methods:["DELETE"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -69,9 +69,9 @@ service<http> {{cut info.title " "}} {
         methods:["OPTIONS"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -82,9 +82,9 @@ service<http> {{cut info.title " "}} {
         methods:["HEAD"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -95,9 +95,9 @@ service<http> {{cut info.title " "}} {
         methods:["PATCH"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
@@ -108,9 +108,9 @@ service<http> {{cut info.title " "}} {
         methods:["TRACE"],
         path:"{{key}}"
     }
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:Connection conn, http:Request inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
         _ = conn.respond(resp);

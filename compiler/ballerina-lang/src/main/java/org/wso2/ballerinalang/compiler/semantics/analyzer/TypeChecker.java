@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -48,6 +50,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -62,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -86,7 +97,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
-import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -827,6 +837,86 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = Lists.of(new BArrayType(symTable.intType));
     }
 
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        BType actualType = symTable.errType;
+        int expTypeTag = expTypes.get(0).tag;
+
+        if (expTypeTag == TypeTags.TABLE) {
+            actualType = expTypes.get(0);
+        } else if (expTypeTag != TypeTags.ERROR) {
+            dlog.error(tableQueryExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, expTypes.get(0));
+        }
+
+        BLangTableQuery tableQuery = (BLangTableQuery) tableQueryExpression.getTableQuery();
+        tableQuery.accept(this);
+
+        resultTypes = types.checkTypes(tableQueryExpression, Lists.of(actualType), expTypes);
+    }
+
+    @Override
+    public void visit(BLangTableQuery tableQuery) {
+        BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
+        streamingInput.accept(this);
+
+        BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
+        if (joinStreamingInput != null) {
+            joinStreamingInput.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        List<? extends SelectExpressionNode> selectExprList = selectClause.getSelectExpressions();
+        selectExprList.forEach(selectExpr -> ((BLangSelectExpression) selectExpr).accept(this));
+
+        BLangGroupBy groupBy = (BLangGroupBy) selectClause.getGroupBy();
+        if (groupBy != null) {
+            groupBy.accept(this);
+        }
+
+        BLangHaving having = (BLangHaving) selectClause.getHaving();
+        if (having != null) {
+            having.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangSelectExpression selectExpression) {
+        BLangExpression expr = (BLangExpression) selectExpression.getExpression();
+        expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangGroupBy groupBy) {
+        groupBy.getVariables().forEach(expr -> ((BLangExpression) expr).accept(this));
+    }
+
+    @Override
+    public void visit(BLangHaving having) {
+        BLangExpression expr = (BLangExpression) having.getExpression();
+        expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangOrderBy orderBy) {
+        for (ExpressionNode expr : orderBy.getVariables()) {
+            ((BLangExpression) expr).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangJoinStreamingInput joinStreamingInput) {
+        BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
+        streamingInput.accept(this);
+    }
+
+    @Override
+    public void visit(BLangStreamingInput streamingInput) {
+        BLangExpression varRef = (BLangExpression) streamingInput.getTableReference();
+        varRef.accept(this);
+    }
+
     // Private methods
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
@@ -1012,13 +1102,11 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
         if (conType == symTable.errType
-                || (conType.tag == TypeTags.STRUCT & (conType.tsymbol.flags & Flags.ENDPOINT) != Flags.ENDPOINT)
-                || conType.tag != TypeTags.CONNECTOR) {
+                || !(conType.tag == TypeTags.STRUCT || conType.tag == TypeTags.CONNECTOR)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultTypes = actualTypes;
             return;
         }
-
 
         BSymbol conSymbol;
         if (iExpr.expr.getKind() == NodeKind.INVOCATION) {
@@ -1032,7 +1120,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 conSymbol = conSymbol.type.tsymbol;
             }
         }
-        if (conSymbol == symTable.notFoundSymbol
+        if (conSymbol == null
+                || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
                 || conSymbol.tag != SymTag.CONNECTOR) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);

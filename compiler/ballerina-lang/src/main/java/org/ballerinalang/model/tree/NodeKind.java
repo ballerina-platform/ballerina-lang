@@ -79,6 +79,10 @@ public enum NodeKind {
     XML_COMMENT_LITERAL,
     XML_PI_LITERAL,
 
+    /* streams/tables expressions */
+    SELECT_EXPRESSION,
+    TABLE_QUERY_EXPRESSION,
+
     /* Statements */
     ABORT,
     ASSIGNMENT,
@@ -110,4 +114,16 @@ public enum NodeKind {
     USER_DEFINED_TYPE,
     ENDPOINT_TYPE,
     VALUE_TYPE,
+
+    /* Clauses */
+    ORDER_BY,
+    GROUP_BY,
+    HAVING,
+    SELECT_CLAUSE,
+    WHERE,
+    FUNCTION_CLAUSE,
+    WINDOW_CLAUSE,
+    STREAMING_INPUT,
+    JOIN_STREAMING_INPUT,
+    TABLE_QUERY,
 }

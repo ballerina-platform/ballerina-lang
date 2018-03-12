@@ -41,7 +41,7 @@ public struct File {
 @Field { value : "cause: The error which caused the I/O error"}
 public struct IOError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a non-existent file."}
@@ -49,7 +49,7 @@ public struct IOError {
 @Field { value : "cause: The error which caused the file not found error"}
 public struct FileNotFoundError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without the required privileges."}
@@ -57,7 +57,7 @@ public struct FileNotFoundError {
 @Field { value : "cause: The error which caused the access denied error"}
 public struct AccessDeniedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without opening it."}
@@ -65,7 +65,7 @@ public struct AccessDeniedError {
 @Field { value : "cause: The error which caused the file not opened error"}
 public struct FileNotOpenedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value:"Closes a given file and its stream"}

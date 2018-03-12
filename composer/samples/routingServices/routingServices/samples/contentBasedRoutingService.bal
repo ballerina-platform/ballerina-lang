@@ -9,7 +9,7 @@ service<http> contentBasedRouting {
         methods:["POST"],
         path:"/"
     }
-    resource cbrResource (http:Connection conn, http:InRequest req) {
+    resource cbrResource (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> nasdaqEP {
             create http:HttpClient("http://localhost:9090/nasdaqStocks", {});
         }
@@ -20,8 +20,8 @@ service<http> contentBasedRouting {
         json jsonMsg = req.getJsonPayload();
         var nameString, _ = (string)jsonMsg.name;
 
-        http:OutRequest clientRequest = {};
-        http:InResponse clientResponse = {};
+        http:Request clientRequest = {};
+        http:Response clientResponse = {};
         http:HttpConnectorError err;
         if (nameString == nyseString) {
             clientResponse, err = nyseEP.post("/stocks", clientRequest);

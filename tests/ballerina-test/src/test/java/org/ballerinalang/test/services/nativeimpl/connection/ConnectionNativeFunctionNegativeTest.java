@@ -64,7 +64,7 @@ public class ConnectionNativeFunctionNegativeTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("error, message: operation not allowed:invalid Connection variable"));
+                .contains("operation not allowed:invalid Connection variable"));
     }
 
     @Test(description = "Test forward with null parameter")
@@ -85,8 +85,7 @@ public class ConnectionNativeFunctionNegativeTest {
         String path = "/hello/21";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
-        Assert.assertTrue(StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("error, message: operation not allowed:invalid Connection variable"));
+        String msg = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(msg.contains("operation not allowed:invalid Connection variable"));
     }
 }

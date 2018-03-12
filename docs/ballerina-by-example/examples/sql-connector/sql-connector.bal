@@ -3,8 +3,8 @@ import ballerina.io;
 
 function main (string[] args) {
     endpoint<sql:ClientConnector> testDB {
-          create sql:ClientConnector(sql:DB.MYSQL, "localhost", 3306,
-            "testdb", "root", "root", {maximumPoolSize:5});
+          create sql:ClientConnector(
+          sql:DB.MYSQL, "localhost", 3306, "testdb", "root", "root", {maximumPoolSize:5});
     }
     //Create a DB table using update action.If the DDL
     //statement execution is success update action returns 0.
@@ -42,7 +42,7 @@ function main (string[] args) {
     io:println("Generated key:" + ids[0]);
 
     //Select data using select action. Select action returns a table
-    //and see table section for more details on how to access data.
+    //and see tables section for more details on how to access data.
     params = [para1];
     table dt = testDB.select("SELECT * FROM STUDENT WHERE AGE = ?", params, null);
     var jsonRes, err = <json>dt;

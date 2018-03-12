@@ -198,7 +198,7 @@ function testCloseConnectionPool () (int count) {
         create sql:ClientConnector(sql:DB.HSQLDB_FILE, "./target/tempdb/",
                                    0, "TEST_DATA_TABLE__ITR_DB", "SA", "", {maximumPoolSize:1});
     }
-    table dt = testDB.select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
+    table dt = testDB.select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount) dt.getNext();

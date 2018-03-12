@@ -18,17 +18,16 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -53,7 +52,7 @@ import java.util.concurrent.ExecutionException;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class ReadCharacters extends AbstractNativeFunction {
+public class ReadCharacters extends BlockingNativeCallableUnit {
 
     /**
      * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
@@ -121,12 +120,12 @@ public class ReadCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BString content = null;
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            long numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            long numberOfCharacters = context.getIntArgument(NUMBER_OF_CHARS_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
@@ -139,6 +138,6 @@ public class ReadCharacters extends AbstractNativeFunction {
             log.error(message);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(content, errorStruct);
+        context.setReturnValues(content, errorStruct);
     }
 }
