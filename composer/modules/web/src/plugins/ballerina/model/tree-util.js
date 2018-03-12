@@ -257,7 +257,7 @@ class TreeUtil extends AbstractTreeUtil {
         let resource = node;
         while (resource) {
             resource = resource.parent;
-            if (this.isResource(resource)) {
+            if (resource && this.isResource(resource)) {
                 // visit and find ACTION Invocation.
                 const param = resource.parameters[0];
                 if (param === undefined) return false;

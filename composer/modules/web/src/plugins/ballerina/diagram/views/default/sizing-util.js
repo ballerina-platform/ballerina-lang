@@ -985,7 +985,7 @@ class SizingUtil {
         viewState.titleWidth = textWidth.w;
 
         const returnParams = _.join(node.getReturnParameters().map(ret => ret.getSource(true)), ',');
-        const typeText = `< ${node.getSourceParam().getSource(true)}, ${returnParams} >`;
+        const typeText = `< ${node.getSource().getSource(true)}, ${returnParams} >`;
         const typeTextDetails = this.getTextWidth(typeText, 0);
         viewState.typeText = typeTextDetails.text;
         viewState.typeTextWidth = typeTextDetails.w;
