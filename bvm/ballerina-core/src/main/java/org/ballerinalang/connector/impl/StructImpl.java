@@ -122,11 +122,6 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
-    public void addNativeData(String key, Object data) {
-        value.addNativeData(key, data);
-    }
-
-    @Override
     public Map<String, Value> getMapField(String fieldName) {
         final BMap refField = (BMap) value.getRefField(getFieldIndex(fieldName));
         if (refField == null) {
