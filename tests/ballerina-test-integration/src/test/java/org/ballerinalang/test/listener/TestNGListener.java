@@ -1,10 +1,11 @@
-package org.ballerinalang.test.util;
+package org.ballerinalang.test.listener;
 
 import org.slf4j.LoggerFactory;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
 import java.io.PrintStream;
+import java.util.HashSet;
 
 /**
  * Test listener for listening to test events
@@ -13,13 +14,16 @@ import java.io.PrintStream;
  */
 public class TestNGListener extends TestListenerAdapter {
 
+    private static final HashSet<String> processedTestCases = new HashSet<>();
+
     @Override
     public void beforeConfiguration(ITestResult tr) {
         PrintStream printStream = new PrintStream(System.out);
-        if (tr.getMethod().isBeforeClassConfiguration()) {
-            printStream.print("\n");
-            String testClassName = tr.getTestClass().getRealClass().getSimpleName();
-            printStream.println("Start Running " + testClassName + " ...");
+        String testClassName = tr.getTestClass().getRealClass().getSimpleName();
+
+        if (tr.getMethod().isBeforeClassConfiguration() && !processedTestCases.contains(testClassName)) {
+            printStream.println("\n// Start Running " + testClassName + " ...\n");
+            processedTestCases.add(testClassName);
         }
     }
 
