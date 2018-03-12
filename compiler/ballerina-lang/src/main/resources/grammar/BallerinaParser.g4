@@ -369,7 +369,7 @@ joinClause
     ;
 
 joinConditions
-    : SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    : SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
     | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
@@ -553,15 +553,22 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   (SUB)? IntegerLiteral
+    :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
     ;
 
-// XML parsing
+// Integer Literal
+integerLiteral
+    : DecimalIntegerLiteral
+    | HexIntegerLiteral
+    | OctalIntegerLiteral
+    | BinaryIntegerLiteral
+    ;
 
+// XML parsing
 xmlLiteral
     :   XMLLiteralStart xmlItem XMLLiteralEnd
     ;
@@ -637,7 +644,6 @@ stringTemplateContent
     :   (StringTemplateExpressionStart expression ExpressionEnd)+ StringTemplateText?
     |   StringTemplateText
     ;
-
 
 anyIdentifierName
     : Identifier
