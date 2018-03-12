@@ -79,7 +79,7 @@ public class BinaryFileWriter {
         Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convertToPaths(projectSourceRepo
                 .getConverterInstance());
         String prjPath = projectSourceRepo.getConverterInstance().toString();
-        ZipUtils.generateBalo(prjPath, packageNode.packageID.toString(), pathStream);
+        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {

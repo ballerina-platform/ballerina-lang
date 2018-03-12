@@ -1,5 +1,8 @@
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,7 +37,7 @@ class ZipUtils {
         }
         ZipOutputStream finalZipOut = zipOut;
         // Bal files
-        filesToBeZipped.forEach((path) -> addToZip("", path.toString(), "src", finalZipOut));
+        filesToBeZipped.forEach((path) -> addToZip(path, "src", finalZipOut));
         try {
             if (zipOut != null) {
                 zipOut.close();
@@ -47,49 +50,41 @@ class ZipUtils {
     /**
      * Add file to the zipped folder.
      *
-     * @param path        path of the folder/file to be zipped
-     * @param srcFile     path of the folder/file to be zipped
+     * @param srcFilePath path of the folder/file to be zipped
      * @param includedDir directory to be included
      * @param zipOut      ZipOutputStream object
      */
-    private static void addToZip(String path, String srcFile, String includedDir, ZipOutputStream zipOut) {
-        Path file = Paths.get(srcFile);
-        String filePath = "".equals(path) ? file.getFileName().toString() : Paths.get(path).resolve(file.getFileName())
-                .toString();
+    private static void addToZip(Path srcFilePath, String includedDir, ZipOutputStream zipOut) {
+        String filePath = srcFilePath.getFileName().toString();
         if (!includedDir.isEmpty()) {
             filePath = Paths.get(includedDir).resolve(filePath).toString();
         }
-        if (Files.isDirectory(file)) {
-            if (file.toFile() != null && file.toFile().list() != null) {
-                for (String fileName : file.toFile().list()) {
-                    addToZip(filePath, Paths.get(srcFile).resolve(fileName).toString(), "src", zipOut);
-                }
-            }
-        } else {
-            try {
-                zipOut.putNextEntry(new ZipEntry(filePath));
-                FileInputStream in = new FileInputStream(srcFile);
+        try {
+            zipOut.putNextEntry(new ZipEntry(filePath));
+            FileInputStream in = new FileInputStream(srcFilePath.toString());
 
-                byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-                int len;
-                while ((len = in.read(buffer)) != -1) {
-                    zipOut.write(buffer, 0, len);
-                }
-            } catch (IOException e) {
-                outStream.println("Error occurred when writing the " + filePath + " to the zipped folder");
+            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                zipOut.write(buffer, 0, len);
             }
+        } catch (IOException e) {
+            outStream.println("Error occurred when writing the " + filePath + " to the zipped folder");
         }
     }
 
     /**
      * Generates the balo/zip of the package.
      *
-     * @param pkgPath full package path
-     * @param pkgID   package id
-     * @param paths   paths of bal files inside the package
+     * @param bLangPackage bLangPackage node
+     * @param pkgPath      full package path
+     * @param paths        paths of bal files inside the package
      */
-    static void generateBalo(String pkgPath, String pkgID, Stream<Path> paths) {
-        Path destPath = Paths.get(pkgPath).resolve(".ballerina").resolve("repos").resolve("$current");
+    static void generateBalo(BLangPackage bLangPackage, String pkgPath, Stream<Path> paths) {
+        PackageID packageID = bLangPackage.packageID;
+        Path destPath = Paths.get(pkgPath).resolve(".ballerina").resolve("repo")
+                .resolve(packageID.getOrgName().getValue()).resolve(packageID.getName().getValue())
+                .resolve(packageID.getPackageVersion().getValue());
         if (!Files.exists(destPath)) {
             try {
                 Files.createDirectories(destPath);
@@ -98,7 +93,7 @@ class ZipUtils {
                         "./ballerina/repos/ to save the compressed file");
             }
         }
-        String zippedPackageExt = pkgID + ".zip";
+        String zippedPackageExt = packageID.getName() + ".zip";
         String baloDirPath = Paths.get(destPath.toString()).resolve(zippedPackageExt).toString();
         zipFile(paths, baloDirPath);
     }

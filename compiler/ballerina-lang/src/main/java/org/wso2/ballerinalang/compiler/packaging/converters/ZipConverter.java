@@ -12,8 +12,27 @@ import java.util.Map;
 
 
 public class ZipConverter extends PathConverter {
-    public ZipConverter(Path root) {
-        super(root);
+
+    public ZipConverter(Path archivePath) {
+        super(resoveIntoArchive(archivePath));
+    }
+
+    private static void initFS(URI uri) throws IOException {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try {
+            FileSystems.newFileSystem(uri, env);
+        } catch (FileSystemAlreadyExistsException ignore) {
+        }
+    }
+
+    private static Path resoveIntoArchive(Path newPath) {
+        String pathPart = newPath.toString();
+        if (pathPart.endsWith(".zip") || pathPart.endsWith(".jar")) {
+            return pathWithinZip(newPath.toUri());
+        } else {
+            return newPath;
+        }
     }
 
     private static Path pathWithinZip(URI pathToZip) {
@@ -29,22 +48,11 @@ public class ZipConverter extends PathConverter {
         }
     }
 
-    private static void initFS(URI uri) throws IOException {
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-        try {
-            FileSystems.newFileSystem(uri, env);
-        } catch (FileSystemAlreadyExistsException ignore) {
-        }
-    }
-
     @Override
     public Path combine(Path path, String pathPart) {
-        if (pathPart.endsWith(".zip")) {
-            Path newPath = super.combine(path, pathPart);
-            return pathWithinZip(newPath.toUri());
-        } else {
-            return super.combine(path, pathPart);
+        if (path == null) {
+            path = Paths.get("/");
         }
+        return resoveIntoArchive(path.resolve(pathPart));
     }
 }
