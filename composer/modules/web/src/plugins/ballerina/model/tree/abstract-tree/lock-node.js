@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import StatementNode from '../statement-node';
 
-class AbstractRecordLiteralKeyValueNode extends Node {
+class AbstractLockNode extends StatementNode {
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
+    setBody(newValue, silent, title) {
+        const oldValue = this.body;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
+        this.body = newValue;
 
-        this.value.parent = this;
+        this.body.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'value',
+                    attributeName: 'body',
                     newValue,
                     oldValue,
                 },
@@ -43,37 +43,12 @@ class AbstractRecordLiteralKeyValueNode extends Node {
         }
     }
 
-    getValue() {
-        return this.value;
+    getBody() {
+        return this.body;
     }
 
-
-    setKey(newValue, silent, title) {
-        const oldValue = this.key;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.key = newValue;
-
-        this.key.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'key',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getKey() {
-        return this.key;
-    }
 
 
 }
 
-export default AbstractRecordLiteralKeyValueNode;
+export default AbstractLockNode;

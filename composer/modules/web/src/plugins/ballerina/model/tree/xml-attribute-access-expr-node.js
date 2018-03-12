@@ -16,19 +16,10 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import AbstractTransformerNode from './abstract-tree/transformer-node';
+import AbstractXmlAttributeAccessExprNode from './abstract-tree/xml-attribute-access-expr-node';
 
-class TransformerNode extends AbstractTransformerNode {
-
-    getSignature() {
-        const returnParams = _.join(this.getReturnParameters().map(ret => ret.getSource()), ',');
-        let params = _.join(this.getParameters().map(ret => ret.getSource()), ',');
-        params = (params === '') ? '' : `(${params})`;
-        params = (this.name.value !== '' && (params === '')) ? '()' : params;
-        return `<${this.getSource().getSource()}, ${returnParams}> ${this.name.value} ${params}`;
-    }
+class XmlAttributeAccessExprNode extends AbstractXmlAttributeAccessExprNode {
 
 }
 
-export default TransformerNode;
+export default XmlAttributeAccessExprNode;
