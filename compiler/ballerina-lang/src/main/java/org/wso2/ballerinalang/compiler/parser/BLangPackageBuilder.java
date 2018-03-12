@@ -1242,6 +1242,11 @@ public class BLangPackageBuilder {
         docAttachmentStack.push(docAttachmentNode);
     }
 
+    public void endDocumentationAttachment(Set<Whitespace> ws) {
+        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
+        docAttachmentNode.addWS(ws);
+    }
+
     public void setDocumentationAttachmentContent(DiagnosticPos pos,
                                                   Set<Whitespace> ws,
                                                   String contentText) {

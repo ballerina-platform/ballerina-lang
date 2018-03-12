@@ -17,15 +17,15 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractXmlCommentLiteralNode extends ExpressionNode {
+class AbstractDocumentationNode extends Node {
 
 
-    setTextFragments(newValue, silent, title) {
-        const oldValue = this.textFragments;
+    setDocumentationText(newValue, silent, title) {
+        const oldValue = this.documentationText;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.textFragments = newValue;
+        this.documentationText = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +33,7 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'textFragments',
+                    attributeName: 'documentationText',
                     newValue,
                     oldValue,
                 },
@@ -41,19 +41,44 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    getTextFragments() {
-        return this.textFragments;
+    getDocumentationText() {
+        return this.documentationText;
     }
 
 
-    addTextFragments(node, i = -1, silent) {
+
+    setAttributes(newValue, silent, title) {
+        const oldValue = this.attributes;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.attributes = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'attributes',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getAttributes() {
+        return this.attributes;
+    }
+
+
+    addAttributes(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.textFragments.push(node);
-            index = this.textFragments.length;
+            this.attributes.push(node);
+            index = this.attributes.length;
         } else {
-            this.textFragments.splice(i, 0, node);
+            this.attributes.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -68,9 +93,9 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    removeTextFragments(node, silent) {
-        const index = this.getIndexOfTextFragments(node);
-        this.removeTextFragmentsByIndex(index, silent);
+    removeAttributes(node, silent) {
+        const index = this.getIndexOfAttributes(node);
+        this.removeAttributesByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -84,8 +109,8 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    removeTextFragmentsByIndex(index, silent) {
-        this.textFragments.splice(index, 1);
+    removeAttributesByIndex(index, silent) {
+        this.attributes.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -99,9 +124,9 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragments(oldChild, newChild, silent) {
-        const index = this.getIndexOfTextFragments(oldChild);
-        this.textFragments[index] = newChild;
+    replaceAttributes(oldChild, newChild, silent) {
+        const index = this.getIndexOfAttributes(oldChild);
+        this.attributes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -116,8 +141,8 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    replaceTextFragmentsByIndex(index, newChild, silent) {
-        this.textFragments[index] = newChild;
+    replaceAttributesByIndex(index, newChild, silent) {
+        this.attributes[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -132,15 +157,15 @@ class AbstractXmlCommentLiteralNode extends ExpressionNode {
         }
     }
 
-    getIndexOfTextFragments(child) {
-        return _.findIndex(this.textFragments, ['id', child.id]);
+    getIndexOfAttributes(child) {
+        return _.findIndex(this.attributes, ['id', child.id]);
     }
 
-    filterTextFragments(predicateFunction) {
-        return _.filter(this.textFragments, predicateFunction);
+    filterAttributes(predicateFunction) {
+        return _.filter(this.attributes, predicateFunction);
     }
 
 
 }
 
-export default AbstractXmlCommentLiteralNode;
+export default AbstractDocumentationNode;

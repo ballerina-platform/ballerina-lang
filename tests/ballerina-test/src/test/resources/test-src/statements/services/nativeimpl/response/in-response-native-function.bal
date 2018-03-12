@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.net.http.mock;
 import ballerina.mime;
 
 function testGetContentLength (http:Response res) (int) {
@@ -81,109 +82,113 @@ function testSetXmlPayload (xml value) (http:Response) {
     return res;
 }
 
-@http:configuration{basePath:"/hello"}
-service<http> helloServer {
+endpoint<mock:NonListeningService> mockEP {
+    port:9090
+}
+
+@http:serviceConfig {endpoints:[mockEP]}
+service<http:Service> hello {
 
     @http:resourceConfig {
         path:"/11"
     }
-    resource echo1 (http:Connection conn, http:Request req) {
+    resource echo1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
-        _ = conn.forward(res);
+        _ = conn -> forward(res);
     }
 
     @http:resourceConfig {
         path:"/12/{phase}"
     }
-    resource echo2 (http:Connection conn, http:Request req, string phase) {
+    resource echo2 (http:ServerConnector conn, http:Request req, string phase) {
         http:Response res = {};
         res.reasonPhrase = phase;
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/13"
     }
-    resource echo3 (http:Connection conn, http:Request req) {
+    resource echo3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.statusCode = 203;
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/addheader/{key}/{value}"
     }
-    resource addheader (http:Connection conn, http:Request req, string key, string value) {
+    resource addheader (http:ServerConnector conn, http:Request req, string key, string value) {
         http:Response res = {};
         res.addHeader(key, value);
         string result = res.getHeader(key);
         res.setJsonPayload({lang:result});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/getHeader/{header}/{value}"
     }
-    resource getHeader (http:Connection conn, http:Request req, string header, string value) {
+    resource getHeader (http:ServerConnector conn, http:Request req, string header, string value) {
         http:Response res = {};
         res.setHeader(header, value);
         string result = res.getHeader(header);
         res.setJsonPayload({value:result});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/getJsonPayload/{value}"
     }
-    resource GetJsonPayload(http:Connection conn, http:Request req, string value) {
+    resource GetJsonPayload(http:ServerConnector conn, http:Request req, string value) {
         http:Response res = {};
         json jsonStr = {lang:value};
         res.setJsonPayload(jsonStr);
         var result, _ = res.getJsonPayload();
         json lang = result.lang;
         res.setJsonPayload(lang);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetProperty/{key}/{value}"
     }
-    resource GetProperty (http:Connection conn, http:Request req, string key, string value) {
+    resource GetProperty (http:ServerConnector conn, http:Request req, string key, string value) {
         http:Response res = {};
         res.setProperty(key, value);
         string property = res.getProperty(key);
         res.setJsonPayload({value:property});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetStringPayload/{valueStr}"
     }
-    resource GetStringPayload(http:Connection conn, http:Request req, string valueStr) {
+    resource GetStringPayload(http:ServerConnector conn, http:Request req, string valueStr) {
         http:Response res = {};
         res.setStringPayload(valueStr);
         var value, _ = res.getStringPayload();
         res.setStringPayload(value);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/GetXmlPayload"
     }
-    resource GetXmlPayload(http:Connection conn, http:Request req) {
+    resource GetXmlPayload(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         xml xmlStr = xml `<name>ballerina</name>`;
         res.setXmlPayload(xmlStr);
         var value, _ = res.getXmlPayload();
         var name = value.getTextValue();
         res.setStringPayload(name);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/RemoveHeader/{key}/{value}"
     }
-    resource RemoveHeader (http:Connection conn, http:Request req, string key, string value) {
+    resource RemoveHeader (http:ServerConnector conn, http:Request req, string key, string value) {
         http:Response res = {};
         res.setHeader(key, value);
         res.removeHeader(key);
@@ -193,13 +198,13 @@ service<http> helloServer {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         path:"/RemoveAllHeaders"
     }
-    resource RemoveAllHeaders (http:Connection conn, http:Request req) {
+    resource RemoveAllHeaders (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setHeader("Expect", "100-continue");
         res.setHeader("Range", "bytes=500-999");
@@ -210,6 +215,6 @@ service<http> helloServer {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
