@@ -75,13 +75,13 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
     @Param { value:"req: An HTTP outbound request message" }
     @Return { value:"The Handle for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    native action submit (string httpVerb, string path, OutRequest req) (HttpHandle, HttpConnectorError);
+    native action submit (string httpVerb, string path, Request req) (HttpHandle, HttpConnectorError);
 
     @Description { value:"Retrieves response for async service invocation."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    native action getResponse (HttpHandle handle) (InResponse, HttpConnectorError);
+    native action getResponse (HttpHandle handle) (Response, HttpConnectorError);
 
     @Description { value:"Checks whether server push exists."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
@@ -98,7 +98,7 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
     @Param { value:"promise: The related Push Promise message" }
     @Return { value:"HTTP The Push Response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    native action getPromisedResponse (PushPromise promise) (InResponse, HttpConnectorError);
+    native action getPromisedResponse (PushPromise promise) (Response, HttpConnectorError);
 
     @Description { value:"Rejects a push promise."}
     @Param { value:"promise: The Push Promise need to be rejected" }

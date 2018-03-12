@@ -75,7 +75,7 @@ public class HasPromise extends AbstractHTTPAction {
         private Context context;
         private CallableUnitCallback callback;
 
-        public PromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
+        PromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
             this.context = context;
             this.callback = callback;
         }

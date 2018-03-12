@@ -157,11 +157,11 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return null, null;
     }
 
-    action submit (string httpVerb, string path, http:OutRequest req) (http:HttpHandle, http:HttpConnectorError) {
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
         return null, null;
     }
 
-    action getResponse (http:HttpHandle handle) (http:InResponse, http:HttpConnectorError) {
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
@@ -173,7 +173,7 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return null, null;
     }
 
-    action getPromisedResponse (http:PushPromise promise) (http:InResponse, http:HttpConnectorError) {
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 

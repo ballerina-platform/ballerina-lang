@@ -38,7 +38,7 @@ public connector ServerConnector (){
     @Param { value:"promise: Push promise message" }
     @Param { value:"res: The outbound response message" }
     @Return { value:"Error occured during HTTP server connector forward" }
-    action pushPromisedResponse (PushPromise promise, OutResponse res) (HttpConnectorError) {
+    action pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError) {
         return conn.pushPromisedResponse(promise, res);
     }
 

@@ -26,24 +26,23 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
- * {@code GetPromisedResponse} action can be used to get a push response message associated with a
- * previous asynchronous invocation.
+ * {@code GetResponse} action can be used to fetch the response message for a previous asynchronous invocation.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "getPromisedResponse",
+        actionName = "getResponse",
         connectorName = HttpConstants.CLIENT_CONNECTOR,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
+                @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpHandle",
                         structPackage = "ballerina.net.http")
         },
         returnType = {
@@ -57,37 +56,48 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
                         structPackage = "ballerina.net.http")
         }
 )
-public class GetPromisedResponse extends AbstractHTTPAction {
+public class GetResponse extends AbstractHTTPAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
         DataContext dataContext = new DataContext(context, callback);
-        BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
-        if (http2PushPromise == null) {
-            throw new BallerinaException("invalid push promise");
+        BStruct handleStruct = ((BStruct) context.getRefArgument(1));
+
+        ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
+        if (responseHandle == null) {
+            throw new BallerinaException("invalid http handle");
         }
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
-        clientConnector.getPushResponse(http2PushPromise).
-                setPushResponseListener(new PushResponseListener(dataContext),
-                                        http2PushPromise.getPromisedStreamId());
+        clientConnector.getResponse(responseHandle).
+                setHttpConnectorListener(new ResponseListener(dataContext));
     }
 
-    private class PushResponseListener implements HttpClientConnectorListener {
+    private class ResponseListener implements HttpConnectorListener {
 
         private DataContext dataContext;
 
-        PushResponseListener(DataContext dataContext) {
+        ResponseListener(DataContext dataContext) {
             this.dataContext = dataContext;
         }
 
         @Override
-        public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
             dataContext.notifyReply(
                     createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+        }
+
+        public void onError(Throwable throwable) {
+            BStruct httpConnectorError = createStruct(
+                    dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            httpConnectorError.setStringField(0, throwable.getMessage());
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
+            }
+            dataContext.notifyReply(null, httpConnectorError);
         }
     }
 }

@@ -39,7 +39,7 @@ public native function <Connection conn> promise (PushPromise promise) (HttpConn
 @Param { value:"promise: Push promise message" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> pushPromisedResponse (PushPromise promise, OutResponse res) (HttpConnectorError);
+public native function <Connection conn> pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError);
 
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
