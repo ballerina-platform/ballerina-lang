@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.services;
+package org.ballerinalang.test.services.basics;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BCompileUtil;
