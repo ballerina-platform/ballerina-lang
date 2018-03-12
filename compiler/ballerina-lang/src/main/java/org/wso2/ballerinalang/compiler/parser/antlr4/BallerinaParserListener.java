@@ -1600,6 +1600,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#xmlLiteral}.
 	 * @param ctx the parse tree
 	 */
@@ -2083,14 +2093,12 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void enterDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void enterDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void exitDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void exitDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docText}.
 	 * @param ctx the parse tree
