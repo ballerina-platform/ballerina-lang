@@ -16,7 +16,7 @@ service<http:Service> nestedparts {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:ServerConnector serverConnector, http:Request req) {
+    resource nestedPartSender (http:ServerConnector conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -52,6 +52,6 @@ service<http:Service> nestedparts {
         http:Response resp1 = {};
         resp1, _ = clientEP -> post("/nestedparts/decoder", request);
 
-        _ = serverConnector -> forward(resp1);
+        _ = conn -> forward(resp1);
     }
 }

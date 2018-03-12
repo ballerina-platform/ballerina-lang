@@ -16,7 +16,7 @@ service<http:Service> multiparts {
         methods:["GET"],
         path:"/decode_in_response"
     }
-    resource receiveMultiparts (http:ServerConnector serverConnector, http:Request request) {
+    resource receiveMultiparts (http:ServerConnector conn, http:Request request) {
         http:Request outRequest = {};
         http:Response inResponse = {};
         inResponse, _ = clientEP -> get("/multiparts/encode_out_response", outRequest);
@@ -36,7 +36,7 @@ service<http:Service> multiparts {
             res.setStringPayload(payloadError.message);
         }
 
-        _ = serverConnector -> respond(res);
+        _ = conn -> respond(res);
     }
 }
 

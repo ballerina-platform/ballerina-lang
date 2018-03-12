@@ -16,7 +16,7 @@ service<http:Service> multiparts {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:ServerConnector serverConnector, http:Request req) {
+    resource encodeMultiparts (http:ServerConnector conn, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = {};
@@ -55,7 +55,7 @@ service<http:Service> multiparts {
         http:Response resp1 = {};
         resp1, _ = clientEP -> post("/multiparts/decode_in_request", request);
 
-        _ = serverConnector -> forward(resp1);
+        _ = conn -> forward(resp1);
     }
 }
 
