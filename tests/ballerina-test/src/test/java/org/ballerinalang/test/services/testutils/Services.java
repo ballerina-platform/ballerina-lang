@@ -46,6 +46,12 @@ import java.util.Map;
  */
 public class Services {
 
+
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
+                                              HTTPTestRequest request) {
+        return invokeNew(compileResult, ".", endpointName, request);
+    }
+
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
         ProgramFile programFile = compileResult.getProgFile();
