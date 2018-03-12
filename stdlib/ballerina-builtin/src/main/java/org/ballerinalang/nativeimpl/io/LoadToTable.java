@@ -19,7 +19,8 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.TypeKind;
@@ -30,11 +31,14 @@ import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadAllEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +50,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#loadToTable.
@@ -62,66 +68,95 @@ import java.nio.file.StandardOpenOption;
                       @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class LoadToTable extends BlockingNativeCallableUnit {
+public class LoadToTable implements NativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(LoadToTable.class);
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         final String filePath = context.getStringArgument(0);
         Path path;
         try {
             path = Paths.get(filePath);
         } catch (InvalidPathException e) {
-            String msg = "Unable to resolve the file path: " + filePath;
-            log.error(msg, e);
-            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
+            String msg = "Unable to resolve the file path[" + filePath + "]: " + e.getMessage();
+            context.setReturnValues(null, IOUtils.createError(context, msg));
+            callback.notifySuccess();
             return;
         }
         if (Files.notExists(path)) {
             String msg = "Unable to find a file in given path: " + filePath;
-            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
+            context.setReturnValues(null, IOUtils.createError(context, msg));
+            callback.notifySuccess();
             return;
         }
         try {
-            BTable table = getbTable(context, path);
-            context.setReturnValues(table, null);
+            FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
+            // FileChannel will close once we completely read the content.
+            // Close will happen in DelimitedRecordReadAllEvent.
+            DelimitedRecordChannel recordChannel = getDelimitedRecordChannel(context, sourceChannel);
+            EventContext eventContext = new EventContext(context, callback);
+            DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(recordChannel, eventContext);
+            CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+            future.thenApply(LoadToTable::response);
         } catch (IOException e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
+            context.setReturnValues(null, IOUtils.createError(context, msg));
         }
     }
 
-    private BTable getbTable(Context context, Path path) throws IOException, BallerinaIOException {
-        BTypeValue type = (BTypeValue) context.getRefArgument(0);
-        if (type == null) {
-            String msg = "Unable to find the given Struct type";
-            throw new BallerinaIOException(msg);
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+
+    private static EventResult response(EventResult<List, EventContext> result) {
+        BStruct errorStruct;
+        BTable table;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(null, errorStruct);
+        } else {
+            try {
+                List records = result.getResponse();
+                table = getbTable(context, records);
+                context.setReturnValues(table, null);
+            } catch (Throwable e) {
+                errorStruct = IOUtils.createError(context, e.getMessage());
+                context.setReturnValues(null, errorStruct);
+            }
         }
+        CallableUnitCallback callback = eventContext.getCallback();
+        callback.notifySuccess();
+        return result;
+    }
+
+    private static BTable getbTable(Context context, List records) throws BallerinaIOException {
+        BTypeValue type = (BTypeValue) context.getRefArgument(0);
         BTable table = new BTable(new BTableType(type.value()));
-        try (FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ)) {
-            DelimitedRecordChannel recordChannel = getDelimitedRecordChannel(context, sourceChannel);
-            BStructType structType = (BStructType) type.value();
-            while (recordChannel.hasNext()) {
-                BStruct struct = getbStruct(recordChannel, structType);
-                if (struct != null) {
-                    table.addData(struct);
-                }
+        BStructType structType = (BStructType) type.value();
+        for (Object obj : records) {
+            String[] fields = (String[]) obj;
+            final BStruct struct = getStruct(fields, structType);
+            if (struct != null) {
+                table.addData(struct);
             }
         }
         return table;
     }
 
-    private BStruct getbStruct(DelimitedRecordChannel recordChannel, final BStructType structType) throws IOException {
+    private static BStruct getStruct(String[] fields, final BStructType structType) {
         BStructType.StructField[] internalStructFields = structType.getStructFields();
         int fieldLength = internalStructFields.length;
         BStruct struct = null;
-        final String[] fields = recordChannel.read();
         if (fields.length > 0) {
             if (internalStructFields.length != fields.length) {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
-                throw new BallerinaException(msg);
+                throw new BallerinaIOException(msg);
             }
             struct = new BStruct(structType);
             int longRegIndex = -1;
@@ -146,7 +181,7 @@ public class LoadToTable extends BlockingNativeCallableUnit {
                     struct.setBooleanField(++booleanRegIndex, (Boolean.parseBoolean(value)) ? 1 : 0);
                     break;
                 default:
-                    throw new BallerinaException("Type casting support only for int, float, boolean and string. "
+                    throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "
                             + "Invalid value for the struct field: " + value);
                 }
             }
