@@ -15,21 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.client;
+package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Select} is the Select action implementation of the SQL Connector.
@@ -56,14 +53,7 @@ public class Select extends AbstractSQLAction {
         String query = context.getStringArgument(0);
         BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         BStructType structType = getStructType(context);
-        BMap sharedMap = (BMap) bConnector.getRefField(2);
-        SQLDatasource datasource = null;
-        if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
-            datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));
-        } else {
-            throw new BallerinaException("Datasource have not been initialized properly at " +
-                    "Init native action invocation.");
-        }
+        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
         executeQuery(context, datasource, query, parameters, structType);
     }
 }

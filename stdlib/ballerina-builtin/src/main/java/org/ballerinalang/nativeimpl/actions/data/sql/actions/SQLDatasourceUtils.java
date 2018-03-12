@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.data.sql.client;
+package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
