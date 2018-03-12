@@ -2429,8 +2429,19 @@ public class BLangPackageBuilder {
             blocknode.addStatement(streamingQueryStatementStack.pop());
         }
 
+        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
+
         while (!queryStatementStack.isEmpty()) {
-            blocknode.addStatement(queryStatementStack.pop());
+            StatementNode statementNode = queryStatementStack.pop();
+            if (statementNode instanceof BLangQueryStatement) {
+                queryStatementNodeStack.add(statementNode);
+            } else {
+                blocknode.addStatement(statementNode);
+            }
+        }
+
+        while (!queryStatementNodeStack.isEmpty()) {
+            blocknode.addStatement(queryStatementNodeStack.pop());
         }
     }
 

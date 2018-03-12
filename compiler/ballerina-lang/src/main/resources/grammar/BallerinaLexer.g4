@@ -53,7 +53,7 @@ DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;
-QUERY       : {inSiddhi}? 'query' { inSiddhi = false; } ;
+QUERY       : 'query' ;
 EXPIRED     : 'expired' ;
 CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;

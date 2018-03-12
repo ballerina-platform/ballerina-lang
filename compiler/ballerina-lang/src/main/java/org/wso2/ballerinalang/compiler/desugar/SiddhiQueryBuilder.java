@@ -325,7 +325,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         streamIdsAsString = new StringBuilder();
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
-        siddhiQuery.append("from ");
 
         List<VariableNode> globalVariables = streamletNode.getGlobalVariables();
         if (globalVariables != null) {
@@ -351,6 +350,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        siddhiQuery.append("from ");
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
@@ -386,6 +386,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         if (streamActionNode != null) {
             ((BLangStreamAction) streamActionNode).accept(this);
             siddhiQuery.append(" ").append(streamActionClause);
+            siddhiQuery.append(" ; ");
         }
     }
 
@@ -545,7 +546,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     }
 
     private String getSiddhiQuery() {
-        return streamDefinitionQuery.toString() + "\n" + siddhiQuery.toString() + " ; ";
+        return streamDefinitionQuery.toString() + "\n" + siddhiQuery.toString();
     }
 
     private String getOperandAsString(OperatorKind operatorKind) {

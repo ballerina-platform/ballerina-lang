@@ -77,7 +77,9 @@ public class StreamingRuntimeManager {
         String[] streamIds = streamIdsAsString.trim().split(",");
         for (String streamId : streamIds) {
             BStream streamReference = StreamingRuntimeManager.getInstance().getStreamReference(streamId);
-            streamReference.subscribe(streamSpecificInputHandlerMap.get(streamId));
+            if (streamReference != null) {
+                streamReference.subscribe(streamSpecificInputHandlerMap.get(streamId));
+            }
         }
     }
 
