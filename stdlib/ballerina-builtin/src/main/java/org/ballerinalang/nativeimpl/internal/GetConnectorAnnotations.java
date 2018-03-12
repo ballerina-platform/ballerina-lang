@@ -34,12 +34,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class GetConnectorAnnotations extends AbstractAnnotationReader {
 
     @Override
-    public BValue[] execute(Context context) {
-        BTypeValue bTypeValue = (BTypeValue) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BTypeValue bTypeValue = (BTypeValue) context.getRefArgument(0);
         if (!(bTypeValue.value() instanceof BConnectorType)) {
-            return new BValue[] {null};
+            context.setReturnValues((BValue) null);
         }
         BConnectorType connectorType = (BConnectorType) bTypeValue.value();
-        return new BValue[] {getAnnotationValue(context, connectorType.getPackagePath(), connectorType.getName())};
+        context.setReturnValues(getAnnotationValue(context, connectorType.getPackagePath(), connectorType.getName()));
     }
 }

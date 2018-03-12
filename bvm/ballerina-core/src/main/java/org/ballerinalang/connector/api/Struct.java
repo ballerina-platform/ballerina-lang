@@ -113,6 +113,14 @@ public interface Struct {
      */
     String getEnumField(String fieldName);
 
+    /**
+     * Returns value of an Type field.
+     *
+     * @param fieldName given field name
+     * @return value
+     */
+    Value getTypeField(String fieldName);
+
     // TODO Implement XML and JSON
 
     /**

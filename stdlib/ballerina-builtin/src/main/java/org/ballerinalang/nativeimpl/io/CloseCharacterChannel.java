@@ -18,16 +18,15 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.CloseCharacterChannelEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,7 +48,7 @@ import java.util.concurrent.ExecutionException;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CloseCharacterChannel extends AbstractNativeFunction {
+public class CloseCharacterChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
@@ -66,10 +65,10 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, CHARACTER_CHANNEL_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(CHARACTER_CHANNEL_INDEX);
             CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
@@ -84,6 +83,6 @@ public class CloseCharacterChannel extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(errorStruct);
+        context.setReturnValues(errorStruct);
     }
 }
