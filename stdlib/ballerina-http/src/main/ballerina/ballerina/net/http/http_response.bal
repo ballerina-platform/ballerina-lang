@@ -4,10 +4,6 @@ import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
 
-
-//////////////////////////////
-/// Native implementations ///
-//////////////////////////////
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
 @Field {value:"reasonPhrase: The status code reason phrase"}
@@ -17,6 +13,10 @@ public struct Response {
     string reasonPhrase;
     string server;
 }
+
+//////////////////////////////
+/// Native implementations ///
+//////////////////////////////
 
 @Description {value:"Get the entity from the response with the body"}
 @Param {value:"res: The response message"}
@@ -49,6 +49,7 @@ public native function <Response res> setProperty (string propertyName, string p
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
+
 @Description {value:"Returns the header value with the specified header name. If there are more than one header value for the specified header name, the first value is returned."}
 @Param {value:"res: The response struct"}
 @Param {value:"headerName: The header name"}

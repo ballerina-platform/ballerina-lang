@@ -4,15 +4,12 @@ import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
 
-//////////////////////////////
-/// Native implementations ///
-//////////////////////////////
-
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}
 @Field {value:"method: HTTP request method"}
 @Field {value:"httpVersion: The version of HTTP"}
 @Field {value:"userAgent: User-Agent request header"}
+@Field {value:"extraPathInfo: Additional information associated with the URL sent by the client"}
 public struct Request {
     string rawPath;
     string method;
@@ -20,6 +17,10 @@ public struct Request {
     string userAgent;
     string extraPathInfo;
 }
+
+//////////////////////////////
+/// Native implementations ///
+//////////////////////////////
 
 @Description {value:"Set the entity to request"}
 @Param {value:"req: The request message"}

@@ -3,8 +3,8 @@ package ballerina.net.http;
 ///////////////////////////
 /// Service Annotations ///
 ///////////////////////////
-@Description {value: "Configuration for HTTP service"}
-@Field {value: "endpoints: array of endpoints the service would be attached to"}
+@Description {value: "Configuration for an HTTP service"}
+@Field {value: "endpoints: An array of endpoints the service would be attached to"}
 @Field {value: "lifetime: The life time of the service"}
 @Field {value: "basePath: Service base path"}
 @Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
@@ -16,7 +16,7 @@ package ballerina.net.http;
 @Field {value:"maxUriLength: Maximum length allowed for the URL"}
 @Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
 @Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
-@Field {value:"webSocketConfig: Annotation to define HTTP to WebSocket upgrade"}
+@Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfiguration {
     Service[] endpoints;
     HttpServiceLifeTime lifetime;
@@ -42,7 +42,7 @@ public struct WebSocketUpgradeConfig {
 
 
 @Description {value:"Configuration for a WebSocket service."}
-@Field {value: "endpoints: array of endpoints the service would be attached to"}
+@Field {value: "endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
@@ -53,11 +53,11 @@ public struct WebSocketServiceConfiguration {
     int idleTimeoutInSeconds;
 }
 
-@Description {value: "The life time of the service"}
-@Field {value: "REQUEST: create a new instance of the service to process this request"}
-@Field {value: "CONNECTION: create a new instance of the service for each connection"}
-@Field {value: "SESSION: create a new instance of the service for each session"}
-@Field {value: "SINGLETON: create a single instance of the service and use it to process all requests from an endpoint"}
+@Description {value: "This specifies the possible ways in which a service can be used when serving requests."}
+@Field {value: "REQUEST: Create a new instance of the service to process each request"}
+@Field {value: "CONNECTION: Create a new instance of the service for each connection"}
+@Field {value: "SESSION: Create a new instance of the service for each session"}
+@Field {value: "SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
 public enum HttpServiceLifeTime {
     REQUEST,
     CONNECTION,
@@ -65,17 +65,17 @@ public enum HttpServiceLifeTime {
     SINGLETON
 }
 
-@Description {value:"HTTP Configuration for service"}
+@Description {value:"Configurations annotation for an HTTP service"}
 public annotation <service> serviceConfig HttpServiceConfiguration;
 
-@Description {value:"WebSocket Configuration for service"}
+@Description {value:"Configurations annotation for a WebSocket service"}
 public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;
 
 
 ////////////////////////////
 /// Resource Annotations ///
 ////////////////////////////
-@Description {value:"Configuration for HTTP resource"}
+@Description {value:"Configuration for an HTTP resource"}
 @Field {value:"methods: The array of allowed HTTP methods"}
 @Field {value:"path: The path of resource"}
 @Field {value:"body: Inbound request entity body name which declared in signature"}
@@ -101,4 +101,5 @@ public struct ResourceConfig {
     string[] exposeHeaders;
 }
 
+@Description {value:"Configurations annotation for an HTTP resource"}
 public annotation <resource> resourceConfig ResourceConfig;

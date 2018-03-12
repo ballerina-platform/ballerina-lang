@@ -2,6 +2,7 @@ package ballerina.net.http;
 
 @Description {value:"Represent 'content-length' header name"}
 public const string CONTENT_LENGTH = "content-length";
+
 const string HEADER_KEY_LOCATION = "Location";
 
 @Description {value:"Represents the HTTP server connector connection"}

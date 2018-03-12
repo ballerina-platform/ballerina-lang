@@ -11,10 +11,13 @@ public struct NonListeningService {
 public function <NonListeningService ep> init (string epName, http:ServiceEndpointConfiguration config) {
     ep.epName = epName;
     ep.config = config;
-    ep.initEndpoint();
+    var err = ep.initEndpoint();
+    if (err != null) {
+        throw err;
+    }
 }
 
-public native function <NonListeningService ep> initEndpoint ();
+public native function <NonListeningService ep> initEndpoint () returns (error);
 
 public native function <NonListeningService ep> register (type serviceType);
 

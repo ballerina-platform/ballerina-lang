@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the ID of the connection.
@@ -37,6 +38,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = "ballerina.net.http.mock"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class NonListeningInitEndpoint extends org.ballerinalang.net.http.serviceendpoint.InitEndpoint {
