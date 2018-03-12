@@ -472,7 +472,6 @@ class BallerinaFileEditor extends React.Component {
                     this.context.alert.showError('Unexpected error occurred while parsing.');
                 } else if (!newState.parseFailed) {
                     const ast = TreeBuilder.build(data.model);
-                    console.log(ast);
                     ast.setFile(file);
                     this.markBreakpointsOnAST(ast);
                     // Now we will enrich the model with Semantic errors.
@@ -487,8 +486,7 @@ class BallerinaFileEditor extends React.Component {
                     newState.lastRenderedTimestamp = file.lastUpdated;
                     newState.model = ast;
                 }
-                return newState;
-                /* return BallerinaEnvironment.initialize()
+                return BallerinaEnvironment.initialize()
                     .then(() => {
                         this.environment.init();
                         const pkgNode = data.packageInfo;
@@ -498,7 +496,7 @@ class BallerinaFileEditor extends React.Component {
                             this.environment.setCurrentPackage(pkg);
                         }
                         return newState;
-                }); */
+                    });
             });
     }
     markBreakpointsOnAST(ast) {
