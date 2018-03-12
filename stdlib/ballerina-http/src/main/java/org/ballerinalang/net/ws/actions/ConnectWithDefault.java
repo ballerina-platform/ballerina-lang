@@ -19,13 +19,12 @@
 package org.ballerinalang.net.ws.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,6 +42,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
 import java.util.HashMap;
+
 import javax.websocket.Session;
 
 /**
@@ -62,8 +62,8 @@ import javax.websocket.Session;
 )
 public class ConnectWithDefault extends AbstractNativeWsAction {
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector bconnector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BConnector bconnector = (BConnector) context.getRefArgument(0);
         String remoteUrl = getUrlFromConnector(bconnector);
         String clientServiceName = getClientServiceNameFromConnector(bconnector);
         BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
@@ -78,7 +78,6 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
         clientConnectorConfig.setTarget(clientServiceName);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
-        ClientConnectorFuture connectorFuture = new ClientConnectorFuture();
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector(clientConnectorConfig);
         BallerinaWsClientConnectorListener clientConnectorListener = new BallerinaWsClientConnectorListener();
@@ -87,20 +86,19 @@ public class ConnectWithDefault extends AbstractNativeWsAction {
             @Override
             public void onSuccess(Session session) {
                 BStruct wsConnection = createWsConnectionStruct(wsService, session, null);
-                context.getControlStack().currentFrame.returnValues[0] = wsConnection;
+                context.setReturnValues(wsConnection, null);
+                callback.notifySuccess();
                 WsOpenConnectionInfo connectionInfo =
                         new WsOpenConnectionInfo(wsService, wsConnection, new HashMap<>());
                 clientConnectorListener.setConnectionInfo(connectionInfo);
-                connectorFuture.notifySuccess();
             }
 
             @Override
             public void onError(Throwable t) {
                 BStruct wsError = createWsErrorStruct(context, t);
-                context.getControlStack().currentFrame.returnValues[1] = wsError;
-                connectorFuture.notifySuccess();
+                context.setReturnValues(null, wsError);
+                callback.notifySuccess();
             }
         });
-        return connectorFuture;
     }
 }

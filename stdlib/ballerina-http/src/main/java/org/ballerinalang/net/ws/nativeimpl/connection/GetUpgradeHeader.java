@@ -19,11 +19,10 @@
 package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,14 +47,14 @@ import java.util.Map;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetUpgradeHeader extends AbstractNativeFunction {
+public class GetUpgradeHeader extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
-        String key = getStringArgument(context, 0).toLowerCase(Locale.ENGLISH);
+    public void execute(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        String key = context.getStringArgument(0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
                 (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
-        return getBValues(new BString(upgradeHeaders.get(key)));
+        context.setReturnValues(new BString(upgradeHeaders.get(key)));
     }
 }

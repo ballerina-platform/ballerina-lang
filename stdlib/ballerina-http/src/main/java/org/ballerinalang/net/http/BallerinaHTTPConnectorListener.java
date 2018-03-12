@@ -17,9 +17,8 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
@@ -76,11 +75,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
-        BValue[] signatureParams;
-        signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, signatureParams);
-        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
-        future.setConnectorFutureListener(futureListener);
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
+        //TODO handle BallerinaConnectorException
+        Executor.submit(httpResource.getBalResource(), callback, properties, signatureParams);
     }
 
     private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {

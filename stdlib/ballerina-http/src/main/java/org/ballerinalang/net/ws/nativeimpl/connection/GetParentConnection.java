@@ -19,10 +19,9 @@
 package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -45,15 +44,15 @@ import org.ballerinalang.net.ws.WsOpenConnectionInfo;
                                   structPackage = "ballerina.net.ws")},
         isPublic = true
 )
-public class GetParentConnection extends AbstractNativeFunction {
+public class GetParentConnection extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         String parentConnectionID = (String) wsConnection.getNativeData(
                 WebSocketConstants.NATIVE_DATA_PARENT_CONNECTION_ID);
         WsOpenConnectionInfo connectionInfo =
                 WebSocketConnectionManager.getInstance().getConnectionInfo(parentConnectionID);
-        return getBValues(connectionInfo.getWsConnection());
+        context.setReturnValues(connectionInfo.getWsConnection());
     }
 }

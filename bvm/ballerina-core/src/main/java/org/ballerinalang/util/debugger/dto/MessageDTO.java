@@ -32,6 +32,7 @@ public class MessageDTO {
 
     private String message;
 
+    //TODO change to workerId
     private String threadId;
 
     private BreakPointDTO location;

@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.config;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,13 +39,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetAsString extends AbstractNativeFunction {
+public class GetAsString extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String configKey = this.getStringArgument(context, 0);
+    public void execute(Context context) {
+        String configKey = context.getStringArgument(0);
         // TODO: Change the signature of getAsString() once default params are available
         String globalValue = ConfigRegistry.getInstance().getConfigOrDefault(configKey, null);
-        return getBValues(new BString(globalValue));
+        context.setReturnValues(new BString(globalValue));
     }
 }

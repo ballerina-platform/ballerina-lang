@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,18 +44,18 @@ import java.io.IOException;
                 structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class Close extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(Close.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct struct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct struct = (BStruct) context.getRefArgument(0);
         BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
         closeQuietly(is);
         closeQuietly(os);
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     private void closeQuietly(Closeable resource) {

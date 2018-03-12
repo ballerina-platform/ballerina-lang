@@ -20,10 +20,9 @@ package org.ballerinalang.nativeimpl.task.stop;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.task.TaskRegistry;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,16 +37,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class BalStopTask extends AbstractNativeFunction {
+public class BalStopTask extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        String taskId = getStringArgument(ctx, 0);
+    public void execute(Context context) {
+        String taskId = context.getStringArgument(0);
         try {
             TaskRegistry.getInstance().stopTask(taskId);
         } catch (Exception e) {
-            return getBValues(BLangVMErrors.createError(ctx, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
-        return getBValues();
+        context.setReturnValues();
     }
 }
 

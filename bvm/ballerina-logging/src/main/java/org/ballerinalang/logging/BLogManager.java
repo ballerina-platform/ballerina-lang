@@ -60,7 +60,7 @@ public class BLogManager extends LogManager {
     private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
-    private BLogLevel ballerinaUserLogLevel;
+    private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
     private Logger httpTraceLogger;
     private Logger httpAccessLogger;
 
@@ -98,9 +98,6 @@ public class BLogManager extends LogManager {
         String userLogLevel = configRegistry.getConfiguration(BALLERINA_USER_LOG, LOG_LEVEL);
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
-        } else {
-            // Default to INFO
-            ballerinaUserLogLevel = BLogLevel.INFO;
         }
 
         // setup HTTP trace log level configuration
