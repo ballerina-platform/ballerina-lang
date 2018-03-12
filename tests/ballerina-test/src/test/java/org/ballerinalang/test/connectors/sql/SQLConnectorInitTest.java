@@ -51,7 +51,7 @@ public class SQLConnectorInitTest {
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(retValue.stringValue(), expected);
     }
-    
+
     @Test
     public void testConnectorWithWorkers() {
          BValue[] returns = BRunUtil.invoke(result, "testConnectorWithWorkers");
@@ -101,8 +101,24 @@ public class SQLConnectorInitTest {
     }
 
     @Test
-    public void testConnectionPoolProperties() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties");
+    public void testConnectionPoolProperties1() {
+        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties1");
+        BString retValue = (BString) returns[0];
+        final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectionPoolProperties2() {
+        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties2");
+        BString retValue = (BString) returns[0];
+        final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testConnectionPoolProperties3() {
+        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties3");
         BString retValue = (BString) returns[0];
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(retValue.stringValue(), expected);

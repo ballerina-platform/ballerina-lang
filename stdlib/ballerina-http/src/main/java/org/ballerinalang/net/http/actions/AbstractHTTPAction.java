@@ -233,7 +233,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) throws Exception {
         BConnector bConnector = (BConnector) dataContext.context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getnativeData(HttpConstants.CONNECTOR_NAME);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CONNECTOR_NAME);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
