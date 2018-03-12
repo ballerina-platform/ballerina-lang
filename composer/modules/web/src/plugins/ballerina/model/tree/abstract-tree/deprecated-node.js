@@ -19,15 +19,13 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractRecordLiteralKeyValueNode extends Node {
+class AbstractDeprecatedNode extends Node {
 
 
-    setValue(newValue, silent, title) {
-        const oldValue = this.value;
+    setDocumentationText(newValue, silent, title) {
+        const oldValue = this.documentationText;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.value = newValue;
-
-        this.value.parent = this;
+        this.documentationText = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'value',
+                    attributeName: 'documentationText',
                     newValue,
                     oldValue,
                 },
@@ -43,37 +41,12 @@ class AbstractRecordLiteralKeyValueNode extends Node {
         }
     }
 
-    getValue() {
-        return this.value;
+    getDocumentationText() {
+        return this.documentationText;
     }
 
-
-    setKey(newValue, silent, title) {
-        const oldValue = this.key;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.key = newValue;
-
-        this.key.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'key',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getKey() {
-        return this.key;
-    }
 
 
 }
 
-export default AbstractRecordLiteralKeyValueNode;
+export default AbstractDeprecatedNode;

@@ -57,8 +57,8 @@ public class ModelGenerator {
     static PrintStream out = System.out;
     static Map<String, String> alias = new HashMap<String, String>();
 
-    static final String TEMPLATE_PATH = "./modules/web/src/plugins/ballerina/model/templates/";
-    static final String GENERATE_PATH = "./modules/web/src/plugins/ballerina/model/gen/";
+    static final String TEMPLATE_PATH = "./composer/modules/web/src/plugins/ballerina/model/templates/";
+    static final String GENERATE_PATH = "./composer/modules/web/src/plugins/ballerina/model/gen/";
 
     public static void main(String args[]) {
         JsonObject nodes = getContext();
@@ -77,14 +77,25 @@ public class ModelGenerator {
 
     public static JsonObject getContext() {
         // Set alias for the classes
+        /*
+        alias.put("ConnectorInitExprNode", "ConnectorInitNode");
+
+        alias.put("XmlCommentLiteralNode", "XMLCommentLiteralNode");
+        alias.put("XmlElementLiteralNode", "XMLElementLiteralNode");
+        alias.put("XmlPiLiteralNode", "XMLProcessingInstructionLiteralNode");
+        alias.put("XmlTextLiteralNode", "XMLTextLiteralNode");
+*/
+        alias.put("EnumeratorNode", "EnumNode");
         alias.put("ImportNode", "ImportPackageNode");
         alias.put("RecordLiteralKeyValueNode", "RecordKeyValueNode");
         alias.put("XmlnsNode", "XMLNSDeclarationNode");
         alias.put("ArrayLiteralExprNode", "ArrayLiteralNode");
         alias.put("BinaryExprNode", "BinaryExpressionNode");
-        alias.put("ConnectorInitExprNode", "ConnectorInitNode");
+        alias.put("TypeInitExprNode", "TypeInitNode");
         alias.put("FieldBasedAccessExprNode", "FieldBasedAccessNode");
         alias.put("IndexBasedAccessExprNode", "IndexBasedAccessNode");
+        alias.put("IntRangeExprNode", "IntRangeExpression");
+        alias.put("ActionInvocationNode", "");
         alias.put("LambdaNode", "LambdaFunctionNode");
         alias.put("RecordLiteralExprNode", "RecordLiteralNode");
         alias.put("SimpleVariableRefNode", "SimpleVariableReferenceNode");
@@ -92,17 +103,19 @@ public class ModelGenerator {
         alias.put("TypeCastExprNode", "TypeCastNode");
         alias.put("TypeConversionExprNode", "TypeConversionNode");
         alias.put("UnaryExprNode", "UnaryExpressionNode");
-        alias.put("XmlAttributeNode", "XMLAttributeNode");
-        alias.put("XmlCommentLiteralNode", "XMLCommentLiteralNode");
-        alias.put("XmlElementLiteralNode", "XMLElementLiteralNode");
-        alias.put("XmlPiLiteralNode", "XMLProcessingInstructionLiteralNode");
         alias.put("XmlQnameNode", "XMLQNameNode");
+        alias.put("XmlAttributeNode", "XMLAttributeNode");
+        alias.put("XmlAttributeAccessExprNode", "IndexBasedAccessNode");
         alias.put("XmlQuotedStringNode", "XMLQuotedStringNode");
+        alias.put("XmlElementLiteralNode", "XmlElementLiteralNode");
         alias.put("XmlTextLiteralNode", "XMLTextLiteralNode");
+        alias.put("XmlCommentLiteralNode", "XmlCommentLiteralNode");
+        alias.put("XmlPiLiteralNode", "XMLProcessingInstructionLiteralNode");
+        //alias.put("TransformNode", ""); -- not used
         alias.put("TryNode", "TryCatchFinallyNode");
         alias.put("VariableDefNode", "VariableDefinitionNode");
         alias.put("BuiltInRefTypeNode", "BuiltInReferenceTypeNode");
-        alias.put("EnumeratorNode", "EnumNode");
+        alias.put("EndpointTypeNode", "UserDefinedTypeNode");
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 
