@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
