@@ -91,7 +91,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             clientEndpointConfig.addNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG, wsService);
             clientEndpointConfig.addNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS, clientConnectorConfig);
         } else {
-            throw new BallerinaConnectorException("Incorrect endpoint: "+ service.getEndpointName());
+            throw new BallerinaConnectorException("Incorrect endpoint: " + service.getEndpointName());
         }
         context.setReturnValues();
     }

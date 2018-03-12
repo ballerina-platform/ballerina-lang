@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -32,13 +31,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
-        functionName = "register",
+        functionName = "stop",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
                 structPackage = "ballerina.net.http.mock"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class Register extends org.ballerinalang.net.http.serviceendpoint.Register {
+public class NonListeningStop extends org.ballerinalang.net.http.serviceendpoint.Stop {
 
     @Override
     public void execute(Context context) {

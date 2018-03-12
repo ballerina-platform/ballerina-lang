@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -32,16 +31,16 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
-        functionName = "initEndpoint",
+        functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
                 structPackage = "ballerina.net.http.mock"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends org.ballerinalang.net.http.serviceendpoint.InitEndpoint {
+public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {
+
     @Override
     public void execute(Context context) {
-        super.execute(context);
+        // don't want to open a port to listen, hence nothing to do
     }
+
 }
