@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import './properties-form.css';
+import './tags-input.scss';
 
 /**
  * React component for a service definition.
@@ -58,17 +58,20 @@ class TagInput extends React.Component {
 
     render() {
         return (
-            <ul id='ulContainer' className='sixteen wide field'>
-                {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
-                    (<li
-                        key={item}
-                        className='tagItems'
-                        onClick={() => { this.handleRemoveItem(i); }}
-                    >
-                        {item}
-                        <span className='deleteSpan'><i className='fw fw-cancel iconDelete' /></span>
-                    </li>))
-                }
+            <div className='tags-input'>
+                <ul id='ulContainer'>
+                    {this.props.taggedElements && this.props.taggedElements.map((item, i) =>
+                        (<li
+                            key={item}
+                            className='tagItems'
+                            onClick={() => { this.handleRemoveItem(i); }}
+                        >
+                            {item}
+                            <span className='deleteSpan'><i className='fw fw-cancel iconDelete' /></span>
+                        </li>))
+                    }
+                </ul>
+
                 <input
                     className='tagInput'
                     placeholder={this.props.placeholder}
@@ -76,7 +79,7 @@ class TagInput extends React.Component {
                     onChange={this.handleInputChange}
                     onKeyDown={this.handleInputKeyDown}
                 />
-            </ul>
+            </div>
         );
     }
 }

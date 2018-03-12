@@ -521,15 +521,15 @@ class PropertyWindow extends React.Component {
                 </Form.Field>
                 <Form.Field width={11}>
                     {wrongInput &&
-                    <div className='errorMsgDiv'>
-                        <i
-                            className='fw fw-error errorIcon'
-                            onClick={() => {
-                                this.clearStructFieldValues(key, key.fields);
-                            }}
-                        />
-                        <span className='errorMsg'> Configure properties </span></div>
-                        }
+                        <div className='errorMsgDiv'>
+                            <i
+                                className='fw fw-error errorIcon'
+                                onClick={() => {
+                                    this.clearStructFieldValues(key, key.fields);
+                                }}
+                            />
+                            <span className='errorMsg'> Configure properties </span></div>
+                    }
                     <Input
                         className={[disabled ? 'disabledInput' : '', wrongInput ? 'wrongInput' : ''].join(' ')}
                         id={key.identifier}
@@ -542,21 +542,22 @@ class PropertyWindow extends React.Component {
                     />
                     <span>
                         {(disabled && !wrongInput) &&
-                        <input
-                            id='viewOptionParams'
-                            value='x'
-                            onClick={() => {
-                                this.clearStructFieldValues(key, key.fields);
-                            }}
-                        />}
+                            <input
+                                id='viewOptionParams'
+                                value='x'
+                                onClick={() => {
+                                    this.clearStructFieldValues(key, key.fields);
+                                }}
+                            />}
                         <Button
                             id='viewOptionParams'
                             type='button'
-                            value='+'
                             onClick={() => {
                                 this.toggleStructProperties(key.identifier, key.fields);
                             }}
-                        />
+                        >
+                            +
+                        </Button>
                     </span>
                 </Form.Field>
             </Form.Group >);
@@ -649,9 +650,7 @@ class PropertyWindow extends React.Component {
                         {label}
                     </label>
                 </Form.Field>
-                <Form.Field
-                    width={(this.isVarDefEnabled ? '' : ' content-disabled eleven ')}
-                >
+                <Form.Field width={11} >
                     <input
                         id='vardef'
                         name='vardef'
