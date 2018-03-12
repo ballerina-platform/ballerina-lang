@@ -19,8 +19,8 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -51,7 +51,7 @@ public class GetUpgradeHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        BConnector wsConnection = (BConnector) context.getRefArgument(0);
         String key = context.getStringArgument(0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
                 (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);
