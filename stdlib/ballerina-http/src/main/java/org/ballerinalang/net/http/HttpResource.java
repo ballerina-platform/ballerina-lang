@@ -173,7 +173,6 @@ public class HttpResource {
     public static HttpResource buildHttpResource(Resource resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource, HTTP_PACKAGE_PATH);
-        Struct resourceConfig = resourceConfigAnnotation.getValue();
 
         if (resourceConfigAnnotation == null) {
             if (log.isDebugEnabled()) {
@@ -182,6 +181,8 @@ public class HttpResource {
             httpResource.setPath(resource.getName());
             return httpResource;
         }
+
+        Struct resourceConfig = resourceConfigAnnotation.getValue();
 
         httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
         httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));

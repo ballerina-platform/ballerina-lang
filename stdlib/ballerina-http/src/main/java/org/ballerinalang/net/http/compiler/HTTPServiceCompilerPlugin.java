@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -61,7 +62,9 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-        // TODO: Validation resources' signature
+
+        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+        resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
     }
 
     @Override
