@@ -734,8 +734,7 @@ joinStreamingInput
     ;
 
 outputRate
-    : OUTPUT outputRateType? EVERY ( timeValue | IntegerLiteral EVENTS )
-    | OUTPUT SNAPSHOT EVERY timeValue
+    : OUTPUT outputRateType? EVERY IntegerLiteral EVENTS
     ;
 
 patternStreamingInput
@@ -779,49 +778,6 @@ outputRateType
     : ALL
     | LAST
     | FIRST
-    ;
-
-timeValue
-    :  yearValue  ( monthValue)? ( weekValue)? ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
-    |  monthValue ( weekValue)? ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
-    |  weekValue ( dayValue)? ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
-    |  dayValue ( hourValue)? ( minuteValue)? ( secondValue)?  ( millisecondValue)?
-    |  hourValue ( minuteValue)? ( secondValue)?  ( millisecondValue)?
-    |  minuteValue ( secondValue)?  ( millisecondValue)?
-    |  secondValue ( millisecondValue)?
-    |  millisecondValue
-    ;
-
-yearValue
-    : IntegerLiteral YEARS
-    ;
-
-monthValue
-    : IntegerLiteral MONTHS
-    ;
-
-weekValue
-    : IntegerLiteral WEEKS
-    ;
-
-dayValue
-    : IntegerLiteral DAYS
-    ;
-
-hourValue
-    : IntegerLiteral HOURS
-    ;
-
-minuteValue
-    : IntegerLiteral MINUTES
-    ;
-
-secondValue
-    : IntegerLiteral SECONDS
-    ;
-
-millisecondValue
-    : IntegerLiteral MILLISECONDS
     ;
 
 // Deprecated parsing.

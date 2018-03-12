@@ -69,17 +69,6 @@ RIGHT       : 'right' ;
 LEFT        : 'left' ;
 FULL        : 'full' ;
 UNIDIRECTIONAL  : 'unidirectional' ;
-YEARS       : {inSiddhi}? 'years' { inSiddhi = false; } ;
-MONTHS      : {inSiddhi}? 'months' { inSiddhi = false; } ;
-WEEKS       : {inSiddhi}? 'weeks' { inSiddhi = false; } ;
-DAYS        : {inSiddhi}? 'days' { inSiddhi = false; } ;
-HOURS       : {inSiddhi}? 'hours' { inSiddhi = false; } ;
-MINUTES     : {inSiddhi}? 'minutes' { inSiddhi = false; } ;
-SECONDS     : {inSiddhi}? 'seconds' { inSiddhi = false; } ;
-MILLISECONDS    : {inSiddhi}? 'milliseconds' { inSiddhi = false; } ;
-AGGREGATE       : 'aggregate' ;
-PER     : 'per' ;
-
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
