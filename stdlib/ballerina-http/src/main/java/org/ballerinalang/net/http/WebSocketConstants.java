@@ -63,7 +63,6 @@ public class WebSocketConstants {
     public static final String STRUCT_WEBSOCKET_CLOSE_FRAME = "CloseFrame";
     public static final String STRUCT_WEBSOCKET_ERROR = "WsConnectorError";
 
-    public static final String CONNECTOR_WEBSOCKET = "WebSocketConnector";
 
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";

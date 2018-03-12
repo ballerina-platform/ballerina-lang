@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 
 /**
@@ -38,7 +39,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
@@ -47,9 +48,8 @@ public class GetConnector extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-
-
-        context.setReturnValues((BValue) clientEndpointConfig.getNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET));
+        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
+        context.setReturnValues((BValue) clientEndpointConfig.getNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR));
     }
 }
