@@ -5,12 +5,12 @@ endpoint<http:Service> echoEP1 {
 }
 
 endpoint<http:Service> echoEP2 {
-    port:9095
+    port:9090
 }
 
 @http:serviceConfig {
     basePath:"/echo",
-    endpoints: [echoEP1, echoEP2]
+    endpoints: [echoEP1]
 }
 service<http:Service> echo {
     @http:resourceConfig {
@@ -26,7 +26,7 @@ service<http:Service> echo {
 
 @http:serviceConfig {
     basePath:"/echoOne",
-    endpoints: [echoEP1, echoEP2]
+    endpoints: [echoEP1]
 }
 service<http:Service> echoOne {
     @http:resourceConfig {
@@ -42,7 +42,7 @@ service<http:Service> echoOne {
 
 @http:serviceConfig {
     basePath:"/echoDummy",
-    endpoints: [echoEP1, echoEP2]
+    endpoints: [echoEP2]
 }
 service<http:Service> echoDummy {
 
