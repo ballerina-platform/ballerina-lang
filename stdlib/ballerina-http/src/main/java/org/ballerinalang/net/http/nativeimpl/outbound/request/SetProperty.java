@@ -18,9 +18,8 @@
 package org.ballerinalang.net.http.nativeimpl.outbound.request;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,10 +37,11 @@ import org.ballerinalang.net.http.HttpUtil;
                 @Argument(name = "propertyValue", type = TypeKind.STRING)}, //TODO: property value could be of any type
         isPublic = true
 )
-public class SetProperty extends AbstractNativeFunction {
+public class SetProperty extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        return HttpUtil.setProperty(context, this, true);
+    public void execute(Context context) {
+        HttpUtil.setProperty(context, true);
+        context.setReturnValues();
     }
 }

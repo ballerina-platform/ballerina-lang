@@ -18,14 +18,22 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#closeTextRecordChannel.
@@ -38,14 +46,17 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
+public class CloseDelimitedRecordChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index of the DelimitedRecordChannel in ballerina.io#closeDelimitedRecordChannel().
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
+
+    private static final Logger log = LoggerFactory.getLogger(CloseDelimitedRecordChannel.class);
 
     /**
      * <p>
@@ -55,17 +66,25 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct channel;
+    public void execute(Context context) {
+        BStruct errorStruct = null;
         try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            DelimitedRecordChannel charChannel = (DelimitedRecordChannel)
+            BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-            charChannel.close();
+            EventContext eventContext = new EventContext(context);
+            CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
+            CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+            EventResult eventResult = future.get();
+            Throwable error = ((EventContext) eventResult.getContext()).getError();
+            if (null != error) {
+                errorStruct = IOUtils.createError(context, error.getMessage());
+            }
         } catch (Throwable e) {
             String message = "Failed to close the text record channel:" + e.getMessage();
-            throw new BallerinaException(message, context);
+            log.error(message, e);
+            errorStruct = IOUtils.createError(context, message);
         }
-        return VOID_RETURN;
+        context.setReturnValues(errorStruct);
     }
 }

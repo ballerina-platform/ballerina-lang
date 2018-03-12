@@ -1,6 +1,6 @@
 public struct InvalidNameError {
     string message;
-    error cause;
+    error[] cause;
     string companyName;
 }
 

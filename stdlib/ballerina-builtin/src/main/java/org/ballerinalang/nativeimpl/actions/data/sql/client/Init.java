@@ -19,14 +19,12 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
@@ -49,8 +47,8 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 public class Init extends AbstractSQLAction {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         BEnumerator db = (BEnumerator) bConnector.getRefField(0);
         BStruct optionStruct = (BStruct) bConnector.getRefField(1);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
@@ -65,9 +63,7 @@ public class Init extends AbstractSQLAction {
             datasource.init(optionStruct, dbType, hostOrPath, port, username, password, dbName);
             sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
         }
-        ClientConnectorFuture future = new ClientConnectorFuture();
-        future.notifySuccess();
-        return future;
-    }
 
+        context.setReturnValues();
+    }
 }

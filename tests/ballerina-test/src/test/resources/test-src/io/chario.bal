@@ -2,26 +2,23 @@ import ballerina.io;
 
 io:CharacterChannel characterChannel;
 
-function initFileChannel(string filePath,string permission,string encoding){
+function initFileChannel (string filePath, string permission, string encoding) {
     io:ByteChannel channel = io:openFile(filePath, permission);
-    characterChannel = io:createCharacterChannel(channel, encoding);
-}
-
-function readAll()(string){
-    string characters = characterChannel.readAllCharacters();
-    return characters;
+    characterChannel, _ = io:createCharacterChannel(channel, encoding);
 }
 
 function readCharacters (int numberOfCharacters) (string) {
-    string characters = characterChannel.readCharacters(numberOfCharacters);
+    string characters;
+    characters, _ = characterChannel.readCharacters(numberOfCharacters);
     return characters;
 }
 
 function writeCharacters (string content, int startOffset) (int) {
-    int numberOfCharactersWritten = characterChannel.writeCharacters(content, startOffset);
+    int numberOfCharactersWritten;
+    numberOfCharactersWritten, _ = characterChannel.writeCharacters(content, startOffset);
     return numberOfCharactersWritten;
 }
 
 function close(){
-    characterChannel.closeCharacterChannel();
+    _ = characterChannel.closeCharacterChannel();
 }

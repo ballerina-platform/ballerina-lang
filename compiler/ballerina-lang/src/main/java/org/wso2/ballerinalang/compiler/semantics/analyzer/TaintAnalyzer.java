@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -452,10 +453,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         taintedStatusList = returnTaintedStatusList;
     }
 
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        /* ignore */
-    }
-
     public void visit(BLangThrow throwNode) {
         /* ignore */
     }
@@ -807,6 +804,11 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
 
     public void visit(BLangIntRangeExpression intRangeExpression) {
         setTaintedStatusList(false);
+    }
+
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        /* ignore */
     }
 
     // Private

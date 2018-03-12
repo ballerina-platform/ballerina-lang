@@ -19,12 +19,12 @@
 package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -40,10 +40,10 @@ import java.util.Enumeration;
         functionName = "getHostAddress",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )
-public class GetHostAddress extends AbstractNativeFunction {
+public class GetHostAddress extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        return getBValues(new BString(getLocalHostLANAddress().getHostAddress()));
+    public void execute(Context ctx) {
+        ctx.setReturnValues(new BString(getLocalHostLANAddress().getHostAddress()));
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

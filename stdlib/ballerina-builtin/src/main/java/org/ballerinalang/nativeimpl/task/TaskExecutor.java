@@ -20,8 +20,8 @@ package org.ballerinalang.nativeimpl.task;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -33,27 +33,25 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class TaskExecutor {
 
-    public static void execute(AbstractNativeFunction fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
-                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile, Context newContext) {
+    public static void execute(NativeCallableUnit fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
+                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile) {
         boolean isErrorFnCalled = false;
         try {
-            //Invoke the onTrigger function.
-            BValue[] results =
-                    BLangFunctions.
-                            invokeFunction(programFile, onTriggerFunction.getFunctionInfo(), null, newContext);
+            // Invoke the onTrigger function.
+            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(),
+                    new BValue[0]);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(), results, newContext);
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BLangFunctions.invokeFunction(programFile, onErrorFunction.getFunctionInfo(),
-                        fn.getBValues(BLangVMErrors.createError(parentCtx, 0, e.getMessage())), newContext);
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
+                        new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
             }
-            parentCtx.endTrackWorker();
         }
     }
 }

@@ -19,10 +19,9 @@
 package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -30,6 +29,7 @@ import org.ballerinalang.net.ws.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.ByteBuffer;
+
 import javax.websocket.Session;
 
 /**
@@ -46,18 +46,18 @@ import javax.websocket.Session;
         args = {@Argument(name = "binaryData", type = TypeKind.BLOB)},
         isPublic = true
 )
-public class PushBinary extends AbstractNativeFunction {
+public class PushBinary extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct wsConnection = (BStruct) getRefArgument(context, 0);
+            BStruct wsConnection = (BStruct) context.getRefArgument(0);
             Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
-            byte[] binaryData = getBlobArgument(context, 0);
+            byte[] binaryData = context.getBlobArgument(0);
             session.getBasicRemote().sendBinary(ByteBuffer.wrap(binaryData));
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

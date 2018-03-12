@@ -24,7 +24,7 @@ version
     ;
 
 importDeclaration
-    :   IMPORT fullyQualifiedPackageName version? (AS alias)? SEMICOLON
+    :   IMPORT fullyQualifiedPackageName version? (AS packageAlias)? SEMICOLON
     ;
 
 fullyQualifiedPackageName
@@ -35,7 +35,7 @@ packageName
     :   Identifier
     ;
 
-alias
+packageAlias
     :   packageName
     ;
 
@@ -44,6 +44,7 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
@@ -102,6 +103,18 @@ structBody
     :   fieldDefinition* privateStructBody?
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
+    ;
+
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
@@ -137,6 +150,7 @@ attachmentPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
      | STRUCT                               # structAttachPoint
+     | STREAMLET                            # streamletAttachPoint
      | ENUM                                 # enumAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
@@ -203,11 +217,13 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT structReference GT)?
     |   TYPE_TABLE (LT structReference GT)?
+    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_AGGREGTION (LT nameReference GT)?
     |   functionTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | typeList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
     ;
 
 xmlNamespaceName
@@ -263,6 +279,7 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
@@ -489,11 +506,12 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   tableQuery                                                          # tableQueryExpression
     |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) simpleExpression    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -560,11 +578,15 @@ codeBlockParameter
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
+    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
     ;
 
-typeList
-    :   typeName (COMMA typeName)*
+parameterTypeNameList
+    :   parameterTypeName (COMMA parameterTypeName)*
+    ;
+
+parameterTypeName
+    :   annotationAttachment* typeName
     ;
 
 parameterList
@@ -621,6 +643,106 @@ reservedWord
     |   TYPE_MAP
     ;
 
+tableQuery
+    :   FROM streamingInput joinStreamingInput?
+        selectClause?
+        orderByClause?
+    ;
+
+aggregationQuery
+    :   FROM streamingInput
+        selectClause?
+        orderByClause?
+
+    ;
+
+streamingQueryStatement
+    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+        selectClause?
+        orderByClause?
+        streamingAction
+    ;
+
+orderByClause
+    :   ORDER BY variableReferenceList
+    ;
+
+selectClause
+    :   SELECT (MUL| selectExpressionList )
+            groupByClause?
+            havingClause?
+    ;
+
+selectExpressionList
+    :   selectExpression (COMMA selectExpression)*
+    ;
+
+selectExpression
+    :   expression (AS Identifier)?
+    ;
+
+groupByClause
+    : GROUP BY variableReferenceList
+    ;
+
+havingClause
+    :   HAVING expression
+    ;
+
+streamingAction
+    :   INSERT INTO Identifier
+    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
+    |   DELETE Identifier ON expression
+    ;
+
+setClause
+    :   SET setAssignmentClause (COMMA setAssignmentClause)*
+    ;
+
+setAssignmentClause
+    :   variableReference ASSIGN expression
+    ;
+
+streamingInput
+    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    ;
+
+joinStreamingInput
+    :   JOIN streamingInput ON expression
+    ;
+
+pattenStreamingInput
+    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
+    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH pattenStreamingInput
+    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
+    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
+    |   pattenStreamingEdgeInput
+    ;
+
+pattenStreamingEdgeInput
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
+    ;
+
+queryDeclaration
+     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+     ;
+
+queryDefinition
+     :   QUERY Identifier
+     ;
 // Deprecated parsing.
 
 deprecatedAttachment

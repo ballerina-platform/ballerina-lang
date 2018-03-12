@@ -69,20 +69,4 @@ public class BLangReturn extends BLangStatement implements ReturnNode {
         return "Return: " +  (this.exprs != null ? this.exprs : "");
     }
 
-    /**
-     * Represents return statement inside a worker.
-     *
-     * @since 0.94
-     */
-    public static class BLangWorkerReturn extends BLangReturn {
-
-        public BLangWorkerReturn(List<BLangExpression> exprs) {
-            this.exprs = exprs;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
 }

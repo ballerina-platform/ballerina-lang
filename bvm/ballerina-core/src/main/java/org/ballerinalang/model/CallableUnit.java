@@ -58,34 +58,6 @@ public interface CallableUnit extends BLangSymbol, Node {
     ParameterDef[] getReturnParameters();
 
     /**
-     * Returns size of the stack frame which should be allocated for each invocations.
-     *
-     * @return size of the stack frame
-     */
-    int getStackFrameSize();
-
-    /**
-     * Replaces the size of the current stack frame with the specified size.
-     *
-     * @param frameSize size of the stack frame
-     */
-    void setStackFrameSize(int frameSize);
-
-    /**
-     * Return size of the current stack's temporary value frame.
-     *
-     * @return size of the temporary value frame
-     */
-    int getTempStackFrameSize();
-
-    /**
-     * Replace size of the current stack's temporary value frame.
-     *
-     * @param frameSize size of the temporary value frame
-     */
-    void setTempStackFrameSize(int frameSize);
-
-    /**
      * Get Types of the return parameters.
      *
      * @return Types of the return parameters
