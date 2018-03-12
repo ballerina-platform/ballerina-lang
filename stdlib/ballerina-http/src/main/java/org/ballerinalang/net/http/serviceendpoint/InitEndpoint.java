@@ -77,7 +77,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
 
-            context.setReturnValues();
+            context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
             BStruct errorStruct = HttpUtil.getHttpConnectorError(context, throwable);
             context.setReturnValues(errorStruct);
