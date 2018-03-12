@@ -155,8 +155,12 @@ public class WebSocketServicesRegistry {
     }
 
 
-    public void addUpgradableServiceByName(String entryListenerInterface, String basePath, String serviceName) {
-        httpToWsUpgradableServices.add(new UpgradableServiceInfo(entryListenerInterface, basePath, serviceName));
+    public void addUpgradableServiceByName(WebSocketService service, String basePath) {
+        basePath = urlDecode(basePath);
+        service.setBasePath(basePath);
+        servicesInfoMap.put(service.getBasePath(), service);
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+        postProcessService(service);
     }
 
     public void completeDeployment() {

@@ -31,7 +31,7 @@ public struct HttpServiceConfiguration {
     int maxUriLength;
     int maxHeaderSize;
     int maxEntityBodySize;
-    WebSocketUpgradeConfig webSocket;
+    WebSocketUpgradeConfig webSocketUpgrade;
 }
 
 
