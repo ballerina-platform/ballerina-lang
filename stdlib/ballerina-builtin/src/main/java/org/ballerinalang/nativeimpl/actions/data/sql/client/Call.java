@@ -18,14 +18,12 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
@@ -60,10 +58,10 @@ import static org.ballerinalang.util.tracer.TraceConstant.KEY_DB_TYPE;
 public class Call extends AbstractSQLAction {
 
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String query = getStringArgument(context, 0);
-        BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
+    public void execute(Context context) {
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        String query = context.getStringArgument(0);
+        BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         BStructType structType = getStructType(context);
         BMap sharedMap = (BMap) bConnector.getRefField(2);
         SQLDatasource datasource = null;
@@ -80,8 +78,5 @@ public class Call extends AbstractSQLAction {
         context.getActiveBTracer().addTags(tags);
 
         executeProcedure(context, datasource, query, parameters, structType);
-        ClientConnectorFuture future = new ClientConnectorFuture();
-        future.notifySuccess();
-        return future;
     }
 }

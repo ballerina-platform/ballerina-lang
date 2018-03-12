@@ -1,24 +1,23 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.net.ws;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -39,6 +38,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import javax.websocket.Session;
 
 /**
@@ -77,7 +77,7 @@ public class WebSocketDispatcher {
                 throw new BallerinaConnectorException(e.getMessage());
             }
             WebSocketService service = servicesRegistry.matchServiceEndpoint(interfaceId, requestUri.getPath(),
-                                                                             variables);
+                    variables);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
@@ -110,8 +110,9 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsTextFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onTextMessageResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     public static void dispatchBinaryMessage(WsOpenConnectionInfo connectionInfo,
@@ -136,8 +137,9 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsBinaryFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onBinaryMessageResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     public static void dispatchControlMessage(WsOpenConnectionInfo connectionInfo,
@@ -168,8 +170,9 @@ public class WebSocketDispatcher {
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPingMessageResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     private static void dispatchPongMessage(WsOpenConnectionInfo connectionInfo,
@@ -188,8 +191,9 @@ public class WebSocketDispatcher {
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onPongMessageResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     public static void dispatchCloseMessage(WsOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage) {
@@ -207,8 +211,9 @@ public class WebSocketDispatcher {
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        ConnectorFuture future = Executor.submit(onCloseResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     public static void dispatchIdleTimeout(WsOpenConnectionInfo connectionInfo,
@@ -223,16 +228,17 @@ public class WebSocketDispatcher {
         BStruct wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
-        ConnectorFuture future = Executor.submit(onIdleTimeoutResource, null, null, bValues);
-        future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+        //TODO handle BallerinaConnectorException
+        //TODO find a way to pass bTrace here...
+        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null, null, bValues);
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,
-                                      int defaultArgSize) {
+                                     int defaultArgSize) {
         int parameterDetailsSize = paramDetails.size();
         if (parameterDetailsSize > defaultArgSize) {
             for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i]  = new BString(variables.get(paramDetails.get(i).getVarName()));
+                bValues[i] = new BString(variables.get(paramDetails.get(i).getVarName()));
             }
         }
     }

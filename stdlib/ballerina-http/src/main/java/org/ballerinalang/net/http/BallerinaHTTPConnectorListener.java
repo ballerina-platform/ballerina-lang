@@ -17,9 +17,8 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
@@ -78,6 +77,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
 
         BTracer bTracer = new BTracer(null, false);
         httpCarbonMessage.getHeaders().entries().stream()
@@ -91,12 +91,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
         bTracer.addTags(tags);
 
-        BValue[] signatureParams;
-        signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
-        ConnectorFuture future = Executor.submit(httpResource.getBalResource(), properties, bTracer,
-                signatureParams);
-        ConnectorFutureListener futureListener = new HttpConnectorFutureListener(httpCarbonMessage);
-        future.registerConnectorFutureListener(futureListener);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
+        //TODO handle BallerinaConnectorException
+        //TODO how to pass bTracer??
+        Executor.submit(httpResource.getBalResource(), callback, properties, bTracer, signatureParams);
     }
 
     private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {

@@ -19,10 +19,9 @@
 package org.ballerinalang.net.ws.nativeimpl.handshakeconnection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -44,16 +43,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true
 )
-public class CancelHandshake extends AbstractNativeFunction {
+public class CancelHandshake extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct handshakeConnection = (BStruct) getRefArgument(context, 0);
-        int statusCode = (int) getIntArgument(context, 0);
-        String reason = getStringArgument(context, 0);
+    public void execute(Context context) {
+        BStruct handshakeConnection = (BStruct) context.getRefArgument(0);
+        int statusCode = (int) context.getIntArgument(0);
+        String reason = context.getStringArgument(0);
         WebSocketInitMessage initMessage =
                 (WebSocketInitMessage) handshakeConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         initMessage.cancelHandShake(statusCode, reason);
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

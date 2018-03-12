@@ -19,16 +19,15 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.HasNextDelimitedRecordEvent;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasNextTextRecord extends AbstractNativeFunction {
+public class HasNextTextRecord extends BlockingNativeCallableUnit {
     /**
      * Specifies the index which contains the byte channel in ballerina.io#hasNextTextRecord.
      */
@@ -60,10 +59,10 @@ public class HasNextTextRecord extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
             BBoolean hasNext;
-            BStruct channel = (BStruct) getRefArgument(context, TXT_RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
             if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
                 DelimitedRecordChannel textRecordChannel =
                         (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
@@ -78,7 +77,7 @@ public class HasNextTextRecord extends AbstractNativeFunction {
                 String message = "Error occurred while checking the next record availability: Null channel returned.";
                 throw new BallerinaException(message, context);
             }
-            return getBValues(hasNext);
+            context.setReturnValues(hasNext);
         } catch (Throwable e) {
             String message = "Error occurred while querying for hasNext:" + e.getMessage();
             throw new BallerinaException(message, context);

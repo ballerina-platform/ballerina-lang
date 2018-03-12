@@ -18,9 +18,9 @@
 package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -37,7 +37,7 @@ import java.time.temporal.TemporalAccessor;
  *
  * @since 0.89
  */
-public abstract class AbstractTimeFunction extends AbstractNativeFunction {
+public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
 

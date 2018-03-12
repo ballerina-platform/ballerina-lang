@@ -50,7 +50,7 @@ public struct Entity {
 @Field { value : "cause: The error which caused the entity error"}
 public struct EntityError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description {value:"Set the entity body with a given file handler"}

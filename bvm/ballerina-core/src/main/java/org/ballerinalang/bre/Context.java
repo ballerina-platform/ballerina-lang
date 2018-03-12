@@ -17,19 +17,18 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.ControlStack;
-import org.ballerinalang.bre.bvm.WorkerCounter;
-import org.ballerinalang.connector.impl.BServerConnectorFuture;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,191 +36,65 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class Context {
+public interface Context {
 
-    //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
-    //TODO remove below after jms and ftp full migration.
-    private CarbonMessage cMsg;
-    private BServerConnectorFuture connectorFuture;
-    protected Map<String, Object> properties = new HashMap<>();
+    WorkerExecutionContext getParentWorkerExecutionContext();
 
-    private ServiceInfo serviceInfo;
-    private LocalTransactionInfo localTransactionInfo;
-    private DebugContext debugContext;
-    private BTracer rootBTracer;
-    private BTracer activeBTracer;
+    CallableUnitInfo getCallableUnitInfo();
 
-    private int startIP;
-    private BStruct unhandledError;
+    WorkerData getLocalWorkerData();
 
-    protected WorkerCounter workerCounter;
+    DebugContext getDebugContext();
 
-    public ProgramFile programFile;
-    // TODO : Temporary solution to make non-blocking working.
-    public NonBlockingContext nonBlockingContext;
-    // TODO : Fix this. Added this for fork-join. Issue #3718.
-    public boolean blockingInvocation;
+    void setDebugContext(DebugContext debugContext);
 
-    @Deprecated
-    public Context() {
-        this.controlStack = new ControlStack();
-    }
+    Object getProperty(String key);
 
-    public Context(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.controlStack = new ControlStack();
-        this.workerCounter = new WorkerCounter();
-    }
+    Map<String, Object> getProperties();
 
-    public DebugContext getDebugContext() {
-        return debugContext;
-    }
+    void setProperty(String key, Object value);
 
-    public void setDebugContext(DebugContext debugContext) {
-        this.debugContext = debugContext;
-    }
+    ServiceInfo getServiceInfo();
 
-    public BTracer getRootBTracer() {
-        return rootBTracer;
-    }
+    void setServiceInfo(ServiceInfo serviceInfo);
 
-    public void setRootBTracer(BTracer rootBTracer) {
-        this.rootBTracer = rootBTracer;
-    }
+    boolean isInTransaction();
 
-    public BTracer getActiveBTracer() {
-        return activeBTracer;
-    }
+    BStruct getError();
 
-    public void setActiveBTracer(BTracer activeBTracer) {
-        this.activeBTracer = activeBTracer;
-    }
+    void setError(BStruct error);
 
-    public ControlStack getControlStack() {
-        return controlStack;
-    }
+    ProgramFile getProgramFile();
 
-    public CarbonMessage getCarbonMessage() {
-        return this.cMsg;
-    }
+    LocalTransactionInfo getLocalTransactionInfo();
 
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-    }
+    long getIntArgument(int index);
 
-    public Object getProperty(String key) {
-        return this.properties.get(key);
-    }
+    String getStringArgument(int index);
 
-    public Map<String, Object> getProperties() {
-        return this.properties;
-    }
+    String getNullableStringArgument(int index);
 
-    public void setProperty(String key, Object value) {
-        this.properties.put(key, value);
-    }
+    double getFloatArgument(int index);
 
-    public BServerConnectorFuture getConnectorFuture() {
-        return connectorFuture;
-    }
+    boolean getBooleanArgument(int index);
 
-    public void setConnectorFuture(BServerConnectorFuture connectorFuture) {
-        this.connectorFuture = connectorFuture;
-    }
+    byte[] getBlobArgument(int index);
 
-    public ServiceInfo getServiceInfo() {
-        return this.serviceInfo;
-    }
+    BValue getRefArgument(int index);
 
-    public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.serviceInfo = serviceInfo;
-    }
+    BValue getNullableRefArgument(int index);
 
-    public boolean isInTransaction() {
-        return this.localTransactionInfo != null;
-    }
+    void setReturnValues(BValue... values);
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        this.localTransactionInfo = localTransactionInfo;
-    }
+    BValue[] getReturnValues();
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
-        return this.localTransactionInfo;
-    }
+    BTracer getRootBTracer();
 
-    public BStruct getError() {
-        if (controlStack.currentFrame != null) {
-            return controlStack.currentFrame.getErrorThrown();
-        }
-        return this.unhandledError;
-    }
+    void setRootBTracer(BTracer rootBTracer);
 
-    public void setError(BStruct error) {
-        if (controlStack.currentFrame != null) {
-            controlStack.currentFrame.setErrorThrown(error);
-        } else {
-            this.unhandledError = error;
-        }
-    }
+    BTracer getActiveBTracer();
 
-    public int getStartIP() {
-        return startIP;
-    }
-
-    public void setStartIP(int startIP) {
-        this.startIP = startIP;
-    }
-
-    public ProgramFile getProgramFile() {
-        return programFile;
-    }
-
-    /**
-     * start tracking current worker.
-     */
-    public void startTrackWorker() {
-        workerCounter.countUp();
-    }
-
-    /**
-     * end tracking current worker.
-     */
-    public void endTrackWorker() {
-        workerCounter.countDown();
-    }
-
-    /**
-     * Wait until all spawned workers are completed.
-     */
-    public void await() {
-        workerCounter.await();
-    }
-
-    /**
-     * Wait until all spawned worker are completed within the given waiting time.
-     *
-     * @param timeout time out duration in seconds.
-     * @return {@code true} if a all workers are completed within the given waiting time, else otherwise.
-     */
-    public boolean await(int timeout) {
-        return workerCounter.await(timeout);
-    }
-
-    /**
-     * Mark this context is associated with a resource.
-     */
-    public void setAsResourceContext() {
-        this.workerCounter.setResourceContext(this);
-    }
-
-    public void resetWorkerContextFlow() {
-        this.workerCounter = new WorkerCounter();
-    }
-
-    public WorkerCounter getWorkerCounter() {
-        return workerCounter;
-    }
+    void setActiveBTracer(BTracer activeBTracer);
 
     /**
      * Data holder for Non-Blocking Action invocation.

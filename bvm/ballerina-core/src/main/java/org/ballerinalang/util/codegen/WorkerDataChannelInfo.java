@@ -18,12 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * {@code WorkerDataChannelInfo} represents data channels used in Ballerina in order to communicate between workers.
@@ -31,54 +25,27 @@ import java.util.concurrent.TimeUnit;
  * @since 0.90
  */
 public class WorkerDataChannelInfo {
-
+    
     private int sourceCPIndex;
     private String source;
-
     private int targetCPIndex;
     private String target;
-
     private int uniqueNameCPIndex;
     private String uniqueName;
-
     private int dataChannelRefIndex;
-
-    private BlockingQueue<Object[]> channel;
     private BType[] types;
-    private static final Logger log = LoggerFactory.getLogger(WorkerDataChannelInfo.class);
-
+    private String channelName;
+    
     public WorkerDataChannelInfo(int sourceCPIndex, String source, int targetCPIndex, String target) {
         this.sourceCPIndex = sourceCPIndex;
         this.source = source;
         this.targetCPIndex = targetCPIndex;
         this.target = target;
-        this.channel =  new LinkedBlockingQueue<>();
-    }
-
-    public void putData(Object[] data) {
-        try {
-            if (data != null) {
-                channel.put(data);
-            }
-        } catch (InterruptedException e) {
-            // Handle the error properly
-            log.error("Error occurred when inserting data to the channel");
-        }
-    }
-
-    public Object[] takeData() {
-        Object[] data = null;
-        try {
-            data = channel.poll(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Handle the error properly
-            log.error("Error occurred when taking data from the channel");
-        }
-        return data;
+        this.channelName = source + "->" + target;
     }
 
     public String getChannelName() {
-        return source + "->" + target;
+        return channelName;
     }
 
     public int getSourceCPIndex() {
@@ -144,4 +111,5 @@ public class WorkerDataChannelInfo {
     public void setDataChannelRefIndex(int dataChannelRefIndex) {
         this.dataChannelRefIndex = dataChannelRefIndex;
     }
+    
 }

@@ -72,8 +72,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertTrue(responseMsgPayload.contains("ballerina.runtime:NullReferenceException\n" +
-                "\tat .:sample2.id2(http-session-test.bal:392)"));
+        Assert.assertEquals(responseMsgPayload, "");
     }
 
     @Test(description = "Test for isNew Function")
@@ -149,8 +148,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 94);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for GetLastAccessedTime Function")
@@ -200,8 +198,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 99);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for setMaxInactiveInterval and getMaxInactiveInterval Function")
@@ -240,8 +237,7 @@ public class HTTPSessionSubMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        String error = responseMsgPayload.substring(38, 98);
-        Assert.assertTrue(error.contains("No such session in progress"));
+        Assert.assertTrue(responseMsgPayload.contains("No such session in progress"));
     }
 
     @Test(description = "Test for negative timeout setMaxInactiveInterval")

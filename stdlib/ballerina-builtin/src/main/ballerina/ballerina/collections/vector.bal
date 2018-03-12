@@ -28,7 +28,7 @@ public struct Vector {
 @Field { value : "cause: The cause for the error"}
 public struct IndexOutOfRangeError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value:"Adds the specified element to the end of the vector."}

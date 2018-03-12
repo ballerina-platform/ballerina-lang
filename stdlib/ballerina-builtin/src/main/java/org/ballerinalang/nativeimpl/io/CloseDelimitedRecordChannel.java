@@ -18,16 +18,15 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
+public class CloseDelimitedRecordChannel extends BlockingNativeCallableUnit {
 
     /**
      * The index of the DelimitedRecordChannel in ballerina.io#closeDelimitedRecordChannel().
@@ -67,10 +66,10 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
             DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
                     channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
@@ -86,6 +85,6 @@ public class CloseDelimitedRecordChannel extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(errorStruct);
+        context.setReturnValues(errorStruct);
     }
 }

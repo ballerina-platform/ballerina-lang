@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.ws;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
-import org.ballerinalang.connector.api.ConnectorFutureListener;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -68,7 +68,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
         Map<String, String> variables = new HashMap<>();
         BMap<String, BString> queryParams = new BMap<>();
         WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, variables, webSocketInitMessage,
-                                                                     queryParams);
+                queryParams);
         Resource onHandshakeResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_HANDSHAKE);
         if (onHandshakeResource != null) {
             Semaphore semaphore = new Semaphore(0);
@@ -89,8 +89,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
             BValue[] bValues = new BValue[paramDetails.size()];
             bValues[0] = handshakeStruct;
             WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-            ConnectorFuture future = Executor.execute(onHandshakeResource, null, null, bValues);
-            future.registerConnectorFutureListener(new ConnectorFutureListener() {
+            Executor.submit(onHandshakeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
                     isResourceExeSuccessful.set(true);
@@ -98,17 +97,11 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 }
 
                 @Override
-                public void notifyReply(BValue... response) {
-                    //Nothing to do
-                }
-
-                @Override
-                public void notifyFailure(BallerinaConnectorException ex) {
-                    ErrorHandlerUtils.printError(ex);
+                public void notifyFailure(BStruct error) {
+                    ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     semaphore.release();
                 }
-            });
-
+            }, null, null, bValues);
             try {
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled()) {
@@ -173,7 +166,7 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
                 wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
                 connectionManager.addConnection(session.getId(),
-                                                new WsOpenConnectionInfo(wsService, wsConnection, variables));
+                        new WsOpenConnectionInfo(wsService, wsConnection, variables));
 
                 Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                 if (onOpenResource == null) {
@@ -184,8 +177,9 @@ public class BallerinaWsServerConnectorListener implements WebSocketConnectorLis
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsConnection;
                 WebSocketDispatcher.setPathParams(bValues, paramDetails, variables, 1);
-                ConnectorFuture future = Executor.submit(onOpenResource, null, null, bValues);
-                future.registerConnectorFutureListener(new WebSocketEmptyConnFutureListener());
+                //TODO handle BallerinaConnectorException
+                //TODO way to pass bTracers to submit()?
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
             }
 
             @Override
