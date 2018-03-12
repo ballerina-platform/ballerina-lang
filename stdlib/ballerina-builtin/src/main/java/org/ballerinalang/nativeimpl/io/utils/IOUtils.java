@@ -20,16 +20,23 @@ package org.ballerinalang.nativeimpl.io.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
+import org.ballerinalang.nativeimpl.io.events.characters.CloseCharacterChannelEvent;
 import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
@@ -149,11 +156,11 @@ public class IOUtils {
      *
      * @param characterChannel   channel the characters should be read.
      * @param numberOfCharacters the number of characters to read.
-     * @param function           the callback function which will be triggered after reading characters.
      * @param context            context of the event.
+     * @param function           the callback function which will be triggered after reading characters.
      */
-    public static void read(CharacterChannel characterChannel, int numberOfCharacters,
-                            Function<EventResult, EventResult> function, EventContext context) {
+    public static void read(CharacterChannel characterChannel, int numberOfCharacters, EventContext context
+            , Function<EventResult, EventResult> function) {
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
@@ -165,11 +172,11 @@ public class IOUtils {
      * @param characterChannel the channel the characters will be written
      * @param content          the content which will be written.
      * @param offset           if an offset should be specified while writing.
-     * @param function         callback function which should be triggered
      * @param context          context of the event.
+     * @param function         callback function which should be triggered
      */
     public static void write(CharacterChannel characterChannel, String content, int offset,
-                             Function<EventResult, EventResult> function, EventContext context) {
+                             EventContext context, Function<EventResult, EventResult> function) {
         WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
@@ -221,4 +228,76 @@ public class IOUtils {
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
+
+    /**
+     * Reads delimited records asynchronously.
+     *
+     * @param recordChannel channel the bytes should be read from.
+     * @param context       event context.
+     * @param function      callback function which will be triggered.
+     */
+    public static void read(DelimitedRecordChannel recordChannel, EventContext context,
+                            Function<EventResult, EventResult> function) {
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel, context);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
+        future.thenApply(function);
+    }
+
+    /**
+     * Asynchronously writes delimited records to the channel.
+     *
+     * @param recordChannel channel the records should be written.
+     * @param records       the record content.
+     * @param context       event context.
+     * @param function      callback function which will be triggered.
+     */
+    public static void write(DelimitedRecordChannel recordChannel, BStringArray records, EventContext context,
+                             Function<EventResult, EventResult> function) {
+        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records, context);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(recordWriteEvent);
+        future.thenApply(function);
+    }
+
+    /**
+     * Closes the channel asynchronously.
+     *
+     * @param byteChannel  channel which should be closed.
+     * @param eventContext context of the event.
+     * @param function     callback function which will be triggered.
+     */
+    public static void close(Channel byteChannel, EventContext eventContext,
+                      Function<EventResult, EventResult> function) {
+        CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+        future.thenApply(function);
+    }
+
+    /**
+     * Closes the character channel asynchronously.
+     *
+     * @param charChannel  channel which should be closed.
+     * @param eventContext context of the event.
+     * @param function     callback function which will be triggered.
+     */
+    public static void close(CharacterChannel charChannel, EventContext eventContext,
+                             Function<EventResult, EventResult> function) {
+        CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+        future.thenApply(function);
+    }
+
+    /**
+     * Closes the character channel asynchronously.
+     *
+     * @param charChannel  channel which should be closed.
+     * @param eventContext context of the event.
+     * @param function     callback function which will be triggered.
+     */
+    public static void close(DelimitedRecordChannel charChannel, EventContext eventContext,
+                             Function<EventResult, EventResult> function) {
+        CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(charChannel, eventContext);
+        CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
+        future.thenApply(function);
+    }
+
 }
