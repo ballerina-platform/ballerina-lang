@@ -226,6 +226,7 @@ public class StartService extends BlockingNativeCallableUnit {
         AnnAttributeValue transferEncoding = configInfo.getAttributeValue(
                 HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttributeValue chunking = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
+        AnnAttributeValue versionAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -257,6 +258,10 @@ public class StartService extends BlockingNativeCallableUnit {
                 listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking.getStringValue()));
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            if (versionAttrVal != null) {
+                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
             }
 
             listenerConfiguration
