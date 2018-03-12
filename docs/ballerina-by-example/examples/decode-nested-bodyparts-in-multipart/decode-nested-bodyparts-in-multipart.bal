@@ -12,7 +12,7 @@ service<http:Service> nestedparts {
       methods:["POST"],
       path:"/decoder"
     }
-    resource nestedPartReceiver (http:ServerConnector serverConnector, http:Request req)  {
+    resource nestedPartReceiver (http:ServerConnector conn, http:Request req)  {
         //Extract multiparts from the inbound request.
         var parentParts, payloadError = req.getMultiparts();
         http:Response res = {};
@@ -29,7 +29,7 @@ service<http:Service> nestedparts {
             res = {statusCode:500};
             res.setStringPayload(payloadError.message);
         }
-        _ = serverConnector -> respond(res);
+        _ = conn -> respond(res);
     }
 }
 

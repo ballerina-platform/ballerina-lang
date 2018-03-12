@@ -12,7 +12,7 @@ service<http:Service> multiparts {
         methods:["POST"],
         path:"/decode_in_request"
     }
-    resource receiveMultiparts (http:ServerConnector serverConnector, http:Request request) {
+    resource receiveMultiparts (http:ServerConnector conn, http:Request request) {
         //Extract multiparts from the inbound request.
         var bodyParts, payloadError = request.getMultiparts();
         http:Response response = {};
@@ -37,7 +37,7 @@ service<http:Service> multiparts {
             response.setStringPayload(payloadError.message);
         }
 
-        _ = serverConnector -> respond(response);
+        _ = conn -> respond(response);
     }
 }
 
