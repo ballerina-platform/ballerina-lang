@@ -1,7 +1,11 @@
 import ballerina.net.http;
 
 endpoint<http:Service> echoDummyEP {
-    port:9094
+    port:9090
+}
+
+endpoint<http:Service> echoHttpEP {
+    port: 9094
 }
 
 endpoint<http:Service> echoEP {
@@ -32,7 +36,7 @@ service<http:Service> echo {
 
 @http:serviceConfig  {
     basePath:"/echoOne",
-    endpoints: [echoEP]
+    endpoints: [echoHttpEP, echoEP]
 }
 service<http:Service> echoOne {
     @http:resourceConfig {
