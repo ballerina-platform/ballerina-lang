@@ -23,6 +23,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -47,7 +48,7 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            context.setReturnValues(org.ballerinalang.net.ws.WebSocketUtil.getQueryParams(context));
+            context.setReturnValues(WebSocketUtil.getQueryParams(context));
         } catch (Throwable e) {
             throw new BallerinaException(
                     "Error occurred while retrieving query parameters from Connection: " + e.getMessage());

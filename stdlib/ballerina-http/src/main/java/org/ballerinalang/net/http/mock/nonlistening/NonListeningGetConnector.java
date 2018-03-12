@@ -16,14 +16,13 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.websocketclientendpoint;
+package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the ID of the connection.
@@ -32,18 +31,17 @@ import org.ballerinalang.natives.annotations.Receiver;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
-                             structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
+        packageName = "ballerina.net.http.mock",
+        functionName = "getConnector",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
+                structPackage = "ballerina.net.http.mock"),
+        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class NonListeningGetConnector extends org.ballerinalang.net.http.serviceendpoint.GetConnector {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues();
+        super.execute(context);
     }
 }

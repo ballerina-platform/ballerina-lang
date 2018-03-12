@@ -47,7 +47,7 @@ public abstract class WebSocketUtil {
 
     public static BConnector createAndGetConnector(Resource resource) {
         return BLangConnectorSPIUtil.createBConnector(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
-                                                      WebSocketConstants.CONNECTOR_WEBSOCKET, new BMap<>());
+                                                      WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
     }
 
 

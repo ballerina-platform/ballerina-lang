@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-////////////////////////
+/////////////////////////////
 /// HTTP Service Endpoint ///
-////////////////////////
+/////////////////////////////
 public struct Service {
     // TODO : Make all field Read-Only
     string epName;
@@ -12,24 +12,12 @@ public struct Service {
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
-@Field {value:"httpsPort: HTTPS port number of service"}
-@Field {value:"keyStoreFile: File path to keystore file"}
-@Field {value:"keyStorePassword: The keystore password"}
-@Field {value:"trustStoreFile: File path to truststore file"}
-@Field {value:"trustStorePassword: The truststore password"}
-@Field {value:"sslVerifyClient: The type of client certificate verification"}
-@Field {value:"certPassword: The certificate password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
-@Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
-@Field {value:"httpVersion: Highest HTTP version supported"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
 @Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
+@Field {value:"ssl: The SSL configurations for the service endpoint"}
+@Field {value:"httpVersion: Highest HTTP version supported"}
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
@@ -40,12 +28,26 @@ public struct ServiceEndpointConfiguration {
     string httpVersion;
 }
 
+@Description {value:"Initializes a ServiceEndpointConfiguration struct"}
+@Param {value:"config: The ServiceEndpointConfiguration struct to be initialized"}
 public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {
     config.keepAlive = KeepAlive.AUTO;
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
+@Field {value:"keyStoreFile: File path to keystore file"}
+@Field {value:"keyStorePassword: The keystore password"}
+@Field {value:"trustStoreFile: File path to truststore file"}
+@Field {value:"trustStorePassword: The truststore password"}
+@Field {value:"sslVerifyClient: The type of client certificate verification"}
+@Field {value:"certPassword: The certificate password"}
+@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
+@Field {value:"ciphers: List of ciphers to be used"}
+@Field {value:"sslProtocol: The SSL protocol version"}
+@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
+@Field {value:"cacheSize: Maximum size of the cache"}
+@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 public struct SslConfiguration {
     string keyStoreFile;
     string keyStorePassword;
@@ -74,35 +76,34 @@ public enum KeepAlive {
 //    CHUNKING
 //}
 
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public function <Service ep> init (string epName, ServiceEndpointConfiguration config) {
     ep.epName = epName;
     ep.config = config;
-    ep.initEndpoint();
+    var err = ep.initEndpoint();
+    if (err != null) {
+        throw err;
+    }
 }
 
-public native function<Service ep> initEndpoint ();
+public native function<Service ep> initEndpoint () returns (error);
 
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
-@Return { value:"Error occured during registration" }
+@Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
+@Param { value:"ep: The endpoint to which the service should be registered to" }
+@Param { value:"serviceType: The type of the service to be registered" }
 public native function <Service ep> register (type serviceType);
 
 @Description { value:"Starts the registered service"}
-@Return { value:"Error occured during registration" }
 public native function <Service ep> start ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-@Return { value:"Error occured during registration" }
 public native function <Service ep> getConnector () returns (ServerConnector repConn);
 
 @Description { value:"Stops the registered service"}
-@Return { value:"Error occured during registration" }
 public native function <Service ep> stop ();
 
 //////////////////////////////////

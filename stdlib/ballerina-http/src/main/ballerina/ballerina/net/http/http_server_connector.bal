@@ -4,7 +4,7 @@ package ballerina.net.http;
 /// HTTP Server Connector ///
 /////////////////////////////
 
-@Description { value:"Represents the HTTP server Response connector"}
+@Description { value:"Represents a connector which can be used by an HTTP service to communicate with an HTTP client."}
 public connector ServerConnector (){
 
     Connection conn;

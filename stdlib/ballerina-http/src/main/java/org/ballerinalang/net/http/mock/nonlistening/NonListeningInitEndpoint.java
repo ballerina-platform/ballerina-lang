@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,16 +33,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
-        functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningServiceEndpoint",
+        functionName = "initEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
                 structPackage = "ballerina.net.http.mock"),
-        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
+        args = {@Argument(name = "epName", type = TypeKind.STRING),
+                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetConnector extends org.ballerinalang.net.http.serviceendpoint.GetConnector {
-
+public class NonListeningInitEndpoint extends org.ballerinalang.net.http.serviceendpoint.InitEndpoint {
     @Override
-    public BValue[] execute(Context context) {
-        return super.execute(context);
+    public void execute(Context context) {
+        super.execute(context);
     }
 }

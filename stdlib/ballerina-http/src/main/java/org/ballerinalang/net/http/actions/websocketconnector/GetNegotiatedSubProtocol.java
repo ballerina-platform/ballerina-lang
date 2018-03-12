@@ -19,8 +19,8 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,7 +49,7 @@ public class GetNegotiatedSubProtocol extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct wsConnection = (BStruct) context.getRefArgument(0);
+        BConnector wsConnection = (BConnector) context.getRefArgument(0);
         Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         String negotiatedSubProtocol = session.getNegotiatedSubprotocol();
         context.setReturnValues(new BString(negotiatedSubProtocol));
