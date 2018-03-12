@@ -33,8 +33,7 @@ import java.io.UnsupportedEncodingException;
  * Convert BLOB to String.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "blob.toString",
         args = {@Argument(name = "b", type = TypeKind.BLOB),
                 @Argument(name = "encoding", type = TypeKind.STRING)},

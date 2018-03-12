@@ -35,8 +35,7 @@ import java.util.Set;
  * ballerina.model.map:keys()
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "map.keys",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},

@@ -42,10 +42,9 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
  * @since 0.963.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "mime",
+        packageName = "ballerina.mime",
         functionName = "getByteChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )

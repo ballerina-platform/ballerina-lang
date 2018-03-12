@@ -31,8 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * ballerina.model.map:remove(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "map.remove",
         args = {@Argument(name = "m", type = TypeKind.MAP),
                 @Argument(name = "key", type = TypeKind.STRING)},

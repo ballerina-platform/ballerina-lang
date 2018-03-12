@@ -41,11 +41,10 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.ws",
+        packageName = "ballerina.net.ws",
         functionName = "closeConnection",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "net.ws"),
+                             structPackage = "ballerina.net.ws"),
         args = {@Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)},
         isPublic = true

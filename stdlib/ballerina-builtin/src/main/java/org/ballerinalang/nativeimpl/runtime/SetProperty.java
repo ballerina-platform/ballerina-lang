@@ -29,8 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "runtime",
+        packageName = "ballerina.runtime",
         functionName = "setProperty",
         args = {@Argument(name = "name", type = TypeKind.STRING), @Argument(name = "value", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

@@ -36,11 +36,9 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "mime",
+@BallerinaFunction(packageName = "ballerina.mime",
         functionName = "setText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "mime"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "textContent", type = TypeKind.STRING)},
         isPublic = true
 )

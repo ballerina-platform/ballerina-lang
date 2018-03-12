@@ -32,8 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native function ballerina.model.task:stopTask.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "task",
+        packageName = "ballerina.task",
         functionName = "stopTask",
         args = {@Argument(name = "taskID", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT)},

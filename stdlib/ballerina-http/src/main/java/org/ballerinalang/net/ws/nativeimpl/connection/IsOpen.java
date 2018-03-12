@@ -38,11 +38,10 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.ws",
+        packageName = "ballerina.net.ws",
         functionName = "isOpen",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "net.ws"),
+                             structPackage = "ballerina.net.ws"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

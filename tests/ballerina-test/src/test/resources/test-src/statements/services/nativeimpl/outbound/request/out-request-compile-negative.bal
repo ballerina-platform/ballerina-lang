@@ -1,4 +1,4 @@
-import ballerina/net.http;
+import ballerina.net.http;
 
 function testRequestSetStatusCode (http:OutRequest req, string statusCode) (http:OutRequest) {
     req.setStatusCode(statusCode);

@@ -33,8 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "string.replace",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "replacePattern", type = TypeKind.STRING),

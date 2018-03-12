@@ -1,6 +1,6 @@
-import ballerina/net.http;
-import ballerina/mime;
-import ballerina/file;
+import ballerina.net.http;
+import ballerina.mime;
+import ballerina.file;
 
 service<http> multipart {
     @http:resourceConfig {

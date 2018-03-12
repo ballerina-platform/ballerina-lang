@@ -31,8 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.90
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "math",
+        packageName = "ballerina.math",
         functionName = "random",
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true

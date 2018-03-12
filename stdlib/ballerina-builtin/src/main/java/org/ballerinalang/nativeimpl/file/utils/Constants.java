@@ -25,7 +25,7 @@ package org.ballerinalang.nativeimpl.file.utils;
  */
 public class Constants {
 
-    public static final String FILE_PACKAGE = "file";
+    public static final String FILE_PACKAGE = "ballerina.file";
     public static final String FILE_STRUCT = "File";
 
     /* Error struct names */

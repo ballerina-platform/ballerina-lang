@@ -34,8 +34,7 @@ import java.util.Base64;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "util",
+        packageName = "ballerina.util",
         functionName = "base64Encode",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},

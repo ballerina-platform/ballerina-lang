@@ -34,8 +34,7 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "transactions.coordinator",
+        packageName = "ballerina.transactions.coordinator",
         functionName = "abortResourceManagers",
         args = {@Argument(name = "transactionId", type = TypeKind.STRING),
                 @Argument(name = "transactionBlockId", type = TypeKind.INT)},

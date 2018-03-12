@@ -37,13 +37,12 @@ import java.io.IOException;
  * Can be used to close a file object.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
+        packageName = "ballerina.file",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File",
-                             structPackage = "file"),
+                             structPackage = "ballerina.file"),
         args = {@Argument(name = "file", type = TypeKind.STRUCT, structType = "File",
-                structPackage = "file")},
+                structPackage = "ballerina.file")},
         isPublic = true
 )
 public class Close extends AbstractNativeFunction {

@@ -42,13 +42,12 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.95
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "io",
+        packageName = "ballerina.io",
         functionName = "closeDelimitedRecordChannel",
         receiver = @Receiver(type = TypeKind.STRUCT,
                 structType = "DelimitedRecordChannel",
-                structPackage = "io"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "io")},
+                structPackage = "ballerina.io"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CloseDelimitedRecordChannel extends AbstractNativeFunction {

@@ -34,8 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since 0.90
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "math",
+        packageName = "ballerina.math",
         functionName = "randomInRange",
         args = {@Argument(name = "start", type = TypeKind.INT),
                 @Argument(name = "end", type = TypeKind.INT)},

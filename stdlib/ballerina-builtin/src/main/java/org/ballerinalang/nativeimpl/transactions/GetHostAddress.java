@@ -36,8 +36,7 @@ import java.util.Enumeration;
  * @since 0.964.0
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "transactions.coordinator",
+        packageName = "ballerina.transactions.coordinator",
         functionName = "getHostAddress",
         returnType = {@ReturnType(type = TypeKind.STRING)}
 )

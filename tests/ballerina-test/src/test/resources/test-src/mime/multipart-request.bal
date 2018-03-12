@@ -1,6 +1,6 @@
-import ballerina/net.http;
+import ballerina.net.http;
 
-import ballerina/mime;
+import ballerina.mime;
 
 @http:configuration {basePath:"/test"}
 service<http> helloServer {

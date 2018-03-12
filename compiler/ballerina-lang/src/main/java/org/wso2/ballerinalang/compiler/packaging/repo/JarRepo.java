@@ -58,7 +58,9 @@ public class JarRepo implements Repo<Path> {
 
     @Override
     public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("META-INF", pkg.getOrgName().value, pkg.getName().value),
+        return new Patten(Patten.path("META-INF"),
+                          Patten.WILDCARD_DIR,
+                          Patten.path(pkg.getName().value.replace('.', '/')), //TODO: remove replacement
                           Patten.WILDCARD_SOURCE);
     }
 

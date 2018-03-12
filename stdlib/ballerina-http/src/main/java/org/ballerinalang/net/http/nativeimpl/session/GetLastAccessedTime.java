@@ -37,11 +37,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         functionName = "getLastAccessedTime",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "net.http"),
+                             structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

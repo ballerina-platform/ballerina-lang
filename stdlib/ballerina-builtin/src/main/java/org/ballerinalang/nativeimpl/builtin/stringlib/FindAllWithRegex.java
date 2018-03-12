@@ -36,12 +36,11 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:findAllWithRegex.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "builtin",
+        packageName = "ballerina.builtin",
         functionName = "string.findAllWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
-                        structPackage = "builtin")},
+                        structPackage = "ballerina.builtin")},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true

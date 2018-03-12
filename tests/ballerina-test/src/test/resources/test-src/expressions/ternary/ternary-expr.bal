@@ -1,4 +1,4 @@
-import ballerina/runtime;
+import ballerina.runtime;
 
 function test1 (int value) (int x) {
     x = value > 10 ? 15 : 5;

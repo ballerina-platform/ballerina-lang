@@ -1,6 +1,6 @@
-import ballerina/auth.jwtAuth;
-import ballerina/net.http;
-import ballerina/mime;
+import ballerina.auth.jwtAuth;
+import ballerina.net.http;
+import ballerina.mime;
 
 function testCanHandleHttpJwtAuthWithoutHeader () (boolean) {
     jwtAuth:HttpJwtAuthnHandler handler = {};

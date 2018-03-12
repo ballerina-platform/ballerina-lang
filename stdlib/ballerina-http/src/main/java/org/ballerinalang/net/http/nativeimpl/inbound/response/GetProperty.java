@@ -31,11 +31,10 @@ import org.ballerinalang.net.http.HttpUtil;
  * Ballerina function to get a message property.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "net.http",
+        packageName = "ballerina.net.http",
         functionName = "getProperty",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "InResponse",
-                             structPackage = "net.http"),
+                             structPackage = "ballerina.net.http"),
         args = {@Argument(name = "propertyName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)}, // TODO: Ballerina only supports string properties ATM
         isPublic = true
