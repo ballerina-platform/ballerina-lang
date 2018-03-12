@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.actions.data.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -26,7 +28,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -35,6 +36,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.sql.XADataSource;
@@ -57,7 +59,7 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(BStruct options, String dbType, String hostOrPath, int port, String username, String password,
+    public boolean init(Struct options, String dbType, String hostOrPath, int port, String username, String password,
             String dbName) {
         buildDataSource(options, dbType, hostOrPath, dbName, port, username, password);
         connectorId = UUID.randomUUID().toString();
@@ -102,17 +104,17 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(BStruct options, String dbType, String hostOrPath, String dbName, int port,
+    private void buildDataSource(Struct options, String dbType, String hostOrPath, String dbName, int port,
             String username, String password) {
         try {
             HikariConfig config = new HikariConfig();
             config.setUsername(username);
             config.setPassword(password);
             if (options != null) {
-                boolean isXA = options.getBooleanField(4) != 0;
-                BMap<String, BRefType> dataSourceConfigMap = (BMap) options.getRefField(0);
-                String jdbcurl = options.getStringField(0);
-                String dataSourceClassName = options.getStringField(1);
+                boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
+                BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(options);
+                String jdbcurl = options.getStringField(Constants.Options.URL);
+                String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
                     dataSourceConfigMap = setDataSourceProperties(dataSourceConfigMap, jdbcurl, username, password,
@@ -129,65 +131,65 @@ public class SQLDatasource implements BValue {
                                 dbType, hostOrPath, port, dbName);
                     }
                 }
-                String connectionTestQuery = options.getStringField(2);
+                String connectionTestQuery = options.getStringField(Constants.Options.CONNECTION_TEST_QUERY);
                 if (!connectionTestQuery.isEmpty()) {
                     config.setConnectionTestQuery(connectionTestQuery);
                 }
-                String poolName = options.getStringField(3);
+                String poolName = options.getStringField(Constants.Options.POOL_NAME);
                 if (!poolName.isEmpty()) {
                     config.setPoolName(poolName);
                 }
-                String catalog = options.getStringField(4);
+                String catalog = options.getStringField(Constants.Options.CATALOG);
                 if (!catalog.isEmpty()) {
                     config.setCatalog(catalog);
                 }
-                String connectionInitSQL = options.getStringField(5);
+                String connectionInitSQL = options.getStringField(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
-                String driverClassName = options.getStringField(6);
+                String driverClassName = options.getStringField(Constants.Options.DRIVER_CLASSNAME);
                 if (!driverClassName.isEmpty()) {
                     config.setDriverClassName(driverClassName);
                 }
-                String transactionIsolation = options.getStringField(7);
+                String transactionIsolation = options.getStringField(Constants.Options.TRANSACTION_ISOLATION);
                 if (!transactionIsolation.isEmpty()) {
                     config.setTransactionIsolation(transactionIsolation);
                 }
-                int maximumPoolSize = (int) options.getIntField(0);
+                int maximumPoolSize = (int) options.getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = options.getIntField(1);
+                long connectionTimeout = options.getIntField(Constants.Options.CONNECTION_TIMEOUT);
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = options.getIntField(2);
+                long idleTimeout = options.getIntField(Constants.Options.IDLE_TIMEOUT);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) options.getIntField(3);
+                int minimumIdle = (int) options.getIntField(Constants.Options.MINIMUM_IDLE);
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = options.getIntField(4);
+                long maxLifetime = options.getIntField(Constants.Options.MAX_LIFE_TIME);
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = options.getIntField(5);
+                long validationTimeout = options.getIntField(Constants.Options.VALIDATION_TIMEOUT);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                long leakDetectionThreshold = options.getIntField(6);
+                long leakDetectionThreshold = options.getIntField(Constants.Options.LEAK_DETECTION_THRESHOLD);
                 if (leakDetectionThreshold != -1) {
                     config.setLeakDetectionThreshold(leakDetectionThreshold);
                 }
-                boolean autoCommit = options.getBooleanField(0) != 0;
+                boolean autoCommit = options.getBooleanField(Constants.Options.AUTOCOMMIT);
                 config.setAutoCommit(autoCommit);
-                boolean isolateInternalQueries = options.getBooleanField(1) != 0;
+                boolean isolateInternalQueries = options.getBooleanField(Constants.Options.ISOLATE_INTERNAL_QUERIES);
                 config.setIsolateInternalQueries(isolateInternalQueries);
-                boolean allowPoolSuspension = options.getBooleanField(2) != 0;
+                boolean allowPoolSuspension = options.getBooleanField(Constants.Options.ALLOW_POOL_SUSPENSION);
                 config.setAllowPoolSuspension(allowPoolSuspension);
-                boolean readOnly = options.getBooleanField(3) != 0;
+                boolean readOnly = options.getBooleanField(Constants.Options.READ_ONLY);
                 config.setReadOnly(readOnly);
                 if (dataSourceConfigMap != null) {
                     setDataSourceProperties(dataSourceConfigMap, config);
@@ -203,7 +205,36 @@ public class SQLDatasource implements BValue {
         }
     }
 
-    private BMap<String, BRefType> setDataSourceProperties(BMap<String, BRefType> dataSourceConfigMap, String jdbcurl,
+    private BMap<String, BRefType> populatePropertiesMap(Struct options) {
+        Map<String, Value> dataSourceConfigMap = options.getMapField(Constants.Options.DATASOURCE_PROPERTIES);
+        BMap<String, BRefType> mapProperties = null;
+        if (dataSourceConfigMap.size() > 0) {
+            mapProperties = new BMap<>();
+            for (Map.Entry<String, Value> entry : dataSourceConfigMap.entrySet()) {
+                Value propValue = entry.getValue();
+                BRefType dataValue = null;
+                switch (propValue.getType()) {
+                case INT:
+                    dataValue = new BInteger(propValue.getIntValue());
+                    break;
+                case FLOAT:
+                    dataValue = new BFloat(propValue.getFloatValue());
+                    break;
+                case BOOLEAN:
+                    dataValue = new BBoolean(propValue.getBooleanValue());
+                    break;
+                case NULL:
+                    break;
+                default:
+                    dataValue = new BString(propValue.getStringValue());
+                }
+                mapProperties.put(entry.getKey(), dataValue);
+            }
+        }
+        return mapProperties;
+    }
+
+    private BMap<String, BRefType> setDataSourceProperties(BMap<String, BRefType>  dataSourceConfigMap, String jdbcurl,
             String username, String password, String dbType, String hostOrPath, int port, String dbName) {
         if (dataSourceConfigMap != null) {
             if (dataSourceConfigMap.get(Constants.URL) == null) {

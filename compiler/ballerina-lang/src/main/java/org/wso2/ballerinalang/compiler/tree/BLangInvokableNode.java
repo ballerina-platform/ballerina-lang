@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -48,6 +49,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
 
     public BInvokableSymbol symbol;
@@ -56,6 +58,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.params = new ArrayList<>();
         this.retParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
+        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
@@ -150,6 +153,11 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public List<BLangWorker> getWorkers() {
         return workers;
+    }
+
+    @Override
+    public List<? extends EndpointNode> getEndpointNodes() {
+        return endpoints;
     }
 
     @Override

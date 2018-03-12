@@ -28,7 +28,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 
@@ -71,7 +70,7 @@ public class EndpointDefinitionContextResolver extends AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol == null)
                     || (!(bSymbol instanceof BInvokableSymbol)
-                    && bSymbol instanceof BVarSymbol && !(bSymbol.type instanceof BEndpointType));
+                    && bSymbol instanceof BVarSymbol);
         }).collect(Collectors.toList());
     }
 }
