@@ -236,7 +236,7 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 // SQL Client Endpoint
 ///////////////////////////////
 
-public struct ClientEndpoint {
+public struct Client {
 	string epName;
 	ClientEndpointConfiguration config;
 }
@@ -259,31 +259,31 @@ public function<ClientEndpointConfiguration c> ClientEndpointConfiguration () {
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <ClientEndpoint ep> init (string epName, ClientEndpointConfiguration config) {
+public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
 	ep.epName = epName;
 	ep.config = config;
 	ep.initEndpoint();
 }
 
 @Description { value:"Initialize the endpoint"}
-public native function<ClientEndpoint ep> initEndpoint();
+public native function<Client ep> initEndpoint();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ClientEndpoint ep> getConnector () returns (ClientConnector conn);
+public native function <Client ep> getConnector () returns (ClientConnector conn);
 
 @Description { value:"Stops the registered service"}
 @Param { value:"Type of the service" }
-public function <ClientEndpoint ep> register (type serviceType){
+public function <Client ep> register (type serviceType){
 
 }
 
 @Description { value:"Starts the registered service"}
-public function <ClientEndpoint ep> start (){
+public function <Client ep> start (){
 
 }
 
 @Description { value:"Stops the registered service"}
-public function <ClientEndpoint ep> stop () {
+public function <Client ep> stop () {
 
 }

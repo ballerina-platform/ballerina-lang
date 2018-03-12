@@ -26,7 +26,7 @@ sql:ConnectionProperties properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDB
                                           datasourceProperties:propertiesMap3};
 
 function testConnectionPoolProperties1 () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "",
         port: 0,
@@ -45,7 +45,7 @@ function testConnectionPoolProperties1 () (string firstName) {
 }
 
 function testConnectionPoolProperties2 () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         username: "SA",
         options: properties
     }
@@ -59,7 +59,7 @@ function testConnectionPoolProperties2 () (string firstName) {
 }
 
 function testConnectionPoolProperties3 () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -76,7 +76,7 @@ function testConnectionPoolProperties3 () (string firstName) {
 
 
 function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -94,7 +94,7 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
 }
 
 function testConnectorWithWorkers () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -120,7 +120,7 @@ function testConnectorWithWorkers () (string firstName) {
 
 
 function testConnectorWithDirectUrl () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         username: "SA",
         options: Properties2
     }
@@ -134,7 +134,7 @@ function testConnectorWithDirectUrl () (string firstName) {
 }
 
 function testConnectorWithDataSourceClass () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.GENERIC,
         username: "SA",
         options: properties3
@@ -149,7 +149,7 @@ function testConnectorWithDataSourceClass () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassAndProps () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -167,7 +167,7 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -185,7 +185,7 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassURLPriority () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "INVALID_DB_NAME",

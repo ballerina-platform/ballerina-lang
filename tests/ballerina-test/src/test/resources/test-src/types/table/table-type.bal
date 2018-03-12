@@ -113,7 +113,7 @@ struct TestTypeData {
 }
 
 function testToJson () (json) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -138,7 +138,7 @@ function testToJson () (json) {
 }
 
 function testToXml () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -162,7 +162,7 @@ function testToXml () (xml) {
 }
 
 function testToXmlMultipleConsume () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -187,7 +187,7 @@ function testToXmlMultipleConsume () (xml) {
 }
 
 function testToXmlWithAdd () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -216,7 +216,7 @@ function testToXmlWithAdd () (xml) {
 }
 
 function testToJsonMultipleConsume () (json) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -242,7 +242,7 @@ function testToJsonMultipleConsume () (json) {
 
 
 function toXmlComplex () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -267,7 +267,7 @@ function toXmlComplex () (xml) {
 }
 
 function testToXmlComplexWithStructDef () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -293,7 +293,7 @@ function testToXmlComplexWithStructDef () (xml) {
 
 
 function testToJsonComplex () (json) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -319,7 +319,7 @@ function testToJsonComplex () (json) {
 
 
 function testToJsonComplexWithStructDef () (json) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -344,7 +344,7 @@ function testToJsonComplexWithStructDef () (json) {
 }
 
 function testJsonWithNull () (json) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -368,7 +368,7 @@ function testJsonWithNull () (json) {
 }
 
 function testXmlWithNull () (xml) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -392,7 +392,7 @@ function testXmlWithNull () (xml) {
 }
 
 //function testToXmlWithinTransaction () (string, int) {
-//    endpoint<sql:ClientEndpoint> testDBEP {
+//    endpoint<sql:Client> testDBEP {
 //        database: sql:DB.HSQLDB_FILE,
 //        host: "./target/tempdb/",
 //        port: 0,
@@ -420,7 +420,7 @@ function testXmlWithNull () (xml) {
 //}
 //
 //function testToJsonWithinTransaction () (string, int) {
-//    endpoint<sql:ClientEndpoint> testDBEP {
+//    endpoint<sql:Client> testDBEP {
 //        database: sql:DB.HSQLDB_FILE,
 //        host: "./target/tempdb/",
 //        port: 0,
@@ -448,7 +448,7 @@ function testXmlWithNull () (xml) {
 //}
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -475,7 +475,7 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
 }
 
 function testGetComplexTypes () (string blobValue, string clob, string binary) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -501,7 +501,7 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
 }
 
 function testArrayData () (int[] int_arr, int[] long_arr, float[] float_arr, string[] string_arr, boolean[] boolean_arr) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -528,7 +528,7 @@ function testArrayData () (int[] int_arr, int[] long_arr, float[] float_arr, str
 
 function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longArrLen, int floatArrLen, int boolArrLen,
                                          int strArrLen) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -575,7 +575,7 @@ function testArrayDataInsertAndPrint () (int updateRet, int intArrLen, int longA
 
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -585,7 +585,7 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:1};
     sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
     sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
@@ -611,7 +611,7 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
 
 function testDateTimeAsTimeStruct () (int dateInserted, int dateRetrieved, int timeInserted, int timeRetrieved,
                                       int timestampInserted, int timestampRetrieved, int datetimeInserted, int datetimeRetrieved ) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -657,7 +657,7 @@ function testDateTimeAsTimeStruct () (int dateInserted, int dateRetrieved, int t
 
 function testDateTimeInt (int datein, int timein, int timestampin) (int  date, int time, int timestamp,
                                                                  int datetime) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -667,7 +667,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) (int  date, i
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:32};
     sql:Parameter para1 = {sqlType:sql:Type.DATE, value:datein};
     sql:Parameter para2 = {sqlType:sql:Type.TIME, value:timein};
@@ -692,7 +692,7 @@ function testDateTimeInt (int datein, int timein, int timestampin) (int  date, i
 }
 
 function testBlobData () (string blobStringData) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -702,7 +702,7 @@ function testBlobData () (string blobStringData) {
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select("SELECT blob_type from ComplexTypes where row_id = 1", null, typeof ResultBlob);
     blob blobData;
     while (dt.hasNext()) {
@@ -716,7 +716,7 @@ function testBlobData () (string blobStringData) {
 }
 
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -746,7 +746,7 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
 }
 
 function testBlobInsert () (int i) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -774,7 +774,7 @@ function testBlobInsert () (int i) {
 
 
 function testTableAutoClose () (int i, string test) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -803,7 +803,7 @@ function testTableAutoClose () (int i, string test) {
 }
 
 function testTableManualClose () (int data) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -837,7 +837,7 @@ function testTableManualClose () (int data) {
 }
 
 function testCloseConnectionPool () (int count) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -847,7 +847,7 @@ function testCloseConnectionPool () (int count) {
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                                   typeof ResultCount);
     while (dt.hasNext()) {
@@ -859,7 +859,7 @@ function testCloseConnectionPool () (int count) {
 }
 
 function testTablePrintAndPrintln() {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -869,7 +869,7 @@ function testTablePrintAndPrintln() {
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
 
@@ -879,7 +879,7 @@ function testTablePrintAndPrintln() {
 }
 
 function testMutltipleRows () (int i1, int i2) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -907,7 +907,7 @@ function testMutltipleRows () (int i1, int i2) {
 }
 
 function testMutltipleRowsWithoutLoop () (int i1, int i2, int i3, int i4, string st1, string st2) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -998,7 +998,7 @@ function testMutltipleRowsWithoutLoop () (int i1, int i2, int i3, int i4, string
 }
 
 function testHasNextWithoutConsume () (boolean b1, boolean b2, boolean b3) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1029,7 +1029,7 @@ function testHasNextWithoutConsume () (boolean b1, boolean b2, boolean b3) {
 }
 
 function testGetFloatTypes () (float f, float d, float num, float dec) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1039,7 +1039,7 @@ function testGetFloatTypes () (float f, float d, float num, float dec) {
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select("SELECT float_type, double_type,
                   numeric_type, decimal_type from FloatTable WHERE row_id = 1", null, typeof ResultSetFloat);
     while (dt.hasNext()) {
@@ -1055,7 +1055,7 @@ function testGetFloatTypes () (float f, float d, float num, float dec) {
 
 function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullInsert, string jsonStr, string xmlStr,
                                        string str) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1065,7 +1065,7 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)";
     string selectSQL = "SELECT id,tinyIntData,smallIntData,intData,bigIntData FROM IntegerTypes";
 
@@ -1117,7 +1117,7 @@ function testSignedIntMaxMinValues () (int maxInsert, int minInsert, int nullIns
 
 function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullInsert, string jsonStr, string xmlStr,
                                                string str) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1168,7 +1168,7 @@ function testComplexTypeInsertAndRetrieval () (int retDataInsert, int retNullIns
 }
 
 function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, string xmlStr) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1178,7 +1178,7 @@ function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, strin
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", null, null);
     var j,_ = <json> dt;
@@ -1194,7 +1194,7 @@ function testJsonXMLConversionwithDuplicateColumnNames () (string jsonStr, strin
 }
 
 function testStructFieldNotMatchingColumnName () (int countAll, int i1, int i2, int i3, int i4) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1204,7 +1204,7 @@ function testStructFieldNotMatchingColumnName () (int countAll, int i1, int i2, 
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table dt = testDB -> select("SELECT count(*) from DataTable WHERE row_id = 1", null, typeof ResultCount);
     while (dt.hasNext()) {
         var rs, _ = (ResultCount)dt.getNext();
@@ -1225,7 +1225,7 @@ function testStructFieldNotMatchingColumnName () (int countAll, int i1, int i2, 
 }
 
 function testGetPrimitiveTypesWithForEach () (int i, int l, float f, float d, boolean b, string s) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1235,7 +1235,7 @@ function testGetPrimitiveTypesWithForEach () (int i, int l, float f, float d, bo
         options: {maximumPoolSize:1}
     }
     var testDB = testDBEP.getConnector();
-	
+
     table<ResultPrimitive> dt = testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, typeof ResultPrimitive);
     foreach x in dt {
@@ -1251,7 +1251,7 @@ function testGetPrimitiveTypesWithForEach () (int i, int l, float f, float d, bo
 }
 
 function testMutltipleRowsWithForEach () (int i1, int i2) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1279,7 +1279,7 @@ function testMutltipleRowsWithForEach () (int i1, int i2) {
 }
 
 function testTableAddInvalid () {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1300,7 +1300,7 @@ function testTableAddInvalid () {
 }
 
 function testTableRemoveInvalid () {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,

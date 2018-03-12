@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(packageName = "ballerina.data.sql",
                    functionName = "getConnector",
                    receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "ClientEndpoint",
+                                        structType = "Client",
                                         structPackage = "ballerina.data.sql"),
                    returnType = { @ReturnType(type = TypeKind.CONNECTOR) },
                    isPublic = true)

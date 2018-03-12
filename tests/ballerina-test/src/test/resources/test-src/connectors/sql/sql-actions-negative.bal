@@ -1,7 +1,7 @@
 import ballerina.data.sql;
 
 function testSelectData () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -24,7 +24,7 @@ function testSelectData () (string firstName) {
 
 
 function testGeneratedKeyOnInsert () (string) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -51,7 +51,7 @@ function testGeneratedKeyOnInsert () (string) {
 
 
 function testCallProcedure () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -74,7 +74,7 @@ function testCallProcedure () (string firstName) {
 }
 
 function testBatchUpdate () (int[]) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -113,7 +113,7 @@ function testBatchUpdate () (int[]) {
 }
 
 function testInvalidArrayofQueryParameters () (string value) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
