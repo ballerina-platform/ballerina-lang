@@ -31,7 +31,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      symbol = companyName
  * </pre>
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 
 public interface SetAssignmentNode extends Node {

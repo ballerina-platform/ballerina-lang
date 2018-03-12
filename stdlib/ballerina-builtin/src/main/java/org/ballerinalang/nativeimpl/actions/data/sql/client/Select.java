@@ -41,7 +41,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         actionName = "select",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "query", type = TypeKind.STRING),
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                         structType = "Parameter")},
         returnType = { @ReturnType(type = TypeKind.TABLE) },

@@ -248,7 +248,6 @@ public class Desugar extends BLangNodeVisitor {
         result = serviceNode;
     }
 
-
     public void visit(BLangStreamlet streamletNode) {
         siddhiQueryBuilder.visit(streamletNode);
         result = streamletNode;
@@ -403,7 +402,6 @@ public class Desugar extends BLangNodeVisitor {
         result = xmlnsStmtNode;
     }
 
-
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         BLangXMLNS generatedXMLNSNode;
@@ -496,7 +494,6 @@ public class Desugar extends BLangNodeVisitor {
         result = forkJoin;
     }
 
-
     // Expressions
 
     @Override
@@ -573,7 +570,6 @@ public class Desugar extends BLangNodeVisitor {
             // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.STREAMLET) == SymTag.STREAMLET) {
-            // Field variable in a receiver
             genVarRefExpr = new BLangFieldVarRef(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {

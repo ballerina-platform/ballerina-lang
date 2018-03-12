@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import java.util.List;
 
 /**
- * @since 0.955.0
+ * @since 0.965.0
  */
 public interface StreamletNode extends AnnotatableNode, TopLevelNode {
 

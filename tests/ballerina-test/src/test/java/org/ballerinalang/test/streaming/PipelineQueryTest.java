@@ -21,34 +21,39 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test stream join behaviour of Ballerina Streaming.
+ * This contains methods to test pipeline query behaviour of Ballerina Streaming.
  *
  * @since 0.965.0
  */
-public class StreamJoiningTest {
+public class PipelineQueryTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/join-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/pipeline-streaming-test.bal");
     }
 
-    @Test(description = "Test streaming join query.")
-    public void testStreamJoinQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testJoinQuery");
+    @Test(description = "Test streaming pipeline query.")
+    public void testPipelineQuery() {
+        BValue[] returns = BRunUtil.invoke(result, "testPipelineQuery");
 
         BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 4, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.size(), 1, "Expected events are not received");
 
+        BStruct statusCount0 = (BStruct) outputStatusCountArray.get(0);
+
+        Assert.assertEquals(statusCount0.getStringField(0), "single");
+        Assert.assertEquals(statusCount0.getIntField(0), 2);
     }
 
 }

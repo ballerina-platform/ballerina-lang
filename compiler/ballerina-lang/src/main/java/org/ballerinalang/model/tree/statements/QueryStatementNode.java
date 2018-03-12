@@ -33,7 +33,7 @@ package org.ballerinalang.model.tree.statements;
  *      }
  * </pre>
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 
 public interface QueryStatementNode extends StatementNode {
@@ -45,6 +45,4 @@ public interface QueryStatementNode extends StatementNode {
     String getIdentifier();
 
     StreamingQueryStatementNode getStreamingQueryStatement();
-
-
 }

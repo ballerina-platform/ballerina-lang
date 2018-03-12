@@ -32,11 +32,13 @@ import java.util.Map;
 /**
  * Implementation of {@link StreamActionNode}.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
 
     private String identifierName;
+
+    private String outputEventType;
 
     private StreamActionType action;
 
@@ -106,11 +108,26 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
         return action.toString();
     }
 
+    @Override
+    public String getOutputEventType() {
+        return outputEventType;
+    }
+
+    @Override
+    public void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
+        if (isAllEvents) {
+            this.outputEventType = "all events";
+        } else if (isExpiredEvents) {
+            this.outputEventType = "expired events";
+        } else if (isCurrentEvents) {
+            this.outputEventType = "current events";
+        }
+    }
+
     private enum StreamActionType {
         INSERT,
         DELETE,
         UPDATE,
         UNKNOWN
     }
-
 }

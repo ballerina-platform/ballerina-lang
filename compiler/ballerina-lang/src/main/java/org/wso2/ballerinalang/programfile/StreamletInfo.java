@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * {@code StreamletInfo} contains metadata of a Ballerina streamlet entry in the program file.
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 public class StreamletInfo extends StructureTypeInfo {
 

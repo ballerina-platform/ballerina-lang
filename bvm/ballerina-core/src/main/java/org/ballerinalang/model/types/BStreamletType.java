@@ -24,7 +24,7 @@ import org.ballerinalang.util.codegen.StreamletInfo;
 /**
  * {@code BStreamletType} represents a {@code Streamlet} in Ballerina.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BStreamletType extends BType {
 
@@ -39,7 +39,6 @@ public class BStreamletType extends BType {
         super(typeName, pkgPath, BStreamlet.class);
         this.streamletInfo = streamletInfo;
         this.flags = flags;
-
     }
 
     public BStreamletType(String typeName, String pkgPath) {

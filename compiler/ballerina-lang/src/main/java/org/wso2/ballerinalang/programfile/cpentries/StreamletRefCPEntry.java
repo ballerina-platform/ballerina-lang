@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * {@code StreamletRefCPEntry} represents a Ballerina streamlet in the constant pool.
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  *
  */
 public class StreamletRefCPEntry implements ConstantPoolEntry {

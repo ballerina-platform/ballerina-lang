@@ -2132,7 +2132,7 @@ public class BLangPackageBuilder {
     }
 
     public void endSelectClauseNode(boolean isSelectAll, boolean isGroupByAvailable, boolean isHavingAvailable,
-            DiagnosticPos pos, Set<Whitespace> ws) {
+                                    DiagnosticPos pos, Set<Whitespace> ws) {
         SelectClauseNode selectClauseNode = this.selectClausesStack.peek();
         ((BLangSelectClause) selectClauseNode).pos = pos;
         selectClauseNode.addWS(ws);
@@ -2207,12 +2207,16 @@ public class BLangPackageBuilder {
         this.joinStreamingInputsStack.push(joinStreamingInput);
     }
 
-    public void endJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endJoinStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isUnidirectionalBeforeJoin,
+                                          boolean isUnidirectionalAfterJoin, String joinType) {
         JoinStreamingInput joinStreamingInput = this.joinStreamingInputsStack.peek();
         ((BLangJoinStreamingInput) joinStreamingInput).pos = pos;
         joinStreamingInput.addWS(ws);
         joinStreamingInput.setStreamingInput(this.streamingInputStack.pop());
         joinStreamingInput.setOnExpression(this.exprNodeStack.pop());
+        joinStreamingInput.setUnidirectionalBeforeJoin(isUnidirectionalBeforeJoin);
+        joinStreamingInput.setUnidirectionalAfterJoin(isUnidirectionalAfterJoin);
+        joinStreamingInput.setJoinType(joinType);
     }
 
     public void startTableQueryNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2294,7 +2298,8 @@ public class BLangPackageBuilder {
         this.streamActionNodeStack.push(streamActionNode);
     }
 
-    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action) {
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action,
+                                    boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
 
         ((BLangStreamAction) streamActionNode).pos = pos;
@@ -2309,6 +2314,7 @@ public class BLangPackageBuilder {
         }
         streamActionNode.setIdentifier(identifier);
         streamActionNode.setStreamActionType(action);
+        streamActionNode.setOutputEventType(isAllEvents, isCurrentEvents, isExpiredEvents);
     }
 
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2423,8 +2429,19 @@ public class BLangPackageBuilder {
             blocknode.addStatement(streamingQueryStatementStack.pop());
         }
 
+        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
+
         while (!queryStatementStack.isEmpty()) {
-            blocknode.addStatement(queryStatementStack.pop());
+            StatementNode statementNode = queryStatementStack.pop();
+            if (statementNode instanceof BLangQueryStatement) {
+                queryStatementNodeStack.add(statementNode);
+            } else {
+                blocknode.addStatement(statementNode);
+            }
+        }
+
+        while (!queryStatementNodeStack.isEmpty()) {
+            blocknode.addStatement(queryStatementNodeStack.pop());
         }
     }
 

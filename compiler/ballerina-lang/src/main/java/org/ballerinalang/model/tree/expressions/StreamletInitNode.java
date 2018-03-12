@@ -22,12 +22,11 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import java.util.List;
 
 /**
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 public interface StreamletInitNode extends ExpressionNode {
 
     UserDefinedTypeNode getStreamletType();
 
     List<? extends ExpressionNode> getExpressions();
-
 }

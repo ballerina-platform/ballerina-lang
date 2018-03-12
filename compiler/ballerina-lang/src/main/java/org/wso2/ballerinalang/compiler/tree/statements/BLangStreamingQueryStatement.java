@@ -29,7 +29,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BLangStreamingQueryStatement extends BLangStatement implements StreamingQueryStatementNode {
 

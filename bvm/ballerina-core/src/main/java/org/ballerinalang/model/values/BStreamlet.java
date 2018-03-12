@@ -18,6 +18,7 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
 import org.ballerinalang.model.types.BStreamletType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -29,7 +30,7 @@ import java.util.Map;
 /**
  * The {@code BStreamlet} represents a Streamlet in Ballerina.
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 public final class BStreamlet implements BRefType {
 
@@ -82,6 +83,7 @@ public final class BStreamlet implements BRefType {
 
     public void stopRuntime() {
         siddhiAppRuntime.shutdown();
+        StreamingRuntimeManager.getInstance().removeSiddhiAppRuntime(siddhiAppRuntime);
     }
 
     @Override
@@ -103,5 +105,4 @@ public final class BStreamlet implements BRefType {
     public BValue copy() {
         return null;
     }
-
 }
