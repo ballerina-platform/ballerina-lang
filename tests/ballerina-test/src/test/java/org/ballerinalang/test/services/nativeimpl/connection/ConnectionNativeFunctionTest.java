@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 public class ConnectionNativeFunctionTest {
 
     private CompileResult serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -46,7 +47,7 @@ public class ConnectionNativeFunctionTest {
     public void testRedirect() {
         String path = "/hello/redirect";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 301);

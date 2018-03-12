@@ -107,8 +107,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
-    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
-    public static final String ANN_WEBSOCKET_ATTR_SERVICE_NAME = "serviceName";
+    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;

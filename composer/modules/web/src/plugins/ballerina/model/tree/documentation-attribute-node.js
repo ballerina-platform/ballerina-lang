@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,16 +16,10 @@
  * under the License.
  */
 
-import AbstractConnectorInitExprNode from './abstract-tree/connector-init-expr-node';
+import AbstractDocumentationAttributeNode from './abstract-tree/documentation-attribute-node';
 
-class ConnectorInitExprNode extends AbstractConnectorInitExprNode {
-    setFullPackageName(fullPackageName) {
-        this._fullPackageName = fullPackageName;
-    }
+class DocumentationAttributeNode extends AbstractDocumentationAttributeNode {
 
-    getFullPackageName(fullPackageName) {
-        return this._fullPackageName;
-    }
 }
 
-export default ConnectorInitExprNode;
+export default DocumentationAttributeNode;

@@ -17,17 +17,15 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import ExpressionNode from '../expression-node';
 
-class AbstractTransformNode extends StatementNode {
+class AbstractDocumentationAttributeNode extends ExpressionNode {
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
+    setDocumentationText(newValue, silent, title) {
+        const oldValue = this.documentationText;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
-
-        this.body.parent = this;
+        this.documentationText = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractTransformNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'body',
+                    attributeName: 'documentationText',
                     newValue,
                     oldValue,
                 },
@@ -43,15 +41,18 @@ class AbstractTransformNode extends StatementNode {
         }
     }
 
-    getBody() {
-        return this.body;
+    getDocumentationText() {
+        return this.documentationText;
     }
 
 
-    setInputs(newValue, silent, title) {
-        const oldValue = this.inputs;
+
+    setDocumentationField(newValue, silent, title) {
+        const oldValue = this.documentationField;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.inputs = newValue;
+        this.documentationField = newValue;
+
+        this.documentationField.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -59,7 +60,7 @@ class AbstractTransformNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'inputs',
+                    attributeName: 'documentationField',
                     newValue,
                     oldValue,
                 },
@@ -67,35 +68,12 @@ class AbstractTransformNode extends StatementNode {
         }
     }
 
-    getInputs() {
-        return this.inputs;
+    getDocumentationField() {
+        return this.documentationField;
     }
 
-
-    setOutputs(newValue, silent, title) {
-        const oldValue = this.outputs;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.outputs = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'outputs',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getOutputs() {
-        return this.outputs;
-    }
 
 
 }
 
-export default AbstractTransformNode;
+export default AbstractDocumentationAttributeNode;

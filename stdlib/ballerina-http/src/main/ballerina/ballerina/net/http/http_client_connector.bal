@@ -108,10 +108,10 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
 
 @Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }
 @Field {value:"message:  An error message explaining about the error"}
-@Field {value:"cause: The error that caused HttpConnectorError to get thrown"}
+@Field {value:"cause: The error(s) that caused HttpConnectorError to get thrown"}
 @Field {value:"statusCode: HTTP status code"}
 public struct HttpConnectorError {
     string message;
-    error cause;
+    error[] cause;
     int statusCode;
 }

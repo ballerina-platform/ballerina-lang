@@ -30,7 +30,7 @@ function testGetProperty (http:Request req, string propertyName) (string) {
 
 function testGetRequestURL (http:Request req) (string) {
     string url = req.rawPath;
-    if (url == "") {
+    if (url == null || url == "") {
         url = "no url";
     }
     return url;

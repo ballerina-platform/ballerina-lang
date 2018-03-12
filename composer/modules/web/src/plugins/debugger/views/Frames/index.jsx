@@ -37,8 +37,9 @@ class Frames extends React.Component {
      * @returns {ReactNode}
      * @memberof Frames
      */
-    getObject(str) {
-        return JSON5.parse(str.substring(str.indexOf('{'), str.lastIndexOf('}') + 1));
+    getObject(str = '') {
+        const unescaped = str.replace(/\\"/g, '"');
+        return JSON5.parse((unescaped.substring(str.indexOf('{'), unescaped.lastIndexOf('}') + 1)));
     }
     /**
      * @description Parse string to JSON
@@ -60,12 +61,14 @@ class Frames extends React.Component {
         frame.variables = frame.variables || [];
         return (
             <div key={i}>
-                {frame.variables.map((variable, j) => {
+                {frame.variables.map((variable) => {
                     const { type = '', name, value } = variable;
                     const label = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
-                    if (type.toLowerCase().includes('json') || type.toLowerCase().includes('struct') || type.toLowerCase().includes('map')) {
+                    if (type.toLowerCase().includes('json')
+                        || type.toLowerCase().includes('struct')
+                        || type.toLowerCase().includes('map')) {
                         return (
-                            <TreeView key={j} nodeLabel={label} defaultCollapsed>
+                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>
                                 <ReactJson
                                     src={this.getObject(variable.value)}
@@ -78,7 +81,7 @@ class Frames extends React.Component {
                             </TreeView>);
                     } else if (type.toLowerCase().includes('array')) {
                         return (
-                            <TreeView key={j} nodeLabel={label} defaultCollapsed>
+                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>
                                 <ReactJson
                                     src={this.getArray(variable.value)}
@@ -92,7 +95,7 @@ class Frames extends React.Component {
                         );
                     } else if (type.toLowerCase().includes('xml')) {
                         return (
-                            <TreeView key={j} nodeLabel={label} defaultCollapsed>
+                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>
                                 <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
                             </TreeView>
@@ -100,7 +103,7 @@ class Frames extends React.Component {
                     } else {
                         const varLabel = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
                         return (
-                            <TreeView key={j} nodeLabel={varLabel} defaultCollapsed>
+                            <TreeView key={name} nodeLabel={varLabel} defaultCollapsed>
                                 <div className='node'>Value: {value}</div>
                             </TreeView>
                         );
@@ -156,7 +159,7 @@ class Frames extends React.Component {
 }
 
 Frames.propTypes = {
-    message: PropTypes.object,
+    message: PropTypes.instanceOf(Object),
 };
 
 Frames.defaultProps = {

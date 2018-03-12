@@ -809,7 +809,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <!--<module>tests/ballerina-test</module>-->
+                <module>tests/ballerina-test</module>
 
                 <module>language-server</module>
                 <module>misc/docerina</module>
@@ -846,7 +846,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <!--<module>tests/ballerina-test</module>-->
+                <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <!--<module>misc/docerina</module>-->
@@ -877,7 +877,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
-                <!--<module>tests/ballerina-test</module>-->
+                <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>language-server</module>

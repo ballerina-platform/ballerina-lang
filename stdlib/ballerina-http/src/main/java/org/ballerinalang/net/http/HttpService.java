@@ -76,7 +76,7 @@ public class HttpService {
         return balService;
     }
 
-    public List<HttpResource> getResources() {
+    public List<HttpResource>   getResources() {
         return resources;
     }
 
