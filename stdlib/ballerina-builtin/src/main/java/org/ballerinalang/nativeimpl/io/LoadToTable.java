@@ -75,12 +75,12 @@ public class LoadToTable extends BlockingNativeCallableUnit {
         } catch (InvalidPathException e) {
             String msg = "Unable to resolve the file path: " + filePath;
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
             return;
         }
         if (Files.notExists(path)) {
             String msg = "Unable to find a file in given path: " + filePath;
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
             return;
         }
         try {
@@ -89,7 +89,7 @@ public class LoadToTable extends BlockingNativeCallableUnit {
         } catch (IOException e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(new BTable(), IOUtils.createError(context, msg));
         }
     }
 
