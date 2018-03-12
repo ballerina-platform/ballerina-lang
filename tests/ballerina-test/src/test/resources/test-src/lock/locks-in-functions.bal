@@ -14,6 +14,7 @@ function lockWithinLock() (int, string) {
         lockWithinLockString1 = "sample value";
         lock {
             lockWithinLockString1 = "second sample value";
+            int ret = makeAsync();
             lockWithinLockInt1 = 99;
             lock {
                 lockWithinLockInt1 = 90;
@@ -22,6 +23,15 @@ function lockWithinLock() (int, string) {
         lockWithinLockInt1 = 77;
     }
     return lockWithinLockInt1, lockWithinLockString1;
+}
+
+function makeAsync() (int) {
+    worker w1 {
+        runtime:sleepCurrentWorker(100);
+    }
+    worker w2 {
+        return 6;
+    }
 }
 
 function lockWithinLockInWorkers() (int, string) {

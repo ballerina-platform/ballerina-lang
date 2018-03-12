@@ -146,6 +146,7 @@ public class TreeVisitor extends BLangNodeVisitor {
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
     private SymbolEnter symbolEnter;
+    private SymbolTable symTable;
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
     private Stack<Boolean> isCurrentNodeTransactionStack;
@@ -163,14 +164,15 @@ public class TreeVisitor extends BLangNodeVisitor {
         blockStmtStack = new Stack<>();
         isCurrentNodeTransactionStack = new Stack<>();
         symbolEnter = SymbolEnter.getInstance(compilerContext);
+        symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, SymbolTable.getInstance(compilerContext));
+        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
@@ -193,7 +195,7 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgSymbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         acceptNode(pkgEnv.node, pkgEnv);
     }
 
@@ -675,11 +677,6 @@ public class TreeVisitor extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver).isCursorBeforeNode(breakNode.getPosition(),
                 breakNode, this, this.documentServiceContext);
-    }
-
-    @Override
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        // No Implementation
     }
 
     @Override

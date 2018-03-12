@@ -31,6 +31,7 @@ import org.jvnet.mimepull.MIMEPart;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -67,7 +68,7 @@ public class MultipartDecoder {
                 populateBallerinaParts(context, entity, mimeParts);
             }
         } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error occurred while decoding body parts from inputstream");
+            throw new BallerinaException("Error occurred while decoding body parts from inputstream " + e.getMessage());
         }
     }
 

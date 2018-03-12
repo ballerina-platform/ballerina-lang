@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.ws.WebSocketServicesRegistry;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -88,10 +90,21 @@ public class HTTPServicesRegistry {
      * @param service requested serviceInfo to be registered.
      */
     public void registerService(HttpService service) {
+
+        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
+        if (accessLogConfig != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
+            }
+        }
+
         Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
-
         String basePath = discoverBasePathFrom(service, annotation);
+        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
+
         basePath = urlDecode(basePath);
         service.setBasePath(basePath);
         Set<ListenerConfiguration> listenerConfigurationSet = HttpUtil.getDefaultOrDynamicListenerConfig(annotation);
@@ -165,7 +178,7 @@ public class HTTPServicesRegistry {
         CorsPopulator.populateServiceCors(httpService);
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBalerinaService().getResources()) {
-            HttpResource httpResource = buildHttpResource(resource);
+            HttpResource httpResource = buildHttpResource(resource, httpService);
             httpResource.prepareAndValidateSignatureParams();
             try {
                 httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
@@ -192,8 +205,8 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    private HttpResource buildHttpResource(Resource resource) {
-        HttpResource httpResource = new HttpResource(resource);
+    private HttpResource buildHttpResource(Resource resource, HttpService parent) {
+        HttpResource httpResource = new HttpResource(resource, parent);
         Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
                                                                                    HttpConstants.HTTP_PACKAGE_PATH);
         if (resourceConfigAnnotation == null) {

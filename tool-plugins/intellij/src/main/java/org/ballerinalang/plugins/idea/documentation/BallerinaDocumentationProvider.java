@@ -39,9 +39,10 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ParameterTypeName;
+import org.ballerinalang.plugins.idea.psi.ParameterTypeNameList;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -255,20 +256,25 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (node == null) {
             return results;
         }
-        // But there can be two possible scenarios. The actual return types can be in either TypeListNode or
+        // But there can be two possible scenarios. The actual return types can be in either ParameterTypeNameList or
         // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
         // available.
 
-        // First we check for TypeListNode.
-        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(node, TypeListNode.class);
+        // First we check for ParameterTypeNameList.
+        ParameterTypeNameList parameterTypeNameList = PsiTreeUtil.findChildOfType(node, ParameterTypeNameList.class);
         // If it is available, that means the return types are not named parameters.
-        if (typeListNode != null) {
+        if (parameterTypeNameList != null) {
             // Each parameter will be of type TypeNameNode. So we get all return types.
-            Collection<TypeNameNode> typeNameNodes =
-                    PsiTreeUtil.getChildrenOfTypeAsList(typeListNode, TypeNameNode.class);
+            Collection<ParameterTypeName> parameterTypeNames =
+                    PsiTreeUtil.getChildrenOfTypeAsList(parameterTypeNameList, ParameterTypeName.class);
             // Add each TypeNameNode to the result list.
-            typeNameNodes.forEach(typeNameNode ->
-                    results.add(BallerinaParameterInfoHandler.formatParameter(typeNameNode.getText())));
+            parameterTypeNames.forEach(parameterTypeName -> {
+                TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(parameterTypeName, TypeNameNode.class);
+                if (typeNameNode != null) {
+                    results.add(BallerinaParameterInfoHandler.formatParameter(typeNameNode.getText()));
+                }
+            });
+
             // Return the results.
             return results;
         }

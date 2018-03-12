@@ -26,9 +26,11 @@ package org.ballerinalang.logging.util;
 public class Constants {
 
     public static final String HTTP_TRACE_LOG = "tracelog.http";
+    public static final String HTTP_ACCESS_LOG = "accesslog.http";
     public static final String BALLERINA_USER_LOG = "ballerina.log";
 
     public static final String BALLERINA_LOG_INSTANCES = "ballerina.log.instances";
     public static final String LOG_LEVEL = "level";
+    public static final String LOG_TO = "logto";
     public static final String LOG_FORMAT = "format";
 }

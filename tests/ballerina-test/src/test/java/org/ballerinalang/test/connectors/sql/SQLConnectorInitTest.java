@@ -50,7 +50,15 @@ public class SQLConnectorInitTest {
          BString retValue = (BString) returns[0];
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(retValue.stringValue(), expected);
-     }
+    }
+    
+    @Test
+    public void testConnectorWithWorkers() {
+         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithWorkers");
+         BString retValue = (BString) returns[0];
+         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
+         Assert.assertEquals(retValue.stringValue(), expected);
+    }
 
     @Test
     public void testConnectorWithDirectUrl() {

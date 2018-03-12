@@ -18,7 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -46,7 +46,6 @@ import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
-import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -77,6 +76,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
+
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
@@ -85,20 +85,12 @@ import javax.transaction.xa.XAResource;
  *
  * @since 0.8.0
  */
-public abstract class AbstractSQLAction extends AbstractNativeAction {
+public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private Calendar utcCalendar;
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
-    }
-
-    @Override
-    public BValue getRefArgument(Context context, int index) {
-        if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getRefRegs()[index];
-        }
-        throw new ArgumentOutOfRangeException(index);
     }
 
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters,
@@ -113,8 +105,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.getControlStack().getCurrentFrame().returnValues[0] = constructTable(context, rs, stmt, conn,
-                    structType);
+            context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -131,8 +122,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
-            BInteger updatedCount = new BInteger(count);
-            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
+            context.setReturnValues(new BInteger(count));
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -165,14 +155,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
-            context.getControlStack().getCurrentFrame().returnValues[0] = updatedCount;
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
+            BStringArray generatedKeys = null;
             if (rs.next()) {
-                BStringArray generatedKeys = getGeneratedKeys(rs);
-                context.getControlStack().getCurrentFrame().returnValues[1] = generatedKeys;
+                generatedKeys = getGeneratedKeys(rs);
             }
+            context.setReturnValues(updatedCount, generatedKeys);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
@@ -193,10 +183,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                context.getControlStack().getCurrentFrame().returnValues[0] = constructTable(context, rs, stmt,
-                        conn, structType);
+                context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
             } else {
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
+                context.setReturnValues();
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -247,12 +237,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 countArray.add(i, updatedCount[i]);
             }
         }
-        context.getControlStack().getCurrentFrame().returnValues[0] = countArray;
+        context.setReturnValues(countArray);
     }
 
     protected BStructType getStructType(Context context) {
         BStructType structType = null;
-        BTypeValue type = (BTypeValue) getRefArgument(context, 2);
+        BTypeValue type = (BTypeValue) context.getNullableRefArgument(2);
         if (type != null) {
             structType = (BStructType) type.value();
         }
@@ -762,17 +752,25 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         if (!isInTransaction) {
             conn = datasource.getSQLConnection();
             return conn;
+        } else {
+            //This is when there is an infected transaction block. But this is not participated to the transaction
+            //since the action call is outside of the transaction block.
+            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
+                conn = datasource.getSQLConnection();
+                return conn;
+            }
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
         LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxID = localTransactionInfo.getGlobalTransactionId();
+        String globalTxId = localTransactionInfo.getGlobalTransactionId();
+        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
         BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
                 XAResource xaResource = xaConn.getXAResource();
-                TransactionResourceManager.getInstance().beginXATransaction(globalTxID, xaResource);
+                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
                 conn = xaConn.getConnection();
                 txContext = new SQLTransactionContext(conn, xaResource);
             } else {
@@ -781,7 +779,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 txContext = new SQLTransactionContext(conn, null);
             }
             localTransactionInfo.registerTransactionContext(connectorId, txContext);
-            TransactionResourceManager.getInstance().register(globalTxID, txContext);
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();
         }

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -25,13 +25,15 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.parser.BLangParserException;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.ProgramFile;
 
 /**
@@ -43,11 +45,13 @@ public class Compiler {
             new CompilerContext.Key<>();
 
     private CompilerOptions options;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private PackageLoader pkgLoader;
     private SymbolTable symbolTable;
     private SemanticAnalyzer semAnalyzer;
     private CodeAnalyzer codeAnalyzer;
+    private TaintAnalyzer taintAnalyzer;
+    private CompilerPluginRunner annotationProcessor;
     private Desugar desugar;
     private CodeGenerator codeGenerator;
 
@@ -70,11 +74,13 @@ public class Compiler {
         context.put(COMPILER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.taintAnalyzer = TaintAnalyzer.getInstance(context);
+        this.annotationProcessor = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
 
@@ -99,9 +105,20 @@ public class Compiler {
         }
 
         pkgNode = codeAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+
+        pkgNode = taintAnalyze(pkgNode);
+        if (this.stopCompilation(CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        pkgNode = annotationProcess(pkgNode);
         if (this.stopCompilation(CompilerPhase.DESUGAR)) {
             return;
         }
+
         // TODO : Improve this.
         desugar(builtInPackage);
         pkgNode = desugar(pkgNode);
@@ -123,10 +140,6 @@ public class Compiler {
         return programFile;
     }
 
-    public ProgramFile getCompiledPackage() {
-        // TODO
-        return null;
-    }
 
     public PackageNode getAST() {
         return pkgNode;
@@ -150,6 +163,14 @@ public class Compiler {
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
         return codeAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage taintAnalyze(BLangPackage pkgNode) {
+        return taintAnalyzer.analyze(pkgNode);
+    }
+  
+    private BLangPackage annotationProcess(BLangPackage pkgNode) {
+        return annotationProcessor.runPlugins(pkgNode);
     }
 
     private BLangPackage desugar(BLangPackage pkgNode) {
@@ -178,12 +199,12 @@ public class Compiler {
             return true;
         }
 
-        return (phase == CompilerPhase.DESUGAR ||
-                phase == CompilerPhase.CODE_GEN) &&
-                (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
+        return (phase == CompilerPhase.TAINT_ANALYZE || phase == CompilerPhase.COMPILER_PLUGIN 
+                || phase == CompilerPhase.DESUGAR || phase == CompilerPhase.CODE_GEN) 
+                && (dlog.errorCount > 0 || this.pkgNode.getCompilationUnits().isEmpty());
     }
 
     private BLangPackage getBuiltInPackage(Name name) {
-        return codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue())));
+        return taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(name.getValue()))));
     }
 }

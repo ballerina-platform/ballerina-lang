@@ -26,7 +26,7 @@ import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -49,18 +49,18 @@ public class LocksInServicesTest {
                 .setupProgramFile(this, "test-src/lock/locks-in-services.bal");
     }
 
-//    @Test(description = "Test locking service level variable basic")
+    @Test(description = "Test locking service level variable basic")
     public void testServiceLvlVarLockBasic() {
-        Semaphore semaphore = new Semaphore(-99);
+        Semaphore semaphore = new Semaphore(-9999);
 
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             executor.submit(new TestRequestSender(compileResult, semaphore, "/sample/echo"));
         }
 
         try {
-            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(20, TimeUnit.MINUTES)) {
                 Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample/getCount";
@@ -70,14 +70,14 @@ public class LocksInServicesTest {
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
                     .getInputStream());
-            Assert.assertEquals(responseMsgPayload, "count - 100", "incorrect request count");
+            Assert.assertEquals(responseMsgPayload, "count - 10000", "incorrect request count");
         } catch (InterruptedException e) {
             Assert.fail("thread interrupted before request execution finished - " + e.getMessage(), e);
         }
     }
 
 
-//    @Test(description = "Test locking service level variable complex")
+    @Test(description = "Test locking service level variable complex")
     public void testServiceLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -90,7 +90,7 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(10, TimeUnit.MINUTES)) {
                 Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample1/getResult";
@@ -107,7 +107,7 @@ public class LocksInServicesTest {
         }
     }
 
-//    @Test(description = "Test locking service level and package level variable complex")
+    @Test(description = "Test locking service level and package level variable complex")
     public void testServiceLvlPkgLvlVarLockComplex() {
         Semaphore semaphore = new Semaphore(-11);
 
@@ -120,7 +120,7 @@ public class LocksInServicesTest {
         }
 
         try {
-            if (!semaphore.tryAcquire(2000, TimeUnit.MILLISECONDS)) {
+            if (!semaphore.tryAcquire(10, TimeUnit.MINUTES)) {
                 Assert.fail("request execution not finished within 2s");
             }
             String path = "/sample2/getResult";
@@ -137,7 +137,7 @@ public class LocksInServicesTest {
         }
     }
 
-//    @Test(description = "Test throwing error inside lock statement")
+    @Test(description = "Test throwing error inside lock statement")
     public void testThrowErrorInsideLock() {
         Semaphore semaphore = new Semaphore(0);
 

@@ -37,9 +37,11 @@ public class HttpResource {
     private List<String> producesSubTypes;
     private CorsHeaders corsHeaders;
     private SignatureParams signatureParams;
+    private HttpService parentService;
 
-    public HttpResource(Resource resource) {
+    public HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
+        this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
     }
 
@@ -58,6 +60,10 @@ public class HttpResource {
     public void prepareAndValidateSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
+    }
+
+    public HttpService getParentService() {
+        return parentService;
     }
 
     public Resource getBalResource() {

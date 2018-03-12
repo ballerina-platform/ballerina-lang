@@ -175,6 +175,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
         String constraintTypeName = null;
+        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
 
         if (variable == null) {
             return actionFunctionList;
@@ -207,7 +208,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
             // If the packageID is ballerina.builtin, we extract entries of builtin package
             entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && packageID.equals(".")) {
+        } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
             entries = this.getScopeEntries(bType, context);
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
@@ -280,7 +281,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             if (".".equals(tokenString) || ":".equals(tokenString)) {
                 delimiterIndex = searchTokenIndex;
                 break;
-            } else if (terminalTokens.contains(tokenString)) {
+            } else if (terminalTokens.contains(tokenString)
+                    && completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 break;
             } else {
                 searchTokenIndex++;

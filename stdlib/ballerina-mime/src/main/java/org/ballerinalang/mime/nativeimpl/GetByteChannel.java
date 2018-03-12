@@ -19,17 +19,17 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -44,23 +44,37 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
         packageName = "ballerina.mime",
         functionName = "getByteChannel",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetByteChannel extends AbstractNativeFunction {
+public class GetByteChannel extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct byteChannelStruct;
+    public void execute(Context context) {
+        BStruct byteChannelStruct = null;
         try {
-            BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
+            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
-            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.
-                    getByteChannel(entityStruct));
+            Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
+            if (byteChannel != null) {
+                byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
+                context.setReturnValues(byteChannelStruct, null);
+            } else {
+                if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
+                    context.setReturnValues(null, MimeUtil.createEntityError(context,
+                            "Byte channel is not available but payload can be obtain either as xml, " +
+                                    "json, string or blob type"));
+                } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null) {
+                    context.setReturnValues(null, MimeUtil.createEntityError(context,
+                            "Byte channel is not available since payload contains a set of body parts"));
+                } else {
+                    context.setReturnValues(null, MimeUtil.createEntityError(context,
+                            "Byte channel is not available as payload"));
+                }
+            }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred while constructing byte channel from entity body : "
-                    + e.getMessage());
+            context.setReturnValues(null, MimeUtil.createEntityError(context,
+                    "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
-        return this.getBValues(byteChannelStruct);
     }
 }

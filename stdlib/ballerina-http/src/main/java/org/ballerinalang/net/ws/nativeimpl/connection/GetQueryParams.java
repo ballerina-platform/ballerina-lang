@@ -19,9 +19,8 @@
 package org.ballerinalang.net.ws.nativeimpl.connection;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,12 +40,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetQueryParams extends AbstractNativeFunction {
+public class GetQueryParams extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            return WebSocketUtil.getQueryParams(context, this);
+            context.setReturnValues(WebSocketUtil.getQueryParams(context));
         } catch (Throwable e) {
             throw new BallerinaException(
                     "Error occurred while retrieving query parameters from Connection: " + e.getMessage());

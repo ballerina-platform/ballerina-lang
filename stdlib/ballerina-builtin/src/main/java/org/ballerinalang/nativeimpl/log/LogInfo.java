@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.log;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -38,13 +37,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class LogInfo extends AbstractLogFunction {
 
-    public BValue[] execute(Context ctx) {
-        String pkg = ctx.getControlStack().currentFrame.prevStackFrame
-                                                .getCallableUnitInfo().getPackageInfo().getPkgPath();
+    public void execute(Context ctx) {
+        String pkg = getPackagePath(ctx);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            getLogger(pkg).info(getStringArgument(ctx, 0));
+            getLogger(pkg).info(getLogMessage(ctx, 0));
         }
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 }

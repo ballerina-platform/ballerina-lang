@@ -65,15 +65,15 @@ public class XMLAccessTest {
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
     }
-
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: index out of range: index: 1, size: 1.*")
+    
+    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+            expectedExceptionsMessageRegExp = ".*index out of range: index: 1, size: 1.*")
     public void testXMLAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
     }
-
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: array index out of range: index: 5, size: 3.*")
+    
+    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 3.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }

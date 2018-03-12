@@ -80,9 +80,9 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest
     // cache result
     authenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
     if (authInfo.isAuthenticated) {
-        log:printInfo("Successfully authenticated against the userstore");
+        log:printDebug("Successfully authenticated against the userstore");
     } else {
-        log:printInfo("Authentication failure");
+        log:printDebug("Authentication failure");
     }
 
     return authInfo.isAuthenticated;

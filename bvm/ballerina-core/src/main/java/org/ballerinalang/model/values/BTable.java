@@ -64,6 +64,19 @@ public class BTable implements BRefType<Object>, BCollection {
         this.isInMemoryTable = false;
     }
 
+    public BTable(String query, BTable fromTable, BTable joinTable, BStructType constraintType, BRefValueArray params) {
+        this.tableProvider = TableProvider.getInstance();
+        if (joinTable != null) {
+            this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
+                    constraintType, params);
+        } else {
+            this.tableName = tableProvider.createTable(fromTable.tableName, query, constraintType, params);
+        }
+        this.constraintType = constraintType;
+        this.isInMemoryTable = true;
+        generateIterator();
+    }
+
     public BTable(BType type) {
         if (((BTableType) type).getConstrainedType() == null) {
             throw  new BallerinaException("table cannot be created without a constraint");
@@ -130,7 +143,9 @@ public class BTable implements BRefType<Object>, BCollection {
     }
 
     public BStruct getNext() {
+        // Make next row the current row
         next();
+        // Create BStruct from current row
         return iterator.generateNext();
     }
 

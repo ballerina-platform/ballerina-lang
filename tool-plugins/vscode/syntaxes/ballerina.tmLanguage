@@ -39,18 +39,18 @@
       </dict>
       <dict>
         <key>begin</key>
-        <string>\b(documentation)\s*(\{)</string>
+        <string>\b(documentation|deprecated)\s*(\{)</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
           <dict>
             <key>name</key>
-            <string>keyword.other.ballerina</string>
+            <string>keyword.other.ballerina.documentation</string>
           </dict>
           <key>2</key>
           <dict>
             <key>name</key>
-            <string>punctuation.definition.block.ballerina</string>
+            <string>punctuation.definition.block.ballerina.documentation</string>
           </dict>
         </dict>
         <key>end</key>
@@ -60,14 +60,65 @@
           <key>0</key>
           <dict>
             <key>name</key>
-            <string>punctuation.definition.block.ballerina</string>
+            <string>punctuation.definition.block.ballerina.documentation</string>
           </dict>
         </dict>
         <key>patterns</key>
         <array>
           <dict>
+            <key>match</key>
+            <string>(P|R|T|F|V)({{)(.+)(}})</string>
+            <key>captures</key>
+            <dict>
+              <key>1</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.other.ballerina.documentation</string>
+              </dict>
+              <key>2</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.other.ballerina.documentation</string>
+              </dict>
+              <key>3</key>
+              <dict>
+                <key>name</key>
+                <string>variable.parameter.ballerina.documentation</string>
+              </dict>
+              <key>4</key>
+              <dict>
+                <key>name</key>
+                <string>keyword.other.ballerina.documentation</string>
+              </dict>
+            </dict>
+          </dict>
+          <dict>
             <key>name</key>
-            <string>string.quoted.double.ballerina</string>
+            <string>comment.block.code.ballerina.documentation</string>
+            <key>begin</key>
+            <string>\```</string>
+            <key>end</key>
+            <string>\```</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>comment.block.code.ballerina.documentation</string>
+            <key>begin</key>
+            <string>\``</string>
+            <key>end</key>
+            <string>\``</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>comment.block.code.ballerina.documentation</string>
+            <key>begin</key>
+            <string>\`</string>
+            <key>end</key>
+            <string>\`</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>comment.block.ballerina.documentation</string>
             <key>match</key>
             <string>.</string>
           </dict>
@@ -133,7 +184,7 @@
             <key>name</key>
             <string>keyword.control.ballerina</string>
             <key>match</key>
-            <string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b</string>
+            <string>\b(if|else|iterator|try|catch|finally|fork|join|all|some|while|foreach|in|throw|return|returns|break|timeout|transaction|aborted|abort|committed|failed|retries|next|bind|with|lengthof|typeof|enum)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -145,7 +196,7 @@
             <key>name</key>
             <string>storage.type.ballerina</string>
             <key>match</key>
-            <string>\b(boolean|int|float|string|var|any|datatable|blob)\b</string>
+            <string>\b(boolean|int|float|string|var|any|datatable|table|blob)\b</string>
           </dict>
           <dict>
             <key>name</key>

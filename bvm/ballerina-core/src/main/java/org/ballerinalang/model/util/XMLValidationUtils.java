@@ -17,7 +17,7 @@
 package org.ballerinalang.model.util;
 
 import org.ballerinalang.model.values.BXMLQName;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 /**
  * This class defines the basic set of utility methods to validate XML.
@@ -261,9 +261,8 @@ public class XMLValidationUtils {
      * </i>
      * 
      * @param qname {@link BXMLQName} to check the validity
-     * @throws BallerinaException If the {@link BXMLQName} is invalid
      */
-    public static void validateXMLQName(BXMLQName qname)  throws BallerinaException {
+    public static void validateXMLQName(BXMLQName qname) {
         validateXMLName(qname.getLocalName());
         validateXMLName(qname.getPrefix());
     }
@@ -277,11 +276,10 @@ public class XMLValidationUtils {
      * </i>
      * 
      * @param name Name to check the validity
-     * @throws BallerinaException If the name is invalid
      */
-    public static void validateXMLName(String name) throws BallerinaException {
+    public static void validateXMLName(String name) {
         if (name != null && !isValid(name)) {
-            throw new BallerinaException("invalid xml qualified name: unsupported characters in '" + name + "'");
+            throw new BLangRuntimeException("invalid xml qualified name: unsupported characters in '" + name + "'");
         }
     }
 

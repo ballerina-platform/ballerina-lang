@@ -9,7 +9,7 @@ service<http> echo {
     }
     resource echo (http:Connection conn, http:InRequest req) {
         http:OutResponse resp = {};
-        string payload = req.getStringPayload();
+        var payload, _ = req.getStringPayload();
         resp.setStringPayload(payload);
         _ = conn.respond(resp);
     }

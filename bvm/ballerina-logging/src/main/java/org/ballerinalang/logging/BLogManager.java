@@ -19,6 +19,7 @@ package org.ballerinalang.logging;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.formatters.HTTPTraceLogFormatter;
+import org.ballerinalang.logging.formatters.HttpAccessLogFormatter;
 import org.ballerinalang.logging.util.BLogLevel;
 
 import java.io.ByteArrayInputStream;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -38,6 +40,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.logging.util.Constants.BALLERINA_LOG_INSTANCES;
 import static org.ballerinalang.logging.util.Constants.BALLERINA_USER_LOG;
+import static org.ballerinalang.logging.util.Constants.HTTP_ACCESS_LOG;
 import static org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG;
 import static org.ballerinalang.logging.util.Constants.LOG_LEVEL;
 
@@ -57,8 +60,9 @@ public class BLogManager extends LogManager {
     private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
-    private BLogLevel ballerinaUserLogLevel;
+    private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
     private Logger httpTraceLogger;
+    private Logger httpAccessLogger;
 
     @Override
     public void readConfiguration(InputStream ins) throws IOException, SecurityException {
@@ -94,9 +98,6 @@ public class BLogManager extends LogManager {
         String userLogLevel = configRegistry.getInstanceConfigValue(BALLERINA_USER_LOG, LOG_LEVEL);
         if (userLogLevel != null) {
             ballerinaUserLogLevel = BLogLevel.toBLogLevel(userLogLevel);
-        } else {
-            // Default to INFO
-            ballerinaUserLogLevel = BLogLevel.INFO;
         }
 
         // setup HTTP trace log level configuration
@@ -112,7 +113,7 @@ public class BLogManager extends LogManager {
         return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
     }
 
-    public void setHttpTraceLogHandler() throws IOException {
+    public void setHttpTraceLogHandler() {
         Handler handler = new ConsoleHandler();
         handler.setFormatter(new HTTPTraceLogFormatter());
         handler.setLevel(Level.FINEST);
@@ -125,6 +126,31 @@ public class BLogManager extends LogManager {
         removeHandlers(httpTraceLogger);
         httpTraceLogger.addHandler(handler);
         httpTraceLogger.setLevel(Level.FINEST);
+    }
+
+    /**
+     * Sets the Http access log
+     * @param arg the argument for access logging
+     * @throws IOException if there are IO problems opening the files.
+     */
+    public void setHttpAccessLogHandler(String arg) throws IOException {
+        Handler handler;
+        if (arg.equalsIgnoreCase("console")) {
+            handler = new ConsoleHandler();
+        } else {
+            handler = new FileHandler(arg, true);
+        }
+        handler.setFormatter(new HttpAccessLogFormatter());
+        handler.setLevel(Level.INFO);
+
+        if (httpAccessLogger == null) {
+            // keep a reference to prevent this logger from being garbage collected
+            httpAccessLogger = Logger.getLogger(HTTP_ACCESS_LOG);
+        }
+
+        removeHandlers(httpAccessLogger);
+        httpAccessLogger.addHandler(handler);
+        httpAccessLogger.setLevel(Level.INFO);
     }
 
     private static void removeHandlers(Logger logger) {
