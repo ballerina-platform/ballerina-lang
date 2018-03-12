@@ -41,7 +41,7 @@ struct ResultDates {
 }
 
 function testInsertTableData () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -59,7 +59,7 @@ function testInsertTableData () (int) {
 }
 
 function testCreateTable () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -77,7 +77,7 @@ function testCreateTable () (int) {
 }
 
 function testUpdateTableData () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -95,7 +95,7 @@ function testUpdateTableData () (int) {
 }
 
 function testGeneratedKeyOnInsert () (string) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -116,7 +116,7 @@ function testGeneratedKeyOnInsert () (string) {
 }
 
 function testGeneratedKeyWithColumn () (string) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -139,7 +139,7 @@ function testGeneratedKeyWithColumn () (string) {
 }
 
 function testSelectData () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -161,7 +161,7 @@ function testSelectData () (string firstName) {
 }
 
 function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -186,7 +186,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
 }
 
 function testCallProcedure () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
                      host: "./target/tempdb/",
         port: 0,
@@ -209,7 +209,7 @@ function testCallProcedure () (string firstName) {
 }
 
 function testCallProcedureWithResultSet () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -231,7 +231,7 @@ function testCallProcedureWithResultSet () (string firstName) {
 }
 
 function testQueryParameters () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -255,7 +255,7 @@ function testQueryParameters () (string firstName) {
 }
 
 function testInsertTableDataWithParameters () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -280,7 +280,7 @@ function testInsertTableDataWithParameters () (int) {
 }
 
 function testArrayofQueryParameters () (string firstName) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -313,7 +313,7 @@ function testArrayofQueryParameters () (string firstName) {
 }
 
 function testBoolArrayofQueryParameters () (int value) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -356,7 +356,7 @@ function testBoolArrayofQueryParameters () (int value) {
 
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
     map boolean_arr, map float_arr) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -402,7 +402,7 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
 }
 
 function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -442,7 +442,7 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 }
 
 function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
                  host: "./target/tempdb/",
         port: 0,
@@ -479,7 +479,7 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 }
 
 function testINParameters () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -516,7 +516,7 @@ function testINParameters () (int) {
 }
 
 function testNullINParameterValues () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -553,7 +553,7 @@ function testNullINParameterValues () (int) {
 }
 
 function testNullINParameters () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -576,7 +576,7 @@ function testNullINParameters () (int) {
 }
 
 function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -613,7 +613,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 }
 
 function testNullINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -650,7 +650,7 @@ function testNullINOutParameters () (any, any, any, any, any, any, any, any, any
 }
 
 function testEmptySQLType () (int) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -669,7 +669,7 @@ function testEmptySQLType () (int) {
 }
 
 function testArrayOutParameters () (any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -694,7 +694,7 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
 }
 
 function testArrayInOutParameters () (any, any, any, any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -721,7 +721,7 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 }
 
 function testBatchUpdate () (int[]) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -757,7 +757,7 @@ function testBatchUpdate () (int[]) {
 }
 
 function testBatchUpdateWithFailure () (int[] updateCount, int count) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -820,7 +820,7 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 }
 
 function testBatchUpdateWithNullParam () (int[]) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -839,7 +839,7 @@ function testBatchUpdateWithNullParam () (int[]) {
 }
 
 function testDateTimeInParameters () (int[]) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -889,7 +889,7 @@ function testDateTimeInParameters () (int[]) {
 }
 
 function testDateTimeNullInValues () (string data) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -921,7 +921,7 @@ function testDateTimeNullInValues () (string data) {
 
 
 function testDateTimeNullOutValues () (int count) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -958,7 +958,7 @@ function testDateTimeNullOutValues () (int count) {
 }
 
 function testDateTimeNullInOutValues () (any, any, any, any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -983,7 +983,7 @@ function testDateTimeNullInOutValues () (any, any, any, any) {
 }
 
 function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1020,7 +1020,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 }
 
 function testStructOutParameters () (any) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1039,7 +1039,7 @@ function testStructOutParameters () (any) {
 }
 
 function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1071,7 +1071,7 @@ function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4
 }
 
 function testCloseConnectionPool () (int count) {
-    endpoint<sql:ClientEndpoint> testDBEP {
+    endpoint<sql:Client> testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,

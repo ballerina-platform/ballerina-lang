@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         packageName = "ballerina.data.sql",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                              structPackage = "ballerina.data.sql"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
