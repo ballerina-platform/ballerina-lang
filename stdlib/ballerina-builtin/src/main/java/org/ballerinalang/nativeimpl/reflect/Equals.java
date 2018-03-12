@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.reflect;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -30,7 +31,6 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -52,13 +52,13 @@ import java.util.stream.Collectors;
                            @Argument(name = "value2", type = TypeKind.ANY)},
                    returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
                    isPublic = true)
-public class Equals extends AbstractNativeFunction {
+public class Equals extends BlockingNativeCallableUnit {
     
     @Override
-    public BValue[] execute(Context context) {
-        BValue value1 = context.getControlStack().getCurrentFrame().getRefRegs()[0];
-        BValue value2 = context.getControlStack().getCurrentFrame().getRefRegs()[1];
-        return getBValues(new BBoolean(isEqual(value1, value2)));
+    public void execute(Context context) {
+        BValue value1 = context.getNullableRefArgument(0);
+        BValue value2 = context.getNullableRefArgument(1);
+        context.setReturnValues(new BBoolean(isEqual(value1, value2)));
     }
     
     /**
@@ -68,6 +68,7 @@ public class Equals extends AbstractNativeFunction {
      * @param rhsValue The value on the right side.
      * @return True if values are equal, else false.
      */
+    @SuppressWarnings("rawtypes")
     private boolean isEqual(BValue lhsValue, BValue rhsValue) {
         if (null == lhsValue && null == rhsValue) {
             return true;
@@ -211,6 +212,7 @@ public class Equals extends AbstractNativeFunction {
      * @param rhsMap Right hand side map.
      * @return Return if maps are deeply equal.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private boolean isEqual(BMap lhsMap, BMap rhsMap) {
         // Check if size is same.
         if (lhsMap.size() != rhsMap.size()) {

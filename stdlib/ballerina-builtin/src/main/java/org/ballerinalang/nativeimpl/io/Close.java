@@ -18,16 +18,15 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -48,7 +47,7 @@ import java.util.concurrent.CompletableFuture;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class Close extends AbstractNativeFunction {
+public class Close extends BlockingNativeCallableUnit {
 
     /**
      * The index of the ByteChannel in ballerina.io#close().
@@ -64,10 +63,10 @@ public class Close extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, BYTE_CHANNEL_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
             Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
@@ -82,6 +81,6 @@ public class Close extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(errorStruct);
+        context.setReturnValues(errorStruct);
     }
 }

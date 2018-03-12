@@ -82,7 +82,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -241,6 +240,7 @@ public class BLangPackageBuilder {
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
 
     private Stack<List<BLangEndpoint>> endpointListStack = new Stack<>();
+    private BLangEndpoint lastBuiltEndpoint;
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
@@ -426,6 +426,7 @@ public class BLangPackageBuilder {
         attachDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
+        startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
     }
 
     public void startBlock() {
@@ -521,12 +522,12 @@ public class BLangPackageBuilder {
         endFunctionDef(pos, null, false, false, true, false);
     }
 
-    public void startEndpointDecarationScope() {
-        endpointListStack.push(new ArrayList<>());
+    private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
+        endpointListStack.push(endpointList);
     }
 
-    public List<BLangEndpoint> endEndpointDecarationScope() {
-        return endpointListStack.pop();
+    private void endEndpointDeclarationScope() {
+        endpointListStack.pop();
     }
 
     public void addEndpointDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean initExprExist) {
@@ -539,12 +540,17 @@ public class BLangPackageBuilder {
             endpointNode.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
         }
         endpointNode.addWS(ws);
-        endpointListStack.peek().add(endpointNode);
+        if (endpointListStack.empty()) {
+            // Top level node.
+            lastBuiltEndpoint = endpointNode;
+            this.compUnit.addTopLevelNode(endpointNode);
+        } else {
+            endpointListStack.peek().add(endpointNode);
+        }
     }
 
     public void markLastEndpointAsPublic() {
-        final List<BLangEndpoint> endpointNodeList = endpointListStack.peek();
-        endpointNodeList.get(endpointNodeList.size() - 1).flagSet.add(Flag.PUBLIC);
+        lastBuiltEndpoint.flagSet.add(Flag.PUBLIC);
     }
 
     public void addVariableDefStatement(DiagnosticPos pos,
@@ -877,6 +883,7 @@ public class BLangPackageBuilder {
                                boolean bodyExists,
                                boolean isReceiverAttached) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
 
@@ -985,7 +992,6 @@ public class BLangPackageBuilder {
         InvokableNode invokableNode = this.invokableNodeStack.peek();
         invokableNode.addWS(ws);
         invokableNode.setBody(block);
-        ((BLangInvokableNode) invokableNode).endpoints = endEndpointDecarationScope();
     }
 
     public void setPackageDeclaration(DiagnosticPos pos, Set<Whitespace> ws, List<String> nameComps, String version) {
@@ -1129,7 +1135,7 @@ public class BLangPackageBuilder {
         attachDocumentations(connectorNode);
         attachDeprecatedNode(connectorNode);
         this.connectorNodeStack.push(connectorNode);
-        startEndpointDecarationScope();
+        startEndpointDeclarationScope(((BLangConnector) connectorNode).endpoints);
     }
 
     public void startConnectorBody() {
@@ -1156,7 +1162,7 @@ public class BLangPackageBuilder {
         if (publicCon) {
             connectorNode.flagSet.add(Flag.PUBLIC);
         }
-        connectorNode.endpoints = endEndpointDecarationScope();
+        endEndpointDeclarationScope();
         this.compUnit.addTopLevelNode(connectorNode);
     }
 
@@ -1171,12 +1177,14 @@ public class BLangPackageBuilder {
     public void startActionDef() {
         ActionNode actionNode = TreeBuilder.createActionNode();
         this.invokableNodeStack.push(actionNode);
+        startEndpointDeclarationScope(((BLangAction) actionNode).endpoints);
     }
 
     public void endActionDef(DiagnosticPos pos,
                              Set<Whitespace> ws, int annotCount,
                              boolean nativeAction, boolean bodyExists, boolean docExists, boolean isDeprecated) {
         BLangAction actionNode = (BLangAction) this.invokableNodeStack.pop();
+        endEndpointDeclarationScope();
         actionNode.pos = pos;
         actionNode.addWS(ws);
         if (nativeAction) {
@@ -1555,7 +1563,7 @@ public class BLangPackageBuilder {
         attachDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
-        startEndpointDecarationScope();
+        startEndpointDeclarationScope(serviceNode.endpoints);
     }
 
     public void addServiceBody(Set<Whitespace> ws) {
@@ -1571,20 +1579,22 @@ public class BLangPackageBuilder {
         final BLangNameReference epName = nameReferenceStack.pop();
         serviceNode.setEndpointType(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
                 (BLangIdentifier) epName.name));
-        serviceNode.endpoints = endEndpointDecarationScope();
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
+        endEndpointDeclarationScope();
     }
 
     public void startResourceDef() {
         ResourceNode resourceNode = TreeBuilder.createResourceNode();
         invokableNodeStack.push(resourceNode);
+        startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
     public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws,
                                String resourceName, int annotCount, boolean docExists, boolean isDeprecated) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
+        endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
@@ -1852,8 +1862,6 @@ public class BLangPackageBuilder {
     }
 
     public void endCompilationUnit(Set<Whitespace> ws) {
-        final List<BLangEndpoint> globalEndpoints = endEndpointDecarationScope();
-        globalEndpoints.forEach(compUnit::addTopLevelNode);
         compUnit.addWS(ws);
     }
 

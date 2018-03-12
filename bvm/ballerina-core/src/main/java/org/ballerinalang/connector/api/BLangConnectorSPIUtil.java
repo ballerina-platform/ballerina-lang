@@ -52,7 +52,7 @@ public final class BLangConnectorSPIUtil {
      * @return ConnectorEndPoint struct.
      */
     public static Struct getConnectorEndpointStruct(Context context) {
-        BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[0];
+        BValue result = context.getRefArgument(0);
         if (result == null || result.getType().getTag() != TypeTags.STRUCT_TAG) {
             throw new BallerinaException("Can't get connector endpoint struct");
         }
@@ -68,7 +68,7 @@ public final class BLangConnectorSPIUtil {
      * @return register service.
      */
     public static Service getServiceRegisted(Context context) {
-        BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[1];
+        BValue result = context.getRefArgument(1);
         if (result == null || result.getType().getTag() != TypeTags.TYPE_TAG
                 || ((BTypeValue) result).value().getTag() != TypeTags.SERVICE_TAG) {
             throw new BallerinaConnectorException("Can't get service reference");
@@ -135,8 +135,7 @@ public final class BLangConnectorSPIUtil {
         final BConnector bConnector = BLangVMStructs.createBConnector(connectorInfo, args);
         final FunctionInfo initFunction = packageInfo.getFunctionInfo(connectorName + INIT_FUNCTION_SUFFIX);
         if (initFunction != null) {
-            Context initContext = new Context(programFile);
-            BLangFunctions.invokeFunction(programFile, initFunction, initContext);
+            BLangFunctions.invokePackageInitFunction(initFunction);
         }
         return bConnector;
     }
@@ -170,8 +169,7 @@ public final class BLangConnectorSPIUtil {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
         final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
-        Context serviceInitCtx = new Context(programFile);
-        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
+        BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
         return service;
     }
 }

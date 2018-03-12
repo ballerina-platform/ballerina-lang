@@ -21,10 +21,13 @@ package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +40,8 @@ public class VMDebugClientHandler implements DebugClientHandler {
 
     private Channel channel = null;
 
-    //key - threadid
-    private Map<String, DebugContext> contextMap;
+    //key - workerId, value - worker context
+    private Map<String, WorkerExecutionContext> contextMap;
 
     VMDebugClientHandler() {
         //Using concurrent map because multiple threads may try to access this concurrently
@@ -46,21 +49,25 @@ public class VMDebugClientHandler implements DebugClientHandler {
     }
 
     @Override
-    public void addContext(DebugContext debugContext) {
-        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        debugContext.setThreadId(threadId);
+    public void addWorkerContext(WorkerExecutionContext ctx) {
+        String workerId = generateAndGetWorkerId(ctx.workerInfo);
+        ctx.getDebugContext().setWorkerId(workerId);
         //TODO check if that thread id already exist in the map
-        this.contextMap.put(threadId, debugContext);
+        this.contextMap.put(workerId, ctx);
+    }
+
+    private String generateAndGetWorkerId (WorkerInfo workerInfo) {
+        UUID uuid = UUID.randomUUID();
+        return workerInfo.getWorkerName() + "-" + uuid.toString();
     }
 
     @Override
-    public DebugContext getContext(String threadId) {
-        return this.contextMap.get(threadId);
+    public WorkerExecutionContext getWorkerContext(String workerId) {
+        return this.contextMap.get(workerId);
     }
 
-    @Override
-    public void updateAllDebugContexts(DebugCommand debugCommand) {
-        contextMap.forEach((k, v) -> v.setCurrentCommand(debugCommand));
+    public Map<String, WorkerExecutionContext> getAllWorkerContexts() {
+        return contextMap;
     }
 
     @Override

@@ -33,7 +33,7 @@ enum HttpOperation {
 }
 
 // makes the actual endpoints call according to the http operation passed in.
-public function invokeEndpoint (string path, http:Request request,
+public function invokeEndpoint (string path, http:Request outRequest, http:Request inRequest,
                                 HttpOperation requestAction, http:HttpClient httpClient)
 (http:Response, http:HttpConnectorError) {
 
@@ -43,21 +43,21 @@ public function invokeEndpoint (string path, http:Request request,
     bind httpClient with endPoint;
 
     if (HttpOperation.GET == requestAction) {
-        return endPoint.get(path, request);
+        return endPoint.get(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
-        return endPoint.post(path, request);
+        return endPoint.post(path, outRequest);
     } else if (HttpOperation.OPTIONS == requestAction) {
-        return endPoint.options(path, request);
+        return endPoint.options(path, outRequest);
     } else if (HttpOperation.PUT == requestAction) {
-        return endPoint.put(path, request);
+        return endPoint.put(path, outRequest);
     } else if (HttpOperation.DELETE == requestAction) {
-        return endPoint.delete(path, request);
+        return endPoint.delete(path, outRequest);
     } else if (HttpOperation.PATCH == requestAction) {
-        return endPoint.patch(path, request);
+        return endPoint.patch(path, outRequest);
     } else if (HttpOperation.FORWARD == requestAction) {
-        return endPoint.forward(path, request);
+        return endPoint.forward(path, inRequest);
     } else if (HttpOperation.HEAD == requestAction) {
-        return endPoint.head(path, request);
+        return endPoint.head(path, outRequest);
     } else {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;

@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,12 +40,12 @@ import java.io.File;
                 structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Delete extends AbstractNativeFunction {
+public class Delete extends BlockingNativeCallableUnit {
 
     @Override 
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        BStruct target = (BStruct) getRefArgument(context, 0);
+        BStruct target = (BStruct) context.getRefArgument(0);
         File targetFile = new File(target.getStringField(0));
         if (!targetFile.exists()) {
             throw new BallerinaException("failed to delete file: file not found: " + targetFile.getPath());
@@ -54,7 +53,7 @@ public class Delete extends AbstractNativeFunction {
         if (!delete(targetFile)) {
             throw new BallerinaException("failed to delete file: " + targetFile.getPath());
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     private boolean delete(File targetFile) {

@@ -45,18 +45,24 @@ import java.util.Map;
  */
 public class Services {
 
-    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
-                                              HTTPTestRequest request) {
-//        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
-//                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
-        ProgramFile programFile = compileResult.getProgFile();
-        BStruct connectorEndpoint = BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, endpointName);
-        HTTPServicesRegistry httpServicesRegistry = (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
-        TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
-        request.setFutureListener(futureListener);
-        HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, HTTPTestRequest request) {
+        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
+        TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
+        request.setCallback(callback);
+        HttpResource resource = HttpDispatcher.findResource(httpServerConnector.getHttpServicesRegistry(), request);
+//    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
+//                                              HTTPTestRequest request) {
+////        BallerinaHttpServerConnector httpServerConnector = (BallerinaHttpServerConnector) ConnectorUtils.
+////                getBallerinaServerConnector(compileResult.getProgFile(), HttpConstants.HTTP_PACKAGE_PATH);
+//        ProgramFile programFile = compileResult.getProgFile();
+//        BStruct connectorEndpoint = BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, endpointName);
+//        HTTPServicesRegistry httpServicesRegistry = (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+//        TestHttpFutureListener futureListener = new TestHttpFutureListener(request);
+//        request.setFutureListener(futureListener);
+//        HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         if (resource == null) {
-            return futureListener.getResponseMsg();
+            return callback.getResponseMsg();
         }
         //TODO below should be fixed properly
         //basically need to find a way to pass information from server connector side to client connector side
@@ -66,14 +72,9 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
-        ConnectorFuture future = Executor.submit(resource.getBalResource(), properties, signatureParams);
-
-//        CallableUnitCallback callback = new HttpCallableUnitCallback(request);
-//        Executor.submit(resource.getBalResource(), callback, properties, signatureParams);
-
-        futureListener.setRequestStruct(signatureParams[0]);
-        future.setConnectorFutureListener(futureListener);
-        futureListener.sync();
-        return futureListener.getResponseMsg();
+        callback.setRequestStruct(signatureParams[0]);
+        Executor.submit(resource.getBalResource(), callback, properties, signatureParams);
+        callback.sync();
+        return callback.getResponseMsg();
     }
 }

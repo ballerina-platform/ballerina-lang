@@ -18,17 +18,16 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,7 +53,7 @@ import java.util.concurrent.ExecutionException;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteTextRecord extends AbstractNativeFunction {
+public class WriteTextRecord extends BlockingNativeCallableUnit {
 
     /**
      * Index of the record channel in ballerina.io#writeTextRecord.
@@ -114,11 +113,11 @@ public class WriteTextRecord extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            BStringArray content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            BStringArray content = (BStringArray) context.getRefArgument(CONTENT_INDEX);
             DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
                     .TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
@@ -128,6 +127,6 @@ public class WriteTextRecord extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(errorStruct);
+        context.setReturnValues(errorStruct);
     }
 }

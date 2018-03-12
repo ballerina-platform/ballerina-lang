@@ -18,17 +18,16 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,7 +53,7 @@ import java.util.concurrent.ExecutionException;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteCharacters extends AbstractNativeFunction {
+public class WriteCharacters extends BlockingNativeCallableUnit {
     /**
      * Index of the content provided in ballerina.io#writeCharacters.
      */
@@ -120,13 +119,13 @@ public class WriteCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         int numberOfCharactersWritten = 0;
         BStruct errorStruct = null;
         try {
-            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            String content = getStringArgument(context, CONTENT_INDEX);
-            long startOffset = getIntArgument(context, START_OFFSET_INDEX);
+            BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            String content = context.getStringArgument(CONTENT_INDEX);
+            long startOffset = context.getIntArgument(START_OFFSET_INDEX);
             CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
@@ -138,6 +137,6 @@ public class WriteCharacters extends AbstractNativeFunction {
             log.error(message, e);
             errorStruct = IOUtils.createError(context, message);
         }
-        return getBValues(new BInteger(numberOfCharactersWritten), errorStruct);
+        context.setReturnValues(new BInteger(numberOfCharactersWritten), errorStruct);
     }
 }
