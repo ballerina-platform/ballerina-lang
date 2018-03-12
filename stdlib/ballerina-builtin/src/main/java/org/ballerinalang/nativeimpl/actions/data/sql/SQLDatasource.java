@@ -21,7 +21,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.connector.impl.StructImpl;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -29,9 +28,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
@@ -210,26 +207,29 @@ public class SQLDatasource implements BValue {
 
     private BMap<String, BRefType> populatePropertiesMap(Struct options) {
         Map<String, Value> dataSourceConfigMap = options.getMapField(Constants.Options.DATASOURCE_PROPERTIES);
-        BMap<String, BRefType> mapProperties = new BMap<>();
-        for (Map.Entry<String, Value> entry : dataSourceConfigMap.entrySet()) {
-            Value propValue = entry.getValue();
-            BRefType dataValue = null;
-            switch (propValue.getType()) {
-            case INT:
-                dataValue = new BInteger(propValue.getIntValue());
-                break;
-            case FLOAT:
-                dataValue = new BFloat(propValue.getFloatValue());
-                break;
-            case BOOLEAN:
-                dataValue = new BBoolean(propValue.getBooleanValue());
-                break;
-            case NULL:
-                break;
-            default:
-                dataValue = new BString(propValue.getStringValue());
+        BMap<String, BRefType> mapProperties = null;
+        if (dataSourceConfigMap.size() > 0) {
+            mapProperties = new BMap<>();
+            for (Map.Entry<String, Value> entry : dataSourceConfigMap.entrySet()) {
+                Value propValue = entry.getValue();
+                BRefType dataValue = null;
+                switch (propValue.getType()) {
+                case INT:
+                    dataValue = new BInteger(propValue.getIntValue());
+                    break;
+                case FLOAT:
+                    dataValue = new BFloat(propValue.getFloatValue());
+                    break;
+                case BOOLEAN:
+                    dataValue = new BBoolean(propValue.getBooleanValue());
+                    break;
+                case NULL:
+                    break;
+                default:
+                    dataValue = new BString(propValue.getStringValue());
+                }
+                mapProperties.put(entry.getKey(), dataValue);
             }
-            mapProperties.put(entry.getKey(), dataValue);
         }
         return mapProperties;
     }
