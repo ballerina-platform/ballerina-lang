@@ -31,15 +31,16 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
-        functionName = "stop",
+        functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
                 structPackage = "ballerina.net.http.mock"),
         isPublic = true
 )
-public class Stop extends org.ballerinalang.net.http.serviceendpoint.Stop {
+public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {
 
     @Override
     public void execute(Context context) {
-        super.execute(context);
+        // don't want to open a port to listen, hence nothing to do
     }
+
 }

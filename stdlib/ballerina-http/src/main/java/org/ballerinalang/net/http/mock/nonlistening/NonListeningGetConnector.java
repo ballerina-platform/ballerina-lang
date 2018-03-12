@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends org.ballerinalang.net.http.serviceendpoint.GetConnector {
+public class NonListeningGetConnector extends org.ballerinalang.net.http.serviceendpoint.GetConnector {
 
     @Override
     public void execute(Context context) {

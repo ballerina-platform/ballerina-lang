@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the ID of the connection.
@@ -33,15 +32,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http.mock",
-        functionName = "initEndpoint",
+        functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListeningService",
                 structPackage = "ballerina.net.http.mock"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class InitEndpoint extends org.ballerinalang.net.http.serviceendpoint.InitEndpoint {
+public class NonListeningRegister extends org.ballerinalang.net.http.serviceendpoint.Register {
+
     @Override
     public void execute(Context context) {
         super.execute(context);
