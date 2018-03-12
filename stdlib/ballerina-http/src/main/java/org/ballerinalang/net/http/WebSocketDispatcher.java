@@ -36,11 +36,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import javax.websocket.Session;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import javax.websocket.Session;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching

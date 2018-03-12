@@ -81,10 +81,13 @@ public enum KeepAlive {
 public function <Service ep> init (string epName, ServiceEndpointConfiguration config) {
     ep.epName = epName;
     ep.config = config;
-    ep.initEndpoint();
+    var err = ep.initEndpoint();
+    if (err != null) {
+        throw err;
+    }
 }
 
-public native function<Service ep> initEndpoint ();
+public native function<Service ep> initEndpoint () returns (error);
 
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
