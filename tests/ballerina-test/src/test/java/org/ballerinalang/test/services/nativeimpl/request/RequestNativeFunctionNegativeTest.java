@@ -154,7 +154,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), "");
+        Assert.assertNull(returnVals[0].stringValue());
     }
 
     @Test
