@@ -23,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +51,7 @@ public class HoverProviderTest {
         balFileContent = new String(encoded);
     }
 
-    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
+//    @Test(description = "Test Hover for built in functions", dataProvider = "hoverBuiltinFuncPosition")
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -60,7 +59,8 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
+//    @Test(description = "Test Hover for current package's functions",
+//            dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -68,7 +68,7 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's enums", dataProvider = "hoverCurrentPackageEnumPosition")
+//    @Test(description = "Test Hover for current package's enums", dataProvider = "hoverCurrentPackageEnumPosition")
     public void hoverForCurrentPackageEnumTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
@@ -76,7 +76,8 @@ public class HoverProviderTest {
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's structs", dataProvider = "hoverCurrentPackageStructPosition")
+//    @Test(description = "Test Hover for current package's structs",
+//            dataProvider = "hoverCurrentPackageStructPosition")
     public void hoverForCurrentPackageStructTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
