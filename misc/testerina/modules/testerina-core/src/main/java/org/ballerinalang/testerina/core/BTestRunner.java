@@ -105,6 +105,7 @@ public class BTestRunner {
                     ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                 }
             });
+
         });
         // execute the test programs
         execute();
@@ -178,8 +179,6 @@ public class BTestRunner {
                 }
                 // run the test
                 TesterinaResult functionResult = null;
-                String errorMsg = null;
-                boolean isTestPassed = false;
                 try {
                     if (!shouldSkip.get()) {
                         BValue[] valueSets = null;
@@ -189,70 +188,31 @@ public class BTestRunner {
                         if (valueSets == null) {
                             test.getTestFunction().invoke();
                             // report the test result
-                            functionResult = new TesterinaResult(test.getTestFunction().getName(), true,
-                                    shouldSkip.get(), errorMsg);
+                            functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
+                                    .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
-                            for (BValue value : valueSets) {
-                                if (value instanceof BRefValueArray) {
-                                    BRefValueArray array = (BRefValueArray) value;
-                                    for (BIterator it = array.newIterator(); it.hasNext(); ) {
-                                        BValue[] vals = it.getNext(0);
-                                        if (vals[1] instanceof BNewArray) {
-                                            BNewArray bNewArray = (BNewArray) vals[1];
-                                            BValue[] args = new BValue[(int) bNewArray.size()];
-                                            for (int j = 0; j < bNewArray.size(); j++) {
-                                                args[j] = bNewArray.getBValue(j);
-                                            }
-                                            test.getTestFunction().invoke(args);
-                                            functionResult = new TesterinaResult(test.getTestFunction().getName(),
-                                                    true, shouldSkip.get(), errorMsg);
-                                            tReport.addFunctionResult(packageName, functionResult);
-                                        } else {
-                                            // cannot happen due to validations done at annotation processor
-                                        }
-                                    }
-                                } else if (value instanceof BJSON) {
-                                    BJSON jsonArrayOfArrays = (BJSON) value;
-                                    for (BIterator it = jsonArrayOfArrays.newIterator(); it.hasNext(); ) {
-                                        BValue[] vals = it.getNext(0);
-                                        if (vals[1] instanceof BJSON) {
-                                            List<BValue> argsList = new ArrayList<>();
-                                            BJSON jsonArray = (BJSON) vals[1];
-                                            for (BIterator it2 = jsonArray.newIterator(); it2.hasNext(); ) {
-                                                BValue[] vals2 = it2.getNext(0);
-                                                argsList.add(vals2[1]);
-                                            }
-                                            test.getTestFunction().invoke(argsList.toArray(new BValue[0]));
-                                            functionResult = new TesterinaResult(test.getTestFunction().getName(),
-                                                    true, shouldSkip.get(), errorMsg);
-                                            tReport.addFunctionResult(packageName, functionResult);
-                                        }
-                                    }
-                                } else {
-                                    test.getTestFunction().invoke(new BValue[]{value});
-                                    // report the test result
-                                    functionResult = new TesterinaResult(test.getTestFunction().getName(), true,
-                                            shouldSkip.get(), errorMsg);
-                                    tReport.addFunctionResult(packageName, functionResult);
-                                }
-                            }
+                            List<BValue[]> argList = extractArguments(valueSets);
+                            argList.forEach(arg -> {
+                                test.getTestFunction().invoke(arg);
+                                TesterinaResult result = new TesterinaResult(test.getTestFunction().getName(), true,
+                                        shouldSkip.get(), null);
+                                tReport.addFunctionResult(packageName, result);
+                            });
                         }
-                        isTestPassed = true;
                     } else {
                         // report the test result
-                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false,
-                                shouldSkip.get(), errorMsg);
+                        functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get
+                                (), null);
                         tReport.addFunctionResult(packageName, functionResult);
                     }
                 } catch (Exception e) {
-                    errorMsg = String.format("Failed to execute the test function [%s] of test suite package [%s]. "
-                                             + "Cause: %s", test.getTestFunction().getName(), packageName,
-                            e.getMessage());
+                    String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
+                            + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
                     errStream.println(errorMsg);
                     // report the test result
-                    functionResult = new TesterinaResult(test.getTestFunction().getName(), false,
-                            shouldSkip.get(), errorMsg);
+                    functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
+                            errorMsg);
                     tReport.addFunctionResult(packageName, functionResult);
                     return;
                 }
@@ -287,6 +247,53 @@ public class BTestRunner {
             // print package test results
             tReport.printTestSuiteSummary(packageName);
         });
+    }
+
+    /**
+     * Extract function arguments from the values sets.
+     * @param valueSets user provided value sets
+     * @return a list of function arguments
+     */
+    private List<BValue[]> extractArguments(BValue[] valueSets) {
+        List<BValue[]> argsList = new ArrayList<>();
+
+        for (BValue value : valueSets) {
+            if (value instanceof BRefValueArray) {
+                BRefValueArray array = (BRefValueArray) value;
+                for (BIterator it = array.newIterator(); it.hasNext(); ) {
+                    BValue[] vals = it.getNext(0);
+                    if (vals[1] instanceof BNewArray) {
+                        BNewArray bNewArray = (BNewArray) vals[1];
+                        BValue[] args = new BValue[(int) bNewArray.size()];
+                        for (int j = 0; j < bNewArray.size(); j++) {
+                            args[j] = bNewArray.getBValue(j);
+                        }
+                        argsList.add(args);
+                    } else {
+                        // cannot happen due to validations done at annotation processor
+                    }
+                }
+            } else if (value instanceof BJSON) {
+                BJSON jsonArrayOfArrays = (BJSON) value;
+                for (BIterator it = jsonArrayOfArrays.newIterator(); it.hasNext(); ) {
+                    BValue[] vals = it.getNext(0);
+                    if (vals[1] instanceof BJSON) {
+                        List<BValue> args = new ArrayList<>();
+                        BJSON jsonArray = (BJSON) vals[1];
+                        for (BIterator it2 = jsonArray.newIterator(); it2.hasNext(); ) {
+                            BValue[] vals2 = it2.getNext(0);
+                            args.add(vals2[1]);
+                        }
+                        argsList.add(args.toArray(new BValue[0]));
+                    } else {
+                        // cannot happen due to validations done at annotation processor
+                    }
+                }
+            } else {
+                argsList.add(new BValue[]{value});
+            }
+        }
+        return argsList;
     }
 
     /**

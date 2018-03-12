@@ -71,11 +71,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private TestSuite suite;
     private boolean packageInit;
-//    DiagnosticLog dlog;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
-//        this.dlog = diagnosticLog;
     }
 
     @Override
