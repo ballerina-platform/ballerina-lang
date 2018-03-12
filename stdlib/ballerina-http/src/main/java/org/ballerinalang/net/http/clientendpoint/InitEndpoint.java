@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.clientendpoint;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -30,7 +31,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -61,7 +61,7 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_URI;
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends AbstractHttpNativeFunction {
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
