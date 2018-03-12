@@ -94,34 +94,6 @@ public function <Client ep> stop () {
 
 }
 
-//@Description { value:"Options struct represents options to be used for HTTP client invocation" }
-//@Field {value:"port: Port number of the remote service"}
-//@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-//@Field {value:"keepAlive: Keep the connection or close it"}
-//@Field {value:"transferEncoding: The types of encoding applied to the request"}
-//@Field {value:"chunking: The chunking behaviour of the request"}
-//@Field {value:"httpVersion: The version of HTTP outbound request"}
-//@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
-//@Field {value:"followRedirects: Redirect related options"}
-//@Field {value:"ssl: SSL/TLS related options"}
-//@Field {value:"retryConfig: Retry related options"}
-//@Field {value:"proxy: Proxy server related options"}
-//public struct Options {
-//    int port;
-//    int endpointTimeout = 60000;
-//    boolean keepAlive = true;
-//    string transferEncoding = "chunking";
-//    string chunking = "auto";
-//    string httpVersion;
-//    string forwarded = "disable";
-//    FollowRedirects followRedirects;
-//    SSL ssl;
-//    Retry retryConfig;
-//    Proxy proxy;
-//    ConnectionThrottling connectionThrottling;
-//}
-
-
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retries"}
 @Field {value:"interval: Retry interval in millisecond"}
@@ -183,4 +155,3 @@ public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;
 }
-
