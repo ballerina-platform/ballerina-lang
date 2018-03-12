@@ -52,7 +52,7 @@ import javax.websocket.Session;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClientEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -61,7 +61,8 @@ public class Start extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
         if (configs == null || !(configs instanceof WsClientConnectorConfig)) {
             throw new BallerinaConnectorException("Initialize the service before starting it");
@@ -100,8 +101,8 @@ public class Start extends BlockingNativeCallableUnit {
         public void onSuccess(Session session) {
             BConnector wsConnection = BLangConnectorSPIUtil
                     .createBConnector(context.getProgramFile(), HttpConstants.HTTP_PACKAGE_PATH,
-                            WebSocketConstants.CONNECTOR_WEBSOCKET, new BMap<>());
-            clientEndpointConfig.addNativeData(WebSocketConstants.CONNECTOR_WEBSOCKET, wsConnection);
+                            WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
+            clientEndpointConfig.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
             wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
             //TODO: check below line
 //            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
