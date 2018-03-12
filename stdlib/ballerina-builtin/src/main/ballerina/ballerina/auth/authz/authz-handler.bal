@@ -82,9 +82,9 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 
     boolean isAuthorized = authzChecker.check(username, scopeName);
     if (isAuthorized) {
-        log:printInfo("Successfully authorized to access resource: " + resourceName);
+        log:printDebug("Successfully authorized to access resource: " + resourceName);
     } else {
-        log:printInfo("Insufficient permission to access resource: " + resourceName);
+        log:printDebug("Insufficient permission to access resource: " + resourceName);
     }
     authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
     return isAuthorized;
