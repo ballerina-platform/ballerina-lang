@@ -16,19 +16,10 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import AbstractTransformerNode from './abstract-tree/transformer-node';
+import AbstractIntRangeExprNode from './abstract-tree/int-range-expr-node';
 
-class TransformerNode extends AbstractTransformerNode {
-
-    getSignature() {
-        const returnParams = _.join(this.getReturnParameters().map(ret => ret.getSource()), ',');
-        let params = _.join(this.getParameters().map(ret => ret.getSource()), ',');
-        params = (params === '') ? '' : `(${params})`;
-        params = (this.name.value !== '' && (params === '')) ? '()' : params;
-        return `<${this.getSource().getSource()}, ${returnParams}> ${this.name.value} ${params}`;
-    }
+class IntRangeExprNode extends AbstractIntRangeExprNode {
 
 }
 
-export default TransformerNode;
+export default IntRangeExprNode;

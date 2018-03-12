@@ -1221,7 +1221,7 @@ class TransformerExpanded extends React.Component {
     render() {
         const { leftOffset } = this.props;
         const vertices = this.state.vertices;
-        const sourceNode = this.props.model.getSourceParam();
+        const sourceNode = this.props.model.getSource();
         const returnNodes = this.props.model.getReturnParameters();
         const paramNodes = this.props.model.getParameters();
         const varDeclarations = this.props.model.getBody().getStatements()

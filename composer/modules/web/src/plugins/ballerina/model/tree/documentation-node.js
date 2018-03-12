@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,18 +16,10 @@
  * under the License.
  */
 
-import AbstractPackageDeclarationNode from './abstract-tree/package-declaration-node';
+import AbstractDocumentationNode from './abstract-tree/documentation-node';
 
-class PackageDeclarationNode extends AbstractPackageDeclarationNode {
+class DocumentationNode extends AbstractDocumentationNode {
 
-
-    getPackageNameString() {
-        const packageName = this.packageName || [];
-        const packageNameString = packageName.map((pkgName) => {
-            return pkgName.value;
-        }).join('.');
-        return packageNameString;
-    }
 }
 
-export default PackageDeclarationNode;
+export default DocumentationNode;

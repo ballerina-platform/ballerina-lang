@@ -75,17 +75,16 @@ public class HttpDispatcher {
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             // Most of the time we will find service from here
-            String basePath =
-                    servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
-            HttpService service = servicesOnInterface.get(basePath);
-            if (service == null) {
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
+
+            if (basePath == null) {
                 inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
                         validatedUri.getRawPath());
             }
 
+            HttpService service = servicesOnInterface.get(basePath);
             setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
-
             return service;
         } catch (Throwable e) {
             throw new BallerinaConnectorException(e.getMessage());
