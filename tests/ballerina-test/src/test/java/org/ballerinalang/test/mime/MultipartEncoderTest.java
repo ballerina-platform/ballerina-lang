@@ -65,6 +65,7 @@ public class MultipartEncoderTest {
     private static final Logger log = LoggerFactory.getLogger(MultipartEncoderTest.class);
 
     private CompileResult result, serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -199,7 +200,7 @@ public class MultipartEncoderTest {
     public void testMultipartsInOutResponse() {
         String path = "/multipart/encode_out_response";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
@@ -219,7 +220,7 @@ public class MultipartEncoderTest {
     public void testNestedPartsInOutResponse() {
         String path = "/multipart/nested_parts_in_outresponse";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
