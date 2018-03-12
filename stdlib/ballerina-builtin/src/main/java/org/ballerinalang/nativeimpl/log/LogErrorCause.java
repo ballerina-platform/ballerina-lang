@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -39,15 +38,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class LogErrorCause extends AbstractLogFunction {
 
-    public BValue[] execute(Context ctx) {
-        String pkg = ctx.getControlStack().currentFrame.prevStackFrame
-                .getCallableUnitInfo().getPackageInfo().getPkgPath();
+    public void execute(Context ctx) {
+        String pkg = getPackagePath(ctx);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            String msg = getStringArgument(ctx, 0);
-            BStruct err = (BStruct) getRefArgument(ctx, 0);
+            String msg = getLogMessage(ctx, 0);
+            BStruct err = (BStruct) ctx.getRefArgument(0);
             getLogger(pkg).error(msg + " : " + err.stringValue());
         }
-        return VOID_RETURN;
+        ctx.setReturnValues();
     }
 }

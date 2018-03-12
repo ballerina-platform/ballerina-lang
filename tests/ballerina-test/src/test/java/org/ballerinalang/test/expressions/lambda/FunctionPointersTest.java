@@ -81,7 +81,6 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsReturnParameter() {
-        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(fpProgram, "test5");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -217,4 +216,21 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "1500526800000");
     }
+
+    @Test()
+    public void testFunctionPointerNullCheck() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-null-check.bal");
+        BValue[] returns = BRunUtil.invoke(result, "checkFunctionPointerNullEqual");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+
+        returns = BRunUtil.invoke(result, "checkFunctionPointerNullNotEqual");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
 }

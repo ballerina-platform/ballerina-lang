@@ -18,18 +18,17 @@ package org.ballerinalang.net.http.actions;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -65,33 +64,29 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 )
 public class Execute extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Execute.class);
-
     @Override
-    public ConnectorFuture execute(Context context) {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native Action : {}", this.getName());
-        }
+    public void execute(Context context, CallableUnitCallback callback) {
+        DataContext dataContext = new DataContext(context, callback);
         try {
             // Execute the operation
-            return executeNonBlockingAction(context, createOutboundRequestMsg(context));
+            executeNonBlockingAction(dataContext, createOutboundRequestMsg(context));
         } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'execute' action in " + HttpConstants.CONNECTOR_NAME
-                    + ". " + clientConnectorException.getMessage(), context);
+            BallerinaException exception = new BallerinaException("Failed to invoke 'execute' action in " +
+                    HttpConstants.CONNECTOR_NAME + ". " + clientConnectorException.getMessage(), context);
+            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        String httpVerb = getStringArgument(context, 0);
-        String path = getStringArgument(context, 1);
-        BStruct requestStruct = ((BStruct) getRefArgument(context, 1));
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        String httpVerb = context.getStringArgument(0);
+        String path = context.getStringArgument(1);
+        BStruct requestStruct = ((BStruct) context.getRefArgument(1));
         //TODO check below line
         HTTPCarbonMessage defaultCarbonMsg = HttpUtil.createHttpCarbonMessage(true);
         HTTPCarbonMessage outboundRequestMsg = HttpUtil.getCarbonMsg(requestStruct, defaultCarbonMsg);
-        prepareOutboundRequest(bConnector, path, outboundRequestMsg);
+        prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || "".equals(httpVerb)) {

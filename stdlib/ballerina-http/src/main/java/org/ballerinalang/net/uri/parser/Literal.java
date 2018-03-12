@@ -26,13 +26,14 @@ import java.util.Map;
 /**
  * Literal represents literal path segments in the uri-template.
  *
- * @param <DataElementType> Specific data element created by the user.
+ * @param <DataType> Type of data which should be stored in the node.
+ * @param <InboundMsgType> Inbound message type for additional checks.
  */
-public class Literal<DataElementType extends DataElement> extends Node<DataElementType> {
+public class Literal<DataType, InboundMsgType> extends Node<DataType, InboundMsgType> {
 
     private int tokenLength = 0;
 
-    public Literal(DataElementType dataElement, String token) throws URITemplateException {
+    public Literal(DataElement<DataType, InboundMsgType> dataElement, String token) throws URITemplateException {
         super(dataElement, token);
         tokenLength = token.length();
         if (tokenLength == 0) {
@@ -58,6 +59,10 @@ public class Literal<DataElementType extends DataElement> extends Node<DataEleme
                     }
                     return -1;
                 }
+            }
+            //special case request urls which contains only the root("/") to be dispatched to default resource("/*").
+            if (uriFragment.equals("/") && uriFragment.equals(token) && !this.dataElement.hasData()) {
+                return 0;
             }
             return tokenLength;
         } else {

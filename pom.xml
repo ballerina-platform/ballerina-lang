@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.963.1-SNAPSHOT</version>
+    <version>0.964.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -246,7 +246,11 @@
                 <artifactId>language-server-stdio-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -635,11 +639,6 @@
                 <version>${javax-transaction-version}</version>
             </dependency>
             <dependency>
-                <groupId>org.atomikos.wso2</groupId>
-                <artifactId>atomikos</artifactId>
-                <version>${atomikos-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
@@ -671,6 +670,46 @@
                 <artifactId>mimepull</artifactId>
                 <version>${mimepull.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.wso2.orbit.com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${disruptor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <!-- Compile time dependencies -->
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <scope>compile</scope>
+                <version>${mvel2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-annotations</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -765,6 +804,7 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -776,6 +816,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
 
                 <module>composer</module>
 
@@ -800,14 +841,17 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
+                <module>misc/toml-parser</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -828,17 +872,20 @@
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
                 <module>tests/ballerina-test</module>
+                <module>tests/ballerina-test-compiler-plugins</module>
 
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
 
                 <module>composer</module>
 
@@ -1158,7 +1205,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.963.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.964.1-SNAPSHOT</ballerina.version>
         <npm.executable>npm</npm.executable>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
@@ -1183,7 +1230,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.97</transport.http.version>
+        <transport.http.version>6.0.102</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1231,7 +1278,6 @@
         <msf4j.version>2.4.2</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.2</javax-transaction-version>
-        <atomikos-version>3.8.0.wso2v1</atomikos-version>
         <quartz.version>2.3.0</quartz.version>
         <commons-net.version>3.6</commons-net.version>
         <jackson-core.version>2.8.6</jackson-core.version>
@@ -1278,6 +1324,11 @@
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
         <apache.source.release.assembly.descriptor.version>1.0.5</apache.source.release.assembly.descriptor.version>
         <awaitility.version>3.0.0</awaitility.version>
+
+        <mvel2.version>2.2.1.Final</mvel2.version>
+        <disruptor.version>3.3.2.wso2v2</disruptor.version>
+        <guava.version>19.0</guava.version>
+        <metrics.version>3.1.0</metrics.version>
     </properties>
 
 </project>

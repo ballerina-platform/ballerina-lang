@@ -290,7 +290,7 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
 
             if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
                 currentState = CircuitState.OPEN;
-                log:printInfo("CircuitBreaker failure threshold exceeded. Circuit trips from CLOSE to OPEN state.");
+                log:printInfo("CircuitBreaker failure threshold exceeded. Circuit tripped from CLOSE to OPEN state.");
             }
         }
     }

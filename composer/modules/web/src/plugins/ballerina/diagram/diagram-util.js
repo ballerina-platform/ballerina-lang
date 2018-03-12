@@ -64,7 +64,7 @@ actionSizingUtil.config = ActionConfig;
 // require all react components
 function requireAll(requireContext) {
     const comp = {};
-    requireContext.keys().map((item) => {
+    requireContext.keys().forEach((item) => {
         const module = requireContext(item);
         if (module.default) {
             comp[module.default.name] = module.default;
@@ -74,6 +74,10 @@ function requireAll(requireContext) {
 }
 
 function getComponentForNodeArray(nodeArray, mode = 'default') {
+    // if undefined or null is passws return null.
+    if (!nodeArray) {
+        return null;
+    }
     // lets load the view components diffrent modes.
     components.default = requireAll(require.context('./views/default/components/nodes', true, /\.jsx$/));
     components.action = requireAll(require.context('./views/action/components/', true, /\.jsx$/));

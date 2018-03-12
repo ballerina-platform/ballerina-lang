@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -174,6 +175,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
         String constraintTypeName = null;
+        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
 
         if (variable == null) {
             return actionFunctionList;
@@ -206,7 +208,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (packageSymbolInfo == null && packageID.equals(builtinPkgName)) {
             // If the packageID is ballerina.builtin, we extract entries of builtin package
             entries = symbolTable.builtInPackageSymbol.scope.entries;
-        } else if (packageSymbolInfo == null && packageID.equals(".")) {
+        } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
             entries = this.getScopeEntries(bType, context);
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
@@ -259,21 +261,16 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @return {@link Integer}      Index of the delimiter
      */
     private int getPackageDelimiterTokenIndex(TextDocumentServiceContext completionContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{"}));
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
+        int delimiterIndex = -1;
         int searchTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int delimiterIndex = -1;
-        String currentTokenStr = tokenStream.get(searchTokenIndex).getText();
-
-        if (terminalTokens.contains(currentTokenStr)) {
-            searchTokenIndex -= 1;
-            while (true) {
-                if (tokenStream.get(searchTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
-                    break;
-                } else {
-                    searchTokenIndex -= 1;
-                }
-            }
+        /*
+        In order to avoid the token index inconsistencies, current token index offsets from two default tokens
+         */
+        Token offsetToken = CommonUtil.getNthDefaultTokensToLeft(tokenStream, searchTokenIndex, 2);
+        if (!terminalTokens.contains(offsetToken.getText())) {
+            searchTokenIndex = offsetToken.getTokenIndex();
         }
 
         while (true) {
@@ -284,7 +281,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             if (".".equals(tokenString) || ":".equals(tokenString)) {
                 delimiterIndex = searchTokenIndex;
                 break;
-            } else if (terminalTokens.contains(tokenString)) {
+            } else if (terminalTokens.contains(tokenString)
+                    && completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 break;
             } else {
                 searchTokenIndex++;

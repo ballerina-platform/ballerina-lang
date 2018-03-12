@@ -140,6 +140,7 @@ public class HttpConstants {
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
+    public static final String HTTP_SERVICE = "HTTP_SERVICE";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
@@ -153,6 +154,7 @@ public class HttpConstants {
     public static final String OUT_RESPONSE = "OutResponse";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
+    public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
@@ -224,10 +226,13 @@ public class HttpConstants {
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
+    public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
     public static final String HEADER_VAL_CONNECTION_KEEP_ALIVE = "Keep-Alive";
     public static final String HEADER_VAL_100_CONTINUE = "100-continue";
 
     //Response codes
     public static final String HTTP_BAD_REQUEST = "400";
+    public static final String HEADER_X_XID = "X-XID";
+    public static final String HEADER_X_REGISTER_AT_URL = "X-Register-At-URL";
 }

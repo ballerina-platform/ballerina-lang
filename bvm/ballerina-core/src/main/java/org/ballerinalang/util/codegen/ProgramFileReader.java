@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.connector.api.AbstractNativeAction;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
@@ -31,7 +31,6 @@ import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BEnumerator;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionACALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
@@ -322,6 +321,7 @@ public class ProgramFileReader {
         int pkgNameCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgNameCPIndex);
         PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue());
+        packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.getPkgPath(), packageInfo);
 
         // Read constant pool in the package.
@@ -416,15 +416,21 @@ public class ProgramFileReader {
                 // Read function name
                 int nameCPIndex = dataInStream.readInt();
                 UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+                String attachedFuncName = nameUTF8Entry.getValue();
 
                 // Read function type signature
                 int typeSigCPIndex = dataInStream.readInt();
                 UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
 
                 int funcFlags = dataInStream.readInt();
-                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, nameUTF8Entry.getValue(),
+                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
                         typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
                 structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+
+                // Setting the initializer function info, if any.
+                if (structName.equals(attachedFuncName)) {
+                    structInfo.initializer = functionInfo;
+                }
             }
 
             // Read attributes of the struct info
@@ -538,14 +544,14 @@ public class ProgramFileReader {
                 readWorkerInfoEntries(dataInStream, packageInfo, actionInfo);
 
                 if (nativeAction) {
-                    AbstractNativeAction nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
+                    NativeCallableUnit nativeActionObj = NativeUnitLoader.getInstance().loadNativeAction(
                             actionInfo.getPkgPath(), actionInfo.getConnectorInfo().getName(), actionInfo.getName());
                     if (nativeActionObj == null && !actionInfo.name.equals("<init>")) {
                         throw new BLangRuntimeException("native action not available " +
                                 actionInfo.getPkgPath() + ":" + actionInfo
                                 .getConnectorInfo().getName() + "." + actionName);
                     }
-                    actionInfo.setNativeAction(nativeActionObj);
+                    actionInfo.setNativeCallableUnit(nativeActionObj);
                 }
 
                 // Read attributes of the struct info
@@ -731,13 +737,13 @@ public class ProgramFileReader {
         readWorkerInfoEntries(dataInStream, packageInfo, functionInfo);
 
         if (nativeFunc) {
-            AbstractNativeFunction nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
+            NativeCallableUnit nativeFunction = NativeUnitLoader.getInstance().loadNativeFunction(
                     functionInfo.getPkgPath(), uniqueFuncName);
             if (nativeFunction == null) {
                 throw new BLangRuntimeException("native function not available " +
                         functionInfo.getPkgPath() + ":" + uniqueFuncName);
             }
-            functionInfo.setNativeFunction(nativeFunction);
+            functionInfo.setNativeCallableUnit(nativeFunction);
         }
 
         // Read attributes
@@ -1360,8 +1366,6 @@ public class ProgramFileReader {
             switch (opcode) {
                 case InstructionCodes.HALT:
                 case InstructionCodes.RET:
-                case InstructionCodes.WRKSTART:
-                case InstructionCodes.WRKRETURN:
                     packageInfo.addInstruction(InstructionFactory.get(opcode));
                     break;
 
@@ -1383,7 +1387,6 @@ public class ProgramFileReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.TR_END:
                 case InstructionCodes.NEWMAP:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1425,6 +1428,7 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.TR_BEGIN:
+                case InstructionCodes.TR_END:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
@@ -1534,6 +1538,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
+                case InstructionCodes.ANY2DT:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
@@ -1757,6 +1762,9 @@ public class ProgramFileReader {
                 BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
                         attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
                 attachedFunctions[count++] = attachedFunction;
+                if (structInfo.initializer == attachedFuncInfo) {
+                    structType.initializer = attachedFunction;
+                }
             }
             structType.setAttachedFunctions(attachedFunctions);
         }

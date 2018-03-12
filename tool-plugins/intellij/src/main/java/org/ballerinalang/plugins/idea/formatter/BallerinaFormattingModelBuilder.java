@@ -48,6 +48,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACHMENT_POINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.BANG;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.BIND;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.BREAK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.BY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
@@ -56,6 +57,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CREATE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT;
@@ -65,18 +67,25 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FLOATING_POINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FOLLOWED;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FORK;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.FROM;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.GROUP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.GT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.HAVING;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IDENTIFIER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IMPORT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.INDEX;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.INSERT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.INTEGER_LITERAL;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.INTO;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.INVOCATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CONDITIONS;
@@ -90,11 +99,14 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.LT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PUBLIC;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.QUERY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RBRACE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECEIVEARROW;
@@ -107,12 +119,15 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURNS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN_PARAMETERS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RPAREN;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SELECT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SEMI;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SENDARROW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.SET;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SIMPLE_EXPRESSION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SOURCE_NOTATION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMLET;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SUB;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.THROW;
@@ -125,12 +140,18 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSFORMER_INVOCATI
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPEOF;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_AGGREGTION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_NAME;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_STREAM;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.UNTAINT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.UPDATE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VALUE_TYPE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VAR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.VARIABLE_REFERENCE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WHERE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WHILE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.WINDOW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WITH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.WORKER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.XML;
@@ -180,37 +201,58 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(ANY).spaceIf(false)
                 .after(ANY).spaceIf(true)
                 .around(AS).spaceIf(true)
+                .around(BY).spaceIf(true)
                 .around(BREAK).spaceIf(false)
                 .around(CATCH).spaceIf(true)
                 .around(FAILED).spaceIf(true)
                 .around(FINALLY).spaceIf(true)
+                .around(GROUP).spaceIf(true)
                 .after(CONNECTOR).spaceIf(true)
                 .after(CONST).spaceIf(true)
                 .after(CREATE).spaceIf(true)
+                .around(DELETE).spaceIf(true)
                 .around(ELSE).spaceIf(true)
                 .between(FORK, LBRACE).spaceIf(true)
+                .around(FOLLOWED).spaceIf(true)
+                .around(FOR).spaceIf(true)
+                .around(FROM).spaceIf(true)
                 .between(EXPRESSION, LBRACE).spaceIf(true)
                 .between(FORK, SEMI).spaceIf(false)
                 .after(FUNCTION).spaceIf(true)
                 .after(IF).spaceIf(true)
+                .around(INSERT).spaceIf(true)
+                .around(INTO).spaceIf(true)
+                .after(HAVING).spaceIf(true)
                 .after(IMPORT).spaceIf(true)
                 .after(FOREACH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(JOIN).spaceIf(true)
                 .after(NATIVE).spaceIf(true)
+                .around(ON).spaceIf(true)
+                .around(ORDER).spaceIf(true)
                 .after(PACKAGE).spaceIf(true)
+                .around(QUERY).spaceIf(true)
                 .after(RETRIES).spaceIf(false)
                 .after(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
                 .after(RESOURCE).spaceIf(true)
+                .around(SELECT).spaceIf(true)
+                .around(SET).spaceIf(true)
                 .between(SERVICE, SOURCE_NOTATION).spaceIf(false)
                 .between(SERVICE, IDENTIFIER).spaceIf(true)
+                .after(STREAMLET).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
                 .after(THROW).spaceIf(true)
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPE).spaceIf(true)
+                .around(TYPE_AGGREGTION).spaceIf(true)
+                .around(TYPE_STREAM).spaceIf(true)
+                .after(UNTAINT).spaceIf(true)
+                .around(UPDATE).spaceIf(true)
                 .after(VAR).spaceIf(true)
+                .around(WHERE).spaceIf(true)
                 .after(WHILE).spaceIf(true)
+                .around(WINDOW).spaceIf(true)
                 .after(WORKER).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .after(XMLNS).spaceIf(true)
