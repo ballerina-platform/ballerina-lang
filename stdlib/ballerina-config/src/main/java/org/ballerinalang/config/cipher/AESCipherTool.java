@@ -37,7 +37,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * This tools is used to encrypt and decrypt data using AES Algorithm CBC mode and PKCS #5 padding.
  *
- * @since 0.964.0
+ * @since 0.965.0
  */
 public class AESCipherTool {
 
@@ -45,7 +45,7 @@ public class AESCipherTool {
     private static final String ALGORITHM_AES = "AES";
     private static final String ALGORITHM_SHA_256 = "SHA-256";
     private static final int IV_SIZE = 16;
-    private static final int SECRET_KEY_LENGTH = 32;
+    private static final int SECRET_KEY_LENGTH = 16; // TODO: Make this 32 again after switching to Java 9
 
     private final SecretKey secretKey;
     private final SecureRandom secureRandom;

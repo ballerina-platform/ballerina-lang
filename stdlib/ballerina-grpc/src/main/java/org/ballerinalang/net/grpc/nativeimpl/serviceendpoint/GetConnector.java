@@ -20,11 +20,10 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 /**
  * Get the ID of the connection.
@@ -36,16 +35,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.net.grpc",
         functionName = "getConnector",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.grpc"),
+                structPackage = "ballerina.net.grpc"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends AbstractNativeFunction {
-
+public class GetConnector extends AbstractGrpcNativeFunction {
+    
+    
     @Override
-    public BValue[] execute(Context context) {
-
-        // TODO: Create and return ballerina connector.
-        return new BValue[]{null};
+    public void execute(Context context) {
+    
     }
 }

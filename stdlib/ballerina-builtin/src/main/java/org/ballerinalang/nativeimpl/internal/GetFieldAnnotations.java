@@ -34,13 +34,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class GetFieldAnnotations extends AbstractAnnotationReader {
 
     @Override
-    public BValue[] execute(Context context) {
-        BTypeValue bTypeValue = (BTypeValue) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BTypeValue bTypeValue = (BTypeValue) context.getRefArgument(0);
         if (!(bTypeValue.value() instanceof BStructType)) {
-            return new BValue[] {null};
+            context.setReturnValues((BValue) null); ;
         }
         BStructType structType = (BStructType) bTypeValue.value();
-        String key = structType.getName() + DOT + getStringArgument(context, 0);
-        return new BValue[] {getAnnotationValue(context, structType.getPackagePath(), key)};
+        String key = structType.getName() + DOT + context.getStringArgument(0);
+        context.setReturnValues(getAnnotationValue(context, structType.getPackagePath(), key));
     }
 }

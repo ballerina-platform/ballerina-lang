@@ -6,11 +6,11 @@ port:9090
 }
 
 @grpc:serviceConfig{
-endpoints: [ep1],
-generateClientConnector:true}
-service<grpc:GrpcService> hello {
+generateClientConnector:true,
+endpoints: [ep1]}
+service<grpc:ServiceEndpoint> hello {
 
-resource hello (grpc:GrpcService conn, string name) {
+resource hello (grpc:ServiceEndpoint conn, string name) {
         string message = "Hello " + name; // response message
         grpc:ConnectorError err = conn.send(message);
         if (err != null) {

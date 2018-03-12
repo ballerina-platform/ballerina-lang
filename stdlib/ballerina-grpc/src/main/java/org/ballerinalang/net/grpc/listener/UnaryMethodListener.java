@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.GrpcEmptyCallableUnitCallback;
 import org.ballerinalang.net.grpc.Message;
 
 import java.util.List;
@@ -31,11 +32,11 @@ import java.util.List;
  * This is Unary Method Implementation for gRPC Service Call.
  */
 public class UnaryMethodListener extends MethodListener implements UnaryMethod<Message, Message> {
-
+    
     public UnaryMethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         super(methodDescriptor, resource);
     }
-
+    
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
@@ -45,7 +46,7 @@ public class UnaryMethodListener extends MethodListener implements UnaryMethod<M
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        Executor.execute(resource, null, signatureParams);
+        Executor.submit(resource, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
     }
-
+    
 }

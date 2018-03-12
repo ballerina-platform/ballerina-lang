@@ -123,7 +123,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private Names names;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
-
+    private EndpointSPIAnalyzer endpointSPIAnalyzer;
     private SymbolEnv env;
     private BLangPackageDeclaration currentPkgDecl = null;
 
@@ -145,6 +145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
 
         BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
@@ -404,12 +405,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
-                names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+                names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceSymbol);
+        defineSymbol(serviceNode.pos, serviceSymbol);
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
         serviceNode.endpoints.forEach(ep -> defineNode(ep, serviceEnv));
-        defineSymbol(serviceNode.pos, serviceSymbol);
     }
 
     @Override
@@ -511,6 +512,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name varName = names.fromIdNode(endpoint.name);
         endpoint.type = varType;
         endpoint.symbol = defineEndpointVarSymbol(endpoint.pos, endpoint.flagSet, varType, varName, env);
+        endpointSPIAnalyzer.resolveEndpointSymbol(endpoint.pos, endpoint.symbol);
     }
 
     public void visit(BLangXMLAttribute bLangXMLAttribute) {

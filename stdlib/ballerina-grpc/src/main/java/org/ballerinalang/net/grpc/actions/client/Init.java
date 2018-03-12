@@ -26,15 +26,12 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorFuture;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.ClientConnectorFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
@@ -44,7 +41,6 @@ import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -56,6 +52,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PATH;
 import static org.ballerinalang.net.grpc.SSLCertificateUtils.loadX509Cert;
 import static org.ballerinalang.net.grpc.SSLCertificateUtils.preferredTestCiphers;
 import static org.ballerinalang.net.grpc.SSLCertificateUtils.testServerAddress;
+import static org.ballerinalang.net.grpc.actions.client.ActionUtils.notifyErrorReply;
 
 /**
  * {@code Init} is the Init action implementation of the gRPC Connector.
@@ -72,19 +69,17 @@ import static org.ballerinalang.net.grpc.SSLCertificateUtils.testServerAddress;
                 @Argument(name = "descriptorKey", type = TypeKind.STRING),
                 @Argument(name = "descriptorMap", type = TypeKind.MAP)
         })
-public class Init extends AbstractNativeAction {
+public class Init extends BlockingNativeCallableUnit {
     
     @Override
-    public ConnectorFuture execute(Context context) {
-        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         int port = (int) bConnector.getIntField(0);
         String host = bConnector.getStringField(0);
         String subtype = bConnector.getStringField(1);
         //EnumNode.Enumerator enumerator = (EnumNode.Enumerator) bConnector.getRefField(1);
         String descriptorKey = bConnector.getStringField(2);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) bConnector.getRefField(0);
-        ClientConnectorFuture future = new ClientConnectorFuture();
-        
         try {
             // If there are more than one descriptors exist, other descriptors are considered as dependent
             // descriptors.  client supported only one depth descriptor dependency.
@@ -132,36 +127,31 @@ public class Init extends AbstractNativeAction {
             if ("blocking".equalsIgnoreCase(subtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
                 bConnector.setNativeData("stub", grpcBlockingStub);
-                future.notifySuccess();
+                // future.notifySuccess();
             } else if ("non-blocking".equalsIgnoreCase(subtype)) {
                 GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
                 bConnector.setNativeData("stub", nonBlockingStub);
-                future.notifySuccess();
+                // future.notifySuccess();
             } else {
-                future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error : Invalid stub type"));
+                notifyErrorReply(context, "gRPC Connector Error : Invalid stub type");
             }
-            return future;
         } catch (RuntimeException | GrpcClientException e) {
-            future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error.", e));
-            return future;
+            notifyErrorReply(context, "gRPC Connector Error.");
         } catch (SSLException e) {
-            future.notifyFailure(new BallerinaConnectorException("gRPC Connector Error when generating SSL " +
-                    "configuration.", e));
-            return future;
+            notifyErrorReply(context, "gRPC Connector Error when generating SSL " +
+                    "configuration.");
         } catch (CertificateException e) {
-            future.notifyFailure(new BallerinaConnectorException("gRPC Connector SSL Certificate Error.", e));
-            return future;
+            notifyErrorReply(context, "gRPC Connector SSL Certificate Error.");
         } catch (IOException e) {
-            future.notifyFailure(new BallerinaConnectorException("gRPC Connector I/O Error.", e));
-            return future;
+            notifyErrorReply(context, "gRPC Connector I/O Error.");
         }
     }
     
     private SSLConfig populateClientConfigurationOptions(BStruct options) {
         if (options.getRefField(0) != null) {
-            SSLConfig clientSslConfigs = new SSLConfig(null, null).setCertPass(null);
+            SSLConfig clientSslConfigs = new SSLConfig(null, null);
             BStruct sslConfigStructs = (BStruct) options.getRefField(0);
-            clientSslConfigs.setTrustStore(new File(sslConfigStructs.getStringField(0)));
+            clientSslConfigs.setTrustStore(sslConfigStructs.getStringField(0));
             clientSslConfigs.setTrustStorePass(sslConfigStructs.getStringField(1));
             return clientSslConfigs;
         }

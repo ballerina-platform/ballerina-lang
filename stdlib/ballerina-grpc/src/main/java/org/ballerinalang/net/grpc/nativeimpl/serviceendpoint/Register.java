@@ -20,7 +20,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,7 +48,7 @@ public class Register extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Register.class);
     
     @java.lang.Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
@@ -58,6 +57,5 @@ public class Register extends AbstractGrpcNativeFunction {
         } catch (GrpcServerException e) {
             throw new GrpcServerValidationException("Error in registering gRPC service.", e);
         }
-        return new BValue[] {null};
     }
 }

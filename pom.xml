@@ -726,6 +726,46 @@
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.wso2.orbit.com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${disruptor.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dropwizard.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <!-- Compile time dependencies -->
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <scope>compile</scope>
+                <version>${mvel2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-query-compiler</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-annotations</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -819,10 +859,11 @@
                 <!--<module>stdlib/ballerina-http</module>-->
                 <module>stdlib/ballerina-grpc</module>
                 <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -857,18 +898,21 @@
                 <!--<module>stdlib/ballerina-http</module>-->
                 <module>stdlib/ballerina-grpc</module>
                 <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
 
                 <!--<module>tests/ballerina-test</module>-->
                 <!--<module>tests/ballerina-test-compiler-plugins</module>-->
+                <!--<module>tests/ballerina-test</module>-->
+                <module>tests/ballerina-test-compiler-plugins</module>
 
-                <module>misc/docerina</module>
+                <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
 
@@ -890,10 +934,11 @@
                 <!--<module>stdlib/ballerina-http</module>-->
                 <module>stdlib/ballerina-grpc</module>
                 <!--<module>stdlib/ballerina-http</module>-->
-                <module>stdlib/ballerina-http-refactor</module>
+                <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
 
                 <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -1351,6 +1396,11 @@
         <io.opencensus.version>0.8.0</io.opencensus.version>
         <google.guava.version>19.0</google.guava.version>
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
+
+        <mvel2.version>2.2.1.Final</mvel2.version>
+        <disruptor.version>3.3.2.wso2v2</disruptor.version>
+        <guava.version>19.0</guava.version>
+        <metrics.version>3.1.0</metrics.version>
     </properties>
 
 </project>

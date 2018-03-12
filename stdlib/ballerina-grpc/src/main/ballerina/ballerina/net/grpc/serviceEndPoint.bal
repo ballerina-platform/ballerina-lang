@@ -22,11 +22,13 @@ public struct ServiceEndpointConfiguration {
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
 public struct SSL {
-    string keyStoreFile;
+    string keyFile;
+    string keyChainFile;
     string keyStorePassword;
-    string certPassword;
+    string certFile;
     string trustStoreFile;
     string trustStorePassword;
+
 }
 
 @Description { value:"Options struct represents options to be used for gRPC client invocation" }
@@ -35,7 +37,17 @@ public struct Options {
 }
 public function <ServiceEndpointConfiguration config> ServiceEndpointConfiguration() {}
 
-public native function <ServiceEndpoint h> init (string epName, ServiceEndpointConfiguration c);
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Return { value:"Error occured during initialization" }
+public function <ServiceEndpoint ep> init (string epName, ServiceEndpointConfiguration config) {
+    ep.epName = epName;
+    ep.config = config;
+    ep.initEndpoint();
+}
+
+public native function<ServiceEndpoint ep> initEndpoint();
 
 public native function <ServiceEndpoint h> register (type serviceType);
 

@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.builtin.maplib;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -37,11 +36,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "key", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Remove extends AbstractNativeFunction {
+public class Remove extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getRefArgument(ctx, 0);
-        map.remove(getStringArgument(ctx, 0));
-        return VOID_RETURN;
+    public void execute(Context ctx) {
+        BMap map = (BMap) ctx.getRefArgument(0);
+        map.remove(ctx.getStringArgument(0));
+        ctx.setReturnValues();
     }
 }

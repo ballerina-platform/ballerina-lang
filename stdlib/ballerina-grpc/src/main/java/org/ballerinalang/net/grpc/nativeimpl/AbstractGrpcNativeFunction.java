@@ -1,12 +1,12 @@
 package org.ballerinalang.net.grpc.nativeimpl;
 
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.natives.AbstractNativeFunction;
 
 /**
  * Actract class of gRPC native functions.
  */
-public abstract class AbstractGrpcNativeFunction extends AbstractNativeFunction {
+public abstract class AbstractGrpcNativeFunction extends BlockingNativeCallableUnit {
     
     protected io.grpc.ServerBuilder getServiceBuilder(Struct serviceEndpoint) {
         return (io.grpc.ServerBuilder) serviceEndpoint.getNativeData("serviceBuilder");

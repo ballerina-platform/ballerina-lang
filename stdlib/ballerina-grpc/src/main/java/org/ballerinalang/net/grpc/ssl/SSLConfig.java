@@ -21,8 +21,6 @@ package org.ballerinalang.net.grpc.ssl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-
 /**
  * A class that encapsulates SSLContext configuration.
  */
@@ -33,10 +31,10 @@ public class SSLConfig {
     
     private static final String separator = ",";
     
-    private File keyStore;
-    private String keyStorePass;
-    private String certPass;
-    private File trustStore;
+    private String keyFile;
+    private String keyChainFile;
+    private String certFile;
+    private String trustStore;
     private String trustStorePass;
     private String sslProtocol = "TLS";
     private String tlsStoreType = "PKCS12";
@@ -47,32 +45,36 @@ public class SSLConfig {
     private boolean wantClientAuth;
     private String[] serverNames;
     private String[] sniMatchers;
-
+    
     public SSLConfig() {
     }
-
-    public SSLConfig(File keyStore, String keyStorePass) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using key store" + keyStore);
-        }
-        this.keyStore = keyStore;
-        this.keyStorePass = keyStorePass;
+    
+    public SSLConfig(String keyFile, String keyChainFile) {
+        this.keyFile = keyFile;
+        this.keyChainFile = keyChainFile;
     }
     
-    public String getCertPass() {
-        return certPass;
+    public String getCertFile() {
+        return certFile;
     }
     
-    public SSLConfig setCertPass(String certPass) {
-        this.certPass = certPass;
-        return this;
+    public void setCertFile(String certFile) {
+        this.certFile = certFile;
     }
     
-    public File getTrustStore() {
+    public String getKeyFile() {
+        return keyFile;
+    }
+    
+    public String getKeyChainFile() {
+        return keyChainFile;
+    }
+    
+    public String getTrustStore() {
         return trustStore;
     }
     
-    public SSLConfig setTrustStore(File trustStore) {
+    public SSLConfig setTrustStore(String trustStore) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using trust store" + trustStore);
         }
@@ -87,14 +89,6 @@ public class SSLConfig {
     public SSLConfig setTrustStorePass(String trustStorePass) {
         this.trustStorePass = trustStorePass;
         return this;
-    }
-    
-    public File getKeyStore() {
-        return keyStore;
-    }
-    
-    public String getKeyStorePass() {
-        return keyStorePass;
     }
     
     public String[] getSniMatchers() {

@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.net.grpc.config;
 
+import org.ballerinalang.net.grpc.ssl.SSLConfig;
+
 /**
  * Endpoint configuration of gRPC Service.
  */
 public class EndPointConfiguration {
     private long port;
     private String host;
+    private SSLConfig sslConfig;
     
     public Long getPort() {
         return port;
@@ -38,5 +41,13 @@ public class EndPointConfiguration {
     
     public void setHost(String host) {
         this.host = host;
+    }
+    
+    public SSLConfig getSslConfig() {
+        return sslConfig;
+    }
+    
+    public void setSslConfig(SSLConfig sslConfig) {
+        this.sslConfig = sslConfig;
     }
 }

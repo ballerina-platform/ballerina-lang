@@ -235,8 +235,6 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-    int WRKSTART = 193;
-    int WRKRETURN = 194;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
