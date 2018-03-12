@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -42,7 +43,9 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  */
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "Service"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService")}
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService"),
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSubSubscriberService")
+        }
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -57,8 +60,11 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                     ((BLangAnnotationAttachment) annotation).annotationSymbol.pkgID.name.value)) {
                 continue;
             }
-            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG) || annotation
-                    .getAnnotationName().getValue().equals(WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG)
+                    || annotation.getAnnotationName().getValue().equals(
+                            WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)
+                    || annotation.getAnnotationName().getValue().equals(
+                            HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }

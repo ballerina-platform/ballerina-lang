@@ -48,7 +48,7 @@ public class WebSocketService implements Service {
         }
 
         Annotation configAnnotation =
-                HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                HttpUtil.getHttpServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
         negotiableSubProtocols = findNegotiableSubProtocols(configAnnotation);
         idleTimeoutInSeconds = findIdleTimeoutInSeconds(configAnnotation);
     }

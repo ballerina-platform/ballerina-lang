@@ -41,6 +41,7 @@ public class HttpConstants {
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
     public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:Service";
+    public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSubSubscriberService";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -114,6 +115,7 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
+    public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "webSubSubscriberServiceConfig";
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";

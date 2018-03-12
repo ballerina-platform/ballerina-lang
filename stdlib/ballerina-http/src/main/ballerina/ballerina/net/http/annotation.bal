@@ -58,6 +58,24 @@ public struct WebSocketServiceConfiguration {
 @Field {value: "CONNECTION: Create a new instance of the service for each connection"}
 @Field {value: "SESSION: Create a new instance of the service for each session"}
 @Field {value: "SINGLETON: Create a single instance of the service and use it to process all requests coming to an endpoint"}
+
+@Description {value:"Configuration for a WebSubSubscriber service."}
+@Field {value: "endpoints: array of endpoints the service would be attached to"}
+@Field {value:"basePath: path of the WebSubSubscriber service"}
+@Field {value:"hub: The hub at which the subscription should be registered."}
+@Field {value:"topic: The topic to which this WebSub subscriber (callback) should be registered."}
+@Field {value:"callback: The callback URL (part of this service) at which notifications are expected."}
+@Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
+@Field {value:"secret: The secret to be used for authenticated content distribution."}
+public struct WebSubSubscriberServiceConfiguration {
+    WebSubSubscriberService[] endpoints;
+    string basePath;
+    string hub;
+    string topic;
+    int leaseSeconds;
+    string secret;
+}
+
 public enum HttpServiceLifeTime {
     REQUEST,
     CONNECTION,
@@ -71,6 +89,8 @@ public annotation <service> serviceConfig HttpServiceConfiguration;
 @Description {value:"Configurations annotation for a WebSocket service"}
 public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;
 
+@Description {value:"WebebSubSubscriber Configuration for service"}
+public annotation <service> webSubSubscriberServiceConfig WebSubSubscriberServiceConfiguration;
 
 ////////////////////////////
 /// Resource Annotations ///

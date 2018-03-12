@@ -97,7 +97,7 @@ public class HTTPServicesRegistry {
             }
         }
 
-        Annotation annotation = HttpUtil.getServiceConfigAnnotation(service.getBalService(),
+        Annotation annotation = HttpUtil.getHttpServiceConfigAnnotation(service.getBalService(),
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
 
         Struct serviceConfig = annotation.getValue();
@@ -119,6 +119,33 @@ public class HTTPServicesRegistry {
                                          websocketConfig, basePath);
         }
 
+    }
+
+    /**
+     * Register a WebSubSubscriber service in the map.
+     *
+     * @param service the {@link HttpService} to be registered
+     */
+    public void registerWebSubSubscriberHttpService(HttpService service) {
+        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
+        if (accessLogConfig != null) {
+            try {
+                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
+            } catch (IOException e) {
+                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
+            }
+        }
+
+        Annotation annotation = HttpUtil.getWebSubSubscriberServiceConfigAnnotation(service.getBalService(),
+                                                                    HttpConstants.HTTP_PACKAGE_PATH);
+        service.setAllAllowMethods(populateListFromValueArray(null));
+        String basePath = discoverBasePathFrom(service, annotation);
+        basePath = urlDecode(basePath);
+        service.setBasePath(basePath);
+        servicesInfoMap.put(service.getBasePath(), service);
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+        postProcessService(service, null); //TODO: introduce a proper fix instead of passing null
+        WebSubSubscriberServiceValidator.validateResources(service);
     }
 
     public List<String> populateListFromValueArray(Value[] valueArray) {
