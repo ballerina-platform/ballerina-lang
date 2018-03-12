@@ -217,18 +217,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    public List<AnnAttributeValue> getUnresolvedAnnAttrValues() {
-        return unresolvedAnnAttrValues;
-    }
-
-    public void setUnresolvedAnnAttrValues(List<AnnAttributeValue> unresolvedAnnAttrValues) {
-        this.unresolvedAnnAttrValues = unresolvedAnnAttrValues;
-    }
-
-    public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
-        unresolvedAnnAttrValues.add(annAttributeValue);
-    }
-
     public void setDebugger(Debugger debugManager) {
         this.debugger = debugManager;
     }

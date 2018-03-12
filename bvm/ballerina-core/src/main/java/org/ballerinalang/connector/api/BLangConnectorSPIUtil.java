@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -51,7 +52,7 @@ public final class BLangConnectorSPIUtil {
      * @return ConnectorEndPoint struct.
      */
     public static Struct getConnectorEndpointStruct(Context context) {
-        BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[0];
+        BValue result = context.getRefArgument(0);
         if (result == null || result.getType().getTag() != TypeTags.STRUCT_TAG) {
             throw new BallerinaException("Can't get connector endpoint struct");
         }
@@ -67,7 +68,7 @@ public final class BLangConnectorSPIUtil {
      * @return register service.
      */
     public static Service getServiceRegisted(Context context) {
-        BValue result = context.getControlStack().getCurrentFrame().getRefRegs()[1];
+        BValue result = context.getRefArgument(1);
         if (result == null || result.getType().getTag() != TypeTags.TYPE_TAG
                 || ((BTypeValue) result).value().getTag() != TypeTags.SERVICE_TAG) {
             throw new BallerinaConnectorException("Can't get service reference");
@@ -134,8 +135,7 @@ public final class BLangConnectorSPIUtil {
         final BConnector bConnector = BLangVMStructs.createBConnector(connectorInfo, args);
         final FunctionInfo initFunction = packageInfo.getFunctionInfo(connectorName + INIT_FUNCTION_SUFFIX);
         if (initFunction != null) {
-            Context initContext = new Context(programFile);
-            BLangFunctions.invokeFunction(programFile, initFunction, initContext);
+            BLangFunctions.invokePackageInitFunction(initFunction);
         }
         return bConnector;
     }
@@ -151,14 +151,25 @@ public final class BLangConnectorSPIUtil {
         return getService(programFile, (BServiceType) vmValue.value());
     }
 
+    public static BStruct getPackageEndpoint(ProgramFile programFile, String pkgName, String endpointName) {
+        final PackageInfo packageInfo = programFile.getPackageInfo(pkgName);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("Incorrect package name");
+        }
+        final PackageVarInfo packageVarInfo = packageInfo.getPackageVarInfo(endpointName);
+        if (packageVarInfo == null) {
+            throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
+        }
+        return (BStruct) programFile.getGlobalMemoryBlock().getRefField(packageVarInfo.getGlobalMemIndex());
+    }
+
     /* private utils */
 
     private static Service getService(ProgramFile programFile, BServiceType serviceType) {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
         final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
-        Context serviceInitCtx = new Context(programFile);
-        BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), serviceInitCtx);
+        BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
         return service;
     }
 }

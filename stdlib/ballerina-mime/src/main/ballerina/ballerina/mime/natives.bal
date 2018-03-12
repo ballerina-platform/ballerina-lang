@@ -50,7 +50,7 @@ public struct Entity {
 @Field { value : "cause: The error which caused the entity error"}
 public struct EntityError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description {value:"Set the entity body with a given file handler"}
@@ -256,7 +256,6 @@ public const string TEXT_PLAIN = "text/plain";
 
 @Description {value:"Represent 'text/xml' media type value"}
 public const string TEXT_XML = "text/xml";
-
 
 @Description {value:"Key name for 'boundary' parameter in MediaType. This is needed for composite type media types"}
 public const string BOUNDARY = "boundary";

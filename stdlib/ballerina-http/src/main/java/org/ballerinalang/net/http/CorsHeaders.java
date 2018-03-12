@@ -59,7 +59,7 @@ public class CorsHeaders {
     }
 
     public void setAllowCredentials(int allowCredentials) {
-        if (allowCredentials >= 0) {
+        if (allowCredentials > 0) {
             available = true;
         }
         this.allowCredentials = allowCredentials;

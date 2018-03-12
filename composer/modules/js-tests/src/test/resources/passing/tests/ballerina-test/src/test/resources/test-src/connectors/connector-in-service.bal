@@ -64,11 +64,11 @@ service<http> actionInvokeService {
         methods:["GET"],
         path : "/action3"
     }
-    resource action3Resource (http:Connection conn, http:InRequest req) {
+    resource action3Resource (http:Connection conn, http:Request req) {
 
         string actionResponse;
         actionResponse = testConnector.action3();
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(actionResponse);
         _ = conn.respond(res);
     }
@@ -78,12 +78,12 @@ service<http> actionInvokeService {
         methods:["GET"],
         path : "/action1"
     }
-    resource action1Resource (http:Connection conn, http:InRequest req) {
+    resource action1Resource (http:Connection conn, http:Request req) {
 
         boolean actionResponse;
         actionResponse = testConnector.action1();
         string payload = <string> actionResponse;
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(payload);
         _ = conn.respond(res);
     }
@@ -92,9 +92,9 @@ service<http> actionInvokeService {
         methods:["GET"],
         path : "/action2"
     }
-    resource action2Resource (http:Connection conn, http:InRequest req) {
+    resource action2Resource (http:Connection conn, http:Request req) {
 
-        http:OutResponse res = {};
+        http:Response res = {};
         testConnector.action2();
         _ = conn.respond(res);
     }
@@ -103,11 +103,11 @@ service<http> actionInvokeService {
         methods:["GET"],
         path : "/action5"
     }
-    resource action5Resource (http:Connection conn, http:InRequest req) {
+    resource action5Resource (http:Connection conn, http:Request req) {
 
         string actionResponse;
         actionResponse = testConnector.action5(myConst);
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(actionResponse);
         _ = conn.respond(res);
     }
@@ -116,11 +116,11 @@ service<http> actionInvokeService {
         methods:["GET"],
         path : "/action6"
     }
-    resource action6Resource (http:Connection conn, http:InRequest req) {
+    resource action6Resource (http:Connection conn, http:Request req) {
 
         string actionResponse;
         actionResponse = testConnector.action6("Hello", "World");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setStringPayload(actionResponse);
         _ = conn.respond(res);
     }

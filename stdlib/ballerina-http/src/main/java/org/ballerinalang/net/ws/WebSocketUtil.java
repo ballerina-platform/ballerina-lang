@@ -22,19 +22,19 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.net.http.WebSocketConstants;
 
 /**
  * Utility class for websockets.
  */
 public abstract class WebSocketUtil {
-    public static BValue[] getQueryParams(Context context, AbstractNativeFunction abstractNativeFunction) {
-        BStruct wsConnection = (BStruct) abstractNativeFunction.getRefArgument(context, 0);
+
+    public static BValue[] getQueryParams(Context context) {
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         Object queryParams = wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
         if (queryParams != null && queryParams instanceof BMap) {
-            return abstractNativeFunction.getBValues(
-                    (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS));
+            return new BValue[] { (BMap) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS) };
         }
-        return abstractNativeFunction.getBValues(new BMap<>());
+        return new BValue[] { new BMap<>() };
     }
 }

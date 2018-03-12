@@ -11,7 +11,7 @@ const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 @Field{value:"The assert error category"}
 public struct AssertError {
     string message;
-    error cause;
+    error[] cause;
     string category;
 }
 

@@ -33,12 +33,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class GetFunctionAnnotations extends AbstractAnnotationReader {
 
     @Override
-    public BValue[] execute(Context context) {
-        BValue bValue = getRefArgument(context, 0);
+    public void execute(Context context) {
+        BValue bValue = context.getRefArgument(0);
         if (!(bValue instanceof BFunctionPointer)) {
-            return new BValue[] {null};
+            context.setReturnValues((BValue) null);
         }
         BFunctionPointer fp = (BFunctionPointer) bValue;
-        return new BValue[] {getAnnotationValue(context, fp.value().getPackagePath(), fp.value().getFunctionName())};
+        context.setReturnValues(getAnnotationValue(context, fp.value().getPackagePath(), fp.value().getFunctionName()));
     }
 }

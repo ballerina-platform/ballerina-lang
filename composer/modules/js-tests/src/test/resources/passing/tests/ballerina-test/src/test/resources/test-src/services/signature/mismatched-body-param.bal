@@ -6,8 +6,8 @@ service<http> echo {
         methods:["POST"],
         body:"person"
     }
-    resource echo1 (http:Connection conn, http:InRequest req, string key, json ballerina) {
-        http:OutResponse res = {};
+    resource echo1 (http:Connection conn, http:Request req, string key, json ballerina) {
+        http:Response res = {};
         _ = conn.respond(res);
     }
 }
