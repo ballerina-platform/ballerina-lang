@@ -4,6 +4,9 @@ package ballerina.net.http;
 // HTTP Client Endpoint
 ///////////////////////////////
 
+@Description {value:"Represents an HTTP client endpoint"}
+@Field {value:"epName: The name of the endpoint"}
+@Field {value:"config: The configurations associated with the endpoint"}
 public struct Client {
     string epName;
     ClientEndpointConfiguration config;
@@ -27,15 +30,16 @@ public struct TargetService {
 @Field {value:"serviceUri: Target service url"}
 @Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"keepAlive: Keep the connection or close it"}
+@Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
 @Field {value:"chunking: The chunking behaviour of the request"}
-@Field {value:"httpVersion: The version of HTTP outbound request"}
+@Field {value:"httpVersion: The HTTP version understood by the client"}
 @Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
 @Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
+@Field {value:"connectionThrottling: Configurations for connection throttling"}
 public struct ClientEndpointConfiguration {
     string serviceUri;
     int port;
@@ -54,12 +58,15 @@ public struct ClientEndpointConfiguration {
     Algorithm algorithm;
 }
 
+@Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
+@Param {value:"config: The ClientEndpointConfiguration struct to be initialized"}
 public function <ClientEndpointConfiguration config> ClientEndpointConfiguration() {
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
+@Param { value:"ep: The endpoint to be initialized" }
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
 public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
@@ -95,8 +102,8 @@ public function <Client ep> stop () {
 }
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
-@Field {value:"count: Number of retries"}
-@Field {value:"interval: Retry interval in millisecond"}
+@Field {value:"count: Number of retry attempts before giving up"}
+@Field {value:"interval: Retry interval in milliseconds"}
 public struct Retry {
     int count;
     int interval;
