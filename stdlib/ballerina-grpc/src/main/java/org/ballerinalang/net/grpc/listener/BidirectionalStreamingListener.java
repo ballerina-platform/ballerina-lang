@@ -22,6 +22,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
@@ -56,7 +58,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver);
-        Executor.submit(onOpen, callback,null, signatureParams);
+        Executor.submit(onOpen, callback, null, signatureParams);
 
         return new StreamObserver<Message>() {
             @Override
@@ -68,7 +70,7 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
-                Executor.submit(resource, callback,null, signatureParams);
+                Executor.submit(resource, callback, null, signatureParams);
             }
 
             @Override
@@ -88,7 +90,8 @@ public class BidirectionalStreamingListener extends MethodListener implements Se
                     LOGGER.error(message);
                     throw new RuntimeException(message);
                 }
-                BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+                BType errorType = paramDetails.get(1).getVarType();
+                BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
                 signatureParams[1] = errorStruct;
                 Executor.submit(onError, callback, null, signatureParams);
             }

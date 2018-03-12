@@ -66,7 +66,6 @@ public struct SSL {
 public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
     ep.epName = epName;
     ep.config = config;
-    ep.stub = stub;
     ep.initEndpoint();
 }
 

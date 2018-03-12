@@ -44,7 +44,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 public class IsCancelled extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument( 0);
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
         if (responseObserver == null) {
             return;

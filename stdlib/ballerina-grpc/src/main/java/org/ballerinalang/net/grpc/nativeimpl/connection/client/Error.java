@@ -54,14 +54,14 @@ public class Error extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        BValue responseValue = context.getRefArgument( 1);
+        BValue responseValue = context.getRefArgument(1);
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
             StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
             if (responseObserver == null) {
-                context.setError(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
+                context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                                 " observer not found."))));
             } else {

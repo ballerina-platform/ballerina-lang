@@ -57,7 +57,7 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 public class NonBlockingExecute extends AbstractExecute {
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument( 0);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         if (bConnector == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
@@ -70,7 +70,7 @@ public class NonBlockingExecute extends AbstractExecute {
                     "is not initialized properly");
             return;
         }
-        String methodName = context.getStringArgument( 0);
+        String methodName = context.getStringArgument(0);
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");
@@ -100,7 +100,7 @@ public class NonBlockingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                     return;
                 }
-                notifyErrorReply(context, null);
+                context.setReturnValues();
                 return;
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
@@ -110,18 +110,4 @@ public class NonBlockingExecute extends AbstractExecute {
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
                 "type not supported");
     }
-
-/*    @Override
-    void notifyErrorReply(Context context, String errorMessage) {
-        BStruct outboundError = createStruct(context, "ConnectorError");
-        outboundError.setStringField(0, errorMessage);
-        ballerinaFuture.notifyReply(outboundError);
-        return ballerinaFuture;
-    }*/
-
-/*    ClientConnectorFuture notifyReply() {
-        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-        ballerinaFuture.notifyReply(null);
-        return ballerinaFuture;
-    }*/
 }

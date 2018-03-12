@@ -25,8 +25,6 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -93,17 +91,11 @@ public class MessageUtils {
         return null;
     }
 
-    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+    public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
-        } else {
-            httpConnectorError.setStringField(0, throwable.getMessage());
-        }
-        return httpConnectorError;
+        return getConnectorError(errorStructInfo.getType(), throwable);
     }
 
     /**
@@ -111,14 +103,12 @@ public class MessageUtils {
      * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param resource this is onError resource of callback listener service.
      * @param errorType this is either ServerError or ClientError.
      * @param error this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
-    public static BStruct getConnectorError(Resource resource, BType errorType, Throwable error) {
-        BStruct errorStruct = ConnectorUtils.createStruct(resource, errorType.getPackagePath(), errorType
-                .getName());
+    public static BStruct getConnectorError(BStructType errorType, Throwable error) {
+        BStruct errorStruct = new BStruct(errorType);
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
             int status = statusException.getStatus() != null ? statusException.getStatus().getCode().value() : -1;

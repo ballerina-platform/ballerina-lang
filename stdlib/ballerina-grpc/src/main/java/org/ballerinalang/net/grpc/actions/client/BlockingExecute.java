@@ -38,11 +38,11 @@ import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "blockingExecute",
-        connectorName = "GRPCConnector",
+        connectorName = "ClientConnector",
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)
-            
+
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -58,19 +58,19 @@ public class BlockingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument( 0);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         if (bConnector == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
             return;
         }
-        
+
         Object connectionStub = bConnector.getNativeData("stub");
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client " +
                     "connector is not initialized properly");
         }
-        String methodName = context.getStringArgument( 0);
+        String methodName = context.getStringArgument(0);
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint " +
                     "doesn't set properly");

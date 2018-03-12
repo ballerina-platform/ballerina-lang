@@ -64,7 +64,7 @@ public class EndpointConfiguration {
         return tlsStoreType;
     }
 
-    public void setTLSStoreType(String tlsStoreType) {
+    public void setTlsStoreType(String tlsStoreType) {
         this.tlsStoreType = tlsStoreType;
     }
 
@@ -144,7 +144,7 @@ public class EndpointConfiguration {
         return sslProtocol;
     }
 
-    public void setSSLProtocol(String sslProtocol) {
+    public void setSslProtocol(String sslProtocol) {
         this.sslProtocol = sslProtocol;
     }
 }

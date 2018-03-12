@@ -20,11 +20,7 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -47,11 +43,6 @@ public class GetConnector extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BConnector clientConnector = (BConnector) clientEndpoint.getNativeData("clientConnector");
-        if (clientConnector == null) {
-            throw new BallerinaConnectorException("Error while retrieving client connector from endpoint.");
-        }
-        context.setReturnValues(clientConnector);
+        context.setReturnValues();
     }
 }

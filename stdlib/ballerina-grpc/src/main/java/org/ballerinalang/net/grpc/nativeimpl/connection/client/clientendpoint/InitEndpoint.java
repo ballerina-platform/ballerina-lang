@@ -20,14 +20,18 @@ package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -35,6 +39,8 @@ import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_STUB;
 
 
 /**
@@ -47,7 +53,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         packageName = "ballerina.net.grpc",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
-                             structPackage = "ballerina.net.grpc"),
+                structPackage = "ballerina.net.grpc"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
@@ -65,12 +71,43 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                     .usePlaintext(true)
                     .build();
             clientEndpoint.addNativeData(EndpointConstants.CHANNEL_KEY, channel);
-            Value stubValue = clientEndpoint.getTypeField("stub");
+            BStruct clientStub = generateClientStub(context, endpointConfig);
+            if (clientStub != null) {
+                clientEndpoint.addNativeData(CLIENT_STUB, clientStub);
+                context.setReturnValues();
+            }
         } catch (Throwable throwable) {
-            BStruct errorStruct = MessageUtils.getServerConnectorError(context, throwable);
+            BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
             context.setError(errorStruct);
         }
 
+    }
+
+    private BStruct generateClientStub(Context context, Struct endpointConfig) {
+        Value stubValue = endpointConfig.getTypeField("stub");
+        if (stubValue == null) {
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "client stub type not specified."))));
+            return null;
+        }
+
+        if (!(stubValue.getVMValue() instanceof BTypeValue)) {
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "client stub type not a Ballerina Type."))));
+            return null;
+        }
+
+        BType stubType = ((BTypeValue) stubValue.getVMValue()).value();
+        if (stubType == null) {
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "client stub type is null."))));
+            return null;
+        }
+        return BLangConnectorSPIUtil.createBStruct(context, stubType.getPackagePath(), stubType
+                .getName());
     }
 
 
@@ -102,8 +139,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String trustStorePassword = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_STRUST_STORE_PASSWORD);
         String sslVerifyClient = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
         String certPassword = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_CERT_PASSWORD);
-        String sslEnabledProtocols = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_SSL_ENABLED_PROTOCOLS);
-        String cipher = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_CIPHERS);
         String sslProtocol = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_SSL_PROTOCOL);
         boolean validateCertificateEnabled = sslConfig.getBooleanField(EndpointConstants
                 .SSL_CONFIG_VALIDATE_CERT_ENABLED);
@@ -132,7 +167,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
 
 
-        endpointConfiguration.setTLSStoreType(EndpointConstants.PKCS_STORE_TYPE);
+        endpointConfiguration.setTlsStoreType(EndpointConstants.PKCS_STORE_TYPE);
         endpointConfiguration.setKeyStoreFile(keyStoreFile);
         endpointConfiguration.setKeyStorePass(keyStorePassword);
         endpointConfiguration.setCertPass(certPassword);
@@ -147,7 +182,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
 
         if (sslProtocol != null) {
-            endpointConfiguration.setSSLProtocol(sslProtocol);
+            endpointConfiguration.setSslProtocol(sslProtocol);
         }
 
         return endpointConfiguration;

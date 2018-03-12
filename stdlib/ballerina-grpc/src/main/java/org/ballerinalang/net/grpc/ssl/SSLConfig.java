@@ -142,22 +142,22 @@ public class SSLConfig {
         this.needClientAuth = needClientAuth;
     }
 
-    public void setSSLProtocol(String sslProtocol) {
+    public void setSslProtocol(String sslProtocol) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Set SSLProtocol" + sslProtocol);
         }
         this.sslProtocol = sslProtocol;
     }
 
-    public String getSSLProtocol() {
+    public String getSslProtocol() {
         return sslProtocol;
     }
 
-    public String getTLSStoreType() {
+    public String getTlsStoreType() {
         return tlsStoreType;
     }
 
-    public void setTLSStoreType(String tlsStoreType) {
+    public void setTlsStoreType(String tlsStoreType) {
         this.tlsStoreType = tlsStoreType;
     }
 

@@ -39,9 +39,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
+        context.setReturnValues();
     }
-/*    @Override
-    public BValue[] execute(Context context) {
-        throw new UnsupportedOperationException("Stop Operation is not supported in client endpoint");
-    }*/
 }

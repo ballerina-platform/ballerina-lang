@@ -55,7 +55,7 @@ public class Complete extends BlockingNativeCallableUnit {
             requestSender.onCompleted();
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getServerConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, e));
         }
     }
 }

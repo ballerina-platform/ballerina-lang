@@ -52,8 +52,8 @@ public class Send extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument( 0);
-        BValue responseValue = context.getRefArgument( 1);
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BValue responseValue = context.getRefArgument(1);
         StreamObserver<Message> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
@@ -66,7 +66,7 @@ public class Send extends BlockingNativeCallableUnit {
             responseObserver.onNext(responseMessage);
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getServerConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, e));
         }
     }
 }

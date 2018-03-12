@@ -20,12 +20,8 @@ package org.ballerinalang.net.grpc.actions.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.net.grpc.ssl.SSLConfig;
-
-import java.io.File;
 
 /**
  * {@code Init} is the Init action implementation of the gRPC Connector.
@@ -126,7 +122,7 @@ public class Init extends BlockingNativeCallableUnit {
         }*/
     }
     
-    private SSLConfig populateClientConfigurationOptions(BStruct options) {
+/*    private SSLConfig populateClientConfigurationOptions(BStruct options) {
         if (options.getRefField(0) != null) {
             SSLConfig clientSslConfigs = new SSLConfig(null, null).setCertPass(null);
             BStruct sslConfigStructs = (BStruct) options.getRefField(0);
@@ -144,5 +140,5 @@ public class Init extends BlockingNativeCallableUnit {
                     + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
-    }
+    }*/
 }

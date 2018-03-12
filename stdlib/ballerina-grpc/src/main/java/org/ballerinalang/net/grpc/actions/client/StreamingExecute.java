@@ -57,7 +57,7 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 public class StreamingExecute extends AbstractExecute {
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument( 0);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         if (bConnector == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
@@ -70,7 +70,7 @@ public class StreamingExecute extends AbstractExecute {
                     "is not initialized properly");
             return;
         }
-        String methodName = context.getStringArgument( 0);
+        String methodName = context.getStringArgument(0);
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");

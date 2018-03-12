@@ -42,10 +42,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class Register extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
+        context.setReturnValues();
     }
-
-/*    @Override
-    public BValue[] execute(Context context) {
-        throw new UnsupportedOperationException("Start Operation is not supported in client endpoint");
-    }*/
 }

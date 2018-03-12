@@ -68,7 +68,7 @@ public class SSLHandlerFactory {
             algorithm = "SunX509";
         }
         needClientAuth = sslConfig.isNeedClientAuth();
-        protocol = sslConfig.getSSLProtocol();
+        protocol = sslConfig.getSslProtocol();
         try {
             KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
             // Set up key manager factory to use our key store
@@ -100,7 +100,7 @@ public class SSLHandlerFactory {
 
     private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
         KeyStore ks = null;
-        String  tlsStoreType = sslConfig.getTLSStoreType();
+        String  tlsStoreType = sslConfig.getTlsStoreType();
         if (keyStore != null && keyStorePassword != null) {
             try (InputStream is = new FileInputStream(keyStore)) {
                 ks = KeyStore.getInstance(tlsStoreType);

@@ -4,6 +4,15 @@ package org.ballerinalang.net.grpc;
  * Created by daneshk on 3/10/18.
  */
 public class EndpointConstants {
+    //Client Endpoint
+    public static final int CLIENT_ENDPOINT_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
+    public static final int SERVICE_URL_INDEX = 0;
+    public static final int OPTIONS_INDEX = 0;
+    public static final String GRPC_PACKAGE_PATH = "ballerina.net.grpc";
+    public static final String CLIENT_CONNECTOR = "ClientConnector";
+    public static final String CLIENT_STUB = "clientStub";
+
     public static final String CHANNEL_KEY = "channel";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String PKCS_STORE_TYPE = "PKCS12";

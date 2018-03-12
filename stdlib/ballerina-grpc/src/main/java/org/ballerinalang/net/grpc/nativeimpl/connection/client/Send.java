@@ -66,7 +66,7 @@ public class Send extends BlockingNativeCallableUnit {
             requestSender.onNext(requestMessage);
         } catch (Throwable e) {
             log.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getServerConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, e));
         }
     }
 }

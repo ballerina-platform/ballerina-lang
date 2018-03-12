@@ -113,9 +113,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             signatureParams[1] = requestParam;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
-        Executor.submit(resource, callback,null, signatureParams);
+        Executor.submit(resource, callback, null, signatureParams);
     }
-    
+
     @Override
     public void onError(Throwable t) {
         Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
@@ -133,12 +133,13 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
-        BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+        BType errorType = paramDetails.get(1).getVarType();
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[1] = errorStruct;
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(onError, callback, null, signatureParams);
     }
-    
+
     @Override
     public void onCompleted() {
         Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
@@ -151,7 +152,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
-        Executor.submit(onCompleted, callback,null, signatureParams);
+        Executor.submit(onCompleted, callback, null, signatureParams);
     }
 
     private BValue getRequestParameter(Resource resource, Message requestMessage) {
