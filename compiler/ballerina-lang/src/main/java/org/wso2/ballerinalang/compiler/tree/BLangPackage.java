@@ -35,6 +35,7 @@ import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.nio.file.Path;
@@ -70,6 +71,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     // TODO Revisit these instance variables
     public Path loadedFilePath;
     public boolean loadedFromProjectDir;
+    public RepoHierarchy repos;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
