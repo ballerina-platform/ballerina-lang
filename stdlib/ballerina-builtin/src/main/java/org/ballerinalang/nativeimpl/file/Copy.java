@@ -18,10 +18,9 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -48,15 +47,15 @@ import java.io.OutputStream;
                         structPackage = "ballerina.file")},
         isPublic = true
 )
-public class Copy extends AbstractNativeFunction {
+public class Copy extends BlockingNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(Copy.class);
     
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
 
-        BStruct source = (BStruct) getRefArgument(context, 0);
-        BStruct destination = (BStruct) getRefArgument(context, 1);
+        BStruct source = (BStruct) context.getRefArgument(0);
+        BStruct destination = (BStruct) context.getRefArgument(1);
 
         File sourceFile = new File(source.getStringField(0));
         File destinationFile = new File(destination.getStringField(0));
@@ -72,7 +71,7 @@ public class Copy extends AbstractNativeFunction {
             throw new BallerinaException("failed to copy file: " + sourceFile.getPath());
         }
 
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 
     private boolean copy(File src, File dest) {

@@ -125,7 +125,7 @@ public class JSONUtils {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                             BTypes.typeJSON, bvalue.getType());
                 }
-            } catch (BallerinaException e) {
+            } catch (Exception e) {
                 handleError(e, key);
             }
         }
@@ -303,7 +303,7 @@ public class JSONUtils {
                                     BTypes.typeJSON, value.getType());
                         }
                 }
-            } catch (BallerinaException e) {
+            } catch (Exception e) {
                 handleError(e, key);
             }
         }
@@ -744,7 +744,7 @@ public class JSONUtils {
                                     fieldName, getTypeName(jsonValue));
                         }
                 }
-            } catch (BallerinaException e) {
+            } catch (Exception e) {
                 handleError(e, fieldName);
             }
         }
@@ -930,7 +930,7 @@ public class JSONUtils {
         return "json-" + nodeType.name().toLowerCase();
     }
     
-    private static void handleError(BallerinaException e, String fieldName) {
+    private static void handleError(Exception e, String fieldName) {
         String errorMsg = e.getCause() == null ? "error while mapping '" + fieldName + "': " : "";
         throw new BallerinaException(errorMsg + e.getMessage(), e);
     }

@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.natives;
 
-import org.ballerinalang.connector.api.AbstractNativeAction;
-import org.ballerinalang.model.NativeUnit;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.natives.NativeElementRepository.NativeFunctionDef;
 import org.ballerinalang.spi.NativeElementProvider;
 
@@ -35,7 +34,7 @@ public class NativeUnitLoader {
 
     private static NativeUnitLoader instance;
     
-    private Map<String, NativeUnit> nativeUnitsCache = new HashMap<>();
+    private Map<String, NativeCallableUnit> nativeUnitsCache = new HashMap<>();
 
     public static NativeUnitLoader getInstance() {
         if (instance == null) {
@@ -53,14 +52,14 @@ public class NativeUnitLoader {
         return nativeElementRepo;
     }
         
-    public AbstractNativeFunction loadNativeFunction(String pkgName, String functionName) {
+    public NativeCallableUnit loadNativeFunction(String pkgName, String functionName) {
         String key = NativeElementRepository.functionToKey(pkgName, functionName);
-        AbstractNativeFunction result = (AbstractNativeFunction) this.nativeUnitsCache.get(key);
+        NativeCallableUnit result = this.nativeUnitsCache.get(key);
         if (result == null) {
             NativeFunctionDef functionDef = this.nativeElementRepo.lookupNativeFunction(pkgName, functionName);
             if (functionDef != null) {
                 try {
-                    result = (AbstractNativeFunction) Class.forName(functionDef.getClassName()).newInstance();
+                    result = (NativeCallableUnit) Class.forName(functionDef.getClassName()).newInstance();
                     this.nativeUnitsCache.put(key, result);
                 } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                     throw new RuntimeException("Error in loading native function: " + e.getMessage(), e);
@@ -70,15 +69,15 @@ public class NativeUnitLoader {
         return result;
     }
     
-    public AbstractNativeAction loadNativeAction(String pkgName, String connectorName, String actionName) {
+    public NativeCallableUnit loadNativeAction(String pkgName, String connectorName, String actionName) {
         String key = NativeElementRepository.actionToKey(pkgName, connectorName, actionName);
-        AbstractNativeAction result = (AbstractNativeAction) this.nativeUnitsCache.get(key);
+        NativeCallableUnit result = this.nativeUnitsCache.get(key);
         if (result == null) {
             NativeFunctionDef actionDef = this.nativeElementRepo.lookupNativeAction(pkgName, 
                     connectorName, actionName);
             if (actionDef != null) {
                 try {
-                    result = (AbstractNativeAction) Class.forName(actionDef.getClassName()).newInstance();
+                    result = (NativeCallableUnit) Class.forName(actionDef.getClassName()).newInstance();
                     this.nativeUnitsCache.put(key, result);
                 } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                     throw new RuntimeException("Error in loading native action: " + e.getMessage(), e);

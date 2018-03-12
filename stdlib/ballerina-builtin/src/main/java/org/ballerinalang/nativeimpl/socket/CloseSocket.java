@@ -19,13 +19,12 @@
 package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -46,15 +45,15 @@ import java.nio.channels.ByteChannel;
         returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CloseSocket extends AbstractNativeFunction {
+public class CloseSocket extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CloseSocket.class);
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct socket;
         try {
-            socket = (BStruct) getRefArgument(context, 0);
+            socket = (BStruct) context.getRefArgument(0);
             ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
             Channel channel = (Channel) byteChannelStruct
@@ -64,8 +63,8 @@ public class CloseSocket extends AbstractNativeFunction {
         } catch (Throwable e) {
             String message = "Failed to close the socket:" + e.getMessage();
             log.error(message, e);
-            return getBValues(IOUtils.createError(context, message));
+            context.setReturnValues(IOUtils.createError(context, message));
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

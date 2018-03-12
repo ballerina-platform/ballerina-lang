@@ -28,7 +28,7 @@ under the License.
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.compiler.plugins.*"/>
+            <!--<package name="org.ballerinalang.test.compiler.plugins.*"/>-->
         </packages>
     </test>
 </suite>

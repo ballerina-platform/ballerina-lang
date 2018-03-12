@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -49,6 +50,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
+    public List<BLangEndpoint> globalEndpoints;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangConnector> connectors;
@@ -56,7 +58,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangStruct> structs;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public BLangFunction initFunction;
+    public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
 
@@ -67,6 +69,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
+        this.globalEndpoints = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.connectors = new ArrayList<>();
@@ -98,6 +101,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangXMLNS> getNamespaceDeclarations() {
         return xmlnsList;
+    }
+
+    @Override
+    public List<? extends EndpointNode> getGlobalEndpoints() {
+        return globalEndpoints;
     }
 
     @Override

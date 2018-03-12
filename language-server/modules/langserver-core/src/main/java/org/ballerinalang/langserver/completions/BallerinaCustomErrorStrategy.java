@@ -146,7 +146,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
      */
     private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
         ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
-        if (connectorInitContext instanceof BallerinaParser.ConnectorInitExpressionContext) {
+        if (connectorInitContext instanceof BallerinaParser.TypeInitExpressionContext) {
             ParserRuleContext tempContext = context;
             while (true) {
                 tempContext.exception = e;

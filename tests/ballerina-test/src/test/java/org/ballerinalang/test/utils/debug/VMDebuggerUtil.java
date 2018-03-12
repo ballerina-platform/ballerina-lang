@@ -21,14 +21,14 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
+import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
- * Test Util class to test debug scenarios.
+ * Test debug util class to test debug scenarios.
  *
  * @since 0.90
  */
@@ -44,78 +44,37 @@ public class VMDebuggerUtil {
 
         debugger.startDebug();
 
-        Step currentStep = Step.RESUME;
+        int hitCount = 0;
         while (true) {
             debugger.getClientHandler().aquireSem();
-            if (debugger.getClientHandler().isExit) {
+            if (debugger.getClientHandler().isExit()) {
                 break;
             }
-            checkDebugPointHit(expRes, debugger.getClientHandler().haltPosition, currentStep);
-            currentStep = expRes.getCurrentWorkerResult().getNextStep();
-            executeDebuggerCmd(debugger, debugger.getClientHandler(), currentStep);
+            MessageDTO debugHit = debugger.getClientHandler().getDebugHit();
+            DebugPoint debugPoint = expRes.getDebugHit(debugHit.getLocation());
+            Assert.assertNotNull(debugPoint, "Invalid debug point hit - " + debugHit.getLocation());
+            int hits = debugPoint.decrementAndGetHits();
+            Assert.assertTrue(hits >= 0, "Invalid number of hits for same point - "
+                    + debugPoint.getExpBreakPoint() + " remaining hit count - " + hits);
+            hitCount++;
+            executeDebuggerCmd(debugger, debugHit.getThreadId(), debugPoint.getNextStep());
         }
+        Assert.assertEquals(hitCount, expRes.getDebugCount(), "Missing debug point hits - " + expRes);
     }
 
-    private static void checkDebugPointHit(ExpectedResults expRes, BreakPointDTO halt, Step crntStep) {
-        BreakPointDTO expLocation;
-        if (!expRes.isMultiThreaded() || !Step.RESUME.equals(crntStep)) {
-            expLocation = expRes.getCurrentWorkerResult().getCurrentLocation();
-            expRes.getCurrentWorkerResult().incrementPointer();
-        } else {
-            expLocation = findDebugPoint(expRes, halt);
-        }
-        Assert.assertEquals(halt, expLocation, "Unexpected halt location expected location - "
-                + expLocation + ", actual location - " + halt);
-    }
-
-    private static BreakPointDTO findDebugPoint(ExpectedResults expRes, BreakPointDTO halt) {
-        BreakPointDTO expLocation;
-        List<WorkerResults> workerResults = expRes.getWorkerResults();
-        for (WorkerResults workerRes : workerResults) {
-            expLocation = workerRes.findDebugPoint(halt);
-            if (expLocation != null) {
-                expRes.setCurrentWorkerResult(workerRes);
-                return expLocation;
-            }
-        }
-        expRes.setCurrentWorkerResult(null);
-        return null;
-    }
-
-    public static BreakPointDTO[] createWorkerBreakPoints(String packagePath, String fileName, int... lineNos) {
-        BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
-        int i = 0;
-        for (int line : lineNos) {
-            breakPointDTOS[i] = new BreakPointDTO(packagePath, fileName, line);
-            i++;
-        }
-        return breakPointDTOS;
-    }
-
-    public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
-        BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
-        int i = 0;
-        for (int line : lineNos) {
-            breakPointDTOS[i] = new BreakPointDTO(packagePath, fileName, line);
-            i++;
-        }
-        return breakPointDTOS;
-    }
-
-    private static void executeDebuggerCmd(Debugger debugManager,
-                                           TestDebugClientHandler debugClientHandler, Step cmd) {
+    private static void executeDebuggerCmd(Debugger debugManager, String workerId, Step cmd) {
         switch (cmd) {
             case STEP_IN:
-                debugManager.stepIn(debugClientHandler.getThreadId());
+                debugManager.stepIn(workerId);
                 break;
             case STEP_OVER:
-                debugManager.stepOver(debugClientHandler.getThreadId());
+                debugManager.stepOver(workerId);
                 break;
             case STEP_OUT:
-                debugManager.stepOut(debugClientHandler.getThreadId());
+                debugManager.stepOut(workerId);
                 break;
             case RESUME:
-                debugManager.resume();
+                debugManager.resume(workerId);
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");

@@ -20,8 +20,8 @@ service<http> helloWorld {
         path:"/"
     }
 
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource sayHello (http:Connection conn, http:Request req) {
+        http:Response res = {};
         //Set response payload.
         res.setStringPayload("Successful");
         //Send response to client.
@@ -35,8 +35,8 @@ function main (string[] args) {
         create http:HttpClient("https://localhost:9095", getConnectorConfigs());
     }
     //Creates a request.
-    http:OutRequest req = {};
-    http:InResponse resp = {};
+    http:Request req = {};
+    http:Response resp = {};
     resp, _ = httpEndpoint.get("/hello/", req);
     io:println("Response code: " + resp.statusCode);
     io:println("Response: " + resp.getStringPayload());

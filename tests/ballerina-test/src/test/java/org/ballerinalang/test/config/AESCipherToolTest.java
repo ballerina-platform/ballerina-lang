@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test the AES Cipher tool.
  *
- * @since 0.964.0
+ * @since 0.965.0
  */
 public class AESCipherToolTest {
 

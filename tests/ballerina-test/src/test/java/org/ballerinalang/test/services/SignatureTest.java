@@ -22,6 +22,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 /**
@@ -42,7 +43,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "first parameter should be of type - ballerina.net.http:Connection")
+            expectedExceptionsMessageRegExp = "first parameter should be of type ballerina.net.http:ServerConnector")
     public void testSignatureWithoutConnectionParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-con-param.bal").getPath());
@@ -50,7 +51,7 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type - ballerina.net.http:InRequest")
+            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina.net.http:Request")
     public void testSignatureWithResponseParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/with-res-param.bal").getPath());
@@ -58,31 +59,31 @@ public class SignatureTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "second parameter should be of type - ballerina.net.http:InRequest")
+            expectedExceptionsMessageRegExp = "second parameter should be of type ballerina.net.http:Request")
     public void testSignatureWithIntParamAsSecondParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/int-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "incompatible resource signature parameter type")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible resource signature parameter type.*")
     public void testSignatureWithBooleanParamAsThirdParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/boolean-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "incompatible entity-body type : int")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible entity-body type : int.*")
     public void testSignatureWithInvalidBodyIntParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "expected 'person' as param name, but found 'ballerina'")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*expected 'person' as param name, but found 'ballerina'.*")
     public void testSignatureWithMismatchedBodyParam() {
         compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath());

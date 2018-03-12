@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -60,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -71,9 +71,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -280,6 +282,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangEndpoint endpointNode) {
         /* ignore */
     }
 
@@ -500,6 +506,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangTypeInit typeInit) {
+        /* ignore */
+    }
+
     public void visit(BLangReturn returnNode) {
         List<Boolean> returnTaintedStatus = new ArrayList<>();
         if (returnNode.namedReturnVariables == null) {
@@ -526,10 +536,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             }
         }
         taintedStatusList = returnTaintedStatusList;
-    }
-
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
-        /* ignore */
     }
 
     public void visit(BLangThrow throwNode) {
@@ -721,10 +727,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangConnectorInit connectorInitExpr) {
-        setTaintedStatusList(false);
-    }
-
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         /* ignore */
     }
@@ -883,6 +885,11 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
 
     public void visit(BLangIntRangeExpression intRangeExpression) {
         setTaintedStatusList(false);
+    }
+
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        /* ignore */
     }
 
     // Private

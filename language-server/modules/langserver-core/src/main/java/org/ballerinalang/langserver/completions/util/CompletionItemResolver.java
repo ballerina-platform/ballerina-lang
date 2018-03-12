@@ -33,14 +33,13 @@ import org.ballerinalang.langserver.completions.resolvers.ResourceContextResolve
 import org.ballerinalang.langserver.completions.resolvers.ServiceContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.StatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationBodyContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAssignmentStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAttachmentPointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleCallableUnitBodyContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConditionalClauseContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleExpressionContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
@@ -115,8 +114,9 @@ public enum CompletionItemResolver {
             new ParserRuleConstantDefinitionContextResolver()),
     PARSER_RULE_GLOBAL_VAR_DEF_CONTEXT(BallerinaParser.GlobalVariableDefinitionContext.class,
             new ParserRuleGlobalVariableDefinitionContextResolver()),
-    PARSER_RULE_ANNOTATION_BODY_CONTEXT(BallerinaParser.AnnotationBodyContext.class,
-            new ParserRuleAnnotationBodyContextResolver()),
+//    TODO : Fix this
+//    PARSER_RULE_ANNOTATION_BODY_CONTEXT(BallerinaParser.AnnotationBodyContext.class,
+//            new ParserRuleAnnotationBodyContextResolver()),
     PARSER_RULE_ATTACHMENT_POINT_CONTEXT(BallerinaParser.AttachmentPointContext.class,
             new ParserRuleAttachmentPointContextResolver()),
     PARSER_RULE_ASSIGN_STMT_CONTEXT(BallerinaParser.AssignmentStatementContext.class,
