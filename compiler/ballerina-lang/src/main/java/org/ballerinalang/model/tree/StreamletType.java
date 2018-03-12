@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.ReferenceType;
 /**
  * {@code {@link StreamletType}} represents the type of a streamlet in Ballerina.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public interface StreamletType extends ReferenceType {
 }

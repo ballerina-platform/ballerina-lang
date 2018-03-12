@@ -30,7 +30,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
  *      TempStream where e1.roomNo==roomNo [1..5) as e2
  * </pre>
  *
- * @since @since 0.955.0
+ * @since 0.965.0
  */
 
 public interface PatternStreamingEdgeInputNode extends Node {

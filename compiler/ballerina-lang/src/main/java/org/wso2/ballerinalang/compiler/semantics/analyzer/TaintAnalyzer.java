@@ -232,7 +232,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamlet streamletNode) {
-
+        // TODO Implement
     }
 
     public void visit(BLangFunction funcNode) {

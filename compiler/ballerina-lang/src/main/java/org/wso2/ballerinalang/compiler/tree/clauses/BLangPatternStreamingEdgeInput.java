@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Implementation of {@link PatternStreamingEdgeInputNode}.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BLangPatternStreamingEdgeInput extends BLangNode implements PatternStreamingEdgeInputNode {
 
@@ -89,6 +89,4 @@ public class BLangPatternStreamingEdgeInput extends BLangNode implements Pattern
     public String getAliasIdentifier() {
         return alias;
     }
-
-
 }

@@ -376,8 +376,7 @@ public class Types {
     }
 
     public boolean checkStremletEquivalency(BType actualType, BType expType) {
-
-        //TODO just a temporary hack
+        //TODO temporary fix.
         return true;
     }
 

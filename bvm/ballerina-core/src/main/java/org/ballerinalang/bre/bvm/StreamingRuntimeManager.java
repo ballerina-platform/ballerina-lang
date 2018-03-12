@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * This class responsible on holding Siddhi App runtimes and related stream objects.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class StreamingRuntimeManager {
 
@@ -58,7 +58,6 @@ public class StreamingRuntimeManager {
         return streamingRuntimeManager;
     }
 
-
     public void createSiddhiAppRuntime(BStreamlet streamlet) {
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streamlet.getSiddhiApp());
         Set<String> streamIds = siddhiAppRuntime.getStreamDefinitionMap().keySet();
@@ -82,18 +81,17 @@ public class StreamingRuntimeManager {
         }
     }
 
-    public List<InputHandler> getStreamSpecificInputHandlerList(String streamId) {
-        List<InputHandler> inputHandlerList = new ArrayList<>();
-        for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {
-            if (siddhiAppRuntime != null) {
-                InputHandler inputHandler = siddhiAppRuntime.getInputHandler(streamId);
-                inputHandlerList.add(inputHandler);
-            }
-        }
-        return inputHandlerList;
+    public void removeSiddhiAppRuntime(SiddhiAppRuntime siddhiAppRuntime) {
+        siddhiAppRuntimeList.remove(siddhiAppRuntime);
     }
 
-    public List<SiddhiAppRuntime> getSiddhiAppRuntimeList() {
+    public List<SiddhiAppRuntime> getStreamSpecificSiddhiAppRuntimes(String streamId) {
+        List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
+        for (SiddhiAppRuntime siddhiAppRuntime : this.siddhiAppRuntimeList) {
+            if (siddhiAppRuntime != null && siddhiAppRuntime.getStreamDefinitionMap().get(streamId) != null) {
+                siddhiAppRuntimeList.add(siddhiAppRuntime);
+            }
+        }
         return siddhiAppRuntimeList;
     }
 

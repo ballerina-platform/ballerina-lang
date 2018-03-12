@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * Implementation of {@link StreamActionNode}.
  *
- * @since 0.955.0
+ * @since 0.965.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
 
@@ -130,5 +130,4 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
         UPDATE,
         UNKNOWN
     }
-
 }
