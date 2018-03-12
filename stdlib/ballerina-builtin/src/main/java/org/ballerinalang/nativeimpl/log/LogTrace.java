@@ -31,7 +31,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.log",
+        orgName = "ballerina",
+        packageName = "log",
         functionName = "printTrace",
         args = {@Argument(name = "msg", type = TypeKind.STRING)},
         isPublic = true

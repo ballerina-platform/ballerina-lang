@@ -1,4 +1,4 @@
-import ballerina.reflect;
+import ballerina/reflect;
 
 // Start Structs
 struct SimplePerson {

@@ -31,16 +31,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(packageName = "ballerina.builtin",
-                   functionName = "table.add",
-                   args = {
-                           @Argument(name = "dt",
-                                     type = TypeKind.TABLE),
-                           @Argument(name = "data",
-                                     type = TypeKind.ANY)
-                   },
-                   isPublic = true)
+@BallerinaFunction(orgName = "ballerina", packageName = "builtin",
+        functionName = "table.add",
+        args = {
+                @Argument(name = "dt",
+                        type = TypeKind.TABLE),
+                @Argument(name = "data",
+                        type = TypeKind.ANY)
+        },
+        isPublic = true)
 public class Add extends AbstractNativeFunction {
+
     @Override
     public BValue[] execute(Context context) {
         BTable table = (BTable) getRefArgument(context, 0);

@@ -1,4 +1,4 @@
-import ballerina.net.http;
+import ballerina/net.http;
 
 connector TestConnector(string param1) {
 

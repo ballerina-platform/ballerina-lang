@@ -1,5 +1,5 @@
 import lang.annotations.doc;
-import ballerina.net.http;
+import ballerina/net.http;
 
 @doc:Description{value:1234}
 service<http> PizzaService {

@@ -38,10 +38,11 @@ import java.util.IllegalFormatException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         functionName = "setMaxInactiveInterval",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.net.http"),
+                             structPackage = "net.http"),
         args = {@Argument(name = "timeInterval", type = TypeKind.INT)},
         isPublic = true
 )

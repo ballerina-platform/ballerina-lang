@@ -1,5 +1,5 @@
-import ballerina.jwt;
-import ballerina.time;
+import ballerina/jwt;
+import ballerina/time;
 
 function testIssueJwt () (string, error) {
     jwt:Header header = {};

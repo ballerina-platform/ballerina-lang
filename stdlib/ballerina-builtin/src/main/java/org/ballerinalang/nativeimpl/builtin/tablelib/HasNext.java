@@ -33,7 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "table.hasNext",
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},

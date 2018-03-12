@@ -1,4 +1,4 @@
-import ballerina.io;
+import ballerina/io;
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach i, s, f in data {

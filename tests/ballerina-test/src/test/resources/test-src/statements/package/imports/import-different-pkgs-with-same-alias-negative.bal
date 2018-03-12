@@ -1,5 +1,5 @@
-import ballerina.net.http as x;
-import ballerina.data.sql as x;
+import ballerina/net.http as x;
+import ballerina/data.sql as x;
 
 function testFunc() {
     x:HttpClient httpConnector = create x:HttpClient("https://postman-echo.com", {});

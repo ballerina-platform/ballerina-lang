@@ -1,7 +1,7 @@
 package pkg.bc;
 
 import pkg.ab;
-import ballerina.runtime;
+import ballerina/runtime;
 
 function lockWithinLockInWorkers() (int, string) {
     worker w1 {

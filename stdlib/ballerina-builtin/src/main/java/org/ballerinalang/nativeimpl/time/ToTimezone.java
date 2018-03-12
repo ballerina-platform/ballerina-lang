@@ -31,13 +31,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.time",
+        orgName = "ballerina",
+        packageName = "time",
         functionName = "Time.toTimezone",
         args = {@Argument(name = "time", type = TypeKind.STRUCT, structType = "Time",
-                          structPackage = "ballerina.time"),
+                          structPackage = "time"),
                 @Argument(name = "zoneId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+                                  structPackage = "time")},
         isPublic = true
 )
 public class ToTimezone extends  AbstractTimeFunction {

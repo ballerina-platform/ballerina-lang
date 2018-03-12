@@ -35,24 +35,25 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
  */
 @BallerinaAction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina",
+        packageName = "net.http",
         actionName = "options",
         connectorName = HttpConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "net.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
+                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                        structPackage = "ballerina.net.http"),
+                        structPackage = "net.http"),
         },
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                        structPackage = "ballerina.net.http")
+                        structPackage = "net.http")
         }
 )
 public class Options extends AbstractHTTPAction {

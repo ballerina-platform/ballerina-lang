@@ -1,4 +1,4 @@
-import ballerina.os;
+import ballerina/os;
 
 const string envVar = os:getEnv("env_var");
 const string varFunc = dummyStringFunction();

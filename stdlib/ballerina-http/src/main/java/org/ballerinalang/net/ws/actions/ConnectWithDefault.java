@@ -51,14 +51,15 @@ import javax.websocket.Session;
  * @since 0.94
  */
 @BallerinaAction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         actionName = "connectWithDefault",
         connectorName = WebSocketConstants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR)
         },
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
-                                  structPackage = "ballerina.net.ws")}
+                                  structPackage = "net.ws")}
 )
 public class ConnectWithDefault extends AbstractNativeWsAction {
     @Override

@@ -1,5 +1,5 @@
-import ballerina.task;
-import ballerina.io;
+import ballerina/task;
+import ballerina/io;
 
 int w1Count;
 int w2Count;

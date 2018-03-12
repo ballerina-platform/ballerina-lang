@@ -1,6 +1,6 @@
 // Year 2017
-import ballerina.io;
-import ballerina.net.http; // importing http package
+import ballerina/io;
+import ballerina/net.http; // importing http package
 
 function testComments () {
     // defining start name

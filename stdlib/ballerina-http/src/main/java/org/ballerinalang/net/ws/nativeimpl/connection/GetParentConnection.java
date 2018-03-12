@@ -37,12 +37,13 @@ import org.ballerinalang.net.ws.WsOpenConnectionInfo;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.ws",
+        orgName = "ballerina",
+        packageName = "net.ws",
         functionName = "getParentConnection",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.ws"),
+                             structPackage = "net.ws"),
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Connection",
-                                  structPackage = "ballerina.net.ws")},
+                                  structPackage = "net.ws")},
         isPublic = true
 )
 public class GetParentConnection extends AbstractNativeFunction {

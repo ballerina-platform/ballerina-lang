@@ -36,11 +36,12 @@ import java.util.regex.PatternSyntaxException;
  * Native function ballerina.model.strings:replaceFirstWithRegex.
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina",
+        packageName = "builtin",
         functionName = "string.replaceFirstWithRegex",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRUCT, structType = "Regex",
-                        structPackage = "ballerina.builtin"),
+                        structPackage = "builtin"),
                 @Argument(name = "replaceWith", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
