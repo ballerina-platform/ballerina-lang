@@ -95,6 +95,7 @@ public class BLangFunctions {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
         invokePackageInitFunction(packageInfo.getInitFunctionInfo(), parentCtx);
+        invokeVMUtilFunction(packageInfo.getStartFunctionInfo(), parentCtx);
         BValue[] result = invokeCallable(functionInfo, parentCtx, args);
         BLangScheduler.waitForWorkerCompletion();
         return result;
@@ -312,17 +313,24 @@ public class BLangFunctions {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
         }
-        ProgramFile programFile = initFuncInfo.getPackageInfo().getProgramFile();
-        if (programFile.getUnresolvedAnnAttrValues() == null) {
-            return;
-        }
-        BLangVMUtils.processUnresolvedAnnAttrValues(programFile);
-        programFile.setUnresolvedAnnAttrValues(null);
     }
 
     public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokePackageInitFunction(initFuncInfo, context);
+    }
+
+    public static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
+        invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
+        if (context.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
+    }
+
+    public static void invokeVMUtilFunction(FunctionInfo initFuncInfo) {
+        WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
+        invokeVMUtilFunction(initFuncInfo, context);
     }
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {

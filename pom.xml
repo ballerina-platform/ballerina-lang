@@ -844,7 +844,7 @@
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/swagger-ballerina</module>
-                <module>misc/testerina</module>
+                <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
                 <module>misc/tracing-extensions</module>
 
@@ -855,7 +855,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <!--<module>tests/ballerina-test-integration</module>-->
 
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
@@ -882,14 +882,14 @@
                 <module>tests/ballerina-test</module>
                 <module>tests/ballerina-test-compiler-plugins</module>
 
-                <module>misc/docerina</module>
+                <!--<module>misc/docerina</module>-->
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/toml-parser</module>
 
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <!--<module>tests/ballerina-test-integration</module>-->
             </modules>
         </profile>
         <profile>
@@ -920,7 +920,7 @@
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
                 <module>misc/swagger-ballerina</module>
-                <module>misc/testerina</module>
+                <!--<module>misc/testerina</module>-->
                 <module>misc/toml-parser</module>
                 <module>misc/tracing-extensions</module>
 
@@ -931,7 +931,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <!--<module>tests/ballerina-test-integration</module>-->
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->

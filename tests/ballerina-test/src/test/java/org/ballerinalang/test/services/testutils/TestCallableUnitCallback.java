@@ -31,7 +31,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test future implementation for service tests.
+ * Test callback implementation for service tests.
  */
 public class TestCallableUnitCallback extends CallableUnitCallback {
 

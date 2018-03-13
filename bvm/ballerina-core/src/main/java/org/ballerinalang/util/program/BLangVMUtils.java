@@ -32,14 +32,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.tracer.TraceUtil;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -66,23 +61,23 @@ public class BLangVMUtils {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
             switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
-                    break;
-                default:
-                    callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
+            case TypeTags.INT_TAG:
+                callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
+                break;
+            case TypeTags.FLOAT_TAG:
+                callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
+                break;
+            case TypeTags.STRING_TAG:
+                callee.stringRegs[++stringRegIndex] = caller.stringRegs[argReg];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                break;
+            case TypeTags.BLOB_TAG:
+                callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
+                break;
+            default:
+                callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
             }
         }
     }
@@ -121,7 +116,7 @@ public class BLangVMUtils {
     }
 
     public static WorkerData createWorkerDataForLocal(WorkerInfo workerInfo, WorkerExecutionContext parentCtx,
-                                                      int[] argRegs, BType[] paramTypes) {
+            int[] argRegs, BType[] paramTypes) {
         WorkerData wd = createWorkerData(workerInfo);
         BLangVMUtils.copyArgValues(parentCtx.workerLocal, wd, argRegs, paramTypes);
         return wd;
@@ -155,74 +150,74 @@ public class BLangVMUtils {
             int callersRetRegIndex = regIndexes[i];
             BType retType = types[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    if (vals[i] == null) {
-                        data.longRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
+            case TypeTags.INT_TAG:
+                if (vals[i] == null) {
+                    data.longRegs[callersRetRegIndex] = 0;
                     break;
-                case TypeTags.FLOAT_TAG:
-                    if (vals[i] == null) {
-                        data.doubleRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.doubleRegs[callersRetRegIndex] = ((BFloat) vals[i]).floatValue();
+                }
+                data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (vals[i] == null) {
+                    data.doubleRegs[callersRetRegIndex] = 0;
                     break;
-                case TypeTags.STRING_TAG:
-                    if (vals[i] == null) {
-                        data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_NULL_VALUE;
-                        break;
-                    }
-                    data.stringRegs[callersRetRegIndex] = vals[i].stringValue();
+                }
+                data.doubleRegs[callersRetRegIndex] = ((BFloat) vals[i]).floatValue();
+                break;
+            case TypeTags.STRING_TAG:
+                if (vals[i] == null) {
+                    data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_NULL_VALUE;
                     break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (vals[i] == null) {
-                        data.intRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.intRegs[callersRetRegIndex] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
+                }
+                data.stringRegs[callersRetRegIndex] = vals[i].stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (vals[i] == null) {
+                    data.intRegs[callersRetRegIndex] = 0;
                     break;
-                case TypeTags.BLOB_TAG:
-                    if (vals[i] == null) {
-                        data.byteRegs[callersRetRegIndex] = new byte[0];
-                        break;
-                    }
-                    data.byteRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
+                }
+                data.intRegs[callersRetRegIndex] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
+                break;
+            case TypeTags.BLOB_TAG:
+                if (vals[i] == null) {
+                    data.byteRegs[callersRetRegIndex] = new byte[0];
                     break;
-                default:
-                    data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
+                }
+                data.byteRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
+                break;
+            default:
+                data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
             }
         }
     }
-
-    public static BValue[] populateReturnData(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo,
-                                              int[] retRegs) {
+    
+    public static BValue[] populateReturnData(WorkerExecutionContext ctx, CallableUnitInfo callableUnitInfo, 
+            int[] retRegs) {
         WorkerData data = ctx.workerLocal;
         BType[] retTypes = callableUnitInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
         for (int i = 0; i < returnValues.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    returnValues[i] = new BString(data.stringRegs[retRegs[i]]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    boolean boolValue = data.intRegs[retRegs[i]] == 1;
-                    returnValues[i] = new BBoolean(boolValue);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    returnValues[i] = new BBlob(data.byteRegs[retRegs[i]]);
-                    break;
-                default:
-                    returnValues[i] = data.refRegs[retRegs[i]];
-                    break;
+            case TypeTags.INT_TAG:
+                returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
+                break;
+            case TypeTags.FLOAT_TAG:
+                returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
+                break;
+            case TypeTags.STRING_TAG:
+                returnValues[i] = new BString(data.stringRegs[retRegs[i]]);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                boolean boolValue = data.intRegs[retRegs[i]] == 1;
+                returnValues[i] = new BBoolean(boolValue);
+                break;
+            case TypeTags.BLOB_TAG:
+                returnValues[i] = new BBlob(data.byteRegs[retRegs[i]]);
+                break;
+            default:
+                returnValues[i] = data.refRegs[retRegs[i]];
+                break;
             }
         }
         return returnValues;
@@ -234,37 +229,37 @@ public class BLangVMUtils {
         for (int i = 0; i < result.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    result[i] += paramWDI.longRegCount;
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    result[i] += paramWDI.doubleRegCount;
-                    break;
-                case TypeTags.STRING_TAG:
-                    result[i] += paramWDI.stringRegCount;
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    result[i] += paramWDI.intRegCount;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    result[i] += paramWDI.byteRegCount;
-                    break;
-                default:
-                    result[i] += paramWDI.refRegCount;
-                    break;
+            case TypeTags.INT_TAG:
+                result[i] += paramWDI.longRegCount;
+                break;
+            case TypeTags.FLOAT_TAG:
+                result[i] += paramWDI.doubleRegCount;
+                break;
+            case TypeTags.STRING_TAG:
+                result[i] += paramWDI.stringRegCount;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                result[i] += paramWDI.intRegCount;
+                break;
+            case TypeTags.BLOB_TAG:
+                result[i] += paramWDI.byteRegCount;
+                break;
+            default:
+                result[i] += paramWDI.refRegCount;
+                break;
             }
         }
         return result;
     }
-
+    
     @SuppressWarnings("rawtypes")
-    public static int[][] populateArgAndReturnData(WorkerExecutionContext ctx,
-                                                   CallableUnitInfo callableUnitInfo, BValue[] args) {
+    public static int[][] populateArgAndReturnData(WorkerExecutionContext ctx, 
+            CallableUnitInfo callableUnitInfo, BValue[] args) {
         WorkerDataIndex wdi1 = callableUnitInfo.paramWorkerIndex;
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0,
+        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
                 byteParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
@@ -295,10 +290,10 @@ public class BLangVMUtils {
             }
         }
         ctx.workerLocal = local;
-        return new int[][]{wdi1.retRegs, BLangVMUtils.createReturnRegValues(
-                wdi1, wdi2, callableUnitInfo.getRetParamTypes())};
+        return new int[][] { wdi1.retRegs, BLangVMUtils.createReturnRegValues(
+                wdi1, wdi2, callableUnitInfo.getRetParamTypes()) };
     }
-
+    
     public static WorkerData createWorkerData(WorkerDataIndex wdi) {
         WorkerData wd = new WorkerData();
         wd.longRegs = new long[wdi.longRegCount];
@@ -309,7 +304,7 @@ public class BLangVMUtils {
         wd.refRegs = new BRefType[wdi.refRegCount];
         return wd;
     }
-
+    
     private static WorkerData createWorkerData(WorkerDataIndex wdi1, WorkerDataIndex wdi2) {
         WorkerData wd = new WorkerData();
         wd.longRegs = new long[wdi1.longRegCount + wdi2.longRegCount];
@@ -320,39 +315,9 @@ public class BLangVMUtils {
         wd.refRegs = new BRefType[wdi1.refRegCount + wdi2.refRegCount];
         return wd;
     }
-
-    public static void processUnresolvedAnnAttrValues(ProgramFile programFile) {
-        programFile.getUnresolvedAnnAttrValues().forEach(entry -> {
-            PackageInfo packageInfo = programFile.getPackageInfo(entry.getConstPkg());
-            LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) packageInfo
-                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-
-            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(
-                    entry.getConstName());
-
-            switch (localVariableInfo.getVariableType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    entry.setBooleanValue(programFile.getGlobalMemoryBlock().getBooleanField(localVariableInfo
-                            .getVariableIndex()) == 1 ? true : false);
-                    break;
-                case TypeTags.INT_TAG:
-                    entry.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    entry.setFloatValue(programFile.getGlobalMemoryBlock().getFloatField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-                case TypeTags.STRING_TAG:
-                    entry.setStringValue(programFile.getGlobalMemoryBlock().getStringField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-            }
-        });
-    }
-
+    
     public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types,
-                                       int[] regIndexes) {
+            int[] regIndexes) {
         int callersRetRegIndex;
         int longRegCount = 0;
         int doubleRegCount = 0;
@@ -364,30 +329,30 @@ public class BLangVMUtils {
             BType retType = types[i];
             callersRetRegIndex = regIndexes[i];
             switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
-                    break;
-                case TypeTags.STRING_TAG:
-                    targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
-                    break;
-                default:
-                    targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
-                    break;
+            case TypeTags.INT_TAG:
+                targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
+                break;
+            case TypeTags.FLOAT_TAG:
+                targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
+                break;
+            case TypeTags.STRING_TAG:
+                targetData.stringRegs[callersRetRegIndex] = sourceData.stringRegs[stringRegCount++];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                break;
+            case TypeTags.BLOB_TAG:
+                targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
+                break;
+            default:
+                targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
+                break;
             }
         }
     }
-
-    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData,
-                                            CodeAttributeInfo initWorkerCAI) {
+    
+    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
+            CodeAttributeInfo initWorkerCAI) {
         for (int i = 0; i < initWorkerCAI.getMaxByteLocalVars(); i++) {
             targetData.byteRegs[i] = sourceData.byteRegs[i];
         }
@@ -407,16 +372,16 @@ public class BLangVMUtils {
             targetData.refRegs[i] = sourceData.refRegs[i];
         }
     }
-
+    
     public static void log(String msg) {
         PrintStream out = System.out;
         out.println(msg);
     }
-
+    
     public static void setServiceInfo(WorkerExecutionContext ctx, ServiceInfo serviceInfo) {
         ctx.globalProps.put(SERVICE_INFO_KEY, serviceInfo);
     }
-
+    
     public static ServiceInfo getServiceInfo(WorkerExecutionContext ctx) {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
