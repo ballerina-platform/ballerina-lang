@@ -21,7 +21,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfiguration;
 
 /**
- * Native function to InitEndPoint connector.
+ * Native function to InitEndpoint connector.
  *
  * @since 0.96.1
  */
@@ -49,27 +48,27 @@ import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfigurat
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndPoint extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(InitEndPoint.class);
+public class InitEndpoint extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(InitEndpoint.class);
     
     @Override
     public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
-            EndpointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            EndpointConfiguration endpointConfiguration = generateServiceConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
-            if (serviceConfiguration.getSslConfig() != null) {
-                serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration,
-                        SSLHandlerFactory.createHttp2TLSContext(serviceConfiguration.getSslConfig()));
+            if (endpointConfiguration.getSslConfig() != null) {
+                serverBuilder = GrpcServicesBuilder.initService(endpointConfiguration,
+                        SSLHandlerFactory.createHttp2TLSContext(endpointConfiguration.getSslConfig()));
             } else {
-                serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration, null);
+                serverBuilder = GrpcServicesBuilder.initService(endpointConfiguration, null);
             }
             serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
-            context.setReturnValues((BValue) null);
+            context.setReturnValues();
         } catch (Throwable throwable) {
             BStruct err =  getHttpConnectorError(context, throwable);
-            context.setReturnValues(err);
+            context.setError(err);
         }
     }
     

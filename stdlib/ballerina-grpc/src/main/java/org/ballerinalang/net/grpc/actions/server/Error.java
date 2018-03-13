@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server;
+package org.ballerinalang.net.grpc.actions.server;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -21,11 +21,11 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -37,30 +37,31 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
+@BallerinaAction(
         packageName = "ballerina.net.grpc",
-        functionName = "error",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "GrpcServerError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        isPublic = true
+        actionName = "errorResponse",
+        connectorName = "ServerConnector",
+        args = {
+                @Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
+                        structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+                        structPackage = "ballerina.net.grpc")
+        }
 )
 public class Error extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Error.class);
 
     @Override
     public void execute(Context context) {
-        log.info("calling error...");
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+            StreamObserver responseObserver = MessageUtils.getStreamObserver(bConnector);
             if (responseObserver == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +

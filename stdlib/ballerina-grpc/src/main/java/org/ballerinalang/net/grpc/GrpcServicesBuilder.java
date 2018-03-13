@@ -261,18 +261,15 @@ public class GrpcServicesBuilder {
      *
      * @throws GrpcServerException exception when there is an error in starting the server.
      */
-    public static Server start(io.grpc.ServerBuilder serverBuilder) throws GrpcServerException {
+    public static Server start(io.grpc.ServerBuilder serverBuilder) throws
+            GrpcServerException {
         if (serverBuilder != null) { //if no grpc service is not defined
             Server server = serverBuilder.build();
             if (server != null) {
                 try {
                     server.start();
-                    blockUntilShutdown(server);
-                    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
                 } catch (IOException e) {
                     throw new GrpcServerException("Error while starting gRPC server", e);
-                } catch (InterruptedException e) {
-                    throw new GrpcServerException("Error while block until Shutdown gRPC server", e);
                 }
             } else {
                 throw new GrpcServerException("No gRPC service is registered to Start" +
@@ -295,7 +292,7 @@ public class GrpcServicesBuilder {
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
      */
-    static void blockUntilShutdown(Server server) throws InterruptedException {
+    public static void blockUntilShutdown(Server server) throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }

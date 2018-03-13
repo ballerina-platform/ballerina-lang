@@ -25,10 +25,12 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -39,6 +41,7 @@ import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -83,8 +86,13 @@ public class MessageUtils {
         return headerValue;
     }
 
-    public static StreamObserver<Message> getStreamObserver(BStruct struct) {
-        Object observerObject = struct.getNativeData(MessageConstants.STREAM_OBSERVER);
+    public static StreamObserver<Message> getStreamObserver(BRefType refType) {
+        Object observerObject = null;
+        if (refType instanceof BConnector) {
+            observerObject = ((BConnector) refType).getNativeData(MessageConstants.STREAM_OBSERVER);
+        } else if (refType instanceof BStruct) {
+            observerObject = ((BStruct) refType).getNativeData(MessageConstants.STREAM_OBSERVER);
+        }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver<Message>) observerObject);
         }
@@ -125,6 +133,16 @@ public class MessageUtils {
         return errorStruct;
     }
 
+    public static ProgramFile getProgramFile(Resource resource) {
+        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+    }
+
+    /**
+     * Handles faliures in GRPC callable unit callback.
+     *
+     * @param streamObserver observer used the send the error back
+     * @param  error error message struct
+     */
     public static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
         int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
         String errorMsg = error.getStringField(0);

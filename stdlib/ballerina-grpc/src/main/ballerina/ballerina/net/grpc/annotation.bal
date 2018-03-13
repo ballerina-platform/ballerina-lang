@@ -1,10 +1,5 @@
 package ballerina.net.grpc;
 
-public struct ResourceConfig {
-    boolean streaming;
-}
-public annotation <resource> resourceConfig ResourceConfig;
-
 @Description { value:"gRPC service configuration"}
 @Field {value:"port: gRPC service listening port"}
 @Field {value:"rpcEndpoint: gRPC resource name. This applies only for client streaming and bidirectional streaming
@@ -20,12 +15,17 @@ public struct ServiceConfig {
     boolean generateClientConnector;
 }
 
+@Description {value:"HTTP Configuration for service"}
+public annotation <service> serviceConfig ServiceConfig;
+
+public struct ResourceConfig {
+    boolean streaming;
+}
+public annotation <resource> resourceConfig ResourceConfig;
+
 @Description { value:"Identify the service as server message listener"}
 public struct MessageListener {
 }
-
-@Description {value:"HTTP Configuration for service"}
-public annotation <service> serviceConfig ServiceConfig;
 
 @Description {value:"HTTP Configuration for service"}
 public annotation <service> messageListener MessageListener;

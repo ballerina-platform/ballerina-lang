@@ -13,18 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server;
+package org.ballerinalang.net.grpc.actions.server;
 
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
@@ -37,25 +36,28 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
+@BallerinaAction(
         packageName = "ballerina.net.grpc",
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "response", type = TypeKind.STRING)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        isPublic = true
+        actionName = "send",
+        connectorName = "ServerConnector",
+        args = {
+                @Argument(name = "response", type = TypeKind.ANY)
+
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+                        structPackage = "ballerina.net.grpc")
+        }
 )
 public class Send extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver<Message> responseObserver = MessageUtils.getStreamObserver(connectionStruct);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
+        StreamObserver<Message> responseObserver = MessageUtils.getStreamObserver(bConnector);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) bConnector.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
 
         if (responseObserver == null) {

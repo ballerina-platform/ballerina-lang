@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.server;
+package org.ballerinalang.net.grpc.actions.server;
 
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -21,11 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 
 /**
@@ -33,19 +31,19 @@ import org.ballerinalang.net.grpc.MessageUtils;
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
+@BallerinaAction(
         packageName = "ballerina.net.grpc",
-        functionName = "isCancelled",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.SERVER_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        returnType = @ReturnType(type = TypeKind.BOOLEAN),
-        isPublic = true
+        actionName = "isCancelled",
+        connectorName = "ServerConnector",
+        returnType = {
+                @ReturnType(type = TypeKind.BOOLEAN)
+        }
 )
 public class IsCancelled extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        StreamObserver responseObserver = MessageUtils.getStreamObserver(bConnector);
         if (responseObserver == null) {
             return;
         }

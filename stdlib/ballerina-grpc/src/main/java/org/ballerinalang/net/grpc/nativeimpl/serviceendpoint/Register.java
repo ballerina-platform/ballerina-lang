@@ -19,13 +19,13 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
 
 /**
@@ -53,18 +54,18 @@ public class Register extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
         Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
-        Annotation annotation = getServiceConfigAnnotation(service,
+/*        Annotation annotation = getServiceConfigAnnotation(service,
                 "ballerina.net.grpc");
-        Struct serviceConfig = annotation.getValue();
+        Struct serviceConfig = annotation != null ? annotation.getValue() : null;*/
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             registerService(serverBuilder, service);
+            context.setReturnValues();
         } catch (GrpcServerException e) {
-            throw new GrpcServerValidationException("Error in registering gRPC service.", e);
+            context.setError(MessageUtils.getConnectorError(context, e));
         }
-        context.setReturnValues();
     }
     
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

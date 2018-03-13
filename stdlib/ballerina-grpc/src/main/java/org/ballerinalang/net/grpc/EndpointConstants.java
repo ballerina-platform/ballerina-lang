@@ -6,6 +6,7 @@ package org.ballerinalang.net.grpc;
 public class EndpointConstants {
     //Client Endpoint
     public static final int CLIENT_ENDPOINT_INDEX = 0;
+    public static final int SERVICE_ENDPOINT_INDEX = 0;
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int SERVICE_URL_INDEX = 0;
     public static final int OPTIONS_INDEX = 0;

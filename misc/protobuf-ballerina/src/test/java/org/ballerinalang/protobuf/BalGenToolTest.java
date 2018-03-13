@@ -40,7 +40,7 @@ public class BalGenToolTest {
     private static Path resourceDir = Paths.get(
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
-    @Test
+    @Test(enabled = false)
     public void testCMDForHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");

@@ -40,8 +40,7 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
         isPublic = true
 )
 public class GetConnector extends AbstractGrpcNativeFunction {
-    
-    
+
     @Override
     public void execute(Context context) {
         context.setReturnValues();

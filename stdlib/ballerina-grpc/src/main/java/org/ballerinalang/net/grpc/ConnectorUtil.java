@@ -31,10 +31,10 @@ import java.util.List;
  */
 public class ConnectorUtil {
     public static EndpointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
-        EndpointConfiguration endPointConfiguration = new EndpointConfiguration();
-        endPointConfiguration.setPort((Math.toIntExact(serviceEndpointConfig.getIntField("port"))));
-        endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
-        return endPointConfiguration;
+        EndpointConfiguration endpointConfiguration = new EndpointConfiguration();
+        endpointConfiguration.setPort((Math.toIntExact(serviceEndpointConfig.getIntField("port"))));
+        endpointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
+        return endpointConfiguration;
     }
     
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

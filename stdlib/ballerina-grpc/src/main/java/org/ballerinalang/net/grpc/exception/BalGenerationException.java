@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.exception;
 
 /**
  * Thrown to indicate that the requested field type is not supported.
+ * TODO: Rename the class name to GRPC specific.
  *
  */
 public class BalGenerationException extends RuntimeException {

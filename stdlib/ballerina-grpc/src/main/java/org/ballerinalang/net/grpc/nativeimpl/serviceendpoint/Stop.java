@@ -17,15 +17,15 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import io.grpc.Server;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
 
 /**
@@ -45,7 +45,7 @@ public class Stop extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
         Server server = getService(serviceEndpoint);
         stop(server);
         context.setReturnValues();

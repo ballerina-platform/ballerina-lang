@@ -17,17 +17,19 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import io.grpc.Server;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
+import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
 
 /**
  * Native function to respond the caller.
@@ -46,13 +48,19 @@ public class Start extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             Server server = GrpcServicesBuilder.start(serverBuilder);
             serviceEndpoint.addNativeData("server", server);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
+            GrpcServicesBuilder.blockUntilShutdown(server);
         } catch (GrpcServerException e) {
-            throw new GrpcServerValidationException("Error in starting gRPC service.", e);
+            context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error in starting gRPC " +
+                    "service.", e)));
+        } catch (InterruptedException e) {
+            context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("gRPC server " +
+                    "interrupted", e)));
         }
         context.setReturnValues();
     }
