@@ -8,7 +8,7 @@ service<http> sample {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    resource params (http:Connection conn, http:InRequest req, string foo) {
+    resource params (http:Connection conn, http:Request req, string foo) {
         map params = req.getQueryParams();
         var bar, _ = (string) params.bar;
 

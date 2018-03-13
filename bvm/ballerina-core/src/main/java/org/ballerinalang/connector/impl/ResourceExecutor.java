@@ -52,7 +52,7 @@ public class ResourceExecutor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
-        ResourceInfo resourceInfo = ((BResource) resource).getResourceInfo();
+        ResourceInfo resourceInfo = resource.getResourceInfo();
         WorkerExecutionContext context = new WorkerExecutionContext(resourceInfo.getPackageInfo().getProgramFile());
         if (properties != null) {
             context.globalProps.putAll(properties);

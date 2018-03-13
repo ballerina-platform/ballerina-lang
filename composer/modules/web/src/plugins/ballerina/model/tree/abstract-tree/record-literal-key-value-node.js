@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
+class AbstractRecordLiteralKeyValueNode extends Node {
 
 
     setValue(newValue, silent, title) {

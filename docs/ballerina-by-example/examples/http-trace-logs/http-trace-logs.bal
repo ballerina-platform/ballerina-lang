@@ -7,11 +7,11 @@ service<http> helloWorld {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> ep {
             create http:HttpClient("http://httpstat.us", {});
         }
-        http:InResponse backendResponse;
+        http:Response backendResponse;
         backendResponse, _ = ep.forward("/200", req);
 
         _ = conn.forward(backendResponse);

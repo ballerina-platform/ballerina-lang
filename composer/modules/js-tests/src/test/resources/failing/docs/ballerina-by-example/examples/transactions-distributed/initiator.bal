@@ -14,8 +14,8 @@ service<http> InitiatorService {
         methods:["GET"],
         path:"/"
     }
-    resource init (http:Connection conn, http:InRequest req) {
-        http:OutResponse res;
+    resource init (http:Connection conn, http:Request req) {
+        http:Response res;
         log:printInfo("Initiating transaction...");
 
         // When the transaction statement starts, a distributed transaction context will be created.
@@ -64,7 +64,7 @@ public connector BizClient () {
         endpoint<http:HttpClient> bizEP {
             create http:HttpClient("http://" + host + ":" + port + "/stockquote/update", {});
         }
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(bizReq);
         var res, e = bizEP.post("", req);
         log:printInfo("Got response from bizservice");
