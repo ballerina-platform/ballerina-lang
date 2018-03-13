@@ -306,10 +306,10 @@ public class HttpUtil {
     /**
      * Sends an HTTP/2 Server Push message back to the client.
      *
-     * @param requestMsg    the request message associated to the server push response
-     * @param pushResponse  the server push message
-     * @param pushPromise   the push promise associated with the server push
-     * @return              the future to get notifications of the operation asynchronously
+     * @param requestMsg   the request message associated to the server push response
+     * @param pushResponse the server push message
+     * @param pushPromise  the push promise associated with the server push
+     * @return the future to get notifications of the operation asynchronously
      */
     public static HttpResponseFuture pushResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage pushResponse,
                                                   Http2PushPromise pushPromise) {
@@ -325,9 +325,9 @@ public class HttpUtil {
     /**
      * Sends an HTTP/2 Push Promise message back to the client.
      *
-     * @param requestMsg    the request message associated to the push promise
-     * @param pushPromise   the push promise message
-     * @return              the future to get notifications of the operation asynchronously
+     * @param requestMsg  the request message associated to the push promise
+     * @param pushPromise the push promise message
+     * @return the future to get notifications of the operation asynchronously
      */
     public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
         HttpResponseFuture responseFuture;
