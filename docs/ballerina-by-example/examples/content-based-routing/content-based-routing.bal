@@ -29,7 +29,7 @@ service<http:Service> contentBasedRouting {
             http:Response clientResponse;
             http:HttpConnectorError err;
             if (nameString == "sanFrancisco") {
-                //"post" represents the POST action of HTTP connector. This routes the payload to the relevant service as the server accepts the entity enclosed.
+                //"post" represents the POST action of HTTP client connector. This routes the payload to the relevant service as the server accepts the entity enclosed.
                 clientResponse, err = locationEP -> post("/v2/594e018c1100002811d6d39a", {});
             } else {
                 clientResponse, err = locationEP -> post("/v2/594e026c1100004011d6d39c", {});
