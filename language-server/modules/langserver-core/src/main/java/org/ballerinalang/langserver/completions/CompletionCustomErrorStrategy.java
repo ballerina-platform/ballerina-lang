@@ -76,9 +76,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         endpoint context. This particular case need to remove after introducing a proper handling mechanism or with
          the introduction of BNF grammar. Also check the 
          */
-        boolean isWithinEndpointContext = this.context.get(DocumentServiceKeys.COMPLETION_META_CONTEXT_KEY)
+        boolean isWithinEndpointContext = this.context.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null ? false :
-                this.context.get(DocumentServiceKeys.COMPLETION_META_CONTEXT_KEY)
+                this.context.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                         .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
                 || (!isWithinEndpointContext && this.isWithinEndpointContext(parser))) {
@@ -142,7 +142,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             String endpointName = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex).getText();
 
             // Set the endpoint name to the meta info context
-            this.context.get(DocumentServiceKeys.COMPLETION_META_CONTEXT_KEY)
+            this.context.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                     .put(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY, endpointName);
 
             while (true) {
@@ -194,7 +194,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             }
         }
 
-        this.context.get(DocumentServiceKeys.COMPLETION_META_CONTEXT_KEY)
+        this.context.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .put(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY, isWithinEndpoint);
         return isWithinEndpoint;
     }

@@ -145,7 +145,7 @@ public class TextDocumentServiceUtil {
                 preserveWhitespace);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.COMPLETION_META_CONTEXT_KEY, new TextDocumentServiceContext());
+        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new TextDocumentServiceContext());
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         compilerContext.put(DiagnosticListener.class, diagnosticListener);
