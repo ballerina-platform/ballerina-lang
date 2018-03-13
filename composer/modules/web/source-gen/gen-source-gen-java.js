@@ -51,9 +51,22 @@ function accessJsonObjs(property, objectType){
     let propertyComps = property.split('.');
     let result = "";
     let canBeAPremitive = false;
+    let functionCall = false;
+    let isArrayType = false;
 
-    if(propertyComps.length > 1){
+    if(propertyComps.length > 1) {
         canBeAPremitive = true;
+    }
+
+    switch (propertyComps[propertyComps.length -1]) {
+        case 'size()':
+            functionCall = true;
+            isArrayType = true;
+            break;
+        default:
+            functionCall = false;
+            isArrayType = false;
+            break;
     }
 
     if(!objectType) {
@@ -65,10 +78,14 @@ function accessJsonObjs(property, objectType){
     }
 
     for(let i = 0; i < propertyComps.length; i++){
-        if((propertyComps.length -1) === i && canBeAPremitive){
-            result += '.get("'+propertyComps[i]+'")';
-        }else {
-            result += '.'+objectType+'("'+propertyComps[i]+'")';
+        if ((propertyComps.length - 1) === i && canBeAPremitive && !functionCall) {
+            result += '.get("' + propertyComps[i] + '")';
+        } else if((propertyComps.length - 1) === i && functionCall) {
+            result += '.'+propertyComps[i];
+        } else if((propertyComps.length - 2) === i && functionCall && isArrayType) {
+            result += '.getAsJsonArray'  + '("' + propertyComps[i] + '")';
+        } else {
+            result += '.' + objectType + '("' + propertyComps[i] + '")';
         }
     }
     return result;
@@ -166,9 +183,9 @@ for (let i = 0; i < spited.length; i++) {
 
                 js.push('join(' + params.join(', ') + ')');
                 condition.push(getter);
-                // if (p.slice(-1) === '+') {
-                //     condition.push(getter + '.length');
-                // }
+                if (p.slice(-1) === '+') {
+                    condition.push(getter + '.size()');
+                }
             } else {
                 if (p === '}' && kind !== 'RecordLiteralExpr') {
                     // HACK
@@ -199,11 +216,28 @@ for (let i = 0; i < spited.length; i++) {
         }
         const conditionStr = join(condition.map((s) => {
             let propertyComps = s.split('.');
-            let conditionRight = ' != null';
             let result = 'node' + accessJsonObjs(s);
-            if(propertyComps[propertyComps.length-1] === 'lambda') {
-                result += '.getAsBoolean()';
-            }else {
+            if (propertyComps[propertyComps.length - 1] === 'lambda' ||
+                propertyComps[propertyComps.length -1] === 'endpoint' ||
+                propertyComps[propertyComps.length -1] === 'root' ||
+                propertyComps[propertyComps.length -1] === 'forkJoinedSend' ||
+                propertyComps[propertyComps.length -1] === 'global' ||
+                propertyComps[propertyComps.length -1] === 'anonStruct' ||
+                propertyComps[propertyComps.length -1] === 'inTemplateLiteral' ||
+                propertyComps[propertyComps.length -1] === 'actionInvocation' ||
+                propertyComps[propertyComps.length -1] === 'ladderParent' ||
+                propertyComps[propertyComps.length -1] === 'builtin' ||
+                propertyComps[propertyComps.length -1] === 'userDefinedAlias') {
+                let nullCheck = result + ' != null';
+                let valueCheck = result + ' .getAsBoolean()';
+                result = nullCheck + ' && ' + valueCheck;
+            } else if (propertyComps[propertyComps.length -1] === 'valueWithBar'){
+                let nullCheck = result + ' != null';
+                let valueCheck = '!'+result + '.getAsString().isEmpty()';
+                result = nullCheck + ' && ' + valueCheck;
+            } else if (propertyComps[propertyComps.length -1] === 'size()'){
+                result += ' > 0';
+            } else {
                 result += ' != null';
             }
             return result;

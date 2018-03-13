@@ -84,8 +84,9 @@ public class SourceGen {
                  + ";" + a("");
         case "Import":
             if (node.get("userDefinedAlias") != null
-                         && node.get("packageName") != null
-                         && node.getAsJsonObject("alias").get("valueWithBar") != null) {
+                         && node.get("userDefinedAlias") .getAsBoolean() && node.get("packageName") != null
+                         && node.getAsJsonObject("alias").get("valueWithBar") != null
+                         && !node.getAsJsonObject("alias").get("valueWithBar").getAsString().isEmpty()) {
                 return dent() + w("") + "import" + a(" ")
                  + join(node.getAsJsonArray("packageName"), pretty, replaceLambda, w(""), ".", false) + w(" ")
                  + "as" + a("") + w(" ")
@@ -101,10 +102,15 @@ public class SourceGen {
             return dent() + w("") + "abort" + a("") + w("") + ";" + a("");
         case "Action":
             if (node.get("annotationAttachments") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null
-                         && node.get("parameters") != null && node.get("returnParameters") != null
-                         && node.get("body") != null && node.get("workers") != null) {
-                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent() + w("") + "action" + a("")
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("parameters") != null
+                         && node.get("returnParameters") != null
+                         && node.getAsJsonArray("returnParameters").size() > 0 && node.get("body") != null
+                         && node.get("workers") != null) {
+                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "action" + a("")
                  + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "(" + a("")
                  + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, w(""), ",", false)
@@ -114,7 +120,9 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false) + outdent() + w("") + "}" + a("");
             } else {
-                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent() + w("") + "action" + a("")
+                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "action" + a("")
                  + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "(" + a("")
                  + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, w(""), ",", false)
@@ -123,66 +131,35 @@ public class SourceGen {
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false) + outdent() + w("") + "}" + a("");
             }
         case "Annotation":
-            if (node.getAsJsonObject("name").get("valueWithBar") != null
-                         && node.get("attributes") != null) {
-                return dent() + w("") + "annotation" + a("") + w(" ")
-                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ")
-                 + "{" + a("") + indent()
-                 + join(node.getAsJsonArray("attributes"), pretty, replaceLambda, w(""), ";", true) + outdent() + w("")
-                 + "}" + a("");
-            } else {
-                return dent() + w("") + "annotation" + a("") + w(" ")
-                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("")
-                 + "attach" + a("") + w("") + "resource" + a("") + w(" ") + "{"
-                 + a("") + indent() + outdent() + w("") + "}" + a("");
-            }
+            return dent()
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "annotation"
+                 + a("") + w(" ") + "<" + a("")
+                 + join(node.getAsJsonArray("attachmentPoints"), pretty, replaceLambda, w(""), ",", false) + w("") + ">"
+                 + a("") + w(" ")
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a(" ") + a(" ")
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w("") + ";" + a("");
         case "AnnotationAttachment":
             if (node.get("builtin") != null
+                         && node.get("builtin") .getAsBoolean()
                          && node.getAsJsonObject("annotationName").get("valueWithBar") != null
-                         && node.get("attributes") != null) {
-                return dent() + w("") + "@" + a("") + w("")
-                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + w(" ")
-                 + "{" + a("") + indent()
-                 + join(node.getAsJsonArray("attributes"), pretty, replaceLambda, w(""), ",", false) + outdent() + w("")
-                 + "}" + a("");
+                         && !node.getAsJsonObject("annotationName").get("valueWithBar").getAsString().isEmpty() && node.get("expression") != null) {
+                return w("") + "@" + a("") + w("")
+                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + a(" ")
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
             } else if (node.getAsJsonObject("packageAlias").get("valueWithBar") != null
-                         && node.getAsJsonObject("annotationName").get("valueWithBar") != null && node.get("attributes") != null) {
-                return dent() + w("") + "@" + a("") + w("")
-                 + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("")
-                 + ":" + a("") + w("")
-                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + w(" ") + "{" + a("")
-                 + indent()
-                 + join(node.getAsJsonArray("attributes"), pretty, replaceLambda, w(""), ",", false) + outdent() + w("") + "}" + a("");
+                         && !node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString().isEmpty()
+                         && node.getAsJsonObject("annotationName").get("valueWithBar") != null
+                         && !node.getAsJsonObject("annotationName").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("expression") != null) {
+                return w("") + "@" + a("") + w("")
+                 + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("")
+                 + w("")
+                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + a(" ")
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
             } else {
-                return dent() + w("") + "@" + a("") + w("")
-                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + w(" ")
-                 + "{" + a("") + indent()
-                 + join(node.getAsJsonArray("attributes"), pretty, replaceLambda, w(""), ",", false) + outdent() + w("")
-                 + "}" + a("");
-            }
-        case "AnnotationAttachmentAttribute":
-            return dent() + w("")
-                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("") + a("")
-                 + getSourceOf(node.getAsJsonObject("value"), pretty, replaceLambda);
-        case "AnnotationAttachmentAttributeValue":
-            if (node.get("value") != null) {
-                return a("")
-                 + getSourceOf(node.getAsJsonObject("value"), pretty, replaceLambda);
-            } else {
-                return w("") + "[" + a("")
-                 + join(node.getAsJsonArray("valueArray"), pretty, replaceLambda, w(""), ",", false) + w("") + "]" + a("");
-            }
-        case "AnnotationAttribute":
-            if (node.get("typeNode") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null && node.get("initialExpression") != null) {
-                return a("")
-                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
-                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("") + "=" + a("") + a("")
-                 + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda);
-            } else {
-                return a("")
-                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
-                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("");
+                return w("") + "@" + a("") + w("")
+                 + node.getAsJsonObject("annotationName").get("valueWithBar").getAsString() + a("") + a(" ")
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
             }
         case "ArrayLiteralExpr":
             return w("") + "[" + a("")
@@ -195,7 +172,8 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("") + ";" + a("");
         case "BinaryExpr":
             if (node.get("inTemplateLiteral") != null
-                         && node.get("leftExpression") != null && node.get("operatorKind") != null
+                         && node.get("inTemplateLiteral") .getAsBoolean() && node.get("leftExpression") != null
+                         && node.get("operatorKind") != null
                          && node.get("rightExpression") != null) {
                 return w("") + "{{" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("leftExpression"), pretty, replaceLambda) + w(" ")
@@ -228,10 +206,13 @@ public class SourceGen {
             return dent() + w("") + node.get("comment").getAsString() + a("");
         case "Connector":
             if (node.get("annotationAttachments") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null
-                         && node.get("parameters") != null && node.get("variableDefs") != null
-                         && node.get("actions") != null) {
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("parameters") != null
+                         && node.get("variableDefs") != null && node.get("actions") != null) {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "connector"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "(" + a("")
@@ -241,6 +222,8 @@ public class SourceGen {
                  + a("");
             } else {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "connector"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "(" + a("")
@@ -264,6 +247,14 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("type"), pretty, replaceLambda) + w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("constraint"), pretty, replaceLambda) + w("") + ">"
                  + a("");
+        case "Documentation":
+            return dent() + w("") + "documentation" + a(" ") + w("") + "{" + a("")
+                 + indent() + w("") + node.get("documentationText").getAsString()
+                 + a("") + outdent() + w("") + "}" + a("");
+        case "Deprecated":
+            return dent() + w("") + "deprecated" + a(" ") + w("") + "{" + a("")
+                 + indent() + w("") + node.get("documentationText").getAsString()
+                 + a("") + outdent() + w("") + "}" + a("");
         case "EndpointType":
             return w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("constraint"), pretty, replaceLambda) + w("") + ">" + a("");
@@ -392,12 +383,16 @@ public class SourceGen {
                  + w("") + "}" + a("");
             }
         case "Function":
-            if (node.get("lambda").getAsBoolean()
-                         && node.get("annotationAttachments") != null && node.get("parameters") != null
-                         && node.get("returnParameters") != null && node.get("body") != null
-                         && node.get("workers") != null) {
+            if (node.get("lambda") != null && node.get("lambda") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("parameters") != null
+                         && node.get("returnParameters") != null
+                         && node.getAsJsonArray("returnParameters").size() > 0 && node.get("body") != null && node.get("workers") != null) {
                 return dent()
-                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "function"
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "function"
                  + a("") + w("") + "(" + a("")
                  + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a(" ")
                  + w("") + "(" + a("")
@@ -406,11 +401,15 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false)
                  + outdent() + w("") + "}" + a("");
-            } else if (node.get("lambda").getAsBoolean()
-                         && node.get("annotationAttachments") != null && node.get("parameters") != null
+            } else if (node.get("lambda") != null && node.get("lambda") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("parameters") != null
                          && node.get("body") != null && node.get("workers") != null) {
                 return dent()
-                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "function"
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "function"
                  + a("") + w("") + "(" + a("")
                  + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a(" ")
                  + w("") + "{" + a("") + indent() + a("")
@@ -418,11 +417,16 @@ public class SourceGen {
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false)
                  + outdent() + w("") + "}" + a("");
             } else if (node.get("annotationAttachments") != null
-                         && node.get("receiver") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null && node.get("parameters") != null
-                         && node.get("returnParameters") != null && node.get("body") != null
-                         && node.get("workers") != null) {
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("receiver") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("parameters") != null && node.get("returnParameters") != null
+                         && node.getAsJsonArray("returnParameters").size() > 0
+                         && node.get("body") != null && node.get("workers") != null) {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "function"
                  + a("") + w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("receiver"), pretty, replaceLambda) + w("") + ">" + a("")
@@ -435,10 +439,15 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false) + outdent() + w("") + "}" + a("");
             } else if (node.get("annotationAttachments") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null
-                         && node.get("parameters") != null && node.get("returnParameters") != null
-                         && node.get("body") != null && node.get("workers") != null) {
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("parameters") != null
+                         && node.get("returnParameters") != null
+                         && node.getAsJsonArray("returnParameters").size() > 0 && node.get("body") != null
+                         && node.get("workers") != null) {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "function"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("") + "(" + a("")
@@ -449,10 +458,15 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false) + outdent() + w("") + "}" + a("");
             } else if (node.get("annotationAttachments") != null
-                         && node.get("receiver") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null && node.get("parameters") != null && node.get("body") != null
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("receiver") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("parameters") != null && node.get("body") != null
                          && node.get("workers") != null) {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "function"
                  + a("") + w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("receiver"), pretty, replaceLambda) + w("") + ">" + a("")
@@ -464,6 +478,8 @@ public class SourceGen {
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, w(""), null, false) + outdent() + w("") + "}" + a("");
             } else {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "function"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("") + "(" + a("")
@@ -474,7 +490,8 @@ public class SourceGen {
             }
         case "FunctionType":
             if (node.get("paramTypeNode") != null
-                         && node.get("returnParamTypeNode") != null) {
+                         && node.get("returnParamTypeNode") != null
+                         && node.getAsJsonArray("returnParamTypeNode").size() > 0) {
                 return w("") + "function" + a("") + w("") + "(" + a("")
                  + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a("")
                  + (node.get("returnKeywordExists").getAsBoolean() ? w("") + "returns" + a("") : "") + w("") + "("
@@ -485,9 +502,9 @@ public class SourceGen {
                  + join(node.getAsJsonArray("paramTypeNode"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a("");
             }
         case "If":
-            if (node.get("ladderParent") != null && node.get("condition") != null
-                         && node.get("body") != null
-                         && node.get("elseStatement") != null) {
+            if (node.get("ladderParent") != null
+                         && node.get("ladderParent") .getAsBoolean() && node.get("condition") != null
+                         && node.get("body") != null && node.get("elseStatement") != null) {
                 return (node.getAsJsonObject("parent").get("kind").getAsString() .equals("If") ? "" : dent()) + w("") + "if" + a("") + w(" ") + "("
                  + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("condition"), pretty, replaceLambda) + w("") + ")" + a(" ") + w("") + "{" + a("")
@@ -519,8 +536,19 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("index"), pretty, replaceLambda) + w("") + "]"
                  + a("");
         case "Invocation":
-            if (node.get("expression") != null
+            if (node.get("actionInvocation") != null
+                         && node.get("actionInvocation") .getAsBoolean() && node.get("expression") != null
                          && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("argumentExpressions") != null) {
+                return a("")
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("") + "->" + a("") + w("")
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("")
+                 + "(" + a("")
+                 + join(node.getAsJsonArray("argumentExpressions"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a("");
+            } else if (node.get("expression") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("argumentExpressions") != null) {
                 return a("")
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("") + "." + a("") + w("")
@@ -528,7 +556,9 @@ public class SourceGen {
                  + a("")
                  + join(node.getAsJsonArray("argumentExpressions"), pretty, replaceLambda, w(""), ",", false) + w("") + ")" + a("");
             } else if (node.getAsJsonObject("packageAlias").get("valueWithBar") != null
+                         && !node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString().isEmpty()
                          && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("argumentExpressions") != null) {
                 return w("")
                  + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("") + w("")
@@ -547,9 +577,10 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("functionNode"), pretty, replaceLambda);
         case "Literal":
             if (node.get("inTemplateLiteral") != null
-                         && node.get("unescapedValue") != null) {
+                         && node.get("inTemplateLiteral") .getAsBoolean() && node.get("unescapedValue") != null) {
                 return w("") + node.get("unescapedValue").getAsString() + a("");
-            } else if (node.get("inTemplateLiteral") != null) {
+            } else if (node.get("inTemplateLiteral") != null
+                         && node.get("inTemplateLiteral") .getAsBoolean()) {
                 return "";
             } else {
                 return w("") + node.get("value").getAsString() + a("");
@@ -568,7 +599,9 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("key"), pretty, replaceLambda) + w("") + ":" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("value"), pretty, replaceLambda);
         case "Resource":
-            return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent() + w("") + "resource"
+            return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "resource"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "(" + a("")
                  + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, w(""), ",", false)
@@ -580,7 +613,9 @@ public class SourceGen {
                  + join(node.getAsJsonArray("expressions"), pretty, replaceLambda, w(" "), ",", false) + w("")
                  + ";" + a("");
         case "Service":
-            return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent() + w("") + "service" + a("")
+            return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + w("") + "service" + a("")
                  + w("") + "<" + a("") + w("")
                  + node.getAsJsonObject("protocolPackageIdentifier").get("valueWithBar").getAsString() + a("")
                  + w("") + ">" + a("") + w(" ")
@@ -591,19 +626,26 @@ public class SourceGen {
                  + "}" + a("");
         case "SimpleVariableRef":
             if (node.get("inTemplateLiteral") != null
+                         && node.get("inTemplateLiteral") .getAsBoolean()
                          && node.getAsJsonObject("packageAlias").get("valueWithBar") != null
-                         && node.getAsJsonObject("variableName").get("valueWithBar") != null) {
+                         && !node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString().isEmpty()
+                         && node.getAsJsonObject("variableName").get("valueWithBar") != null
+                         && !node.getAsJsonObject("variableName").get("valueWithBar").getAsString().isEmpty()) {
                 return w("") + "{{" + a("") + w("")
                  + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("") + ":"
                  + a("") + w("")
                  + node.getAsJsonObject("variableName").get("valueWithBar").getAsString() + a("") + w("") + "}}" + a("");
             } else if (node.get("inTemplateLiteral") != null
-                         && node.getAsJsonObject("variableName").get("valueWithBar") != null) {
+                         && node.get("inTemplateLiteral") .getAsBoolean()
+                         && node.getAsJsonObject("variableName").get("valueWithBar") != null
+                         && !node.getAsJsonObject("variableName").get("valueWithBar").getAsString().isEmpty()) {
                 return w("") + "{{" + a("") + w("")
                  + node.getAsJsonObject("variableName").get("valueWithBar").getAsString() + a("") + w("") + "}}"
                  + a("");
             } else if (node.getAsJsonObject("packageAlias").get("valueWithBar") != null
-                         && node.getAsJsonObject("variableName").get("valueWithBar") != null) {
+                         && !node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString().isEmpty()
+                         && node.getAsJsonObject("variableName").get("valueWithBar") != null
+                         && !node.getAsJsonObject("variableName").get("valueWithBar").getAsString().isEmpty()) {
                 return w("")
                  + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("") + w("")
                  + node.getAsJsonObject("variableName").get("valueWithBar").getAsString()
@@ -617,13 +659,16 @@ public class SourceGen {
                  + join(node.getAsJsonArray("expressions"), pretty, replaceLambda, w(""), null, false) + w("")
                  + "`" + a("");
         case "Struct":
-            if (node.get("anonStruct") != null && node.get("fields") != null) {
+            if (node.get("anonStruct") != null
+                         && node.get("anonStruct") .getAsBoolean() && node.get("fields") != null) {
                 return dent() + (node.get("public").getAsBoolean() ? w("") + "public"
                  + a(" ") : "") + w("") + "struct" + a("") + w(" ") + "{" + a("")
                  + indent()
                  + join(node.getAsJsonArray("fields"), pretty, replaceLambda, w(""), ";", true) + outdent() + w("") + "}" + a("");
             } else {
                 return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + dent()
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "") + w("") + "struct"
                  + a("") + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "{" + a("") + indent()
@@ -675,7 +720,9 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda) + outdent() + w("") + "}" + a("");
         case "Transformer":
             if (node.get("source") != null
-                         && node.get("returnParameters") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && node.get("returnParameters") != null && node.getAsJsonArray("returnParameters").size() > 0
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("parameters") != null && node.get("body") != null) {
                 return dent() + (node.get("public").getAsBoolean() ? w("") + "public"
                  + a(" ") : "") + w("") + "transformer" + a("") + w("") + "<"
@@ -688,7 +735,9 @@ public class SourceGen {
                  + a("")
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda) + outdent() + w("") + "}" + a("");
             } else if (node.get("source") != null
-                         && node.get("returnParameters") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && node.get("returnParameters") != null && node.getAsJsonArray("returnParameters").size() > 0
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("body") != null) {
                 return dent() + (node.get("public").getAsBoolean() ? w("") + "public"
                  + a(" ") : "") + w("") + "transformer" + a("") + w("") + "<"
@@ -747,11 +796,14 @@ public class SourceGen {
             return w("") + node.get("operatorKind").getAsString() + a("") + a(" ")
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
         case "UserDefinedType":
-            if (node.get("anonStruct") != null) {
+            if (node.get("anonStruct") != null
+                         && node.get("anonStruct") .getAsBoolean()) {
                 return a("")
                  + getSourceOf(node.getAsJsonObject("anonStruct"), pretty, replaceLambda);
             } else if (node.getAsJsonObject("packageAlias").get("valueWithBar") != null
-                         && node.getAsJsonObject("typeName").get("valueWithBar") != null) {
+                         && !node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString().isEmpty()
+                         && node.getAsJsonObject("typeName").get("valueWithBar") != null
+                         && !node.getAsJsonObject("typeName").get("valueWithBar").getAsString().isEmpty()) {
                 return w("")
                  + node.getAsJsonObject("packageAlias").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("") + w("")
                  + node.getAsJsonObject("typeName").get("valueWithBar").getAsString() + a("");
@@ -762,27 +814,36 @@ public class SourceGen {
         case "ValueType":
             return w("") + node.get("typeKind").getAsString() + a("");
         case "Variable":
-            if (node.get("endpoint") != null && node.get("typeNode") != null
+            if (node.get("endpoint") != null
+                         && node.get("endpoint") .getAsBoolean() && node.get("typeNode") != null
                          && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("initialExpression") != null) {
                 return dent() + dent() + w("") + "endpoint" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda)
                  + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w("") + "{" + a("") + indent() + a("")
                  + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda) + w("") + ";" + a("") + outdent() + w("") + "}" + a("");
-            } else if (node.get("endpoint") != null && node.get("typeNode") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null) {
+            } else if (node.get("endpoint") != null
+                         && node.get("endpoint") .getAsBoolean() && node.get("typeNode") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
                 return dent() + w("") + "endpoint" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString()
                  + a("") + w("") + "{" + a("") + indent() + outdent() + w("") + "}"
                  + a("");
-            } else if (node.get("global") != null
-                         && node.get("annotationAttachments") != null && node.get("typeNode") != null
+            } else if (node.get("global") != null && node.get("global") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("typeNode") != null
                          && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
                          && node.get("initialExpression") != null) {
                 return dent()
                  + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false)
                  + (node.get("public").getAsBoolean() ? w("") + "public" + a(" ") : "")
                  + (node.get("const").getAsBoolean() ? w("") + "const" + a(" ") : "") + a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda)
@@ -790,24 +851,35 @@ public class SourceGen {
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "=" + a(" ") + a("")
                  + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda)
                  + w("") + ";" + a("");
-            } else if (node.get("global") != null
-                         && node.get("annotationAttachments") != null && node.get("typeNode") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null) {
+            } else if (node.get("global") != null && node.get("global") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("typeNode") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
                 return dent()
-                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + a("")
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString()
                  + a("") + w("") + ";" + a("");
             } else if (node.get("typeNode") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null && node.get("initialExpression") != null) {
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("initialExpression") != null) {
                 return a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("") + w(" ") + "=" + a(" ") + a("")
                  + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda);
             } else if (node.get("annotationAttachments") != null
-                         && node.get("typeNode") != null
-                         && node.getAsJsonObject("name").get("valueWithBar") != null) {
-                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false) + a("")
+                         && node.get("documentationAttachments") != null
+                         && node.get("deprecatedAttachments") != null && node.get("typeNode") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, w(""), null, false)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, w(""), null, false) + a("")
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w(" ")
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("");
             } else {
@@ -815,7 +887,8 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda);
             }
         case "VariableDef":
-            if (node.get("endpoint") != null && node.get("variable") != null) {
+            if (node.get("endpoint") != null
+                         && node.get("endpoint") .getAsBoolean() && node.get("variable") != null) {
                 return a("")
                  + getSourceOf(node.getAsJsonObject("variable"), pretty, replaceLambda);
             } else {
@@ -839,7 +912,7 @@ public class SourceGen {
                  + a("") + w("") + ";" + a("");
         case "WorkerSend":
             if (node.get("forkJoinedSend") != null
-                         && node.get("expressions") != null) {
+                         && node.get("forkJoinedSend") .getAsBoolean() && node.get("expressions") != null) {
                 return dent()
                  + join(node.getAsJsonArray("expressions"), pretty, replaceLambda, w(""), ",", false) + w("") + "->" + a("") + w("")
                  + "fork" + a("") + w("") + ";" + a("");
@@ -863,7 +936,8 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("") + "@" + a("");
             }
         case "XmlCommentLiteral":
-            if (node.get("root") != null && node.get("textFragments") != null) {
+            if (node.get("root") != null && node.get("root") .getAsBoolean()
+                         && node.get("textFragments") != null) {
                 return w("") + "xml`" + a("") + w("") + "<!--" + a("")
                  + join(node.getAsJsonArray("textFragments"), pretty, replaceLambda, w(""), null, false) + w("") + "-->" + a("") + w("") + "`" + a("");
             } else {
@@ -872,8 +946,9 @@ public class SourceGen {
                  + a("");
             }
         case "XmlElementLiteral":
-            if (node.get("root") != null && node.get("startTagName") != null
-                         && node.get("attributes") != null && node.get("content") != null
+            if (node.get("root") != null && node.get("root") .getAsBoolean()
+                         && node.get("startTagName") != null && node.get("attributes") != null
+                         && node.get("content") != null
                          && node.get("endTagName") != null) {
                 return w("") + "xml`" + a("") + w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("startTagName"), pretty, replaceLambda)
@@ -891,7 +966,8 @@ public class SourceGen {
                  + ">" + a("")
                  + join(node.getAsJsonArray("content"), pretty, replaceLambda, w(""), null, false) + w("") + "</" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("endTagName"), pretty, replaceLambda) + w("") + ">" + a("");
-            } else if (node.get("root") != null && node.get("startTagName") != null
+            } else if (node.get("root") != null && node.get("root") .getAsBoolean()
+                         && node.get("startTagName") != null
                          && node.get("attributes") != null) {
                 return w("") + "xml`" + a("") + w("") + "<" + a("") + a("")
                  + getSourceOf(node.getAsJsonObject("startTagName"), pretty, replaceLambda)
@@ -916,7 +992,9 @@ public class SourceGen {
             }
         case "XmlQname":
             if (node.getAsJsonObject("prefix").get("valueWithBar") != null
-                         && node.getAsJsonObject("localname").get("valueWithBar") != null) {
+                         && !node.getAsJsonObject("prefix").get("valueWithBar").getAsString().isEmpty()
+                         && node.getAsJsonObject("localname").get("valueWithBar") != null
+                         && !node.getAsJsonObject("localname").get("valueWithBar").getAsString().isEmpty()) {
                 return w("")
                  + node.getAsJsonObject("prefix").get("valueWithBar").getAsString() + a("") + w("") + ":" + a("") + w("")
                  + node.getAsJsonObject("localname").get("valueWithBar").getAsString() + a("");
@@ -930,7 +1008,8 @@ public class SourceGen {
             return join(node.getAsJsonArray("textFragments"), pretty, replaceLambda, w(""), null, false);
         case "Xmlns":
             if (node.get("namespaceURI") != null
-                         && node.getAsJsonObject("prefix").get("valueWithBar") != null) {
+                         && node.getAsJsonObject("prefix").get("valueWithBar") != null
+                         && !node.getAsJsonObject("prefix").get("valueWithBar").getAsString().isEmpty()) {
                 return dent() + w("") + "xmlns" + a("") + a(" ")
                  + getSourceOf(node.getAsJsonObject("namespaceURI"), pretty, replaceLambda) + w(" ")
                  + "as" + a("") + w(" ")
@@ -998,7 +1077,7 @@ public class SourceGen {
     @FindbugsSuppressWarnings
     private String repeat(String tab, int l) {
         StringBuilder result = new StringBuilder();
-        for (int j = 0; j <= l; j++) {
+        for (int j = 0; j < l; j++) {
             result.append(tab);
         }
         return result.toString();
@@ -1050,7 +1129,7 @@ public class SourceGen {
             if (node.getAsJsonObject("alias") != null &&
                     node.getAsJsonObject("alias").get("value") != null &&
                     node.getAsJsonArray("packageName") != null && node.getAsJsonArray("packageName").size() != 0) {
-                if (node.getAsJsonObject("alias").get("value").getAsString()
+                if (!node.getAsJsonObject("alias").get("value").getAsString()
                         .equals(node.getAsJsonArray("packageName").get(node
                                 .getAsJsonArray("packageName").size() - 1).getAsJsonObject()
                                 .get("value").getAsString())) {

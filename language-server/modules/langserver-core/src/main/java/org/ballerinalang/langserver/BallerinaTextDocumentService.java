@@ -16,9 +16,11 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
@@ -118,10 +120,9 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
             completionContext.put(DocumentServiceKeys.FILE_URI_KEY, position.getTextDocument().getUri());
             completionContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
-            completionContext.put(CompletionKeys.COMPLETION_META_CONTEXT_KEY, new TextDocumentServiceContext());
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager,
-                        false);
+                        false, CompletionCustomErrorStrategy.class);
                 // Visit the package to resolve the symbols
                 TreeVisitor treeVisitor = new TreeVisitor(completionContext);
                 bLangPackage.accept(treeVisitor);
@@ -154,7 +155,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             Hover hover;
             try {
                 BLangPackage currentBLangPackage =
-                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager, false);
+                        TextDocumentServiceUtil.getBLangPackage(hoverContext, documentManager, false,
+                                LSCustomErrorStrategy.class);
                 bLangPackageContext.addPackage(currentBLangPackage);
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage, bLangPackageContext);
             } catch (Exception | AssertionError e) {
@@ -179,7 +181,7 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             SignatureHelp signatureHelp;
             try {
                 BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(signatureContext, documentManager,
-                        false);
+                        false, LSCustomErrorStrategy.class);
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureContext.put(DocumentServiceKeys.B_LANG_PACKAGE_CONTEXT_KEY, bLangPackageContext);
@@ -199,7 +201,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager, false);
+                    TextDocumentServiceUtil.getBLangPackage(definitionContext, documentManager, false,
+                            LSCustomErrorStrategy.class);
             bLangPackageContext.addPackage(currentBLangPackage);
             List<Location> contents;
             try {
@@ -222,7 +225,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager, false);
+                    TextDocumentServiceUtil.getBLangPackage(referenceContext, documentManager, false,
+                            LSCustomErrorStrategy.class);
             bLangPackageContext.addPackage(currentBLangPackage);
 
             List<Location> contents = new ArrayList<>();
@@ -254,7 +258,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
         symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
 
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager, false);
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(symbolsContext, documentManager, false,
+                LSCustomErrorStrategy.class);
 
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (uri.endsWith(cUnit.getName())))
@@ -305,13 +310,15 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             int totalLines = contentComponents.length;
 
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-
-            // Source generation for given ast.
-            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-            SourceGen sourceGen = new SourceGen(0);
-            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true , false);
-
+            try {
+                // Source generation for given ast.
+                JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
+                SourceGen sourceGen = new SourceGen(0);
+                sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
+            } catch (Exception e) {
+                // Ignore
+            }
             TextEdit textEdit = textEditContent != null ? new TextEdit(range, textEditContent) : null;
             return Collections.singletonList(textEdit);
         });
@@ -333,7 +340,8 @@ public class BallerinaTextDocumentService implements TextDocumentService {
             TextDocumentServiceContext renameContext = new TextDocumentServiceContext();
 
             BLangPackage currentBLangPackage =
-                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false);
+                    TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager, false,
+                            LSCustomErrorStrategy.class);
             bLangPackageContext.addPackage(currentBLangPackage);
 
             WorkspaceEdit workspaceEdit;

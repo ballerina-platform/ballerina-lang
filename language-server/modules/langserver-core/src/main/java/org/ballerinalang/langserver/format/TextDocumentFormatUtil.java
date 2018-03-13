@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -52,7 +53,7 @@ public class TextDocumentFormatUtil {
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, documentManager,
-                true);
+                true, LSCustomErrorStrategy.class);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
