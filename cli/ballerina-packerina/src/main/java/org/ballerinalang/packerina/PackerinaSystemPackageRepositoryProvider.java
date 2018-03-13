@@ -30,8 +30,6 @@ import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 @JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
 public class PackerinaSystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
-    private static final String SYSTEM_ORG_NAME = "ballerina";
-
     /**
      * Loads the package repository.
      *

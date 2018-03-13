@@ -22,13 +22,13 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStack;
 import org.ballerinalang.bre.bvm.StackFrame;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
@@ -36,12 +36,20 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -65,7 +73,7 @@ public class NetworkUtils {
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException ignore) {
             // Ignore the error
         }
         Runtime.getRuntime().exit(0);
@@ -73,9 +81,10 @@ public class NetworkUtils {
 
     /**
      * Invoke package init.
+     *
      * @param programFile program file
      * @param packageInfo package info object
-     * @param bContext context object
+     * @param bContext    context object
      */
     private static void initPackage(ProgramFile programFile, PackageInfo packageInfo, Context bContext) {
         if (!packageInit) {
@@ -173,53 +182,76 @@ public class NetworkUtils {
      * @param ballerinaCentralURL URL of ballerina central
      */
     public static void pullPackages(String resourceName, String ballerinaCentralURL) {
+        Path baloFilePath = null;
+        try {
+            URI uri = NetworkUtils.class.getResource("/META-INF/ballerina/pull/main.bal.balx").toURI();
+            initFileSystem(uri);
+            baloFilePath = Paths.get(uri);
+        } catch (URISyntaxException e) {
+            // Ignore
+        }
+        if (baloFilePath != null) {
+            ProgramFile programFile = readExecutableProgram(baloFilePath);
+            String host = getHost(ballerinaCentralURL);
+            Path cacheDir = Paths.get("caches").resolve(host);
 
-        Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
-        Path sourcePath = Paths.get("ballerina/pull");
-        ProgramFile programFile = LauncherUtils.compile(sourceRootPath, sourcePath);
-        String host = getHost(ballerinaCentralURL);
-        Path cacheDir = Paths.get("caches").resolve(host);
+            // target directory path to .ballerina/cache
+            Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
 
-        // target directory path to .ballerina/cache
-        Path targetDirectoryPath = UserRepositoryUtils.initializeUserRepository().resolve(cacheDir);
+            int indexOfOrgName = resourceName.indexOf("/");
+            if (indexOfOrgName != -1) {
+                String orgName = resourceName.substring(0, indexOfOrgName);
+                String pkgNameWithVersion = resourceName.substring(indexOfOrgName + 1);
 
-        int indexOfOrgName = resourceName.indexOf("/");
-        if (indexOfOrgName != -1) {
-            String orgName = resourceName.substring(0, indexOfOrgName);
-            String pkgNameWithVersion = resourceName.substring(indexOfOrgName + 1);
+                int indexOfColon = pkgNameWithVersion.indexOf(":");
+                String pkgVersion, pkgName;
+                if (indexOfColon != -1) {
+                    pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
+                    pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+                } else {
+                    pkgVersion = "*";
+                    pkgName = pkgNameWithVersion;
+                }
+                Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion);
 
-            int indexOfColon = pkgNameWithVersion.indexOf(":");
-            String pkgVersion, pkgName;
-            if (indexOfColon != -1) {
-                pkgVersion = pkgNameWithVersion.substring(indexOfColon + 1);
-                pkgName = pkgNameWithVersion.substring(0, indexOfColon);
+                targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
+                String dstPath = targetDirectoryPath.toString();
+
+                // Get the current dir path to check if the user is pulling a package from inside a project dir
+                Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
+                String currentProjectPath = null;
+                if (ballerinaTomlExists(currentDirPath)) {
+                    Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
+                            .resolve(fullPathOfPkg);
+                    currentProjectPath = projectDestDirectoryPath.toString();
+                }
+
+                String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
+                String resourcePath = ballerinaCentralURL + pkgPath;
+                String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
+                        pkgVersion};
+
+                invokeFunction(programFile, "pull", arguments);
+                // TODO: Pull the dependencies of the pulled package
             } else {
-                pkgVersion = "*";
-                pkgName = pkgNameWithVersion;
+                outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
             }
-            Path fullPathOfPkg = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion);
-
-            targetDirectoryPath = targetDirectoryPath.resolve(fullPathOfPkg);
-            String dstPath = targetDirectoryPath.toString();
-
-            // Get the current directory path to check if the user is pulling a package from inside a project directory
-            Path currentDirPath = Paths.get(".").toAbsolutePath().normalize();
-            String currentProjectPath = null;
-            if (ballerinaTomlExists(currentDirPath)) {
-                Path projectDestDirectoryPath = currentDirPath.resolve(".ballerina").resolve(cacheDir)
-                        .resolve(fullPathOfPkg);
-                currentProjectPath = projectDestDirectoryPath.toString();
-            }
-
-            String pkgPath = Paths.get(orgName).resolve(pkgName).resolve(pkgVersion).toString();
-            String resourcePath = ballerinaCentralURL + pkgPath;
-            String[] arguments = new String[]{resourcePath, dstPath, pkgName, currentProjectPath, resourceName,
-                    pkgVersion};
-
-            invokeFunction(programFile, "pull", arguments);
-            // TODO: Pull the dependencies of the pulled package
         } else {
-            outStream.println("No org-name provided for the package to be pulled. Please provide an org-name");
+            outStream.println("Path to the balx file inside ballerina-packerina jar is incorrect");
+        }
+    }
+
+    /**
+     * Init file system from jar.
+     *
+     * @param uri URI of the file
+     */
+    private static void initFileSystem(URI uri) {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try {
+            FileSystems.newFileSystem(uri, env);
+        } catch (FileSystemAlreadyExistsException | IOException ignore) {
         }
     }
 
@@ -246,5 +278,30 @@ public class NetworkUtils {
         } catch (MalformedURLException e) {
             return ballerinaCentralURL.replaceAll("[^A-Za-z0-9.]", "");
         }
+    }
+
+    /**
+     * Get program file after reading the executable program i.e. balo file.
+     *
+     * @param baloFilePath path of the balo file inside the packerina jar
+     * @return program file
+     */
+    private static ProgramFile readExecutableProgram(Path baloFilePath) {
+        ByteArrayInputStream byteIS = null;
+        try {
+            byte[] byteArray = Files.readAllBytes(baloFilePath);
+            ProgramFileReader reader = new ProgramFileReader();
+            byteIS = new ByteArrayInputStream(byteArray);
+            return reader.readProgram(byteIS);
+        } catch (IOException ignore) {
+        } finally {
+            if (byteIS != null) {
+                try {
+                    byteIS.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return null;
     }
 }
