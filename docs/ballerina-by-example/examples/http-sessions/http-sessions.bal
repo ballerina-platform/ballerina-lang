@@ -1,14 +1,19 @@
 import ballerina.net.http;
 
-service<http> sessionTest {
+endpoint<http:Service> sessionTestEP {
+    port:9090
+}
+
+@http:serviceConfig { endpoints:[sessionTestEP] }
+service<http:Service> sessionTest {
 
     string key = "status";
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayHello (http:Connection conn, http:Request req) {
+    resource sayHello (http:ServerConnector conn, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = conn -> createSessionIfAbsent();
         string result;
         //Session status(new or already existing) is informed by isNew() as boolean value.
         if (session.isNew()) {
@@ -20,15 +25,15 @@ service<http> sessionTest {
         session.setAttribute(key, "Session sample");
         http:Response res = {};
         res.setStringPayload(result);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource doTask (http:Connection conn, http:Request req) {
+    resource doTask (http:ServerConnector conn, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = conn.getSession();
+        http:Session session = conn -> getSession();
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
@@ -38,14 +43,14 @@ service<http> sessionTest {
         }
         http:Response res = {};
         res.setStringPayload(attributeValue);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource sayBye (http:Connection conn, http:Request req) {
-        http:Session session = conn.getSession();
+    resource sayBye (http:ServerConnector conn, http:Request req) {
+        http:Session session = conn -> getSession();
         http:Response res = {};
         if (session != null) {
             //Returns session id.
@@ -56,6 +61,6 @@ service<http> sessionTest {
         } else {
             res.setStringPayload("Session unavailable");
         }
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

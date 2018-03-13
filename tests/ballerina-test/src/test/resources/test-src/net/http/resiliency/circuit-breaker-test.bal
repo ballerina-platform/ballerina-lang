@@ -156,6 +156,30 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
     action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
+
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
+    }
 }
 
 function handleBackendFailureScenario (int requesetNo) (http:Response, http:HttpConnectorError) {

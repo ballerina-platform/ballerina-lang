@@ -17,6 +17,7 @@ public struct Service {
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
 @Field {value:"ssl: The SSL configurations for the service endpoint"}
+@Field {value:"httpVersion: Highest HTTP version supported"}
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
@@ -24,6 +25,7 @@ public struct ServiceEndpointConfiguration {
     TransferEncoding transferEncoding;
     Chunking chunking;
     SslConfiguration ssl;
+    string httpVersion;
 }
 
 @Description {value:"Initializes a ServiceEndpointConfiguration struct"}
