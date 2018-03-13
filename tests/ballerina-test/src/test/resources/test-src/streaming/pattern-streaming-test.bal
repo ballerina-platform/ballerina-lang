@@ -61,7 +61,7 @@ function testPatternQuery () (TempDiffInfo []) {
     RegulatorInfo r2 = {deviceID:3, roomNo:23, tempSet:25.0, isOn:true};
 
 
-    tempDiffStream./(printTempDifference);
+    tempDiffStream.subscribe(printTempDifference);
 
     regulatorStream.publish(r1);
     runtime:sleepCurrentWorker(100);
