@@ -824,7 +824,7 @@
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
-                <!--<module>tests/ballerina-test-integration</module>-->
+                <module>tests/ballerina-test-integration</module>
 
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
@@ -855,7 +855,7 @@
 
                 <module>distribution/zip/ballerina</module>
 
-                <!--<module>tests/ballerina-test-integration</module>-->
+                <module>tests/ballerina-test-integration</module>
             </modules>
         </profile>
         <profile>
@@ -893,7 +893,7 @@
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
-                <!--<module>tests/ballerina-test-integration</module>-->
+                <module>tests/ballerina-test-integration</module>
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
