@@ -73,43 +73,43 @@ endpoint<http:Client> clientEP {
 function main (string[] args) {
 
     http:Request serviceReq = {};
-    http:HttpHandle h = {};
+    http:HttpHandle handle = {};
     // Submit a request
-    h, _ = clientEP -> submit("GET","/http2Service/main", serviceReq);
+    handle, _ = clientEP -> submit("GET","/http2Service/main", serviceReq);
 
     http:PushPromise[] promises = [];
-    int i = 0;
+    int promiseCount = 0;
     // Check whether promises exists
-    boolean hasPromise = clientEP -> hasPromise(h);
+    boolean hasPromise = clientEP -> hasPromise(handle);
     while (hasPromise) {
-        http:PushPromise promise = {};
+        http:PushPromise pushPromise = {};
         // Get the next promise
-        promise, _ = clientEP -> getNextPromise(h);
-        io:println("Received a promise for " + promise.path);
+        pushPromise, _ = clientEP -> getNextPromise(handle);
+        io:println("Received a promise for " + pushPromise.path);
 
-        if (promise.path == "/resource2") {
+        if (pushPromise.path == "/resource2") {
             // Client is not interested of getting '/resource2'. So reject the promise
-            _ = clientEP -> rejectPromise(promise);
+            _ = clientEP -> rejectPromise(pushPromise);
             io:println("Push promise for resource2 rejected");
         } else {
             // Store required promises
-            promises[i] = promise;
-            i = i + 1;
+            promises[promiseCount] = pushPromise;
+            promiseCount = promiseCount + 1;
         }
-        hasPromise = clientEP -> hasPromise(h);
+        hasPromise = clientEP -> hasPromise(handle);
     }
 
     http:Response res = {};
     // Get the requested resource
-    res, _ = clientEP -> getResponse(h);
+    res, _ = clientEP -> getResponse(handle);
     json responsePayload;
     responsePayload, _ = res.getJsonPayload();
     io:println("Response : " + responsePayload.toString());
 
     // Fetch required promised responses
-    foreach p in promises {
+    foreach promise in promises {
         http:Response promisedResponse = {};
-        promisedResponse, _ = clientEP -> getPromisedResponse(p);
+        promisedResponse, _ = clientEP -> getPromisedResponse(promise);
         json payload;
         payload, _ = promisedResponse.getJsonPayload();
         io:println("Promised resource : " + payload.toString());
