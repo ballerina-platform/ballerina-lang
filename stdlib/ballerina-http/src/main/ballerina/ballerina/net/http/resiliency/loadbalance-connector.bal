@@ -115,6 +115,62 @@ public connector LoadBalancer (http:HttpClient[] loadBalanceClientsArray, functi
     action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performLoadBalanceAction(path, request, null, HttpOperation.GET, loadBalanceInferredConfig);
     }
+
+    @Description { value:"The submit implementation of the LoadBalancer Connector."}
+    @Param { value:"httpVerb: The HTTP verb value" }
+    @Param { value:"path: The Resource path " }
+    @Param { value:"req: An HTTP outbound request message" }
+    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getResponse implementation of the LoadBalancer Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The hasPromise implementation of the LoadBalancer Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"Whether push promise exists" }
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    @Description { value:"The getNextPromise implementation of the LoadBalancer Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP Push Promise message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getPromisedResponse implementation of the LoadBalancer Connector."}
+    @Param { value:"promise: The related Push Promise message" }
+    @Return { value:"HTTP The Push Response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for LoadBalancer Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The rejectPromise implementation of the LoadBalancer Connector."}
+    @Param { value:"promise: The Push Promise need to be rejected" }
+    @Return { value:"Whether operation is successful" }
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
+    }
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
