@@ -18,6 +18,8 @@ package org.ballerinalang.testerina.test.utils;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -61,8 +63,9 @@ public class BTestUtils {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static CompileResult compile(String sourceFilePath) {
-        return compile(sourceFilePath, CompilerPhase.CODE_GEN);
+    public static org.ballerinalang.launcher.util.CompileResult compile(String sourceFilePath) {
+        return BCompileUtil.compile(resourceDir.toString(), sourceFilePath.toString(),
+                CompilerPhase.CODE_GEN);
     }
 
     /**

@@ -16,59 +16,53 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Represents the result of a ballerina file compilation.
  *
  * @since 0.94
  */
-public class CompileResult {
-
-    private List<Diagnostic> diagnostics;
-    private ProgramFile progFile;
-    private int errorCount = 0;
-    private int warnCount = 0;
-
-    public CompileResult() {
-        diagnostics = new ArrayList<Diagnostic>();
-    }
-
-    public void addDiagnostic(Diagnostic diag) {
-        this.diagnostics.add(diag);
-        switch (diag.getKind()) {
-            case ERROR:
-                errorCount++;
-                break;
-            case WARNING:
-                warnCount++;
-                break;
-            default:
-                break;
-        }
-    }
-
-    public Diagnostic[] getDiagnostics() {
-        return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
-    }
-
-    public int getErrorCount() {
-        return errorCount;
-    }
-
-    public int getWarnCount() {
-        return warnCount;
-    }
-
-    public ProgramFile getProgFile() {
-        return progFile;
-    }
-
-    public void setProgFile(ProgramFile progFile) {
-        this.progFile = progFile;
-    }
-}
+//public class CompileResult {
+//
+//    private List<Diagnostic> diagnostics;
+//    private ProgramFile progFile;
+//    private int errorCount = 0;
+//    private int warnCount = 0;
+//
+//    public CompileResult() {
+//        diagnostics = new ArrayList<Diagnostic>();
+//    }
+//
+//    public void addDiagnostic(Diagnostic diag) {
+//        this.diagnostics.add(diag);
+//        switch (diag.getKind()) {
+//            case ERROR:
+//                errorCount++;
+//                break;
+//            case WARNING:
+//                warnCount++;
+//                break;
+//            default:
+//                break;
+//        }
+//    }
+//
+//    public Diagnostic[] getDiagnostics() {
+//        return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
+//    }
+//
+//    public int getErrorCount() {
+//        return errorCount;
+//    }
+//
+//    public int getWarnCount() {
+//        return warnCount;
+//    }
+//
+//    public ProgramFile getProgFile() {
+//        return progFile;
+//    }
+//
+//    public void setProgFile(ProgramFile progFile) {
+//        this.progFile = progFile;
+//    }
+//}
