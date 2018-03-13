@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.net.http.mock;
 
 endpoint<mock:NonListeningService> testEP {
-port:9090
+    port:9090
 }
 
 struct Person {
