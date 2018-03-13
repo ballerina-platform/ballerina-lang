@@ -126,10 +126,12 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         this.servicesAvailable = servicesAvailable;
     }
 
+    @Deprecated
     public ServerConnectorRegistry getServerConnectorRegistry() {
         return serverConnectorRegistry;
     }
 
+    @Deprecated
     public void setServerConnectorRegistry(ServerConnectorRegistry serverConnectorRegistry) {
         this.serverConnectorRegistry = serverConnectorRegistry;
     }
@@ -213,18 +215,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
-    }
-
-    public List<AnnAttributeValue> getUnresolvedAnnAttrValues() {
-        return unresolvedAnnAttrValues;
-    }
-
-    public void setUnresolvedAnnAttrValues(List<AnnAttributeValue> unresolvedAnnAttrValues) {
-        this.unresolvedAnnAttrValues = unresolvedAnnAttrValues;
-    }
-
-    public void addUnresolvedAnnAttrValue(AnnAttributeValue annAttributeValue) {
-        unresolvedAnnAttrValues.add(annAttributeValue);
     }
 
     public void setDebugger(Debugger debugManager) {

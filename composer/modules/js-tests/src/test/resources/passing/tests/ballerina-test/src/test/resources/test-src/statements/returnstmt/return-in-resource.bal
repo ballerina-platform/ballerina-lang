@@ -2,8 +2,8 @@ import ballerina.net.http;
 
 service<http> helloWorld {
 
-    resource sayHello(http:InRequest req, http:InResponse res) {
-        http:OutResponse resp = {};
+    resource sayHello(http:Request req, http:Response res) {
+        http:Response resp = {};
         return resp;
     }
 }

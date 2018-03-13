@@ -30,6 +30,7 @@ public class Flags {
     public static final int CONST = 4;
     public static final int ATTACHED = 8;
     public static final int DEPRECATED = 16;
+    public static final int ENDPOINT = 32;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -49,6 +50,9 @@ public class Flags {
                     break;
                 case DEPRECATED:
                     mask |= DEPRECATED;
+                    break;
+                case ENDPOINT:
+                    mask |= ENDPOINT;
                     break;
             }
         }

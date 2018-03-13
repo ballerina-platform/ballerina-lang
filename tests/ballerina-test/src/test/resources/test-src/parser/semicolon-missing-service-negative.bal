@@ -1,6 +1,6 @@
 import ballerina.net.http;
 
-service<http> HelloService {
+service<http:Service> HelloService {
 
   @POST {}
   @Path {value:"/tweet"}

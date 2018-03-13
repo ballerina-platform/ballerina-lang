@@ -48,6 +48,7 @@ class AbstractTernaryExprNode extends ExpressionNode {
     }
 
 
+
     setThenExpression(newValue, silent, title) {
         const oldValue = this.thenExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractTernaryExprNode extends ExpressionNode {
     }
 
 
+
     setElseExpression(newValue, silent, title) {
         const oldValue = this.elseExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractTernaryExprNode extends ExpressionNode {
     getElseExpression() {
         return this.elseExpression;
     }
+
 
 
 }

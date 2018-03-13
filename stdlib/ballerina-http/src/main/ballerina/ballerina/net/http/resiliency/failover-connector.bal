@@ -50,7 +50,7 @@ struct FailoverInferredConfig {
 
 @Description {value:"Failover Connector implementation to be used with the HTTP client connector to support failover."}
 @Param {value:"failoverClientsArray: Array of HttpClient connector to be failover."}
-@Param {value:"failoverConfig: The failoverCodes which contains InResponse Http status codes needs to be faiover."}
+@Param {value:"failoverConfig: The failoverCodes which contains Response Http status codes needs to be faiover."}
 public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfig failoverConfig) {
 
     boolean[] failoverCodes = populateErrorCodeIndex(failoverConfig.failoverCodes);
@@ -63,100 +63,156 @@ public connector Failover (http:HttpClient[] failoverClientsArray, FailoverConfi
 
     @Description {value:"The POST action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.POST, failoverInferredConfig);
     }
 
     @Description {value:"The HEAD action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.HEAD, failoverInferredConfig);
     }
 
     @Description {value:"The PATCH action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.PATCH, failoverInferredConfig);
     }
 
     @Description {value:"The PUT action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.PUT, failoverInferredConfig);
     }
 
     @Description {value:"The OPTIONS action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.OPTIONS, failoverInferredConfig);
     }
 
     @Description {value:"The FORWARD action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An InRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, null, request, HttpOperation.FORWARD, failoverInferredConfig);
     }
 
     @Description {value:"The EXECUTE action implementation of the Failover Connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performExecuteAction(path, request, null, httpVerb, failoverInferredConfig);
     }
 
     @Description {value:"The DELETE action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.DELETE, failoverInferredConfig);
     }
 
     @Description {value:"The GET action implementation of the Failover Connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         return performFailoverAction(path, request, null, HttpOperation.GET, failoverInferredConfig);
+    }
+
+    @Description { value:"The submit implementation of the Failover Connector."}
+    @Param { value:"httpVerb: The HTTP verb value" }
+    @Param { value:"path: The Resource path " }
+    @Param { value:"req: An HTTP outbound request message" }
+    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Failover Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getResponse implementation of the Failover Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Failover Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The hasPromise implementation of the Failover Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"Whether push promise exists" }
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    @Description { value:"The getNextPromise implementation of the Failover Connector."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP Push Promise message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Failover Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getPromisedResponse implementation of the Failover Connector."}
+    @Param { value:"promise: The related Push Promise message" }
+    @Return { value:"HTTP The Push Response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Failover Connector";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The rejectPromise implementation of the Failover Connector."}
+    @Param { value:"promise: The Push Promise need to be rejected" }
+    @Return { value:"Whether operation is successful" }
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
     }
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
-function performExecuteAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performExecuteAction (string path, http:Request outRequest, http:Request inRequest,
                                string httpVerb, FailoverInferredConfig failoverInferredConfig)
-(http:InResponse, http:HttpConnectorError) {
+(http:Response, http:HttpConnectorError) {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, outRequest, inRequest, connectorAction, failoverInferredConfig);
 }
 
 // Handles all the actions exposed through the Failover connector.
-function performFailoverAction (string path, http:OutRequest outRequest, http:InRequest inRequest,
+function performFailoverAction (string path, http:Request outRequest, http:Request inRequest,
                                 HttpOperation requestAction, FailoverInferredConfig failoverInferredConfig)
-                                                                        (http:InResponse, http:HttpConnectorError) {
+                                                                        (http:Response, http:HttpConnectorError) {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
     int currentIndex = 0;
@@ -167,19 +223,19 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
     FailoverConnectorError failoverConnectorError = {};
     http:HttpClient[] failoverClients = failoverInferredConfig.failoverClientsArray;
     http:HttpClient failoverClient = failoverClients[currentIndex];
-    http:InResponse inResponse;
+    http:Response inResponse;
     http:HttpConnectorError httpConnectorError = {};
     failoverConnectorError.httpConnectorError = [];
 
     // When performing passthrough scenarios using Failover connector, message needs to be built before trying out the
     // failover endpoints to keep the request message to failover the messages.
     if (inRequest != null && HttpOperation.FORWARD == requestAction) {
-        var binaryPayload, _ = inRequest.getBinaryPayload();
+        blob binaryPayload = inRequest.getBinaryPayload();
     }
 
     mime:Entity requestEntity = null;
     if (outRequest != null) {
-        requestEntity, _ = outRequest.getEntity();
+        requestEntity = outRequest.getEntity();
     }
 
     while (startIndex != currentIndex) {
@@ -226,7 +282,7 @@ function performFailoverAction (string path, http:OutRequest outRequest, http:In
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
 function populateGenericFailoverConnectorError (FailoverConnectorError failoverConnectorErr,
                                                 http:HttpConnectorError httpConnectorError, int index)
-(http:InResponse, http:HttpConnectorError) {
+(http:Response, http:HttpConnectorError) {
     failoverConnectorErr.statusCode = 500;
     failoverConnectorErr.httpConnectorError[index] = httpConnectorError;
     string lastErrorMsg = httpConnectorError.message;
@@ -236,7 +292,7 @@ function populateGenericFailoverConnectorError (FailoverConnectorError failoverC
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, failover error
 // will be generated with last response status code and generic failover response.
-function populateFailoverErrorHttpStatusCodes (http:InResponse inResponse,
+function populateFailoverErrorHttpStatusCodes (http:Response inResponse,
                                                FailoverConnectorError failoverConnectorError, int index) {
     http:HttpConnectorError httpConnectorError = {};
     httpConnectorError.message = "Endpoint " + index + " returned response is: "
@@ -246,9 +302,9 @@ function populateFailoverErrorHttpStatusCodes (http:InResponse inResponse,
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, generic
 // failover error and HttpConnectorError error will be generated.
-function populateErrorsFromLastResponse (http:InResponse inRsponse, FailoverConnectorError failoverConnectorError,
+function populateErrorsFromLastResponse (http:Response inRsponse, FailoverConnectorError failoverConnectorError,
                                                             http:HttpConnectorError httpConnectorError, int index)
-                                                                            (http:InResponse, http:HttpConnectorError) {
+                                                                            (http:Response, http:HttpConnectorError) {
     http:HttpConnectorError lastHttpConnectorError = {};
     lastHttpConnectorError.statusCode = inRsponse.statusCode;
     lastHttpConnectorError.message = "Last endpoint returned response: " + inRsponse.statusCode + " "

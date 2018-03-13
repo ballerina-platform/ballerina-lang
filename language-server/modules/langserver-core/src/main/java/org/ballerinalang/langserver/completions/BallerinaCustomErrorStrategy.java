@@ -22,15 +22,22 @@ import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LanguageServerContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Capture possible errors from source.
  */
 public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
+    
     private LanguageServerContext context;
     
     public BallerinaCustomErrorStrategy(LanguageServerContext context) {
@@ -61,13 +68,16 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
     private void fillContext(Parser parser, Token currentToken) {
         ParserRuleContext currentContext = parser.getContext();
         /*
-        TODO: Specific check for callable unit body is added in order to handle the completion inside an 
-        endpoint definition. This particular case need to remove after introducing a proper handling mechanism or with
-         the introduction of BNF grammar
+        TODO: Specific check  is added in order to handle the completion inside an 
+        endpoint context. This particular case need to remove after introducing a proper handling mechanism or with
+         the introduction of BNF grammar. Also check the 
          */
+        boolean isWithinEndpointContext = this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null ? false :
+                this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
         if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
-                || (this.context.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
-                && currentContext instanceof BallerinaParser.CallableUnitBodyContext)) {
+                || (!isWithinEndpointContext && this.isWithinEndpointContext(parser))) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
@@ -129,10 +139,9 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         // We need to set the error for the variable definition as well.
         if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
             context.getParent().exception = e;
-            return;
-        }
-
-        if (context instanceof BallerinaParser.NameReferenceContext) {
+        } else if (context.getParent() instanceof BallerinaParser.FunctionInvocationContext) {
+            setContextIfFunctionInvocation(context, e);
+        } else if (context instanceof BallerinaParser.NameReferenceContext) {
             setContextIfConnectorInit(context, e);
         } else if (context instanceof BallerinaParser.ExpressionContext) {
             setContextIfConditionalStatement(context, e);
@@ -146,7 +155,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
      */
     private void setContextIfConnectorInit(ParserRuleContext context, InputMismatchException e) {
         ParserRuleContext connectorInitContext = context.getParent().getParent().getParent();
-        if (connectorInitContext instanceof BallerinaParser.ConnectorInitExpressionContext) {
+        if (connectorInitContext instanceof BallerinaParser.TypeInitExpressionContext) {
             ParserRuleContext tempContext = context;
             while (true) {
                 tempContext.exception = e;
@@ -177,5 +186,90 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
             setContextIfConditionalStatement(conditionalContext, e);
         }
+    }
+
+    private void setContextIfFunctionInvocation(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext parentContext = context.getParent();
+        if (parentContext == null) {
+            return;
+        }
+
+        if (parentContext instanceof BallerinaParser.FunctionInvocationContext
+                || parentContext instanceof BallerinaParser.ActionInvocationContext) {
+            parentContext.exception = e;
+            setContextIfFunctionInvocation(parentContext, e);
+        } else if (parentContext instanceof BallerinaParser.AssignmentStatementContext) {
+            parentContext.exception = e;
+        }
+    }
+    
+    private boolean isWithinEndpointContext(Parser parser) {
+        int currentTokenIndex = parser.getCurrentToken().getTokenIndex();
+        TokenStream tokenStream = parser.getTokenStream();
+        List<String> terminalTokens = Arrays.asList("{", ";", "}", "(", ")");
+        String tokenString = tokenStream.get(currentTokenIndex).getText();
+        boolean isWithinEndpoint = false;
+        
+        if (tokenString.equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
+            currentTokenIndex -= 1;
+            boolean cursorAfterEndpointKeyword = false;
+            String endpointName = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex).getText();
+            
+            // Set the endpoint name to the meta info context
+            this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                    .put(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY, endpointName);
+            
+            while (true) {
+                if (currentTokenIndex < 0) {
+                    // If this stage occurred, then the current context is not able to resolve the endpoint start
+                    return false;
+                }
+                Token previousDefaultToken = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
+                tokenString = previousDefaultToken.getText();
+                if (terminalTokens.contains(tokenString)) {
+                    break;
+                } else if (tokenString.equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)) {
+                    cursorAfterEndpointKeyword = true;
+                    currentTokenIndex = parser.getCurrentToken().getTokenIndex();
+                    break;
+                }
+                
+                currentTokenIndex = previousDefaultToken.getTokenIndex();
+            }
+            
+            if (cursorAfterEndpointKeyword) {
+                while (true) {
+                    Token nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, currentTokenIndex);
+                    tokenString = nextDefaultToken.getText();
+                    
+                    if (tokenString.equals(UtilSymbolKeys.CLOSE_BRACE_KEY)) {
+                        int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
+                        int cursorCol = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
+                        int startTokenLine = tokenStream.get(parser.getCurrentToken().getTokenIndex()).getLine() - 1;
+                        int startTokenCol = tokenStream
+                                .get(parser.getCurrentToken().getTokenIndex()).getCharPositionInLine();
+                        int endTokenLine = nextDefaultToken.getLine() - 1;
+                        int endTokenCol = nextDefaultToken.getCharPositionInLine();
+                        
+                        isWithinEndpoint = (cursorLine > startTokenLine && cursorLine < endTokenLine)
+                                || (cursorLine == startTokenLine && cursorCol >= startTokenCol
+                                && cursorLine < endTokenLine)
+                                || (cursorLine > startTokenLine && cursorLine == endTokenLine
+                                && cursorCol <= endTokenCol)
+                                || (cursorLine == startTokenLine && cursorLine == endTokenLine
+                                && cursorCol > startTokenCol && cursorCol < endTokenCol);
+                        break;
+                    } else if (terminalTokens.contains(tokenString)) {
+                        break;
+                    }
+
+                    currentTokenIndex = nextDefaultToken.getTokenIndex();
+                }
+            }
+        }
+
+        this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                .put(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY, isWithinEndpoint);
+        return isWithinEndpoint;
     }
 }

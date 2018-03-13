@@ -69,12 +69,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The POST action implementation of the Circuit Breaker. Protects the invocation of the POST action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -89,12 +89,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The HEAD action implementation of the Circuit Breaker. Protects the invocation of the HEAD action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -110,12 +110,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The PUT action implementation of the Circuit Breaker. Protects the invocation of the PUT action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -132,12 +132,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Description {value:"Protects the invocation of the Execute action of the underlying HTTP client connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
     @Param {value:"httpVerb: HTTP verb to be used for the request"}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -153,12 +153,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The PATCH action implementation of the Circuit Breaker. Protects the invocation of the PATCH action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -174,12 +174,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The DELETE action implementation of the Circuit Breaker. Protects the invocation of the DELETE action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -195,12 +195,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The OPTIONS action implementation of the Circuit Breaker. Protects the invocation of the OPTIONS action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -216,12 +216,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"Protects the invocation of the Forward action of the underlying HTTP client connector. The Forward action can be used to forward an incoming request to an upstream service as it is."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An InRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:InRequest request) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -237,12 +237,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
     @Description {value:"The GET action implementation of the Circuit Breaker. Protects the invocation of the GET action of the underlying HTTP client connector."}
     @Param {value:"path: Resource path"}
-    @Param {value:"request: An OutRequest struct"}
-    @Return {value:"The InResponse struct"}
+    @Param {value:"request: A Request struct"}
+    @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:OutRequest request) (http:InResponse, http:HttpConnectorError) {
+    action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
-        http:InResponse response;
+        http:Response response;
         http:HttpConnectorError httpConnectorError;
 
         if (currentCircuitState == CircuitState.OPEN) {
@@ -254,6 +254,62 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
         }
 
         return response, httpConnectorError;
+    }
+
+    @Description { value:"The submit implementation of Circuit Breaker."}
+    @Param { value:"httpVerb: The HTTP verb value" }
+    @Param { value:"path: The Resource path " }
+    @Param { value:"req: An HTTP outbound request message" }
+    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getResponse implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The hasPromise implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"Whether push promise exists" }
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    @Description { value:"The getNextPromise implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP Push Promise message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getPromisedResponse implementation of Circuit Breaker."}
+    @Param { value:"promise: The related Push Promise message" }
+    @Return { value:"HTTP The Push Response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The rejectPromise implementation of Circuit Breaker."}
+    @Param { value:"promise: The Push Promise need to be rejected" }
+    @Return { value:"Whether operation is successful" }
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
     }
 }
 
@@ -297,7 +353,7 @@ function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentSt
     return currentState;
 }
 
-function updateCircuitHealth(CircuitHealth circuitHealth, http:InResponse inResponse,
+function updateCircuitHealth(CircuitHealth circuitHealth, http:Response inResponse,
                http:HttpConnectorError httpConnectorError, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         circuitHealth.requestCount = circuitHealth.requestCount + 1;
