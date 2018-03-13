@@ -66,6 +66,7 @@ function testCompoundAssignmentDivisionArrayElement()(int){
 
 struct Company {
    int count;
+   int count2;
 }
 
 function testCompoundAssignmentAdditionStructElement()(int){
@@ -167,6 +168,14 @@ function testCompoundAssignmentAdditionStructElementRecursive()(int){
     Company ibm = {};
     ibm["count"] = 100;
     ibm["count"] += ibm["count"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionStructElements()(int){
+    Company ibm = {};
+    ibm["count"] = 100;
+    ibm["count2"] = 400;
+    ibm["count"] += ibm["count2"];
     return ibm["count"];
 }
 

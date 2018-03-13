@@ -281,6 +281,14 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 205);
     }
 
+    @Test(description = "Test compound assignment with addition with two struct elements.")
+    public void testCompoundAssignmentAdditionStructElements() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElements");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 500);
+    }
+
     @Test(description = "Test compound operator negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
