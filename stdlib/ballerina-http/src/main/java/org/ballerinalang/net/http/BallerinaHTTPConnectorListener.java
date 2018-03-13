@@ -84,6 +84,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 .filter(c -> c.getKey().startsWith(TraceConstant.TRACE_PREFIX))
                 .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
 
+
         Map<String, String> tags = new HashMap<>();
         tags.put("component", "ballerina");
         tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));

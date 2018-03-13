@@ -71,6 +71,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1061,6 +1062,21 @@ public class HttpUtil {
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
         return new DefaultHttpWsConnectorFactory();
+    }
+
+    public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
+        Map<String, String> tags = new HashMap<>();
+        tags.put("component", "ballerina");
+        tags.put("http.method", String.valueOf(msg.getProperty("HTTP_METHOD")));
+        tags.put("protocol", String.valueOf(msg.getProperty("PROTOCOL")));
+        tags.put("http.url", String.valueOf(msg.getProperty("TO")));
+        tags.put("http.host", String.valueOf(msg.getProperty("Host")));
+        tags.put("http.port", String.valueOf(msg.getProperty("PORT")));
+        return tags;
+    }
+
+    public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
+        headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
     }
 }
 

@@ -26,6 +26,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -50,7 +51,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.net.http")
         }
 )
 public class Delete extends AbstractHTTPAction {
@@ -72,8 +73,11 @@ public class Delete extends AbstractHTTPAction {
         // Extract Argument values
         HTTPCarbonMessage cMsg = super.createOutboundRequestMsg(context);
         cMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
-        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
-                cMsg.setHeader(key, String.valueOf(value)));
+
+        BTracer bTracer = context.getParentWorkerExecutionContext().getTracer();
+        HttpUtil.injectHeaders(cMsg, bTracer.getProperties());
+        bTracer.addTags(HttpUtil.extractTraceTags(cMsg));
+
         return cMsg;
     }
 }

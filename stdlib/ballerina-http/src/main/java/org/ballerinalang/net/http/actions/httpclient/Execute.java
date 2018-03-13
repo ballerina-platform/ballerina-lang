@@ -29,6 +29,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -59,7 +60,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
         connectorArgs = {
                 @Argument(name = "serviceUri", type = TypeKind.STRING),
                 @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
+                        structPackage = "ballerina.net.http")
         }
 )
 public class Execute extends AbstractHTTPAction {
@@ -95,10 +96,13 @@ public class Execute extends AbstractHTTPAction {
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
             outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
-                                         ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+                    ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
-        context.getParentWorkerExecutionContext().getTracer().getProperties().forEach((key, value) ->
-                outboundRequestMsg.setHeader(key, String.valueOf(value)));
+
+        BTracer bTracer = context.getParentWorkerExecutionContext().getTracer();
+        HttpUtil.injectHeaders(outboundRequestMsg, bTracer.getProperties());
+        bTracer.addTags(HttpUtil.extractTraceTags(outboundRequestMsg));
+
         return outboundRequestMsg;
     }
 }

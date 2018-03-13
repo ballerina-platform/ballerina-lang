@@ -30,9 +30,6 @@ import org.ballerinalang.util.tracer.BTracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -77,16 +74,8 @@ public class Get extends AbstractHTTPAction {
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_GET);
 
         BTracer bTracer = context.getParentWorkerExecutionContext().getTracer();
-        bTracer.getProperties().forEach((key, value) ->
-                outboundReqMsg.setHeader(key, String.valueOf(value)));
-        Map<String, String> tags = new HashMap<>();
-        tags.put("component", "ballerina");
-        tags.put("http.method", String.valueOf(outboundReqMsg.getProperty("HTTP_METHOD")));
-        tags.put("protocol", String.valueOf(outboundReqMsg.getProperty("PROTOCOL")));
-        tags.put("http.url", String.valueOf(outboundReqMsg.getProperty("TO")));
-        tags.put("http.host", String.valueOf(outboundReqMsg.getProperty("Host")));
-        tags.put("http.port", String.valueOf(outboundReqMsg.getProperty("PORT")));
-        bTracer.addTags(tags);
+        HttpUtil.injectHeaders(outboundReqMsg, bTracer.getProperties());
+        bTracer.addTags(HttpUtil.extractTraceTags(outboundReqMsg));
 
         return outboundReqMsg;
     }
