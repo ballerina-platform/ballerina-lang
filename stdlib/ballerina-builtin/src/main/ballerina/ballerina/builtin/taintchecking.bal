@@ -16,14 +16,14 @@
 
 package ballerina.builtin;
 
-public annotation sensitive attach resource, function, connector, action {
+public annotation sensitive attach parameter, const {
 
 }
 
-public annotation tainted attach function, action {
+public annotation tainted attach parameter, const {
 
 }
 
-public annotation untainted attach function, action {
+public annotation untainted attach parameter, const {
 
 }
