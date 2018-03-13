@@ -44,7 +44,7 @@ public class Http2ServerPushTestCase extends IntegrationTestCase {
     }
 
     @Test(description = "Test HTTP/2.0 Server Push scenario")
-    public void testHelloWorldServiceByBasePath() throws IOException {
+    public void testPushPromise() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("frontend"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
