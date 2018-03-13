@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.net.grpc.config;
 
+import org.ballerinalang.net.grpc.ssl.SSLConfig;
+
 /**
  * Endpoint configuration of gRPC Service.
  */
@@ -35,7 +37,8 @@ public class EndpointConfiguration {
     private int cacheSize;
     private int cacheValidityPeriod;
     private String sslProtocol;
-
+    private SSLConfig sslConfig;
+    
     public String getHost() {
         return host;
     }
@@ -146,5 +149,13 @@ public class EndpointConfiguration {
 
     public void setSslProtocol(String sslProtocol) {
         this.sslProtocol = sslProtocol;
+    }
+    
+    public SSLConfig getSslConfig() {
+        return sslConfig;
+    }
+    
+    public void setSslConfig(SSLConfig sslConfig) {
+        this.sslConfig = sslConfig;
     }
 }

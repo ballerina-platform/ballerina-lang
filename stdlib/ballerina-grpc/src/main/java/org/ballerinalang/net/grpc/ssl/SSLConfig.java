@@ -135,25 +135,25 @@ public class SSLConfig {
         this.needClientAuth = needClientAuth;
     }
     
-    public void setSSLProtocol(String sslProtocol) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set SSLProtocol" + sslProtocol);
-        }
-        this.sslProtocol = sslProtocol;
-    }
-    
-    public String getSSLProtocol() {
-        return sslProtocol;
-    }
-    
-    public String getTLSStoreType() {
-        return tlsStoreType;
-    }
-    
-    public void setTLSStoreType(String tlsStoreType) {
-        this.tlsStoreType = tlsStoreType;
-    }
-    
+//    public void setSSLProtocol(String sslProtocol) {
+//        if (LOGGER.isDebugEnabled()) {
+//            LOGGER.debug("Set SSLProtocol" + sslProtocol);
+//        }
+//        this.sslProtocol = sslProtocol;
+//    }
+//
+//    public String getSSLProtocol() {
+//        return sslProtocol;
+//    }
+//
+//    public String getTLSStoreType() {
+//        return tlsStoreType;
+//    }
+//
+//    public void setTLSStoreType(String tlsStoreType) {
+//        this.tlsStoreType = tlsStoreType;
+//    }
+//
     public boolean isEnableSessionCreation() {
         return enableSessionCreation;
     }

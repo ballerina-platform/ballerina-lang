@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
