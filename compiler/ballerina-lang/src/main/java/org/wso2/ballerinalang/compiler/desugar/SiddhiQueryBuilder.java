@@ -67,8 +67,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class will generate the Siddhi query for stream SQLish grammar for different classes.
@@ -99,7 +101,8 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     private StringBuilder streamDefinitionQuery;
     private StringBuilder siddhiQuery;
-    private StringBuilder streamIdsAsString;
+
+    private Set<String> streamIds;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
@@ -216,11 +219,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         ExpressionNode streamReference = streamingInput.getStreamReference();
         if (streamReference != null) {
             ((BLangSimpleVarRef) streamReference).accept(this);
-            if (streamIdsAsString.length() == 0) {
-                streamIdsAsString.append(varRef);
-            } else {
-                streamIdsAsString.append(",").append(varRef);
-            }
+            streamIds.add(varRef);
             varRef = "";
         }
     }
@@ -330,9 +329,9 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamlet streamletNode) {
-        streamIdsAsString = new StringBuilder();
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
+        streamIds = new HashSet<>();
 
         List<VariableNode> globalVariables = streamletNode.getGlobalVariables();
         if (globalVariables != null) {
@@ -346,7 +345,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             ((BLangStatement) statementNode).accept(this);
         }
         streamletNode.setSiddhiQuery(this.getSiddhiQuery());
-        streamletNode.setStreamIdsAsString(streamIdsAsString.toString());
+        streamletNode.setStreamIdsAsString(String.join(",", streamIds));
     }
 
     @Override
@@ -487,11 +486,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
 
         varRef = patternStreamingEdgeInput.getIdentifier();
-        if (streamIdsAsString.length() == 0) {
-            streamIdsAsString.append(varRef);
-        } else {
-            streamIdsAsString.append(",").append(varRef);
-        }
+        streamIds.add(varRef);
         varRef = "";
 
         String alias = patternStreamingEdgeInput.getAliasIdentifier();

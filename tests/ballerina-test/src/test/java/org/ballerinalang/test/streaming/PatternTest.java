@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -46,6 +47,9 @@ public class PatternTest {
 
         BRefValueArray tempDifferences = (BRefValueArray) returns[0];
         Assert.assertNotNull(tempDifferences);
+
+        BStruct tempDifference = (BStruct) tempDifferences.get(0);
+        Assert.assertEquals(tempDifference.getFloatField(0), 7.0);
     }
 
 }
