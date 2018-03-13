@@ -42,14 +42,14 @@ function testConnectorNull () (TestConnector, TestConnector, int) {
     return c1, c2, a;
 }
 
-function testConnectorNotNull () (int) {
-    TestConnector c1 = create TestConnector();
-    int a = 1;
-    if (c1 != null) {
-        a = 8;
-    }
-    return a;
-}
+// function testConnectorNotNull () (int) {
+//     TestConnector c1 = create TestConnector();
+//     int a = 1;
+//     if (c1 != null) {
+//         a = 8;
+//     }
+//     return a;
+// }
 
 connector TestConnector () {
     string name;
@@ -115,10 +115,10 @@ function foo (xml x) (xml) {
     return x;
 }
 
-function testActionInNullConenctor () {
-    endpoint<TestConnector> testConnector {}
-    string result = testConnector.testAction();
-}
+// function testActionInNullConenctor () {
+//     endpoint<TestConnector> testConnector {}
+//     string result = testConnector.testAction();
+// }
 
 function testNullLiteralComparison () (boolean) {
     return (null == null);
