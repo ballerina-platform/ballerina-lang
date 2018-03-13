@@ -446,13 +446,14 @@ public class HttpUtil {
      * @return the populated the native {@code Http2PushPromise}
      */
     public static Http2PushPromise createHttpPushPromise(BStruct struct) {
-        String method = HttpConstants.HTTP_METHOD_GET;
-        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX).isEmpty()) {
-            method = struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX);
+        String method = struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX);
+        if (method == null || method.isEmpty()) {
+            method = HttpConstants.HTTP_METHOD_GET;
         }
-        String path = HttpConstants.DEFAULT_BASE_PATH;
-        if (!struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX).isEmpty()) {
-            path = struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX);
+
+        String path = struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX);
+        if (path == null || path.isEmpty()) {
+            path = HttpConstants.DEFAULT_BASE_PATH;
         }
         return new Http2PushPromise(method, path);
     }
