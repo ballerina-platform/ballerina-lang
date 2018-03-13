@@ -52,6 +52,8 @@ function testService () {
     io:println("GET request:");
     var jsonRes, _ = resp.getJsonPayload();
     json expected = {"a":"b"};
-    io:println("****");
     test:assertEquals(jsonRes, expected, "failed");
+
+    test:stopService("EventServiceMock");
+    test:stopService("PortalService");
 }

@@ -36,7 +36,8 @@ import org.ballerinalang.util.program.BLangFunctions;
 import java.nio.file.Path;
 
 /**
- * Native function ballerina.lang.test:startServer.
+ * Native function ballerina.lang.test:startService.
+ * Starts a given ballerina service.
  *
  * @since 0.8.0
  */
@@ -49,7 +50,7 @@ import java.nio.file.Path;
                                                value = "Starts the service specified in the 'serviceName' argument") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "serviceName",
-                                               value = "Name of the service to start") })
+                                               value = "Name of the service to be started") })
 public class StartService extends BlockingNativeCallableUnit {
 
     private static final String MSG_PREFIX = "test:startService: ";
