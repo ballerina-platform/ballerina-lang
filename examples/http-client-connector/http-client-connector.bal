@@ -64,7 +64,6 @@ function main (string[] args) {
     // The execute() action can be used if one needs to use custom HTTP verbs.
     resp, _ = clientEndpoint -> execute("COPY", "/get", req);
 
-    // The messages and http packages provide various utility functions which are useful when dealing with HTTP requests/responses.
     req = {};
     req.addHeader("Sample-Name", "http-client-connector");
     resp, _ = clientEndpoint -> get("/get", req);

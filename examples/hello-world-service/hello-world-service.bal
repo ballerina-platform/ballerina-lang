@@ -8,7 +8,7 @@ endpoint<http:Service> helloWorldEP {
 @Description {value:"By default Ballerina assumes that the service is to be exposed via HTTP/1.1."}
 @http:serviceConfig { endpoints:[helloWorldEP] }
 service<http:Service> helloWorld {
-    @Description {value:"All resources are invoked with arguments of server connection and request"}
+    @Description {value:"All resources are invoked with arguments of server connector and request"}
     resource sayHello (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         // A util method that can be used to set string payload.
