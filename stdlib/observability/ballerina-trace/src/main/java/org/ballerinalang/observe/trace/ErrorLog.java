@@ -30,11 +30,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_MESSAGE;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_STR_TRUE;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
 
 /**
  * This function adds logs to a span.
