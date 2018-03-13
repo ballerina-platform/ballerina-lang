@@ -19,23 +19,27 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.util.tracer.factory.BTracerFactory;
+import org.ballerinalang.util.tracer.factory.NOPTracerFactory;
+import org.ballerinalang.util.tracer.factory.TracerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.tracer.TraceConstant.TRACER_MANAGER_CLASS;
-import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACER_MANAGER_CLASS;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
  * {@link TraceManagerWrapper} loads {@link TraceManager} implementation
  * and wraps it's functionality.
  *
- * @since 0.963.1
+ * @since 0.964.1
  */
 public class TraceManagerWrapper {
     private static final TraceManagerWrapper instance = new TraceManagerWrapper();
     private TraceManager manager;
+    private TracerFactory factory;
 
     private TraceManagerWrapper() {
         try {
@@ -43,9 +47,11 @@ public class TraceManagerWrapper {
                     .forName(TRACER_MANAGER_CLASS)
                     .asSubclass(TraceManager.class);
             manager = (TraceManager) tracerManagerClass.newInstance();
-            manager = (manager.isEnabled()) ? manager : new IdleTraceManager();
+            factory = (manager.isEnabled())
+                    ? new BTracerFactory()
+                    : new NOPTracerFactory();
         } catch (Exception e) {
-            manager = new IdleTraceManager();
+            factory = new NOPTracerFactory();
         }
     }
 
@@ -53,9 +59,14 @@ public class TraceManagerWrapper {
         return instance;
     }
 
+    public static Tracer newTracer(WorkerExecutionContext ctx, boolean isClientCtx) {
+        return getInstance().factory.getTracer(ctx, isClientCtx);
+    }
+
     public void startSpan(WorkerExecutionContext ctx) {
-        BTracer aBTracer = ctx.getTracer();
-        BTracer rBTracer = TraceUtil.getParentTracer(ctx);
+        Tracer aBTracer = ctx.getTracer();
+        Tracer rBTracer = TraceUtil.getParentTracer(ctx);
+
         String service = aBTracer.getConnectorName();
         String resource = aBTracer.getActionName();
         Long invocationId = Long.valueOf(aBTracer.getInvocationID());

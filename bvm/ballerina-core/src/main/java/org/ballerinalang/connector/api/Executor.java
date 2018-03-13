@@ -20,7 +20,7 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.impl.ResourceExecutor;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.Tracer;
 
 import java.util.Map;
 
@@ -43,8 +43,8 @@ public class Executor {
      * @param values     required for the resource.
      */
     public static void submit(Resource resource, CallableUnitCallback responseCallback, Map<String, Object> properties,
-                              BTracer bTracer, BValue... values) throws BallerinaConnectorException {
-        ResourceExecutor.execute(resource, responseCallback, properties, bTracer, values);
+                              Tracer tracer, BValue... values) throws BallerinaConnectorException {
+        ResourceExecutor.execute(resource, responseCallback, properties, tracer, values);
     }
 
 }

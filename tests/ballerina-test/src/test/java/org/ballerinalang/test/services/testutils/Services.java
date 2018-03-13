@@ -29,7 +29,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -55,8 +56,8 @@ public class Services {
 
         HTTPServicesRegistry httpServicesRegistry =
                 (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
-        BTracer bTracer = new BTracer(null, false);
-        TestCallableUnitCallback callback = new TestCallableUnitCallback(request, bTracer);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
+        TestCallableUnitCallback callback = new TestCallableUnitCallback(request, tracer);
         request.setCallback(callback);
         HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);
         if (resource == null) {
@@ -71,7 +72,7 @@ public class Services {
         }
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
         callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, bTracer, signatureParams);
+        Executor.submit(resource.getBalResource(), callback, properties, tracer, signatureParams);
         callback.sync();
         return callback.getResponseMsg();
     }

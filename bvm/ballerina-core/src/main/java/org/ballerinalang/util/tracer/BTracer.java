@@ -25,19 +25,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_ACTION_NAME;
-import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_CONNECTOR_NAME;
-import static org.ballerinalang.util.tracer.TraceConstant.INVOCATION_ID;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_STR_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_STR_TRUE;
-import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
+import static org.ballerinalang.util.tracer.TraceConstants.DEFAULT_ACTION_NAME;
+import static org.ballerinalang.util.tracer.TraceConstants.DEFAULT_CONNECTOR_NAME;
+import static org.ballerinalang.util.tracer.TraceConstants.INVOCATION_ID;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_STR_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_STR_TRUE;
+import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
 
 /**
  * {@code BTracer} holds the trace of the current context.
  *
- * @since 0.963.1
+ * @since 0.964.1
  */
-public class BTracer {
+public class BTracer implements Tracer {
 
     private static final TraceManagerWrapper manager = TraceManagerWrapper.getInstance();
 
@@ -75,29 +75,34 @@ public class BTracer {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
         this.executionContext = executionContext;
-        this.tags.put(TraceConstant.TAG_KEY_SPAN_KIND, isClientContext
-                ? TraceConstant.TAG_SPAN_KIND_CLIENT
-                : TraceConstant.TAG_SPAN_KIND_SERVER);
+        this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
+                ? TraceConstants.TAG_SPAN_KIND_CLIENT
+                : TraceConstants.TAG_SPAN_KIND_SERVER);
     }
 
+    @Override
     public void startSpan() {
         manager.startSpan(executionContext);
     }
 
+    @Override
     public void finishSpan() {
         manager.finishSpan(this);
     }
 
+    @Override
     public void log(Map<String, Object> fields) {
         manager.log(this, fields);
     }
 
+    @Override
     public void logError(Map<String, Object> fields) {
         addTags(Collections.singletonMap(TAG_KEY_STR_ERROR, TAG_STR_TRUE));
         manager.log(this, fields);
 
     }
 
+    @Override
     public void addTags(Map<String, String> tags) {
         if (spans != null) {
             //span has started, there for add tags to the span.
@@ -110,32 +115,39 @@ public class BTracer {
 
     }
 
+    @Override
     public String getConnectorName() {
         return connectorName;
     }
 
+    @Override
     public void setConnectorName(String connectorName) {
         this.connectorName = connectorName;
     }
 
+    @Override
     public String getActionName() {
         return actionName;
     }
 
+    @Override
     public void setActionName(String actionName) {
         this.actionName = actionName;
     }
 
+    @Override
     public Map<String, String> getProperties() {
         return properties;
     }
 
+    @Override
     public void addProperty(String key, String value) {
         if (properties != null) {
             properties.put(key, value);
         }
     }
 
+    @Override
     public String getProperty(String key) {
         if (properties != null) {
             return properties.get(key);
@@ -143,30 +155,37 @@ public class BTracer {
         return null;
     }
 
+    @Override
     public Map<String, String> getTags() {
         return tags;
     }
 
+    @Override
     public String getInvocationID() {
         return getProperty(TRACE_PREFIX + INVOCATION_ID);
     }
 
+    @Override
     public void setInvocationID(String invocationId) {
         addProperty(TRACE_PREFIX + INVOCATION_ID, invocationId);
     }
 
+    @Override
     public void setExecutionContext(WorkerExecutionContext executionContext) {
         this.executionContext = executionContext;
     }
 
+    @Override
     public Map getSpans() {
         return spans;
     }
 
+    @Override
     public void setSpans(Map<String, ?> spans) {
         this.spans = spans;
     }
 
+    @Override
     public void generateInvocationID() {
         setInvocationID(String.valueOf(ThreadLocalRandom.current().nextLong()));
     }

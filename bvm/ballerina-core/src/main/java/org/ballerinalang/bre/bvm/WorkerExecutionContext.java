@@ -27,7 +27,8 @@ import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.NOPTracer;
+import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
@@ -39,49 +40,49 @@ import java.util.Map;
 public class WorkerExecutionContext {
 
     public WorkerExecutionContext parent;
-    
+
     public WorkerState state = WorkerState.CREATED;
-    
+
     public Map<String, Object> globalProps;
-    
+
     public Map<String, Object> localProps = new HashMap<>();
-    
+
     public int ip;
-        
+
     public ProgramFile programFile;
-    
+
     public ConstantPoolEntry[] constPool;
-    
+
     public Instruction[] code;
-    
+
     public WorkerData workerLocal;
-    
+
     public WorkerData workerResult;
-    
+
     public int[] retRegIndexes;
-        
+
     public CallableUnitInfo callableUnitInfo;
-    
+
     public WorkerInfo workerInfo;
-    
+
     public WorkerResponseContext respCtx;
-    
+
     public boolean runInCaller;
 
     private BStruct error;
 
     private DebugContext debugContext;
 
-    private BTracer tracer;
+    private Tracer tracer;
 
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
     }
-    
-    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
-            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
+
+    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
             WorkerData workerResult, int[] retRegIndexes, boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
@@ -104,7 +105,7 @@ public class WorkerExecutionContext {
     }
 
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
-                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
+                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
                                   boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
@@ -114,7 +115,7 @@ public class WorkerExecutionContext {
         this.constPool = callableUnitInfo.getPackageInfo().getConstPoolEntries();
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
-        this.globalProps = parent.globalProps;;
+        this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         if (this.ip < 0) {
             throw new BallerinaException("invalid worker: " + workerInfo.getWorkerName() +
@@ -143,11 +144,11 @@ public class WorkerExecutionContext {
         }
         this.programFile.getDebugger().addWorkerContext(this);
     }
-    
+
     public void setError(BStruct error) {
         this.error = error;
     }
-    
+
     public BStruct getError() {
         return error;
     }
@@ -163,7 +164,7 @@ public class WorkerExecutionContext {
     public LocalTransactionInfo getLocalTransactionInfo() {
         return BLangVMUtils.getTransactionInfo(this);
     }
-    
+
     public boolean isRootContext() {
         return this.code == null;
     }
@@ -172,11 +173,14 @@ public class WorkerExecutionContext {
         return debugContext;
     }
 
-    public BTracer getTracer() {
+    public Tracer getTracer() {
+        if (this.tracer == null) {
+            this.tracer = new NOPTracer();
+        }
         return this.tracer;
     }
 
-    public void setTracer(BTracer tracer) {
+    public void setTracer(Tracer tracer) {
         this.tracer = tracer;
     }
 
@@ -185,7 +189,7 @@ public class WorkerExecutionContext {
         StringBuilder builder = new StringBuilder();
         builder.append("\n{ ID: " + this.hashCode() + "\n");
         builder.append("Parent: " + (this.parent != null ? this.parent.hashCode() : "N/A") + "\n");
-        builder.append("Callable Unit: " + (this.callableUnitInfo != null ? 
+        builder.append("Callable Unit: " + (this.callableUnitInfo != null ?
                 this.callableUnitInfo.getName() : "N/A") + "\n");
         builder.append("Worker ID: " + (this.workerInfo != null ? this.workerInfo.getWorkerName() : "N/A") + "\n");
         builder.append("STATE: " + this.state + "\n");
@@ -193,10 +197,10 @@ public class WorkerExecutionContext {
         builder.append("IP: " + this.ip + "\n");
         return builder.toString();
     }
-    
+
     @Override
     public boolean equals(Object rhs) {
         return this == rhs;
     }
-    
+
 }

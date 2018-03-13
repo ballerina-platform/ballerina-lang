@@ -29,7 +29,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.net.ws.WebSocketEmptyCallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
@@ -105,10 +106,10 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsTextFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     public static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -133,10 +134,10 @@ public class WebSocketDispatcher {
         }
         bValues[1] = wsBinaryFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     public static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -167,10 +168,10 @@ public class WebSocketDispatcher {
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     private static void dispatchPongMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -189,10 +190,10 @@ public class WebSocketDispatcher {
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -211,10 +212,10 @@ public class WebSocketDispatcher {
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
@@ -229,10 +230,10 @@ public class WebSocketDispatcher {
         BConnector wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
         setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
-        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(bTracer), null,
-                bTracer, bValues);
+        Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                tracer, bValues);
     }
 
     public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,

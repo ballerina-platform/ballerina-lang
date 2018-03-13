@@ -18,7 +18,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -29,8 +29,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 public class HttpCallableUnitCallback extends CallableUnitCallback {
     private HTTPCarbonMessage requestMessage;
 
-    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage, BTracer bTracer) {
-        super(bTracer);
+    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage, Tracer tracer) {
+        super(tracer);
         this.requestMessage = requestMessage;
     }
 

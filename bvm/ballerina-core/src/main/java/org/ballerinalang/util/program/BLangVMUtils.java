@@ -35,8 +35,9 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
 import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
@@ -398,9 +399,9 @@ public class BLangVMUtils {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
     }
 
-    public static void initServerConnectorTrace(WorkerExecutionContext ctx, Resource resource, BTracer tracer) {
+    public static void initServerConnectorTrace(WorkerExecutionContext ctx, Resource resource, Tracer tracer) {
         if (tracer == null) {
-            tracer = new BTracer(ctx, false);
+            tracer = TraceManagerWrapper.newTracer(ctx, false);
         } else {
             tracer.setExecutionContext(ctx);
         }
@@ -412,8 +413,8 @@ public class BLangVMUtils {
     }
 
     public static void initClientConnectorTrace(WorkerExecutionContext ctx, BConnectorType type, String actionName) {
-        BTracer root = TraceUtil.getParentTracer(ctx);
-        BTracer active = new BTracer(ctx, true);
+        Tracer root = TraceUtil.getParentTracer(ctx);
+        Tracer active = TraceManagerWrapper.newTracer(ctx, true);
         ctx.setTracer(active);
 
         if (root == null) {

@@ -26,7 +26,7 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
@@ -46,11 +46,11 @@ public class ResourceExecutor {
      * @param resource         to be executed.
      * @param responseCallback to notify.
      * @param properties       to be passed to context.
-     * @param bTracer          to be passed to context.
+     * @param tracer           to be passed to context.
      * @param bValues          for parameters.
      */
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
-                               Map<String, Object> properties, BTracer bTracer, BValue... bValues) throws
+                               Map<String, Object> properties, Tracer tracer, BValue... bValues) throws
             BallerinaConnectorException {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
@@ -66,7 +66,7 @@ public class ResourceExecutor {
             }
         }
 
-        BLangVMUtils.initServerConnectorTrace(context, resource, bTracer);
+        BLangVMUtils.initServerConnectorTrace(context, resource, tracer);
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeCallable(resourceInfo, context, bValues, responseCallback);
     }

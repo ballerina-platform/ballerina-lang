@@ -19,13 +19,13 @@
 package org.ballerinalang.util.tracer;
 
 /**
- * {@code TraceConstant} define tracer constants.
+ * {@code TraceConstants} define tracer constants.
  *
- * @since 0.963.1
+ * @since 0.964.1
  */
-public class TraceConstant {
+public class TraceConstants {
 
-    private TraceConstant() {
+    private TraceConstants() {
 
     }
 

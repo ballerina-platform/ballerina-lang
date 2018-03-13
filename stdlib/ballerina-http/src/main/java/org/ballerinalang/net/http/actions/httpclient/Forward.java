@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.tracer.BTracer;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -91,9 +91,9 @@ public class Forward extends AbstractHTTPAction {
         String httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
 
-        BTracer bTracer = context.getParentWorkerExecutionContext().getTracer();
-        HttpUtil.injectHeaders(outboundRequestMsg, bTracer.getProperties());
-        bTracer.addTags(HttpUtil.extractTraceTags(outboundRequestMsg));
+        Tracer tracer = context.getParentWorkerExecutionContext().getTracer();
+        HttpUtil.injectHeaders(outboundRequestMsg, tracer.getProperties());
+        tracer.addTags(HttpUtil.extractTraceTags(outboundRequestMsg));
 
         return outboundRequestMsg;
     }

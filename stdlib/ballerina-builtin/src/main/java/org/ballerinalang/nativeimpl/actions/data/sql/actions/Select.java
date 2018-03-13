@@ -31,9 +31,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_DB_TYPE_SQL;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_DB_STATEMENT;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_DB_TYPE;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
 
 /**
  * {@code Select} is the Select action implementation of the SQL Connector.

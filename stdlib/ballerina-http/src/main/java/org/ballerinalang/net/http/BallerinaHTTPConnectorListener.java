@@ -23,8 +23,9 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.tracer.BTracer;
-import org.ballerinalang.util.tracer.TraceConstant;
+import org.ballerinalang.util.tracer.TraceConstants;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -79,10 +80,10 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         properties.put(HttpConstants.ORIGIN_HOST, httpCarbonMessage.getHeader(HttpConstants.ORIGIN_HOST));
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, httpCarbonMessage);
 
-        BTracer bTracer = new BTracer(null, false);
+        Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         httpCarbonMessage.getHeaders().entries().stream()
-                .filter(c -> c.getKey().startsWith(TraceConstant.TRACE_PREFIX))
-                .forEach(e -> bTracer.addProperty(e.getKey(), e.getValue()));
+                .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
+                .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
 
 
         Map<String, String> tags = new HashMap<>();
@@ -90,11 +91,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         tags.put("http.method", (String) httpCarbonMessage.getProperty("HTTP_METHOD"));
         tags.put("protocol", (String) httpCarbonMessage.getProperty("PROTOCOL"));
         tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
-        bTracer.addTags(tags);
+        tracer.addTags(tags);
 
-        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage, bTracer);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage, tracer);
         //TODO handle BallerinaConnectorException
-        Executor.submit(httpResource.getBalResource(), callback, properties, bTracer, signatureParams);
+        Executor.submit(httpResource.getBalResource(), callback, properties, tracer, signatureParams);
     }
 
     private boolean accessed(HTTPCarbonMessage httpCarbonMessage) {

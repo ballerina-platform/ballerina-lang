@@ -18,20 +18,20 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.tracer.BTracer;
 import org.ballerinalang.util.tracer.TraceUtil;
+import org.ballerinalang.util.tracer.Tracer;
 
 /**
  * @since 0.965.0
  */
 public abstract class CallableUnitCallback {
 
-    private BTracer bTracer;
+    private Tracer bTracer;
 
     private CallableUnitCallback() {
     }
 
-    public CallableUnitCallback(BTracer bTracer) {
+    public CallableUnitCallback(Tracer bTracer) {
         this.bTracer = bTracer;
     }
 

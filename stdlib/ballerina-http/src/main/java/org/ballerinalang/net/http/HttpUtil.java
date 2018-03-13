@@ -88,15 +88,15 @@ import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
-import static org.ballerinalang.util.tracer.TraceConstant.HTTP_HOST;
-import static org.ballerinalang.util.tracer.TraceConstant.HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_COMPONENT_BALLERINA;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_COMPONENT;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_HOST;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_PORT;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_PROTOCOL;
+import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_COMPONENT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
 
 /**
  * Utility class providing utility methods.

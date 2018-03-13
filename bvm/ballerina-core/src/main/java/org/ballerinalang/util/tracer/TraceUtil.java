@@ -25,42 +25,40 @@ import org.ballerinalang.model.values.BStruct;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_MESSAGE;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
+import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
 
 /**
  * Utility call to perform trace related functions.
+ *
+ * @since 0.964.1
  */
 public class TraceUtil {
     private TraceUtil() {
 
     }
 
-    public static void finishTraceSpan(BTracer tracer) {
-        if (tracer != null) {
-            tracer.finishSpan();
-        }
+    public static void finishTraceSpan(Tracer tracer) {
+        tracer.finishSpan();
     }
 
-    public static void finishTraceSpan(BTracer tracer, BStruct error) {
-        if (tracer != null) {
-            Map<String, Object> logProps = new HashMap<>();
-            logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-            logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
-            logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-            tracer.logError(logProps);
-            finishTraceSpan(tracer);
-        }
+    public static void finishTraceSpan(Tracer tracer, BStruct error) {
+        Map<String, Object> logProps = new HashMap<>();
+        logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
+        logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
+        logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
+        tracer.logError(logProps);
+        finishTraceSpan(tracer);
     }
 
-    public static BTracer getParentTracer(WorkerExecutionContext ctx) {
+    public static Tracer getParentTracer(WorkerExecutionContext ctx) {
         WorkerExecutionContext parent = ctx;
         while (parent.parent != null) {
             parent = parent.parent;
-            if (parent.getTracer() != null) {
+            if (parent.getTracer().getInvocationID() != null) {
                 return parent.getTracer();
             }
         }
