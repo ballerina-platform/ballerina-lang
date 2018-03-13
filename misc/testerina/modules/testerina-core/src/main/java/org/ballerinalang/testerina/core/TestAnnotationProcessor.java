@@ -236,7 +236,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         suite.setProgramFile(programFile);
-        injectMocks(suite);
     }
 
     /**
