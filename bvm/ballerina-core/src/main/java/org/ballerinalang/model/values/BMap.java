@@ -116,10 +116,8 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         boolean hasKey = map.containsKey(key);
         if (hasKey) {
             map.remove(key);
-            return true;
-        } else {
-            return false;
         }
+        return hasKey;
     }
 
     /**
