@@ -405,3 +405,31 @@ service<http:Service> echo66 {
         _ = conn -> respond(res);
     }
 }
+
+@http:serviceConfig {
+    basePath:"/uri",
+    endpoints: [testEP]
+}
+service<http:Service> WildcardService {
+
+    @http:resourceConfig {
+        path:"/{id}",
+        methods:["POST"]
+    }
+    resource pathParamResource (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {message: "Path Params Resource is invoked."};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:resourceConfig {
+        path:"/*"
+    }
+    resource wildcardResource (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
+        json responseJson = {message: "Wildcard Params Resource is invoked."};
+        res.setJsonPayload(responseJson);
+        _ = conn -> respond(res);
+    }
+}
