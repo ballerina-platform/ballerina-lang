@@ -22,13 +22,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,11 +43,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.io",
         functionName = "read",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "numberOfBytes", type = TypeKind.INT),
+        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "size", type = TypeKind.INT),
                 @Argument(name = "offset", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.BLOB),
-                @ReturnType(type = TypeKind.INT),
+        returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
@@ -57,17 +55,17 @@ public class Read implements NativeCallableUnit {
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
      */
-    private static final int NUMBER_OF_BYTES_INDEX = 0;
+    private static final int CONTENT_INDEX = 1;
 
     /**
      * Specifies the offset of the array to read bytes.
      */
-    private static final int OFFSET_INDEX = 2;
+    private static final int OFFSET_INDEX = 1;
 
     /**
      * Specifies the number of bytes which should be read.
      */
-    private static final int SIZE_INDEX = 1;
+    private static final int SIZE_INDEX = 0;
 
     /**
      * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
@@ -87,13 +85,25 @@ public class Read implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         Integer numberOfBytes = result.getResponse();
         CallableUnitCallback callback = eventContext.getCallback();
-        byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
+        //byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
-        context.setReturnValues(new BBlob(content), new BInteger(numberOfBytes), errorStruct);
+        context.setReturnValues(new BInteger(numberOfBytes), errorStruct);
         callback.notifySuccess();
         return result;
+    }
+
+    private byte[] getArray(BByteArray contentArr, int size, int offset) {
+        long arraySize = contentArr.size();
+        int numberOfBytesToRead = size - offset;
+        if (numberOfBytesToRead < 0) {
+            throw new BallerinaIOException("Invalid input specified for offset, offset should be < size");
+        }
+        if (arraySize < size) {
+            contentArr.grow(size);
+        }
+        return contentArr.getValues();
     }
 
     /**
@@ -106,11 +116,11 @@ public class Read implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
         int offset = (int) context.getIntArgument(OFFSET_INDEX);
         int size = (int) context.getIntArgument(SIZE_INDEX);
+        BByteArray contentArr = (BByteArray) context.getRefArgument(CONTENT_INDEX);
+        byte[] content = getArray(contentArr, size, offset);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        byte[] content = new byte[numberOfBytes];
         EventContext eventContext = new EventContext(context, callback);
         IOUtils.read(byteChannel, content, offset, size, eventContext, Read::readResponse);
     }

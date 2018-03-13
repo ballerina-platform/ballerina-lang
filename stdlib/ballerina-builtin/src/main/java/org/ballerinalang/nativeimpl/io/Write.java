@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -42,9 +43,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.io",
         functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "numberOfBytes", type = TypeKind.INT),
-                @Argument(name = "startOffset", type = TypeKind.INT)},
+        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "size", type = TypeKind.INT),
+                @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
@@ -59,17 +60,17 @@ public class Write implements NativeCallableUnit {
     /**
      * Index which holds the content in ballerina.io#writeBytes.
      */
-    private static final int CONTENT_INDEX = 0;
+    private static final int CONTENT_INDEX = 1;
 
     /*
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
-    private static final int START_OFFSET_INDEX = 1;
+    private static final int OFFSET_INDEX = 1;
 
     /*
      * Index which holds the number of bytes which should be written.
      */
-    private static final int NUMBER_OF_BYTES_INDEX = 0;
+    private static final int SIZE_INDEX = 0;
 
     /*
      * Function which will be notified on the response obtained after the async operation.
@@ -101,12 +102,13 @@ public class Write implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        byte[] content = context.getBlobArgument(CONTENT_INDEX);
-        int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
-        int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
+        BByteArray contentArray = (BByteArray) context.getRefArgument(CONTENT_INDEX);
+        byte[] content = contentArray.getValues();
+        int size = (int) context.getIntArgument(SIZE_INDEX);
+        int offset = (int) context.getIntArgument(OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
+        IOUtils.write(byteChannel, content, offset, size, eventContext, Write::writeResponse);
     }
 
     @Override
