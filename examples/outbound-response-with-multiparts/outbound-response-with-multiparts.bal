@@ -2,13 +2,17 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-@http:configuration {port:9092}
-service<http> multiparts {
-    @http:resourceConfig {
+endpoint<http:Service> multipartEP {
+    port:9092
+}
+
+@http:serviceConfig { endpoints:[multipartEP] }
+service<http:Service> multiparts {
+      @http:resourceConfig {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartSender (http:Connection conn, http:Request req) {
+    resource multipartSender (http:ServerConnector conn, http:Request request) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -25,6 +29,8 @@ service<http> multiparts {
         mime:Entity childPart2 = {};
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         childPart2.contentType = contentTypeOfFilePart;
+        //This file path is relative to where the ballerina is running. If your file is located outside, please
+        //give the absolute file path instead.
         file:File fileHandler = {path:"./files/test.xml"};
         childPart2.setFileAsEntityBody(fileHandler);
 
@@ -39,6 +45,6 @@ service<http> multiparts {
         http:Response outResponse = {};
         outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
-        _ = conn.respond(outResponse);
+        _ = conn -> respond(outResponse);
     }
 }

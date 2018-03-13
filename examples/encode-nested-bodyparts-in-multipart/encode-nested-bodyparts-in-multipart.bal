@@ -2,16 +2,21 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-@http:configuration {port:9092}
-service<http> nestedparts {
-    @http:resourceConfig {
+endpoint<http:Service> multipartEP {
+    port:9092
+}
+
+endpoint<http:Client> clientEP {
+    serviceUri: "http://localhost:9093"
+}
+
+@http:serviceConfig { endpoints:[multipartEP] }
+service<http:Service> nestedparts {
+      @http:resourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource nestedPartSender (http:Connection conn, http:Request req) {
-        endpoint<http:HttpClient> httpEndpoint {
-            create http:HttpClient("http://localhost:9093", {});
-        }
+    resource nestedPartSender (http:ServerConnector conn, http:Request req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -28,6 +33,8 @@ service<http> nestedparts {
         mime:Entity childPart2 = {};
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         childPart2.contentType = contentTypeOfFilePart;
+        //This file path is relative to where the ballerina is running. If your file is located outside, please
+        //give the absolute file path instead.
         file:File fileHandler = {path:"./files/test.xml"};
         childPart2.setFileAsEntityBody(fileHandler);
 
@@ -43,8 +50,8 @@ service<http> nestedparts {
         request.setMultiparts(immediatePartsToRequest, mime:MULTIPART_FORM_DATA);
 
         http:Response resp1 = {};
-        resp1, _ = httpEndpoint.post("/nestedparts/decoder", request);
+        resp1, _ = clientEP -> post("/nestedparts/decoder", request);
 
-        _ = conn.forward(resp1);
+        _ = conn -> forward(resp1);
     }
 }
