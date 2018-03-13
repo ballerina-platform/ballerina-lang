@@ -226,7 +226,7 @@ public class HttpResource {
         }
         List<String> valuesList = new ArrayList<>();
         for (Value val : values) {
-            valuesList.add(val.getStringValue());
+            valuesList.add(val.getStringValue().trim());
         }
         return !valuesList.isEmpty() ? valuesList : null;
     }
