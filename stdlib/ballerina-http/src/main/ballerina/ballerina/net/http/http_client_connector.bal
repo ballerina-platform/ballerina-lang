@@ -69,7 +69,7 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
     @Return {value:"Error occured during HTTP client invocation"}
     native action forward (string path, Request req) (Response, HttpConnectorError);
 
-    @Description { value:"Invokes an HTTP call with the specified HTTP verb in asynchronous manner."}
+    @Description { value:"Submits an HTTP request to a service with the specified HTTP verb."}
     @Param { value:"httpVerb: The HTTP verb value" }
     @Param { value:"path: The Resource path " }
     @Param { value:"req: An HTTP outbound request message" }
@@ -77,18 +77,18 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
     @Return { value:"The Error occured during HTTP client invocation" }
     native action submit (string httpVerb, string path, Request req) (HttpHandle, HttpConnectorError);
 
-    @Description { value:"Retrieves response for async service invocation."}
+    @Description { value:"Retrieves response for a previously submitted request."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
     native action getResponse (HttpHandle handle) (Response, HttpConnectorError);
 
-    @Description { value:"Checks whether server push exists."}
+    @Description { value:"Checks whether server push exists for a previously submitted request."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
     native action hasPromise (HttpHandle handle) (boolean);
 
-    @Description { value:"Retrieves the next available push promise."}
+    @Description { value:"Retrieves the next available push promise for a previously submitted request."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
