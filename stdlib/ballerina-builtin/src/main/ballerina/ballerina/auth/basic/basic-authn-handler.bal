@@ -50,7 +50,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
 
     if (authenticator == null) {
         userstore:FilebasedUserstore fileBasedUserstore = {};
-        authenticator = createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
+        authenticator = createAuthenticator((userstore:UserStore)fileBasedUserstore,
                                             utils:createCache(AUTH_CACHE));
     }
     AuthenticationInfo authInfo;
