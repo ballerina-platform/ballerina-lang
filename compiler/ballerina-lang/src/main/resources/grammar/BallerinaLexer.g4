@@ -4,6 +4,8 @@ lexer grammar BallerinaLexer;
     boolean inTemplate = false;
     boolean inDocTemplate = false;
     boolean inDeprecatedTemplate = false;
+    boolean inSiddhi = false;
+    boolean inTableSqlQuery = false;
 }
 
 // Reserved words
@@ -17,6 +19,7 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
+STREAMLET    : 'streamlet' { inSiddhi = true; } ;
 CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
@@ -33,6 +36,25 @@ VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; } ;
+ON          : 'on' ;
+SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
+GROUP       : 'group' ;
+BY          : 'by' ;
+HAVING      : 'having' ;
+ORDER       : 'order' ;
+WHERE       : 'where' ;
+FOLLOWED    : 'followed' ;
+INSERT      : {inSiddhi}? 'insert' { inSiddhi = false; } ;
+INTO        : 'into' ;
+UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
+DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
+SET         : 'set' ;
+FOR         : 'for' ;
+WINDOW      : 'window' ;
+QUERY       : {inSiddhi}? 'query' { inSiddhi = false; }  ;
+
+
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
@@ -42,12 +64,13 @@ TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
+TYPE_STREAM     : 'stream' ;
+TYPE_AGGREGTION : 'aggergation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
-CREATE      : 'create' ;
-ATTACH      : 'attach' ;
+NEW         : 'new' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;

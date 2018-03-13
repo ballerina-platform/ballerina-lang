@@ -1,21 +1,28 @@
 import ballerina.net.http;
+import ballerina.net.http.mock;
+
+endpoint<mock:NonListeningService> testEP {
+    port:9090
+}
 
 struct Person {
     string name;
     int age;
 }
 
-@http:configuration {basePath:"/echo"}
-service<http> echo {
+@http:serviceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo {
 
     @http:resourceConfig {
         body:"person"
     }
-    resource body1 (http:Connection conn, http:InRequest req, string person) {
+    resource body1 (http:ServerConnector conn, http:Request req, string person) {
         json responseJson = {"Person":person};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
@@ -23,65 +30,65 @@ service<http> echo {
         path:"/body2/{key}",
         body:"person"
     }
-    resource body2 (http:Connection conn, http:InRequest req, string key, string person) {
+    resource body2 (http:ServerConnector conn, http:Request req, string key, string person) {
         json responseJson = {Key:key , Person:person};
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET","POST"],
         body:"person"
     }
-    resource body3 (http:Connection conn, http:InRequest req, json person) {
+    resource body3 (http:ServerConnector conn, http:Request req, json person) {
         json name = person.name;
         json team = person.team;
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Team:team});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         body:"person"
     }
-    resource body4 (http:Connection conn, http:InRequest req, xml person) {
+    resource body4 (http:ServerConnector conn, http:Request req, xml person) {
         string name = person.getElementName();
         string team = person.getTextValue();
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Team:team});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         body:"person"
     }
-    resource body5 (http:Connection conn, http:InRequest req, blob person) {
+    resource body5 (http:ServerConnector conn, http:Request req, blob person) {
         string name = person.toString("UTF-8");
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         body:"person"
     }
-    resource body6 (http:Connection conn, http:InRequest req, Person person) {
+    resource body6 (http:ServerConnector conn, http:Request req, Person person) {
         string name = person.name;
         int age = person.age;
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({Key:name , Age:age});
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         body:"person"
     }
-    resource body7 (http:Connection conn, http:InRequest req, http:HttpConnectorError person) {
-        _ = conn.respond({});
+    resource body7 (http:ServerConnector conn, http:Request req, http:HttpConnectorError person) {
+        _ = conn -> respond({});
     }
 }

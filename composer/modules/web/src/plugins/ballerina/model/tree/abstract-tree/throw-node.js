@@ -48,6 +48,7 @@ class AbstractThrowNode extends StatementNode {
     }
 
 
+
 }
 
 export default AbstractThrowNode;

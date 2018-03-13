@@ -44,7 +44,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
     public void testEchoServiceByBasePath() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "httpService" + File.separator + "echoService.bal").getAbsolutePath();
+                    + File.separator + "httpService" + File.separator + "echo_service.bal").getAbsolutePath();
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);

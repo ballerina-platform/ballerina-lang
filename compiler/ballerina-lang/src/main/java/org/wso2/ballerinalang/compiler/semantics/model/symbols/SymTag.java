@@ -42,4 +42,5 @@ public class SymTag {
     public static final int PACKAGE = 1 << 16 | IMPORT;
     public static final int XMLNS = 1 << 17 | IMPORT;
     public static final int ERROR = 1 << 18;
+    public static final int ENDPOINT = 1 << 19 | VARIABLE;
 }

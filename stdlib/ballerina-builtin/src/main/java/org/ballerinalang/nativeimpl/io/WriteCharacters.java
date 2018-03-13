@@ -18,26 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#writeCharacters.
@@ -54,7 +47,7 @@ import java.util.concurrent.ExecutionException;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteCharacters extends AbstractNativeFunction {
+public class WriteCharacters implements NativeCallableUnit {
     /**
      * Index of the content provided in ballerina.io#writeCharacters.
      */
@@ -71,47 +64,24 @@ public class WriteCharacters extends AbstractNativeFunction {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Will be the I/O event handler.
+     * Processors the response after reading characters.
+     *
+     * @param result the response returned after reading characters.
+     * @return the response returned from the event.
      */
-    private EventManager eventManager = EventManager.getInstance();
-
-    private static final Logger log = LoggerFactory.getLogger(WriteCharacters.class);
-
-/*
-    private static EventResult readCharactersResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct;
+    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
+        Integer numberOfCharactersWritten = result.getResponse();
         Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
-        Integer numberOfBytes = result.getResponse();
+        context.setReturnValues(new BInteger(numberOfCharactersWritten), errorStruct);
+        callback.notifySuccess();
         return result;
-    }
-*/
-
-    /**
-     * Writes characters asynchronously.
-     *
-     * @param characterChannel channel the characters should be written.
-     * @param text             the content which should be written.
-     * @param offset           the index the characters should be written.
-     * @param context          context of the event.
-     * @return the number of characters which was written.
-     * @throws ExecutionException   errors which occur during execution.
-     * @throws InterruptedException during interrupt exception.
-     */
-    private int writeCharacters(CharacterChannel characterChannel, String text, int offset, EventContext context)
-            throws ExecutionException, InterruptedException {
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, text, offset, context);
-        CompletableFuture<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        Throwable error = ((EventContext) eventResult.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
-        }
-        return (int) eventResult.getResponse();
     }
 
     /**
@@ -120,24 +90,18 @@ public class WriteCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        int numberOfCharactersWritten = 0;
-        BStruct errorStruct = null;
-        try {
-            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            String content = getStringArgument(context, CONTENT_INDEX);
-            long startOffset = getIntArgument(context, START_OFFSET_INDEX);
-            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(context);
-            //TODO when async functions are available this should be modified
-//            IOUtils.write(characterChannel,content,startOffset,WriteCharacters::readCharactersResponse);
-            numberOfCharactersWritten = writeCharacters(characterChannel, content, (int) startOffset, eventContext);
-        } catch (Throwable e) {
-            String message = "Error occurred while writing characters:" + e.getMessage();
-            log.error(message, e);
-            errorStruct = IOUtils.createError(context, message);
-        }
-        return getBValues(new BInteger(numberOfCharactersWritten), errorStruct);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+        String content = context.getStringArgument(CONTENT_INDEX);
+        long startOffset = context.getIntArgument(START_OFFSET_INDEX);
+        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
+                .CHARACTER_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.write(characterChannel, content, (int) startOffset, eventContext, WriteCharacters::writeResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

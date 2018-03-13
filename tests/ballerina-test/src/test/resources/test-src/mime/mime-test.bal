@@ -2,6 +2,7 @@ import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
 import ballerina.net.http;
+import ballerina.net.http.mock;
 
 function testGetMediaType (string contentType) (mime:MediaType) {
     return mime:getMediaType(contentType);
@@ -169,18 +170,22 @@ function consumeChannel (io:ByteChannel channel) {
     }
 }
 
-@http:configuration {basePath:"/test"}
-service<http> helloServer {
+endpoint<mock:NonListeningService> mockEP {
+    port:9090
+}
+
+@http:serviceConfig {endpoints:[mockEP]}
+service<http:Service> test {
     @http:resourceConfig {
         methods:["POST"],
         path:"/largepayload"
     }
-    resource getPayloadFromFileChannel (http:Connection conn, http:InRequest request) {
+    resource getPayloadFromFileChannel (http:ServerConnector conn, http:Request request) {
         var byteChannel, _ = request.getByteChannel();
-        http:OutResponse response = {};
+        http:Response response = {};
         mime:Entity responseEntity = {};
         responseEntity.setByteChannel(byteChannel);
         response.setEntity(responseEntity);
-        _ = conn.respond(response);
+        _ = conn -> respond(response);
     }
 }

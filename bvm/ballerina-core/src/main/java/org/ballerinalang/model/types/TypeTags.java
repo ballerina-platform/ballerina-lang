@@ -45,4 +45,5 @@ public class TypeTags {
     public static final int TYPE_TAG = 20;
     public static final int ENUM_TAG = 21;
     public static final int ITERATOR_TAG = 22;
+    public static final int SERVICE_TAG = 23;
 }

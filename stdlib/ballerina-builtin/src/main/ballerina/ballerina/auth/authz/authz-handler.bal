@@ -37,11 +37,11 @@ public struct HttpAuthzHandler {
 }
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
-@Param {value:"req: InRequest instance"}
+@Param {value:"req: Request instance"}
 @Param {value:"scopeName: name of the scope"}
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
-public function <HttpAuthzHandler httpAuthzHandler> handle (http:InRequest req,
+public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
                                                                     string scopeName, string resourceName) (boolean) {
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
@@ -82,18 +82,18 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:InRequest req,
 
     boolean isAuthorized = authzChecker.check(username, scopeName);
     if (isAuthorized) {
-        log:printInfo("Successfully authorized to access resource: " + resourceName);
+        log:printDebug("Successfully authorized to access resource: " + resourceName);
     } else {
-        log:printInfo("Insufficient permission to access resource: " + resourceName);
+        log:printDebug("Insufficient permission to access resource: " + resourceName);
     }
     authzChecker.cacheAuthzResult(authzCacheKey, isAuthorized);
     return isAuthorized;
 }
 
 @Description {value:"Checks if the provided request can be authorized"}
-@Param {value:"req: InRequest object"}
+@Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
-public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:InRequest req) (boolean) {
+public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
         return true;

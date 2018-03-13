@@ -19,11 +19,10 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -43,12 +42,12 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
         args = {@Argument(name = "bodyParts", type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class SetBodyParts extends AbstractNativeFunction {
+public class SetBodyParts extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-        BRefValueArray bodyParts = (BRefValueArray) this.getRefArgument(context, SECOND_PARAMETER_INDEX);
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BRefValueArray bodyParts = (BRefValueArray) context.getRefArgument(SECOND_PARAMETER_INDEX);
         entityStruct.addNativeData(BODY_PARTS, bodyParts);
-        return AbstractNativeFunction.VOID_RETURN;
+        context.setReturnValues();
     }
 }

@@ -18,26 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#readCharacters.
@@ -53,7 +46,7 @@ import java.util.concurrent.ExecutionException;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class ReadCharacters extends AbstractNativeFunction {
+public class ReadCharacters implements NativeCallableUnit {
 
     /**
      * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
@@ -65,52 +58,25 @@ public class ReadCharacters extends AbstractNativeFunction {
      */
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
-    /**
-     * Will be the I/O event handler.
-     */
-    private EventManager eventManager = EventManager.getInstance();
-
-    private static final Logger log = LoggerFactory.getLogger(ReadCharacters.class);
-
     /*
      * Callback method of the read characters response.
      *
      * @param result the result returned as the response.
      * @return the processed event result.
-     *//*
-    private static EventResult readCharactersResponse(EventResult<Boolean, EventContext> result) {
-        BStruct errorStruct;
+     */
+    private static EventResult readCharactersResponse(EventResult<String, EventContext> result) {
+        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
+        String readChars = result.getResponse();
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
-        Boolean numberOfBytes = result.getResponse();
+        context.setReturnValues(new BString(readChars), errorStruct);
+        callback.notifySuccess();
         return result;
-    }
-    */
-
-    /**
-     * Reads characters asynchronously.
-     *
-     * @param numberOfCharacters number of characters which should be read.
-     * @param characterChannel   the channel which the characters will be read.
-     * @param context            context of the event.
-     * @return the content which is read.
-     * @throws ExecutionException   if an error occurs in the async framework.
-     * @throws InterruptedException during interrupt.
-     */
-    private String readCharacter(int numberOfCharacters, CharacterChannel characterChannel, EventContext context) throws
-            ExecutionException, InterruptedException {
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters, context);
-        CompletableFuture<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        Throwable error = ((EventContext) eventResult.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
-        }
-        return (String) eventResult.getResponse();
     }
 
     /**
@@ -121,24 +87,17 @@ public class ReadCharacters extends AbstractNativeFunction {
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BString content = null;
-        BStruct errorStruct = null;
-        try {
-            BStruct channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            long numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
-            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(context);
-            //TODO when async functions are available enable this
-            // IOUtils.read(characterChannel,numberOfCharacters,ReadCharacters::readCharactersResponse);
-            String readCharacters = readCharacter((int) numberOfCharacters, characterChannel, eventContext);
-            content = new BString(readCharacters);
-        } catch (Throwable e) {
-            String message = "Error occurred while reading characters:" + e.getMessage();
-            log.error(message);
-            errorStruct = IOUtils.createError(context, message);
-        }
-        return getBValues(content, errorStruct);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+        long numberOfCharacters = context.getIntArgument(NUMBER_OF_CHARS_INDEX);
+        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
+                .CHARACTER_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.read(characterChannel, (int) numberOfCharacters, eventContext, ReadCharacters::readCharactersResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

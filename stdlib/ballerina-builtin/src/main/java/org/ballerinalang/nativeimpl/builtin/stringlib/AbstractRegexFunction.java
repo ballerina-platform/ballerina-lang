@@ -18,15 +18,15 @@
 
 package org.ballerinalang.nativeimpl.builtin.stringlib;
 
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.AbstractNativeFunction;
 
 import java.util.regex.Pattern;
 
 /**
  * Abstract native function which serves as base class for writing Regex related native functions.
  */
-public abstract class AbstractRegexFunction extends AbstractNativeFunction {
+public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
 
     /**
      * Validate Regex struct in Ballerina. Validate whether the string is in compiled form if not

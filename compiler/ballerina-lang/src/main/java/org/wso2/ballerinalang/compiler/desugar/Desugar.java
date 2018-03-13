@@ -21,13 +21,16 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -35,10 +38,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -55,7 +62,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -84,9 +90,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -111,7 +119,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn.BLangWorkerReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -123,12 +130,15 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -141,11 +151,16 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
+    private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
+    private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private SymbolEnter symbolEnter;
     private IterableCodeDesugar iterableCodeDesugar;
+    private AnnotationDesugar annotationDesugar;
+    private EndpointDesugar endpointDesugar;
+    private SqlQueryBuilder sqlQueryBuilder;
+    private Types types;
 
     private BLangNode result;
 
@@ -153,6 +168,8 @@ public class Desugar extends BLangNodeVisitor {
     private Stack<BLangWorker> workerStack = new Stack<>();
 
     public Stack<BLangLock> enclLocks = new Stack<>();
+
+    private SymbolEnv env;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -165,15 +182,17 @@ public class Desugar extends BLangNodeVisitor {
 
     private Desugar(CompilerContext context) {
         context.put(DESUGAR_KEY, this);
-
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         this.iterableCodeDesugar = IterableCodeDesugar.getInstance(context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(context);
+        this.endpointDesugar = EndpointDesugar.getInstance(context);
+        this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
-        return rewrite(pkgNode);
+        return rewrite(pkgNode, env);
     }
 
     // visitors
@@ -184,14 +203,22 @@ public class Desugar extends BLangNodeVisitor {
             result = pkgNode;
             return;
         }
-        pkgNode.imports = rewrite(pkgNode.imports);
-        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList);
-        pkgNode.globalVars = rewrite(pkgNode.globalVars);
-        pkgNode.transformers = rewrite(pkgNode.transformers);
-        pkgNode.functions = rewrite(pkgNode.functions);
-        pkgNode.connectors = rewrite(pkgNode.connectors);
-        pkgNode.services = rewrite(pkgNode.services);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction);
+        SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
+        pkgNode.imports = rewrite(pkgNode.imports, env);
+        pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
+        pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.transformers = rewrite(pkgNode.transformers, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
+        pkgNode.connectors = rewrite(pkgNode.connectors, env);
+        pkgNode.services = rewrite(pkgNode.services, env);
+        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
+        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
+        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
+        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
+        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
+        pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }
@@ -200,15 +227,18 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
-        rewrite(pkgEnv.node);
+        rewrite(pkgEnv.node, pkgEnv);
         result = importPkgNode;
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
+        SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         addReturnIfNotPresent(funcNode);
-        funcNode.body = rewrite(funcNode.body);
-        funcNode.workers = rewrite(funcNode.workers);
+        Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
+        funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
+        funcNode.body = rewrite(funcNode.body, fucEnv);
+        funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
         // If the function has a receiver, we rewrite it's parameter list to have
         // the struct variable as the first parameter
@@ -225,35 +255,45 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.resources = rewrite(serviceNode.resources);
-        serviceNode.vars = rewrite(serviceNode.vars);
-        serviceNode.initFunction = rewrite(serviceNode.initFunction);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
+        serviceNode.resources = rewrite(serviceNode.resources, serviceEnv);
+        serviceNode.vars = rewrite(serviceNode.vars, serviceEnv);
+        serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
+        serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
     }
 
     @Override
     public void visit(BLangResource resourceNode) {
         addReturnIfNotPresent(resourceNode);
-        resourceNode.body = rewrite(resourceNode.body);
-        resourceNode.workers = rewrite(resourceNode.workers);
+        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
+        Collections.reverse(resourceNode.endpoints); // To preserve endpoint code gen order at resource
+        resourceNode.endpoints = rewrite(resourceNode.endpoints, resourceEnv);
+        resourceNode.body = rewrite(resourceNode.body, resourceEnv);
+        resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
         result = resourceNode;
     }
 
     @Override
     public void visit(BLangConnector connectorNode) {
-        connectorNode.params = rewrite(connectorNode.params);
-        connectorNode.actions = rewrite(connectorNode.actions);
-        connectorNode.varDefs = rewrite(connectorNode.varDefs);
-        connectorNode.initFunction = rewrite(connectorNode.initFunction);
-        connectorNode.initAction = rewrite(connectorNode.initAction);
+        SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorNode.symbol.scope, env);
+        connectorNode.params = rewrite(connectorNode.params, conEnv);
+        connectorNode.actions = rewrite(connectorNode.actions, conEnv);
+        connectorNode.varDefs = rewrite(connectorNode.varDefs, conEnv);
+        connectorNode.endpoints = rewrite(connectorNode.endpoints, conEnv);
+        connectorNode.initFunction = rewrite(connectorNode.initFunction, conEnv);
+        connectorNode.initAction = rewrite(connectorNode.initAction, conEnv);
         result = connectorNode;
     }
 
     @Override
     public void visit(BLangAction actionNode) {
         addReturnIfNotPresent(actionNode);
-        actionNode.body = rewrite(actionNode.body);
-        actionNode.workers = rewrite(actionNode.workers);
+        SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionNode.symbol.scope, env);
+        Collections.reverse(actionNode.endpoints); // To preserve endpoint code gen order at action.
+        actionNode.endpoints = rewrite(actionNode.endpoints, actionEnv);
+        actionNode.body = rewrite(actionNode.body, actionEnv);
+        actionNode.workers = rewrite(actionNode.workers, actionEnv);
 
         // we rewrite it's parameter list to have the receiver variable as the first parameter
         BInvokableSymbol actionSymbol = actionNode.symbol;
@@ -270,9 +310,15 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         this.workerStack.push(workerNode);
-        workerNode.body = rewrite(workerNode.body);
+        workerNode.body = rewrite(workerNode.body, env);
         this.workerStack.pop();
         result = workerNode;
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpoint) {
+        endpointDesugar.rewriteEndpoint(endpoint, env);
+        result = endpoint;
     }
 
     @Override
@@ -287,7 +333,8 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangTransformer transformerNode) {
         addTransformerReturn(transformerNode);
-        transformerNode.body = rewrite(transformerNode.body);
+        SymbolEnv tranEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
+        transformerNode.body = rewrite(transformerNode.body, tranEnv);
 
         addArgInitExpr(transformerNode, transformerNode.retParams.get(0));
 
@@ -304,13 +351,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt block) {
-        block.stmts = rewriteStmt(block.stmts);
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(block, env);
+        block.stmts = rewriteStmt(block.stmts, blockEnv);
         result = block;
     }
 
     @Override
     public void visit(BLangVariableDef varDefNode) {
-        varDefNode.var = rewrite(varDefNode.var);
+        varDefNode.var = rewrite(varDefNode.var, env);
         result = varDefNode;
     }
 
@@ -357,11 +405,6 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
         returnNode.exprs = rewriteExprs(returnNode.exprs);
-        if (!workerStack.empty()) {
-            result = new BLangWorkerReturn(returnNode.exprs);
-            result.pos = returnNode.pos;
-            return;
-        }
         result = returnNode;
     }
 
@@ -373,7 +416,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl);
+        xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
         result = xmlnsStmtNode;
     }
 
@@ -406,30 +449,30 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         ifNode.expr = rewriteExpr(ifNode.expr);
-        ifNode.body = rewrite(ifNode.body);
-        ifNode.elseStmt = rewrite(ifNode.elseStmt);
+        ifNode.body = rewrite(ifNode.body, env);
+        ifNode.elseStmt = rewrite(ifNode.elseStmt, env);
         result = ifNode;
     }
 
     @Override
     public void visit(BLangForeach foreach) {
-        foreach.varRefs = rewrite(foreach.varRefs);
+        foreach.varRefs = rewrite(foreach.varRefs, env);
         foreach.collection = rewriteExpr(foreach.collection);
-        foreach.body = rewrite(foreach.body);
+        foreach.body = rewrite(foreach.body, env);
         result = foreach;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         whileNode.expr = rewriteExpr(whileNode.expr);
-        whileNode.body = rewrite(whileNode.body);
+        whileNode.body = rewrite(whileNode.body, env);
         result = whileNode;
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         enclLocks.push(lockNode);
-        lockNode.body = rewrite(lockNode.body);
+        lockNode.body = rewrite(lockNode.body, env);
         enclLocks.pop();
         lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
             String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
@@ -441,32 +484,32 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
-        transactionNode.failedBody = rewrite(transactionNode.failedBody);
+        transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
+        transactionNode.failedBody = rewrite(transactionNode.failedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
         result = transactionNode;
     }
 
     @Override
     public void visit(BLangTryCatchFinally tryNode) {
-        tryNode.tryBody = rewrite(tryNode.tryBody);
-        tryNode.catchBlocks = rewrite(tryNode.catchBlocks);
-        tryNode.finallyBody = rewrite(tryNode.finallyBody);
+        tryNode.tryBody = rewrite(tryNode.tryBody, env);
+        tryNode.catchBlocks = rewrite(tryNode.catchBlocks, env);
+        tryNode.finallyBody = rewrite(tryNode.finallyBody, env);
         result = tryNode;
     }
 
     @Override
     public void visit(BLangCatch catchNode) {
-        catchNode.body = rewrite(catchNode.body);
+        catchNode.body = rewrite(catchNode.body, env);
         result = catchNode;
     }
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers = rewrite(forkJoin.workers);
-        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar);
-        forkJoin.joinedBody = rewrite(forkJoin.joinedBody);
-        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody);
+        forkJoin.workers = rewrite(forkJoin.workers, env);
+        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar, env);
+        forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
+        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
         result = forkJoin;
     }
 
@@ -565,7 +608,7 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangEnumeratorAccessExpr(fieldAccessExpr.pos,
                     fieldAccessExpr.field, fieldAccessExpr.symbol);
         } else {
-            fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
+            fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.STRUCT) {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
@@ -587,8 +630,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         BLangVariableReference targetVarRef = indexAccessExpr;
-        indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
-        indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
+        indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
+        indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.STRUCT) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
@@ -623,6 +666,9 @@ public class Desugar extends BLangNodeVisitor {
             visitIterableOperationInvocation(iExpr);
             return;
         }
+        if (iExpr.actionInvocation) {
+            visitActionInvocationEndpoint(iExpr);
+        }
         iExpr.expr = rewriteExpr(iExpr.expr);
         result = genIExpr;
         if (iExpr.expr == null) {
@@ -645,7 +691,7 @@ public class Desugar extends BLangNodeVisitor {
                 result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol,
                         iExpr.types, iExpr.expr);
                 break;
-            case TypeTags.ENDPOINT:
+            case TypeTags.CONNECTOR:
                 List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
                 actionArgExprs.add(0, iExpr.expr);
                 result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
@@ -653,7 +699,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangConnectorInit connectorInitExpr) {
+    public void visit(BLangTypeInit connectorInitExpr) {
         connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
         result = connectorInitExpr;
     }
@@ -729,7 +775,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Named transformer invocation
         if (conversionExpr.transformerInvocation != null) {
-            conversionExpr.transformerInvocation = rewrite(conversionExpr.transformerInvocation);
+            conversionExpr.transformerInvocation = rewriteExpr(conversionExpr.transformerInvocation);
             // Add the rExpr as the first argument
             conversionExpr.transformerInvocation.argExprs.add(0, conversionExpr.expr);
             result = new BLangTransformerInvocation(conversionExpr.pos, conversionExpr.transformerInvocation.argExprs,
@@ -835,8 +881,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.indexExpr = rewrite(xmlAttributeAccessExpr.indexExpr);
-        xmlAttributeAccessExpr.expr = rewrite(xmlAttributeAccessExpr.expr);
+        xmlAttributeAccessExpr.indexExpr = rewriteExpr(xmlAttributeAccessExpr.indexExpr);
+        xmlAttributeAccessExpr.expr = rewriteExpr(xmlAttributeAccessExpr.expr);
 
         if (xmlAttributeAccessExpr.indexExpr != null
                 && xmlAttributeAccessExpr.indexExpr.getKind() == NodeKind.XML_QNAME) {
@@ -916,6 +962,118 @@ public class Desugar extends BLangNodeVisitor {
         result = intRangeExpression;
     }
 
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        sqlQueryBuilder.visit(tableQueryExpression);
+
+        /*replace the table expression with a function invocation,
+         so that we manually call a native function "queryTable". */
+        result = createInvocationFromTableExpr(tableQueryExpression);
+    }
+
+    private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
+        List<BLangExpression> args = new ArrayList<>();
+        List<BType> retTypes = new ArrayList<>();
+        String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
+        //Order matters, because these are the args for a function invocation.
+        args.add(getSQLPreparedStatement(tableQueryExpression));
+        args.add(getFromTableVarRef(tableQueryExpression));
+       // BLangTypeofExpr
+        retTypes.add(tableQueryExpression.type);
+        BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
+        if (joinTable != null) {
+            args.add(joinTable);
+            functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
+        }
+        args.add(getSQLStatementParameters(tableQueryExpression));
+        args.add(getReturnType(tableQueryExpression));
+        return createQueryTableInvocation(functionName, args, retTypes);
+    }
+
+    private BLangInvocation createQueryTableInvocation(String functionName, List<BLangExpression> args, List<BType>
+            retTypes) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        // TODO: 2/28/18 need to find a good way to refer to symbols
+        invocationNode.symbol = symTable.rootScope.lookup(new Name(functionName)).symbol;
+        invocationNode.types = retTypes;
+        invocationNode.argExprs = args;
+        return invocationNode;
+    }
+
+    private BLangLiteral getSQLPreparedStatement(BLangTableQueryExpression
+            tableQueryExpression) {
+        //create a literal to represent the sql query.
+        BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        sqlQueryLiteral.typeTag = TypeTags.STRING;
+
+        //assign the sql query from table expression to the literal.
+        sqlQueryLiteral.value = tableQueryExpression.getSqlQuery();
+        sqlQueryLiteral.type = symTable.getTypeFromTag(sqlQueryLiteral.typeTag);
+        return sqlQueryLiteral;
+    }
+
+    private BLangStructLiteral getReturnType(BLangTableQueryExpression
+                                                         tableQueryExpression) {
+        //create a literal to represent the sql query.
+        BTableType tableType = (BTableType) tableQueryExpression.type;
+        BStructType structType = (BStructType) tableType.constraint;
+        return new BLangStructLiteral(new ArrayList<>(), structType);
+    }
+
+    private BLangArrayLiteral getSQLStatementParameters(BLangTableQueryExpression tableQueryExpression) {
+        BLangArrayLiteral expr = createArrayLiteralExprNode();
+        List<BLangExpression> params = tableQueryExpression.getParams();
+
+        params.stream().map(param -> (BLangLiteral) param).forEach(literal -> {
+            Object value = literal.getValue();
+            int type = TypeTags.STRING;
+            if (value instanceof Integer || value instanceof Long) {
+                type = TypeTags.INT;
+            } else if (value instanceof Double || value instanceof Float) {
+                type = TypeTags.FLOAT;
+            } else if (value instanceof Boolean) {
+                type = TypeTags.BOOLEAN;
+            } else if (value instanceof Byte[]) {
+                type = TypeTags.BLOB;
+            } else if (value instanceof Object[]) {
+                type = TypeTags.ARRAY;
+            }
+            literal.type = symTable.getTypeFromTag(type);
+            types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
+            expr.exprs.add(literal.impCastExpr);
+        });
+        return expr;
+    }
+
+    private BLangArrayLiteral createArrayLiteralExprNode() {
+        BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        expr.exprs = new ArrayList<>();
+        expr.type = symTable.anyType;
+        return expr;
+    }
+
+    private BLangSimpleVarRef getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
+        BLangSimpleVarRef joinTable = null;
+        if (joinStreamingInput != null) {
+            joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getTableReference();
+            joinTable = new BLangLocalVarRef(joinTable.symbol);
+        }
+        return joinTable;
+    }
+
+    private BLangLocalVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+        BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
+                .getTableReference();
+        return new BLangLocalVarRef(fromTable.symbol);
+    }
+
     // private functions
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
@@ -940,18 +1098,38 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         iterableCodeDesugar.desugar(iExpr.iContext);
-        result = rewrite(iExpr.iContext.iteratorCaller);
+        result = rewriteExpr(iExpr.iContext.iteratorCaller);
+    }
+
+    private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
+        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+            // Convert to endpoint.getConnector(). iExpr has to be a VarRef.
+            final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+            final BStructSymbol.BAttachedFunction getConnectorFunction = ((BStructSymbol) epSymbol.type.tsymbol)
+                    .attachedFuncs.stream()
+                    .filter(f -> f.funcName.equals(Names.EP_SPI_GET_CONNECTOR))
+                    .findAny().get();
+            final BLangInvocation invocationExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
+                    getConnectorFunction.symbol, Collections.emptyList(), symResolver);
+            invocationExpr.expr = iExpr.expr;
+            iExpr.expr = invocationExpr;
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangNode> E rewrite(E node) {
+    private <E extends BLangNode> E rewrite(E node, SymbolEnv env) {
         if (node == null) {
             return null;
         }
 
+        SymbolEnv previousEnv = this.env;
+        this.env = env;
+
         node.accept(this);
         BLangNode resultNode = this.result;
         this.result = null;
+
+        this.env = previousEnv;
         return (E) resultNode;
     }
 
@@ -974,14 +1152,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    private <E extends BLangStatement> E rewrite(E statement) {
+    private <E extends BLangStatement> E rewrite(E statement, SymbolEnv env) {
         if (statement == null) {
             return null;
         }
         BLangStatementLink link = new BLangStatementLink();
         link.parent = currentLink;
         currentLink = link;
-        BLangStatement stmt = (BLangStatement) rewrite((BLangNode) statement);
+        BLangStatement stmt = (BLangStatement) rewrite((BLangNode) statement, env);
         // Link Statements.
         link.statement = stmt;
         stmt.statementLink = link;
@@ -989,16 +1167,16 @@ public class Desugar extends BLangNodeVisitor {
         return (E) stmt;
     }
 
-    private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList) {
+    private <E extends BLangStatement> List<E> rewriteStmt(List<E> nodeList, SymbolEnv env) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.set(i, rewrite(nodeList.get(i)));
+            nodeList.set(i, rewrite(nodeList.get(i), env));
         }
         return nodeList;
     }
 
-    private <E extends BLangNode> List<E> rewrite(List<E> nodeList) {
+    private <E extends BLangNode> List<E> rewrite(List<E> nodeList, SymbolEnv env) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.set(i, rewrite(nodeList.get(i)));
+            nodeList.set(i, rewrite(nodeList.get(i), env));
         }
         return nodeList;
     }
