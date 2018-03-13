@@ -243,6 +243,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Deprecated':
             return dent() + w() + 'deprecated' + a(' ') + w() + '{' + indent() + w()
                  + node.documentationText + outdent() + w() + '}';
+        case 'Endpoint':
+            return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + w() + 'endpoint' + w() + '<'
+                 + getSourceOf(node.endPointType, pretty, l, replaceLambda) + w() + '>' + w()
+                 + node.name.valueWithBar
+                 + getSourceOf(node.configurationExpression, pretty, l, replaceLambda);
         case 'EndpointType':
             return w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
@@ -503,8 +509,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Service':
             return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + w() + '<' + w()
-                 + node.protocolPackageIdentifier.valueWithBar + w() + '>' + w(' ')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + w() + '<'
+                 + getSourceOf(node.endpointType, pretty, l, replaceLambda) + w() + '>' + w(' ')
                  + node.name.valueWithBar + w(' ') + '{' + indent()
                  + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';

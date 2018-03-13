@@ -111,7 +111,7 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
+    protected BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
         } catch (InterruptedException e) {
@@ -124,7 +124,7 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         return new BValue[0];
     }
 
-    private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
+    protected void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
                                         HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
         OutputStream messageOutputStream = getOutputStream(responseMessage, outboundResponseStatusFuture);
         try {
