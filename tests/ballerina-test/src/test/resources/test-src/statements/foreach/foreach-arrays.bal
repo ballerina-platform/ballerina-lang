@@ -274,9 +274,7 @@ function testThrow2 () (string) {
     } catch (error e) {
         output = output + e.message;
     } catch (runtime:CallFailedException e){
-        if (e.cause[0].message == "") {
-            output = output + "found null";
-        }
+        output = output + "found null";
     }
     return output;
 }

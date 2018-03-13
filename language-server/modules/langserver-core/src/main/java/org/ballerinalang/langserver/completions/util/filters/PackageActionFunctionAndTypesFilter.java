@@ -26,8 +26,11 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -52,16 +55,6 @@ import java.util.stream.Collectors;
  */
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
-    private static final String CREATE_KEYWORD = "create";
-
-    private static final String PKG_DELIMITER_KEYWORD = ":";
-
-    private static final String DOT_SYMBOL_KEY = ".";
-
-    private static final String CONNECTOR_KIND = "CONNECTOR";
-    
-    private static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
-
     @Override
     public List<SymbolInfo> filterItems(TextDocumentServiceContext completionContext) {
 
@@ -70,10 +63,11 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         String delimiter = tokenStream.get(delimiterIndex).getText();
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
 
-        if (DOT_SYMBOL_KEY.equals(delimiter)) {
+        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
+                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
             // If the delimiter is "." then we are filtering the bound functions for the structs
             returnSymbolsInfoList.addAll(this.invocationsAndFieldsOnIdentifier(completionContext, delimiterIndex));
-        } else if (PKG_DELIMITER_KEYWORD.equals(delimiter)) {
+        } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             ArrayList<SymbolInfo> filteredList = this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
 
@@ -81,8 +75,9 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             if (isConnectorInit(delimiterIndex, completionContext)) {
                 List<SymbolInfo> connectorKindList = filteredList
                         .stream()
-                        .filter(item -> item.getScopeEntry().symbol.kind.toString().equals(CONNECTOR_KIND)).
-                                collect(Collectors.toList());
+                        .filter(item ->
+                                item.getScopeEntry().symbol.kind.toString().equals(SymbolKind.CONNECTOR.toString())
+                        ).collect(Collectors.toList());
                 returnSymbolsInfoList.addAll(connectorKindList);
             } else {
                 returnSymbolsInfoList.addAll(filteredList);
@@ -105,7 +100,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
         while (true) {
             Token token = tokenStream.get(counter);
-            if (nonHiddenTokenCount == 2 && tokenStream.get(counter + 1).getText().equals(CREATE_KEYWORD)) {
+            if (nonHiddenTokenCount == 2
+                    && tokenStream.get(counter + 1).getText().equals(UtilSymbolKeys.CREATE_KEYWORD_KEY)) {
                 return true;
             } else if (nonHiddenTokenCount == 2) {
                 break;
@@ -171,7 +167,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-//        String constraintTypeName = null;
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
 
         if (variable == null) {
@@ -181,14 +176,11 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         String packageID;
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
-//        if (bType instanceof BEndpointType) {
-//            // If the BType is a BEndPointType we get the package id of the constraint
-//            Type constraint = ((BEndpointType) bType).getConstraint();
-//            packageID = ((BConnectorType) constraint).tsymbol.pkgID.toString();
-//            constraintTypeName = constraint.toString();
-//            bTypeValue = constraint.toString();
-//        } else
-        if (bType instanceof BArrayType) {
+
+        if (bType.tsymbol instanceof BConnectorSymbol
+                && !UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())) {
+            return actionFunctionList;
+        } else if (bType instanceof BArrayType) {
             packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
             bTypeValue = bType.toString();
         } else {
@@ -211,17 +203,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         } else if (packageSymbolInfo != null) {
             // If the package exist, we extract particular entries from package
             entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
-//            if (constraintTypeName != null) {
-//                // If there is a constraint type for the variable, which means we are filtering the actions for the
-//                // particular endpoint. Hence we get the particular ClientConnector entry and it's action entries
-//                String filterName = constraintTypeName;
-//                Map.Entry filteredEntry = entries.entrySet()
-//                        .stream()
-//                        .filter(nameScopeEntry -> nameScopeEntry.getKey().getValue().equals(filterName))
-//                        .findFirst()
-//                        .orElse(null);
-//                entries = ((Scope.ScopeEntry) filteredEntry.getValue()).symbol.scope.entries;
-//            }
         }
         
         entries.forEach((name, scopeEntry) -> {
@@ -276,7 +257,9 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 break;
             }
             String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (".".equals(tokenString) || ":".equals(tokenString)) {
+            if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString)) {
                 delimiterIndex = searchTokenIndex;
                 break;
             } else if (terminalTokens.contains(tokenString)
@@ -347,7 +330,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     private void fillForeachIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
         String params = getIterableOpLambdaParam(bType);
         
-        String lambdaSignature = Snippet.ITR_FOREACH.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        String lambdaSignature =
+                Snippet.ITR_FOREACH.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
         SymbolInfo.IterableOperationSignature signature =
                 new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FOREACH_LABEL, lambdaSignature);
         SymbolInfo forEachSymbolInfo = new SymbolInfo();
@@ -359,7 +343,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     private void fillMapIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
         String params = getIterableOpLambdaParam(bType);
 
-        String lambdaSignature = Snippet.ITR_MAP.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        String lambdaSignature
+                = Snippet.ITR_MAP.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
         SymbolInfo.IterableOperationSignature signature =
                 new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_MAP_LABEL, lambdaSignature);
         SymbolInfo forEachSymbolInfo = new SymbolInfo();
@@ -371,7 +356,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     private void fillFilterIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
         String params = getIterableOpLambdaParam(bType);
 
-        String lambdaSignature = Snippet.ITR_FILTER.toString().replace(ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
+        String lambdaSignature
+                = Snippet.ITR_FILTER.toString().replace(UtilSymbolKeys.ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN, params);
         SymbolInfo.IterableOperationSignature signature =
                 new SymbolInfo.IterableOperationSignature(ItemResolverConstants.ITR_FILTER_LABEL, lambdaSignature);
         SymbolInfo forEachSymbolInfo = new SymbolInfo();

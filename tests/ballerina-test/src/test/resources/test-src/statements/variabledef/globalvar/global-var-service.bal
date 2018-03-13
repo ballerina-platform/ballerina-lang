@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.net.http.mock;
 
 int glbVarInt = 800;
 string glbVarString = "value";
@@ -9,9 +10,12 @@ float glbVarFloatChange = 99;
 
 float glbVarFloat1 = glbVarFloat;
 
+endpoint<mock:NonListeningService> echoEP {
+    port:9090
+}
 
-@http:configuration {basePath:"/globalvar"}
-service<http> GlobalVar {
+@http:serviceConfig {basePath:"/globalvar", endpoints:[echoEP]}
+service<http:Service> GlobalVar {
 
     string serviceVarFloat = <string>glbVarFloat;
 
@@ -19,62 +23,61 @@ service<http> GlobalVar {
         methods:["GET"],
         path:"/defined"
     }
-    resource defineGlobalVar (http:Connection conn, http:Request req) {
+    resource defineGlobalVar (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/access-service-level"
     }
-    resource accessGlobalVarAtServiceLevel (http:Connection conn, http:Request req) {
+    resource accessGlobalVarAtServiceLevel (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/change-resource-level"
     }
-    resource changeGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
+    resource changeGlobalVarAtResourceLevel (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
+    resource getChangedGlobalVarAtResourceLevel (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
 }
 
-
-@http:configuration {basePath:"/globalvar-second"}
-service<http> GlobalVarSecond {
+@http:serviceConfig {basePath:"/globalvar-second", endpoints:[echoEP]}
+service<http:Service> GlobalVarSecond {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    resource getChangedGlobalVarAtResourceLevel (http:Connection conn, http:Request req) {
+    resource getChangedGlobalVarAtResourceLevel (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
 }
