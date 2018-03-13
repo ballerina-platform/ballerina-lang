@@ -26,6 +26,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
@@ -100,9 +101,6 @@ public class HTTPServicesRegistry {
                                                                     HttpConstants.HTTP_PACKAGE_PATH);
 
         Struct serviceConfig = annotation.getValue();
-        Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS);
-        service.setAllAllowMethods(populateListFromValueArray(allowedMethods));
-
         String basePath = discoverBasePathFrom(service, annotation);
         //TODO check with new method
 //        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
@@ -142,7 +140,7 @@ public class HTTPServicesRegistry {
 
         Struct annStruct = annotation.getValue();
         String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-        if (annotationValue == null || annotationValue.isEmpty()) {
+        if (annotationValue == null) {
             return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
         }
         if (!annotationValue.trim().isEmpty()) {
@@ -188,7 +186,7 @@ public class HTTPServicesRegistry {
             resources.add(httpResource);
         }
         httpService.setResources(resources);
-//        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
+        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
