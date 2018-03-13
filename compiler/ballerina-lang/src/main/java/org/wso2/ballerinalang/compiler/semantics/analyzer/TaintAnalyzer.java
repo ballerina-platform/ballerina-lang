@@ -1049,6 +1049,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                     }
                 }
             }
+        } else if (retParams.size() > 0) {
+            // This is when invokable has no return statement, but it returns some value. Example: Transformers.
+            returnTaintedStatusList = new ArrayList<>();
+            retParams.forEach(param -> returnTaintedStatusList.add(param.symbol.tainted));
         } else {
             returnTaintedStatusList = new ArrayList<>();
         }

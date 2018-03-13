@@ -388,28 +388,28 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'globalVariable'", 12, 5);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testServiceVariables() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/service-level-variables.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testServiceVariablesNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/service-level-variables-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceLevelVariable'", 15, 9);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalLevelVariable'", 16, 9);
+        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceLevelVariable'", 20, 9);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalLevelVariable'", 21, 9);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testHttpService() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/http-service.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 12, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 17, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 18, 24);
     }
 }
