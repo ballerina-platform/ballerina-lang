@@ -48,12 +48,7 @@ public class HttpResource {
     private static final String BODY_FIELD = "body";
     private static final String CONSUMES_FIELD = "consumes";
     private static final String PRODUCES_FIELD = "produces";
-    private static final String ALLOWS_ORIGINS_FIELD = "allowOrigins";
-    private static final String ALLOW_CREDENTIALS_FIELD = "allowCredentials";
-    private static final String ALLOW_METHODS_FIELD = "allowMethods";
-    private static final String ALLOW_HEADERS_FIELD = "allowHeaders";
-    private static final String MAX_AGE_FIELD = "maxAge";
-    private static final String EXPOSE_HEADERS_FIELD = "exposeHeaders";
+    private static final String CORS_FIELD = "cors";
 
     private Resource balResource;
     private List<String> methods;
@@ -66,7 +61,7 @@ public class HttpResource {
     private SignatureParams signatureParams;
     private HttpService parentService;
 
-    public HttpResource(Resource resource, HttpService parentService) {
+    private HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
@@ -82,11 +77,6 @@ public class HttpResource {
 
     public SignatureParams getSignatureParams() {
         return signatureParams;
-    }
-
-    public void prepareAndValidateSignatureParams() {
-        signatureParams = new SignatureParams(this, balResource.getParamDetails());
-        signatureParams.validate();
     }
 
     public HttpService getParentService() {
@@ -172,13 +162,14 @@ public class HttpResource {
 
     public static HttpResource buildHttpResource(Resource resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
-        Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource, HTTP_PACKAGE_PATH);
+        Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
 
         if (resourceConfigAnnotation == null) {
             if (log.isDebugEnabled()) {
                 log.debug("resourceConfig not specified in the Resource instance, using default sub path");
             }
             httpResource.setPath(resource.getName());
+            httpResource.prepareAndValidateSignatureParams();
             return httpResource;
         }
 
@@ -189,23 +180,15 @@ public class HttpResource {
         httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
         httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
         httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
+        httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
 
-        CorsHeaders corsHeaders = new CorsHeaders();
-        corsHeaders.setAllowOrigins(getAsStringList(resourceConfig.getArrayField(ALLOWS_ORIGINS_FIELD)));
-        corsHeaders.setAllowCredentials(resourceConfig.getBooleanField(ALLOW_CREDENTIALS_FIELD) ? 1 : 0);
-        corsHeaders.setAllowMethods(getAsStringList(resourceConfig.getArrayField(ALLOW_METHODS_FIELD)));
-        corsHeaders.setAllowHeaders(getAsStringList(resourceConfig.getArrayField(ALLOW_HEADERS_FIELD)));
-        corsHeaders.setExposeHeaders(getAsStringList(resourceConfig.getArrayField(EXPOSE_HEADERS_FIELD)));
-        corsHeaders.setMaxAge(resourceConfig.getIntField(MAX_AGE_FIELD));
-
-        httpResource.setCorsHeaders(corsHeaders);
         processResourceCors(httpResource, httpService);
-
+        httpResource.prepareAndValidateSignatureParams();
         return httpResource;
     }
 
-    private static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
-        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, ANN_NAME_RESOURCE_CONFIG);
+    private static Annotation getResourceConfigAnnotation(Resource resource) {
+        List<Annotation> annotationList = resource.getAnnotationList(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
 
         if (annotationList == null) {
             return null;
@@ -233,7 +216,7 @@ public class HttpResource {
 
     private static void processResourceCors(HttpResource resource, HttpService service) {
         CorsHeaders corsHeaders = resource.getCorsHeaders();
-        if (!corsHeaders.isAvailable()) {
+        if (corsHeaders == null || !corsHeaders.isAvailable()) {
             //resource doesn't have CORS headers, hence use service CORS
             resource.setCorsHeaders(service.getCorsHeaders());
             return;
@@ -252,5 +235,10 @@ public class HttpResource {
             return;
         }
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
+    }
+
+    private void prepareAndValidateSignatureParams() {
+        signatureParams = new SignatureParams(this, balResource.getParamDetails());
+        signatureParams.validate();
     }
 }
