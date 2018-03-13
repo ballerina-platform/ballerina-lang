@@ -405,6 +405,125 @@ class AbstractPackageNode extends Node {
     }
 
 
+    setGlobalEndpoints(newValue, silent, title) {
+        const oldValue = this.globalEndpoints;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.globalEndpoints = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'globalEndpoints',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getGlobalEndpoints() {
+        return this.globalEndpoints;
+    }
+
+
+    addGlobalEndpoints(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.globalEndpoints.push(node);
+            index = this.globalEndpoints.length;
+        } else {
+            this.globalEndpoints.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeGlobalEndpoints(node, silent) {
+        const index = this.getIndexOfGlobalEndpoints(node);
+        this.removeGlobalEndpointsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeGlobalEndpointsByIndex(index, silent) {
+        this.globalEndpoints.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceGlobalEndpoints(oldChild, newChild, silent) {
+        const index = this.getIndexOfGlobalEndpoints(oldChild);
+        this.globalEndpoints[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceGlobalEndpointsByIndex(index, newChild, silent) {
+        this.globalEndpoints[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfGlobalEndpoints(child) {
+        return _.findIndex(this.globalEndpoints, ['id', child.id]);
+    }
+
+    filterGlobalEndpoints(predicateFunction) {
+        return _.filter(this.globalEndpoints, predicateFunction);
+    }
+
+
     setGlobalVariables(newValue, silent, title) {
         const oldValue = this.globalVariables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -997,6 +1116,244 @@ class AbstractPackageNode extends Node {
 
     filterStructs(predicateFunction) {
         return _.filter(this.structs, predicateFunction);
+    }
+
+
+    setEnums(newValue, silent, title) {
+        const oldValue = this.enums;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.enums = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'enums',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getEnums() {
+        return this.enums;
+    }
+
+
+    addEnums(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.enums.push(node);
+            index = this.enums.length;
+        } else {
+            this.enums.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEnums(node, silent) {
+        const index = this.getIndexOfEnums(node);
+        this.removeEnumsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEnumsByIndex(index, silent) {
+        this.enums.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEnums(oldChild, newChild, silent) {
+        const index = this.getIndexOfEnums(oldChild);
+        this.enums[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEnumsByIndex(index, newChild, silent) {
+        this.enums[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfEnums(child) {
+        return _.findIndex(this.enums, ['id', child.id]);
+    }
+
+    filterEnums(predicateFunction) {
+        return _.filter(this.enums, predicateFunction);
+    }
+
+
+    setTransformers(newValue, silent, title) {
+        const oldValue = this.transformers;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.transformers = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'transformers',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTransformers() {
+        return this.transformers;
+    }
+
+
+    addTransformers(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.transformers.push(node);
+            index = this.transformers.length;
+        } else {
+            this.transformers.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTransformers(node, silent) {
+        const index = this.getIndexOfTransformers(node);
+        this.removeTransformersByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeTransformersByIndex(index, silent) {
+        this.transformers.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTransformers(oldChild, newChild, silent) {
+        const index = this.getIndexOfTransformers(oldChild);
+        this.transformers[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceTransformersByIndex(index, newChild, silent) {
+        this.transformers[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfTransformers(child) {
+        return _.findIndex(this.transformers, ['id', child.id]);
+    }
+
+    filterTransformers(predicateFunction) {
+        return _.filter(this.transformers, predicateFunction);
     }
 
 

@@ -26,12 +26,12 @@ service<http> InitiatorService {
     @http:resourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:InRequest req) {
+    resource member (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:8889/participant1", {});
         }
-        http:OutRequest newReq = {};
-        http:InResponse clientResponse1;
+        http:Request newReq = {};
+        http:Response clientResponse1;
         transaction {
             clientResponse1, _ = endPoint.get("/", newReq);
         } failed {

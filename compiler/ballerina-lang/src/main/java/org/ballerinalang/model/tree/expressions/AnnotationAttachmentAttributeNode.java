@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 /**
  * @since 0.94
  */
+@Deprecated
 public interface AnnotationAttachmentAttributeNode extends ExpressionNode {
 
     IdentifierNode getName();

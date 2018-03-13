@@ -21,14 +21,21 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,24 +48,28 @@ import java.util.Set;
 public class BLangService extends BLangNode implements ServiceNode {
     
     public BLangIdentifier name;
-    public BLangIdentifier protocolPkgIdentifier;
+    public BLangUserDefinedType endpointType;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
+    public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public List<BEndpointVarSymbol> attachedEndpoints;
 
     public BSymbol symbol;
 
     public BLangService() {
         this.vars = new ArrayList<>();
         this.resources = new ArrayList<>();
+        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
+        this.attachedEndpoints = new ArrayList<>();
     }
 
     @Override
@@ -72,13 +83,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public BLangIdentifier getProtocolPackageIdentifier() {
-        return protocolPkgIdentifier;
+    public UserDefinedTypeNode getEndpointType() {
+        return this.endpointType;
     }
-    
+
     @Override
-    public void setProtocolPackageIdentifier(IdentifierNode protocolPkgIdentifier) {
-        this.protocolPkgIdentifier = (BLangIdentifier) protocolPkgIdentifier;
+    public void setEndpointType(UserDefinedTypeNode endpointType) {
+        this.endpointType = (BLangUserDefinedType) endpointType;
     }
 
     @Override
@@ -152,6 +163,19 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
+    public List<? extends EndpointNode> getEndpointNodes() {
+        return endpoints;
+    }
+
+    @Override
+    public void bindToEndpoint(SimpleVariableReferenceNode endpointRef) {
+        final BLangSimpleVarRef endpointVar = (BLangSimpleVarRef) endpointRef;
+        if ((endpointVar.symbol.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
+            this.attachedEndpoints.add((BEndpointVarSymbol) endpointVar.symbol);
+        }
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -163,7 +187,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + protocolPkgIdentifier + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + endpointType + "> "
                 + vars + " " + resources;
     }
 }

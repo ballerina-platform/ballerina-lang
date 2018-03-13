@@ -488,13 +488,6 @@ public class ReferencesTreeVisitor extends NodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpointTypeNode endpointType) {
-        if (endpointType.constraint != null) {
-            acceptNode(endpointType.constraint);
-        }
-    }
-
-    @Override
     public void visit(BLangTransformer transformerNode) {
         if (transformerNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
                 transformerNode.symbol.owner.pkgID.name.getValue()
