@@ -3,7 +3,7 @@ public function main (string[] args) {
     secureFunction(taintedReturn(), taintedReturn());
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 

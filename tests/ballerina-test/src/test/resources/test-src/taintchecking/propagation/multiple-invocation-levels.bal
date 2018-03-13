@@ -10,6 +10,6 @@ public function anotherNormalFunction (string anotherNormalInput) {
     secureFunction(anotherNormalInput, anotherNormalInput);
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

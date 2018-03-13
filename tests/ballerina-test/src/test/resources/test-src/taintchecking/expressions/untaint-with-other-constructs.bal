@@ -41,6 +41,6 @@ function returnInput (string inputData) (string) {
     return inputData;
 }
 
-function secureFunction (@sensitive{} string secureIn) {
+function secureFunction (@sensitive string secureIn) {
 
 }
