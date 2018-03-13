@@ -16,14 +16,12 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -195,14 +193,15 @@ public class BTestUtils {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
-    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName, BValue[] args) {
+    public static BValue[] invoke(CompileResult compileResult, String packageName, String functionName,
+                                  BValue[] args) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException("compilation contains errors.");
         }
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, packageName, functionName, args);
+        return BLangFunctions.invokeEntrypointCallable(programFile, packageName, functionName, args);
     }
 
     /**
@@ -233,7 +232,7 @@ public class BTestUtils {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeNew(programFile, programFile.getEntryPkgName(), functionName, args);
+        return BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), functionName, args);
     }
 
     /**
@@ -246,19 +245,6 @@ public class BTestUtils {
     public static BValue[] invoke(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
-    }
-
-    /**
-     * Invoke a ballerina function given context.
-     *
-     * @param compileResult CompileResult instance.
-     * @param initFuncInfo  Function to invoke.
-     * @param context       invocation context.
-     */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, Context context) {
-        Debugger debugger = new Debugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-        BLangFunctions.invokeFunction(compileResult.getProgFile(), initFuncInfo, context);
     }
 
     /**

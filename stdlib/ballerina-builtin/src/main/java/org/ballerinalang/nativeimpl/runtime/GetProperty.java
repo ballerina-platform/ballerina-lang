@@ -16,9 +16,8 @@
 package org.ballerinalang.nativeimpl.runtime;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,11 +35,11 @@ import org.ballerinalang.util.BuiltInUtils;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetProperty extends AbstractNativeFunction {
+public class GetProperty extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String name = getStringArgument(context, 0);
-        return getBValues(BuiltInUtils.getSystemProperty(name));
+    public void execute(Context context) {
+        String name = context.getStringArgument(0);
+        context.setReturnValues(BuiltInUtils.getSystemProperty(name));
     }
 }

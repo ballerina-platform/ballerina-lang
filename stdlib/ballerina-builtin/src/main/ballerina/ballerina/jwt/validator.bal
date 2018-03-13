@@ -78,7 +78,8 @@ function parseHeader (json jwtHeaderJson) (Header) {
     Header jwtHeader = {};
     map customClaims = {};
     foreach key in jwtHeaderJson.getKeys() {
-        if (key == ALG) {
+        //TODO get alg from a constant
+        if (key == "alg") {
             jwtHeader.alg = jwtHeaderJson[key].toString();
         } else if (key == TYP) {
             jwtHeader.typ = jwtHeaderJson[key].toString();

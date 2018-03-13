@@ -17,11 +17,14 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
+import org.ballerinalang.util.program.WorkerDataIndex;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,14 +54,51 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public BType attachedToType;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+    
+    private WorkerInfo[] workerInfoEntries = new WorkerInfo[0];
 
     // Key - data channel name
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
+    protected WorkerInfo[] defaultWorkerInfoArray = new WorkerInfo[0];
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+    
+    public WorkerDataIndex paramWorkerIndex;
+    public WorkerDataIndex retWorkerIndex;
+    
+    private NativeCallableUnit nativeCallableUnit;
 
+    private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
+        WorkerDataIndex index = new WorkerDataIndex();
+        index.retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                index.retRegs[i] = index.longRegCount++;
+                break;
+            case TypeTags.FLOAT_TAG:
+                index.retRegs[i] = index.doubleRegCount++;
+                break;
+            case TypeTags.STRING_TAG:
+                index.retRegs[i] = index.stringRegCount++;
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                index.retRegs[i] = index.intRegCount++;
+                break;
+            case TypeTags.BLOB_TAG:
+                index.retRegs[i] = index.byteRegCount++;
+                break;
+            default:
+                index.retRegs[i] = index.refRegCount++;
+                break;
+            }
+        }
+        return index;
+    }
+    
     public String getName() {
         return name;
     }
@@ -105,6 +145,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setParamTypes(BType[] paramTypes) {
         this.paramTypes = paramTypes;
+        this.paramWorkerIndex = this.calculateWorkerDataIndex(this.paramTypes);
     }
 
     public BType[] getRetParamTypes() {
@@ -113,6 +154,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
+        this.retWorkerIndex = this.calculateWorkerDataIndex(this.retParamTypes);
     }
 
     public String getSignature() {
@@ -150,9 +192,19 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerInfo getDefaultWorkerInfo() {
         return defaultWorkerInfo;
     }
+    
+    /**
+     * This method is implemented as an optimization mechanism, where in the BVM,
+     * we frequently need the default worker as an array.
+     * @return the default worker wrapped as an array
+     */
+    public WorkerInfo[] getDefaultWorkerInfoAsArray() {
+        return defaultWorkerInfoArray;
+    }
 
     public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
         this.defaultWorkerInfo = defaultWorkerInfo;
+        this.defaultWorkerInfoArray = new WorkerInfo[] { this.defaultWorkerInfo };
     }
 
     public WorkerInfo getWorkerInfo(String workerName) {
@@ -161,14 +213,19 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
         workerInfoMap.put(workerName, workerInfo);
+        this.populateWorkerInfoEntries();
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
+    
+    private void populateWorkerInfoEntries() {
+        this.workerInfoEntries = this.workerInfoMap.values().toArray(new WorkerInfo[0]);
+    }
 
     public WorkerInfo[] getWorkerInfoEntries() {
-        return workerInfoMap.values().toArray(new WorkerInfo[0]);
+        return workerInfoEntries;
     }
 
     @Override
@@ -186,6 +243,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
+    @Deprecated
     public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
@@ -214,4 +272,13 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public WorkerDataChannelInfo[] getWorkerDataChannelInfo() {
         return dataChannelInfoMap.values().toArray(new WorkerDataChannelInfo[0]);
     }
+    
+    public NativeCallableUnit getNativeCallableUnit() {
+        return nativeCallableUnit;
+    }
+    
+    public void setNativeCallableUnit(NativeCallableUnit nativeCallableUnit) {
+        this.nativeCallableUnit = nativeCallableUnit;
+    }
+    
 }

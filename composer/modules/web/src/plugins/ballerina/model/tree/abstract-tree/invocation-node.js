@@ -219,6 +219,51 @@ class AbstractInvocationNode extends ExpressionNode {
     }
 
 
+    isIterableOperation() {
+        return this.iterableOperation;
+    }
+
+    setIterableOperation(newValue, silent, title) {
+        const oldValue = this.iterableOperation;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.iterableOperation = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'iterableOperation',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isActionInvocation() {
+        return this.actionInvocation;
+    }
+
+    setActionInvocation(newValue, silent, title) {
+        const oldValue = this.actionInvocation;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.actionInvocation = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'actionInvocation',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
 }
 
 export default AbstractInvocationNode;

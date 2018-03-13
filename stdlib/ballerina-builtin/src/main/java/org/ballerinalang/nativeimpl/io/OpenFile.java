@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.io.channels.AbstractNativeChannel;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -77,11 +77,11 @@ public class OpenFile extends AbstractNativeChannel {
      * {@inheritDoc}
      */
     @Override
-    public AbstractChannel inFlow(Context context) throws BallerinaException {
-        String pathUrl = getStringArgument(context, PATH_FIELD_INDEX);
-        String accessMode = getStringArgument(context, FILE_ACCESS_MODE_INDEX);
+    public Channel inFlow(Context context) throws BallerinaException {
+        String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
+        String accessMode = context.getStringArgument(FILE_ACCESS_MODE_INDEX);
         Path path = null;
-        AbstractChannel channel;
+        Channel channel;
         try {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
             path = Paths.get(pathUrl);
@@ -110,7 +110,8 @@ public class OpenFile extends AbstractNativeChannel {
                 }
             }
             FileChannel byteChannel = FileChannel.open(path, opts);
-            channel = new FileIOChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+            // channel = new FileIOChannel(byteChannel, IOConstants.CHANNEL_BUFFER_SIZE);
+            channel = new FileIOChannel(byteChannel);
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {

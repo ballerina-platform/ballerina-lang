@@ -18,17 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function ballerina.io#readCharacters.
@@ -40,10 +42,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         functionName = "readCharacters",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class ReadCharacters extends AbstractNativeFunction {
+public class ReadCharacters implements NativeCallableUnit {
 
     /**
      * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
@@ -55,29 +58,46 @@ public class ReadCharacters extends AbstractNativeFunction {
      */
     private static final int NUMBER_OF_CHARS_INDEX = 0;
 
+    /*
+     * Callback method of the read characters response.
+     *
+     * @param result the result returned as the response.
+     * @return the processed event result.
+     */
+    private static EventResult readCharactersResponse(EventResult<String, EventContext> result) {
+        BStruct errorStruct = null;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
+        String readChars = result.getResponse();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        context.setReturnValues(new BString(readChars), errorStruct);
+        callback.notifySuccess();
+        return result;
+    }
+
     /**
      * <p>
      * Reads characters from the channel.
      * </p>
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct channel;
-        long numberOfCharacters;
-        BString content;
-        try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            numberOfCharacters = getIntArgument(context, NUMBER_OF_CHARS_INDEX);
-            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-            String readBytes = characterChannel.read((int) numberOfCharacters);
-            content = new BString(readBytes);
-        } catch (Throwable e) {
-            String message = "Error occurred while reading characters:" + e.getMessage();
-            throw new BallerinaException(message, context);
-        }
-        return getBValues(content);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+        long numberOfCharacters = context.getIntArgument(NUMBER_OF_CHARS_INDEX);
+        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
+                .CHARACTER_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.read(characterChannel, (int) numberOfCharacters, eventContext, ReadCharacters::readCharactersResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.963.1",
+  "version": "0.964.1",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "rimraf dist",
@@ -20,7 +20,6 @@
     "lint": "eslint . --ext .jsx --ext .js",
     "lint-diff": "node lint-diff.js js jsx",
     "lintfile": "eslint",
-    "precommit": "lint-staged",
     "gen-source-gen": "cross-env NODE_PATH=src babel-node ./source-gen/gen-source-gen.js",
     "gen-default-nodes": "cross-env NODE_PATH=src babel-node ./tools/gen-default-nodes/gen-default-nodes",
     "check": "npm outdated -depth 0"

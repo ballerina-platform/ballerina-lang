@@ -19,10 +19,9 @@
 package org.ballerinalang.nativeimpl.transactions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -36,14 +35,17 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 @BallerinaFunction(
         packageName = "ballerina.transactions.coordinator",
         functionName = "commitResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING)},
+        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
+                @Argument(name = "transactionBlockId", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class CommitResourceManagers extends AbstractNativeFunction {
+public class CommitResourceManagers extends BlockingNativeCallableUnit {
 
-    public BValue[] execute(Context ctx) {
-        String transactionId = getStringArgument(ctx, 0);
-        boolean commitSuccessful = TransactionResourceManager.getInstance().notifyCommit(transactionId);
-        return getBValues(new BBoolean(commitSuccessful));
+    public void execute(Context ctx) {
+        String transactionId = ctx.getStringArgument(0);
+        int transactionBlockId = (int) ctx.getIntArgument(0);
+        boolean commitSuccessful =
+                TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
+        ctx.setReturnValues(new BBoolean(commitSuccessful));
     }
 }

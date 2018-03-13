@@ -34,17 +34,17 @@ public class URITemplateParser<DataType, InboundMgsType> {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
 
-    private Node<DataElement<DataType, InboundMgsType>> syntaxTree;
-    private Node<DataElement<DataType, InboundMgsType>> currentNode;
+    private Node<DataType, InboundMgsType> syntaxTree;
+    private Node<DataType, InboundMgsType> currentNode;
     private final DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator;
 
-    public URITemplateParser(Node<DataElement<DataType, InboundMgsType>> rootNode,
+    public URITemplateParser(Node<DataType, InboundMgsType> rootNode,
                              DataElementFactory<? extends DataElement<DataType, InboundMgsType>> elementCreator) {
         this.syntaxTree = rootNode;
         this.elementCreator = elementCreator;
     }
 
-    public Node<DataElement<DataType, InboundMgsType>> parse(String template, DataType resource)
+    public Node<DataType, InboundMgsType> parse(String template, DataType resource)
             throws URITemplateException, UnsupportedEncodingException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
@@ -118,7 +118,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
         return syntaxTree;
     }
 
-    private void addNode(Node<DataElement<DataType, InboundMgsType>> node) {
+    private void addNode(Node<DataType, InboundMgsType> node) {
         if (currentNode == null) {
             currentNode = syntaxTree;
         }
@@ -126,7 +126,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
     }
 
     private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
-        Node<DataElement<DataType, InboundMgsType>> node;
+        Node<DataType, InboundMgsType> node;
 
         if (maxIndex == pointerIndex) {
             node = new SimpleStringExpression<>(createElement(), expression);

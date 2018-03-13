@@ -67,6 +67,11 @@ public enum DiagnosticCode {
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
+    // Service, endpoint, & connectors related errors codes
+    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
+    ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
+
     // Transformer related error codes
     UNDEFINED_TRANSFORMER("undefined.transformer"),
     TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
@@ -109,6 +114,7 @@ public enum DiagnosticCode {
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
+    INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
 
@@ -133,11 +139,7 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
-    INVALID_DEFAULT_VALUE("invalid.default.value"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
-    NO_SUCH_ATTRIBUTE("no.such.attribute"),
-    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
@@ -156,10 +158,6 @@ public enum DiagnosticCode {
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
-
-    //Error code related to annotation processors
-    COMPILER_PLUGIN_NO_PACKAGE_FOUND("compiler.plugin.no.package.found"),
-    COMPILER_PLUGIN_NO_ANNOTATIONS_FOUND_IN_PACKAGE("compiler.plugin.no.annotations.found.in.package"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

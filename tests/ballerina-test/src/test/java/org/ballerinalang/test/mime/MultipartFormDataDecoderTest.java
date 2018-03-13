@@ -47,6 +47,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 public class MultipartFormDataDecoderTest {
 
     private CompileResult result, serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -62,7 +63,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getTextBodyPart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina text body part");
     }
@@ -74,7 +75,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getTextFilePart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina text as a file part");
     }
@@ -86,7 +87,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getJsonBodyPart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().get("bodyPart").asText(),
                 "jsonPart");
@@ -99,7 +100,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getJsonFilePart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().get("name").asText(),
                 "wso2");
@@ -112,7 +113,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getXmlBodyPart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BXMLItem(ResponseReader.getReturnValue(response)).getTextValue().stringValue(),
                 "Ballerina");
@@ -125,7 +126,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getXmlFilePart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(new BXMLItem(ResponseReader.getReturnValue(response)).getTextValue().stringValue(),
                 "Ballerina" +
@@ -139,7 +140,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getBinaryBodyPart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina binary part");
     }
@@ -152,7 +153,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getBinaryFilePart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina binary file part");
     }
@@ -167,7 +168,7 @@ public class MultipartFormDataDecoderTest {
         bodyParts.add(Util.getTextBodyPart(result));
         bodyParts.add(Util.getBinaryFilePart(result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- jsonPart -- Ballerina xml " +
                 "file part -- Ballerina text body part -- Ballerina binary file part");
@@ -180,7 +181,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_7_BIT, "èiiii", result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "èiiii");
     }
@@ -192,7 +193,7 @@ public class MultipartFormDataDecoderTest {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         bodyParts.add(Util.getTextFilePartWithEncoding(CONTENT_TRANSFER_ENCODING_8_BIT, "èlllll", result));
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "èlllll");
     }

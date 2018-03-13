@@ -1,9 +1,13 @@
 import images.jpeg;
 import images.gif;
 import images.png;
+import formats.yaml;
 import ballerina.net.http;
 
 @jpeg:IConfig {
+    value: "routerFunc"
+}
+@yaml:YAMLConfig {
     value: "routerFunc"
 }
 public function routerFunc() {
@@ -26,11 +30,11 @@ service<http> routerService {
     @png:IConfig {
         value: "route"
     }
-    resource route(http:Connection conn, http:InRequest req) {
+    resource route(http:Connection conn, http:Request req) {
 
     }
 
-    resource routeRes(http:Connection conn, http:InRequest req) {
+    resource routeRes(http:Connection conn, http:Request req) {
 
     }
 }
@@ -46,7 +50,7 @@ service<http> routerService2 {
     @gif:IConfig {
         value: "route2"
     }
-    resource route2(http:Connection conn, http:InRequest req) {
+    resource route2(http:Connection conn, http:Request req) {
 
     }
 }
@@ -58,6 +62,9 @@ public connector routeCon() {
 
     @jpeg:IConfig {
         value: "getRoutes"
+    }
+    @yaml:YAMLConfig {
+        value: "routerFunc"
     }
     action getRoutes() {
 

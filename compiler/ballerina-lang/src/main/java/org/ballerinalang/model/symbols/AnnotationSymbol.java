@@ -24,5 +24,6 @@ import java.util.List;
  */
 public interface AnnotationSymbol extends Symbol {
 
+    @Deprecated
     List<? extends AnnotationAttributeSymbol> getAttributes();
 }

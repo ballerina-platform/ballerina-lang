@@ -17,24 +17,28 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-public connector Initiator2pcClient () {
+public connector Initiator2pcClient (string coordinatorProtocolAt) {
+    endpoint<http:HttpClient> initiatorEP {
+        create http:HttpClient(coordinatorProtocolAt, {});
+    }
+    action abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
 
-    action abortTransaction (string transactionId, string coordinatorProtocolAt) returns (string msg, error err) {
-        endpoint<http:HttpClient> coordinatorEP {
-            create http:HttpClient(coordinatorProtocolAt + "/abort", {});
-        }
-        AbortRequest abortReq = {transactionId:transactionId, participantId:localParticipantId};
+        AbortRequest abortReq = {transactionId:transactionId, participantId:getParticipantId(transactionBlockId)};
         var j, _ = <json>abortReq;
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(j);
-        var res, commErr = coordinatorEP.post("", req);
+        var res, commErr = initiatorEP.post("/abort", req);
         if (commErr == null) {
-            var payload, _ = res.getJsonPayload();
-            var abortRes, transformErr = <AbortResponse>payload;
-            if (transformErr != null) {
-                msg = abortRes.message;
+            var payload, payloadError = res.getJsonPayload();
+            if (payloadError == null) {
+                var abortRes, transformErr = <AbortResponse>payload;
+                if (transformErr != null) {
+                    msg = abortRes.message;
+                } else {
+                    err = (error)transformErr;
+                }
             } else {
-                err = (error)transformErr;
+                err = (error)payloadError;
             }
         } else {
             err = (error)commErr;

@@ -20,6 +20,14 @@ import AbstractPackageDeclarationNode from './abstract-tree/package-declaration-
 
 class PackageDeclarationNode extends AbstractPackageDeclarationNode {
 
+
+    getPackageNameString() {
+        const packageName = this.packageName || [];
+        const packageNameString = packageName.map((pkgName) => {
+            return pkgName.value;
+        }).join('.');
+        return packageNameString;
+    }
 }
 
 export default PackageDeclarationNode;
