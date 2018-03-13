@@ -49,23 +49,24 @@ import org.slf4j.LoggerFactory;
 )
 public class Send extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
-    
+
     @Override
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
         StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
-        if (requestSender != null) {
-            Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
-                    .REQUEST_MESSAGE_DEFINITION);
-            try {
-                Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
-                requestSender.onNext(requestMessage);
-            } catch (Throwable e) {
-                log.error("Error while sending client response.", e);
-                context.setError(MessageUtils.getServerConnectorError(context, e));
-            }
+        if (requestSender == null) {
+            return;
         }
-        context.setReturnValues(new BValue[0]);
+        Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
+                .REQUEST_MESSAGE_DEFINITION);
+
+        try {
+            Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
+            requestSender.onNext(requestMessage);
+        } catch (Throwable e) {
+            log.error("Error while sending client response.", e);
+            context.setError(MessageUtils.getConnectorError(context, e));
+        }
     }
 }

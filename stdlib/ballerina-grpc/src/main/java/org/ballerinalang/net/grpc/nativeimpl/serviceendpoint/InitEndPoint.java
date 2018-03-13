@@ -28,7 +28,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -61,7 +62,7 @@ public class Init extends BlockingNativeCallableUnit {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
-            EndPointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            EndpointConfiguration serviceConfiguration = generateServiceConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
             if (serviceConfiguration.getSslConfig() != null) {
                 serverBuilder = GrpcServicesBuilder.initService(serviceConfiguration,

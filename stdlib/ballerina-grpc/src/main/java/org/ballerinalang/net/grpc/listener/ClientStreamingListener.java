@@ -18,12 +18,15 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.ServerCalls;
 import io.grpc.stub.StreamObserver;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.GrpcEmptyCallableUnitCallback;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -38,22 +41,24 @@ import java.util.Map;
  */
 public class ClientStreamingListener extends MethodListener implements ServerCalls
         .ClientStreamingMethod<Message, Message> {
-    
+
     private final Map<String, Resource> resourceMap;
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientStreamingListener.class);
-    
+
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
         super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));
         this.resourceMap = resourceMap;
     }
-    
+
     @Override
     public StreamObserver<Message> invoke(StreamObserver<Message> responseObserver) {
         Resource onOpen = resourceMap.get(MessageConstants.ON_OPEN_RESOURCE);
         List<ParamDetail> paramDetails = onOpen.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(responseObserver);
-        Executor.submit(onOpen, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver);
+        Executor.submit(onOpen, callback, null, signatureParams);
+
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
@@ -64,9 +69,9 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
-                Executor.submit(resource, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+                Executor.submit(resource, callback, null, signatureParams);
             }
-            
+
             @Override
             public void onError(Throwable t) {
                 Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
@@ -84,11 +89,12 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                     LOGGER.error(message);
                     throw new RuntimeException(message);
                 }
-                BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+                BType errorType = paramDetails.get(1).getVarType();
+                BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
                 signatureParams[1] = errorStruct;
-                Executor.submit(onError, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+                Executor.submit(onError, callback, null, signatureParams);
             }
-            
+
             @Override
             public void onCompleted() {
                 Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
@@ -100,7 +106,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(responseObserver);
-                Executor.submit(onCompleted, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+                Executor.submit(onCompleted, callback, null, signatureParams);
             }
         };
     }

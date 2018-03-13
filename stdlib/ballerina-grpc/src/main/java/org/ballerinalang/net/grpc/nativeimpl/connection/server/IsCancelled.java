@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -48,13 +47,11 @@ public class IsCancelled extends BlockingNativeCallableUnit {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
         if (responseObserver == null) {
-            context.setReturnValues(new BValue[0]);
+            return;
         }
         if (responseObserver instanceof ServerCallStreamObserver) {
             ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) responseObserver;
-            context.setReturnValues(new BValue[] {new BBoolean(serverCallStreamObserver.isCancelled())});
-        } else {
-            context.setReturnValues(new BValue[0]);
+            context.setReturnValues(new BBoolean(serverCallStreamObserver.isCancelled()));
         }
     }
 }

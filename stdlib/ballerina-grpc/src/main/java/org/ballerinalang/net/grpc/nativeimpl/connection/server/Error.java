@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 )
 public class Error extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Error.class);
-    
+
     @Override
     public void execute(Context context) {
         log.info("calling error...");
@@ -62,7 +62,7 @@ public class Error extends BlockingNativeCallableUnit {
             String errorMsg = responseStruct.getStringField(0);
             StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
             if (responseObserver == null) {
-                context.setError(MessageUtils.getServerConnectorError(context, new StatusRuntimeException(Status
+                context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                                 " observer not found."))));
             } else {
@@ -70,6 +70,5 @@ public class Error extends BlockingNativeCallableUnit {
                         (errorMsg)));
             }
         }
-        context.setReturnValues(new BValue[0]);
     }
 }

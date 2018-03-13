@@ -17,38 +17,47 @@
  */
 package org.ballerinalang.net.grpc;
 
+import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.ssl.SSLConfig;
+import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * Util class of connector functions.
  */
 public class ConnectorUtil {
-    public static EndPointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
-        EndPointConfiguration endPointConfiguration = new EndPointConfiguration();
-        // TODO: 3/13/18 Host port validation
-        endPointConfiguration.setPort(serviceEndpointConfig.getIntField("port"));
+    public static EndpointConfiguration generateServiceConfiguration(Struct serviceEndpointConfig) {
+        EndpointConfiguration endPointConfiguration = new EndpointConfiguration();
+        endPointConfiguration.setPort((Math.toIntExact(serviceEndpointConfig.getIntField("port"))));
         endPointConfiguration.setHost(serviceEndpointConfig.getStringField("host"));
-        Struct sslStruct = serviceEndpointConfig.getStructField("ssl");
-        if (sslStruct != null) {
-            endPointConfiguration.setSslConfig(getSSLConfigs(sslStruct));
-        }
         return endPointConfiguration;
     }
     
-    public static SSLConfig getSSLConfigs(Struct sslStruct) {
-        // TODO: 3/13/18 cipers and other configs
-        SSLConfig sslConfig = new SSLConfig(sslStruct.getStringField("keyFile"),
-                sslStruct.getStringField("keyChainFile"));
-        sslConfig.setCertFile(sslStruct.getStringField("certFile"));
-        return sslConfig;
+    public static SSLHandlerFactory getSSLConfigs(Annotation serviceAnnotation) {
+        if (serviceAnnotation == null) {
+            return null;
+        }
+        AnnAttrValue keyStoreFile = serviceAnnotation.getAnnAttrValue("keyStoreFile");
+        AnnAttrValue keyStorePassword = serviceAnnotation.getAnnAttrValue("keyStorePassword");
+        AnnAttrValue certPassword = serviceAnnotation.getAnnAttrValue("certPassword");
+        if (keyStoreFile == null || certPassword == null) {
+            return null;
+        } else {
+            SSLConfig sslConfig = new SSLConfig(new File(keyStoreFile.getStringValue())
+                    , keyStorePassword.getStringValue());
+            sslConfig.setCertPass(certPassword.getStringValue());
+            sslConfig.setTlsStoreType("PKCS12");
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            return sslHandlerFactory;
+        }
     }
     
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {

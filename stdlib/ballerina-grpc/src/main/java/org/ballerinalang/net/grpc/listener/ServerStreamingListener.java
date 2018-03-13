@@ -18,11 +18,12 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.ServerCalls;
 import io.grpc.stub.StreamObserver;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.GrpcEmptyCallableUnitCallback;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 
 import java.util.List;
@@ -32,11 +33,11 @@ import java.util.List;
  */
 public class ServerStreamingListener extends MethodListener implements ServerCalls.ServerStreamingMethod<Message,
         Message> {
-    
+
     public ServerStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         super(methodDescriptor, resource);
     }
-    
+
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
@@ -46,6 +47,7 @@ public class ServerStreamingListener extends MethodListener implements ServerCal
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        Executor.submit(resource, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack();
+        Executor.submit(resource, callback, null, signatureParams);
     }
 }

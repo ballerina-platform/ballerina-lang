@@ -18,6 +18,7 @@ package org.ballerinalang.net.grpc.stubs;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -31,7 +32,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.GrpcEmptyCallableUnitCallback;
+import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
@@ -53,7 +54,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     private Map<String, Resource> resourceMap = new HashMap<>();
     private StreamObserver<Message> requestSender = null;
     private Descriptors.Descriptor requestType = null;
-    
+
     public DefaultStreamObserver(Context context, String serviceName) throws
             GrpcClientException {
         // TODO: 3/10/18 Fix
@@ -68,7 +69,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             resourceMap.put(resource.getName(), resource);
         }*/
     }
-    
+
     public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
             throws GrpcClientException {
         if (requestType == null && requestSender == null) {
@@ -78,15 +79,15 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         this.requestSender = requestSender;
         this.requestType = requestType;
     }
-    
+
     public StreamObserver<Message> getRequestSender() {
         return requestSender;
     }
-    
+
     public Descriptors.Descriptor getRequestType() {
         return requestType;
     }
-    
+
     private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors
             .Descriptor inputType) {
         BStruct connection = ConnectorUtils.createStruct(resource,
@@ -95,7 +96,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         connection.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, inputType);
         return connection;
     }
-    
+
     @Override
     public void onNext(Message value) {
         Resource resource = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
@@ -111,9 +112,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        Executor.submit(resource, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(resource, callback, null, signatureParams);
     }
-    
+
     @Override
     public void onError(Throwable t) {
         Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
@@ -131,11 +133,13 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
-        BStruct errorStruct = MessageUtils.getConnectorError(onError, paramDetails.get(1).getVarType(), t);
+        BType errorType = paramDetails.get(1).getVarType();
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[1] = errorStruct;
-        Executor.submit(onError, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(onError, callback, null, signatureParams);
     }
-    
+
     @Override
     public void onCompleted() {
         Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
@@ -147,14 +151,15 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);
-        Executor.submit(onCompleted, new GrpcEmptyCallableUnitCallback(), null, signatureParams);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        Executor.submit(onCompleted, callback, null, signatureParams);
     }
-    
+
     private BValue getRequestParameter(Resource resource, Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
-        
+
         if (resource.getParamDetails().size() == 2) {
             BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
                     .getVarType();
@@ -164,7 +169,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             return null;
         }
     }
-    
+
     private BValue generateRequestStruct(Message request, String fieldName, BType structType, Resource resource) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -172,7 +177,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-        
+
         if (structType instanceof BStructType) {
             BStruct requestStruct = ConnectorUtils.createStruct(resource, structType.getPackagePath(), structType
                     .getName());
@@ -268,7 +273,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
                 }
             }
         }
-        
+
         return bValue;
     }
 }

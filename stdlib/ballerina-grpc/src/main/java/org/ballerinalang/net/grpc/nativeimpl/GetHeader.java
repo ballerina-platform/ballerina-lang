@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageUtils;
 
 /**
  * Get the Headers of the Message.
@@ -34,10 +35,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class GetHeader extends BlockingNativeCallableUnit {
-
     @Override
     public void execute(Context context) {
-        // TODO: 3/12/18 need to fix
-        //MessageUtils.getHeader(context, this);
+        context.setReturnValues(MessageUtils.getHeader(context));
     }
 }

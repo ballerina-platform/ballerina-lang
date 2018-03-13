@@ -35,12 +35,12 @@ import org.ballerinalang.util.codegen.StructInfo;
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
  */
 abstract class AbstractExecute extends BlockingNativeCallableUnit {
-    
+
     /**
      * Returns corresponding Ballerina type for the proto buffer type.
      *
      * @param protoType Protocol buffer type
-     * @param context   Ballerina Context
+     * @param context Ballerina Context
      * @return .
      */
     BType getBalType(String protoType, Context context) {
@@ -63,9 +63,9 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }
-    
+
     MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
-                                                      methodDescriptor) throws GrpcClientException {
+                                                                    methodDescriptor) throws GrpcClientException {
         if (methodDescriptor == null) {
             throw new GrpcClientException("Error while processing method type. Method descriptor cannot be null.");
         }
@@ -82,12 +82,18 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
             return MethodDescriptor.MethodType.UNKNOWN;
         }
     }
-    
+
     BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
+    }
+
+    void notifyErrorReply(Context context, String errorMessage) {
+        BStruct outboundError = createStruct(context, "ConnectorError");
+        outboundError.setStringField(0, errorMessage);
+        context.setError(outboundError);
     }
 }

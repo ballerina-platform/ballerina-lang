@@ -20,7 +20,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -45,19 +44,18 @@ import org.slf4j.LoggerFactory;
 )
 public class Complete extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Complete.class);
-    
     @Override
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
-        if (responseObserver != null) {
-            try {
-                responseObserver.onCompleted();
-            } catch (Throwable e) {
-                log.error("Error while sending client response.", e);
-                context.setError(MessageUtils.getServerConnectorError(context, e));
-            }
+        if (responseObserver == null) {
+            return;
         }
-        context.setReturnValues(new BValue[0]);
+        try {
+            responseObserver.onCompleted();
+        } catch (Throwable e) {
+            log.error("Error while sending client response.", e);
+            context.setError(MessageUtils.getConnectorError(context, e));
+        }
     }
 }

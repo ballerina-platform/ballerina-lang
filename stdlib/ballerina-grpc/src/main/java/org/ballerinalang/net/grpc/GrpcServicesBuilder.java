@@ -33,7 +33,7 @@ import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.net.grpc.config.EndPointConfiguration;
+import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.interceptor.ServerHeaderInterceptor;
 import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 
 /**
@@ -58,34 +57,28 @@ import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 public class GrpcServicesBuilder {
     
     
-    public static io.grpc.ServerBuilder initService(EndPointConfiguration serviceEndpointConfig,
-                                                    SslContext sslContext) {
+    public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
+            sslContext) {
         io.grpc.ServerBuilder serverBuilder;
         if (sslContext != null) {
-            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
-                serverBuilder = NettyServerBuilder.forPort(
-                        serviceEndpointConfig.getPort().intValue())
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != 0) {
+                serverBuilder = NettyServerBuilder.forPort((int)
+                        serviceEndpointConfig.getPort())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                .availableProcessors() * 2))
-                        .flowControlWindow(65 * 1024)
-                        .maxMessageSize(MAX_MESSAGE_SIZE)
-                        .sslContext(sslContext);
+                                .availableProcessors() * 2)).sslContext(sslContext);
             } else {
                 serverBuilder = NettyServerBuilder.forPort(9090)
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
-                                .availableProcessors() * 2))
-                        .flowControlWindow(65 * 1024)
-                        .maxMessageSize(MAX_MESSAGE_SIZE)
-                        .sslContext(sslContext);
+                                .availableProcessors() * 2)).sslContext(sslContext);
             }
         } else {
-            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != null) {
-                serverBuilder = NettyServerBuilder.forPort(
-                        serviceEndpointConfig.getPort().intValue())
+            if (serviceEndpointConfig != null && serviceEndpointConfig.getPort() != 0) {
+                serverBuilder = NettyServerBuilder.forPort((int)
+                        serviceEndpointConfig.getPort())
                         .bossEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()
                                 .availableProcessors()))
                         .workerEventLoopGroup(new NioEventLoopGroup(Runtime.getRuntime()

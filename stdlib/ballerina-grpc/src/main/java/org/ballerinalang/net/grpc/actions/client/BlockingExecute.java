@@ -32,20 +32,17 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 
-import static org.ballerinalang.net.grpc.actions.client.ActionUtils.notifyErrorReply;
-import static org.ballerinalang.net.grpc.actions.client.ActionUtils.notifyReply;
-
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",
         actionName = "blockingExecute",
-        connectorName = "GRPCConnector",
+        connectorName = "ClientConnector",
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)
-            
+
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -58,15 +55,16 @@ import static org.ballerinalang.net.grpc.actions.client.ActionUtils.notifyReply;
         }
 )
 public class BlockingExecute extends AbstractExecute {
-    
+
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         if (bConnector == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
+            return;
         }
-        
+
         Object connectionStub = bConnector.getNativeData("stub");
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client " +
@@ -76,11 +74,13 @@ public class BlockingExecute extends AbstractExecute {
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint " +
                     "doesn't set properly");
+            return;
         }
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
                 .getMethodDescriptor(methodName);
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+            return;
         }
         if (connectionStub instanceof GrpcBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
@@ -94,7 +94,8 @@ public class BlockingExecute extends AbstractExecute {
                     Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
                     BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, outputDescriptor.getName(),
                             getBalType(outputDescriptor.getName(), context), context);
-                    notifyReply(context, responseBValue);
+                    context.setReturnValues(responseBValue);
+                    return;
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

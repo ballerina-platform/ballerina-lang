@@ -17,13 +17,14 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -36,10 +37,14 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -48,35 +53,36 @@ import java.util.Map;
  * Message Utils.
  */
 public class MessageUtils {
+    private static final Logger log = LoggerFactory.getLogger(MessageUtils.class);
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     public static final String UNKNOWN_ERROR = "Unknown Error";
-// TODO: 3/12/18 Fix for new connector syntax
-//    public static BValue[] getHeader(Context context, BlockingNativeCallableUnit abstractNativeFunction) {
-//        String headerName = context.getRefArgument( 0).stringValue();
-//        String headerValue = getHeaderValue(headerName);
-//
-//        return abstractNativeFunction.getBValues(new BString(headerValue));
-//    }
-    
-//    private static String getHeaderValue(String keyName) {
-//        String headerValue = null;
-//        if (MessageContext.isPresent()) {
-//            MessageContext messageContext = MessageContext.DATA_KEY.get();
-//            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-//                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-//                byte[] byteValues = messageContext.get(key);
-//                // Referred : https://stackoverflow
-//                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
-//                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
-//                headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
-//            } else {
-//                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-//                headerValue = messageContext.get(key);
-//            }
-//        }
-//        return headerValue;
-//    }
-    
+
+    public static BValue getHeader(Context context) {
+        String headerName = context.getStringArgument(0);
+        String headerValue = getHeaderValue(headerName);
+
+        return new BString(headerValue);
+    }
+
+    private static String getHeaderValue(String keyName) {
+        String headerValue = null;
+        if (MessageContext.isPresent()) {
+            MessageContext messageContext = MessageContext.DATA_KEY.get();
+            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
+                byte[] byteValues = messageContext.get(key);
+                // Referred : https://stackoverflow
+                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
+                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
+                headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
+            } else {
+                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
+                headerValue =  messageContext.get(key);
+            }
+        }
+        return headerValue;
+    }
+
     public static StreamObserver<Message> getStreamObserver(BStruct struct) {
         Object observerObject = struct.getNativeData(MessageConstants.STREAM_OBSERVER);
         if (observerObject instanceof StreamObserver) {
@@ -84,33 +90,25 @@ public class MessageUtils {
         }
         return null;
     }
-    
-    public static BStruct getServerConnectorError(Context context, Throwable throwable) {
+
+    public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
-        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
-        if (throwable.getMessage() == null) {
-            httpConnectorError.setStringField(0, IO_EXCEPTION_OCCURED);
-        } else {
-            httpConnectorError.setStringField(0, throwable.getMessage());
-        }
-        return httpConnectorError;
+        return getConnectorError(errorStructInfo.getType(), throwable);
     }
-    
+
     /**
      * Returns error struct of input type
      * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param resource  this is onError resource of callback listener service.
      * @param errorType this is either ServerError or ClientError.
-     * @param error     this is StatusRuntimeException send by opposite party.
+     * @param error this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
-    public static BStruct getConnectorError(Resource resource, BType errorType, Throwable error) {
-        BStruct errorStruct = ConnectorUtils.createStruct(resource, errorType.getPackagePath(), errorType
-                .getName());
+    public static BStruct getConnectorError(BStructType errorType, Throwable error) {
+        BStruct errorStruct = new BStruct(errorType);
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
             int status = statusException.getStatus() != null ? statusException.getStatus().getCode().value() : -1;
@@ -126,7 +124,18 @@ public class MessageUtils {
         }
         return errorStruct;
     }
-    
+
+    public static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
+        int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
+        String errorMsg = error.getStringField(0);
+        log.error(errorMsg);
+        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        if (streamObserver != null) {
+            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
+                    (errorMsg)));
+        }
+    }
+
     /**
      * Returns wire type corresponding to the field descriptor type.
      * <p>
@@ -151,7 +160,7 @@ public class MessageUtils {
             return ServiceProtoConstants.MESSAGE_WIRE_TYPE;
         }
     }
-    
+
     /**
      * Check whether message object is an array.
      *
@@ -161,37 +170,37 @@ public class MessageUtils {
     static boolean isArray(Object object) {
         return object != null && object.getClass().isArray();
     }
-    
+
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_NAME_CONFIG);
-        
+
         if (annotationList == null) {
             return null;
         }
-        
+
         if (annotationList.size() > 1) {
             throw new BallerinaException(
                     "multiple service configuration annotations found in service: " + service.getName());
         }
-        
+
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
-    
+
     public static Annotation getMessageListenerAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_MESSAGE_LISTENER);
-        
+
         if (annotationList == null) {
             return null;
         }
-        
+
         if (annotationList.size() > 1) {
             throw new BallerinaException(
                     "multiple service configuration annotations found in service: " + service.getName());
         }
-        
+
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
-    
+
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
@@ -293,7 +302,7 @@ public class MessageUtils {
         }
         return responseBuilder.build();
     }
-    
+
     public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -301,7 +310,7 @@ public class MessageUtils {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-        
+
         if (structType instanceof BStructType) {
             BStruct requestStruct = createStruct(context, fieldName);
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
@@ -396,17 +405,17 @@ public class MessageUtils {
                 }
             }
         }
+
         return bValue;
     }
-    
-    public static BStruct createStruct(Context context, String fieldName) {
+
+    private static BStruct createStruct(Context context, String fieldName) {
         BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
     }
-    
+
     /**
      * Util method to get method type.
-     *
      * @param methodDescriptorProto method descriptor proto.
      * @return service method type.
      */
