@@ -80,7 +80,7 @@ public native function <ClientConnection conn> complete () (ConnectorError);
 @Return {value:"Error occured during HTTP server connector forward"}
 public native function <ClientConnection conn> error (ServerError serverError) (ConnectorError);
 
-public connector ResponseConnector (ServiceEndpoint conn) {
+public connector ResponseConnector (Service conn) {
     action respondComplete () (ServerError) {
         return conn.complete();
     }

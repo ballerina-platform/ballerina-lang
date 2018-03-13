@@ -36,7 +36,7 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                 structPackage = "ballerina.net.grpc"),
         isPublic = true
 )
@@ -48,5 +48,6 @@ public class Stop extends AbstractGrpcNativeFunction {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Server server = getService(serviceEndpoint);
         stop(server);
+        context.setReturnValues();
     }
 }

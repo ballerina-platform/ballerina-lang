@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
+import org.ballerinalang.nativeimpl.actions.data.sql.actions.SQLDatasourceUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;

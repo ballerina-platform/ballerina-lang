@@ -37,14 +37,14 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                 structPackage = "ballerina.net.grpc"),
         isPublic = true
 )
 public class Start extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
     
-    @java.lang.Override
+    @Override
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
@@ -54,5 +54,6 @@ public class Start extends AbstractGrpcNativeFunction {
         } catch (GrpcServerException e) {
             throw new GrpcServerValidationException("Error in starting gRPC service.", e);
         }
+        context.setReturnValues();
     }
 }

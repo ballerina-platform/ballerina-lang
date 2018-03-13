@@ -19,11 +19,8 @@
 package org.ballerinalang.test.services.testutils;
 
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -31,9 +28,7 @@ import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
@@ -46,12 +41,19 @@ import java.util.Map;
  */
 public class Services {
 
+
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
+                                              HTTPTestRequest request) {
+        return invokeNew(compileResult, ".", endpointName, request);
+    }
+
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
         ProgramFile programFile = compileResult.getProgFile();
         BStruct connectorEndpoint = BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, endpointName);
 
-        HTTPServicesRegistry httpServicesRegistry = (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+        HTTPServicesRegistry httpServicesRegistry =
+                (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = HttpDispatcher.findResource(httpServicesRegistry, request);

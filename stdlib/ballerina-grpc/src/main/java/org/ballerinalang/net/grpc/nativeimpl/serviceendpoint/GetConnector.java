@@ -34,7 +34,7 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
         functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                 structPackage = "ballerina.net.grpc"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
@@ -44,6 +44,6 @@ public class GetConnector extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-    
+        context.setReturnValues();
     }
 }
