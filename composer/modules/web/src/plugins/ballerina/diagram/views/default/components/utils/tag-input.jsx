@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// import './tags-input.scss';
 
 /**
  * React component for a service definition.
