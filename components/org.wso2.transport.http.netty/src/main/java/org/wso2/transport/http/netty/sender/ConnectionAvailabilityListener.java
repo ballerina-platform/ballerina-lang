@@ -25,7 +25,17 @@ import io.netty.channel.ChannelFuture;
  * Listener for connection availability future.
  */
 public interface ConnectionAvailabilityListener {
+    /**
+     * This is invoked when connection was successfully created.
+     * @param protocol http or http2
+     * @param channelFuture channel future
+     */
     void onSuccess(String protocol, ChannelFuture channelFuture);
+
+    /**
+     * If failed to create the connection.
+     * @param channelFuture channel future
+     */
     void onFailure(ChannelFuture channelFuture);
 }
 

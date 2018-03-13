@@ -283,11 +283,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 configureH2Pipeline(ctx.pipeline());
-                connectionAvailabilityFuture.notifyListener(ApplicationProtocolNames.HTTP_2);
+                connectionAvailabilityFuture.notifySuccess(ApplicationProtocolNames.HTTP_2);
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
                 configureHttpPipeline(ctx.pipeline(), targetHandler);
-                connectionAvailabilityFuture.notifyListener(Constants.HTTP_SCHEME);
+                connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
                 throw new IllegalStateException("Unknown protocol: " + protocol);
             }

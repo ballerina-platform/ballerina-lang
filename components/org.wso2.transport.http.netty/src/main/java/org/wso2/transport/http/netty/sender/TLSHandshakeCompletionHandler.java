@@ -43,10 +43,10 @@ public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter 
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                connectionAvailabilityFuture.notifyListener(Constants.HTTP_SCHEME);
+                connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
                 ctx.fireChannelRead(evt);
             } else {
-                connectionAvailabilityFuture.setFailure();
+                connectionAvailabilityFuture.notifyFailure();
             }
         }
         ctx.fireUserEventTriggered(evt);

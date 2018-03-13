@@ -28,34 +28,32 @@ import org.wso2.transport.http.netty.common.Constants;
  */
 public class ConnectionAvailabilityFuture {
 
-    private ChannelFuture socketAvailabilityFuture;
+    private ChannelFuture channelFuture;
     private boolean isSSLEnabled = false;
     private ConnectionAvailabilityListener listener = null;
     private String protocol;
     private boolean socketAvailable = false;
+    private boolean isFailure;
 
-    public void setSocketAvailabilityFuture(ChannelFuture socketAvailabilityFuture) {
-        this.socketAvailabilityFuture = socketAvailabilityFuture;
+    public void setChannelFuture(ChannelFuture channelFuture) {
+        this.channelFuture = channelFuture;
 
-        socketAvailabilityFuture.addListener(new ChannelFutureListener() {
+        channelFuture.addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (isValidChannel(channelFuture)) {
                     socketAvailable = true;
                     if (listener != null && !isSSLEnabled) {
-                        notifyListener(Constants.HTTP_SCHEME);
+                        notifySuccess(Constants.HTTP_SCHEME);
                     }
                 } else {
-                    listener.onFailure(socketAvailabilityFuture);
+                    notifyFailure();
                 }
             }
 
-            private boolean isValidChannel(ChannelFuture channelFuture) throws Exception {
-                if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                    return true;
-                }
-                return false;
+            private boolean isValidChannel(ChannelFuture channelFuture) {
+                return (channelFuture.isDone() && channelFuture.isSuccess());
             }
         });
     }
@@ -64,24 +62,30 @@ public class ConnectionAvailabilityFuture {
         isSSLEnabled = sslEnabled;
     }
 
-    public void notifyListener(String protocol) {
+    public void notifySuccess(String protocol) {
         this.protocol = protocol;
         if (listener != null) {
-            listener.onSuccess(protocol, socketAvailabilityFuture);
+            listener.onSuccess(protocol, channelFuture);
+        }
+    }
+
+    public void notifyFailure() {
+        isFailure = true;
+        if (listener != null) {
+            listener.onFailure(channelFuture);
         }
     }
 
     public void setListener(ConnectionAvailabilityListener listener) {
         this.listener = listener;
         if (protocol != null) {
-            notifyListener(protocol);
+            notifySuccess(protocol);
         } else if (!isSSLEnabled && socketAvailable) {
-            notifyListener(Constants.HTTP_SCHEME);
+            notifySuccess(Constants.HTTP_SCHEME);
+        } else if (isFailure) {
+            notifyFailure();
         }
     }
-
-    public void setFailure() {
-        listener.onFailure(socketAvailabilityFuture);
-    }
 }
+
 
