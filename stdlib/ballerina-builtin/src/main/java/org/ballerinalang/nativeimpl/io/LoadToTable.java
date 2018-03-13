@@ -63,7 +63,9 @@ import java.util.concurrent.CompletableFuture;
         functionName = "loadToTable",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
-                @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
+                @Argument(name = "fieldSeparator", type = TypeKind.STRING),
+                @Argument(name = "encoding", type = TypeKind.STRING),
+                @Argument(name = "headerLineIncluded", type = TypeKind.BOOLEAN)},
         returnType = {@ReturnType(type = TypeKind.TABLE),
                       @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
@@ -139,6 +141,10 @@ public class LoadToTable implements NativeCallableUnit {
         BTypeValue type = (BTypeValue) context.getRefArgument(0);
         BTable table = new BTable(new BTableType(type.value()));
         BStructType structType = (BStructType) type.value();
+        boolean skipHeaderLine = context.getBooleanArgument(0);
+        if (skipHeaderLine && !records.isEmpty()) {
+            records.remove(0);
+        }
         for (Object obj : records) {
             String[] fields = (String[]) obj;
             final BStruct struct = getStruct(fields, structType);
@@ -192,8 +198,9 @@ public class LoadToTable implements NativeCallableUnit {
     private DelimitedRecordChannel getDelimitedRecordChannel(Context context, FileChannel sourceChannel) {
         final String recordSeparator = context.getStringArgument(1);
         final String fieldSeparator = context.getStringArgument(2);
+        final String encoding = context.getStringArgument(3);
         FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
-        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.defaultCharset().name());
+        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
         return new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);
     }
 }

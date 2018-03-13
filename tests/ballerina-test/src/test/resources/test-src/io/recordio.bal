@@ -35,7 +35,7 @@ function hasNextRecord () (boolean) {
 
 function loadToTable (string filePath) (float total) {
     table <Employee> tb;
-    tb, _ = io:loadToTable(filePath, "\n", ",", typeof Employee);
+    tb, _ = io:loadToTable(filePath, "\n", ",", "UTF-8", false, typeof Employee);
     foreach x in tb {
         total = total + x.salary;
     }

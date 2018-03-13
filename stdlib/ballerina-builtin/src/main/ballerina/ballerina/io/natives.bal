@@ -180,8 +180,10 @@ public native function <Socket socket> closeSocket () (IOError);
 @Param {value:"filePath: Path to delimited file"}
 @Param {value:"recordSeparator: Terminating expression to distinguish between records"}
 @Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
+@Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
+@Param {value:"headerLineIncluded: To indicate whether given file included the header line or not"}
 @Param {value:"structType: Name of the struct that each record need to populate"}
 @Return {value:"Result set of delimited values"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function loadToTable(string filePath, string recordSeparator,
-                                   string fieldSeparator, type structType) (table, IOError);
+public native function loadToTable(string filePath, string recordSeparator, string fieldSeparator,
+                                   string encoding, boolean headerLineIncluded, type structType) (table, IOError);
