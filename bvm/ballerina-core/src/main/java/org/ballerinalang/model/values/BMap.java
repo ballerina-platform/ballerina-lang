@@ -119,7 +119,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
             return true;
         } else {
             return false;
-
         }
     }
 
