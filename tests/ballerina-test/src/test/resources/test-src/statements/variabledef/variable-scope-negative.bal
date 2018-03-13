@@ -34,19 +34,19 @@ function testVariableWhileScope() {
     int sum = b;
 }
 
-service<http> myService {
+service<http:Service> myService {
     int a = 20;
 
-    resource myResource1(http:Connection conn, http:Request req) {
+    resource myResource1(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         int b = a + 50;
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    resource myResource2(http:Connection conn, http:Request req) {
+    resource myResource2(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         int c = b + 50;
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 

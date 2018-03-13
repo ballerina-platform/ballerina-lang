@@ -88,6 +88,10 @@ Deprecated
    : deprecated { <documentationText> }
    ;
 
+Endpoint
+   :  <annotationAttachments>* endpoint < <endPointType.source> > <name.value> <configurationExpression.source>
+   ;
+
 EndpointType
    : < <constraint.source> >
    ;
@@ -184,7 +188,7 @@ Return
    ;
 
 Service
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <protocolPackageIdentifier.value> > <name.value> { <variables>* <resources>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <endpointType.source> > <name.value> { <variables>* <resources>* }
    ;
 
 SimpleVariableRef

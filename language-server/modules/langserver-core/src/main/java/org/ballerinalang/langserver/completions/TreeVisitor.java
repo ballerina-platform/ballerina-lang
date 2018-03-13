@@ -1069,7 +1069,7 @@ public class TreeVisitor extends BLangNodeVisitor {
                 // Evaluating the particular Endpoint
                 this.populateSymbols(new HashMap<>(), symbolEnv);
                 this.setTerminateVisitor(true);
-                
+
                 return true;
             }
         }

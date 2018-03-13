@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
+import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -303,18 +304,26 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
+            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             TextDocumentServiceContext renameContext = new TextDocumentServiceContext();
-
+            renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+            renameContext.put(DocumentServiceKeys.POSITION_KEY,
+                    new TextDocumentPositionParams(params.getTextDocument(), params.getPosition()));
             BLangPackage currentBLangPackage =
                     TextDocumentServiceUtil.getBLangPackage(renameContext, documentManager);
             bLangPackageContext.addPackage(currentBLangPackage);
+            String replaceableSymbolName = RenameUtil.getReplaceSymbolName(params, documentManager);
 
-            WorkspaceEdit workspaceEdit;
-
+            List<Location> contents = new ArrayList<>();
+            renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
             try {
-                workspaceEdit = new WorkspaceEdit();
+                PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
+                currentBLangPackage.accept(positionTreeVisitor);
+                contents = ReferenceUtil.getReferences(renameContext, bLangPackageContext, currentBLangPackage);
+                workspaceEdit.setDocumentChanges(RenameUtil
+                        .getRenameTextEdits(contents, documentManager, params.getNewName(), replaceableSymbolName));
             } catch (Exception e) {
-                workspaceEdit = new WorkspaceEdit();
+                // Ignore exception and will return the empty workspace edits list
             }
 
             return workspaceEdit;

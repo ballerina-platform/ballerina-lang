@@ -130,7 +130,7 @@ public class SystemTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConnectorPrintAndPrintln() throws IOException {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
