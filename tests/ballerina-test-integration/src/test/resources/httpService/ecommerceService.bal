@@ -1,13 +1,20 @@
 import ballerina.io;
 import ballerina.net.http;
 
-@http:configuration {basePath:"/customerservice"}
-service<http> CustomerMgtService {
+endpoint<http:Service> serviceEnpoint {
+    port:9090
+}
+
+@http:serviceConfig {
+    basePath:"/customerservice",
+    endpoints:[serviceEnpoint]
+}
+service<http:Service> CustomerMgtService {
 
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource customers (http:Connection conn, http:Request req) {
+    resource customers (http:ServerConnector conn, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -18,89 +25,95 @@ service<http> CustomerMgtService {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/ecommerceservice"}
-service<http> Ecommerce {
+endpoint<http:Client> productsService {
+    serviceUri: "http://localhost:9090"
+}
 
-    endpoint<http:HttpClient> productsService {
-        create http:HttpClient("http://localhost:9090", {});
-    }
+@http:serviceConfig {
+    basePath:"/ecommerceservice",
+    endpoints:[serviceEnpoint]
+}
+service<http:Service> Ecommerce {
     http:HttpConnectorError err;
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/products/{prodId}"
     }
-    resource productsInfo (http:Connection conn, http:Request req, string prodId) {
+    resource productsInfo (http:ServerConnector conn, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + prodId;
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService.get(reqPath, clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> get(reqPath, clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/products"
     }
-    resource productMgt (http:Connection conn, http:Request req) {
+    resource productMgt (http:ServerConnector conn, http:Request req) {
         http:Request clientRequest = {};
         var jsonReq, _ = req.getJsonPayload();
         clientRequest.setJsonPayload(jsonReq);
-        var clientResponse, _ = productsService.post("/productsservice", clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> post("/productsservice", clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/orders"
     }
-    resource ordersInfo (http:Connection conn, http:Request req) {
+    resource ordersInfo (http:ServerConnector conn, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService.get("/orderservice/orders", clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> get("/orderservice/orders", clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/orders"
     }
-    resource ordersMgt (http:Connection conn, http:Request req) {
+    resource ordersMgt (http:ServerConnector conn, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService.post("/orderservice/orders", clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> post("/orderservice/orders", clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    resource customersInfo (http:Connection conn, http:Request req) {
+    resource customersInfo (http:ServerConnector conn, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService.get("/customerservice/customers", clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> get("/customerservice/customers", clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/customers"
     }
-    resource customerMgt (http:Connection conn, http:Request req) {
+    resource customerMgt (http:ServerConnector conn, http:Request req) {
         http:Request clientRequest = {};
-        var clientResponse, _ = productsService.post("/customerservice/customers", clientRequest);
-        _ = conn.forward(clientResponse);
+        var clientResponse, _ = productsService -> post("/customerservice/customers", clientRequest);
+        _ = conn -> forward(clientResponse);
     }
 }
 
-@http:configuration {basePath:"/orderservice"}
-service<http> OrderMgtService {
+@http:serviceConfig {
+    basePath:"/orderservice",
+    endpoints:[serviceEnpoint]
+}
+service<http:Service> OrderMgtService {
 
     @http:resourceConfig {
         methods:["GET", "POST"]
     }
-    resource orders (http:Connection conn, http:Request req) {
+    resource orders (http:ServerConnector conn, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
         if (httpMethod.equalsIgnoreCase("GET")) {
@@ -111,12 +124,15 @@ service<http> OrderMgtService {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/productsservice"}
-service<http> productmgt {
+@http:serviceConfig {
+    basePath:"/productsservice",
+    endpoints:[serviceEnpoint]
+}
+service<http:Service> productmgt {
 
     map productsMap = populateSampleProducts();
 
@@ -124,20 +140,20 @@ service<http> productmgt {
         methods:["GET"],
         path:"/{prodId}"
     }
-    resource product (http:Connection conn, http:Request req, string prodId) {
+    resource product (http:ServerConnector conn, http:Request req, string prodId) {
         json payload;
         payload, _ = (json)productsMap[prodId];
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource addProduct (http:Connection conn, http:Request req) {
+    resource addProduct (http:ServerConnector conn, http:Request req) {
         var jsonReq, _ = req.getJsonPayload();
         var productId, _ = (string)jsonReq.Product.ID;
         productsMap[productId] = jsonReq;
@@ -145,7 +161,7 @@ service<http> productmgt {
 
         http:Response res = {};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
