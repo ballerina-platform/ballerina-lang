@@ -38,13 +38,26 @@
   border-color    : @orange ;
 }
 
+
+/* Inline */
+.ui.form .inline.fields .field > .selection.dropdown,
+.ui.form .inline.field > .selection.dropdown {
+    width: 100%;
+}
+
 /* Inline Label */
 .ui.form .inline.fields > label,
 .ui.form .inline.fields .field > label,
 .ui.form .inline.fields .field > p,
 .ui.form .inline.field > label,
-.ui.form .inline.field > p {
-  font-weight: 300;
+.ui.form .inline.field > p
+.ui.form .field > label {
+    color: @inlineLabelColor;
+    font-weight: @labelFontWeight;
+}
+
+.ui.form .inline.fields .field > :only-child, .ui.form .inline.field > :only-child{
+    width: 100%;
 }
 
 

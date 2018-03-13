@@ -61,14 +61,16 @@
 }
 
 #property-modal .tagItems {
-    display: flex;
+    display: inline-flex;
+    background:#f3f3f3;
     flex-flow: wrap;
-    padding: 0 0 0 5px;
-    border: 1px solid #9E9E9E;
+    padding: 2px 0 0 5px;
+    border: 1px solid #ccc;
     border-radius: 0;
-    margin-right: 5px;
+    margin: 0 5px 3px 0;
     cursor: pointer;
-    margin-bottom: 3px;
+    height: 26px;
+    overflow: hidden;
 }
 
 #property-modal .tagInput {
@@ -104,16 +106,7 @@
 }
 
 #property-modal .toggle:before {
-    content: "True False";
-    display: block;
-    position: absolute;
-    z-index: 2;
-    font: 10px/28px Helvetica;
-    text-transform: uppercase;
-    font-weight: 400;
-    text-indent: -34px;
-    word-spacing: 37px;
-    color: #fff;
+    display: none
 }
 
 #property-modal .toggle:checked {
@@ -127,16 +120,20 @@
 }
 
 #property-modal .deleteSpan {
-    background-color: #e4e4e4;
     margin-left: 9px;
     display: flex;
     width: 15px;
     opacity: 0.5;
+    padding-top: 6px;
 }
 
 #property-modal .iconDelete {
-    font-size: 9px;
+    font-size: 7px;
     margin-left: 3px;
+}
+
+.iconDelete:hover {
+    color: #f1772a;
 }
 
 /*New popup window*/
@@ -295,11 +292,12 @@
     padding-left: -10px;
     height: 38px;
     width: 35px;
-    font-size: 12px;
+    font-size: 16px;
     background: #eee;
-    color: #fff;
+    color: #797979;
     padding-top: 5px;
     margin: 0;
+    font-weight: 300;
 }
 
 #property-modal .propWindowStruct input:disabled {
@@ -352,10 +350,6 @@
     padding-left: 24px;
 }
 
-#property-modal #propWindowBreadcrumb a:hover {
-    background: #fff;
-}
-
 #property-modal #propWindowBreadcrumb a::after,
 #property-modal #propWindowBreadcrumb a::before {
     content: "";
@@ -365,7 +359,7 @@
     border-top: 40px solid transparent;
     border-bottom: 40px solid transparent;
     border-left: 16px solid;
-    right: -17px;
+    right: -16px;
 }
 
 #property-modal #propWindowBreadcrumb a::after {

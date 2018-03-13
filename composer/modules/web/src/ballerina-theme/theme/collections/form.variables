@@ -13,3 +13,4 @@
 @invertedInputColor         : @off-white;
 @selectionTextColor         : @off-white;
 @selectionBorderRadius      : 0;
+@labelFontWeight            : 300;

@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Form, Grid, Input } from 'semantic-ui-react';
+import { Button, Checkbox, Form, Grid, Input, Select } from 'semantic-ui-react';
 import _ from 'lodash';
 import './properties-form.css';
 import TagInput from './tag-input';
@@ -474,24 +474,22 @@ class PropertyWindow extends React.Component {
      */
     renderSelectBox(key) {
         return (
-            <Form.Group key={key.identifier}>
-                <Form.Field width={6}>
+            <Form.Group inline key={key.identifier}>
+                <Form.Field width={5}>
                     <label
                         htmlFor={key.identifier}
                     >
                         {_.startCase(key.identifier)}
                     </label>
                 </Form.Field>
-                <Form.Field width={10}>
-                    <select
+                <Form.Field width={11}>
+                    <Select
                         value={key.value}
                         onChange={event => this.onChange(event, key)}
-                    >
-                        <option value='null'>Select {key.identifier}</option>
-                        {key.fields.map((option) => {
+                        options={key.fields.map((option) => {
                             return <option value={option} key={option}>{option}</option>;
                         })}
-                    </select>
+                    />
                 </Form.Field>
             </Form.Group>);
     }
