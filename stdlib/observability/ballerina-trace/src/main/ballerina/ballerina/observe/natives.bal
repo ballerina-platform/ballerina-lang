@@ -71,6 +71,15 @@ public native function <Span span> finishSpan ();
 @Param {value:"tagValue: The value of the key value pair"}
 public native function <Span span> addTag (string tagKey, string tagValue);
 
+@Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
+@Param {value:"tagKey: The key of the key value pair"}
+@Param {value:"tagValue: The value of the key value pair"}
+public native function <Span span> setBaggageItem (string baggageKey, string baggageValue);
+
+@Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
+@Param {value:"tagKey: The key of the key value pair"}
+public native function <Span span> getBaggageItem (string baggageKey) (string);
+
 @Description {value:"Attach an info log to the current span"}
 @Param {value:"event: The type of event this log represents"}
 @Param {value:"message: The message to be logged"}

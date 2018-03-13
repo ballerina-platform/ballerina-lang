@@ -52,7 +52,7 @@ public class Log extends AbstractLogFunction {
         String pkg = getPackagePath(context);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            String logMessage = String.format("[Tracing] Service: %s, Span: %s Event: %s, Message: %s",
+            String logMessage = String.format("[Tracing] Service: %s, Span: %s, Event: %s, Message: %s",
                     span.getStringField(1), span.getStringField(2), event, message);
             getLogger(pkg).info(logMessage);
         }

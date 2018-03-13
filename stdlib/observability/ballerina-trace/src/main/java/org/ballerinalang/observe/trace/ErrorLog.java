@@ -58,7 +58,7 @@ public class ErrorLog extends AbstractLogFunction {
         String pkg = getPackagePath(context);
 
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            String logMessage = String.format("[Tracing] Service: %s, Span: %s ErrorKind: %s, Message: %s",
+            String logMessage = String.format("[Tracing] Service: %s, Span: %s, ErrorKind: %s, Message: %s",
                     span.getStringField(1), span.getStringField(2), errorKind, message);
             getLogger(pkg).error(logMessage);
         }

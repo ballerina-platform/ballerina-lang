@@ -22,23 +22,28 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 /**
- * This function which implements the finishSpan method for tracing.
+ * This function adds baggage items to a span.
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",
-        functionName = "finishSpan",
+        functionName = "setBaggageItem",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
+        args = {@Argument(name = "baggageKey", type = TypeKind.STRING),
+                @Argument(name = "baggageValue", type = TypeKind.STRING)},
         isPublic = true
 )
-public class FinishSpan extends BlockingNativeCallableUnit {
+public class SetBaggageItem extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
         String spanId = span.getStringField(0);
-        OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
+        String baggageKey = context.getStringArgument(0);
+        String baggageValue = context.getStringArgument(1);
+        OpenTracerBallerinaWrapper.getInstance().setBaggageItem(spanId, baggageKey, baggageValue);
     }
 }
