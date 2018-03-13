@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
@@ -44,11 +45,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -64,8 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -126,6 +124,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -219,6 +218,10 @@ public class TreeVisitor extends BLangNodeVisitor {
             setTerminateVisitor(true);
         } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.documentServiceContext)) {
+            
+            // Visit the endpoints
+            funcNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, funcEnv));
+            
             this.blockOwnerStack.push(funcNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
@@ -382,7 +385,12 @@ public class TreeVisitor extends BLangNodeVisitor {
             // Reset the previous node
             this.setPreviousNode(null);
             // TODO: Handle Annotation attachments
-            if (!(connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty())) {
+            if (!(connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()
+                    && connectorNode.endpoints.isEmpty())) {
+                
+                // Visit the endpoints
+                connectorNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, connectorEnv));
+                
                 // Since the connector def does not contains a block statement, we consider the block owner only.
                 // Here it is Connector Definition
                 this.blockOwnerStack.push(connectorNode);
@@ -418,6 +426,9 @@ public class TreeVisitor extends BLangNodeVisitor {
                 .isCursorBeforeNode(actionNode.getPosition(), actionNode, this, this.documentServiceContext)) {
 
             // TODO: Handle Annotation attachments
+            // Visit the endpoints
+            actionNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, actionEnv));
+            
             // Cursor position is calculated against the resource parameter scope resolver since both are similar
             cursorPositionResolver = ResourceParamScopeResolver.class;
             actionNode.workers.forEach(w -> this.acceptNode(w, actionEnv));
@@ -437,7 +448,10 @@ public class TreeVisitor extends BLangNodeVisitor {
             
             // Reset the previous node
             this.setPreviousNode(null);
-            if (!(serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty())) {
+            if (!(serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty() && serviceNode.endpoints.isEmpty())) {
+                // Visit the endpoints
+                serviceNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, serviceEnv));
+                
                 // Since the service does not contains a block statement, we consider the block owner only.
                 // Here it is service
                 this.blockOwnerStack.push(serviceNode);
@@ -471,6 +485,9 @@ public class TreeVisitor extends BLangNodeVisitor {
                 .isCursorBeforeNode(resourceNode.getPosition(), resourceNode, this, this.documentServiceContext)) {
 
             // TODO:Handle Annotation attachments
+            // Visit the endpoints
+            resourceNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, resourceEnv));
+            
             // Cursor position is calculated against the resource parameter scope resolver
             cursorPositionResolver = ResourceParamScopeResolver.class;
             resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
@@ -643,26 +660,6 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIdentifier identifierNode) {
-        // No Implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        // No Implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        // No Implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        // No Implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         // No Implementation
     }
 
@@ -957,6 +954,16 @@ public class TreeVisitor extends BLangNodeVisitor {
         // No Implementation
     }
 
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(endpointNode.getPosition(), endpointNode, this, this.documentServiceContext)) {
+            SymbolEnv endpointEnv = SymbolEnv
+                    .createPkgLevelSymbolEnv(endpointNode, endpointNode.symbol.scope, symbolEnv);
+            this.isWithinEndpointContext(endpointNode.getPosition(), endpointEnv, endpointNode.getName().getValue());
+        }
+    }
+
     /**
      * Resolve all visible symbols.
      * @param symbolEnv symbol environment
@@ -1028,16 +1035,45 @@ public class TreeVisitor extends BLangNodeVisitor {
 
     private boolean isCursorWithinBlock(DiagnosticPos nodePosition, SymbolEnv symbolEnv) {
         int line = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int nodeSLine = nodePosition.sLine;
-        int nodeELine = nodePosition.eLine;
+        DiagnosticPos zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
+        int nodeSLine = zeroBasedPosition.sLine;
+        int nodeELine = zeroBasedPosition.eLine;
 
         if ((nodeSLine <= line && nodeELine >= line)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
+            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            if (symbolEnv.scope != null) {
+                visibleSymbolEntries.putAll(this.resolveAllVisibleSymbols(symbolEnv));
+            }
             this.populateSymbols(visibleSymbolEntries, symbolEnv);
             this.setTerminateVisitor(true);
             return true;
         }
 
+        return false;
+    }
+    
+    private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv, String epName) {
+        if (documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null) {
+            // No syntax errors has occurred
+            return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
+        } else if (documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY)) {
+            // Syntax errors has occurred
+            boolean isWithinEndpoint = documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                    .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
+            String name = documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+                    .get(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY);
+            
+            if (isWithinEndpoint && epName.equals(name)) {
+                // Evaluating the particular Endpoint
+                this.populateSymbols(new HashMap<>(), symbolEnv);
+                this.setTerminateVisitor(true);
+                
+                return true;
+            }
+        }
+        
         return false;
     }
 
