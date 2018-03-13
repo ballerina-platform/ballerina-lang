@@ -97,6 +97,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
+        // annotation processor currently triggers this function for the functions of imported packages too. In order
+        // to avoid processing those, we have to have below check.
+        if (!suite.getSuiteName().equals(functionNode.getPosition().getSource().getPackageName())) {
+            return;
+        }
         // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             String annotationName = attachmentNode.getAnnotationName().getValue();
