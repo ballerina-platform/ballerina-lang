@@ -16,6 +16,9 @@
 
 package org.ballerinalang.code.generator.model;
 
+import org.ballerinalang.code.generator.GeneratorConstants;
+import org.ballerinalang.code.generator.exception.CodeGeneratorException;
+import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -23,13 +26,12 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNod
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ResourceContextHolder to hold ballerina resource information.
  */
 public class ResourceContextHolder {
-    private static final String RES_CONFIG_ANNOTATION = "resourceConfig";
-
     private String method;
     private String name;
     private String contentType;
@@ -41,7 +43,7 @@ public class ResourceContextHolder {
      */
     private String path;
 
-    public static ResourceContextHolder buildContext(ResourceNode resource) {
+    public static ResourceContextHolder buildContext(ResourceNode resource) throws CodeGeneratorException {
         ResourceContextHolder context = new ResourceContextHolder();
         context.name = resource.getName().getValue();
         context.parameters = new ArrayList<>();
@@ -54,32 +56,28 @@ public class ResourceContextHolder {
         }
 
         // Iterate through all resource level annotations and find out resource configuration information
-        for (AnnotationAttachmentNode ann: resource.getAnnotationAttachments()) {
+        AnnotationAttachmentNode ann = GeneratorUtils
+                .getAnnotationFromList(GeneratorConstants.RES_CONFIG_ANNOTATION, GeneratorConstants.HTTP_PKG_ALIAS,
+                        resource.getAnnotationAttachments());
 
-            if (RES_CONFIG_ANNOTATION.equals(ann.getAnnotationName().getValue())) {
-                for (AnnotationAttachmentAttributeNode attr: ann.getAttributes()) {
-                    String attrName = attr.getName().getValue();
-
-                    if ("path".equals(attrName)) {
-                        context.path = context.getTemplatePath(attr.getValue().getValue().toString());
-                    } else if ("methods".equals(attrName)) {
-                        // Consider only first http method since we don't expect multiple http methods to be
-                        // supported by single action
-                        context.method = attr.getValue().getValueArray().get(0).getValue().toString();
-                    } else if ("consumes".equals(attrName)) {
-                        // We don't need to consider one of all content types for client generation
-                        context.contentType = attr.getValue().getValueArray().get(0).getValue().toString();
-                    }
-                }
-
-                break;
-            }
+        if (ann == null) {
+            throw new CodeGeneratorException("Incomplete resource configuration found");
         }
+        Map<String, AnnotationAttachmentAttributeNode> attrs = GeneratorUtils.getAttributeMap(ann.getAttributes());
+
+        // We don't expect multiple http methods to be supported by single action
+        // We only consider first content type for a single resource
+        context.method = GeneratorUtils.getAttributeValue(attrs.get("methods"), 0);
+        context.contentType = GeneratorUtils.getAttributeValue(attrs.get("consumes"), 0);
+        context.path = context.getTemplatePath(GeneratorUtils.getAttributeValue(attrs.get("path")));
 
         return context;
     }
 
     private String getTemplatePath(String path) {
+        if (path == null) {
+            return null;
+        }
         String templatePath = path.replaceAll("\\{", "{{");
         templatePath = templatePath.replaceAll("}", "}}");
 

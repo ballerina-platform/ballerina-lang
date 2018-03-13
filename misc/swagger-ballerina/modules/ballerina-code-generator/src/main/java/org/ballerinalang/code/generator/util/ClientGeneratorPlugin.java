@@ -30,6 +30,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Compiler plugin for ballerina client code generation.
@@ -43,7 +44,9 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         CodeGenerator codegen = new CodeGenerator();
         PrintStream err = System.err;
-        AnnotationAttachmentNode config = GeneratorUtils.getAnnotationFromList("configuration", annotations);
+        AnnotationAttachmentNode config = GeneratorUtils
+                .getAnnotationFromList(GeneratorConstants.HTTP_CONFIG_ANNOTATION, GeneratorConstants.SWAGGER_PKG_ALIAS,
+                        annotations);
 
         // Generate client only if requested by providing the client config annotation
         if (isClientGenerationEnabled(config)) {
@@ -64,20 +67,15 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
         return dir + file;
     }
 
-    private boolean isClientGenerationEnabled(AnnotationAttachmentNode annotation) {
-        boolean isClientRequested = false;
-        if (annotation == null) {
+    private boolean isClientGenerationEnabled(AnnotationAttachmentNode ann) {
+        boolean isClientRequested;
+        if (ann == null) {
             return false;
         }
 
-        for (AnnotationAttachmentAttributeNode attr : annotation.getAttributes()) {
-            String attrVal = attr.getValue().getValue().toString();
-
-            if ("client".equals(attr.getName().getValue())) {
-                isClientRequested = Boolean.parseBoolean(attrVal);
-                break;
-            }
-        }
+        Map<String, AnnotationAttachmentAttributeNode> attrs =  GeneratorUtils.getAttributeMap(ann.getAttributes());
+        String val = GeneratorUtils.getAttributeValue(attrs.get("client"));
+        isClientRequested = Boolean.parseBoolean(val);
 
         return isClientRequested;
     }

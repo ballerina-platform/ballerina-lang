@@ -16,6 +16,9 @@
 
 package org.ballerinalang.code.generator.model;
 
+import org.ballerinalang.code.generator.GeneratorConstants;
+import org.ballerinalang.code.generator.exception.CodeGeneratorException;
+import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -23,62 +26,51 @@ import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNod
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Context holder for ballerina client generation.
  * This class will hold the context information required for ballerina code generation
  */
 public class ClientContextHolder {
-    private static final String HTTP_CONFIG_ANNOTATION = "configuration";
-    private static final String HTTP_PKG_ALIAS = "http";
-
     private String name;
     private String url;
     private List<ResourceContextHolder> resources;
 
-    public static ClientContextHolder buildContext(ServiceNode service) {
+    /**
+     * Build a parsable context from a Ballerina {@link ServiceNode}
+     *
+     * @param service {@code ServiceNode} for a valid ballerina source file
+     * @return A parsable data model for provided ballerina {@code service}
+     */
+    public static ClientContextHolder buildContext(ServiceNode service) throws CodeGeneratorException {
         ClientContextHolder context = new ClientContextHolder();
         context.name = service.getName().getValue();
         context.resources = new ArrayList<>();
 
-        // Iterate through all service level annotations and find out service hosting information
-        for (AnnotationAttachmentNode ann: service.getAnnotationAttachments()) {
-            if (HTTP_PKG_ALIAS.equals(ann.getPackageAlias().getValue()) && HTTP_CONFIG_ANNOTATION
-                    .equals(ann.getAnnotationName().getValue())) {
-                String host = "";
-                String port = "";
-                String basePath = "";
-                String httpsPort = null;
-
-                for (AnnotationAttachmentAttributeNode attr: ann.getAttributes()) {
-                    String attrVal = attr.getValue().getValue().toString();
-                    String attrName = attr.getName().getValue();
-
-                    if ("host".equals(attrName)) {
-                        host = attrVal;
-                    } else if ("port".equals(attrName)) {
-                        port = attrVal;
-                    } else if ("httpsPort".equals(attrName)) {
-                        httpsPort = attrVal;
-                    } else if ("basePath".equals(attrName)) {
-                        basePath = attrVal;
-                    }
-                }
-
-                StringBuffer sb = new StringBuffer();
-                // Select protocol according to given ports. HTTPS is given the priority
-                if (httpsPort != null) {
-                    sb.append("https://");
-                    port = httpsPort;
-                } else {
-                    sb.append("http://");
-                }
-
-                context.url = sb.append(host).append(':').append(port).append(basePath).toString();
-
-                break;
-            }
+        AnnotationAttachmentNode ann = GeneratorUtils
+                .getAnnotationFromList(GeneratorConstants.HTTP_CONFIG_ANNOTATION, GeneratorConstants.HTTP_PKG_ALIAS,
+                        service.getAnnotationAttachments());
+        if (ann == null) {
+            throw new CodeGeneratorException("Incomplete service configuration found");
         }
+
+        Map<String, AnnotationAttachmentAttributeNode> attrs = GeneratorUtils.getAttributeMap(ann.getAttributes());
+        String host = GeneratorUtils.getAttributeValue(attrs.get("host"));
+        String port = GeneratorUtils.getAttributeValue(attrs.get("port"));
+        String httpsPort = GeneratorUtils.getAttributeValue(attrs.get("httpsPort"));
+        String basePath = GeneratorUtils.getAttributeValue(attrs.get("basePath"));
+        StringBuffer sb = new StringBuffer();
+
+        // Select protocol according to given ports. HTTPS is given the priority
+        if (httpsPort != null) {
+            sb.append("https://");
+            port = httpsPort;
+        } else {
+            sb.append("http://");
+        }
+
+        context.url = sb.append(host).append(':').append(port).append(basePath).toString();
 
         // Extract ballerina resource nodes as parsable resources
         for (ResourceNode resource: service.getResources()) {

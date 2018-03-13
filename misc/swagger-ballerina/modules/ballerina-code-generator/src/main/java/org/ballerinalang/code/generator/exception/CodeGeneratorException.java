@@ -18,26 +18,14 @@ package org.ballerinalang.code.generator.exception;
 
 /**
  * Top level exception class of Code Generator exceptions.
- * 
  */
 public class CodeGeneratorException extends Exception {
 
-    /**
-     * @param message            Error message
-     * @param cause              Error cause
-     * @param enableSuppression  whether you need enable suppression
-     * @param writableStackTrace Writable error stack trace.
-     */
-    protected CodeGeneratorException(String message, Throwable cause, boolean enableSuppression,
-                                     boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-    /**
-     * This is a default constructure where you can pass error code to error DTO
-     * @param message Error message
-     * @param cause throwable object.
-     */
     public CodeGeneratorException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public CodeGeneratorException(String message) {
+        super(message);
     }
 }

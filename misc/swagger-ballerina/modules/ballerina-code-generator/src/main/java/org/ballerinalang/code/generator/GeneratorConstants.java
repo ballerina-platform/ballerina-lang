@@ -51,4 +51,9 @@ public class GeneratorConstants {
     public static final String DEFAULT_OPEN_API_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "oas3";
     public static final String DEFAULT_SWAGGER_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "swagger2";
 
+    public static final String RES_CONFIG_ANNOTATION = "resourceConfig";
+    public static final String HTTP_CONFIG_ANNOTATION = "configuration";
+    public static final String HTTP_PKG_ALIAS = "http";
+    public static final String SWAGGER_PKG_ALIAS = "swagger";
+
 }
