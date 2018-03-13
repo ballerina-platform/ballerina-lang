@@ -40,10 +40,6 @@ import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
  */
 public class HTTPSessionSubMethodsTest {
 
-    static {
-        System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
-    }
-
     private static final String TEST_ENDPOINT_NAME = "sessionEP";
     CompileResult compileResult;
 

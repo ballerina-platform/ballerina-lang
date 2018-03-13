@@ -7,16 +7,14 @@ package ballerina.net.http;
 @Description { value:"Represents a connector which can be used by an HTTP service to communicate with an HTTP client."}
 public connector ServerConnector (){
 
-    Connection conn;
-
     @Description { value:"Sends outbound response to the caller"}
     @Param { value:"res: The outbound response message" }
-    @Return { value:"Error occured during HTTP server connector respond" }
+    @Return { value:"Error occurred during HTTP server connector respond" }
     native action respond(Response res) (HttpConnectorError);
 
     @Description { value:"Forwards inbound response to the caller"}
     @Param { value:"res: The inbound response message" }
-    @Return { value:"Error occured during HTTP server connector forward" }
+    @Return { value:"Error occurred during HTTP server connector forward" }
     native action forward(Response res) (HttpConnectorError);
 
     @Description { value:"Sends a 100-continue response to the client."}
@@ -32,16 +30,12 @@ public connector ServerConnector (){
 
     @Description { value:"Sends a push promise to the caller."}
     @Param { value:"promise: Push promise message" }
-    @Return { value:"Error occured during HTTP server connector forward" }
-    action promise (PushPromise promise) (HttpConnectorError) {
-        return conn.promise(promise);
-    }
+    @Return { value:"Error occurred during HTTP server connector forward" }
+    native action promise (PushPromise promise) (HttpConnectorError);
 
     @Description { value:"Sends a promised push response to the caller."}
     @Param { value:"promise: Push promise message" }
-    @Param { value:"res: The outbound response message" }
-    @Return { value:"Error occured during HTTP server connector forward" }
-    action pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError) {
-        return conn.pushPromisedResponse(promise, res);
-    }
+    @Param { value:"res: The response message" }
+    @Return { value:"Error occurred during HTTP server connector forward" }
+    native action pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError);
 }

@@ -1002,7 +1002,7 @@ public class HttpUtil {
         }
     }
 
-    private static void serverBConnectorCheck(HTTPCarbonMessage reqMsg) {
+    public static void serverBConnectorCheck(HTTPCarbonMessage reqMsg) {
         if (reqMsg == null) {
             throw new BallerinaException("operation not allowed:invalid ServerConnector instance");
         }

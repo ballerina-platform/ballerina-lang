@@ -39,7 +39,7 @@ public class ServerConnectorNativeActionTest {
 
     @BeforeClass
     public void setup() {
-        String filePath = "test-src/statements/services/nativeimpl/connection/connection-native-function.bal";
+        String filePath = "test-src/statements/services/nativeimpl/serverconnector/connector-native-action.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, filePath);
     }
 

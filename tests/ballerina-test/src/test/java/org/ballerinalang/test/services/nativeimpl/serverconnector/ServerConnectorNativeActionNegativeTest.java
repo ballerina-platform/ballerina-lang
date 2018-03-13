@@ -37,7 +37,7 @@ public class ServerConnectorNativeActionNegativeTest {
 
     private CompileResult serviceResult;
     private String filePath =
-            "test-src/statements/services/nativeimpl/connection/connection-native-function-negative.bal";
+            "test-src/statements/services/nativeimpl/serverconnector/connector-native-action-negative.bal";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
