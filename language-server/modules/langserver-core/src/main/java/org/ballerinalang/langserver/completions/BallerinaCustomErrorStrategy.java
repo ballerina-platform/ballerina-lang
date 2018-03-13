@@ -26,6 +26,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
@@ -36,12 +37,6 @@ import java.util.List;
  * Capture possible errors from source.
  */
 public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
-    
-    private static final String EP_KEYWORD = "endpoint";
-    
-    private static final String OPEN_BRACE = "{";
-    
-    private static final String CLOSE_BRACE = "}";
     
     private LanguageServerContext context;
     
@@ -144,10 +139,9 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         // We need to set the error for the variable definition as well.
         if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
             context.getParent().exception = e;
-            return;
-        }
-
-        if (context instanceof BallerinaParser.NameReferenceContext) {
+        } else if (context.getParent() instanceof BallerinaParser.FunctionInvocationContext) {
+            setContextIfFunctionInvocation(context, e);
+        } else if (context instanceof BallerinaParser.NameReferenceContext) {
             setContextIfConnectorInit(context, e);
         } else if (context instanceof BallerinaParser.ExpressionContext) {
             setContextIfConditionalStatement(context, e);
@@ -193,6 +187,21 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
             setContextIfConditionalStatement(conditionalContext, e);
         }
     }
+
+    private void setContextIfFunctionInvocation(ParserRuleContext context, InputMismatchException e) {
+        ParserRuleContext parentContext = context.getParent();
+        if (parentContext == null) {
+            return;
+        }
+
+        if (parentContext instanceof BallerinaParser.FunctionInvocationContext
+                || parentContext instanceof BallerinaParser.ActionInvocationContext) {
+            parentContext.exception = e;
+            setContextIfFunctionInvocation(parentContext, e);
+        } else if (parentContext instanceof BallerinaParser.AssignmentStatementContext) {
+            parentContext.exception = e;
+        }
+    }
     
     private boolean isWithinEndpointContext(Parser parser) {
         int currentTokenIndex = parser.getCurrentToken().getTokenIndex();
@@ -201,7 +210,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         String tokenString = tokenStream.get(currentTokenIndex).getText();
         boolean isWithinEndpoint = false;
         
-        if (tokenString.equals(OPEN_BRACE)) {
+        if (tokenString.equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
             currentTokenIndex -= 1;
             boolean cursorAfterEndpointKeyword = false;
             String endpointName = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex).getText();
@@ -219,7 +228,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
                 tokenString = previousDefaultToken.getText();
                 if (terminalTokens.contains(tokenString)) {
                     break;
-                } else if (tokenString.equals(EP_KEYWORD)) {
+                } else if (tokenString.equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)) {
                     cursorAfterEndpointKeyword = true;
                     currentTokenIndex = parser.getCurrentToken().getTokenIndex();
                     break;
@@ -233,7 +242,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
                     Token nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, currentTokenIndex);
                     tokenString = nextDefaultToken.getText();
                     
-                    if (tokenString.equals(CLOSE_BRACE)) {
+                    if (tokenString.equals(UtilSymbolKeys.CLOSE_BRACE_KEY)) {
                         int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
                         int cursorCol = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
                         int startTokenLine = tokenStream.get(parser.getCurrentToken().getTokenIndex()).getLine() - 1;

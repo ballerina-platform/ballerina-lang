@@ -538,4 +538,30 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(bJson.value().get("echo66").asText(), "empty"
                 , "Wrong rest uri post fix value");
     }
+
+    @Test(description = "Test whether requests get dispatch to the correct resource.")
+    public void testMatchWithWildCard() {
+        String path = "/uri/123";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("message").asText(), "Wildcard Params Resource is invoked."
+                , "Request dispatched to wrong resource");
+    }
+
+    @Test(description = "Test whether requests get dispatch to the best matching resource.")
+    public void testBestMatchWithWildCard() {
+        String path = "/uri/123";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(bJson.value().get("message").asText(), "Path Params Resource is invoked."
+                , "Request dispatched to wrong resource");
+    }
 }
