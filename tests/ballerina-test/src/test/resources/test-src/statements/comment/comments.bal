@@ -47,18 +47,18 @@ enum Day { // enum Day
 } // end of enum
 
 
-@http:configuration {basePath:"/FooService"} // http config annotation
-service<http> FooService {
+@http:serviceConfig {basePath:"/FooService"} // http config annotation
+service<http:Service> FooService {
 
     @http:resourceConfig{ methods:["POST"], // http method post
                           // http resource path 
                           path:"/fooResource/" 
                         }
-        resource fooResource (http:Connection conn, http:Request req) {
+        resource fooResource (http:ServerConnector conn, http:Request req) {
             http:Response res = {};
             var xmlpayload, _ = req.getXmlPayload();
             res.setXmlPayload(xmlpayload);
-            _ = conn.respond(res);
+            _ = conn -> respond(res);
     }
 }
 

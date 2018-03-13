@@ -169,7 +169,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals[0].stringValue(), "W1: data1, W2: data2");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWorkerStackCreation() {
         BValue[] values = BRunUtil.invoke(result, "testWorkerStackCreation", new BValue[0]);
         Assert.assertEquals(values.length, 1);
