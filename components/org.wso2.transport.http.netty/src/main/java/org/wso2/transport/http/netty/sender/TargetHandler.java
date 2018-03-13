@@ -82,7 +82,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     handlerExecutor.executeAtTargetResponseReceiving(targetRespMsg);
                 }
                 OutboundMsgHolder msgHolder = http2ClientOutboundHandler.
-                        getHttp2ClientChannel().getInFlightMessage(1);
+                        getHttp2ClientChannel().getInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID);
                 if (msgHolder != null) {
                     // Response received over HTTP/1.x connection, so mark no push promises available in the channel
                     msgHolder.markNoPromisesReceived();
