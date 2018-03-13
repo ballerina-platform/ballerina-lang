@@ -186,23 +186,6 @@ public class HeaderUtil {
     }
 
     /**
-     * Add a given header name and a value to entity headers.
-     *
-     * @param entityHeaders A map of entity headers
-     * @param headerName    Header name as a string
-     * @param headerValue   Header value as a string
-     */
-    private static void addToEntityHeaders(BMap<String, BValue> entityHeaders, String headerName, String headerValue) {
-        if (entityHeaders.keySet().contains(headerName)) {
-            BStringArray valueArray = (BStringArray) entityHeaders.get(headerName);
-            valueArray.add(valueArray.size(), headerValue);
-        } else {
-            BStringArray valueArray = new BStringArray(new String[]{headerValue});
-            entityHeaders.put(headerName, valueArray);
-        }
-    }
-
-    /**
      * Override a header with a given value.
      *
      * @param entityHeaders A map of entity headers
@@ -259,7 +242,7 @@ public class HeaderUtil {
     static void setContentIdHeader(BStruct bodyPart, BMap<String, BValue> entityHeaders) {
         String contentId = bodyPart.getStringField(CONTENT_ID_INDEX);
         if (MimeUtil.isNotNullAndEmpty(contentId)) {
-            addToEntityHeaders(entityHeaders, CONTENT_ID, contentId);
+            overrideEntityHeader(entityHeaders, CONTENT_ID, contentId);
         }
     }
 

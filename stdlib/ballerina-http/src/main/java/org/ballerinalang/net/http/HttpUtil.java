@@ -645,6 +645,7 @@ public class HttpUtil {
         BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
                 (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
         HeaderUtil.overrideEntityHeader(headerMap, key, value);
+        struct.setRefField(ENTITY_HEADERS_INDEX, headerMap);
     }
 
     /**
