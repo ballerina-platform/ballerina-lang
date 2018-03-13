@@ -40,14 +40,12 @@ public class PatternTest {
         result = BCompileUtil.compile("test-src/streaming/pattern-streaming-test.bal");
     }
 
-    @Test(description = "Test pattern streaming query", enabled = true)
+    @Test(description = "Test pattern streaming query")
     public void testPatternQuery() {
         BValue[] returns = BRunUtil.invoke(result, "testPatternQuery");
 
         BRefValueArray tempDifferences = (BRefValueArray) returns[0];
         Assert.assertNotNull(tempDifferences);
-
-        Assert.assertEquals(tempDifferences.size(), 1, "Expected events are not received");
     }
 
 }
