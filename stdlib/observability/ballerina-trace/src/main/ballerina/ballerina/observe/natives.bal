@@ -71,6 +71,15 @@ public native function <Span span> finishSpan ();
 @Param {value:"tagValue: The value of the key value pair"}
 public native function <Span span> addTag (string tagKey, string tagValue);
 
+@Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
+@Param {value:"tagKey: The key of the key value pair"}
+@Param {value:"tagValue: The value of the key value pair"}
+public native function <Span span> setBaggageItem (string baggageKey, string baggageValue);
+
+@Description {value:"Add a baggage item to the current span. Baggage items are given as a key value pair"}
+@Param {value:"tagKey: The key of the key value pair"}
+public native function <Span span> getBaggageItem (string baggageKey) (string);
+
 @Description {value:"Attach an info log to the current span"}
 @Param {value:"event: The type of event this log represents"}
 @Param {value:"message: The message to be logged"}
@@ -87,19 +96,19 @@ native function <Span span> inject () (map);
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
-@Param {value:"group: The group to which this span belongs to"}
+@Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The id of the parent span passed in from an external function"}
-public native function extractSpanContext (http:InRequest req, string group) (string);
+public native function extractSpanContext (http:Request req, string traceGroup) (string);
 
 @Description {value:"Injects the span context the OutRequest struct to send to another service"}
 @Param {value:"req: The http request used when calling an endpoint"}
-@Param {value:"group: The group that the span context is associated to"}
+@Param {value:"traceGroup: The group that the span context is associated to"}
 @Return {value:"The http request which includes the span context related headers"}
-public function <Span span> injectSpanContext (http:OutRequest req, string group) (http:OutRequest) {
+public function <Span span> injectSpanContext (http:Request req, string traceGroup) (http:Request) {
     map headers = span.inject();
     foreach key, v in headers {
         var value, _ = (string)v;
-        req.addHeader(group + key, value);
+        req.addHeader(traceGroup + key, value);
     }
     return req;
 }

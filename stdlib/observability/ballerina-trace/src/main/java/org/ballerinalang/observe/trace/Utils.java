@@ -32,7 +32,7 @@ public class Utils {
         //Do nothing
     }
 
-    public static Map<String, String> toStringMap(BMap map) {
+    static Map<String, String> toStringMap(BMap map) {
         Map<String, String> returnMap = new HashMap<>();
         Set bIterator = map.keySet();
         for (Object aKey : bIterator) {

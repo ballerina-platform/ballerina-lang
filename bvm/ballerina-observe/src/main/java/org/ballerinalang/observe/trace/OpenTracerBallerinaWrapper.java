@@ -220,4 +220,38 @@ public class OpenTracerBallerinaWrapper {
             spanList.forEach((tracerName, span) -> span.log(logs));
         }
     }
+
+    /**
+     * Method to add baggage item to an existing span.
+     *
+     * @param spanId       the id of the span
+     * @param baggageKey   the key of the baggage item
+     * @param baggageValue the value of the baggage item
+     */
+    public void setBaggageItem(String spanId, String baggageKey, String baggageValue) {
+        if (enabled) {
+            Map<String, Span> spanList = spanStore.getSpan(spanId);
+            spanList.forEach((tracerName, span) -> span.setBaggageItem(baggageKey, baggageValue));
+        }
+    }
+
+    /**
+     * Method to get a baggage value from an existing span.
+     *
+     * @param spanId     the id of the span
+     * @param baggageKey the key of the baggage item
+     */
+    public String getBaggageItem(String spanId, String baggageKey) {
+        String baggageValue = null;
+        if (enabled) {
+            Map<String, Span> spanMap = spanStore.getSpan(spanId);
+            for (Map.Entry<String, Span> spanEntry : spanMap.entrySet()) {
+                baggageValue = spanEntry.getValue().getBaggageItem(baggageKey);
+                if (baggageValue != null) {
+                    break;
+                }
+            }
+        }
+        return baggageValue;
+    }
 }
