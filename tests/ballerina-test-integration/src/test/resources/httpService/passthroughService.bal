@@ -1,32 +1,35 @@
 import ballerina.net.http;
 
-@http:configuration {basePath:"/passthrough"}
-service<http> passthrough {
+endpoint<http:Service> passthroughEP {
+    port:9090
+}
+endpoint<http:Client> nyseEP {
+    serviceUri: "http://localhost:9090"
+}
+
+@http:serviceConfig {basePath:"/passthrough", endpoints:[passthroughEP]}
+service<http:Service> passthrough {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:InRequest inRequest) {
-        endpoint<http:HttpClient> nyseEP {
-            create http:HttpClient("http://localhost:9090", {});
-        }
-        http:OutRequest clientRequest = {};
-        var clientResponse, _ = nyseEP.get("/nyseStock/stocks", clientRequest);
-        _ = conn.forward(clientResponse);
+    resource passthrough (http:ServerConnector conn, http:Request clientRequest) {
+        var response, _ = nyseEP -> get("/nyseStock/stocks", clientRequest);
+        _ = conn -> forward(response);
     }
 }
 
-@http:configuration {basePath:"/nyseStock"}
-service<http> nyseStockQuote {
+@http:serviceConfig {basePath:"/nyseStock", endpoints:[passthroughEP]}
+service<http:Service> nyseStockQuote {
 
     @http:resourceConfig {
         methods:["GET"]
     }
-    resource stocks (http:Connection conn, http:InRequest inReq) {
-        http:OutResponse res = {};
+    resource stocks (http:ServerConnector conn, http:Request clientRequest) {
+        http:Response res = {};
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         res.setJsonPayload(payload);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

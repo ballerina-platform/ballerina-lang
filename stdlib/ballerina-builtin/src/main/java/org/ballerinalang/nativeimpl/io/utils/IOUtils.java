@@ -287,7 +287,7 @@ public class IOUtils {
     }
 
     /**
-     * Closes the character channel asynchronously.
+     * Closes the delimited record channel asynchronously.
      *
      * @param charChannel  channel which should be closed.
      * @param eventContext context of the event.

@@ -8,8 +8,8 @@ service<http> helloService {
         methods:["GET"],
         path:"/"
     }
-    resource aGetRequest (http:Connection conn, http:InRequest requ) {
-        http:OutResponse res = {};
+    resource aGetRequest (http:Connection conn, http:Request requ) {
+        http:Response res = {};
         res.setStringPayload("Successful");
         _ = conn.respond(res);
     }

@@ -225,6 +225,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
+    @Deprecated
     public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);

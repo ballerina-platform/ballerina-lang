@@ -77,7 +77,6 @@ public class Close implements NativeCallableUnit {
         IOUtils.close(byteChannel, eventContext, Close::closeResponse);
     }
 
-
     @Override
     public boolean isBlocking() {
         return false;

@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -60,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpressio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -282,6 +283,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangEndpoint endpointNode) {
+        /* ignore */
+    }
+
     public void visit(BLangVariable varNode) {
         int ownerSymTag = env.scope.owner.tag;
         if (varNode.expr != null) {
@@ -422,6 +427,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangBreak breakNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangTypeInit typeInit) {
         /* ignore */
     }
 
@@ -640,10 +649,6 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                 analyzeInvocation(invocationExpr);
             }
         }
-    }
-
-    public void visit(BLangConnectorInit connectorInitExpr) {
-        setTaintedStatusList(false);
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {

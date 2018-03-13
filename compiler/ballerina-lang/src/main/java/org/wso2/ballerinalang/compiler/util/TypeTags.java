@@ -35,7 +35,8 @@ public class TypeTags {
     public static final int ANY = MAP + 1;
     public static final int STRUCT = ANY + 1;
     public static final int CONNECTOR = STRUCT + 1;
-    public static final int ENUM = CONNECTOR + 1;
+    public static final int SERVICE = CONNECTOR + 1;
+    public static final int ENUM = SERVICE + 1;
     public static final int ARRAY = ENUM + 1;
     public static final int NULL = ARRAY + 1;
     public static final int PACKAGE = NULL + 1;
@@ -46,8 +47,7 @@ public class TypeTags {
     public static final int ANNOTATION = XMLNS + 1;
     public static final int XML_ATTRIBUTES = ANNOTATION + 1;
     public static final int ERROR = XML_ATTRIBUTES + 1;
-    public static final int ENDPOINT = ERROR + 1;
-    public static final int ITERATOR = ENDPOINT + 1;
+    public static final int ITERATOR = ERROR + 1;
     public static final int TUPLE_COLLECTION = ITERATOR + 1;
 
     private TypeTags() {

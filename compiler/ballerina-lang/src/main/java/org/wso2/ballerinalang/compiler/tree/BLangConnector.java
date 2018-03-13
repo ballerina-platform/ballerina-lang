@@ -23,12 +23,13 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.ArrayList;
@@ -49,16 +50,18 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public BLangAction initAction;
 
-    public BTypeSymbol symbol;
+    public BConnectorSymbol symbol;
 
     public BLangConnector() {
         this.params = new ArrayList<>();
         this.varDefs = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.endpoints = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
@@ -162,6 +165,11 @@ public class BLangConnector extends BLangNode implements ConnectorNode {
     @Override
     public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
         this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
+    }
+
+    @Override
+    public List<? extends EndpointNode> getEndpointNodes() {
+        return endpoints;
     }
 
     @Override
