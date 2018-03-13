@@ -156,3 +156,64 @@ function testXMLAttributeWithCompoundAssignment()(string){
     x1@[ns0:foo1] += "bar2";
     return x1@[ns0:foo1];
 }
+
+function testCompoundAssignmentAdditionRecursive()(int){
+    int x = 5;
+    x += x;
+    return x;
+}
+
+function testCompoundAssignmentAdditionStructElementRecursive()(int){
+    Company ibm = {};
+    ibm["count"] = 100;
+    ibm["count"] += ibm["count"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionWithExpression()(int){
+    int x = 5;
+    x += (2+3+4+5);
+    return x;
+}
+
+function testCompoundAssignmentAdditionMultiple()(int){
+    int x = 5;
+    x += 5;
+    x += 5;
+    x += 5;
+    return x;
+}
+
+function testCompoundAssignmentAdditionMultipleWithIncrement()(int){
+    int x = 5;
+    x += 5;
+    x++;
+    x += 5;
+    x++;
+    x += 5;
+    x--;
+    x--;
+    x--;
+    return x;
+}
+
+function testCompoundAssignmentAdditionWithStructAccess()(int){
+    Company ibm = {};
+    ibm["count"] = 100;
+    int[] arr = [];
+    arr[0] = 200;
+    int x = 5;
+    x += (ibm["count"] + arr[0]);
+    return x;
+}
+
+function testCompoundAssignmentAdditionWithFunctionInvocation()(int){
+    int x = 5;
+    x += getIncrement();
+    return x;
+}
+
+
+function getIncrement()(int) {
+   return 200;
+}

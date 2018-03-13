@@ -225,11 +225,67 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "bar1bar2");
     }
 
+    @Test(description = "Test compound assignment with addition recursive integer reference.")
+    public void testCompoundAssignmentAdditionRecursive() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionRecursive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test(description = "Test compound assignment with addition recursive struct element reference.")
+    public void testCompoundAssignmentAdditionStructElementRecursive() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElementRecursive");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 200);
+    }
+
+    @Test(description = "Test compound assignment with addition to expression.")
+    public void testCompoundAssignmentAdditionWithExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithExpression");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 19);
+    }
+
+    @Test(description = "Test compound assignment with multiple addition.")
+    public void testCompoundAssignmentAdditionMultiple() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionMultiple");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test(description = "Test compound assignment with multiple addition and increments.")
+    public void testCompoundAssignmentAdditionMultipleWithIncrement() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionMultipleWithIncrement");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 19);
+    }
+
+    @Test(description = "Test compound assignment with addition with struct access expression.")
+    public void testCompoundAssignmentAdditionWithStructAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithStructAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 305);
+    }
+
+    @Test(description = "Test compound assignment with addition with function invocation expression.")
+    public void testCompoundAssignmentAdditionWithFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithFunctionInvocation");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 205);
+    }
+
     @Test(description = "Test compound operator negative cases.")
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src",
                 "statements/compoundassignment/compound_assignment_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 12);
         BAssertUtil.validateError(compileResult, 0,
                 "operator '++' cannot be applied to type 'any'", 3, 5);
         BAssertUtil.validateError(compileResult, 1,
@@ -252,6 +308,8 @@ public class CompoundAssignmentTest {
                 "incompatible types: expected 'int', found 'string'", 63, 10);
         BAssertUtil.validateError(compileResult, 10,
                 "incompatible types: expected 'int', found 'float'", 70, 10);
+        BAssertUtil.validateError(compileResult, 11,
+                "multi-valued 'getMultiIncrement()' in single-value context", 76, 10);
     }
 
 }

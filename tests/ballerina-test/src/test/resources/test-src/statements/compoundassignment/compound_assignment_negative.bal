@@ -71,4 +71,13 @@ function testIntFloatDivision()(int){
     return x;
 }
 
+function testCompoundAssignmentAdditionWithFunctionInvocation()(int){
+    int x = 5;
+    x += getMultiIncrement();
+    return x;
+}
 
+
+function getMultiIncrement()(int, int) {
+   return 200, 100;
+}
