@@ -24,37 +24,37 @@ service<http:Service> frontendHttpService {
     resource frontendHttpResource (http:ServerConnector conn, http:Request clientRequest) {
 
         http:Request serviceReq = {};
-        http:HttpHandle h = {};
+        http:HttpHandle handle = {};
         // Submit a request
-        h, _ = backendClientEP -> submit("GET","/backend/main", serviceReq);
+        handle, _ = backendClientEP -> submit("GET","/backend/main", serviceReq);
 
         // Check whether promises exists
         http:PushPromise[] promises = [];
-        int i = 0;
-        boolean hasPromise = backendClientEP -> hasPromise(h);
+        int promiseCount = 0;
+        boolean hasPromise = backendClientEP -> hasPromise(handle);
         while (hasPromise) {
-            http:PushPromise promise = {};
+            http:PushPromise pushPromise = {};
             // Get the next promise
-            promise, _ = backendClientEP -> getNextPromise(h);
-            io:println("Received a promise for " + promise.path);
+            pushPromise, _ = backendClientEP -> getNextPromise(handle);
+            io:println("Received a promise for " + pushPromise.path);
             // Store required promises
-            promises[i] = promise;
-            i = i + 1;
-            hasPromise = backendClientEP -> hasPromise(h);
+            promises[promiseCount] = pushPromise;
+            promiseCount = promiseCount + 1;
+            hasPromise = backendClientEP -> hasPromise(handle);
         }
         // By this time 3 promises should be received, if not send an error response
-        if (i != 3) {
+        if (promiseCount != 3) {
             http:Response errorResponse = {};
             json errMsg = {"error":"expected number of promises not received"};
             errorResponse.setJsonPayload(errMsg);
             _ = conn -> respond(errorResponse);
             return;
         }
-        io:println("Number of promises received : " + i);
+        io:println("Number of promises received : " + promiseCount);
 
         // Get the requested resource
         http:Response res = {};
-        res, _ = backendClientEP -> getResponse(h);
+        res, _ = backendClientEP -> getResponse(handle);
         json responsePayload;
         responsePayload, _ = res.getJsonPayload();
         // Check whether correct response received
@@ -68,13 +68,13 @@ service<http:Service> frontendHttpService {
         io:println("Response : " + responsePayload.toString());
 
         // Fetch required promised responses
-        foreach p in promises {
+        foreach promise in promises {
             http:Response promisedResponse = {};
-            promisedResponse, _ = backendClientEP -> getPromisedResponse(p);
+            promisedResponse, _ = backendClientEP -> getPromisedResponse(promise);
             json payload;
             payload, _ = promisedResponse.getJsonPayload();
             // check whether expected
-            string expectedVal = p.path.subString(1, 10);
+            string expectedVal = promise.path.subString(1, 10);
             if (!(payload.toString().contains(expectedVal))) {
                 http:Response errorResponse = {};
                 json errMsg = {"error":"expected promised response not received"};
