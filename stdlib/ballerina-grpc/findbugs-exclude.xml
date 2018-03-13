@@ -16,5 +16,17 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <!--<Fix>TODO After SSL Fix</Fix>-->
+    <Match>
+        <class name="org.ballerinalang.net.grpc.actions.client.Init"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    <Match>
+        <class name="org.ballerinalang.net.grpc.ssl.SSLHandlerFactory"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    <Match>
+        <class name="org.ballerinalang.net.grpc.actions.client.Init"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
 </FindBugsFilter>

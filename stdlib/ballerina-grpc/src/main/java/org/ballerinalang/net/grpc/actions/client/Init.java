@@ -24,7 +24,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 
 /**
- * {@code Init} is the Init action implementation of the gRPC Connector.
+ * {@code InitEndPoint} is the InitEndPoint action implementation of the gRPC Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.grpc",

@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -29,15 +29,14 @@ import org.ballerinalang.natives.annotations.Receiver;
  *
  * @since 0.966
  */
-
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "start",
+        functionName = "stop",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                              structPackage = "ballerina.net.grpc"),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
+public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         context.setReturnValues();

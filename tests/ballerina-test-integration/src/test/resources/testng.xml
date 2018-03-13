@@ -37,12 +37,4 @@
             <!--<class name="org.ballerinalang.test.service.websocket.sample.WebSocketAutoPingPongTest"/>-->
         <!--</classes>-->
     <!--</test>-->
-
-    <test name="ballerina-sample-grpc-tests" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcClientTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.GrpcServiceTestCase"/>
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.MutualSSLTestCase"/>-->
-        </classes>
-    </test>
 </suite>

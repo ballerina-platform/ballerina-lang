@@ -1,15 +1,18 @@
 import ballerina.net.grpc;
 
-endpoint<grpc:ServiceEndpoint> ep1 {
+endpoint<grpc:Service> ep1 {
+host:"localhost",
 port:9090
 }
 
-@grpc:ServiceConfig{
-port:9090,
-generateClientConnector:true}
-service<grpc:GrpcService> hello {
+@grpc:serviceConfig{
+endpoints: [ep1]
+}
+service<grpc:Service> hello {
 
-resource hello (grpc:ServerConnection conn, string name) {
+@grpc:resourceConfig {
+}
+resource hello (grpc:Service conn, string name) {
         string message = "Hello " + name; // response message
         grpc:ConnectorError err = conn.send(message);
         if (err != null) {

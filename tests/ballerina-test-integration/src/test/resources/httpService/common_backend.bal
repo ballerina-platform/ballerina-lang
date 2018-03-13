@@ -1,12 +1,12 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoEp {
+endpoint<http:Service> echoEP {
     port:9099
 }
 
 @http:serviceConfig {
     basePath:"/echo",
-    endpoints:[echoEp]
+    endpoints:[echoEP]
 }
 service<http:Service> echo {
 

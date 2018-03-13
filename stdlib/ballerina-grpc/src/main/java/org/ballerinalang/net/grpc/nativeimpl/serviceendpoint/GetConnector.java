@@ -16,14 +16,14 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.grpc.nativeimpl.connection.server.serviceendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 /**
  * Get the ID of the connection.
@@ -34,14 +34,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
         functionName = "getConnector",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+                structPackage = "ballerina.net.grpc"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends BlockingNativeCallableUnit {
-
+public class GetConnector extends AbstractGrpcNativeFunction {
+    
+    
     @Override
     public void execute(Context context) {
+        context.setReturnValues();
     }
 }

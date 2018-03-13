@@ -94,7 +94,7 @@ public class ServiceProtoUtils {
         String rpcEndpoint = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
-        boolean generateClientStreaming = false;
+        boolean generateClientConnector = false;
 
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
             if (!ServiceProtoConstants.ANN_SERVICE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
@@ -126,7 +126,7 @@ public class ServiceProtoUtils {
                         break;
                     }
                     case ServiceProtoConstants.SERVICE_CONFIG_GENERATE_CLIENT: {
-                        generateClientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
+                        generateClientConnector = attributeValue != null ? (Boolean) attributeValue : false;
                         break;
                     }
                     default: {
@@ -137,7 +137,7 @@ public class ServiceProtoUtils {
         }
 
         return new ServiceConfig(port, rpcEndpoint, clientStreaming, serverStreaming,
-                generateClientStreaming);
+                generateClientConnector);
     }
     
     private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws

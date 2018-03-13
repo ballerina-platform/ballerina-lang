@@ -409,7 +409,7 @@ public class MessageUtils {
         return bValue;
     }
 
-    private static BStruct createStruct(Context context, String fieldName) {
+    public static BStruct createStruct(Context context, String fieldName) {
         BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
     }

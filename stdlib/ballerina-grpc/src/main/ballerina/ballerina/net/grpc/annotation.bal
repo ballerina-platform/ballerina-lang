@@ -14,7 +14,7 @@ bidirectional streaming. Flag sets to true, if the service is client/bidirection
 @Field {value:"serverStreaming: gRPC server streaming service flag. This applies only for client streaming and
 bidirectional streaming. Flag sets to true, if the service is bidirectional streaming."}
 public struct ServiceConfig {
-    string rpcEndpoint;
+    Service[] endpoints;
     boolean clientStreaming;
     boolean serverStreaming;
     boolean generateClientConnector;

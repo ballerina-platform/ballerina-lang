@@ -16,12 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.grpc.nativeimpl.connection.client.clientendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -33,13 +32,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "register",
+        functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                              structPackage = "ballerina.net.grpc"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
-public class Register extends BlockingNativeCallableUnit {
+public class Start extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         context.setReturnValues();
