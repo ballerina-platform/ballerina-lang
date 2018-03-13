@@ -88,6 +88,15 @@ import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.util.tracer.TraceConstant.HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstant.HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_COMPONENT_BALLERINA;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_COMPONENT;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_HOST;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_PORT;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_PROTOCOL;
 
 /**
  * Utility class providing utility methods.
@@ -1066,12 +1075,12 @@ public class HttpUtil {
 
     public static Map<String, String> extractTraceTags(HTTPCarbonMessage msg) {
         Map<String, String> tags = new HashMap<>();
-        tags.put("component", "ballerina");
-        tags.put("http.method", String.valueOf(msg.getProperty("HTTP_METHOD")));
-        tags.put("protocol", String.valueOf(msg.getProperty("PROTOCOL")));
-        tags.put("http.url", String.valueOf(msg.getProperty("TO")));
-        tags.put("http.host", String.valueOf(msg.getProperty("Host")));
-        tags.put("http.port", String.valueOf(msg.getProperty("PORT")));
+        tags.put(TAG_KEY_COMPONENT, TAG_COMPONENT_BALLERINA);
+        tags.put(TAG_KEY_HTTP_METHOD, String.valueOf(msg.getProperty(HttpConstants.HTTP_METHOD)));
+        tags.put(TAG_KEY_HTTP_URL, String.valueOf(msg.getProperty(HttpConstants.TO)));
+        tags.put(TAG_KEY_HTTP_HOST, String.valueOf(msg.getProperty(HTTP_HOST)));
+        tags.put(TAG_KEY_HTTP_PORT, String.valueOf(msg.getProperty(HTTP_PORT)));
+        tags.put(TAG_KEY_PROTOCOL, String.valueOf(msg.getProperty(HttpConstants.PROTOCOL)));
         return tags;
     }
 

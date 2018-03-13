@@ -28,8 +28,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_ACTION_NAME;
 import static org.ballerinalang.util.tracer.TraceConstant.DEFAULT_CONNECTOR_NAME;
 import static org.ballerinalang.util.tracer.TraceConstant.INVOCATION_ID;
-import static org.ballerinalang.util.tracer.TraceConstant.STR_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstant.STR_TRUE;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_KEY_STR_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstant.TAG_STR_TRUE;
 import static org.ballerinalang.util.tracer.TraceConstant.TRACE_PREFIX;
 
 /**
@@ -50,11 +50,6 @@ public class BTracer {
      * {@link Map} of tags, which will get injected to spans.
      */
     private Map<String, String> tags;
-    /**
-     * flag to represent whether this is a client (originate
-     * from a client connector) context or a server context.
-     */
-    private boolean isClientContext;
     /**
      * Name of the service.
      */
@@ -80,10 +75,9 @@ public class BTracer {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
         this.executionContext = executionContext;
-        this.isClientContext = isClientContext;
-        this.tags.put(TraceConstant.KEY_SPAN_KIND, isClientContext
-                ? TraceConstant.SPAN_KIND_CLIENT
-                : TraceConstant.SPAN_KIND_SERVER);
+        this.tags.put(TraceConstant.TAG_KEY_SPAN_KIND, isClientContext
+                ? TraceConstant.TAG_SPAN_KIND_CLIENT
+                : TraceConstant.TAG_SPAN_KIND_SERVER);
     }
 
     public void startSpan() {
@@ -99,7 +93,7 @@ public class BTracer {
     }
 
     public void logError(Map<String, Object> fields) {
-        addTags(Collections.singletonMap(STR_ERROR, STR_TRUE));
+        addTags(Collections.singletonMap(TAG_KEY_STR_ERROR, TAG_STR_TRUE));
         manager.log(this, fields);
 
     }
@@ -151,10 +145,6 @@ public class BTracer {
 
     public Map<String, String> getTags() {
         return tags;
-    }
-
-    public boolean isClientContext() {
-        return isClientContext;
     }
 
     public String getInvocationID() {

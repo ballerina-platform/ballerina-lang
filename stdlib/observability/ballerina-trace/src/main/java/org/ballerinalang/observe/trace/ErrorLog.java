@@ -55,9 +55,9 @@ public class ErrorLog extends AbstractLogFunction {
 //
 //        Map<String, String> logMap = new HashMap<>();
 //        logMap.put(KEY_EVENT_TYPE, EVENT_TYPE_ERROR);
-//        logMap.put(KEY_ERROR_KIND, errorKind);
-//        logMap.put(KEY_MESSAGE, message);
-//        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, EVENT_TYPE_ERROR, STR_TRUE);
+//        logMap.put(LOG_KEY_ERROR_KIND, errorKind);
+//        logMap.put(LOG_KEY_MESSAGE, message);
+//        OpenTracerBallerinaWrapper.getInstance().addTags(spanId, EVENT_TYPE_ERROR, TAG_STR_TRUE);
 //        OpenTracerBallerinaWrapper.getInstance().log(spanId, logMap);
 //        return VOID_RETURN;
     }

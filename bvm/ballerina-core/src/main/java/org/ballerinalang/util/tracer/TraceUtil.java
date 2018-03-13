@@ -25,9 +25,11 @@ import org.ballerinalang.model.values.BStruct;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.tracer.TraceConstant.ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstant.KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstant.KEY_MESSAGE;
+import static org.ballerinalang.util.tracer.TraceConstant.LOG_ERROR_KIND_EXCEPTION;
+import static org.ballerinalang.util.tracer.TraceConstant.LOG_EVENT_TYPE_ERROR;
+import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_ERROR_KIND;
+import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_EVENT_TYPE;
+import static org.ballerinalang.util.tracer.TraceConstant.LOG_KEY_MESSAGE;
 
 /**
  * Utility call to perform trace related functions.
@@ -46,8 +48,9 @@ public class TraceUtil {
     public static void finishTraceSpan(BTracer tracer, BStruct error) {
         if (tracer != null) {
             Map<String, Object> logProps = new HashMap<>();
-            logProps.put(KEY_ERROR_KIND, ERROR_KIND_EXCEPTION);
-            logProps.put(KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
+            logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
+            logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
+            logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
             tracer.logError(logProps);
             finishTraceSpan(tracer);
         }
