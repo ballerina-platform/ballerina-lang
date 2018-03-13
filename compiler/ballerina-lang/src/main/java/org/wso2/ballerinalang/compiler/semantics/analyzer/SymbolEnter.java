@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStreamletSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -412,7 +413,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamlet streamletNode) {
-        BTypeSymbol conSymbol = Symbols.createStreamletSymbol(Flags.asMask(streamletNode.flagSet),
+        BStreamletSymbol conSymbol = Symbols.createStreamletSymbol(Flags.asMask(streamletNode.flagSet),
                 names.fromIdNode(streamletNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         streamletNode.symbol = conSymbol;
         defineSymbol(streamletNode.pos, conSymbol);
@@ -783,7 +784,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.type = new BConnectorType(paramTypes, symbol);
     }
 
-    private void defineStreamletSymbolParams(BLangStreamlet streamletNode, BTypeSymbol symbol,
+    private void defineStreamletSymbolParams(BLangStreamlet streamletNode, BStreamletSymbol symbol,
                                              SymbolEnv streamletEnv) {
         List<BVarSymbol> paramSymbols =
                 streamletNode.params.stream()
@@ -791,7 +792,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(varNode -> varNode.symbol)
                         .collect(Collectors.toList());
 
-        symbol.params = paramSymbols;
+        symbol.setParams(paramSymbols);
 
         // Create streamlet type
         List<BType> paramTypes = paramSymbols.stream()

@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStreamletSymbol;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -42,12 +42,11 @@ public class BLangStreamlet extends BLangNode implements StreamletNode {
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangFunction initFunction;
+    public BStreamletSymbol symbol;
     private BlockNode body;
     private String siddhiQuery;
     private String streamIdsAsString;
     private List<VariableNode> globalVariables = new ArrayList<>();
-
-    public BTypeSymbol symbol;
 
     public BLangStreamlet() {
         this.params = new ArrayList<>();

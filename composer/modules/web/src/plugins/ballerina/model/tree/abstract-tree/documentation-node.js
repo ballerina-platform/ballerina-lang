@@ -46,7 +46,6 @@ class AbstractDocumentationNode extends Node {
     }
 
 
-
     setAttributes(newValue, silent, title) {
         const oldValue = this.attributes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

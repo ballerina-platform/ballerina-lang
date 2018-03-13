@@ -101,24 +101,15 @@ public class Symbols {
         BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
         serviceSymbol.kind = SymbolKind.SERVICE;
         return serviceSymbol;
-    public static BTypeSymbol createStreamletSymbol(int flags,
+    }
+
+    public static BStreamletSymbol createStreamletSymbol(int flags,
                                                     Name name,
                                                     PackageID pkgID,
                                                     BType type,
                                                     BSymbol owner) {
-        BTypeSymbol typeSymbol = createStreamletSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
+        BStreamletSymbol typeSymbol = createStreamletSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.STREAMLET;
-        return typeSymbol;
-    }
-
-
-    public static BTypeSymbol createServiceSymbol(int flags,
-                                                  Name name,
-                                                  PackageID pkgID,
-                                                  BType type,
-                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SERVICE;
         return typeSymbol;
     }
 

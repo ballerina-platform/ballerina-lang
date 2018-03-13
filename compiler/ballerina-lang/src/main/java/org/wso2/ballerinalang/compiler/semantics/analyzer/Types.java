@@ -208,12 +208,6 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
-                && checkConnectorEquivalency(source, ((BEndpointType) target).constraint)) {
-            //TODO do we need to resolve a nop implicit cast operation?
-            return true;
-        }
-
         BSymbol symbol = symResolver.resolveImplicitCastOperator(source, target);
         if (symbol != symTable.notFoundSymbol) {
             return true;

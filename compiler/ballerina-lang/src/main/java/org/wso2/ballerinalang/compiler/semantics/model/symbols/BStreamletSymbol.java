@@ -22,12 +22,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction;
 
+import java.util.List;
+
 /**
  * @since 0.965.0
  */
 public class BStreamletSymbol extends BTypeSymbol {
 
-    public Instruction.Operand queryIndex;
+    private Instruction.Operand queryIndex;
+    private List<BVarSymbol> params;
 
     public BStreamletSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(kind, flags, name, pkgID, type, owner);
@@ -39,5 +42,13 @@ public class BStreamletSymbol extends BTypeSymbol {
 
     public void setQueryIndex(Instruction.Operand queryIndex) {
         this.queryIndex = queryIndex;
+    }
+
+    public List<BVarSymbol> getParams() {
+        return params;
+    }
+
+    public void setParams(List<BVarSymbol> params) {
+        this.params = params;
     }
 }
