@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -44,8 +45,6 @@ import java.util.List;
  * Interface for completion item resolvers.
  */
 public abstract class AbstractItemResolver {
-    
-    private static final String NOT_FOUND_TYPE = "><";
     
     public abstract ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext);
 
@@ -68,7 +67,7 @@ public abstract class AbstractItemResolver {
                     && bSymbol instanceof BVarSymbol) {
                 completionItem = this.populateVariableDefCompletionItem(symbolInfo);
             } else if (bSymbol instanceof BTypeSymbol
-                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
                     && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItem = this.populateBTypeCompletionItem(symbolInfo);
             }
@@ -243,7 +242,9 @@ public abstract class AbstractItemResolver {
                     && documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
                 return false;
-            } else if (tokenString.equals(".") || tokenString.equals(":")) {
+            } else if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
+                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
+                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString)) {
                 documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, true);
                 return true;
             } else {
@@ -333,7 +334,7 @@ public abstract class AbstractItemResolver {
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (bSymbol instanceof BTypeSymbol
-                    && !bSymbol.getName().getValue().equals(NOT_FOUND_TYPE)
+                    && !bSymbol.getName().getValue().equals(UtilSymbolKeys.NOT_FOUND_TYPE)
                     && !(bSymbol instanceof BAnnotationSymbol)) {
                 completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
             }
