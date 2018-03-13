@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
@@ -178,6 +179,7 @@ import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -450,12 +452,40 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
         currentCallableUnitInfo = currentPkgInfo.functionInfoMap.get(funcNode.symbol.name.value);
+
         int annotationAttribNameIndex = addUTF8CPEntry(currentPkgInfo,
                 AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.value());
         AnnotationAttributeInfo attributeInfo = new AnnotationAttributeInfo(annotationAttribNameIndex);
         funcNode.annAttachments.forEach(annt -> visitAnnotationAttachment(annt, attributeInfo));
         currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE, attributeInfo);
+
+        if (funcNode.symbol.taintTable != null) {
+            int taintTableAttribNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.TAINT_TABLE.value());
+            TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(taintTableAttribNameIndex);
+            taintTableAttributeInfo.retParamCount = funcNode.retParams.size();
+            visitTaintTable(funcNode.symbol.taintTable, taintTableAttributeInfo);
+            taintTableAttributeInfo.tableSize = taintTableAttributeInfo.taintTable.size();
+            currentCallableUnitInfo.addAttributeInfo(AttributeInfo.Kind.TAINT_TABLE, taintTableAttributeInfo);
+        } else {
+            funcNode.symbol = funcNode.symbol;
+        }
+
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
+    }
+
+    private void visitTaintTable(Map<Integer, TaintRecord> taintTable,
+                                 TaintTableAttributeInfo taintTableAttributeInfo) {
+        TaintRecord allUntaintedTaintRecord = taintTable.get(-1);
+        addTaintTableEntry(taintTableAttributeInfo, -1, allUntaintedTaintRecord);
+        taintTable.forEach((paramIndex, taintRecord) -> addTaintTableEntry(taintTableAttributeInfo, paramIndex,
+                taintRecord));
+    }
+
+    private void addTaintTableEntry(TaintTableAttributeInfo taintTableAttributeInfo, int index,
+                                    TaintRecord taintRecord) {
+        if (taintRecord != null && (taintRecord.taintError == null || taintRecord.taintError.isEmpty())) {
+            taintTableAttributeInfo.taintTable.put(index, taintRecord.retParamTaintedStatus);
+        }
     }
 
     public void visit(BLangBlockStmt blockNode) {
