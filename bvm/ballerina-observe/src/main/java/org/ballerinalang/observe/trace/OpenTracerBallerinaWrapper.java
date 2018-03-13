@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 public class OpenTracerBallerinaWrapper {
 
-    static final String ROOT_CONTEXT = "root_context";
+    public static final String ROOT_CONTEXT = "root_context";
     private static final String DEFAULT_TRACER = "default";
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;

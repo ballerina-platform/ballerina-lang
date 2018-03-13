@@ -21,6 +21,7 @@ package org.ballerinalang.observe.trace;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -37,9 +38,8 @@ public class FinishSpan extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
 
-//        BStruct span = (BStruct) context.getRefArgument(0);
-//        String spanId = span.getStringField(0);
-//        OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
-//        return VOID_RETURN;
+        BStruct span = (BStruct) context.getRefArgument(0);
+        String spanId = span.getStringField(0);
+        OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
     }
 }
