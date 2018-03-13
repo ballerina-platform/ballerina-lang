@@ -21,7 +21,7 @@ public enum TransferEncoding {
 public native function parseHeader (string headerValue)(string, map, error);
 
 
-function getContentLength (string strContentLength) (int) {
+function getContentLengthIntValue (string strContentLength) (int) {
     var contentLength, conversionErr = <int>strContentLength;
     if (conversionErr != null) {
         contentLength = -1;

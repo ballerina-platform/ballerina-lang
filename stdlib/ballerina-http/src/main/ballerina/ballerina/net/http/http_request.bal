@@ -136,7 +136,7 @@ public function <Request req> expects100Continue () (boolean) {
 public function <Request request> getContentLength () (int) {
     if (request.getHeader(CONTENT_LENGTH) != null) {
         string strContentLength = request.getHeader(CONTENT_LENGTH);
-        return getContentLength(strContentLength);
+        return getContentLengthIntValue(strContentLength);
     }
     return -1;
 }
