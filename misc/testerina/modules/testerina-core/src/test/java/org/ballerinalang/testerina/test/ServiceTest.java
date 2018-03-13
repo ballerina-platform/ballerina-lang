@@ -19,7 +19,9 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,15 +35,19 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
+        System.setProperty("java.util.logging.config.file", "logging.properties");
     }
 
-//    TODO: temporarily commenting out till the connectors getting fixed.
-//  @Test
+    @Test
     public void testBefore() {
         cleanup();
-        new BTestRunner().runTest(new Path[]{Paths.get("src/test/resources/servicemocktest/"), Paths.get
-                ("src/test/resources/servicemocktest2")}, new
-                ArrayList<>());
+        BTestRunner bTestRunner = new BTestRunner();
+        bTestRunner.runTest(new Path[]{Paths.get("src/test/resources/servicemocktest"), Paths.get
+                ("src/test/resources/servicemocktest2")}, new ArrayList<>());
+        Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("src.test.resources.servicemocktest",
+                "passed"), 1);
+
     }
 
     private void cleanup() {

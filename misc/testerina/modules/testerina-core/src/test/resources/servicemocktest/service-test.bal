@@ -4,47 +4,54 @@ import ballerina.net.http;
 import ballerina.io;
 import ballerina.test;
 import ballerina.config;
-import src.test.resources.servicemocktest2;
 
-string url1;
-string url2;
-
-@http:configuration {
-    basePath:"/events",
-    port:9092
+endpoint<http:Service> eventEP {
+    port: 9092
 }
-service<http> EventServiceMock {
+
+string url1 = "http://0.0.0.0:9092/events";
+string url2 = "http://0.0.0.0:9090/portal";
+
+@http:serviceConfig {
+    endpoints:[eventEP], basePath: "/events"
+}
+service<http:Service> EventServiceMock {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource getEvents (http:Connection conn,http:InRequest req) {
-        http:OutResponse res = {};
+    resource getEvents (http:ServerConnector conn,http:Request req) {
+        http:Response res = {};
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
 function init() {
-    url1 = test:startService("EventServiceMock");
+    // TODO: url1 and url2 should be assigned to following. it's not working right now.
+    string x = test:startService("EventServiceMock");
     // currently the url is hard coded; need to set url1 in to config api here
-    url2 = test:startService("PortalService");
+    string y = test:startService("PortalService");
+    io:println(url2);
 }
 
 @test:config{before: "init"}
 function testService () {
-    endpoint<http:HttpClient> httpEndpoint {url : url2}
+    endpoint<http:Client> httpEndpoint {serviceUri : url2}
 
-    http:OutRequest req = {};
+    http:Request req = {};
     // Send a GET request to the specified endpoint
-    http:InResponse resp = {};
-    resp, _ = httpEndpoint -> get("/events", req);
-
+    http:Response resp = {};
+    http:HttpConnectorError err;
+    resp, err = httpEndpoint -> get("/events", req);
+    if (err != null) {
+        test:assertFail("Failed to call the endpoint: "+url2);
+    }
     io:println("GET request:");
     var jsonRes, _ = resp.getJsonPayload();
-    io:println(jsonRes);
     json expected = {"a":"b"};
+    io:println("****");
     test:assertEquals(jsonRes, expected, "failed");
 }

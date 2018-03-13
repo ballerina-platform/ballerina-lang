@@ -1,9 +1,8 @@
 package src.test.resources.servicemocktest2;
 
-import ballerina.io;
 import ballerina.net.http;
 
-public function hadleGetEvents () (http:OutResponse res) {
+public function hadleGetEvents () (http:Response res) {
 
     // Here we need to call the Event Service
     res = {};

@@ -20,9 +20,7 @@ package org.ballerinalang.testerina.natives.test;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -50,11 +48,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Native function ballerina.lang.test:startServer.
@@ -100,29 +96,27 @@ public class StartService extends BlockingNativeCallableUnit {
             // 1) First, we get the Service for the given serviceName from the original ProgramFile
             matchingService = programFile.getEntryPackage().getServiceInfo(serviceName);
             if (matchingService != null) {
-                startService(programFile, matchingService);
+                startService(programFile);
                 break;
             }
         }
 
         // 3) fail if no matching service for the given 'serviceName' argument is found.
-        if (matchingService == null) {
-            String listOfServices = TesterinaRegistry.getInstance().getProgramFiles().stream()
-                    .map(ProgramFile::getEntryPackage).map(PackageInfo::getServiceInfoEntries).flatMap(Arrays::stream)
-                    .map(serviceInfo -> serviceInfo.getName()).collect(Collectors.joining(", "));
-            throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "
-                    + "Did you mean to start one of these services? " + listOfServices);
-        }
+//        if (matchingService == null) {
+//            String listOfServices = TesterinaRegistry.getInstance().getProgramFiles().stream()
+//                    .map(ProgramFile::getEntryPackage).map(PackageInfo::getServiceInfoEntries).flatMap(Arrays::stream)
+//                    .map(serviceInfo -> serviceInfo.getName()).collect(Collectors.joining(", "));
+//            throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "
+//                    + "Did you mean to start one of these services? " + listOfServices);
+//        }
 
+//        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(ctx);
         // 6) return the service url
-        BString str = new BString(getServiceURL(matchingService));
-        ctx.setReturnValues(str);
+//        BString str = new BString(getServiceURL(matchingService));
+//        ctx.setReturnValues(str);
     }
 
-    private void startService(ProgramFile programFile, ServiceInfo matchingService) {
-        ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
-        serverConnectorRegistry.initServerConnectors();
-
+    private void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
@@ -139,23 +133,8 @@ public class StartService extends BlockingNativeCallableUnit {
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
-        // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
+        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
 
-        int serviceCount = 0;
-        // Invoke service init function
-        BLangFunctions.invokeServiceInitFunction(matchingService.getInitFunctionInfo());
-
-        // Deploy service
-        serverConnectorRegistry.registerService(matchingService);
-
-        serviceCount++;
-
-        if (serviceCount == 0) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        serverConnectorRegistry.deploymentComplete();
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {

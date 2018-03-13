@@ -3,16 +3,20 @@ package src.test.resources.servicemocktest2;
 import ballerina.net.http;
 import ballerina.io;
 
-@http:configuration {
-    basePath:"/portal"
+endpoint<http:Service> portalEP {
+    port: 9090
 }
-service<http> PortalService {
+
+@http:serviceConfig {
+    endpoints:[portalEP], basePath: "/portal"
+}
+service<http:Service> PortalService {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"events"
     }
-    resource getEvents (http:Connection conn,http:InRequest req) {
-        _ = conn.respond(hadleGetEvents());
+    resource getEvents (http:ServerConnector conn,http:Request req) {
+        _ = conn -> respond(hadleGetEvents());
     }
 }

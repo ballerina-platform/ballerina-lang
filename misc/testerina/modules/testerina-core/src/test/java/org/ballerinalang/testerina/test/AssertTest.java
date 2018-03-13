@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.test.utils.BTestUtils;
@@ -47,6 +48,12 @@ public class AssertTest {
     public void testAssertIntEquals() {
         BValue[] args = {new BInteger(3), new BInteger(5)};
         BTestUtils.invoke(compileResult, "testAssertIntEquals", args);
+    }
+
+    @Test
+    public void testAssertJsonEquals() {
+        BValue[] args = {new BJSON("{\"a\":\"b\"}"), new BJSON("{\"a\":\"b\"}")};
+        BTestUtils.invoke(compileResult, "testAssertJsonEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*intAdd function " +
@@ -195,6 +202,13 @@ public class AssertTest {
     public void testAssertFloatArrayEquals1() {
         BValue[] args = {new BInteger(1)};
         BTestUtils.invoke(compileResult, "testAssertFloatArrayEquals", args);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*failed : expected \\{\\} but found \\{\"a\":\"b\"\\}.*")
+    public void testAssertJsonEquals1() {
+        BValue[] args = {new BJSON("{\"a\":\"b\"}"), new BJSON("{}")};
+        BTestUtils.invoke(compileResult, "testAssertJsonEquals", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

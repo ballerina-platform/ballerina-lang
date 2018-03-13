@@ -18,6 +18,10 @@ function testAssertStringEquals (string a, string b) {
     test:assertEquals(concatenated, "JohnDoe", "string concatenation failed");
 }
 
+function testAssertJsonEquals (json a, json b) {
+    test:assertEquals(a, b, "json assert equals failed");
+}
+
 function intAdd (int a, int b) (int) {
     return a + b;
 }
