@@ -56,7 +56,7 @@ public native function <Response res> setProperty (string propertyName, string p
 @Return {value:"The first header value struct for the provided header name. Returns null if the header does not exist."}
 public function <Response res> getHeader (string headerName) (string) {
     mime:Entity entity = res.getEntityWithoutBody();
-    return getFirstHeaderFromEntity(entity, headerName);
+    return entity.getHeader(headerName);
 }
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the outbound response"}
@@ -65,7 +65,7 @@ public function <Response res> getHeader (string headerName) (string) {
 @Param {value:"headerValue: The header value"}
 public function <Response res> addHeader (string headerName, string headerValue) {
     mime:Entity entity = res.getEntityWithoutBody();
-    addHeaderToEntity(entity, headerName, headerValue);
+    entity.addHeader(headerName, headerValue);
 }
 
 @Description {value:"Gets the HTTP headers from the inbound response"}
@@ -74,7 +74,7 @@ public function <Response res> addHeader (string headerName, string headerValue)
 @Return {value:"The header values struct array for a given header name"}
 public function <Response res> getHeaders (string headerName) (string[]) {
     mime:Entity entity = res.getEntityWithoutBody();
-    return getHeadersFromEntity(entity, headerName);
+    return entity.getHeaders(headerName);
 }
 
 @Description {value:"Sets the value of a transport header"}
@@ -83,7 +83,7 @@ public function <Response res> getHeaders (string headerName) (string[]) {
 @Param {value:"headerValue: The header value"}
 public function <Response res> setHeader (string headerName, string headerValue) {
     mime:Entity entity = res.getEntityWithoutBody();
-    setHeaderToEntity(entity, headerName, headerValue);
+    entity.setHeader(headerName, headerValue);
 }
 
 @Description {value:"Removes a transport header from the response"}
@@ -98,7 +98,7 @@ public function <Response res> removeHeader (string key) {
 @Param {value:"res: The response message"}
 public function <Response res> removeAllHeaders () {
     mime:Entity entity = res.getEntityWithoutBody();
-    entity.headers = {};
+    entity.removeAllHeaders();
 }
 
 @Description {value:"Gets the Content-Length header value from the response"}
@@ -186,8 +186,7 @@ public function <Response response> getMultiparts () (mime:Entity[], mime:Entity
 public function <Response response> setJsonPayload (json payload) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setJson(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_JSON);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_JSON);
     response.setEntity(entity);
 }
 
@@ -197,8 +196,7 @@ public function <Response response> setJsonPayload (json payload) {
 public function <Response response> setXmlPayload (xml payload) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setXml(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_XML);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_XML);
     response.setEntity(entity);
 }
 
@@ -208,8 +206,7 @@ public function <Response response> setXmlPayload (xml payload) {
 public function <Response response> setStringPayload (string payload) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setText(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:TEXT_PLAIN);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromResponse(response, mime:TEXT_PLAIN);
     response.setEntity(entity);
 }
 
@@ -219,8 +216,7 @@ public function <Response response> setStringPayload (string payload) {
 public function <Response response> setBinaryPayload (blob payload) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setBlob(payload);
-    mime:MediaType mediaType = mime:getMediaType(mime:APPLICATION_OCTET_STREAM);
-    entity.contentType = mediaType;
+    entity.contentType = getMediaTypeFromResponse(response, mime:APPLICATION_OCTET_STREAM);
     response.setEntity(entity);
 }
 
@@ -230,7 +226,7 @@ public function <Response response> setBinaryPayload (blob payload) {
 @Param {value:"contentType: Content type of the top level message"}
 public function <Response response> setMultiparts (mime:Entity[] bodyParts, string contentType) {
     mime:Entity entity = response.getEntityWithoutBody();
-    mime:MediaType mediaType = mime:getMediaType(mime:MULTIPART_MIXED);
+    mime:MediaType mediaType = getMediaTypeFromResponse(response, mime:MULTIPART_MIXED);
     if (contentType != null && contentType != "") {
         mediaType = mime:getMediaType(contentType);
     }
@@ -258,4 +254,17 @@ public function <Response response> setByteChannel (io:ByteChannel payload) {
     mime:Entity entity = response.getEntityWithoutBody();
     entity.setByteChannel(payload);
     response.setEntity(entity);
+}
+
+@Description {value:"Construct MediaType struct from the content-type header value"}
+@Param {value:"response: The outbound response message"}
+@Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
+@Return {value:"Return 'MediaType' struct"}
+function getMediaTypeFromResponse (Response response, string defaultContentType) (mime:MediaType) {
+    mime:MediaType mediaType = mime:getMediaType(defaultContentType);
+    string contentType = response.getHeader(mime:CONTENT_TYPE);
+    if (contentType != null && contentType != "") {
+        mediaType = mime:getMediaType(contentType);
+    }
+    return mediaType;
 }
