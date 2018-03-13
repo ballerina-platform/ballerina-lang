@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.connection;
+package org.ballerinalang.net.http.actions.httpserverconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -24,9 +24,11 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -39,22 +41,28 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * {@code {@link ConnectionAction}} represents a Abstract implementation of Native Ballerina Connection Function.
+ * {@code AbstractConnectorAction} represents the Abstract implementation of the HTTP Server Connector.
  *
  * @since 0.96
  */
-public abstract class ConnectionAction extends BlockingNativeCallableUnit {
+public abstract class AbstractConnectorAction extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
+        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        HTTPCarbonMessage inboundRequestMsg =
+                (HTTPCarbonMessage) bConnector.getNativeData(HttpConstants.TRANSPORT_MESSAGE);
 
         BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
+        prepareAndRespond(context, bConnector, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
+    }
+
+    void prepareAndRespond(Context context, BConnector serverConnector, HTTPCarbonMessage inboundRequestMsg,
+                                     BStruct outboundResponseStruct, HTTPCarbonMessage outboundResponseMsg) {
+        HttpUtil.checkFunctionValidity(serverConnector, inboundRequestMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
 
         BValue[] outboundResponseStatus = sendOutboundResponseRobust(context, inboundRequestMsg,

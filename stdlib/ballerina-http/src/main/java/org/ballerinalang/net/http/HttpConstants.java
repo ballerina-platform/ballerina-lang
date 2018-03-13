@@ -189,13 +189,6 @@ public class HttpConstants {
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
 
-    // ServeConnector struct indices
-    public static final int SERVER_CON_CONNECTION_INDEX = 0;
-
-    //Connection struct indexes
-    public static final int CONNECTION_HOST_INDEX = 0;
-    public static final int CONNECTION_PORT_INDEX = 0;
-
     //Request struct indexes
     public static final int REQUEST_RAW_PATH_INDEX = 0;
     public static final int REQUEST_METHOD_INDEX = 1;

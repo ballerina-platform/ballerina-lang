@@ -16,32 +16,31 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.connection;
+package org.ballerinalang.net.http.actions.httpserverconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConstants;
 
 /**
- * Native function to respond back the caller with inbound response.
+ * {@code Respond} is the respond action implementation of the HTTP Server Connector.
  *
  * @since 0.96
  */
-@BallerinaFunction(
+@BallerinaAction(
         packageName = "ballerina.net.http",
-        functionName = "forward",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
-                structPackage = "ballerina.net.http")},
+        actionName = "respond",
+        connectorName = HttpConstants.SERVER_CONNECTOR,
+        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
+                        structPackage = "ballerina.net.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
-        isPublic = true
+                structPackage = "ballerina.net.http")
 )
-public class Forward extends ConnectionAction {
+public class Respond extends AbstractConnectorAction {
 
     @Override
     public void execute(Context context) {

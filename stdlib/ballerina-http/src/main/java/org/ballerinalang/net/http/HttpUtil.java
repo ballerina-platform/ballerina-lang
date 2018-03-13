@@ -39,6 +39,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -68,7 +69,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -411,14 +411,6 @@ public class HttpUtil {
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
         inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
                 resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
-    }
-
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
-        connection.setStringField(HttpConstants.CONNECTION_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
-        connection.setIntField(HttpConstants.CONNECTION_PORT_INDEX,
-                (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
     }
 
     /**
@@ -906,24 +898,24 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BStruct connectionStruct, HTTPCarbonMessage reqMsg) {
-        serverConnectionStructCheck(reqMsg);
-        methodInvocationCheck(connectionStruct, reqMsg);
+    public static void checkFunctionValidity(BConnector serverConnector, HTTPCarbonMessage reqMsg) {
+        serverBConnectorCheck(reqMsg);
+        methodInvocationCheck(serverConnector, reqMsg);
     }
 
-    private static void methodInvocationCheck(BStruct bStruct, HTTPCarbonMessage reqMsg) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
-            throw new IllegalStateException("illegal function invocation");
+    private static void methodInvocationCheck(BConnector serverConnector, HTTPCarbonMessage reqMsg) {
+        if (serverConnector.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
+            throw new IllegalStateException("illegal action invocation");
         }
 
         if (!is100ContinueRequest(reqMsg)) {
-            bStruct.addNativeData(METHOD_ACCESSED, true);
+            serverConnector.setNativeData(METHOD_ACCESSED, true);
         }
     }
 
-    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+    private static void serverBConnectorCheck(HTTPCarbonMessage reqMsg) {
         if (reqMsg == null) {
-            throw new BallerinaException("operation not allowed:invalid Connection variable");
+            throw new BallerinaException("operation not allowed:invalid ServerConnector instance");
         }
     }
 
