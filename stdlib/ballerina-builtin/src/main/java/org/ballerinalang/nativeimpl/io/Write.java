@@ -43,8 +43,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "startOffset", type = TypeKind.INT),
-                @Argument(name = "numberOfBytes", type = TypeKind.INT)},
+                @Argument(name = "numberOfBytes", type = TypeKind.INT),
+                @Argument(name = "startOffset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
@@ -64,12 +64,12 @@ public class Write implements NativeCallableUnit {
     /*
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
-    private static final int START_OFFSET_INDEX = 0;
+    private static final int START_OFFSET_INDEX = 1;
 
     /*
      * Index which holds the number of bytes which should be written.
      */
-    private static final int NUMBER_OF_BYTES_INDEX = 1;
+    private static final int NUMBER_OF_BYTES_INDEX = 0;
 
     /*
      * Function which will be notified on the response obtained after the async operation.

@@ -45,6 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "read",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "numberOfBytes", type = TypeKind.INT),
+                @Argument(name = "size", type = TypeKind.INT),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.BLOB),
                 @ReturnType(type = TypeKind.INT),
@@ -61,7 +62,12 @@ public class Read implements NativeCallableUnit {
     /**
      * Specifies the offset of the array to read bytes.
      */
-    private static final int OFFSET_INDEX = 1;
+    private static final int OFFSET_INDEX = 2;
+
+    /**
+     * Specifies the number of bytes which should be read.
+     */
+    private static final int SIZE_INDEX = 1;
 
     /**
      * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
@@ -102,10 +108,11 @@ public class Read implements NativeCallableUnit {
         BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
         int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
         int offset = (int) context.getIntArgument(OFFSET_INDEX);
+        int size = (int) context.getIntArgument(SIZE_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         byte[] content = new byte[numberOfBytes];
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.read(byteChannel, content, offset, eventContext, Read::readResponse);
+        IOUtils.read(byteChannel, content, offset, size, eventContext, Read::readResponse);
     }
 
     @Override

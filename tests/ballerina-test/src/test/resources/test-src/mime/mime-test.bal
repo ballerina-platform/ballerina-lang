@@ -166,7 +166,7 @@ function consumeChannel (io:ByteChannel channel) {
     int numberOfBytesRead = 1;
     blob readContent;
     while (numberOfBytesRead != 0) {
-        readContent, numberOfBytesRead, _ = channel.read(10000, 0);
+        readContent, numberOfBytesRead, _ = channel.read(10000,10000, 0);
     }
 }
 
