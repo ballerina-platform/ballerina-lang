@@ -17,68 +17,59 @@
 */
 package org.ballerinalang.test.services.configuration;
 
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.launcher.util.BServiceUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
-import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class CompressionConfigurationTest {
+
+    private CompileResult serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+
+    @BeforeClass
+    public void setup() {
+        String sourceFilePath = "test-src/services/configuration/compression-annotation-test.bal";
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+    }
+
+    @Test
+    public void testOptionDefaultCompression() {
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/defaultCompressionValue",
+                HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
+                "The content-encoding header should be identity");
+    }
 
     @Test
     public void testOptionCompressionEnabled() {
-        Context context = mock(Context.class);
-        ServiceInfo serviceInfo = mock(ServiceInfo.class);
-        AnnAttachmentInfo annAttachmentInfo = mock(AnnAttachmentInfo.class);
-        AnnAttributeValue annAttributeValue = mock(AnnAttributeValue.class);
-
-        when(context.getServiceInfo()).thenReturn(serviceInfo);
-        when(serviceInfo
-                     .getAnnotationAttachmentInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG))
-                .thenReturn(annAttachmentInfo);
-        when(annAttachmentInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED)).thenReturn(
-                annAttributeValue);
-        when(annAttributeValue.getBooleanValue()).thenReturn(true);
-
-        HTTPCarbonMessage outBoundMessage = new HTTPCarbonMessage(
-                new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(200, "OK")));
-        HttpUtil.setCompressionHeaders(context, outBoundMessage);
-        Assert.assertNull(outBoundMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                            "The content-encoding header should be null");
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionEnabled",
+                HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
+                "The content-encoding header should be identity");
     }
 
     @Test
     public void testOptionCompressionDisabled() {
-        Context context = mock(Context.class);
-        ServiceInfo serviceInfo = mock(ServiceInfo.class);
-        AnnAttachmentInfo annAttachmentInfo = mock(AnnAttachmentInfo.class);
-        AnnAttributeValue annAttributeValue = mock(AnnAttributeValue.class);
-
-        when(context.getServiceInfo()).thenReturn(serviceInfo);
-        when(serviceInfo
-                     .getAnnotationAttachmentInfo(HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG))
-                .thenReturn(annAttachmentInfo);
-        when(annAttachmentInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED)).thenReturn(
-                annAttributeValue);
-        when(annAttributeValue.getBooleanValue()).thenReturn(false);
-
-        HTTPCarbonMessage outBoundMessage = new HTTPCarbonMessage(
-                new DefaultFullHttpResponse(HTTP_1_1, new HttpResponseStatus(200, "OK")));
-        HttpUtil.setCompressionHeaders(context, outBoundMessage);
-        Assert.assertEquals(outBoundMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                            Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
-                            "The content-encoding header should be identity");
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionDisabled",
+                HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                "The content-encoding header should be null");
     }
 }
