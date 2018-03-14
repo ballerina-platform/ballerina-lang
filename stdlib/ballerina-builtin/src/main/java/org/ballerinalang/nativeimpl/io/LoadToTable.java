@@ -56,7 +56,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Native function ballerina.io#loadToTable.
  *
- * @since 0.964.1
+ * @since 0.966.0
  */
 @BallerinaFunction(
         packageName = "ballerina.io",

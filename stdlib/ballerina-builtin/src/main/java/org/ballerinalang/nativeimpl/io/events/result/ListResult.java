@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Represent List collection.
+ *
+ * @since 0.966.0
  */
 public class ListResult implements EventResult<List, EventContext> {
     /**

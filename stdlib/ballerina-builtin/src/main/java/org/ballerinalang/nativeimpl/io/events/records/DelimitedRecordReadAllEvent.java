@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Represents delimited record readAll event.
+ *
+ * @since 0.966.0
  */
 public class DelimitedRecordReadAllEvent implements Event {
     /**

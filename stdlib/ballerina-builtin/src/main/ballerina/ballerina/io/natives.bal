@@ -183,7 +183,7 @@ public native function <Socket socket> closeSocket () (IOError);
 @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
 @Param {value:"headerLineIncluded: To indicate whether given file included the header line or not"}
 @Param {value:"structType: Name of the struct that each record need to populate"}
-@Return {value:"Result set of delimited values"}
+@Return {value:"table of delimited values"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function loadToTable(string filePath, string recordSeparator, string fieldSeparator,
                                    string encoding, boolean headerLineIncluded, type structType) (table, IOError);

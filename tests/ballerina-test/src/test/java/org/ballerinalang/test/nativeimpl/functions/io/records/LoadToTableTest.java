@@ -34,6 +34,11 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Test classes to verify functionality of io:loadToTable native function.
+ *
+ * @since 0.966.0
+ */
 public class LoadToTableTest {
 
     private CompileResult recordsInputOutputProgramFile;
