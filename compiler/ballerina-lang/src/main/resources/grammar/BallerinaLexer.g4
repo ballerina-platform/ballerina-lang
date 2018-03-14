@@ -151,6 +151,11 @@ COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
 
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 // §3.10.1 Integer Literals
 IntegerLiteral
     :   DecimalIntegerLiteral

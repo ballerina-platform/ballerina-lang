@@ -312,8 +312,8 @@ postIncrementStatement
     ;
 
 postArithmeticOperator
-    :   ADD ADD
-    |   SUB SUB
+    :   INCREMENT
+    |   DECREMENT
     ;
 
 variableReferenceList
