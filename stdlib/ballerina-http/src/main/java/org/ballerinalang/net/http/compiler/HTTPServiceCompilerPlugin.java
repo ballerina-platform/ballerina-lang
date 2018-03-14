@@ -55,7 +55,7 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
         for (AnnotationAttachmentNode annotation : annotations) {
             if (!PROTOCOL_PACKAGE_HTTP.equals(
                     ((BLangAnnotationAttachment) annotation).annotationSymbol.pkgID.name.value)) {
-                return;
+                continue;
             }
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG) || annotation
                     .getAnnotationName().getValue().equals(WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
