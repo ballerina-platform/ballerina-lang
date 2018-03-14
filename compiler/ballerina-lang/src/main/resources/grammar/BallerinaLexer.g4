@@ -144,6 +144,18 @@ BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
 
+// Compound Assignment operators.
+
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
