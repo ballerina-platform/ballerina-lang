@@ -26,17 +26,6 @@ public class EndpointConfiguration {
     private String host;
     private int port;
     private String scheme;
-    private String tlsStoreType;
-    private String keyStoreFile;
-    private String keyStorePass;
-    private String certPass;
-    private String verifyClient;
-    private String trustStoreFile;
-    private String trustStorePass;
-    private boolean validateCertEnabled;
-    private int cacheSize;
-    private int cacheValidityPeriod;
-    private String sslProtocol;
     private SSLConfig sslConfig;
     
     public String getHost() {
@@ -61,94 +50,6 @@ public class EndpointConfiguration {
 
     public void setScheme(String scheme) {
         this.scheme = scheme;
-    }
-
-    public String getTlsStoreType() {
-        return tlsStoreType;
-    }
-
-    public void setTlsStoreType(String tlsStoreType) {
-        this.tlsStoreType = tlsStoreType;
-    }
-
-    public String getKeyStoreFile() {
-        return keyStoreFile;
-    }
-
-    public void setKeyStoreFile(String keyStoreFile) {
-        this.keyStoreFile = keyStoreFile;
-    }
-
-    public String getKeyStorePass() {
-        return keyStorePass;
-    }
-
-    public void setKeyStorePass(String keyStorePass) {
-        this.keyStorePass = keyStorePass;
-    }
-
-    public String getCertPass() {
-        return certPass;
-    }
-
-    public void setCertPass(String certPass) {
-        this.certPass = certPass;
-    }
-
-    public String getVerifyClient() {
-        return verifyClient;
-    }
-
-    public void setVerifyClient(String verifyClient) {
-        this.verifyClient = verifyClient;
-    }
-
-    public String getTrustStoreFile() {
-        return trustStoreFile;
-    }
-
-    public void setTrustStoreFile(String trustStoreFile) {
-        this.trustStoreFile = trustStoreFile;
-    }
-
-    public String getTrustStorePass() {
-        return trustStorePass;
-    }
-
-    public void setTrustStorePass(String trustStorePass) {
-        this.trustStorePass = trustStorePass;
-    }
-
-    public boolean isValidateCertEnabled() {
-        return validateCertEnabled;
-    }
-
-    public void setValidateCertEnabled(boolean validateCertEnabled) {
-        this.validateCertEnabled = validateCertEnabled;
-    }
-
-    public int getCacheSize() {
-        return cacheSize;
-    }
-
-    public void setCacheSize(int cacheSize) {
-        this.cacheSize = cacheSize;
-    }
-
-    public int getCacheValidityPeriod() {
-        return cacheValidityPeriod;
-    }
-
-    public void setCacheValidityPeriod(int cacheValidityPeriod) {
-        this.cacheValidityPeriod = cacheValidityPeriod;
-    }
-
-    public String getSslProtocol() {
-        return sslProtocol;
-    }
-
-    public void setSslProtocol(String sslProtocol) {
-        this.sslProtocol = sslProtocol;
     }
     
     public SSLConfig getSslConfig() {

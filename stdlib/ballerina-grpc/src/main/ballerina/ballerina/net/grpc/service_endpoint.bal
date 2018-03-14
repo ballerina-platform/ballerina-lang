@@ -22,12 +22,14 @@ public struct ServiceEndpointConfiguration {
 @Field {value:"remoteHost: The server host name"}
 @Field {value:"port: The server port"}
 public struct SslConfiguration {
-    string keyFile;
-    string keyChainFile;
-    string keyStorePassword;
-    string certFile;
     string trustStoreFile;
     string trustStorePassword;
+    string keyStoreFile;
+    string keyStorePassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
+    boolean validateCertEnabled;
 
 }
 
