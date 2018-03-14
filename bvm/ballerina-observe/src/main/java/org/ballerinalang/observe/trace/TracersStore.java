@@ -30,11 +30,9 @@ import java.util.Map;
  */
 class TracersStore {
 
-    private final Map<String, Map<String, Tracer>> tracerServiceMap; // serviceName -> map(tracerName, tracer)
     private OpenTracingConfig openTracingConfig;
 
     TracersStore(OpenTracingConfig openTracingConfig) {
-        this.tracerServiceMap = new HashMap<>();
         this.openTracingConfig = openTracingConfig;
     }
 
@@ -45,21 +43,18 @@ class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     Map<String, Tracer> getTracers(String serviceName) {
-        Map<String, Tracer> tracerMap = tracerServiceMap.get(serviceName);
-        if (tracerMap == null) {
-            tracerMap = new HashMap<>();
-            for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
-                if (tracerConfig.isEnabled()) {
-                    try {
-                        Tracer tracer = OpenTracerFactory.getInstance().getTracer(tracerConfig, serviceName);
-                        tracerMap.put(tracerConfig.getName(), tracer);
-                    } catch (Throwable ignored) {
-                        //Tracers will get added only of there's no errors.
-                        //If tracers contains errors, empty map will return.
-                    }
+        Map<String, Tracer> tracerMap = new HashMap<>();
+        for (TracerConfig tracerConfig : openTracingConfig.getTracers()) {
+            if (tracerConfig.isEnabled()) {
+                try {
+                    Tracer tracer = OpenTracerFactory.getInstance()
+                            .getTracer(tracerConfig, serviceName);
+                    tracerMap.put(tracerConfig.getName(), tracer);
+                } catch (Throwable ignored) {
+                    //Tracers will get added only of there's no errors.
+                    //If tracers contains errors, empty map will return.
                 }
             }
-            tracerServiceMap.put(serviceName, tracerMap);
         }
         return tracerMap;
     }

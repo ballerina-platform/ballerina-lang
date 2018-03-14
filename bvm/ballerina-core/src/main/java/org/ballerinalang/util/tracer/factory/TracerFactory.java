@@ -23,7 +23,7 @@ import org.ballerinalang.util.tracer.Tracer;
 
 /**
  * {@link TracerFactory} act as the common interface for
- * {@link NOPTracerFactory} and {@link BTracerFactory}.
+ * {@link NoOpTracerFactory} and {@link BTracerFactory}.
  *
  * @since 0.964.1
  */

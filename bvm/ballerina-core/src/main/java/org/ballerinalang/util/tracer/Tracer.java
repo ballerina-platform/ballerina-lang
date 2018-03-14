@@ -66,4 +66,6 @@ public interface Tracer {
     void setSpans(Map<String, ?> spans);
 
     void generateInvocationID();
+
+    boolean isRoot();
 }

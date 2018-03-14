@@ -66,6 +66,10 @@ public class BTracer implements Tracer {
      * Map of spans belongs to each open tracer.
      */
     private Map<String, ?> spans;
+    /**
+     * Indicate whether this is a root tracer.
+     */
+    private boolean isRoot = false;
 
     private BTracer() {
 
@@ -75,6 +79,7 @@ public class BTracer implements Tracer {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
         this.executionContext = executionContext;
+        this.isRoot = !isClientContext;
         this.tags.put(TraceConstants.TAG_KEY_SPAN_KIND, isClientContext
                 ? TraceConstants.TAG_SPAN_KIND_CLIENT
                 : TraceConstants.TAG_SPAN_KIND_SERVER);
@@ -188,5 +193,10 @@ public class BTracer implements Tracer {
     @Override
     public void generateInvocationID() {
         setInvocationID(String.valueOf(ThreadLocalRandom.current().nextLong()));
+    }
+
+    @Override
+    public boolean isRoot() {
+        return isRoot;
     }
 }

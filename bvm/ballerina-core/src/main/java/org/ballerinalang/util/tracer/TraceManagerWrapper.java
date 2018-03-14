@@ -20,15 +20,20 @@ package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.util.tracer.factory.BTracerFactory;
-import org.ballerinalang.util.tracer.factory.NOPTracerFactory;
+import org.ballerinalang.util.tracer.factory.NoOpTracerFactory;
 import org.ballerinalang.util.tracer.factory.TracerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_MANAGER_CLASS;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
+
+import static java.util.Arrays.asList;
 
 /**
  * {@link TraceManagerWrapper} loads {@link TraceManager} implementation
@@ -38,6 +43,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TRACE_PREFIX;
  */
 public class TraceManagerWrapper {
     private static final TraceManagerWrapper instance = new TraceManagerWrapper();
+    private Map<String, List<Tracer>> tracerRegistry = new HashMap<>();
     private TraceManager manager;
     private TracerFactory factory;
 
@@ -49,9 +55,9 @@ public class TraceManagerWrapper {
             manager = (TraceManager) tracerManagerClass.newInstance();
             factory = (manager.isEnabled())
                     ? new BTracerFactory()
-                    : new NOPTracerFactory();
+                    : new NoOpTracerFactory();
         } catch (Exception e) {
-            factory = new NOPTracerFactory();
+            factory = new NoOpTracerFactory();
         }
     }
 
@@ -66,6 +72,7 @@ public class TraceManagerWrapper {
     public void startSpan(WorkerExecutionContext ctx) {
         Tracer aBTracer = ctx.getTracer();
         Tracer rBTracer = TraceUtil.getParentTracer(ctx);
+        addToRegistry(aBTracer);
 
         String service = aBTracer.getConnectorName();
         String resource = aBTracer.getActionName();
@@ -91,17 +98,43 @@ public class TraceManagerWrapper {
         aBTracer.setSpans(spanList);
     }
 
-    public void finishSpan(BTracer bTracer) {
-        manager.finishSpan(new ArrayList<>(bTracer.getSpans().values()));
-
+    public void finishSpan(Tracer tracer) {
+        tracerRegistry.getOrDefault(tracer.getInvocationID(),
+                Collections.emptyList()).remove(tracer);
+        manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
+        if (tracer.isRoot()) {
+            finishAll(tracer.getInvocationID());
+        }
     }
 
-    public void log(BTracer bTracer, Map<String, Object> fields) {
-        manager.log(new ArrayList<>(bTracer.getSpans().values()), fields);
+    public void finish(Tracer tracer) {
+        manager.finishSpan(new ArrayList<>(tracer.getSpans().values()));
     }
 
-    public void addTags(BTracer bTracer, Map<String, String> tags) {
-        manager.addTags(new ArrayList<>(bTracer.getSpans().values()), tags);
+    public void log(Tracer tracer, Map<String, Object> fields) {
+        manager.log(new ArrayList<>(tracer.getSpans().values()), fields);
+    }
+
+    public void addTags(Tracer tracer, Map<String, String> tags) {
+        manager.addTags(new ArrayList<>(tracer.getSpans().values()), tags);
+    }
+
+    private void finishAll(String invocationId) {
+        List<Tracer> tracers = tracerRegistry.remove(invocationId);
+        if (tracers != null) {
+            for (Tracer tracer : tracers) {
+                finish(tracer);
+            }
+            tracers.clear();
+        }
+    }
+
+    private void addToRegistry(Tracer aBTracer) {
+        if (aBTracer.isRoot() || tracerRegistry.get(aBTracer.getInvocationID()) == null) {
+            tracerRegistry.put(aBTracer.getInvocationID(), new ArrayList<>(asList(aBTracer)));
+        } else {
+            tracerRegistry.get(aBTracer.getInvocationID()).add(aBTracer);
+        }
     }
 
     private static Map<String, String> addTracePrefix(Map<String, String> map) {

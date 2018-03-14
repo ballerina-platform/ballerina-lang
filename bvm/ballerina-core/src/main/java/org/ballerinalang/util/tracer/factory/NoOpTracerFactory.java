@@ -19,17 +19,17 @@
 package org.ballerinalang.util.tracer.factory;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.tracer.NOPTracer;
+import org.ballerinalang.util.tracer.NoOpTracer;
 import org.ballerinalang.util.tracer.Tracer;
 
 /**
- * {@link NOPTracerFactory} will produce {@link NOPTracer}s.
+ * {@link NoOpTracerFactory} will produce {@link NoOpTracer}s.
  *
  * @since 0.964.1
  */
-public class NOPTracerFactory implements TracerFactory {
+public class NoOpTracerFactory implements TracerFactory {
     @Override
     public Tracer getTracer(WorkerExecutionContext ctx, boolean isClientCtx) {
-        return new NOPTracer();
+        return new NoOpTracer();
     }
 }

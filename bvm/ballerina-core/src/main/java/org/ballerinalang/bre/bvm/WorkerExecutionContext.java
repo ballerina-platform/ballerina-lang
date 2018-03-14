@@ -27,7 +27,7 @@ import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.tracer.NOPTracer;
+import org.ballerinalang.util.tracer.NoOpTracer;
 import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
@@ -175,7 +175,7 @@ public class WorkerExecutionContext {
 
     public Tracer getTracer() {
         if (this.tracer == null) {
-            this.tracer = new NOPTracer();
+            this.tracer = new NoOpTracer();
         }
         return this.tracer;
     }

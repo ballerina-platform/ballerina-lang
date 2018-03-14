@@ -24,35 +24,35 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * {@link NOPTracer} will is a {@link Tracer} implementation
+ * {@link NoOpTracer} will is a {@link Tracer} implementation
  * which performs no operations. This will be used when tracing is disabled.
  *
  * @since 0.964.1
  */
-public class NOPTracer implements Tracer {
+public class NoOpTracer implements Tracer {
     @Override
     public void startSpan() {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void finishSpan() {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void log(Map<String, Object> fields) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void logError(Map<String, Object> fields) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void addTags(Map<String, String> tags) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
@@ -62,7 +62,7 @@ public class NOPTracer implements Tracer {
 
     @Override
     public void setConnectorName(String connectorName) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
@@ -72,7 +72,7 @@ public class NOPTracer implements Tracer {
 
     @Override
     public void setActionName(String actionName) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
@@ -82,7 +82,7 @@ public class NOPTracer implements Tracer {
 
     @Override
     public void addProperty(String key, String value) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
@@ -102,12 +102,12 @@ public class NOPTracer implements Tracer {
 
     @Override
     public void setInvocationID(String invocationId) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void setExecutionContext(WorkerExecutionContext executionContext) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
@@ -117,11 +117,17 @@ public class NOPTracer implements Tracer {
 
     @Override
     public void setSpans(Map<String, ?> spans) {
-        //do noting.
+        //do nothing.
     }
 
     @Override
     public void generateInvocationID() {
-        //do noting.
+        //do nothing.
     }
+
+    @Override
+    public boolean isRoot() {
+        return false;
+    }
+
 }
