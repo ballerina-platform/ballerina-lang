@@ -18,7 +18,10 @@
 
 package org.ballerinalang.config.cipher;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -26,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -51,11 +55,32 @@ public class AESCipherTool {
     private final SecureRandom secureRandom;
 
     /**
-     * @param userSecret User secret String to encode and decode a value.
-     * @throws AESCipherToolException if Any error occurs when preparing the tool with given user data.
+     * Create an AESCipherTool instance by passing in a user secret string.
+     *
+     * @param userSecret User secret string to encode and decode a value.
+     * @throws AESCipherToolException if any error occurs while initializing the cipher tool.
      */
     public AESCipherTool(String userSecret) throws AESCipherToolException {
         this.secretKey = new SecretKeySpec(getSHA256Key(userSecret, SECRET_KEY_LENGTH), ALGORITHM_AES);
+        this.secureRandom = new SecureRandom();
+    }
+
+    /**
+     * Create an AESCipherTool instance by passing in the path of a file containing the user secret.
+     *
+     * @param userSecretFile The path to the file containing the user secret.
+     * @throws IOException            Thrown if any I/O error occurs while reading the user secret file.
+     * @throws AESCipherToolException Thrown if any error occurs while initializing the cipher tool.
+     */
+    public AESCipherTool(Path userSecretFile) throws IOException, AESCipherToolException {
+        List<String> userSecret = Files.readAllLines(userSecretFile, StandardCharsets.UTF_8);
+        Files.deleteIfExists(userSecretFile);
+
+        if (userSecret.size() > 1) {
+            throw new AESCipherToolException("Multi-line user secrets not allowed");
+        }
+
+        this.secretKey = new SecretKeySpec(getSHA256Key(userSecret.get(0), SECRET_KEY_LENGTH), ALGORITHM_AES);
         this.secureRandom = new SecureRandom();
     }
 

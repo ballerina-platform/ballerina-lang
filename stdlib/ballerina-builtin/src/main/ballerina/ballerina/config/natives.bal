@@ -18,8 +18,13 @@ package ballerina.config;
 
 @Description { value:"Retrieve the specified configuration value as a string" }
 @Param { value:"configKey: The configuration to be retrieved" }
-@Return { value:"Configuration value of mapped by the configKey" }
+@Return { value:"Configuration value mapped by the configKey" }
 public native function getAsString(string configKey)(string);
+
+@Description { value:"Decrypt and retrieve the specified encrypted configuration value as a string" }
+@Param { value:"configKey: The configuration to be retrieved" }
+@Return { value:"Decrypted configuration value mapped by the configKey" }
+public native function getEncrypted(string configKey)(string);
 
 @Description { value:"Sets the specified key/value pair as a configuration" }
 @Param { value:"configKey: The key of the configuration value to be set" }

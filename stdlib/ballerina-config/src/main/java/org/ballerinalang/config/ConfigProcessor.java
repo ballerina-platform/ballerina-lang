@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.ballerinalang.bcl.parser.BConfig;
 import org.ballerinalang.bcl.parser.BConfigLangListener;
 import org.ballerinalang.toml.antlr4.TomlLexer;
 import org.ballerinalang.toml.antlr4.TomlParser;
@@ -32,8 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -56,23 +55,23 @@ public class ConfigProcessor {
      * @return The parsed and resolved set of configurations
      * @throws IOException  Thrown if there was an error while attempting to process the config file
      */
-    public static Map<String, String> processConfiguration(Map<String, String> runtimeParams,
+    public static BConfig processConfiguration(Map<String, String> runtimeParams,
                                                            String userProvidedConfigFile,
                                                            Path ballerinaConfDefaultPath) throws IOException {
         String configFilePath = getConfigFile(userProvidedConfigFile, ballerinaConfDefaultPath);
 
-        Map<String, String> configEntries = new HashMap<>();
+        BConfig configEntries = new BConfig();
         if (configFilePath != null) {
             // Parse the config file
             configEntries = parseConfigFile(configFilePath);
 
             // If there are environment variables which map to any config keys, replace their values with the value
             // of the environment variable
-            lookUpVariables(configEntries);
+            lookUpVariables(configEntries.getConfigurations());
         }
 
         if (runtimeParams != null && !runtimeParams.isEmpty()) {
-            configEntries.putAll(parseRuntimeParams(runtimeParams));
+            configEntries.addConfigurations(parseRuntimeParams(runtimeParams).getConfigurations());
         }
         return configEntries;
     }
@@ -92,7 +91,7 @@ public class ConfigProcessor {
     }
 
     private static String convertToEnvVarFormat(String var) {
-        return var.toUpperCase(Locale.ROOT).replace('.', '_');
+        return var.replace('.', '_');
     }
 
     private static String getConfigFile(String fileLocation, Path defaultLocation) {
@@ -116,15 +115,15 @@ public class ConfigProcessor {
         return defaultLocation.toString();
     }
 
-    private static Map<String, String> parseConfigFile(String path) throws IOException {
+    private static BConfig parseConfigFile(String path) throws IOException {
         ANTLRFileStream configFileStream = new ANTLRFileStream(path);
-        Map<String, String> configEntries = new HashMap<>();
+        BConfig configEntries = new BConfig();
         ParseTreeWalker treeWalker = new ParseTreeWalker();
         treeWalker.walk(new BConfigLangListener(configEntries), buildParseTree(configFileStream));
         return configEntries;
     }
 
-    private static Map<String, String> parseRuntimeParams(Map<String, String> runtimeParams) {
+    private static BConfig parseRuntimeParams(Map<String, String> runtimeParams) {
         StringBuilder stringBuilder = new StringBuilder();
         runtimeParams.forEach(
                 (key, val) -> stringBuilder.append(key)
@@ -133,7 +132,7 @@ public class ConfigProcessor {
                                             .append('\"').append(val).append('\"')
                                             .append('\n'));
         ANTLRInputStream runtimeConfigsStream = new ANTLRInputStream(stringBuilder.toString());
-        Map<String, String> runtimeConfigEntries = new HashMap<>();
+        BConfig runtimeConfigEntries = new BConfig();
         ParseTreeWalker treeWalker = new ParseTreeWalker();
         treeWalker.walk(new BConfigLangListener(runtimeConfigEntries), buildParseTree(runtimeConfigsStream));
         return runtimeConfigEntries;

@@ -18,10 +18,18 @@
 
 package org.ballerinalang.config;
 
+import org.ballerinalang.bcl.parser.BConfig;
+import org.ballerinalang.config.cipher.AESCipherTool;
+import org.ballerinalang.config.cipher.AESCipherToolException;
+
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ConfigRegistry caches configuration properties and provide API.
@@ -31,8 +39,13 @@ import java.util.Map;
 public class ConfigRegistry {
 
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
+    private static final Pattern encryptedFieldPattern =
+            Pattern.compile("@encrypted:\\{((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))\\}");
+
+    private static Path defaultUserSecretFile;
 
     private Map<String, String> configEntries = new HashMap<>();
+    private AESCipherTool cipherTool;
 
     private ConfigRegistry() {
     }
@@ -49,7 +62,26 @@ public class ConfigRegistry {
      */
     public void initRegistry(Map<String, String> runtimeParams, String configFilePath, Path ballerinaConfPath)
             throws IOException {
-        configEntries = ConfigProcessor.processConfiguration(runtimeParams, configFilePath, ballerinaConfPath);
+        BConfig resolvedConfigs = ConfigProcessor.processConfiguration(runtimeParams, configFilePath,
+                                                                       ballerinaConfPath);
+        configEntries = resolvedConfigs.getConfigurations();
+
+        if (resolvedConfigs.hasEncryptedValues()) {
+            defaultUserSecretFile = Paths.get(System.getProperty("ballerina.source.root"), "secret.txt");
+
+            try {
+                if (Files.exists(defaultUserSecretFile)) {
+                    cipherTool = new AESCipherTool(defaultUserSecretFile);
+                } else {
+                    throw new RuntimeException(
+                            "detected encrypted values in configurations, but failed to detect a user secret to " +
+                                    "initialize the cipher tool.");
+                }
+            } catch (AESCipherToolException e) {
+                String msg = "failed to initialize the configuration registry: " + e.getMessage();
+                throw new RuntimeException(msg, e);
+            }
+        }
     }
 
     /**
@@ -72,6 +104,36 @@ public class ConfigRegistry {
      */
     public void addConfiguration(String tableHeader, String tableField, String value) {
         configEntries.put(getConfigKey(tableHeader, tableField), value);
+    }
+
+    /**
+     * Encrypts the value before adding the specified key/value pair as a configuration entry.
+     *
+     * @param key   The configuration key
+     * @param value The configuration value
+     */
+    public void encryptAndAddValue(String key, String value) {
+        if (cipherTool == null) {
+            throw new RuntimeException("cipher tool not initialized.");
+        }
+
+        addConfiguration(key, String.format("@cipher:{%s}", value));
+    }
+
+    /**
+     * Encrypts the given value before adding the specified key/value pair as a configuration entry. Here, the key will
+     * be derived using the tableHeader and tableField parameters.
+     *
+     * @param tableHeader The name of the TOML table to which the config will be added
+     * @param tableField  The config key under which the config value will be mapped in the table
+     * @param value       The configuration value
+     */
+    public void encryptAndAddValue(String tableHeader, String tableField, String value) {
+        if (cipherTool == null) {
+            throw new RuntimeException("cipher tool not initialized.");
+        }
+
+        addConfiguration(tableHeader, tableField, String.format("@cipher:{%s}", value));
     }
 
     /**
@@ -151,6 +213,58 @@ public class ConfigRegistry {
     public char[] getConfigAsCharArray(String tableHeader, String tableField) {
         String configValue = configEntries.get(getConfigKey(tableHeader, tableField));
         return configValue != null ? configValue.toCharArray() : null;
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified key.
+     *
+     * @param key The key of the configuration value
+     * @return The configuration value as a string
+     */
+    public String getEncryptedValue(String key) throws AESCipherToolException {
+        String encryptedConfig = configEntries.get(key);
+        if (encryptedConfig != null) {
+            Matcher base64Matcher = encryptedFieldPattern.matcher(encryptedConfig);
+
+            if (!base64Matcher.find()) {
+                throw new AESCipherToolException("invalid base 64 value: " + base64Matcher.group());
+            }
+            return cipherTool.decrypt(base64Matcher.group(1));
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified table header and table field.
+     *
+     * @param tableHeader The name of the TOML table which contains the configuration
+     * @param tableField  The config key under which the config value is mapped in the table
+     * @return The configuration value as a string
+     */
+    public String getEncryptedValue(String tableHeader, String tableField) throws AESCipherToolException {
+        return getEncryptedValue(getConfigKey(tableHeader, tableField));
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified key as a char array.
+     *
+     * @param key The key of the configuration value
+     * @return The configuration value as a char array
+     */
+    public char[] getEncryptedValueAsCharArray(String key) throws AESCipherToolException {
+        String decryptedValue = getEncryptedValue(key);
+        return decryptedValue != null ? decryptedValue.toCharArray() : null;
+    }
+
+    /**
+     * Retrieve the configuration value mapped by the specified table header and table field as a char array.
+     *
+     * @param tableHeader The name of the TOML table which contains the configuration
+     * @param tableField  The config key under which the config value is mapped in the table
+     * @return The configuration value as a char array
+     */
+    public char[] getEncryptedValueAsCharArray(String tableHeader, String tableField) throws AESCipherToolException {
+        return getEncryptedValueAsCharArray(getConfigKey(tableHeader, tableField));
     }
 
     /**

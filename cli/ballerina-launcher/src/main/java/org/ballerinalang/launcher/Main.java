@@ -235,6 +235,7 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+            System.setProperty("ballerina.source.root", sourceRootPath.toString());
 
             // Start all services, if the services flag is set.
             if (runServices) {
