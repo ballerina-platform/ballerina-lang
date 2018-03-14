@@ -11,7 +11,7 @@
     }
 
     function main (string[] args) {
-          TestConnector         tc       =        create         TestConnector() ;
+          TestConnector         tc       =        new         TestConnector() ;
              tc      .     actionHello("Chanaka")       ;
         tc      .       actionHello()       ;
     }

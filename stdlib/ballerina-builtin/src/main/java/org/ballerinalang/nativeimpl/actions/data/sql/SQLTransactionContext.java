@@ -38,6 +38,10 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
         this.xaResource = resource;
     }
 
+    public SQLTransactionContext(Connection conn) {
+        this.conn = conn;
+    }
+
     public Connection getConnection() {
         return this.conn;
     }

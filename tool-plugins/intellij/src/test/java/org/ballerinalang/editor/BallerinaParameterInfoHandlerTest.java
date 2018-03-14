@@ -70,29 +70,29 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
         doTest("<html><b>string a</b></html>");
     }
 
-    public void testLocalActionWithMultipleParam() {
-        doTest("<html><b>string a</b>, string b</html>");
-    }
-
-    public void testLocalActionWithMultipleParamSecondElement() {
-        doTest(1, "<html>string a, <b>string b</b></html>");
-    }
-
-    public void testLocalConnectorWithNoParam() {
-        doTest(NO_PARAMETER);
-    }
-
-    public void testLocalConnectorWithSingleParam() {
-        doTest("<html><b>string a</b></html>");
-    }
-
-    public void testLocalConnectorWithMultipleParam() {
-        doTest("<html><b>string a</b>, string b</html>");
-    }
-
-    public void testLocalConnectorWithMultipleParamSecondElement() {
-        doTest(1, "<html>string a, <b>string b</b></html>");
-    }
+//    public void testLocalActionWithMultipleParam() {
+//        doTest("<html><b>string a</b>, string b</html>");
+//    }
+//
+//    public void testLocalActionWithMultipleParamSecondElement() {
+//        doTest(1, "<html>string a, <b>string b</b></html>");
+//    }
+//
+//    public void testLocalConnectorWithNoParam() {
+//        doTest(NO_PARAMETER);
+//    }
+//
+//    public void testLocalConnectorWithSingleParam() {
+//        doTest("<html><b>string a</b></html>");
+//    }
+//
+//    public void testLocalConnectorWithMultipleParam() {
+//        doTest("<html><b>string a</b>, string b</html>");
+//    }
+//
+//    public void testLocalConnectorWithMultipleParamSecondElement() {
+//        doTest(1, "<html>string a, <b>string b</b></html>");
+//    }
 
     public void testLocalFunctionWithNoParam() {
         doTest(NO_PARAMETER);
@@ -114,13 +114,13 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
         doTest(NO_PARAMETER);
     }
 
-    public void testSDKActionWithMultipleParam() {
-        doTest("<html><b>string serviceUri</b>, Options connectorOptions</html>");
-    }
+//    public void testSDKActionWithMultipleParam() {
+//        doTest("<html><b>string serviceUri</b>, Options connectorOptions</html>");
+//    }
 
-    public void testSDKActionWithMultipleParamSecondElement() {
-        doTest(1, "<html>string serviceUri, <b>Options connectorOptions</b></html>");
-    }
+//    public void testSDKActionWithMultipleParamSecondElement() {
+//        doTest(1, "<html>string serviceUri, <b>Options connectorOptions</b></html>");
+//    }
 
     public void testSDKFunctionWithSingleParam() {
         doTest("<html><b>string msg</b></html>");
