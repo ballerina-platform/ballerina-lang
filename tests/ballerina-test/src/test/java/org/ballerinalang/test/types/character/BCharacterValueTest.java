@@ -54,7 +54,7 @@ public class BCharacterValueTest {
     public void testCharacterValue() {
         BValue[] returns = BRunUtil.invoke(result, "testCharValue", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter charValue = (BCharacter) returns[0];
         Assert.assertEquals(charValue.charValue(), 'D', "Invalid character value returned.");
     }
@@ -74,7 +74,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter charValue = (BCharacter) returns[0];
         Assert.assertEquals(charValue.charValue(), input, "Invalid character value returned.");
     }
@@ -85,7 +85,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, "testCharToIntCast", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
         Assert.assertEquals(intValue.intValue(), (int) input, "Invalid integer value returned.");
     }
@@ -96,7 +96,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BInteger(input)};
         BValue[] returns = BRunUtil.invoke(result, "testIntToCharExplicitCast", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter bCharacter = (BCharacter) returns[0];
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
@@ -107,7 +107,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BInteger(input)};
         BValue[] returns = BRunUtil.invoke(result, "testIntToCharCast", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter bCharacter = (BCharacter) returns[0];
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
@@ -118,7 +118,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, "testCharToFloatCast", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(returns[0].getClass(), BFloat.class);
         BFloat bFloat = (BFloat) returns[0];
         Assert.assertEquals(bFloat.floatValue(), (double) input, "Invalid float value returned.");
     }
@@ -129,8 +129,8 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, "testCharToAnyCast", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[1].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BTypeValue.class);
+        Assert.assertEquals(returns[1].getClass(), BCharacter.class);
         BCharacter bCharacter = (BCharacter) returns[1];
         Assert.assertEquals(bCharacter.charValue(), input, "Invalid character value returned.");
     }
@@ -148,12 +148,12 @@ public class BCharacterValueTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testCharArrayToAny", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeValue.class);
-        Assert.assertSame(returns[1].getClass(), BCharArray.class);
+        Assert.assertEquals(returns[0].getClass(), BTypeValue.class);
+        Assert.assertEquals(returns[1].getClass(), BCharArray.class);
 
         BCharArray bCharArrayOut = (BCharArray) returns[1];
-        Assert.assertSame((char) bCharArrayOut.get(0), input1);
-        Assert.assertSame((char) bCharArrayOut.get(1), input2);
+        Assert.assertEquals((char) bCharArrayOut.get(0), input1);
+        Assert.assertEquals((char) bCharArrayOut.get(1), input2);
     }
 
     @Test(description = "Test integer to character conversion")
@@ -162,7 +162,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BInteger(input)};
         BValue[] returns = BRunUtil.invoke(result, "testIntToCharConversion", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter bCharacter = (BCharacter) returns[0];
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
@@ -173,7 +173,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, "testCharToIntConversion", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
         BInteger bInteger = (BInteger) returns[0];
         Assert.assertEquals(bInteger.intValue(), (long) input, "Invalid integer value returned.");
     }
@@ -184,7 +184,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BFloat(input)};
         BValue[] returns = BRunUtil.invoke(result, "testFloatToCharConversion", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharacter.class);
+        Assert.assertEquals(returns[0].getClass(), BCharacter.class);
         BCharacter bCharacter = (BCharacter) returns[0];
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
@@ -195,7 +195,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter(input)};
         BValue[] returns = BRunUtil.invoke(result, "testCharToFloatConversion", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(returns[0].getClass(), BFloat.class);
         BFloat bFloat = (BFloat) returns[0];
         Assert.assertEquals(bFloat.floatValue(), (double) input, "Invalid float value returned.");
     }
@@ -205,7 +205,7 @@ public class BCharacterValueTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testCharArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharArray.class);
+        Assert.assertEquals(returns[0].getClass(), BCharArray.class);
     }
 
     @Test(description = "Test character array assignment")
@@ -224,13 +224,13 @@ public class BCharacterValueTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testCharArrayAssignment", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharArray.class);
+        Assert.assertEquals(returns[0].getClass(), BCharArray.class);
         BCharArray bCharArrayOut = (BCharArray) returns[0];
 
-        Assert.assertSame((char) bCharArrayOut.get(0), input1);
-        Assert.assertSame((char) bCharArrayOut.get(1), input2);
-        Assert.assertSame((char) bCharArrayOut.get(2), input3);
-        Assert.assertSame((char) bCharArrayOut.get(3), input4);
+        Assert.assertEquals((char) bCharArrayOut.get(0), input1);
+        Assert.assertEquals((char) bCharArrayOut.get(1), input2);
+        Assert.assertEquals((char) bCharArrayOut.get(2), input3);
+        Assert.assertEquals((char) bCharArrayOut.get(3), input4);
     }
 
 
@@ -248,7 +248,7 @@ public class BCharacterValueTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
         BInteger bInteger = (BInteger) returns[0];
         Assert.assertEquals(length, bInteger.intValue(), "Invalid array size");
     }
@@ -263,8 +263,8 @@ public class BCharacterValueTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testCharArrayOfArray", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns[1].getClass(), BInteger.class);
         BInteger bInteger = (BInteger) returns[0];
         BInteger bInteger1 = (BInteger) returns[1];
         Assert.assertEquals(3, bInteger.intValue(), "Invalid array size");
@@ -276,8 +276,8 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter('A'), new BCharacter('B'), new BCharacter('A')};
         BValue[] returns = BRunUtil.invoke(result, "testCharBinaryOperation", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(returns[1].getClass(), BBoolean.class);
         BBoolean boolean1 = (BBoolean) returns[0];
         BBoolean boolean2 = (BBoolean) returns[1];
         Assert.assertFalse(boolean1.booleanValue(), "Invalid result");
@@ -289,8 +289,8 @@ public class BCharacterValueTest {
         BValue[] args = {new BCharacter('A'), new BCharacter('B'), new BCharacter('A')};
         BValue[] returns = BRunUtil.invoke(result, "testCharBinaryNotEqualOperation", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertEquals(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(returns[1].getClass(), BBoolean.class);
         BBoolean boolean1 = (BBoolean) returns[0];
         BBoolean boolean2 = (BBoolean) returns[1];
         Assert.assertTrue(boolean1.booleanValue(), "Invalid result");
@@ -309,7 +309,7 @@ public class BCharacterValueTest {
         BValue[] args = {new BString(input)};
         BValue[] returns = BRunUtil.invoke(result, "testStringToCharArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BCharArray.class);
+        Assert.assertEquals(returns[0].getClass(), BCharArray.class);
 
         BCharArray bCharArray = (BCharArray) returns[0];
         for (int i = 0; i < input.length(); i++) {

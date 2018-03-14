@@ -36,12 +36,14 @@ class BCharacterType extends BType {
         super(typeName, pkgPath, BCharacter.class);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
         return (V) new BCharacter(Character.MIN_VALUE);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <V extends BValue> V getEmptyValue() {
         return (V) new BCharacter(Character.MIN_VALUE);
     }

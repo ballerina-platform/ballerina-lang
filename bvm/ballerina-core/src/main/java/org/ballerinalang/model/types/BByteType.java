@@ -36,12 +36,14 @@ class BByteType extends BType {
         super(typeName, pkgPath, BByte.class);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <V extends BValue> V getZeroValue() {
         return (V) new BByte(Byte.MIN_VALUE);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <V extends BValue> V getEmptyValue() {
         return (V) new BByte(Byte.MIN_VALUE);
     }

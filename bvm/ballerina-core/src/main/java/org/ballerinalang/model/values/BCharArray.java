@@ -36,7 +36,7 @@ public class BCharArray extends BNewArray {
     private int[] values;
 
     public BCharArray(int[] values) {
-        this.values = values;
+        this.values = Arrays.copyOf(values, values.length);
         this.size = values.length;
     }
 

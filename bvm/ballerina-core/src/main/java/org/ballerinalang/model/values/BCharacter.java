@@ -75,7 +75,16 @@ public final class BCharacter extends BValueType implements BRefType<Integer> {
 
     @Override
     public boolean equals(Object obj) {
-        return ((BCharacter) obj).charValue() == value;
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BCharacter that = (BCharacter) obj;
+        return value == that.value;
     }
 
     @Override
@@ -86,5 +95,10 @@ public final class BCharacter extends BValueType implements BRefType<Integer> {
     @Override
     public BValue copy() {
         return new BCharacter(value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(value);
     }
 }

@@ -75,7 +75,16 @@ public final class BByte extends BValueType implements BRefType<Integer> {
 
     @Override
     public boolean equals(Object obj) {
-        return ((BByte) obj).byteValue() == value;
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BByte that = (BByte) obj;
+        return value == that.value;
     }
 
     @Override
@@ -86,5 +95,10 @@ public final class BByte extends BValueType implements BRefType<Integer> {
     @Override
     public BValue copy() {
         return new BByte(value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(value);
     }
 }
