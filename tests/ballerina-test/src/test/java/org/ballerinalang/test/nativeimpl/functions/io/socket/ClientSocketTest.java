@@ -29,34 +29,108 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Unit tests for client socket.
+ */
 public class ClientSocketTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
+
     private CompileResult socketClient;
-    private MockSocketServer server;
-    private int port = ThreadLocalRandom.current().nextInt(49152, 65535);
+    private Process server;
 
     @BeforeClass
     public void setup() {
         socketClient = BCompileUtil.compile("test-src/io/clientsocketio.bal");
-        server = new MockSocketServer(port);
-        server.start();
+        boolean connectionStatus;
+        int numberOfRetryAttempts = 10;
+        try {
+            server = MockSocketServer.start();
+            connectionStatus = isConnected(MockSocketServer.SERVER_HOST, numberOfRetryAttempts);
+            if (!connectionStatus) {
+                Assert.fail("Unable to open connection with the test TCP server");
+            }
+        } catch (IOException | InterruptedException e) {
+            log.error("Unable to open Socket Server: " + e.getMessage(), e);
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * Closes a provided socket connection.
+     *
+     * @param socket socket which should be closed.
+     */
+    private void close(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            log.error("Error occurred while closing the Socket connection", e);
+        }
+    }
+
+    /**
+     * Will enforce to sleep the thread for the provided time.
+     *
+     * @param retryInterval the time in milliseconds the thread should sleep
+     */
+    private void sleep(int retryInterval) {
+        try {
+            Thread.sleep(retryInterval);
+        } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Attempts to establish a connection with the test server.
+     *
+     * @param hostName        hostname of the server.
+     * @param numberOfRetries number of retry attempts.
+     * @return true if the connection is established successfully.
+     */
+    private boolean isConnected(String hostName, int numberOfRetries) {
+        Socket temporarySocketConnection = null;
+        boolean isConnected = false;
+        final int retryInterval = 1000;
+        final int initialRetryCount = 0;
+        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
+            try {
+                //Attempts to establish a connection with the server
+                temporarySocketConnection = new Socket(hostName, MockSocketServer.SERVER_PORT);
+                isConnected = true;
+            } catch (IOException e) {
+                log.error("Error occurred while establishing a connection with test server", e);
+                sleep(retryInterval);
+            } finally {
+                if (null != temporarySocketConnection) {
+                    //We close the connection once completed.
+                    close(temporarySocketConnection);
+                }
+            }
+        }
+        return isConnected;
     }
 
     @AfterClass
     public void cleanup() {
-        server.stop();
+        server.destroy();
     }
 
     @Test(description = "Open client socket connection to the remote server that started in 9999")
     public void testOpenClientSocket() {
-        BValue[] args = { new BString("localhost"), new BInteger(port) };
+        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
@@ -64,7 +138,8 @@ public class ClientSocketTest {
           description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
-        BValue[] args = { new BBlob(content.getBytes()) };
+        byte[] contentBytes = content.getBytes();
+        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
@@ -83,14 +158,14 @@ public class ClientSocketTest {
         BRunUtil.invoke(socketClient, "closeSocket");
     }
 
-    /*@Test(dependsOnMethods = "testClosure",
-          description = "Test connection open with properties")*/
+    @Test(dependsOnMethods = "testClosure",
+          description = "Test connection open with properties")
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
-        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
+        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), propertyStruct };
         final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
         final BStruct socket = (BStruct) returns[0];
         Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");

@@ -81,7 +81,6 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerAsReturnParameter() {
-        BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(fpProgram, "test5");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);

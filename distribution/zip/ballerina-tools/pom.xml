@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.963.1-SNAPSHOT</version>
+        <version>0.964.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -116,37 +116,38 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>docerina-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>docerina</goal>
-                        </goals>
-                        <configuration>
-                            <outputDir>${project.build.directory}/api-docs</outputDir>
-                            <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives
-                            </sourceDir>
-                            <nativeCode>true</nativeCode>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.ballerinalang</groupId>
-                        <artifactId>ballerina-http</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ballerinalang</groupId>
-                        <artifactId>ballerina-mime</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
+            <!--TODO fix after test migration-->
+            <!--<plugin>-->
+                <!--<groupId>org.ballerinalang</groupId>-->
+                <!--<artifactId>docerina-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>docerina</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<outputDir>${project.build.directory}/api-docs</outputDir>-->
+                            <!--<sourceDir>-->
+                                <!--${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}/src,${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/natives-->
+                            <!--</sourceDir>-->
+                            <!--<nativeCode>true</nativeCode>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.ballerinalang</groupId>-->
+                        <!--<artifactId>ballerina-http</artifactId>-->
+                        <!--<version>${project.version}</version>-->
+                    <!--</dependency>-->
+                    <!--<dependency>-->
+                        <!--<groupId>org.ballerinalang</groupId>-->
+                        <!--<artifactId>ballerina-mime</artifactId>-->
+                        <!--<version>${project.version}</version>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
+            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

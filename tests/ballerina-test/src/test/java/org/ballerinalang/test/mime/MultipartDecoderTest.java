@@ -47,6 +47,7 @@ import java.util.List;
  */
 public class MultipartDecoderTest {
     private CompileResult serviceResult;
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
@@ -76,7 +77,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -105,7 +106,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -134,7 +135,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -167,7 +168,7 @@ public class MultipartDecoderTest {
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
         HTTPTestRequest inRequestMsg = Util.createNestedPartRequest(path);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, inRequestMsg);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE
                 + "Child Part 2" + StringUtil.NEWLINE);

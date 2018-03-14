@@ -18,16 +18,16 @@
 package org.wso2.ballerinalang.programfile;
 
 
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
-import org.wso2.ballerinalang.programfile.attributes.AnnotationAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
-import org.wso2.ballerinalang.programfile.attributes.ParamAnnotationAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ServiceLoader;
 
 /**
  * Dump Ballerina program model to a file.
@@ -65,6 +66,13 @@ public class ProgramFileWriter {
     public static void writeProgram(ProgramFile programFile, Path execFilePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(execFilePath));
         writeProgram(programFile, bos);
+
+        // TODO Fix this properly. Load and invoke compiler plugins
+        // TODO This will get properly fixed with the new packerina
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            plugin.codeGenerated(execFilePath);
+        });
     }
 
     public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {
@@ -206,15 +214,19 @@ public class ProgramFileWriter {
             writeConnectorInfo(dataOutStream, connectorInfo);
         }
 
-        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
-            writeConnectorActionInfo(dataOutStream, connectorInfo);
-        }
-
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
         for (ServiceInfo serviceInfo : serviceInfoEntries) {
             writeServiceInfo(dataOutStream, serviceInfo);
+        }
+
+        for (ConnectorInfo connectorInfo : connectorInfoEntries) {
+            writeConnectorActionInfo(dataOutStream, connectorInfo);
+        }
+
+        for (ServiceInfo serviceInfo : serviceInfoEntries) {
+            writeResourceInfo(dataOutStream, serviceInfo);
         }
 
         // Emit constant info entries
@@ -235,8 +247,6 @@ public class ProgramFileWriter {
             writeCallableUnitInfo(dataOutStream, transformerInfo);
         }
 
-        // TODO Emit AnnotationInfo entries
-
         // Emit Package level attributes
         writeAttributeInfoEntries(dataOutStream, packageInfo.getAttributeInfoEntries());
 
@@ -253,6 +263,7 @@ public class ProgramFileWriter {
         for (PackageVarInfo packageVarInfo : packageVarInfoEntry) {
             dataOutStream.writeInt(packageVarInfo.nameCPIndex);
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
+            dataOutStream.writeInt(packageVarInfo.globalMemIndex);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
         }
@@ -358,8 +369,11 @@ public class ProgramFileWriter {
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
-        dataOutStream.writeInt(serviceInfo.protocolPkgPathCPIndex);
+        dataOutStream.writeInt(serviceInfo.endpointNameCPIndex);
+    }
 
+    private static void writeResourceInfo(DataOutputStream dataOutStream,
+                                          ServiceInfo serviceInfo) throws IOException {
         ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
         dataOutStream.writeShort(resourceInfoEntries.length);
         for (ResourceInfo resourceInfo : resourceInfoEntries) {
@@ -526,22 +540,6 @@ public class ProgramFileWriter {
                 }
                 break;
 
-            case ANNOTATIONS_ATTRIBUTE:
-                AnnotationAttributeInfo annAttributeInfo = (AnnotationAttributeInfo) attributeInfo;
-                AnnAttachmentInfo[] attachmentInfoEntries = annAttributeInfo.getAttachmentInfoEntries();
-                dataOutStream.writeShort(attachmentInfoEntries.length);
-                for (AnnAttachmentInfo attachmentInfo : attachmentInfoEntries) {
-                    writeAnnAttachmentInfo(dataOutStream, attachmentInfo);
-                }
-                break;
-            case PARAMETER_ANNOTATIONS_ATTRIBUTE:
-                ParamAnnotationAttributeInfo prmAnnAtrInfo = (ParamAnnotationAttributeInfo) attributeInfo;
-                ParamAnnAttachmentInfo[] prmAnnAtchmntInfo = prmAnnAtrInfo.getAttachmentInfoArray();
-                dataOutStream.writeShort(prmAnnAtchmntInfo.length);
-                for (ParamAnnAttachmentInfo prmAtchInfo : prmAnnAtchmntInfo) {
-                    writeParamAnnAttachmentInfo(dataOutStream, prmAtchInfo);
-                }
-                break;
             case LOCAL_VARIABLES_ATTRIBUTE:
                 LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) attributeInfo;
                 LocalVariableInfo[] localVarInfoArray = localVarAttrInfo.localVars.toArray(
@@ -562,6 +560,14 @@ public class ProgramFileWriter {
             case DEFAULT_VALUE_ATTRIBUTE:
                 DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) attributeInfo;
                 writeDefaultValue(dataOutStream, defaultValAttrInfo.getDefaultValue());
+                break;
+            case PARAMETER_DEFAULTS_ATTRIBUTE:
+                ParamDefaultValueAttributeInfo paramDefaultValAttrInfo = (ParamDefaultValueAttributeInfo) attributeInfo;
+                DefaultValue[] defaultValues = paramDefaultValAttrInfo.getDefaultValueInfo();
+                dataOutStream.writeShort(defaultValues.length);
+                for (DefaultValue defaultValue : defaultValues) {
+                    writeDefaultValue(dataOutStream, defaultValue);
+                }
                 break;
         }
 
@@ -597,30 +603,6 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(attachedFuncInfo.flags);
     }
 
-    private static void writeAnnAttachmentInfo(DataOutputStream dataOutStream,
-                                               AnnAttachmentInfo attachmentInfo) throws IOException {
-        dataOutStream.writeInt(attachmentInfo.getPkgPathCPIndex());
-        dataOutStream.writeInt(attachmentInfo.getNameCPIndex());
-
-        AnnAttributeKeyValuePair[] attribKeyValuePairs = attachmentInfo.getAttributeKeyValuePairs();
-        dataOutStream.writeShort(attribKeyValuePairs.length);
-        for (AnnAttributeKeyValuePair keyValuePair : attribKeyValuePairs) {
-            dataOutStream.writeInt(keyValuePair.getAttributeNameCPIndex());
-            writeAnnAttributeValue(dataOutStream, keyValuePair.getAttributeValue());
-        }
-    }
-
-    private static void writeParamAnnAttachmentInfo(DataOutputStream dataOutStream,
-                                                    ParamAnnAttachmentInfo attachmentInfo) throws IOException {
-        dataOutStream.writeInt(attachmentInfo.getParamIdex());
-
-        AnnAttachmentInfo[] annAttachmentInfos = attachmentInfo.getAnnAttachmentInfos();
-        dataOutStream.writeShort(annAttachmentInfos.length);
-        for (AnnAttachmentInfo annAttachmentInfo : annAttachmentInfos) {
-            writeAnnAttachmentInfo(dataOutStream, annAttachmentInfo);
-        }
-    }
-
     private static void writeLocalVariableInfo(DataOutputStream dataOutStream,
                                                LocalVariableInfo localVariableInfo) throws IOException {
         dataOutStream.writeInt(localVariableInfo.varNameCPIndex);
@@ -641,31 +623,6 @@ public class ProgramFileWriter {
         dataOutStream.writeInt(lineNumberInfo.getIp());
     }
 
-    private static void writeAnnAttributeValue(DataOutputStream dataOutStream,
-                                               AnnAttributeValue attributeValue) throws IOException {
-        dataOutStream.writeInt(attributeValue.getTypeDescCPIndex());
-        dataOutStream.writeBoolean(attributeValue.isConstVarExpr());
-        if (attributeValue.isConstVarExpr()) {
-            dataOutStream.writeInt(attributeValue.getConstPkgCPIndex());
-            dataOutStream.writeInt(attributeValue.getConstNameCPIndex());
-            return;
-        }
-        String typeDesc = attributeValue.getTypeDesc();
-        if (TypeDescriptor.SIG_ANNOTATION.equals(typeDesc)) {
-            writeAnnAttachmentInfo(dataOutStream, attributeValue.getAnnotationAttachmentValue());
-        } else if (TypeDescriptor.SIG_ARRAY.equals(typeDesc)) {
-            AnnAttributeValue[] attributeValues = attributeValue.getAttributeValueArray();
-            dataOutStream.writeShort(attributeValues.length);
-            for (AnnAttributeValue value : attributeValues) {
-                writeAnnAttributeValue(dataOutStream, value);
-            }
-        } else if (TypeDescriptor.SIG_BOOLEAN.equals(typeDesc)) {
-            dataOutStream.writeBoolean(attributeValue.getBooleanValue());
-        } else {
-            dataOutStream.writeInt(attributeValue.getValueCPIndex());
-        }
-    }
-
     private static byte[] toUTF(String value) throws IOException {
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
@@ -673,7 +630,7 @@ public class ProgramFileWriter {
         return byteAOS.toByteArray();
     }
 
-    private static void writeDefaultValue(DataOutputStream dataOutStream, StructFieldDefaultValue defaultValueInfo)
+    private static void writeDefaultValue(DataOutputStream dataOutStream, DefaultValue defaultValueInfo)
             throws IOException {
         dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
         String typeDesc = defaultValueInfo.desc;

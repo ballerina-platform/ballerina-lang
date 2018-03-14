@@ -56,18 +56,14 @@
   "Annotation": {
     "before annotation": "",
     "after annotation": "",
+    "before <": " ",
+    "before attachmentPoints": "",
+    "after attachmentPoints": "",
+    "after >": "",
     "before name": " ",
-    "after name": "",
-    "before {": " ",
-    "after {": "",
-    "before attributes": "",
-    "after attributes": "",
-    "before }": "",
-    "after }": "",
-    "before attach": "",
-    "after attach": "",
-    "before resource": "",
-    "after resource": ""
+    "after name": " ",
+    "before typeNode": " ",
+    "after typeNode": ""
   },
   "AnnotationAttachment": {
     "before @": "",
@@ -78,41 +74,8 @@
     "after :": "",
     "before annotationName": "",
     "after annotationName": "",
-    "before {": " ",
-    "after {": "",
-    "before attributes": "",
-    "after attributes": "",
-    "before }": "",
-    "after }": ""
-  },
-  "AnnotationAttachmentAttribute": {
-    "before name": "",
-    "after name": "",
-    "before :": "",
-    "after :": "",
-    "before value": "",
-    "after value": "",
-    "dent": true
-  },
-  "AnnotationAttachmentAttributeValue": {
-    "before value": "",
-    "after value": "",
-    "before [": "",
-    "after [": "",
-    "before valueArray": "",
-    "after valueArray": "",
-    "before ]": "",
-    "after ]": ""
-  },
-  "AnnotationAttribute": {
-    "before typeNode": "",
-    "after typeNode": "",
-    "before name": " ",
-    "after name": "",
-    "before =": "",
-    "after =": "",
-    "before initialExpression": "",
-    "after initialExpression": ""
+    "before expression": " ",
+    "after expression": ""
   },
   "ArrayLiteralExpr": {
     "before [": "",
@@ -227,7 +190,8 @@
     "before expressions": "",
     "after expressions": "",
     "before )": "",
-    "after )": ""
+    "after )": "",
+    "dent": true
   },
   "ConstrainedType": {
     "before type": "",
@@ -238,6 +202,42 @@
     "after constraint": "",
     "before >": "",
     "after >": ""
+  },
+  "Documentation": {
+    "before documentation": "",
+    "after documentation": " ",
+    "before {": "",
+    "after {": "",
+    "before documentationText": "",
+    "after documentationText": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Deprecated": {
+    "before deprecated": "",
+    "after deprecated": " ",
+    "before {": "",
+    "after {": "",
+    "before documentationText": "",
+    "after documentationText": "",
+    "before }": "",
+    "after }": ""
+  },
+  "Endpoint": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before endpoint": " ",
+    "after endpoint": "",
+    "before <": " ",
+    "after <": "",
+    "before endPointType": "",
+    "after endPointType": "",
+    "before >": "",
+    "after >": "",
+    "before name": " ",
+    "after name": "",
+    "before configurationExpression": " ",
+    "after configurationExpression": ""
   },
   "EndpointType": {
     "before <": "",

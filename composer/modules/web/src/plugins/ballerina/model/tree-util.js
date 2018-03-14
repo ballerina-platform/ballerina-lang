@@ -19,7 +19,6 @@ import _ from 'lodash';
 import AbstractTreeUtil from './abstract-tree-util';
 import TreeBuilder from './tree-builder';
 import FragmentUtils from '../utils/fragment-utils';
-import { statement } from 'plugins/ballerina/diagram/views/default/designer-defaults';
 
 /**
  * Util class for tree related functionality.
@@ -255,7 +254,21 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isReturn(node)) {
             return true;
         }
-        // TODO improve this logic to handle new respond client invocation
+        let resource = node;
+        while (resource) {
+            resource = resource.parent;
+            if (resource && this.isResource(resource)) {
+                // visit and find ACTION Invocation.
+                const param = resource.parameters[0];
+                if (param === undefined) return false;
+                const c = param.name.value;
+                const action = node.find((e) => { return this.isInvocation(e); });
+                if (action && c === action.expression.variableName.value) {
+                    return true;
+                }
+                break;
+            }
+        }
         if (this.isAssignment(node) && this.isInvocation(node.getExpression())) {
             const exp = node.getExpression();
             if ((exp.invocationType === 'FUNCTION')
@@ -510,7 +523,7 @@ class TreeUtil extends AbstractTreeUtil {
     }
 
     getNewTempVarName(node, varPrefix, numberOfVars = 1) {
-        const fileData = node.getRoot().getFile();
+        // const fileData = node.getRoot().getFile();
         // FIXME
         // return getLangServerClientInstance()
         //     .then((client) => {

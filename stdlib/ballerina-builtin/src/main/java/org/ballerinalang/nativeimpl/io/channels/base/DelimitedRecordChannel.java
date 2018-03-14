@@ -98,7 +98,7 @@ public class DelimitedRecordChannel {
      * @return the requested record.
      * @throws BallerinaIOException during I/O error.
      */
-    private String readRecord() throws BallerinaIOException {
+    private String readRecord() throws BallerinaIOException, IOException {
         String record = null;
         String readCharacters = "";
         final int minimumRecordCount = 1;
@@ -164,7 +164,7 @@ public class DelimitedRecordChannel {
      *
      * @return the record content.
      */
-    private String readRecordFromChannel() {
+    private String readRecordFromChannel() throws IOException {
         String readCharacters;
         readCharacters = channel.read(recordCharacterCount);
         if (log.isTraceEnabled()) {
@@ -225,7 +225,7 @@ public class DelimitedRecordChannel {
      *
      * @return the list of fields.
      */
-    public String[] read() throws BallerinaIOException {
+    public String[] read() throws IOException {
         final int emptyArrayIndex = 0;
         String[] fields = new String[emptyArrayIndex];
         if (remaining) {
@@ -305,8 +305,10 @@ public class DelimitedRecordChannel {
 
     /**
      * Closes the record channel.
+     *
+     * @throws IOException error occur while closing the connection.
      */
-    public void close() {
+    public void close() throws IOException {
         channel.close();
     }
 

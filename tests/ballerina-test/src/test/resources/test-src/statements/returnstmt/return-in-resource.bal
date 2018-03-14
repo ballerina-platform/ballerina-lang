@@ -1,9 +1,9 @@
 import ballerina.net.http;
 
-service<http> helloWorld {
+service<http:Service> helloWorld {
 
-    resource sayHello(http:InRequest req, http:InResponse res) {
-        http:OutResponse resp = {};
+    resource sayHello(http:ServerConnector conn, http:Request req) {
+        http:Response resp = {};
         return resp;
     }
 }

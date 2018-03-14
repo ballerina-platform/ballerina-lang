@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class IterableAnalyzer {
     private SymbolTable symTable;
     private Types types;
     private TypeChecker typeChecker;
-    private DiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     private final BIterableTypeVisitor lambdaTypeChecker, terminalInputTypeChecker, terminalTypeChecker;
 
@@ -61,7 +61,7 @@ public class IterableAnalyzer {
         context.put(ITERABLE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = DiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
 
         this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
@@ -106,6 +106,7 @@ public class IterableAnalyzer {
             operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
         operation.argTypes = operation.collectionType.accept(terminalInputTypeChecker, operation);
         if (operation.kind.isTerminal()) {
@@ -127,6 +128,7 @@ public class IterableAnalyzer {
             return;
         }
 
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.lambdaType = (BInvokableType) bTypes.get(0);
         operation.arity = operation.lambdaType.getParameterTypes().size();
         final List<BType> givenArgTypes = operation.lambdaType.getParameterTypes(); // given args type of lambda.
@@ -220,7 +222,7 @@ public class IterableAnalyzer {
      */
     private static class LambdaBasedTypeChecker extends BIterableTypeVisitor {
 
-        LambdaBasedTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        LambdaBasedTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -311,7 +313,7 @@ public class IterableAnalyzer {
      */
     private static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
-        TerminalOperationTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 
@@ -389,7 +391,7 @@ public class IterableAnalyzer {
      */
     private static class TerminalOperationInputTypeChecker extends TerminalOperationTypeChecker {
 
-        TerminalOperationInputTypeChecker(DiagnosticLog dlog, SymbolTable symTable) {
+        TerminalOperationInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
             super(dlog, symTable);
         }
 

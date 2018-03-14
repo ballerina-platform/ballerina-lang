@@ -37,6 +37,8 @@ public class HttpService {
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
+    private boolean keepAlive = true; //default behavior
+    private boolean compressionEnabled = true; //default behavior
 
     public Service getBalerinaService() {
         return balService;
@@ -44,6 +46,22 @@ public class HttpService {
 
     public HttpService(Service service) {
         this.balService = service;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public boolean isCompressionEnabled() {
+        return compressionEnabled;
+    }
+
+    public void setCompressionEnabled(boolean compressionEnabled) {
+        this.compressionEnabled = compressionEnabled;
     }
 
     public String getName() {
@@ -58,7 +76,7 @@ public class HttpService {
         return balService;
     }
 
-    public List<HttpResource> getResources() {
+    public List<HttpResource>   getResources() {
         return resources;
     }
 

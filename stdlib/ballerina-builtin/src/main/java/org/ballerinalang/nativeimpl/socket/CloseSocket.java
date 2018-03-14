@@ -19,17 +19,19 @@
 package org.ballerinalang.nativeimpl.socket;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.nio.channels.SocketChannel;
+import java.nio.channels.ByteChannel;
 
 /**
  * Native function to close a Client socket.
@@ -40,24 +42,29 @@ import java.nio.channels.SocketChannel;
         packageName = "ballerina.io",
         functionName = "closeSocket",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
+        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class CloseSocket extends AbstractNativeFunction {
+public class CloseSocket extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(CloseSocket.class);
+
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         BStruct socket;
         try {
-            socket = (BStruct) getRefArgument(context, 0);
-            SocketChannel socketChannel = (SocketChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
+            socket = (BStruct) context.getRefArgument(0);
+            ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
             BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
-            AbstractChannel byteChannel = (AbstractChannel) byteChannelStruct
+            Channel channel = (Channel) byteChannelStruct
                     .getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            socketChannel.close();
             byteChannel.close();
+            channel.close();
         } catch (Throwable e) {
             String message = "Failed to close the socket:" + e.getMessage();
-            throw new BallerinaException(message, e, context);
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }
