@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 public class CompressionConfigurationTest {
 
-    @Test
+    @Test(enabled = false)
     public void testOptionCompressionEnabled() {
         Context context = mock(Context.class);
         ServiceInfo serviceInfo = mock(ServiceInfo.class);
@@ -59,7 +59,7 @@ public class CompressionConfigurationTest {
                             "The content-encoding header should be null");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testOptionCompressionDisabled() {
         Context context = mock(Context.class);
         ServiceInfo serviceInfo = mock(ServiceInfo.class);

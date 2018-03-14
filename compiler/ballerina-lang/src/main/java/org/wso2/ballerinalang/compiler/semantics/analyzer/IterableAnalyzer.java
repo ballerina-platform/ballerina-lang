@@ -106,6 +106,7 @@ public class IterableAnalyzer {
             operation.resultTypes = Lists.of(symTable.errType);
             return;
         }
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.resultTypes = operation.collectionType.accept(terminalTypeChecker, operation);
         operation.argTypes = operation.collectionType.accept(terminalInputTypeChecker, operation);
         if (operation.kind.isTerminal()) {
@@ -127,6 +128,7 @@ public class IterableAnalyzer {
             return;
         }
 
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
         operation.lambdaType = (BInvokableType) bTypes.get(0);
         operation.arity = operation.lambdaType.getParameterTypes().size();
         final List<BType> givenArgTypes = operation.lambdaType.getParameterTypes(); // given args type of lambda.

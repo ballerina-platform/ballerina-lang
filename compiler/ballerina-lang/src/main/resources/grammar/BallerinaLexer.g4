@@ -142,31 +142,32 @@ LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
+ELLIPSIS    : '...' ;
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
+// Compound Assignment operators.
 
-fragment
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;

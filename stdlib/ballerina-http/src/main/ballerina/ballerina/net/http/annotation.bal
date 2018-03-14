@@ -8,9 +8,6 @@ package ballerina.net.http;
 @Field {value:"lifetime: The life time of the service"}
 @Field {value:"basePath: Service base path"}
 @Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
-@Field {value:"maxUriLength: Maximum length allowed for the URL"}
-@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
-@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
 @Field {value:"cors: The CORS configurations for the service"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfig {
@@ -18,9 +15,6 @@ public struct HttpServiceConfig {
     HttpServiceLifeTime lifetime;
     string basePath;
     boolean compressionEnabled;
-    int maxUriLength;
-    int maxHeaderSize;
-    int maxEntityBodySize;
     CorsConfig cors;
     WebSocketUpgradeConfig webSocketUpgrade;
 }

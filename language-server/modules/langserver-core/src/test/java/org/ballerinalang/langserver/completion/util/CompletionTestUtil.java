@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
+import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
@@ -112,7 +113,8 @@ public class CompletionTestUtil {
         TextDocumentServiceContext completionContext = new TextDocumentServiceContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager);
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(completionContext, documentManager, false,
+                CompletionCustomErrorStrategy.class);
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         bLangPackage.accept(treeVisitor);

@@ -22,6 +22,16 @@ function testCanHandleHttpJwtAuth () (boolean) {
     return handler.canHandle(request);
 }
 
+function testHandleHttpJwtAuthFailure () (boolean) {
+    jwtAuth:HttpJwtAuthnHandler handler = {};
+    http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                   userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string[] authHeaderValue = ["Bearer xxx.yyy.zzz"];
+    mime:Entity requestEntity = {headers:{"Authorization":authHeaderValue}};
+    request.setEntity(requestEntity);
+    return handler.handle(request);
+}
+
 function testHandleHttpJwtAuth (string token) (boolean) {
     jwtAuth:HttpJwtAuthnHandler handler = {};
     http:Request request = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",

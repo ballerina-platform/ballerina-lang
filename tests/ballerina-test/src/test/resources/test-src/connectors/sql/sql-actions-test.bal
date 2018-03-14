@@ -221,14 +221,45 @@ function testCallProcedureWithResultSet () (string firstName) {
     var testDB = testDBEP.getConnector();
 
 
-    table dt = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
-    while (dt.hasNext()) {
-    var rs, err = (ResultCustomers)dt.getNext();
+    table[] dtArray = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
+    while (dtArray[0].hasNext()) {
+    var rs, err = (ResultCustomers)dtArray[0].getNext();
         firstName = rs.FIRSTNAME;
     }
     testDB -> close();
     return;
 }
+
+function testCallProcedureWithMultipleResultSets () (string firstName1, string firstName2) {
+    endpoint<sql:Client> testDBEP {
+        database: sql:DB.HSQLDB_FILE,
+        host: "./target/tempdb/",
+        port: 0,
+        name: "TEST_SQL_CONNECTOR",
+        username: "SA",
+        password: "",
+        options: {maximumPoolSize:1}
+    }
+
+    var testDB = testDBEP.getConnector();
+
+    table[] dtArray = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
+    while (dtArray[0].hasNext()) {
+        var rs, err = (ResultCustomers)dtArray[0].getNext();
+        firstName1 = rs.FIRSTNAME;
+    }
+
+    while (dtArray[1].hasNext()) {
+        var rs, err = (ResultCustomers)dtArray[1].getNext();
+        firstName2 = rs.FIRSTNAME;
+    }
+
+    testDB -> close();
+    return;
+}
+
+
+
 
 function testQueryParameters () (string firstName) {
     endpoint<sql:Client> testDBEP {

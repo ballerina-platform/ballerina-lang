@@ -155,9 +155,7 @@ public final class BLangConnectorSPIUtil {
         return (BStruct) programFile.getGlobalMemoryBlock().getRefField(packageVarInfo.getGlobalMemIndex());
     }
 
-    /* private utils */
-
-    private static Service getService(ProgramFile programFile, BServiceType serviceType) {
+    public static Service getService(ProgramFile programFile, BServiceType serviceType) {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
         final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);

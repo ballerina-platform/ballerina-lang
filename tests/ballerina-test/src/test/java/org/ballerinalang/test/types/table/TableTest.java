@@ -588,7 +588,6 @@ public class TableTest {
     public void testTableRemoveInvalid() {
         BRunUtil.invoke(result, "testTableRemoveInvalid");
     }
-
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

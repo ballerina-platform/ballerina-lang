@@ -28,11 +28,13 @@ const string AUTH_SCHEME = "Bearer";
 JWTAuthenticator authenticator;
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
+@Field {value:"name: Authentication handler name"}
 public struct HttpJwtAuthnHandler {
+    string name = "jwt";
 }
 
 @Description {value:"Intercepts a HTTP request for authentication"}
-@Param {value:"req: InRequest object"}
+@Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) (boolean) {
     string authHeader = req.getHeader(AUTH_HEADER);
@@ -49,7 +51,7 @@ public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) 
 }
 
 @Description {value:"Checks if the provided HTTP request can be authenticated with JWT authentication"}
-@Param {value:"req: InRequest object"}
+@Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
 public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) (boolean) {
     string jwtToken = extractJWTToken(req);

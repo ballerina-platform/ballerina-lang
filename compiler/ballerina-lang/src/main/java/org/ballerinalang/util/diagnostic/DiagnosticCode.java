@@ -40,7 +40,8 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
-
+    UNDEFINED_PARAMETER("undefined.parameter"),
+    
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
@@ -108,6 +109,7 @@ public enum DiagnosticCode {
     ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
     STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
+    INVALID_REST_ARGS("invalid.rest.args"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
@@ -117,6 +119,7 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
+    DUPLICATE_NAMED_ARGS("duplicate.named.args"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -146,6 +149,8 @@ public enum DiagnosticCode {
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    OPERATOR_NOT_SUPPORTED("operator.not.supported"),
+    OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),

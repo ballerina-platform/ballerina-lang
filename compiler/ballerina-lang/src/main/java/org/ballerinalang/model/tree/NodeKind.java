@@ -70,6 +70,8 @@ public enum NodeKind {
     TYPE_CAST_EXPR,
     TYPE_CONVERSION_EXPR,
     UNARY_EXPR,
+    REST_ARGS_EXPR,
+    NAMED_ARGS_EXPR,
     XML_QNAME,
     XML_ATTRIBUTE,
     XML_ATTRIBUTE_ACCESS_EXPR,
@@ -86,6 +88,8 @@ public enum NodeKind {
     /* Statements */
     ABORT,
     ASSIGNMENT,
+    COMPOUND_ASSIGNMENT,
+    POST_INCREMENT,
     BIND,
     BLOCK,
     BREAK,

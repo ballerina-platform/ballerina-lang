@@ -6,6 +6,6 @@ public function returnString(string data) (string) {
     return data;
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
