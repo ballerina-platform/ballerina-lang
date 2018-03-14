@@ -140,6 +140,17 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testCallProcedureWithMultipleResultSets() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithMultipleResultSets");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        BString retValue2 = (BString) returns[1];
+        final String expected2 = "John";
+        Assert.assertEquals(retValue.stringValue(), expected);
+        Assert.assertEquals(retValue2.stringValue(), expected2);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testQueryParameters");
         BString retValue = (BString) returns[0];
