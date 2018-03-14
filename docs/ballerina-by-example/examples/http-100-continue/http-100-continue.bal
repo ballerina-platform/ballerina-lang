@@ -1,19 +1,22 @@
 import ballerina.io;
 import ballerina.net.http;
 
-@http:configuration {
-    basePath:"/hello"
+@Description {value:"Attributes associated with the service endpoint is defined here."}
+endpoint<http:Service> helloWorldEP {
+    port:9090
 }
-service<http> helloWorld {
+
+@http:serviceConfig { basePath: "/hello", endpoints:[helloWorldEP] }
+service<http:Service> helloWorld {
 
     @http:resourceConfig {
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:Request req) {
+    resource sayHello (http:ServerConnector conn, http:Request req) {
         // Check if the client expects a 100-continue response.
         if (req.expects100Continue()) {
             // Send a 100-continue response to the client.
-            _ = conn.respondContinue();
+            _ = conn -> respondContinue();
         }
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
@@ -29,6 +32,6 @@ service<http> helloWorld {
             res.statusCode = 500;
             res.setStringPayload(payloadError.message);
         }
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

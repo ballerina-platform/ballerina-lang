@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.LanguageServerContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,13 +36,6 @@ import java.util.List;
  * Capture possible errors from source.
  */
 public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
-
-    private static final String EP_KEYWORD = "endpoint";
-
-    private static final String OPEN_BRACE = "{";
-
-    private static final String CLOSE_BRACE = "}";
-
     private LanguageServerContext context;
 
     public CompletionCustomErrorStrategy(LanguageServerContext context) {
@@ -135,8 +129,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         List<String> terminalTokens = Arrays.asList("{", ";", "}", "(", ")");
         String tokenString = tokenStream.get(currentTokenIndex).getText();
         boolean isWithinEndpoint = false;
-
-        if (tokenString.equals(OPEN_BRACE)) {
+        
+        if (tokenString.equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
             currentTokenIndex -= 1;
             boolean cursorAfterEndpointKeyword = false;
             String endpointName = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex).getText();
@@ -154,7 +148,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
                 tokenString = previousDefaultToken.getText();
                 if (terminalTokens.contains(tokenString)) {
                     break;
-                } else if (tokenString.equals(EP_KEYWORD)) {
+                } else if (tokenString.equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)) {
                     cursorAfterEndpointKeyword = true;
                     currentTokenIndex = parser.getCurrentToken().getTokenIndex();
                     break;
@@ -167,8 +161,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
                 while (true) {
                     Token nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, currentTokenIndex);
                     tokenString = nextDefaultToken.getText();
-
-                    if (tokenString.equals(CLOSE_BRACE)) {
+                    
+                    if (tokenString.equals(UtilSymbolKeys.CLOSE_BRACE_KEY)) {
                         int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
                         int cursorCol = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
                         int startTokenLine = tokenStream.get(parser.getCurrentToken().getTokenIndex()).getLine() - 1;
@@ -176,7 +170,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
                                 .get(parser.getCurrentToken().getTokenIndex()).getCharPositionInLine();
                         int endTokenLine = nextDefaultToken.getLine() - 1;
                         int endTokenCol = nextDefaultToken.getCharPositionInLine();
-
+                        
                         isWithinEndpoint = (cursorLine > startTokenLine && cursorLine < endTokenLine)
                                 || (cursorLine == startTokenLine && cursorCol >= startTokenCol
                                 && cursorLine < endTokenLine)

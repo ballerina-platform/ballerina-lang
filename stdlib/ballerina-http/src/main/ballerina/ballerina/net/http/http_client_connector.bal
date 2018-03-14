@@ -68,6 +68,42 @@ public connector ClientConnector (string serviceUri, ClientEndpointConfiguration
     @Return {value:"The inbound response message"}
     @Return {value:"Error occured during HTTP client invocation"}
     native action forward (string path, Request req) (Response, HttpConnectorError);
+
+    @Description { value:"Submits an HTTP request to a service with the specified HTTP verb."}
+    @Param { value:"httpVerb: The HTTP verb value" }
+    @Param { value:"path: The Resource path " }
+    @Param { value:"req: An HTTP outbound request message" }
+    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    native action submit (string httpVerb, string path, Request req) (HttpHandle, HttpConnectorError);
+
+    @Description { value:"Retrieves response for a previously submitted request."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    native action getResponse (HttpHandle handle) (Response, HttpConnectorError);
+
+    @Description { value:"Checks whether server push exists for a previously submitted request."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"Whether push promise exists" }
+    native action hasPromise (HttpHandle handle) (boolean);
+
+    @Description { value:"Retrieves the next available push promise for a previously submitted request."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP Push Promise message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    native action getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError);
+
+    @Description { value:"Retrieves the promised server push response."}
+    @Param { value:"promise: The related Push Promise message" }
+    @Return { value:"HTTP The Push Response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    native action getPromisedResponse (PushPromise promise) (Response, HttpConnectorError);
+
+    @Description { value:"Rejects a push promise."}
+    @Param { value:"promise: The Push Promise need to be rejected" }
+    @Return { value:"Whether operation is successful" }
+    native action rejectPromise (PushPromise promise) (boolean);
 }
 
 @Description { value:"HttpConnectorError struct represents an error occured during the HTTP client invocation" }

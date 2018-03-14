@@ -28,6 +28,19 @@ public native function <Connection conn> respond (Response res) (HttpConnectorEr
 @Return {value:"Error occured during HTTP server connector forward"}
 public native function <Connection conn> forward (Response res) (HttpConnectorError);
 
+@Description { value:"Sends a push promise to the caller."}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"promise: Push promise message" }
+@Return { value:"Error occured during HTTP server connector forward" }
+public native function <Connection conn> promise (PushPromise promise) (HttpConnectorError);
+
+@Description { value:"Sends a promised push response to the caller."}
+@Param { value:"conn: The server connector connection" }
+@Param { value:"promise: Push promise message" }
+@Param { value:"res: The outbound response message" }
+@Return { value:"Error occured during HTTP server connector forward" }
+public native function <Connection conn> pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError);
+
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"HTTP Session struct"}

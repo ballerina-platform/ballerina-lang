@@ -58,7 +58,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final CompletionOptions completionOptions = new CompletionOptions();
-        completionOptions.setTriggerCharacters(Arrays.asList(":", "."));
+        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
         final ExecuteCommandOptions executeCommandOptions =
                 new ExecuteCommandOptions(Collections.singletonList(CommandConstants.CMD_IMPORT_PACKAGE));
         
