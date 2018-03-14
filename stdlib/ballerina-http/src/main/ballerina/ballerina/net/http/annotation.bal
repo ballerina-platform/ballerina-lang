@@ -62,6 +62,7 @@ public struct WebSocketServiceConfiguration {
 @Description {value:"Configuration for a WebSubSubscriber service."}
 @Field {value: "endpoints: array of endpoints the service would be attached to"}
 @Field {value:"basePath: path of the WebSubSubscriber service"}
+@Field {value:"subscribeOnStartUp: whether a subscription request is expected to be sent on start up"}
 @Field {value:"hub: The hub at which the subscription should be registered."}
 @Field {value:"topic: The topic to which this WebSub subscriber (callback) should be registered."}
 @Field {value:"callback: The callback URL (part of this service) at which notifications are expected."}
@@ -69,6 +70,7 @@ public struct WebSocketServiceConfiguration {
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 public struct WebSubSubscriberServiceConfiguration {
     WebSubSubscriberService[] endpoints;
+    boolean subscribeOnStartUp;
     string basePath;
     string hub;
     string topic;

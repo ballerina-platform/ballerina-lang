@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Resource validator for WebSub Subscriber Services.
+ *
+ * @since 0.965
  */
 class WebSubSubscriberServiceValidator {
 
@@ -36,8 +38,7 @@ class WebSubSubscriberServiceValidator {
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
-                case WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_SUBSCRIPTION:
-                case WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_UNSUBSCRIPTION:
+                case WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT:
                     if (resource.getMethods() == null || resource.getMethods().size() != 1
                             || !HttpConstants.HTTP_METHOD_GET.equalsIgnoreCase(resource.getMethods().get(0))) {
                         throw new BallerinaException(String.format("Invalid method(s) for resource %s. Allowed "
@@ -57,9 +58,8 @@ class WebSubSubscriberServiceValidator {
                     break;
                 default:
                     throw new BallerinaException(String.format("Invalid resource name %s for WebSubSubscriberService. "
-                                                        + "Allowed resource names [%s, %s, %s]", resourceName,
-                                                        WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_SUBSCRIPTION,
-                                                        WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_UNSUBSCRIPTION,
+                                                        + "Allowed resource names [%s, %s]", resourceName,
+                                                        WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT,
                                                         WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION));
             }
         }

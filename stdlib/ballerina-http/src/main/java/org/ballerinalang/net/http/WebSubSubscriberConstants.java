@@ -20,11 +20,18 @@ package org.ballerinalang.net.http;
 
 /**
  * Constants for WebSubSubscriber Services.
+ *
+ * @since 0.965
  */
 public class WebSubSubscriberConstants {
 
-    static final String RESOURCE_NAME_VERIFY_SUBSCRIPTION = "verifySubscription";
-    static final String RESOURCE_NAME_VERIFY_UNSUBSCRIPTION = "verifyUnsubscription";
+    static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
     static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+
+    public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+    public static final String ANN_WEBSUB_ATTR_HUB = "hub";
+    public static final String ANN_WEBSUB_ATTR_TOPIC = "topic";
+    public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
+    public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
 
 }
