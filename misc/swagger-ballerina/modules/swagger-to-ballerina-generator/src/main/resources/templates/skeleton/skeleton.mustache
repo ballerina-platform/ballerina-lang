@@ -4,6 +4,12 @@ import {{apiPackage}}.model;{{/apiPackage}}
 import ballerina.net.http;
 import ballerina.net.http.swagger;
 
+endpoint<http:Service> ep { {{#host}}
+    host: "{{host}}",{{/host}}{{#port}}
+    port: {{port}},{{/port}}{{#httpsPort}}
+    httpsPort: {{httpsPort}}{{/httpsPort}}
+}
+
 @swagger:serviceInfo { {{#info}}
     title: "{{title}}",
     description: "{{description}}",
@@ -18,14 +24,12 @@ import ballerina.net.http.swagger;
     security: [{{#security}}
         {{>security}}{{/security}}
     ]
-}{{#host}}
-@http:configuration {
-    host: "{{host}}",{{#port}}
-    port: {{port}},{{/port}}{{#httpsPort}}
-    httpsPort: {{httpsPort}},{{/httpsPort}}
-    basePath: "{{basePath}}"
-}{{/host}}
-service<http> {{cut info.title " "}} {
+}
+@http:serviceConfig { {{#basePath}}
+    basePath: "{{basePath}}",{{/basePath}}
+    endpoints: [ep]
+}
+service<http:Service> {{cut info.title " "}} {
 {{#paths}}{{#value}}{{#get}}
     @swagger:resourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
@@ -36,7 +40,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -48,12 +52,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
-        http:OutResponse resp = {};
+        http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/get}}{{#post}}
     @swagger:resourceInfo {
@@ -65,7 +69,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -77,12 +81,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/post}}{{#put}}
     @swagger:resourceInfo {
@@ -94,7 +98,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -106,12 +110,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/put}}{{#delete}}
     @swagger:resourceInfo {
@@ -123,7 +127,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -135,12 +139,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/delete}}{{#options}}
     @swagger:resourceInfo {
@@ -152,7 +156,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -164,12 +168,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/options}}{{#head}}
     @swagger:resourceInfo {
@@ -181,7 +185,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -193,12 +197,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/head}}{{#patch}}
     @swagger:resourceInfo {
@@ -210,7 +214,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -222,12 +226,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/patch}}{{#trace}}
     @swagger:resourceInfo {
@@ -239,7 +243,7 @@ service<http> {{cut info.title " "}} {
             {
                 name: "{{name}}",
                 inInfo: "{{in}}",
-                description: "{{descirption}}", {{#required}}
+                description: "{{description}}", {{#required}}
                 required: {{required}},{{/required}} {{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
@@ -251,12 +255,12 @@ service<http> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:Connection conn, http:InRequest inReq{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn.respond(resp);
+        _ = conn -> respond(resp);
     }
 {{/trace}}{{/value}}{{/paths}}
 }
