@@ -254,7 +254,7 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         log:printInfo("Remote participant: " + participantId + " failed or aborted");
         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
         // participant
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
         successful = false;
     } else if (status == "committed") {
         log:printInfo("Remote participant: " + participantId + " committed");
@@ -262,11 +262,11 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         // report a mixed-outcome to the initiator
         txn.possibleMixedOutcome = true;
         // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
     } else if (status == "read-only") {
         log:printInfo("Remote participant: " + participantId + " read-only");
         // Don't send notify to this participant because it is read-only. We can forget about this participant.
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
     } else {
         log:printInfo("Remote participant: " + participantId + ", status: " + status);
     }
@@ -513,7 +513,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             }
             string participantId = getParticipantId(transactionBlockId);
             // do not remove the transaction since we may get a msg from the initiator
-            txn.participants.remove(participantId);
+            _ = txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
             if(err == null) {
                 txn.state = TransactionState.ABORTED;
