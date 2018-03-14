@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelFuture;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
  * Listener for connection availability future.
@@ -34,8 +35,8 @@ public interface ConnectionAvailabilityListener {
 
     /**
      * If failed to create the connection.
-     * @param channelFuture channel future
+     * @param cause cause of the failure.
      */
-    void onFailure(ChannelFuture channelFuture);
+    void onFailure(ClientConnectorException cause);
 }
 

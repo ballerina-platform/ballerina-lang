@@ -139,7 +139,7 @@ public class HostnameVerificationTest {
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (throwable.getMessage()
-                            .contains("Connection refused"))) {
+                            .contains("General SSLEngine problem"))) {
                         hasSSLException = true;
                         break;
                     }

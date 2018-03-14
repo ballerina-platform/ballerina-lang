@@ -21,24 +21,26 @@ package org.wso2.transport.http.netty.sender;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
  * A future to check the connection availability.
  */
 public class ConnectionAvailabilityFuture {
 
-    private ChannelFuture channelFuture;
+    private ChannelFuture socketAvailabilityFuture;
     private boolean isSSLEnabled = false;
     private ConnectionAvailabilityListener listener = null;
     private String protocol;
     private boolean socketAvailable = false;
     private boolean isFailure;
+    private Throwable throwable;
 
-    public void setChannelFuture(ChannelFuture channelFuture) {
-        this.channelFuture = channelFuture;
-
-        channelFuture.addListener(new ChannelFutureListener() {
+    public void setSocketAvailabilityFuture(ChannelFuture socketAvailabilityFuture) {
+        this.socketAvailabilityFuture = socketAvailabilityFuture;
+        socketAvailabilityFuture.addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -48,7 +50,7 @@ public class ConnectionAvailabilityFuture {
                         notifySuccess(Constants.HTTP_SCHEME);
                     }
                 } else {
-                    notifyFailure();
+                    notifyFailure(channelFuture.cause());
                 }
             }
 
@@ -58,21 +60,22 @@ public class ConnectionAvailabilityFuture {
         });
     }
 
-    public void setSSLEnabled(boolean sslEnabled) {
+    void setSSLEnabled(boolean sslEnabled) {
         isSSLEnabled = sslEnabled;
     }
 
-    public void notifySuccess(String protocol) {
+    void notifySuccess(String protocol) {
         this.protocol = protocol;
         if (listener != null) {
-            listener.onSuccess(protocol, channelFuture);
+            listener.onSuccess(protocol, socketAvailabilityFuture);
         }
     }
 
-    public void notifyFailure() {
+    void notifyFailure(Throwable cause) {
         isFailure = true;
+        throwable = cause;
         if (listener != null) {
-            listener.onFailure(channelFuture);
+            notifyErrorState(socketAvailabilityFuture, cause);
         }
     }
 
@@ -83,9 +86,34 @@ public class ConnectionAvailabilityFuture {
         } else if (!isSSLEnabled && socketAvailable) {
             notifySuccess(Constants.HTTP_SCHEME);
         } else if (isFailure) {
-            notifyFailure();
+            notifyFailure(throwable);
         }
     }
-}
 
+    private void notifyErrorState(ChannelFuture channelFuture, Throwable cause) {
+        ClientConnectorException connectorException;
+        String socketAddress = null;
+        if (channelFuture.channel().remoteAddress() != null) {
+            socketAddress = channelFuture.channel().remoteAddress().toString();
+        }
+        if (channelFuture.isDone() && channelFuture.isCancelled()) {
+            connectorException = new ClientConnectorException("Request cancelled: " + socketAddress,
+                    HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (!channelFuture.isDone() && !channelFuture.isSuccess() && !channelFuture.isCancelled() && (
+                channelFuture.cause() == null)) {
+            connectorException = new ClientConnectorException("Connection timeout: " + socketAddress,
+                    HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (cause.toString().contains("javax.net.ssl")) {
+            connectorException = new ClientConnectorException(cause.getMessage() + socketAddress,
+                    HttpResponseStatus.BAD_GATEWAY.code());
+        } else {
+            connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
+                    HttpResponseStatus.BAD_GATEWAY.code());
+        }
+        if (channelFuture.cause() != null) {
+            connectorException.initCause(channelFuture.cause());
+        }
+        listener.onFailure(connectorException);
+    }
+}
 

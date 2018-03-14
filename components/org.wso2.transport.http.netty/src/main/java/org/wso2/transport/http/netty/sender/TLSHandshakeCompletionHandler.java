@@ -25,7 +25,7 @@ import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.wso2.transport.http.netty.common.Constants;
 
 /**
- * A handler to check whether hanshake has been completed and notify the listener.
+ * A handler to check whether TLS handshake has been completed and notify the listener.
  */
 public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter {
 
@@ -46,7 +46,7 @@ public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter 
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
                 ctx.fireChannelRead(evt);
             } else {
-                connectionAvailabilityFuture.notifyFailure();
+                connectionAvailabilityFuture.notifyFailure(event.cause());
             }
         }
         ctx.fireUserEventTriggered(evt);

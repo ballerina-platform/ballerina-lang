@@ -69,7 +69,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
-    private boolean isHttp2Enabled;
+    private boolean isHttp2Enabled = false;
     private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;

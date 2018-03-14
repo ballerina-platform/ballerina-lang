@@ -72,7 +72,7 @@ public class SSLProtocolsTest {
 
         // true = expecting a SSL hand shake failure.
         // false = expecting no errors.
-        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, 9009 }, { "TLSv1.2", "TLSv1.1", true, 9008 },
+        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, 9009 },
                 { "TLSv1.1", "TLSv1.2", true, 9007 } };
     }
 
@@ -156,7 +156,7 @@ public class SSLProtocolsTest {
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (
                             throwable.getMessage().contains("javax.net.ssl.SSLHandshakeException") || throwable
-                                    .getMessage().contains("Connection refused"))) {
+                                    .getMessage().contains("handshake_failure"))) {
                         hasSSLException = true;
                         break;
                     }

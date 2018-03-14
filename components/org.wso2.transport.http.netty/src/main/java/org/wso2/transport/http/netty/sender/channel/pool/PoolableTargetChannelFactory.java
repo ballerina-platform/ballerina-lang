@@ -75,7 +75,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
         ChannelFuture channelFuture = clientBootstrap
                 .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
-        connectionAvailabilityFuture.setChannelFuture(channelFuture);
+        connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
 
         TargetChannel targetChannel =
                 new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);

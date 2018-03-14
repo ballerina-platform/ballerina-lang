@@ -22,7 +22,6 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,7 +177,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     } else {
-                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
+                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
                         freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
@@ -204,28 +203,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 }
 
                 @Override
-                public void onFailure(ChannelFuture channelFuture) {
-                    notifyErrorState(channelFuture);
-                }
-
-                private void notifyErrorState(ChannelFuture channelFuture) {
-                    ClientConnectorException cause;
-
-                    if (channelFuture.isDone() && channelFuture.isCancelled()) {
-                        cause = new ClientConnectorException("Request Cancelled, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
-                            !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
-                        cause = new ClientConnectorException("Connection timeout, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else {
-                        cause = new ClientConnectorException("Connection refused, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    }
-
-                    if (channelFuture.cause() != null) {
-                        cause.initCause(channelFuture.cause());
-                    }
+                public void onFailure(ClientConnectorException cause) {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });
