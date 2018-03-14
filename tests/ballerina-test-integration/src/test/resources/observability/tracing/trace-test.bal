@@ -13,34 +13,45 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
 import ballerina.net.http;
 import ballerina.testing;
 
-service<http> echoService {
+endpoint<http:Service> ep1 {
+    port : 9090
+}
 
-    resource resourceOne (http:Connection conn, http:InRequest req) {
-        endpoint<http:HttpClient> httpEndpoint {
-            create http:HttpClient("http://localhost:9090/echoService", {});
-        }
-        http:OutResponse res = {};
-        http:InResponse resp = {};
-        http:OutRequest request = {};
-        resp, _ = httpEndpoint.get("/resourceTwo", request);
-        res.setStringPayload("Hello, World!");
-        _ = conn.respond(res);
+@http:serviceConfig {
+    basePath:"/echoService",
+    endpoints:[ep1]
+}
+service<http:Service> echoService {
+    resource resourceOne (http:ServerConnector conn, http:Request clientRequest) {
+        http:Response outResponse = {};
+        http:Request request = {};
+        var response = callNextResource();
+        outResponse.setStringPayload("Hello, World!");
+        _ = conn -> respond(response);
     }
 
-    resource resourceTwo (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource resourceTwo (http:ServerConnector conn, http:Request clientRequest) {
+        http:Response res = {};
         res.setStringPayload("Hello, World 2!");
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
-    resource getFinishedSpansCount(http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource getFinishedSpansCount(http:ServerConnector conn, http:Request clientRequest) {
+        http:Response res = {};
         string returnString = testing:getFinishedSpansCount();
         res.setStringPayload(returnString);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
+}
+
+function callNextResource() (http:Response) {
+    endpoint<http:Client> httpEndpoint {
+        serviceUri:"http://localhost:9090/echoService"
+    }
+    http:Request request = {};
+    var response, _ = httpEndpoint -> get("/resourceTwo", request);
+    return response;
 }

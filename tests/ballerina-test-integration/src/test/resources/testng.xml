@@ -39,10 +39,10 @@
         <!--</classes>-->
     <!--</test>-->
 
-    <!--<test name="ballerina-observability-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+        </classes>
+    </test>
 
 </suite>
