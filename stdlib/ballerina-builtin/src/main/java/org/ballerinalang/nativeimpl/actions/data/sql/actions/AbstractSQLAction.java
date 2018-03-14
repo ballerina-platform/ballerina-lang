@@ -46,6 +46,7 @@ import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDataIterator;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLTransactionContext;
+import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -76,7 +77,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
-
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
@@ -105,7 +105,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
+            TableResourceManager rm  = new TableResourceManager(conn, stmt);
+            rm.addResultSet(rs);
+            context.setReturnValues(constructTable(rm, context, rs, structType));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -175,16 +177,28 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
+        List<ResultSet> resultSets;
         boolean isInTransaction = context.isInTransaction();
         try {
            conn = getDatabaseConnection(context, datasource, isInTransaction);
             stmt = getPreparedCall(conn, datasource, query, parameters);
-            createProcessedStatement(conn, stmt, parameters);
-            rs = executeStoredProc(stmt);
-            setOutParameters(stmt, parameters);
-            if (rs != null) {
-                context.setReturnValues(constructTable(context, rs, stmt, conn, structType));
-            } else {
+            createProcessedStatement(conn, stmt, parameters, datasource.getDatabaseName());
+            resultSets = executeStoredProc(stmt);
+            boolean refCursorOutParamsPresent = parameters != null && isRefCursorOutParamPresent(parameters);
+            boolean resultSetsReturned = !resultSets.isEmpty();
+            TableResourceManager rm = null;
+            if (resultSetsReturned || refCursorOutParamsPresent) {
+                rm = new TableResourceManager(conn, stmt);
+            }
+            setOutParameters(context, stmt, parameters, rm);
+            if (resultSetsReturned) {
+                rm.addAllResultSets(resultSets);
+                // If a result set has been returned from the stored procedure it needs to be pushed in to return values
+                context.setReturnValues(createBRefValueArray(resultSets, rm, context, structType));
+            } else if (!refCursorOutParamsPresent) {
+                // Even if there aren't any result sets returned from the procedure there could be ref cursors
+                // returned as OUT params. If there are present we cannot clean up the connection. If there is no
+                // returned result set or ref cursor OUT params we should cleanup the connection.
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
                 context.setReturnValues();
             }
@@ -192,6 +206,15 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
+    }
+
+    private BRefValueArray createBRefValueArray(List<ResultSet> resultSets, TableResourceManager rm, Context context,
+            BStructType structType) throws SQLException {
+        BRefValueArray bTableRefArray = new BRefValueArray();
+        for (int i = 0; i < resultSets.size(); i++) {
+            bTableRefArray.add(i, constructTable(rm, context, resultSets.get(i), structType));
+        }
+        return bTableRefArray;
     }
 
     protected void executeBatchUpdate(Context context, SQLDatasource datasource,
@@ -212,7 +235,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     stmt.addBatch();
                 }
             } else {
-                createProcessedStatement(conn, stmt, null);
                 stmt.addBatch();
             }
             updatedCount = stmt.executeBatch();
@@ -435,7 +457,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return generatedKeys;
     }
 
-    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params) {
+    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray param) {
+        createProcessedStatement(conn, stmt, param, null);
+    }
+
+    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params, String
+            dataSourceName) {
         if (params == null) {
             return;
         }
@@ -473,11 +500,19 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         default:
                             throw new BallerinaException("unsupported array type for parameter index " + index);
                         }
-                        setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
+                        if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
+                            setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal, dataSourceName);
+                        } else {
+                            setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal);
+                        }
                         currentOrdinal++;
                     }
                 } else {
-                    setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
+                    if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
+                        setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, dataSourceName);
+                    } else {
+                        setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
+                    }
                     currentOrdinal++;
                 }
             } else {
@@ -489,6 +524,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
             int index) {
+        setParameter(conn, stmt, sqlType, value, direction, index, null);
+    }
+
+    private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
+            int index, String databaseName) {
         if (sqlType == null || sqlType.isEmpty()) {
             SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -572,13 +612,35 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 SQLDatasourceUtils
                         .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT);
                 break;
+            case Constants.SQLDataTypes.REFCURSOR:
+                SQLDatasourceUtils.setRefCursorValue(conn, stmt, index, direction, databaseName);
+                break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
             }
         }
     }
 
-    private void setOutParameters(CallableStatement stmt, BRefValueArray params) {
+    private boolean isRefCursorOutParamPresent(BRefValueArray params) {
+        boolean refCursorOutParamPresent = false;
+        int paramCount = (int) params.size();
+        for (int index = 0; index < paramCount; index++) {
+            BStruct paramValue = (BStruct) params.get(index);
+            if (paramValue != null) {
+                String sqlType = getSQLType(paramValue);
+                int direction = getParameterDirection(paramValue);
+                if (direction == Constants.QueryParamDirection.OUT && Constants.SQLDataTypes.REFCURSOR
+                        .equals(sqlType)) {
+                    refCursorOutParamPresent = true;
+                    break;
+                }
+            }
+        }
+        return refCursorOutParamPresent;
+    }
+
+    private void setOutParameters(Context context, CallableStatement stmt, BRefValueArray
+            params, TableResourceManager rm) {
         if (params == null) {
             return;
         }
@@ -590,7 +652,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 int direction = getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.INOUT
                         || direction == Constants.QueryParamDirection.OUT) {
-                    setOutParameterValue(stmt, sqlType, index, paramValue);
+                    setOutParameterValue(context, stmt, sqlType, index, paramValue, rm);
                 }
             } else {
                 throw new BallerinaException("out value cannot set for null parameter with index: " + index);
@@ -598,7 +660,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private void setOutParameterValue(CallableStatement stmt, String sqlType, int index, BStruct paramValue) {
+    private void setOutParameterValue(Context context, CallableStatement stmt, String sqlType,
+            int index, BStruct paramValue, TableResourceManager resourceManager) {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
@@ -703,6 +766,19 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 paramValue.setRefField(1, new BString(stringValue));
             }
             break;
+            case Constants.SQLDataTypes.REFCURSOR: {
+                ResultSet rs = (ResultSet) stmt.getObject(index + 1);
+                BStructType structType = getStructType(paramValue);
+                if (structType !=  null) {
+                    resourceManager.addResultSet(rs);
+                    paramValue.setRefField(1,
+                            constructTable(resourceManager, context, rs, getStructType(paramValue)));
+                } else {
+                    throw new BallerinaException("The Struct Type for the result set pointed by the Ref Cursor cannot"
+                            + " be null");
+                }
+                break;
+            }
             default:
                 throw new BallerinaException(
                         "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
@@ -724,26 +800,32 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return false;
     }
 
-    private ResultSet executeStoredProc(CallableStatement stmt) throws SQLException {
+    private List<ResultSet> executeStoredProc(CallableStatement stmt) throws SQLException {
         boolean resultAndNoUpdateCount = stmt.execute();
+        List<ResultSet> resultSets = new ArrayList<>();
         ResultSet result = null;
         while (true) {
             if (!resultAndNoUpdateCount) {
+                // Current result is an update count(not a ResultSet) or there is no result at all
                 int updateCount = stmt.getUpdateCount();
                 if (updateCount == -1) {
+                    // There is no result at all
                     break;
                 }
             } else {
+                // Current result is a ResultSet
                 result = stmt.getResultSet();
-                break;
+                resultSets.add(result);
             }
+            // This point reaches if current result was an update count. So it is needed to capture any remaining
+            // results
             try {
                 resultAndNoUpdateCount = stmt.getMoreResults(Statement.KEEP_CURRENT_RESULT);
             } catch (SQLException e) {
                 break;
             }
         }
-        return result;
+        return resultSets;
     }
 
     private Connection getDatabaseConnection(Context context, SQLDatasource datasource, boolean isInTransaction)
@@ -776,7 +858,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 conn = datasource.getSQLConnection();
                 conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn, null);
+                txContext = new SQLTransactionContext(conn);
             }
             localTransactionInfo.registerTransactionContext(connectorId, txContext);
             TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
@@ -786,10 +868,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return conn;
     }
 
-    private BTable constructTable(Context context, ResultSet rs, Statement stmt, Connection conn,
-            BStructType structType) throws SQLException {
+    private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType)
+            throws SQLException {
         List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
-        return new BTable(new SQLDataIterator(conn, stmt, rs, utcCalendar, columnDefinitions, structType,
+        return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
                 Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)));
     }
 
@@ -801,6 +883,15 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         }
         return sqlType;
 
+    }
+
+    private BStructType getStructType(BStruct parameter) {
+        BTypeValue type = (BTypeValue) parameter.getRefField(3);
+        BStructType structType = null;
+        if (type != null) {
+            structType = (BStructType) type.value();
+        }
+        return structType;
     }
 
     private int getParameterDirection(BStruct parameter) {

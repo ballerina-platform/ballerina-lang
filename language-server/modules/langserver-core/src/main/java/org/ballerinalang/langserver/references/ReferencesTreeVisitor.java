@@ -102,8 +102,8 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                 .equals(funcNode.name.getValue())) {
             addLocation(funcNode, funcNode.symbol.pkgID.nameComps, funcNode.symbol.pkgID.nameComps);
         }
-        if (!funcNode.params.isEmpty()) {
-            funcNode.params.forEach(this::acceptNode);
+        if (!funcNode.requiredParams.isEmpty()) {
+            funcNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!funcNode.retParams.isEmpty()) {
@@ -152,8 +152,8 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                     resourceNode.symbol.pkgID.nameComps);
         }
 
-        if (!resourceNode.params.isEmpty()) {
-            resourceNode.params.forEach(this::acceptNode);
+        if (!resourceNode.requiredParams.isEmpty()) {
+            resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!resourceNode.retParams.isEmpty()) {
@@ -197,8 +197,8 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                     actionNode.symbol.pkgID.nameComps);
         }
 
-        if (!actionNode.params.isEmpty()) {
-            actionNode.params.forEach(this::acceptNode);
+        if (!actionNode.requiredParams.isEmpty()) {
+            actionNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!actionNode.retParams.isEmpty()) {
@@ -502,8 +502,8 @@ public class ReferencesTreeVisitor extends NodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.params.isEmpty()) {
-            transformerNode.params.forEach(this::acceptNode);
+        if (!transformerNode.requiredParams.isEmpty()) {
+            transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!transformerNode.retParams.isEmpty()) {

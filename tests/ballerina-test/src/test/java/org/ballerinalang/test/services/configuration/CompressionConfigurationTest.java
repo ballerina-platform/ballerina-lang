@@ -30,6 +30,12 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+/**
+ * Unit test for 'compressionEnabled' service annotation. Unit test cannot be written when the request contains
+ * "Accept-Encoding" since this back end is just a mock. Those are covered under integration tests.
+ *
+ * @since 0.966.0
+ */
 public class CompressionConfigurationTest {
 
     private CompileResult serviceResult;
@@ -41,30 +47,28 @@ public class CompressionConfigurationTest {
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
-    @Test
-    public void testOptionDefaultCompression() {
+    @Test(description = "Test default compression case, when no value is received for Accept-Encoding")
+    public void testDefaultCompressionWithoutAcceptEncoding() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/defaultCompressionValue",
                 HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
-                "The content-encoding header should be identity");
+                Constants.HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header should be identity");
     }
 
-    @Test
-    public void testOptionCompressionEnabled() {
+    @Test(description = "Explicitly enable compression, but no Accept-Encoding header is set")
+    public void testExplicitCompressionEnabled() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionEnabled",
                 HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                Constants.HTTP_TRANSFER_ENCODING_IDENTITY,
-                "The content-encoding header should be identity");
+                Constants.HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header should be identity");
     }
 
-    @Test
-    public void testOptionCompressionDisabled() {
+    @Test(description = "Explicitly disable compression")
+    public void testExplicitCompressionDisabled() {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionDisabled",
                 HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);

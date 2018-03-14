@@ -30,10 +30,9 @@ public class TestConstant {
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     public static final String HTTP_METHOD_HEAD = "HEAD";
-    public static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String HEADER_CONTENT_ENCODING = "content-encoding";
     public static final String ENCODING_GZIP = "gzip";
-    public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
+    public static final String DEFLATE = "deflate";
+    public static final String IDENTITY = "identity";
 
     //HTTP2 related Constants
     public static final long HTTP2_RESPONSE_TIME_OUT = 10;

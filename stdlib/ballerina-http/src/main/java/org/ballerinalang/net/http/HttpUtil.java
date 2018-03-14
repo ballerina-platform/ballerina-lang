@@ -252,8 +252,10 @@ public class HttpUtil {
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        setCompressionHeaders(context, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
+        //CompressionHeaders should be set after copying all the headers from request struct to outbound message,
+        // since in the case of compression disabled, 'Accept-Encoding' headers should be removed from outbound message.
+        setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
     }
 
     public static BStruct createSessionStruct(Context context, Session session) {
@@ -701,7 +703,8 @@ public class HttpUtil {
         outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
     }
 
-    public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
+    public static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg,
+                                             HTTPCarbonMessage outboundMessage) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                                                                    context.getServiceInfo().getType());
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
@@ -709,8 +712,14 @@ public class HttpUtil {
         if (configAnnot != null) {
             boolean isCompressionEnabled = configAnnot.getValue().getBooleanField(ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
             if (isCompressionEnabled) {
-                outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
-                                          Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
+                if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
+                    outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                            Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
+                }
+            } else {
+                if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null) {
+                    outboundMessage.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+                }
             }
         }
     }

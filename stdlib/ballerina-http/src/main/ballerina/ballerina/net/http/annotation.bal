@@ -21,7 +21,7 @@ public struct HttpServiceConfiguration {
     Service[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
-    boolean compressionEnabled;
+    boolean compressionEnabled = true;
     string[] allowOrigins;
     boolean allowCredentials;
     string[] allowMethods;
