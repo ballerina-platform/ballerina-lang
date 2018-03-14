@@ -40,7 +40,6 @@ function init() {
 @test:config{before: "init"}
 function testService () {
     endpoint<http:Client> httpEndpoint {serviceUri : url2}
-
     http:Request req = {};
     // Send a GET request to the specified endpoint
     http:Response resp = {};

@@ -249,6 +249,18 @@ public class BTestRunner {
                 });
             });
             TestAnnotationProcessor.resetMocks(suite);
+
+            // Run After suite functions
+            suite.getAfterSuiteFunctions().forEach(func -> {
+                String errorMsg;
+                try {
+                    func.invoke();
+                } catch (BallerinaException e) {
+                    errorMsg = String.format("Failed to execute after test suite function [%s] of test suite " +
+                                             "package [%s]. Cause: %s", func.getName(), packageName, e.getMessage());
+                    errStream.println(errorMsg);
+                }
+            });
             // print package test results
             tReport.printTestSuiteSummary(packageName);
         });
