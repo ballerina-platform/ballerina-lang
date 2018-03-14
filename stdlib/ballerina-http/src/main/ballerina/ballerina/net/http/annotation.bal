@@ -13,9 +13,6 @@ package ballerina.net.http;
 @Field {value:"allowMethods: The array of allowed methods by the service"}
 @Field {value:"allowHeaders: The array of allowed headers by the service"}
 @Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-@Field {value:"maxUriLength: Maximum length allowed for the URL"}
-@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
-@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfiguration {
     Service[] endpoints;
@@ -28,9 +25,6 @@ public struct HttpServiceConfiguration {
     string[] allowHeaders;
     int maxAge = -1;
     string[] exposeHeaders;
-    int maxUriLength;
-    int maxHeaderSize;
-    int maxEntityBodySize;
     WebSocketUpgradeConfig webSocketUpgrade;
 }
 
