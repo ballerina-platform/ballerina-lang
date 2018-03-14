@@ -112,6 +112,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterServiceBody(BallerinaParser.ServiceBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -179,42 +191,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnectorBody(BallerinaParser.ConnectorBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -431,6 +407,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEndpointInitlization(BallerinaParser.EndpointInitlizationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
