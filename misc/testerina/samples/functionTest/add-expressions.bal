@@ -1,11 +1,11 @@
 package samples.functionTest;
 
-import ballerina.lang.system;
+import ballerina.io;
 
 
 function main (string[] args) {
     int c = intAdd(5, 3);
-    system:println("addintion is : " + c);
+    io:println("addintion is : " + c);
 }
 
 
