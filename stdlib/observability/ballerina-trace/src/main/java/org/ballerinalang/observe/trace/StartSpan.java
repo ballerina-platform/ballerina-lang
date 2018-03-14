@@ -27,8 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
  * This function which implements the startSpan method for tracing.
  */
@@ -50,16 +48,8 @@ public class StartSpan extends BlockingNativeCallableUnit {
         String parentSpanId = ReferenceType.valueOf(reference) == ReferenceType.ROOT ?
                 OpenTracerBallerinaWrapper.ROOT_CONTEXT : context.getStringArgument(2);
 
-        long invocationId;
-        if (context.getProperties().get(Constants.INVOCATION_ID_PROPERTY) != null) {
-            invocationId = (Long) context.getProperties().get(Constants.INVOCATION_ID_PROPERTY);
-        } else {
-            invocationId = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
-            context.setProperty(Constants.INVOCATION_ID_PROPERTY, invocationId);
-        }
-
-        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(String.valueOf(invocationId), serviceName,
-                spanName, Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
+        String spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(serviceName, spanName,
+                Utils.toStringMap(tags), ReferenceType.valueOf(reference), parentSpanId);
 
         if (spanId != null) {
             context.setReturnValues(new BString(spanId));

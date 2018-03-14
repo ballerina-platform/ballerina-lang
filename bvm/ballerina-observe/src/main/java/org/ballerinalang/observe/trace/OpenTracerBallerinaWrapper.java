@@ -111,7 +111,6 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to start a span.
      *
-     * @param invocationId  unique id for each invocation
      * @param serviceName   name of the service the span should belong to
      * @param spanName      name of the span
      * @param tags          key value paired tags to attach to the span
@@ -119,8 +118,8 @@ public class OpenTracerBallerinaWrapper {
      * @param parentSpanId  id of the parent span
      * @return unique id of the created span
      */
-    public String startSpan(String invocationId, String serviceName, String spanName, Map<String, String> tags,
-                            ReferenceType referenceType, String parentSpanId) {
+    public String startSpan(String serviceName, String spanName, Map<String, String> tags, ReferenceType referenceType,
+                            String parentSpanId) {
         if (enabled) {
             Map<String, Span> spanMap = new HashMap<>();
             Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
@@ -144,7 +143,6 @@ public class OpenTracerBallerinaWrapper {
 
                 Span span = spanBuilder.start();
                 tracer.scopeManager().activate(span, false);
-                span.setBaggageItem(Constants.INVOCATION_ID_PROPERTY, String.valueOf(invocationId));
                 spanMap.put(tracerName, span);
             });
 
