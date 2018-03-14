@@ -123,7 +123,7 @@ public class PackageID {
             return this.name.value;
         }
 
-        return this.name + "[" + this.version + "]";
+        return this.orgName + "/" + this.name + "[" + this.version + "]";
     }
 
     public Name getOrgName() {
