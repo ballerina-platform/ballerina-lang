@@ -49,10 +49,9 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
-
-import static org.ballerinalang.net.grpc.SSLCertificateUtils.preferredTestCiphers;
 
 /**
  * A class that encapsulates SSL Certificate Information.
@@ -243,4 +242,28 @@ public class SSLHandlerFactory {
         }
         return BEGIN_KEY + LINE_SEPARATOR + encodedCertText + LINE_SEPARATOR + END_KEY;
     }
+    
+    /**
+     * Returns the ciphers preferred to use during tests. They may be chosen because they are widely,
+     * available or because they are fast. There is no requirement that they provide confidentiality
+     * or integrity.
+     */
+    public static List<String> preferredTestCiphers() {
+        String[] ciphers;
+        try {
+            ciphers = SSLContext.getDefault().getDefaultSSLParameters().getCipherSuites();
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        }
+        List<String> ciphersMinusGcm = new ArrayList<String>();
+        for (String cipher : ciphers) {
+            // The GCM implementation in Java is _very_ slow (~1 MB/s)
+            if (cipher.contains("_GCM_")) {
+                continue;
+            }
+            ciphersMinusGcm.add(cipher);
+        }
+        return Collections.unmodifiableList(ciphersMinusGcm);
+    }
+    
 }

@@ -52,7 +52,7 @@ import java.net.UnknownHostException;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
-import static org.ballerinalang.net.grpc.SSLCertificateUtils.preferredTestCiphers;
+import static org.ballerinalang.net.grpc.ssl.SSLHandlerFactory.preferredTestCiphers;
 
 
 /**
