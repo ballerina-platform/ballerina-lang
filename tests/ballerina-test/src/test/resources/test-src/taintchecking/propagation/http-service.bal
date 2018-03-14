@@ -20,6 +20,6 @@ service<http:Service> sample {
 }
 
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

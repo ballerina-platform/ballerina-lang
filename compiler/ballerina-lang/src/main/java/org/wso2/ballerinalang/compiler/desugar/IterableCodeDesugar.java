@@ -131,7 +131,7 @@ public class IterableCodeDesugar {
         // create invocation expression to invoke iterable operation.
         final BLangInvocation iExpr = createInvocationExpr(ctx.collectionExpr.pos,
                 ctx.iteratorFuncSymbol, Collections.emptyList(), symResolver);
-        iExpr.argExprs.add(ctx.collectionExpr);
+        iExpr.requiredArgs.add(ctx.collectionExpr);
         if (ctx.getLastOperation().expectedTypes.isEmpty() ||
                 ctx.getLastOperation().expectedTypes.get(0) == symTable.noType) {
             ctx.iteratorCaller = iExpr;
@@ -147,8 +147,8 @@ public class IterableCodeDesugar {
     }
 
     private void rewrite(Operation operation) {
-        if (operation.iExpr.argExprs.size() > 0) {
-            final BLangExpression langExpression = operation.iExpr.argExprs.get(0);
+        if (operation.iExpr.requiredArgs.size() > 0) {
+            final BLangExpression langExpression = operation.iExpr.requiredArgs.get(0);
             if (langExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 operation.lambdaSymbol = (BInvokableSymbol) ((BLangSimpleVarRef) langExpression).symbol;
             } else if (langExpression.getKind() == NodeKind.LAMBDA) {
@@ -195,7 +195,7 @@ public class IterableCodeDesugar {
 
         // Create and define function signature.
         final BLangFunction funcNode = createFunction(pos, getFunctionName(FUNC_CALLER));
-        funcNode.params.add(createVariable(pos, VAR_COLLECTION, ctx.collectionExpr.type));
+        funcNode.requiredParams.add(createVariable(pos, VAR_COLLECTION, ctx.collectionExpr.type));
         if (isReturningIteratorFunction(ctx)) {
             funcNode.retParams.add(ctx.resultVar = createVariable(pos, VAR_RESULT, ctx.resultType));
         }
@@ -233,7 +233,7 @@ public class IterableCodeDesugar {
         final BLangForeach foreach = createForeach(pos, funcNode.body);
         foreachVars.forEach(variable -> defineVariable(variable, firstOperation.env.enclPkg.symbol.pkgID, funcNode));
         foreach.varRefs.addAll(createVariableRefList(pos, foreachVars));
-        foreach.collection = createVariableRef(pos, funcNode.params.get(0).symbol);
+        foreach.collection = createVariableRef(pos, funcNode.requiredParams.get(0).symbol);
         foreach.varTypes = firstOperation.argTypes;
         foreach.body = createBlockStmt(pos);
 
@@ -265,7 +265,7 @@ public class IterableCodeDesugar {
         final List<BLangVariable> foreachVars = copyOf(ctx.getFirstOperation().argVars, COPY_OF);
         foreachVars.forEach(variable -> defineVariable(variable, firstOperation.env.enclPkg.symbol.pkgID, funcNode));
         foreach.varRefs.addAll(createVariableRefList(pos, foreachVars));
-        foreach.collection = createVariableRef(pos, funcNode.params.get(0).symbol);
+        foreach.collection = createVariableRef(pos, funcNode.requiredParams.get(0).symbol);
         foreach.varTypes = firstOperation.argTypes;
         foreach.body = createBlockStmt(pos);
 
@@ -411,7 +411,7 @@ public class IterableCodeDesugar {
 
         // Create and define function signature.
         final BLangFunction funcNode = createFunction(pos, getFunctionName(FUNC_STREAM));
-        funcNode.params.addAll(ctx.getFirstOperation().argVars);
+        funcNode.requiredParams.addAll(ctx.getFirstOperation().argVars);
         funcNode.retParams.add(createVariable(pos, EMPTY, symTable.booleanType));
         funcNode.retParams.addAll(retParmVars);
 
@@ -430,7 +430,7 @@ public class IterableCodeDesugar {
                 unusedVars.addAll(operation.retVars);
             }
         });
-        unusedVars.removeAll(funcNode.params);
+        unusedVars.removeAll(funcNode.requiredParams);
         unusedVars.removeAll(funcNode.retParams);
         unusedVars.forEach(variable -> defineVariable(variable, packageSymbol.pkgID, funcNode));
         unusedVars.forEach(variable -> {

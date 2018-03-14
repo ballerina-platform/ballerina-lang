@@ -20,10 +20,13 @@ package ballerina.data.sql;
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
+@Field {value:"structType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the struct type to
+map a result row"}
 public struct Parameter {
 	Type sqlType;
 	any value;
 	Direction direction;
+	type structType;
 }
 
 @Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -167,7 +170,8 @@ public enum Type {
 	DATETIME,
 	TIMESTAMP,
 	ARRAY,
-	STRUCT
+	STRUCT,
+	REFCURSOR
 }
 
 @Description { value:"The direction of the parameter"}
@@ -198,14 +202,14 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Result set for the given query" }
-	native action call (@sensitive{} string query, Parameter[] parameters, type structType) (@tainted{} table);
+	@Return { value:"Result set(s) for the given query" }
+	native action call (@sensitive string query, Parameter[] parameters, type structType) (@tainted table[]);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (@sensitive{} string query, Parameter[] parameters, type structType) (@tainted{} table);
+	native action select (@sensitive string query, Parameter[] parameters, type structType) (@tainted table);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
@@ -214,13 +218,13 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Updated row count" }
-	native action update (@sensitive{} string query, Parameter[] parameters) (int);
+	native action update (@sensitive string query, Parameter[] parameters) (int);
 
 	@Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Array of update counts" }
-	native action batchUpdate (@sensitive{} string query, Parameter[][] parameters) (int[]);
+	native action batchUpdate (@sensitive string query, Parameter[][] parameters) (int[]);
 
 	@Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
 	@Param { value:"query: SQL query to execute" }
@@ -228,7 +232,7 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 	@Param { value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned" }
 	@Return { value:"Updated row count during the query exectuion" }
 	@Return { value:"Array of auto generated key values during the query execution" }
-	native action updateWithGeneratedKeys (@sensitive{} string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
+	native action updateWithGeneratedKeys (@sensitive string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
 

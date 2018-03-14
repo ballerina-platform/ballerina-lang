@@ -3,10 +3,10 @@ public function main (string[] args) {
     secureFunctionSecondParamSensitive(args[0], "static");
 }
 
-public function secureFunctionFirstParamSensitive (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunctionFirstParamSensitive (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-public function secureFunctionSecondParamSensitive (string insecureIn, @sensitive{} string secureIn) {
+public function secureFunctionSecondParamSensitive (string insecureIn, @sensitive string secureIn) {
     string data = secureIn + insecureIn;
 }
