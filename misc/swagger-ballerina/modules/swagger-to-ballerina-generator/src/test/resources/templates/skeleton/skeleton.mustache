@@ -9,10 +9,10 @@ import ballerina.net.http.swagger;
     description: "{{description}}",
     serviceVersion: "{{version}}",
     termsOfService: "{{termsOfService}}",
-    contact: @swagger:contact {name: "{{contact.name}}", email: "{{contact.email}}",url: "{{contact.url}}"},
-    license: @swagger:license {name: "{{license.name}}", url: "{{license.url}}"},{{/info}}
+    contact: {name: "{{contact.name}}", email: "{{contact.email}}", url: "{{contact.url}}"},
+    license: {name: "{{license.name}}", url: "{{license.url}}"},{{/info}}
     tags: [{{#tags}}
-        @swagger:tag {name: "{{name}}", description: "{{description}}", externalDocs: {{>doc}} }{{#unless @last}},{{/unless}}{{/tags}}
+        {name: "{{name}}", description: "{{description}}", externalDocs: {{>doc}} }{{#unless @last}},{{/unless}}{{/tags}}
     ],
     externalDocs: {{>doc}},
     security: [{{#security}}
@@ -33,7 +33,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -62,7 +62,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -91,7 +91,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -120,7 +120,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -149,7 +149,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -178,7 +178,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -207,7 +207,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}
@@ -236,7 +236,7 @@ service<http> {{cut info.title " "}} {
         description: "{{description}}",
         externalDocs: {{>doc}},
         parameters: [{{#parameters}}
-            @swagger:parameterInfo {
+            {
                 name: "{{name}}",
                 inInfo: "{{in}}",
                 description: "{{descirption}}", {{#required}}

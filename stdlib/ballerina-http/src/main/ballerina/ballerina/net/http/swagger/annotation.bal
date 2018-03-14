@@ -2,7 +2,7 @@ package ballerina.net.http.swagger;
 
 import ballerina.net.http;
 
-@Description {value: "Annotation to hold additional swagger information of a ballerina service"}
+@Description {value: "Model for additional swagger information of a ballerina service"}
 @Field {value: "title: Title of the swagger definition"}
 @Field {value: "serviceVersion: Version of the swagger API"}
 @Field {value: "termsOfService: Service usage terms and conditions"}
@@ -10,113 +10,81 @@ import ballerina.net.http;
 @Field {value: "license: License information for the exposed API."}
 @Field {value: "externalDoc: Additional external documentation."}
 @Field {value: "tags: A list of tags used by the specification with additional metadata"}
-public annotation serviceInfo attach service<http> {
+public struct ServiceInfo {
     string title;
     string serviceVersion;
     string description;
     string termsOfService;
-    contact contact;
-    license license;
-    externalDoc externalDocs;
-    tag[] tags;
-    securityRequirement[] security;
+    Contact contact;
+    License license;
+    DocumentationInfo externalDocs;
+    Tag[] tags;
+    SecurityRequirement[] security;
 }
 
-public annotation contact {
+@Description {value: "Model for Swagger contact information"}
+@Field {value: "name: Contact name"}
+@Field {value: "email: Contact email"}
+@Field {value: "url: Contact web address/page"}
+public struct Contact {
     string name;
     string email;
     string url;
 }
 
-public annotation license {
+@Description {value: "Model for service licence information"}
+@Field {value: "name: License name"}
+@Field {value: "url: License url"}
+public struct License {
     string name;
     string url;
 }
 
-public annotation externalDoc {
+@Description {value: "Model for service documentation definition"}
+@Field {value: "description: Documentation description"}
+@Field {value: "url: Documentation url"}
+public struct DocumentationInfo {
     string description;
     string url;
 }
 
-public annotation tag {
+@Description {value: "Model for swagger service tag definition"}
+@Field {value: "name: Tag name"}
+@Field {value: "description: Tag decription"}
+@Field {value: "externalDocs: Optional documentation on the tag"}
+public struct Tag {
     string name;
     string description;
-    externalDoc externalDocs;
+    DocumentationInfo externalDocs;
 }
 
-public annotation organization {
-    string name;
-    string url;
-}
-
-public annotation developer {
-    string name;
-    string email;
-}
-
-public annotation swagger attach service<http> {
-    string swaggerVersion;
-    swaggerExtension[] extension;
-}
-
-public annotation swaggerExtension {
-    string target;
-}
-
-public annotation serviceConfig attach service<http> {
-    string host;
-    string[] schemes;
-    string interface;
-    authorization[] authorizations;
-}
-
-public annotation authorization {
-    string name;
-    string description;
-    string authType;
-    string apiName;
-    string inFlow;
-    string flow;
-    string authorizationUrl;
-    string tokenUrl;
-    authorizationScope[] authorizationScopes;
-}
-
-public annotation authorizationScope {
-    string name;
-    string description;
-}
-
-public annotation securityRequirement {
+@Description {value: "Model for security requirement definition. This is most likely the oauth scopes"}
+@Field {value: "name: Security scheme name"}
+@Field {value: "requirements: Array of security requirements"}
+public struct SecurityRequirement {
     string name;
     string[] requirements;
 }
 
-public annotation resourceConfig attach resource {
-    string[] schemes;
-    authorization[] authorizations;
-    string name;
-    string[] scopes;
-}
-
-public annotation parametersInfo attach resource {
-    parameterInfo[] value;
-}
-
-public annotation parameterInfo {
+@Description {value: "Model for keeping swagger parameter information"}
+@Field {value: "inInfo: Where the parameter is located. Ex: query"}
+@Field {value: "name: parameter name"}
+@Field {value: "description: Description of the parameter"}
+@Field {value: "required: Is this paramter MUST be present in the request"}
+@Field {value: "discontinued: Is this parameter deprecated"}
+@Field {value: "allowEmptyValue: is empty values allowed for this parameter. Valid only for query parameters"}
+@Field {value: "schema: Parameter data type"}
+public struct ParameterInfo {
     string inInfo;
     string name;
     string description;
     boolean required;
     boolean discontinued;
     string allowEmptyValue;
-    string parameterType;
-    string format;
-    string collectionFormat;
-    schema[] schemas;
+    Schema schema;
 }
 
-public annotation schema {
+public struct Schema {
     string itemType;
     string format;
     boolean isArray;
@@ -124,50 +92,70 @@ public annotation schema {
     string items;
 }
 
-public annotation resourceInfo attach resource {
+@Description {value: "Model for additional swagger resource definition"}
+@Field {value: "tags: Tags attched to this resource"}
+@Field {value: "summary: A short summary of what the operation does."}
+@Field {value: "description: A verbose explanation of the operation behavior"}
+@Field {value: "externalDocs: Additional documentation for this operation"}
+@Field {value: "parameters: A list of parameters that are applicable for this operation"}
+public struct ResourceInfo {
     string[] tags;
     string summary;
     string description;
-    externalDoc externalDocs;
-    parameterInfo[] parameters;
+    DocumentationInfo externalDocs;
+    ParameterInfo[] parameters;
 }
 
-public annotation responses attach resource {
-    response[] value;
-}
-
-public annotation response {
+public struct Response {
     string code;
     string description;
     string response;
-    header[] headers;
-    example[] examples;
+    Header[] headers;
+    Example[] examples;
 }
 
-public annotation header {
+public struct Header {
     string name;
     string description;
     string headerType;
 }
 
-public annotation example {
+public struct Example {
     string exampleType;
     string value;
 }
 
-public annotation requestBody attach resource {
+@Description {value: "Model for additional swagger request body details"}
+@Field {value: "description: A brief description of the request body"}
+@Field {value: "required: Determines if the request body is required in the request"}
+@Field {value: "example: Example of the request body media type"}
+@Field {value: "examples: Examples of the media type"}
+@Field {value: "schema: The schema defining the type used for the request body"}
+@Field {value: "encoding: Encoding and content type details"}
+public struct requestBody {
     string description;
     boolean required;
     string example;
-    example[] examples;
-    schema schema;
-    encoding[] encoding;
+    Example[] examples;
+    Schema schema;
+    Encoding[] encoding;
 }
 
-public annotation encoding {
-    parameterInfo[] headers;
+@Description {value: "Model for additional swagger content type definition"}
+@Field {value: "headers: Additional information to be provided as headers"}
+@Field {value: "contentType: The Content-Type for encoding a specific property"}
+@Field {value: "explode: Should property values of array or object generate separate parameters for each value of the array"}
+@Field {value: "allowReserved: Determines whether the parameter value SHOULD allow reserved characters"}
+public struct Encoding {
+    ParameterInfo[] headers;
     string contentType;
     string style;
     boolean explode;
     boolean allowReserved;
 }
+
+@Description {value: "Annotation for additional swagger information of a ballerina service"}
+public annotation <service> serviceInfo ServiceInfo;
+
+@Description {value: "Annotation for additional swagger information of a ballerina resource"}
+public annotation <resource> resourceInfo ResourceInfo;
