@@ -185,6 +185,24 @@ class StructNode extends React.Component {
 
 
     /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
+    isInt(val) {
+        return !isNaN(val) && Number(val).toString().length === (Number.parseInt(Number(val), 10).toString().length);
+    }
+
+    /**
+     * Check given value is an Integer
+     * @param  {Number} val value to check
+     * @return {Boolean}  is Intger
+     */
+    isFloat(val) {
+        return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
+    }
+
+    /**
      * Validate identifier name
      * @param {string} identifier - identifier name
      */
@@ -236,21 +254,6 @@ class StructNode extends React.Component {
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
-                <rect
-                    x={x + 480}
-                    y={y - 22}
-                    width={120}
-                    height={20}
-                    className='struct-import-json-button'
-                    onClick={e => this.onClickJsonImport()}
-                />
-                <text
-                    x={x + 485}
-                    y={y - 10}
-                    className='struct-import-json-text'
-                    onClick={e => this.onClickJsonImport()}
-                > {'Import from JSON'}
-                </text>
                 <rect x={x} y={y} width={w} height={h} className='struct-content-operations-wrapper' fill='#3d3d3d' />
                 <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className='struct-type-dropdown-wrapper' />
