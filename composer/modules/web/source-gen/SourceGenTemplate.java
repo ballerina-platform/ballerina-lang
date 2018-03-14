@@ -132,7 +132,7 @@ public class SourceGen {
     @FindbugsSuppressWarnings
     private String repeat(String tab, int l) {
         StringBuilder result = new StringBuilder();
-        for (int j = 0; j <= l; j++) {
+        for (int j = 0; j < l; j++) {
             result.append(tab);
         }
         return result.toString();
@@ -184,7 +184,7 @@ public class SourceGen {
             if (node.getAsJsonObject("alias") != null &&
                     node.getAsJsonObject("alias").get("value") != null &&
                     node.getAsJsonArray("packageName") != null && node.getAsJsonArray("packageName").size() != 0) {
-                if (node.getAsJsonObject("alias").get("value").getAsString()
+                if (!node.getAsJsonObject("alias").get("value").getAsString()
                         .equals(node.getAsJsonArray("packageName").get(node
                                 .getAsJsonArray("packageName").size() - 1).getAsJsonObject()
                                 .get("value").getAsString())) {
