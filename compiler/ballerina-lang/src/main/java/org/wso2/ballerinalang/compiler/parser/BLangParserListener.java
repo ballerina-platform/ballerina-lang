@@ -24,10 +24,12 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -1285,8 +1287,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String fieldName = ctx.field().Identifier().getText();
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName);
+        FieldContext field = ctx.field();
+        String fieldName;
+        FieldType fieldType;
+        if (field.Identifier() != null) {
+            fieldName = field.Identifier().getText();
+            fieldType = FieldType.SINGLE;
+        } else {
+            fieldName = field.MUL().getText();
+            fieldType = FieldType.ALL;
+        }
+
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldType);
     }
 
     @Override

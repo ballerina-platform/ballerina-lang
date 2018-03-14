@@ -406,7 +406,7 @@ variableReference
     ;
 
 field
-    : DOT Identifier
+    : DOT (Identifier | MUL)
     ;
 
 index

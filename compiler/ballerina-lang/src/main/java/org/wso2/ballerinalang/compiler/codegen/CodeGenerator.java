@@ -140,6 +140,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldType;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -838,7 +839,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex indexRegIndex = xmlIndexAccessExpr.indexExpr.regIndex;
 
         RegIndex elementRegIndex = calcAndGetExprRegIndex(xmlIndexAccessExpr);
-        emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        if (xmlIndexAccessExpr.fieldType == FieldType.ALL) {
+            emit(InstructionCodes.XMLLOADALL, varRefRegIndex, elementRegIndex);
+        } else if (xmlIndexAccessExpr.indexExpr.type.tag == TypeTags.STRING) {
+            emit(InstructionCodes.XMLLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        } else {
+            emit(InstructionCodes.XMLSEQLOAD, varRefRegIndex, indexRegIndex, elementRegIndex);
+        }
+
         this.varAssignment = variableStore;
     }
 
@@ -2750,7 +2758,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add children
         xmlElementLiteral.modifiedChildren.forEach(child -> {
             genNode(child, xmlElementEnv);
-            emit(InstructionCodes.XMLSTORE, xmlElementLiteral.regIndex, child.regIndex);
+            emit(InstructionCodes.XMLSEQSTORE, xmlElementLiteral.regIndex, child.regIndex);
         });
     }
 

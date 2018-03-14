@@ -154,9 +154,9 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
     </p:person>`;
 
 function xmlTest()(int nodeCount, any elementCount, map m){
-    nodeCount = xdata.children().count();
-    elementCount = xdata.children().elements().count();
-    m = xdata.children().elements()[1].children().elements().map(function (int i, xml x)(string, xml){
+    nodeCount = xdata.*.count();
+    elementCount = xdata.*.elements().count();
+    m = xdata.*.elements()[1].*.elements().map(function (int i, xml x)(string, xml){
         return <string>i, x;
     });
     return;

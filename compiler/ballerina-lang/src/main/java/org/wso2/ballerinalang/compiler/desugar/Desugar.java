@@ -624,6 +624,10 @@ public class Desugar extends BLangNodeVisitor {
             } else if (varRefType.tag == TypeTags.JSON) {
                 BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+            } else if (varRefType.tag == TypeTags.XML) {
+                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+                targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                        fieldAccessExpr.fieldType);
             }
         }
 

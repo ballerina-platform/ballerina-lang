@@ -1346,13 +1346,14 @@ public class ProgramFileReader {
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
-                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.XMLSEQSTORE:
                 case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWTABLE:
+                case InstructionCodes.XMLLOADALL:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1468,13 +1469,14 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
-                case InstructionCodes.XMLLOAD:
+                case InstructionCodes.XMLSEQLOAD:
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
                 case InstructionCodes.NULL2S:
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
+                case InstructionCodes.XMLLOAD:
                 case InstructionCodes.ANY2SCONV:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
