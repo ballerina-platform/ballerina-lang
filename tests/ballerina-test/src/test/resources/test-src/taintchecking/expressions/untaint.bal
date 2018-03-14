@@ -43,6 +43,6 @@ function returnInput (string inputData) (string) {
     return inputData;
 }
 
-function secureFunction (@sensitive{} string sensitiveInput) {
+function secureFunction (@sensitive string sensitiveInput) {
 
 }

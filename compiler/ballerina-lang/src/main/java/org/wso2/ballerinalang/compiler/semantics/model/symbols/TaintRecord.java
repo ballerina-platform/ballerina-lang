@@ -50,5 +50,33 @@ public class TaintRecord {
             this.paramName = paramName;
             this.diagnosticCode = diagnosticCode;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            TaintError that = (TaintError) o;
+
+            if (!pos.toString().equals(that.pos.toString())) {
+                return false;
+            }
+            if (!paramName.equals(that.paramName)) {
+                return false;
+            }
+            return diagnosticCode == that.diagnosticCode;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = pos.toString().hashCode();
+            result = 31 * result + paramName.hashCode();
+            result = 31 * result + diagnosticCode.hashCode();
+            return result;
+        }
     }
 }
