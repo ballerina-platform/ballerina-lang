@@ -96,12 +96,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -360,6 +362,80 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         varDefNode.var.accept(this);
+    }
+
+    public void visit(BLangCompoundAssignment compoundAssignment) {
+        compoundAssignment.expr.accept(this);
+        boolean varTaintedStatus = getObservedTaintedStatus();
+        BLangExpression varRefExpr = compoundAssignment.varRef;
+        // Generate error if a global variable has been assigned with a tainted value.
+        if (varTaintedStatus && varRefExpr instanceof BLangVariableReference) {
+            BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            if (varRef.symbol != null && varRef.symbol.owner != null) {
+                if (varRef.symbol.owner instanceof BPackageSymbol
+                        || SymbolKind.SERVICE.equals(varRef.symbol.owner.kind)
+                        || SymbolKind.CONNECTOR.equals(varRef.symbol.owner.kind)) {
+                    addTaintError(compoundAssignment.pos, varRef.symbol.name.value,
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
+                    return;
+                }
+            }
+        }
+        // TODO: Re-evaluating the full data-set (array) when a change occur.
+        if (varRefExpr instanceof BLangIndexBasedAccess) {
+            nonOverridingAnalysis = true;
+            updatedVarRefTaintedState((BLangIndexBasedAccess) varRefExpr, varTaintedStatus);
+            nonOverridingAnalysis = false;
+        } else if (varRefExpr instanceof BLangFieldBasedAccess) {
+            BLangFieldBasedAccess fieldBasedAccessExpr = (BLangFieldBasedAccess) varRefExpr;
+            // Propagate tainted status to fields, when field symbols are present (Example: structs).
+            if (fieldBasedAccessExpr.symbol != null) {
+                setTaintedStatus(fieldBasedAccessExpr, varTaintedStatus);
+            }
+            nonOverridingAnalysis = true;
+            updatedVarRefTaintedState(fieldBasedAccessExpr, varTaintedStatus);
+            nonOverridingAnalysis = false;
+        } else {
+            BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            setTaintedStatus(varRef, varTaintedStatus);
+        }
+    }
+
+    public void visit(BLangPostIncrement postIncrement) {
+        postIncrement.increment.accept(this);
+        boolean varTaintedStatus = getObservedTaintedStatus();
+        BLangExpression varRefExpr = postIncrement.varRef;
+        // Generate error if a global variable has been assigned with a tainted value.
+        if (varTaintedStatus && varRefExpr instanceof BLangVariableReference) {
+            BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            if (varRef.symbol != null && varRef.symbol.owner != null) {
+                if (varRef.symbol.owner instanceof BPackageSymbol
+                        || SymbolKind.SERVICE.equals(varRef.symbol.owner.kind)
+                        || SymbolKind.CONNECTOR.equals(varRef.symbol.owner.kind)) {
+                    addTaintError(postIncrement.pos, varRef.symbol.name.value,
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
+                    return;
+                }
+            }
+        }
+        // TODO: Re-evaluating the full data-set (array) when a change occur.
+        if (varRefExpr instanceof BLangIndexBasedAccess) {
+            nonOverridingAnalysis = true;
+            updatedVarRefTaintedState((BLangIndexBasedAccess) varRefExpr, varTaintedStatus);
+            nonOverridingAnalysis = false;
+        } else if (varRefExpr instanceof BLangFieldBasedAccess) {
+            BLangFieldBasedAccess fieldBasedAccessExpr = (BLangFieldBasedAccess) varRefExpr;
+            // Propagate tainted status to fields, when field symbols are present (Example: structs).
+            if (fieldBasedAccessExpr.symbol != null) {
+                setTaintedStatus(fieldBasedAccessExpr, varTaintedStatus);
+            }
+            nonOverridingAnalysis = true;
+            updatedVarRefTaintedState(fieldBasedAccessExpr, varTaintedStatus);
+            nonOverridingAnalysis = false;
+        } else {
+            BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
+            setTaintedStatus(varRef, varTaintedStatus);
+        }
     }
 
     public void visit(BLangAssignment assignNode) {

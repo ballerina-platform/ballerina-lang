@@ -72,6 +72,8 @@ html:focus, body:focus, input[readonly]:focus{
 
 @selectionBorderRadius          : 0;
 @noBorderRadius                 : 0;
+@borderRadius           :0;
+
 
 @inputHeight                    : 40px;
 

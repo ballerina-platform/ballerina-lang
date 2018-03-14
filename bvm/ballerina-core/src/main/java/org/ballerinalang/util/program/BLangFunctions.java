@@ -134,7 +134,7 @@ public class BLangFunctions {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
         SyncCallableWorkerResponseContext respCtx = new CallbackedInvocableWorkerResponseContext(
                 callableUnitInfo.getRetParamTypes(), workerSet.generalWorkers.length, false, responseCallback);
-        respCtx.updateTargetContextInfo(parentCtx, retRegs);
+        respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
         /* execute the init worker and extract the local variables created by it */
@@ -180,7 +180,7 @@ public class BLangFunctions {
             respCtx = new SyncCallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), generalWorkersCount,
                     waitForResponse);
         }
-        respCtx.updateTargetContextInfo(parentCtx, retRegs);
+        respCtx.joinTargetContextInfo(parentCtx, retRegs);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
         /* execute the init worker and extract the local variables created by it */

@@ -4,6 +4,7 @@
 
 .ui.button{
     border-radius   : @borderRadius;
+    margin          : 0 10px 0 0;
 }
 
 .ui.basic.button {
