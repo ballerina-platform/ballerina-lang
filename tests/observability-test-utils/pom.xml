@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>observability-test-utils</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina Observability - Tracing Test Utils</name>
+    <name>Ballerina - Observability - Tracing Test Utils</name>
     <url>http://ballerina-lang.org</url>
 
     <dependencies>
