@@ -36,7 +36,7 @@ public class ReadBytesEvent implements Event {
     /**
      * Holds the name of the property which will hold a reference to the byte content.
      */
-    private static final String CONTENT_PROPERTY = "byte_content";
+    public static final String CONTENT_PROPERTY = "byte_content";
     /**
      * Buffer which will be provided to the channel.
      */

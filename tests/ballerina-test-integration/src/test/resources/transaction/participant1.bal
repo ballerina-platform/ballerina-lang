@@ -25,13 +25,13 @@ service<http> participant1 {
     @http:resourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:InRequest req) {
+    resource member (http:Connection conn, http:Request req) {
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:8890/participant2", {});
         }
-        http:OutRequest newReq = {};
+        http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
-        http:InResponse clientResponse2;
+        http:Response clientResponse2;
         transaction {
             var clientResponse1, _ = endPoint.forward("/task1", req);
             clientResponse2, _ = endPoint.get("/task2", newReq);

@@ -56,7 +56,7 @@ connector InitiatorClient (string registerAtURL) {
         regReq.participantProtocols = protocols;
 
         json j = <json, regRequestToJson()>regReq;
-        http:OutRequest req = {};
+        http:Request req = {};
         req.setJsonPayload(j);
         var res, e = initiatorEP.post("", req);
         if (e == null) {

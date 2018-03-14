@@ -1,14 +1,22 @@
 import ballerina.net.http;
+import ballerina.net.http.mock;
 
-@http:configuration {basePath:"/hello"}
-service<http> testService {
+endpoint<mock:NonListeningService> testEP {
+    port:9090
+}
+
+@http:serviceConfig {
+    basePath:"/hello",
+    endpoints:[testEP]
+}
+service<http:Service> testService {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/t1/{person}/bar/{year}/foo"
     }
-    resource test1 (http:Connection conn, http:InRequest req, string person, string year) {
-        http:OutResponse res = {};
+    resource test1 (http:ServerConnector conn, http:Request req, string person, string year) {
+        http:Response res = {};
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{year}}`;
 
@@ -33,15 +41,15 @@ service<http> testService {
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
         res.setJsonPayload(outJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/t2/{person}/foo;a=5;b=10"
     }
-    resource testEncoded (http:Connection conn, http:InRequest req, string person) {
-        http:OutResponse res = {};
+    resource testEncoded (http:ServerConnector conn, http:Request req, string person) {
+        http:Response res = {};
         json outJson = {};
         outJson.person = person;
 
@@ -52,6 +60,6 @@ service<http> testService {
         outJson.fooParamSize = lengthof fooMParams;
 
         res.setJsonPayload(outJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

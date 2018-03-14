@@ -20,12 +20,9 @@ package org.ballerinalang.net.uri;
 
 
 import org.ballerinalang.connector.api.AnnAttrValue;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,28 +43,6 @@ public class DispatcherUtil {
             return false;
         }
         return resourceInfo.getMethods().contains(method);
-    }
-
-    public static String[] getHttpMethods(Resource resource) {
-        Annotation resourceConfigAnnotation = HttpUtil.getResourceConfigAnnotation(resource,
-                                                                                   HttpConstants.HTTP_PACKAGE_PATH);
-        if (resourceConfigAnnotation == null) {
-            return null;
-        }
-
-        AnnAttrValue methodsAttrVal = resourceConfigAnnotation.getAnnAttrValue(HttpConstants.ANN_RESOURCE_ATTR_METHODS);
-        if (methodsAttrVal == null) {
-            return null;
-        }
-        return getStringArray(methodsAttrVal.getAnnAttrValueArray());
-    }
-
-    public static String[] getStringArray(AnnAttrValue[] annAttributeValues) {
-        String[] values = new String[annAttributeValues.length];
-        for (int i = 0; i < annAttributeValues.length; i++) {
-            values[i] = annAttributeValues[i].getStringValue();
-        }
-        return values;
     }
 
     public static String concatValues(List<String> stringValues, boolean spaceSeparated) {

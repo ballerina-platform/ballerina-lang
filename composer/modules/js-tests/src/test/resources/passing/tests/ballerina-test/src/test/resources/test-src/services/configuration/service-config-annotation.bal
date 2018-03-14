@@ -8,8 +8,8 @@ service<http> helloWorldServiceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource sayHello (http:Connection conn, http:Request req) {
+        http:Response res = {};
         res.setStringPayload("Hello World !!!");
         _ = conn.respond(res);
     }

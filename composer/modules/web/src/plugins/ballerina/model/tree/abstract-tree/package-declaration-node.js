@@ -71,14 +71,6 @@ class AbstractPackageDeclarationNode extends Node {
         return this.packageName;
     }
 
-    getPackageNameString() {
-        const packageName = this.packageName || [];
-        const packageNameString = packageName.map((pkgName) => {
-            return pkgName.value;
-        }).join('.');
-        return packageNameString;
-    }
-
 
     addPackageName(node, i = -1, silent) {
         node.parent = this;

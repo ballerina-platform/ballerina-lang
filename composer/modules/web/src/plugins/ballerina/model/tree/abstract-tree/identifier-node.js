@@ -46,6 +46,8 @@ class AbstractIdentifierNode extends Node {
     }
 
 
+
+
     isLiteral() {
         return this.literal;
     }

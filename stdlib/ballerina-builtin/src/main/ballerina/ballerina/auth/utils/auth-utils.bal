@@ -134,10 +134,10 @@ function getEvictionFactor (string cacheName) (float) {
 }
 
 @Description {value:"Extracts the basic authentication header value from the request"}
-@Param {value:"req: Inrequest instance"}
+@Param {value:"req: Request instance"}
 @Return {value:"string: value of the basic authentication header"}
 @Return {value:"error: any error occurred while extracting the basic authentication header"}
-public function extractBasicAuthHeaderValue (http:InRequest req) (string, error) {
+public function extractBasicAuthHeaderValue (http:Request req) (string, error) {
     // extract authorization header
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader == null || !basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
