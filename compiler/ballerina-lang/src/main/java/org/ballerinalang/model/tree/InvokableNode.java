@@ -18,6 +18,8 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 
 import java.util.List;
 
@@ -47,5 +49,13 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     List<? extends WorkerNode> getWorkers();
 
     List<? extends EndpointNode> getEndpointNodes();
+
+    void addDefaultableParameter(VariableDefinitionNode param);
+
+    List<BLangVariableDef> getDefaultableParameters();
+
+    VariableNode getRestParameters();
+
+    void setRestParameter(VariableNode restParam);
 
 }

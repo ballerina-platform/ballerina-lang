@@ -8,6 +8,6 @@ public function main (string[] args) {
     secureFunction(path, path);
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

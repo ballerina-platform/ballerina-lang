@@ -205,12 +205,12 @@ class ASTBuilderUtil {
     }
 
     static List<BLangExpression> generateArgExprs(DiagnosticPos pos, List<BLangVariable> args,
-                                                  BInvokableSymbol symbol, SymbolResolver symResolver) {
+                                                  List<BVarSymbol> formalParams, SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
         final List<BLangSimpleVarRef> variableRefList = createVariableRefList(pos, args);
         for (int i = 0; i < variableRefList.size(); i++) {
             BLangSimpleVarRef varRef = variableRefList.get(i);
-            BType target = symbol.getParameters().get(i).type;
+            BType target = formalParams.get(i).type;
             BType source = varRef.symbol.type;
             if (source != target) {
                 argsExpr.add(generateConversionExpr(varRef, target, symResolver));
@@ -222,10 +222,22 @@ class ASTBuilderUtil {
     }
 
     static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                List<BLangVariable> args, SymbolResolver symResolver) {
+                                                List<BLangVariable> requiredArgs, SymbolResolver symResolver) {
+        return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
+                symResolver);
+    }
+
+    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+                                                List<BLangVariable> requiredArgs, List<BLangVariable> namedArgs,
+                                                List<BLangVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
-        invokeLambda.argExprs.addAll(generateArgExprs(pos, args, invokableSymbol, symResolver));
+        invokeLambda.requiredArgs.addAll(generateArgExprs(pos, requiredArgs, invokableSymbol.params, symResolver));
+        invokeLambda.namedArgs
+                .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
+        invokeLambda.restArgs
+                .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
+
         invokeLambda.symbol = invokableSymbol;
         invokeLambda.types.addAll(((BInvokableType) invokableSymbol.type).retTypes);
         if (!invokeLambda.types.isEmpty()) {

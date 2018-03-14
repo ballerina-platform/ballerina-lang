@@ -1,27 +1,33 @@
 import ballerina.io;
 import ballerina.net.http;
 import ballerina.runtime;
+import ballerina.net.http.mock;
 
-service<http> sample {
+endpoint<mock:NonListeningService> echoEP {
+    port:9090
+}
+
+@http:serviceConfig {endpoints:[echoEP]}
+service<http:Service> sample {
 
     int requestCount = 0;
 
-    resource echo(http:Connection conn, http:Request req) {
+    resource echo(http:ServerConnector conn, http:Request req) {
         lock {
             requestCount = requestCount + 1;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource getCount(http:Connection conn, http:Request req) {
+    resource getCount(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("count - " + requestCount);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-
-service<http> sample1 {
+@http:serviceConfig {endpoints:[echoEP]}
+service<http:Service> sample1 {
 
     int requestCount = 0;
 
@@ -35,7 +41,7 @@ service<http> sample1 {
 
     map mapVal = {name:""};
 
-    resource echo(http:Connection conn, http:Request req) {
+    resource echo(http:ServerConnector conn, http:Request req) {
         lock {
             requestCount = requestCount + 1;
             price = price + 2;
@@ -47,10 +53,10 @@ service<http> sample1 {
             var strVal, _ = (string) mapVal.name;
             mapVal.name = strVal + "7";
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource echo1(http:Connection conn, http:Request req) {
+    resource echo1(http:ServerConnector conn, http:Request req) {
         lock {
             floatArr[1] = floatArr[1] + 2;
             finalText = finalText + "3";
@@ -62,10 +68,10 @@ service<http> sample1 {
             person.age = person.age + 1;
             price = price + 2;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource echo2(http:Connection conn, http:Request req) {
+    resource echo2(http:ServerConnector conn, http:Request req) {
         lock {
             person.age = person.age + 1;
             requestCount = requestCount + 1;
@@ -77,15 +83,15 @@ service<http> sample1 {
             mapVal.name = strVal + "7";
             floatArr[0] = floatArr[0] + 1;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource getResult(http:Connection conn, http:Request req) {
+    resource getResult(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText + requestCount + price + person.age + person.address.line1
                              + floatArr[0] + floatArr[1] + strVal);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
@@ -107,7 +113,8 @@ Person person1 = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 
 float[] floatArr1 = [1, 2];
 
-service<http> sample2 {
+@http:serviceConfig {endpoints:[echoEP]}
+service<http:Service> sample2 {
 
     int requestCount = 0;
 
@@ -115,7 +122,7 @@ service<http> sample2 {
 
     map mapVal = {name:""};
 
-    resource echo(http:Connection conn, http:Request req) {
+    resource echo(http:ServerConnector conn, http:Request req) {
         io:println("************************* echo");
         lock {
             requestCount = requestCount + 1;
@@ -128,10 +135,10 @@ service<http> sample2 {
             var strVal, _ = (string) mapVal.name;
             mapVal.name = strVal + "7";
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource echo1(http:Connection conn, http:Request req) {
+    resource echo1(http:ServerConnector conn, http:Request req) {
         io:println("************************* echo1");
         lock {
             floatArr1[1] = floatArr1[1] + 2;
@@ -144,10 +151,10 @@ service<http> sample2 {
             person1.age = person1.age + 1;
             price = price + 2;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource echo2(http:Connection conn, http:Request req) {
+    resource echo2(http:ServerConnector conn, http:Request req) {
         io:println("************************* echo2");
         lock {
             person1.age = person1.age + 1;
@@ -160,23 +167,24 @@ service<http> sample2 {
             mapVal.name = strVal + "7";
             floatArr1[0] = floatArr1[0] + 1;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource getResult(http:Connection conn, http:Request req) {
+    resource getResult(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         var strVal, _ = (string) mapVal.name;
         res.setStringPayload(finalText1 + requestCount + price + person1.age + person1.address.line1
                                 + floatArr1[0] + floatArr1[1] + strVal);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-service<http> sample3 {
+@http:serviceConfig {endpoints:[echoEP]}
+service<http:Service> sample3 {
 
     string message = "";
 
-    resource echo(http:Connection conn, http:Request req) {
+    resource echo(http:ServerConnector conn, http:Request req) {
         lock {
             io:println("************** waiting inside first request");
             runtime:sleepCurrentWorker(100);
@@ -184,18 +192,16 @@ service<http> sample3 {
             error err = {message:"error occurred"};
             throw err;
         }
-        _ = conn.respond({});
+        _ = conn -> respond({});
     }
 
-    resource getMsg(http:Connection conn, http:Request req) {
+    resource getMsg(http:ServerConnector conn, http:Request req) {
         http:Response res = {};
 
         lock {
             message = "modified by second resource";
         }
         res.setStringPayload(message);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
-
-

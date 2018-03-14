@@ -142,6 +142,7 @@ LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
+ELLIPSIS    : '...' ;
 
 // Compound Assignment operators.
 
