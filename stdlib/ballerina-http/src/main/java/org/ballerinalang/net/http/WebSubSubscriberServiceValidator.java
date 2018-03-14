@@ -35,6 +35,19 @@ class WebSubSubscriberServiceValidator {
     }
 
     private static void validateResources(List<HttpResource> resources) {
+        if (resources.size() > 2) {
+            //TODO: Revisit to check if this could be relaxed
+            throw new BallerinaException(String.format("Invalid number of resources (>2) specified. "
+                                                               + "Allowed Resources [%s, %s]",
+                                                       WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT,
+                                                       WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION));
+        } else if (resources.size() == 2) {
+            if (!resources.get(0).getPath().equals(resources.get(1).getPath())) {
+                throw new BallerinaException("Invalid paths specified for resources: "
+                                                     + "paths are required to be the same.");
+            }
+        }
+
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
