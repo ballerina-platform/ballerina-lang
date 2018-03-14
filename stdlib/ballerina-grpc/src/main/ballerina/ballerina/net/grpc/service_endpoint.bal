@@ -30,7 +30,10 @@ public struct SslConfiguration {
     string ciphers;
     string sslProtocol;
     boolean validateCertEnabled;
-
+    string sslVerifyClient;
+    string certPassword;
+    int cacheSize;
+    int cacheValidityPeriod;
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
