@@ -227,6 +227,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>protobuf-ballerina</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-container-support</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>

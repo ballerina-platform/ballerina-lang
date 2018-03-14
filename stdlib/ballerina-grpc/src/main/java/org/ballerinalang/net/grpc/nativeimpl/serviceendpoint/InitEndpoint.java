@@ -26,13 +26,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
+import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.ConnectorUtil.generateServiceConfiguration;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Native function to InitEndpoint connector.
@@ -56,23 +58,25 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
-            EndpointConfiguration endpointConfiguration = generateServiceConfiguration(serviceEndpointConfig);
+            EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
-            if (endpointConfiguration.getSslConfig() != null) {
-                serverBuilder = GrpcServicesBuilder.initService(endpointConfiguration,
-                        SSLHandlerFactory.createHttp2TLSContext(endpointConfiguration.getSslConfig()));
+            if (configuration.getSslConfig() != null) {
+                TrustManagerFactory tmf = SSLHandlerFactory.generateTrustManagerFactory(configuration.getSslConfig());
+                KeyManagerFactory kmf = SSLHandlerFactory.generateKeyManagerFactory(configuration.getSslConfig());
+                serverBuilder = GrpcServicesBuilder.initService(configuration,
+                        SSLHandlerFactory.createSSLContext(configuration.getSslConfig(), tmf, kmf));
             } else {
-                serverBuilder = GrpcServicesBuilder.initService(endpointConfiguration, null);
+                serverBuilder = GrpcServicesBuilder.initService(configuration, null);
             }
             serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
             context.setReturnValues();
         } catch (Throwable throwable) {
-            BStruct err =  getHttpConnectorError(context, throwable);
+            BStruct err = getHttpConnectorError(context, throwable);
             context.setError(err);
         }
     }
     
-    public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
+    private static BStruct getHttpConnectorError(Context context, Throwable throwable) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo("ballerina.net.grpc");
         StructInfo errorStructInfo = httpPackageInfo.getStructInfo("ConnectorError");

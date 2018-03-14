@@ -20,13 +20,18 @@ public struct ServiceEndpointConfiguration {
 
 @Description {value:"Represents the SSL configurations for the service endpoint"}
 public struct SslConfiguration {
-    string keyFile;
-    string keyChainFile;
-    string keyStorePassword;
-    string certFile;
     string trustStoreFile;
     string trustStorePassword;
-
+    string keyStoreFile;
+    string keyStorePassword;
+    string sslEnabledProtocols;
+    string ciphers;
+    string sslProtocol;
+    boolean validateCertEnabled;
+    string sslVerifyClient;
+    string certPassword;
+    int cacheSize;
+    int cacheValidityPeriod;
 }
 
 @Description { value:"Gets called when the endpoint is being initialized during the package initialization."}

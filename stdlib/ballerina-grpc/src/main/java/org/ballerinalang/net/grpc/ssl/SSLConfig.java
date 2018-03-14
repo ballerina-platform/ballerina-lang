@@ -21,6 +21,8 @@ package org.ballerinalang.net.grpc.ssl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 /**
  * A class that encapsulates SSLContext configuration.
  */
@@ -31,15 +33,20 @@ public class SSLConfig {
     
     private static final String separator = ",";
     
-    private String keyFile;
-    private String keyChainFile;
-    private String certFile;
-    private String trustStore;
+    private File keyStore;
+    private String keyStorePass;
+    private String certPass;
+    private File trustStore;
     private String trustStorePass;
-    private String sslProtocol = "TLS";
-    private String tlsStoreType = "PKCS12";
+    private String sslProtocol;
+    private String tlsStoreType;
+    private String sslVerifyClient;
     private String[] cipherSuites;
+    private int cacheSize;
+    private int cacheValidityPeriod;
+
     private String[] enableProtocols;
+    private boolean validateCertificateEnabled;
     private boolean enableSessionCreation;
     private boolean needClientAuth;
     private boolean wantClientAuth;
@@ -49,32 +56,60 @@ public class SSLConfig {
     public SSLConfig() {
     }
     
-    public SSLConfig(String keyFile, String keyChainFile) {
-        this.keyFile = keyFile;
-        this.keyChainFile = keyChainFile;
+    public String getSslVerifyClient() {
+        return sslVerifyClient;
     }
     
-    public String getCertFile() {
-        return certFile;
+    public void setSslVerifyClient(String sslVerifyClient) {
+        this.sslVerifyClient = sslVerifyClient;
     }
     
-    public void setCertFile(String certFile) {
-        this.certFile = certFile;
+    public boolean isValidateCertificateEnabled() {
+        return validateCertificateEnabled;
     }
     
-    public String getKeyFile() {
-        return keyFile;
+    public String getSslProtocol() {
+        return sslProtocol;
     }
     
-    public String getKeyChainFile() {
-        return keyChainFile;
+    public void setSslProtocol(String sslProtocol) {
+        this.sslProtocol = sslProtocol;
     }
     
-    public String getTrustStore() {
+    public void setValidateCertificateEnabled(boolean validateCertificateEnabled) {
+        this.validateCertificateEnabled = validateCertificateEnabled;
+    }
+    
+    public SSLConfig(File keyStore, String keyStorePass) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Using key store" + keyStore);
+        }
+        this.keyStore = keyStore;
+        this.keyStorePass = keyStorePass;
+    }
+    
+    public void setKeyStore(File keyStore) {
+        this.keyStore = keyStore;
+    }
+    
+    public void setKeyStorePass(String keyStorePass) {
+        this.keyStorePass = keyStorePass;
+    }
+    
+    public String getCertPass() {
+        return certPass;
+    }
+    
+    public SSLConfig setCertPass(String certPass) {
+        this.certPass = certPass;
+        return this;
+    }
+    
+    public File getTrustStore() {
         return trustStore;
     }
     
-    public SSLConfig setTrustStore(String trustStore) {
+    public SSLConfig setTrustStore(File trustStore) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Using trust store" + trustStore);
         }
@@ -89,6 +124,14 @@ public class SSLConfig {
     public SSLConfig setTrustStorePass(String trustStorePass) {
         this.trustStorePass = trustStorePass;
         return this;
+    }
+    
+    public File getKeyStore() {
+        return keyStore;
+    }
+    
+    public String getKeyStorePass() {
+        return keyStorePass;
     }
     
     public String[] getSniMatchers() {
@@ -135,25 +178,25 @@ public class SSLConfig {
         this.needClientAuth = needClientAuth;
     }
     
-//    public void setSSLProtocol(String sslProtocol) {
-//        if (LOGGER.isDebugEnabled()) {
-//            LOGGER.debug("Set SSLProtocol" + sslProtocol);
-//        }
-//        this.sslProtocol = sslProtocol;
-//    }
-//
-//    public String getSSLProtocol() {
-//        return sslProtocol;
-//    }
-//
-//    public String getTLSStoreType() {
-//        return tlsStoreType;
-//    }
-//
-//    public void setTLSStoreType(String tlsStoreType) {
-//        this.tlsStoreType = tlsStoreType;
-//    }
-//
+    public void setSSLProtocol(String sslProtocol) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Set SSLProtocol" + sslProtocol);
+        }
+        this.sslProtocol = sslProtocol;
+    }
+    
+    public String getSSLProtocol() {
+        return sslProtocol;
+    }
+    
+    public String getTLSStoreType() {
+        return tlsStoreType;
+    }
+    
+    public void setTLSStoreType(String tlsStoreType) {
+        this.tlsStoreType = tlsStoreType;
+    }
+    
     public boolean isEnableSessionCreation() {
         return enableSessionCreation;
     }
@@ -186,4 +229,21 @@ public class SSLConfig {
         }
         this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(separator);
     }
+    public int getCacheSize() {
+        return cacheSize;
+    }
+    
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+    
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
+    }
+    
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
+    }
+    
+
 }
