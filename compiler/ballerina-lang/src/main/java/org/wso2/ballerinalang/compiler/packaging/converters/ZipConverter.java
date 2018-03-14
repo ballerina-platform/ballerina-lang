@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -16,21 +17,17 @@ import java.util.Map;
 public class ZipConverter extends PathConverter {
 
     public ZipConverter(Path archivePath) {
-        super(resoveIntoArchive(archivePath));
+        super(resolveIntoArchive(archivePath));
     }
 
-    private static void initFS(URI uri) throws IOException {
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-        try {
-            FileSystems.newFileSystem(uri, env);
-        } catch (FileSystemAlreadyExistsException ignore) {
-        }
+    @Override
+    public Path combine(Path path, String pathPart) {
+        return resolveIntoArchive(path.resolve(pathPart));
     }
 
-    private static Path resoveIntoArchive(Path newPath) {
+    private static Path resolveIntoArchive(Path newPath) {
         String pathPart = newPath.toString();
-        if (pathPart.endsWith(".zip") || pathPart.endsWith(".jar")) {
+        if ((pathPart.endsWith(".zip") || pathPart.endsWith(".jar")) && Files.isRegularFile(newPath)) {
             return pathWithinZip(newPath.toUri());
         } else {
             return newPath;
@@ -45,16 +42,19 @@ public class ZipConverter extends PathConverter {
                     pathToZip.getQuery(), pathToZip.getFragment());
             initFS(pathInZip);
             return Paths.get(pathInZip);
-        } catch (URISyntaxException | IOException e) {
-            return null;
+        } catch (URISyntaxException ignore) {
         }
+        return Paths.get(pathToZip);
     }
 
-    @Override
-    public Path combine(Path path, String pathPart) {
-        if (path == null) {
-            path = Paths.get("/");
+    private static void initFS(URI uri) {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try {
+            FileSystems.newFileSystem(uri, env);
+        } catch (FileSystemAlreadyExistsException ignore) {
+        } catch (IOException e) {
+            throw new RuntimeException("Error occured when creating the file system " + uri.getPath(), e.getCause());
         }
-        return resoveIntoArchive(path.resolve(pathPart));
     }
 }
