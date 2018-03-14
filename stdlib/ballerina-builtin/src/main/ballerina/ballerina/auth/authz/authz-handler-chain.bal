@@ -42,11 +42,9 @@ public function <AuthzHandlerChain authzHandlerChain> handle (http:Request req, 
                                                               string resourceName) (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
         var authzHandler, err = (HttpAuthzHandler)currentAuthHandler;
-        if (err == null) {
-            if (authzHandler.canHandle(req)) {
-                log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
-                return authzHandler.handle(req, scopeName, resourceName);
-            }
+        if (err == null && authzHandler.canHandle(req)) {
+            log:printDebug("trying to authorize with the authz handler: " + currentAuthHandlerType);
+            return authzHandler.handle(req, scopeName, resourceName);
         }
     }
     return false;

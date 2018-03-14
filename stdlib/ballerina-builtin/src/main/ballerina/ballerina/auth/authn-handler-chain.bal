@@ -45,11 +45,9 @@ public function createAuthnHandlerChain () (AuthnHandlerChain) {
 public function <AuthnHandlerChain authnHandlerChain> handle (http:Request req) (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
         var authnHandler, err = (HttpAuthnHandler)currentAuthHandler;
-        if (err == null) {
-            if (authnHandler.canHandle(req)) {
-                log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
-                return authnHandler.handle(req);
-            }
+        if (err == null && authnHandler.canHandle(req)) {
+            log:printDebug("trying to authenticate with the authn handler: " + currentAuthHandlerType);
+            return authnHandler.handle(req);
         }
     }
     return false;
