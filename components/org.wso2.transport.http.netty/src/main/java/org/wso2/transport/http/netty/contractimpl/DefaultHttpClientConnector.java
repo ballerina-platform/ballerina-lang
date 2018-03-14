@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture getPushResponse(Http2PushPromise pushPromise) {
-        return pushPromise.getOutboundMsgHolder().getResponseFuture();
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
+        if (pushPromise.isRejected()) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyPushResponse(pushPromise.getPromisedStreamId(),
+                                       new ClientConnectorException("Cannot fetch a response for an rejected promise",
+                                                                    HttpResponseStatus.BAD_REQUEST.code()));
+        }
+        return outboundMsgHolder.getResponseFuture();
     }
 
     @Override
@@ -178,7 +186,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     } else {
                         // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
-                        freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
+                        freshHttp2ClientChannel
+                                .putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
