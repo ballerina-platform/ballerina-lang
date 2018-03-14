@@ -448,21 +448,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitInvokableNode(funcNode, currentCallableUnitInfo, funcEnv);
     }
 
-    private void visitTaintTable(Map<Integer, TaintRecord> taintTable,
-                                 TaintTableAttributeInfo taintTableAttributeInfo) {
-        TaintRecord allUntaintedTaintRecord = taintTable.get(-1);
-        addTaintTableEntry(taintTableAttributeInfo, -1, allUntaintedTaintRecord);
-        taintTable.forEach((paramIndex, taintRecord) -> addTaintTableEntry(taintTableAttributeInfo, paramIndex,
-                taintRecord));
-    }
-
-    private void addTaintTableEntry(TaintTableAttributeInfo taintTableAttributeInfo, int index,
-                                    TaintRecord taintRecord) {
-        if (taintRecord != null && (taintRecord.taintError == null || taintRecord.taintError.isEmpty())) {
-            taintTableAttributeInfo.taintTable.put(index, taintRecord.retParamTaintedStatus);
-        }
-    }
-
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
@@ -1385,6 +1370,21 @@ public class CodeGenerator extends BLangNodeVisitor {
             visitTaintTable(invokableNode.symbol.taintTable, taintTableAttributeInfo);
             taintTableAttributeInfo.tableSize = taintTableAttributeInfo.taintTable.size();
             callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.TAINT_TABLE, taintTableAttributeInfo);
+        }
+    }
+
+    private void visitTaintTable(Map<Integer, TaintRecord> taintTable,
+                                 TaintTableAttributeInfo taintTableAttributeInfo) {
+        TaintRecord allUntaintedTaintRecord = taintTable.get(-1);
+        addTaintTableEntry(taintTableAttributeInfo, -1, allUntaintedTaintRecord);
+        taintTable.forEach((paramIndex, taintRecord) -> addTaintTableEntry(taintTableAttributeInfo, paramIndex,
+                taintRecord));
+    }
+
+    private void addTaintTableEntry(TaintTableAttributeInfo taintTableAttributeInfo, int index,
+                                    TaintRecord taintRecord) {
+        if (taintRecord != null && (taintRecord.taintError == null || taintRecord.taintError.isEmpty())) {
+            taintTableAttributeInfo.taintTable.put(index, taintRecord.retParamTaintedStatus);
         }
     }
 
