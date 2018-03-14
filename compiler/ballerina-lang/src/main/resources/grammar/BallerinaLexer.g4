@@ -146,30 +146,18 @@ BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
-
-fragment
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;
