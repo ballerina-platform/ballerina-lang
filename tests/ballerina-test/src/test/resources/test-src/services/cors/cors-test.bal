@@ -8,20 +8,24 @@ endpoint<mock:NonListeningService> testEP {
 @http:serviceConfig {
     basePath:"/hello1",
     endpoints:[testEP],
-    allowOrigins :["http://www.m3.com", "http://www.hello.com"],
-    allowCredentials : true,
-    allowHeaders : ["CORELATION_ID"],
-    exposeHeaders : ["CORELATION_ID"],
-    maxAge : 1
+    cors: {
+        allowOrigins :["http://www.m3.com", "http://www.hello.com"],
+        allowCredentials : true,
+        allowHeaders :["CORELATION_ID"],
+        exposeHeaders :["CORELATION_ID"],
+        maxAge : 1
+    }
 }
 service<http:Service> echo1 {
 
     @http:resourceConfig {
-         methods:["POST"],
-         path : "/test1",
-         allowOrigins :["http://www.wso2.com", "http://www.facebook.com"],
-         allowCredentials : true,
-         allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
+        methods:["POST"],
+        path : "/test1",
+        cors: {
+            allowOrigins :["http://www.wso2.com", "http://www.facebook.com"],
+            allowCredentials : true,
+            allowHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
     }
     resource info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
@@ -44,8 +48,10 @@ service<http:Service> echo1 {
     @http:resourceConfig {
         methods:["POST"],
         path : "/test3",
-        allowOrigins :["http://www.wso2.com", "http://facebook.com", "http://www.amazon.com"],
-        allowCredentials : true
+        cors:{
+            allowOrigins :["http://www.wso2.com", "http://facebook.com", "http://www.amazon.com"],
+            allowCredentials:true
+        }
     }
     resource info3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
@@ -63,8 +69,10 @@ service<http:Service> hello2 {
     @http:resourceConfig {
          methods:["POST"],
          path : "/test1",
-         allowOrigins :["http://www.hello.com"," http://www.facebook.com  "],
-         exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
+         cors: {
+            allowOrigins :["http://www.hello.com", " http://www.facebook.com  "],
+            exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
     }
     resource info1 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
@@ -76,9 +84,11 @@ service<http:Service> hello2 {
     @http:resourceConfig {
         methods:["PUT"],
         path : "/test2",
-        allowMethods :["HEAD", "PUT"],
-        allowOrigins :["http://www.bbc.com"," http://www.amazon.com  "],
-        exposeHeaders: ["X-Content-Type-Options","X-PINGOTHER"]
+        cors:{
+            allowMethods :["HEAD", "PUT"],
+            allowOrigins:["http://www.bbc.com", " http://www.amazon.com  "],
+            exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
     }
     resource info2 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
@@ -91,11 +101,13 @@ service<http:Service> hello2 {
 @http:serviceConfig {
     basePath:"/hello3",
     endpoints:[testEP],
-    allowCredentials : true,
-    allowMethods :["GET", "PUT"],
-    allowOrigins :["http://www.m3.com","http://www.facebook.com"],
-    allowHeaders: ["X-Content-Type-Options","X-PINGOTHER"],
-    maxAge : 1
+    cors:{
+        allowCredentials : true,
+        allowMethods:["GET", "PUT"],
+        allowOrigins:["http://www.m3.com", "http://www.facebook.com"],
+        allowHeaders:["X-Content-Type-Options", "X-PINGOTHER"],
+        maxAge:1
+    }
 }
 service<http:Service> echo3 {
 
