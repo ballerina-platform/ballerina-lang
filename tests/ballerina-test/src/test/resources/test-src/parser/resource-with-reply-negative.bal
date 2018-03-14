@@ -1,8 +1,8 @@
 import ballerina.net.http;
 
-service<http> SampleService {
+service<http:Service> SampleService {
 
-  resource sampleResource (http:Connection conn, http:Request req) {
+  resource sampleResource (http:ServerConnector conn, http:Request req) {
     reply;
   }
 }

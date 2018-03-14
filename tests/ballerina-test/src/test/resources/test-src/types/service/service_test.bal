@@ -5,10 +5,10 @@ function testServiceType () returns (type) {
     return ts;
 }
 
-service<http> HelloWorld {
-    resource hello (http:Connection conn, http:Request req) {
+service<http:Service> HelloWorld {
+    resource hello (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello, World!");
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

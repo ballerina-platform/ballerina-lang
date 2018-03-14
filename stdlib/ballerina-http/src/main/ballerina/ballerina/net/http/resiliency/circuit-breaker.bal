@@ -255,6 +255,62 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
 
         return response, httpConnectorError;
     }
+
+    @Description { value:"The submit implementation of Circuit Breaker."}
+    @Param { value:"httpVerb: The HTTP verb value" }
+    @Param { value:"path: The Resource path " }
+    @Param { value:"req: An HTTP outbound request message" }
+    @Return { value:"The Handle for further interactions" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getResponse implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The hasPromise implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"Whether push promise exists" }
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    @Description { value:"The getNextPromise implementation of Circuit Breaker."}
+    @Param { value:"handle: The Handle which relates to previous async invocation" }
+    @Return { value:"The HTTP Push Promise message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The getPromisedResponse implementation of Circuit Breaker."}
+    @Param { value:"promise: The related Push Promise message" }
+    @Return { value:"HTTP The Push Response message" }
+    @Return { value:"The Error occured during HTTP client invocation" }
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        http:HttpConnectorError httpConnectorError = {};
+        httpConnectorError.message = "Unsupported action for Circuit breaker";
+        return null, httpConnectorError;
+    }
+
+    @Description { value:"The rejectPromise implementation of Circuit Breaker."}
+    @Param { value:"promise: The Push Promise need to be rejected" }
+    @Return { value:"Whether operation is successful" }
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
+    }
 }
 
 function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (CircuitState) {

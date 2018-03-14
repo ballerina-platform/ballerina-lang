@@ -475,7 +475,7 @@ function forkJoinWithSameWorkerContent () (string result) {
 
 function testWorkerStackCreation ()(int) {
     endpoint<http:HttpClient> c {
-        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "HTTP1.1", ssl : {}});
+        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "1.1", ssl : {}});
     }
     worker w1 {
         return 1;

@@ -93,6 +93,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String transferEncoding = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
         String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
+        String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -116,6 +117,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
+        }
+
+        // Set HTTP version
+        if (httpVersion != null) {
+            listenerConfiguration.setVersion(httpVersion);
         }
         return listenerConfiguration;
     }

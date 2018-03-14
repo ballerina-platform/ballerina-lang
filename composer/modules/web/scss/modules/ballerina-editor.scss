@@ -2,11 +2,11 @@
   .rc-tabs-tab-active {
     .tab-title-wrapper {
       &.ballerina-design-view {
-        background-color: white;
+        background-color: #f9f9f9;
         color: #7D7D7D;
         .close-tab {
           color: #7D7D7D ;
-          background-color: white;
+          background-color: #f9f9f9;
 
           &:hover {
             color: #474747;
@@ -28,6 +28,65 @@
       cursor: pointer;
     }
   }
+}
+
+/*---------------------------
+      Default lines
+---------------------------*/
+
+.client-line-header, .client-life-line, .worker-life-line, .client-invocation-arrow,
+.statement-title-rect   {
+    stroke: #555;
+    stroke-width: 1px;
+}
+
+.flowchart-true-text, .flowchart-false-text, .action-invocation-text{
+  fill: #555;
+}
+
+.client-line-header, .statement-title-rect, .struct-type-dropdown-wrapper, .struct-input-value-wrapper, 
+.flowchart-background-empty-rect, .flowchart-separator-line, .panel-header {
+  fill: #f9f9f9;
+}
+
+.action-arrow, .action-arrow-head, .action-dash-line {
+  stroke: #555;
+  fill: #555;
+}
+
+/*---------------------------
+      Worker lines 
+---------------------------*/
+
+.flowchart-action-arrow, .default-worker-icon {
+  fill: #0070af;
+}
+
+.flowchart-action-arrow, .default-worker-life-line, .worker-life-line, .flowchart-background-empty-rect   {
+  stroke: #0070af;
+  stroke-width: 1;
+}
+
+.flowchart-action-arrow-head {
+  fill: #0070af;
+  stroke: #0070af;
+}
+
+/*---------------------------
+      Endpoint lines
+---------------------------*/
+.connector-icon{
+  fill: #17a085;
+}
+
+.connector-life-line {
+  stroke: #17a085;
+  stroke-width: 1;
+}
+
+.action-invocation-statement-rect {
+  fill: #17a085;
+  stroke-width: 1;
 }
 
 .ballerina-editor {
@@ -81,17 +140,6 @@
 
       .panel-body {
         .client-line-group {
-          .client-line-header {
-            fill: #f9f9f9;
-            stroke: #555;
-            stroke-width: 1px;
-          }
-
-          .client-life-line, .worker-life-line, .client-invocation-arrow {
-            stroke: #555;
-            stroke-width: 1px;
-          }
-
           .client-line-text {
             text-anchor: middle;
             dominant-baseline: central;
@@ -100,28 +148,10 @@
           }
         }
 
-        .default-worker-icon{
-          fill: #2980b9;
-        }
-
-        .connector-icon{
-          fill: #17a085;
-        }
-
-        .action-arrow, .action-arrow-head {
-          stroke: #555;
-          fill: #555;
-        }
-
         .action-dash-line {
           stroke: #555;
           fill: #555;
           stroke-dasharray: 5, 5;
-        }
-
-        .action-invocation-statement-rect {
-          fill: #26A69A;
-          stroke-width: 1;
         }
 
         .struct-content-operations-wrapper {
@@ -159,20 +189,6 @@
           stroke-dasharray: 0, 150, 50;
         }
 
-        .default-worker-life-line, .worker-life-line {
-          stroke: #1b79b4;
-          stroke-width: 1;
-        }
-
-        .life-line-group{
-
-        }
-
-        .connector-life-line {
-          stroke: #17a085;
-          stroke-width: 1;
-        }
-
         .panel-body-rect {
           stroke-width: 1px;
           stroke: #c4d5e2;
@@ -201,31 +217,6 @@
           dominant-baseline: central;
           fill: #777;
           font-style: italic;
-        }
-
-        .flowchart-background-empty-rect {
-          fill: #f9f9f9;
-          fill-opacity: 0;
-          stroke: #1b79b4;
-          stroke-width: 1;
-        }
-
-        .flowchart-background-empty-rect {
-          fill: #f9f9f9;
-          fill-opacity: 0;
-          stroke: #1b79b4;
-          stroke-width: 1;
-        }
-
-        .flowchart-action-arrow {
-          fill: #0070af;
-          stroke: #0070af;
-          stroke-width: 1;
-        }
-
-        .flowchart-action-arrow-head {
-          fill: #0070af;
-          stroke: #0070af;
         }
 
         .compound-statement-rect {
@@ -417,17 +408,16 @@
 }
 
 @keyframes ellipsis {
-to {
-  width: 1.25em;
-}
-}
-
-@-webkit-keyframes ellipsis {
-to {
-  width: 1.25em;
-}
+  to {
+    width: 1.25em;
+  }
 }
 
+  @-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;
+  }
+}
 
 .swagger-view-container {
   background: #FFF;
