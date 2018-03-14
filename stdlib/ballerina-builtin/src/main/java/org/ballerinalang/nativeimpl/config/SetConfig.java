@@ -34,7 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.config",
         functionName = "setConfig",
-        args = {@Argument(name = "property", type = TypeKind.STRING)},
+        args = {@Argument(name = "configKey", type = TypeKind.STRING),
+                @Argument(name = "configValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
