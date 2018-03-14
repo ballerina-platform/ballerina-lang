@@ -10,7 +10,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Provide functions to convert a patten to a stream of zip paths.
+ */
 public class ZipConverter extends PathConverter {
 
     public ZipConverter(Path archivePath) {
