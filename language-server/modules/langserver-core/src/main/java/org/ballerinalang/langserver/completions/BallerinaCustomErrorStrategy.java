@@ -72,12 +72,11 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         endpoint context. This particular case need to remove after introducing a proper handling mechanism or with
          the introduction of BNF grammar. Also check the 
          */
-        boolean isWithinEndpointContext = this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null ? false :
-                this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)
-                || (!isWithinEndpointContext && this.isWithinEndpointContext(parser))) {
+//        boolean isWithinEndpointContext = this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+//                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null ? false :
+//                this.context.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+//                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
             this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, currentContext);
             this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
             this.context.put(DocumentServiceKeys.VOCABULARY_KEY, parser.getVocabulary());
@@ -203,7 +202,7 @@ public class BallerinaCustomErrorStrategy extends BallerinaParserErrorStrategy {
         }
     }
     
-    private boolean isWithinEndpointContext(Parser parser) {
+    public boolean isWithinEndpointContext(Parser parser) {
         int currentTokenIndex = parser.getCurrentToken().getTokenIndex();
         TokenStream tokenStream = parser.getTokenStream();
         List<String> terminalTokens = Arrays.asList("{", ";", "}", "(", ")");
