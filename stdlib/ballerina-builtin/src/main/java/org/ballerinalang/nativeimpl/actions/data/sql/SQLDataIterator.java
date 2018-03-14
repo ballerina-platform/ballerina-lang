@@ -28,17 +28,16 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.actions.data.sql.actions.SQLDatasourceUtils;
 import org.ballerinalang.util.TableIterator;
+import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -54,16 +53,14 @@ import java.util.List;
  */
 public class SQLDataIterator extends TableIterator {
 
-    private Statement stmt;
     private Calendar utcCalendar;
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
 
-    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar,
+    public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructType structType, StructInfo timeStructInfo,
             StructInfo zoneStructInfo) throws SQLException {
-        super(conn, rs, structType, columnDefs);
-        this.stmt = stmt;
+        super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
@@ -71,10 +68,15 @@ public class SQLDataIterator extends TableIterator {
 
     @Override
     public void close(boolean isInTransaction) {
-        SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
-        rs = null;
-        stmt = null;
-        conn = null;
+        try {
+            if (rs != null && !rs.isClosed()) {
+                rs.close();
+            }
+            resourceManager.gracefullyReleaseResources(isInTransaction);
+            rs = null;
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
     }
 
     @Override

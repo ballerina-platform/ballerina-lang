@@ -18,11 +18,11 @@
 package org.wso2.ballerinalang.programfile;
 
 /**
- * {@code AnnotationAttributeValue} contains the default value of a Ballerina struct field.
+ * {@code DefaultValue} contains the default value of a Ballerina literal.
  *
  * @since 0.92
  */
-public class StructFieldDefaultValue {
+public class DefaultValue {
     public int typeDescCPIndex;
     public String desc;
 
@@ -32,7 +32,7 @@ public class StructFieldDefaultValue {
     public String stringValue;
     public boolean booleanValue;
 
-    public StructFieldDefaultValue(int typeDescCPIndex, String desc) {
+    public DefaultValue(int typeDescCPIndex, String desc) {
         this.typeDescCPIndex = typeDescCPIndex;
         this.desc = desc;
     }

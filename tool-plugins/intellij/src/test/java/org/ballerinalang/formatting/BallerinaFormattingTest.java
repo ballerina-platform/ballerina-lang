@@ -31,9 +31,9 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         return getTestDataPath("formatting");
     }
 
-    public void testEchoService() {
-        doTest();
-    }
+    //    public void testEchoService() {
+    //        doTest();
+    //    }
 
     public void testHelloWorld() {
         doTest();
@@ -43,21 +43,21 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
-    public void testTweetMediumFeed() {
-        doTest();
-    }
-
-    public void testTweetOpenPR() {
-        doTest();
-    }
-
-    public void testTwitterConnector() {
-        doTest();
-    }
-
-    public void testAnnotationDefinition() {
-        doTest();
-    }
+    //    public void testTweetMediumFeed() {
+    //        doTest();
+    //    }
+    //
+    //    public void testTweetOpenPR() {
+    //        doTest();
+    //    }
+    //
+    //    public void testTwitterConnector() {
+    //        doTest();
+    //    }
+    //
+    //    public void testAnnotationDefinition() {
+    //        doTest();
+    //    }
 
     public void testConnectorDefinition() {
         doTest();

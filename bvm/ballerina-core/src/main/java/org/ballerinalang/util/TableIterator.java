@@ -35,7 +35,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Array;
 import java.sql.Blob;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Struct;
@@ -49,20 +48,21 @@ import java.util.List;
  */
 public class TableIterator implements DataIterator {
 
-    protected Connection conn;
     protected ResultSet rs;
+    protected TableResourceManager resourceManager;
     protected BStructType type;
     protected List<ColumnDefinition> columnDefs;
 
-    public TableIterator(Connection conn, ResultSet rs, BStructType type, List<ColumnDefinition> columnDefs) {
-        this.conn = conn;
+    public TableIterator(TableResourceManager rm, ResultSet rs, BStructType type,
+            List<ColumnDefinition> columnDefs) {
+        this.resourceManager = rm;
         this.rs = rs;
         this.type = type;
         this.columnDefs = columnDefs;
     }
 
-    public TableIterator(Connection conn, ResultSet rs, BStructType type) {
-        this.conn = conn;
+    public TableIterator(TableResourceManager rm, ResultSet rs, BStructType type) {
+        this.resourceManager = rm;
         this.rs = rs;
         this.type = type;
         generateColumnDefinitions();
@@ -82,19 +82,11 @@ public class TableIterator implements DataIterator {
 
     @Override
     public void close(boolean isInTransaction) {
-        //Close the result set.
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-        //Close the connection.
-        try {
-            if (conn != null && !conn.isClosed()) {
-                conn.close();
-            }
+            resourceManager.releaseResources();
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
