@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -68,9 +71,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
@@ -103,6 +108,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -503,7 +509,6 @@ public class TypeChecker extends BLangNodeVisitor {
             default:
                 // TODO Handle this condition
         }
-
 
         // TODO other types of invocation expressions
         //TODO pkg alias should be null or empty here.
@@ -926,6 +931,17 @@ public class TypeChecker extends BLangNodeVisitor {
         varRef.accept(this);
     }
 
+    @Override
+    public void visit(BLangRestArgsExpression bLangRestArgExpression) {
+        resultTypes = checkExpr(bLangRestArgExpression.expr, env, expTypes);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        resultTypes = checkExpr(bLangNamedArgsExpression.expr, env, expTypes);
+        bLangNamedArgsExpression.type = bLangNamedArgsExpression.expr.type;
+    }
+
     public void visit(BLangStreamlet streamletNode){
         /* ignore */
     }
@@ -1092,26 +1108,103 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
-        BSymbol funcSymbol = iExpr.symbol;
-        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        List<BType> paramTypes = ((BInvokableType) funcSymbol.type).getParameterTypes();
-        if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
-            checkExpr(iExpr.argExprs.get(0), this.env, paramTypes);
-            actualTypes = funcSymbol.type.getReturnTypes();
-        } else if (paramTypes.size() > iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
-
-        } else if (paramTypes.size() < iExpr.argExprs.size()) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-
+        List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
+        int requiredParamsCount;
+        if (iExpr.symbol.tag == SymTag.VARIABLE) {
+            // Here we assume function pointers can have only required params.
+            // And assume that named params and rest params are not supported.
+            requiredParamsCount = paramTypes.size();
         } else {
-            for (int i = 0; i < iExpr.argExprs.size(); i++) {
-                checkExpr(iExpr.argExprs.get(i), this.env, Lists.of(paramTypes.get(i)));
-            }
-            actualTypes = funcSymbol.type.getReturnTypes();
+            requiredParamsCount = ((BInvokableSymbol) iExpr.symbol).params.size();
         }
 
+        // Split the different argument types: required args, named args and rest args
+        int i = 0;
+        BLangExpression vararg = null;
+        for (BLangExpression expr : iExpr.argExprs) {
+            switch (expr.getKind()) {
+                case NAMED_ARGS_EXPR:
+                    iExpr.namedArgs.add((BLangNamedArgsExpression) expr);
+                    break;
+                case REST_ARGS_EXPR:
+                    vararg = expr;
+                    break;
+                default:
+                    if (i < requiredParamsCount) {
+                        iExpr.requiredArgs.add(expr);
+                    } else {
+                        iExpr.restArgs.add(expr);
+                    }
+                    i++;
+                    break;
+            }
+        }
+
+        List<BType> actualTypes = checkInvocationArgs(iExpr, paramTypes, requiredParamsCount, vararg);
         checkInvocationReturnTypes(iExpr, actualTypes);
+    }
+
+    private List<BType> checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, int requiredParamsCount,
+                                            BLangExpression vararg) {
+        List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
+        BInvokableSymbol invocableSymbol = (BInvokableSymbol) iExpr.symbol;
+
+        // Check whether the expected param count and the actual args counts are matching.
+        if (requiredParamsCount > iExpr.requiredArgs.size()) {
+            dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
+            return actualTypes;
+        } else if (invocableSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            return actualTypes;
+        }
+
+        // If the one and only argument is a function call, the return types of that inner function should match the
+        // formal parameters of the outer function.
+        if (iExpr.argExprs.size() == 1 && iExpr.argExprs.get(0).getKind() == NodeKind.INVOCATION) {
+            checkExpr(iExpr.requiredArgs.get(0), this.env, ((BInvokableType) invocableSymbol.type).paramTypes);
+        } else {
+            checkRequiredArgs(iExpr.requiredArgs, paramTypes);
+        }
+        checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
+        checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
+        return invocableSymbol.type.getReturnTypes();
+    }
+
+    private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<? extends Type> reqiredParamTypes) {
+        for (int i = 0; i < requiredArgExprs.size(); i++) {
+            checkExpr(requiredArgExprs.get(i), this.env, Lists.of((BType) reqiredParamTypes.get(i)));
+        }
+    }
+
+    private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
+        for (BLangExpression expr : namedArgExprs) {
+            BLangIdentifier argName = ((NamedArgNode) expr).getName();
+            BVarSymbol varSym = defaultableParams.stream().filter(param -> param.getName().value.equals(argName.value))
+                    .findAny().orElse(null);
+            if (varSym == null) {
+                dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
+                break;
+            }
+
+            checkExpr(expr, this.env, Lists.of(varSym.type));
+        }
+    }
+
+    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam) {
+        if (vararg != null && !restArgExprs.isEmpty()) {
+            dlog.error(vararg.pos, DiagnosticCode.INVALID_REST_ARGS);
+            return;
+        }
+
+        if (vararg != null) {
+            checkExpr(vararg, this.env, Lists.of(restParam.type));
+            restArgExprs.add(vararg);
+            return;
+        }
+
+        for (BLangExpression arg : restArgExprs) {
+            checkExpr(arg, this.env, Lists.of(((BArrayType) restParam.type).eType));
+        }
     }
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {

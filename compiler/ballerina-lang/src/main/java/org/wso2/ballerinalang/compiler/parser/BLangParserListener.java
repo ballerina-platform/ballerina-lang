@@ -81,6 +81,43 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterFormalParameterList(BallerinaParser.FormalParameterListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startVarList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDefaultableParameter(BallerinaParser.DefaultableParameterContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addDefaultableParam(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitRestParameter(BallerinaParser.RestParameterContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addRestParam(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                ctx.annotationAttachment().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitParameterTypeName(BallerinaParser.ParameterTypeNameContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -292,9 +329,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.parameterList() != null,
+        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
                 ctx.returnParameters() != null,
-                ctx.returnParameters() != null && ctx.returnParameters().parameterTypeNameList() != null);
+                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
     /**
@@ -307,8 +344,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
-                ctx.parameterList() != null, ctx.returnParameters() != null,
-                ctx.returnParameters() != null && ctx.returnParameters().parameterTypeNameList() != null);
+                ctx.formalParameterList() != null, ctx.returnParameters() != null,
+                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
     /**
@@ -526,7 +563,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String transformerName = identifier == null ? null : identifier.getText();
         boolean publicFunc = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         boolean paramsAvailable = ctx.parameterList().size() > 1;
-        this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName, paramsAvailable);
+        this.pkgBuilder.endTransformerDef(getCurrentPos(ctx), getWS(ctx), publicFunc, transformerName,
+                paramsAvailable);
     }
 
     @Override
@@ -1059,9 +1097,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        if (ctx.IntegerLiteral() != null) {
+        Long longObject;
+        if ((longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             try {
-                joinCount = Integer.valueOf(ctx.IntegerLiteral().getText());
+                joinCount = longObject.intValue();
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1237,7 +1276,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean argsAvailable = ctx.expressionList() != null;
+        boolean argsAvailable = ctx.invocationArgList() != null;
         this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
     }
 
@@ -1276,9 +1315,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean argsAvailable = ctx.invocation().expressionList() != null;
+        boolean argsAvailable = ctx.invocation().invocationArgList() != null;
         String invocation = ctx.invocation().anyIdentifierName().getText();
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterInvocationArgList(BallerinaParser.InvocationArgListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitInvocationArgList(BallerinaParser.InvocationArgListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
     }
 
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
@@ -1665,8 +1728,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         TerminalNode node;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
-        if ((node = ctx.IntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+        Long longObject;
+        BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
+        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -1679,6 +1744,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.NullLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NULL, null);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitNamedArgs(BallerinaParser.NamedArgsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addNamedArgument(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitRestArgs(BallerinaParser.RestArgsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addRestArgument(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2442,12 +2531,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return node == null ? null : node.getText();
     }
 
-    private String getNodeValue(BallerinaParser.SimpleLiteralContext ctx, TerminalNode node) {
+    private String getNodeValue(ParserRuleContext ctx, TerminalNode node) {
         String op = ctx.getChild(0).getText();
         String value = node.getText();
         if (op != null && "-".equals(op)) {
             value = "-" + value;
         }
         return value;
+    }
+
+    private Long getIntegerLiteral(ParserRuleContext simpleLiteralContext,
+                                   BallerinaParser.IntegerLiteralContext integerLiteralContext) {
+        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
+        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral())
+                    .toLowerCase().replace("0x", ""), 16);
+        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral())
+                    .replace("0_", ""), 8);
+        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
+                    .toLowerCase().replace("0b", ""), 2);
+        }
+        return null;
     }
 }

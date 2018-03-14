@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -583,6 +584,14 @@ public class ProgramFileWriter {
                 DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) attributeInfo;
                 writeDefaultValue(dataOutStream, defaultValAttrInfo.getDefaultValue());
                 break;
+            case PARAMETER_DEFAULTS_ATTRIBUTE:
+                ParamDefaultValueAttributeInfo paramDefaultValAttrInfo = (ParamDefaultValueAttributeInfo) attributeInfo;
+                DefaultValue[] defaultValues = paramDefaultValAttrInfo.getDefaultValueInfo();
+                dataOutStream.writeShort(defaultValues.length);
+                for (DefaultValue defaultValue : defaultValues) {
+                    writeDefaultValue(dataOutStream, defaultValue);
+                }
+                break;
         }
 
         // TODO Support other types of attributes
@@ -644,7 +653,7 @@ public class ProgramFileWriter {
         return byteAOS.toByteArray();
     }
 
-    private static void writeDefaultValue(DataOutputStream dataOutStream, StructFieldDefaultValue defaultValueInfo)
+    private static void writeDefaultValue(DataOutputStream dataOutStream, DefaultValue defaultValueInfo)
             throws IOException {
         dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
         String typeDesc = defaultValueInfo.desc;

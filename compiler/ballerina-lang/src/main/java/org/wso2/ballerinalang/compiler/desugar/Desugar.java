@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
+import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -80,12 +81,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAtt
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -141,8 +144,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -680,7 +685,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation iExpr) {
         BLangInvocation genIExpr = iExpr;
-        iExpr.argExprs = rewriteExprs(iExpr.argExprs);
+
+        // Reorder the arguments to match the original function signature.
+        reorderArguments(iExpr);
+        iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
+        iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
+        iExpr.restArgs = rewriteExprs(iExpr.restArgs);
+        
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
             return;
@@ -710,15 +721,16 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STREAM:
             case TypeTags.STREAMLET:
             case TypeTags.STRUCT:
-                List<BLangExpression> argExprs = new ArrayList<>(iExpr.argExprs);
+                List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
-                result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.symbol,
-                        iExpr.types, iExpr.expr);
+                result = new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.namedArgs, iExpr.restArgs,
+                        iExpr.symbol, iExpr.types, iExpr.expr);
                 break;
             case TypeTags.CONNECTOR:
-                List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.argExprs);
+                List<BLangExpression> actionArgExprs = new ArrayList<>(iExpr.requiredArgs);
                 actionArgExprs.add(0, iExpr.expr);
-                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.symbol, iExpr.types);
+                result = new BLangActionInvocation(iExpr.pos, actionArgExprs, iExpr.namedArgs, iExpr.restArgs,
+                        iExpr.symbol, iExpr.types);
                 break;
         }
     }
@@ -798,18 +810,21 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Named transformer invocation
-        if (conversionExpr.transformerInvocation != null) {
-            conversionExpr.transformerInvocation = rewriteExpr(conversionExpr.transformerInvocation);
+        BLangInvocation transformerInvoc = conversionExpr.transformerInvocation;
+        if (transformerInvoc != null) {
+            transformerInvoc = rewriteExpr(transformerInvoc);
             // Add the rExpr as the first argument
-            conversionExpr.transformerInvocation.argExprs.add(0, conversionExpr.expr);
-            result = new BLangTransformerInvocation(conversionExpr.pos, conversionExpr.transformerInvocation.argExprs,
-                    conversionExpr.transformerInvocation.symbol, conversionExpr.types);
+            conversionExpr.transformerInvocation.requiredArgs.add(0, conversionExpr.expr);
+            result = new BLangTransformerInvocation(conversionExpr.pos, transformerInvoc.requiredArgs,
+                    transformerInvoc.namedArgs, transformerInvoc.restArgs, transformerInvoc.symbol,
+                    conversionExpr.types);
+            conversionExpr.transformerInvocation = transformerInvoc;
             return;
         }
 
         // Unnamed transformer invocation
         BConversionOperatorSymbol transformerSym = conversionExpr.conversionSymbol;
-        BLangTransformerInvocation transformerInvoc = new BLangTransformerInvocation(conversionExpr.pos,
+        transformerInvoc = new BLangTransformerInvocation(conversionExpr.pos,
                 Lists.of(conversionExpr.expr), transformerSym, conversionExpr.types);
         transformerInvoc.types = transformerSym.type.getReturnTypes();
         result = transformerInvoc;
@@ -987,6 +1002,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        result = rewriteExpr(bLangVarArgsExpression.expr);
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        bLangNamedArgsExpression.expr = rewriteExpr(bLangNamedArgsExpression.expr);
+        result = bLangNamedArgsExpression.expr;
+    }
+
     public void visit(BLangTableQueryExpression tableQueryExpression) {
         sqlQueryBuilder.visit(tableQueryExpression);
 
@@ -1026,7 +1051,7 @@ public class Desugar extends BLangNodeVisitor {
         // TODO: 2/28/18 need to find a good way to refer to symbols
         invocationNode.symbol = symTable.rootScope.lookup(new Name(functionName)).symbol;
         invocationNode.types = retTypes;
-        invocationNode.argExprs = args;
+        invocationNode.requiredArgs = args;
         return invocationNode;
     }
 
@@ -1315,5 +1340,52 @@ public class Desugar extends BLangNodeVisitor {
         assignStmt.expr = initExpr;
 
         transformerNode.body.stmts.add(0, assignStmt);
+    }
+
+    /**
+     * Reorder the invocation arguments to match the original function signature.
+     * 
+     * @param iExpr Function invocation expressions to reorder the arguments
+     */
+    private void reorderArguments(BLangInvocation iExpr) {
+        BSymbol symbol = iExpr.symbol;
+        
+        if (symbol == null || symbol.type.tag != TypeTags.INVOKABLE) {
+            return;
+        }
+
+        BInvokableSymbol invocableSymbol = (BInvokableSymbol) symbol;
+        if (invocableSymbol.defaultableParams != null && !invocableSymbol.defaultableParams.isEmpty()) {
+            // Re-order the named args
+            reorderNamedArgs(iExpr, invocableSymbol);
+        }
+
+        if (invocableSymbol.restParam == null) {
+            return;
+        }
+
+        // Create an array out of all the rest arguments, and pass it as a single argument.
+        // If there is only one optional argument and its type is restArg (i.e: ...x), then
+        // leave it as is.
+        if (iExpr.restArgs.size() == 1 && iExpr.restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
+            return;
+        }
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteral.exprs = iExpr.restArgs;
+        arrayLiteral.type = invocableSymbol.restParam.type;
+        iExpr.restArgs = new ArrayList<>();
+        iExpr.restArgs.add(arrayLiteral);
+    }
+
+    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invocableSymbol) {
+        Map<String, BLangExpression> namedArgs = new HashMap<>();
+        iExpr.namedArgs.forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
+
+        // Re-order the named arguments
+        List<BLangExpression> args = new ArrayList<>();
+        for (BVarSymbol param : invocableSymbol.defaultableParams) {
+            args.add(namedArgs.get(param.name.value));
+        }
+        iExpr.namedArgs = args;
     }
 }

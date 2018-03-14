@@ -14,13 +14,6 @@ service<http> hello<TYPO descr="Typo: In word 'Wrld'">Wrld</TYPO> {
     //comment
 }
 
-connector <TYPO descr="Typo: In word 'Twtter'">Twtter</TYPO> (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
-    action tweet (Twitter t, string msg) (string ) {
-
-    }
-}
-
 function Hello<TYPO descr="Typo: In word 'Wrld'">Wrld</TYPO> () {
 
 }

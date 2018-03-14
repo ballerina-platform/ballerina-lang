@@ -740,9 +740,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol symbol,
                                              SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols =
-                invokableNode.params.stream()
+                invokableNode.requiredParams.stream()
                         .peek(varNode -> defineNode(varNode, invokableEnv))
                         .map(varNode -> varNode.symbol)
+                        .collect(Collectors.toList());
+
+        List<BVarSymbol> namedParamSymbols = 
+                invokableNode.defaultableParams.stream()
+                        .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
+                        .map(varDefNode -> varDefNode.var.symbol)
                         .collect(Collectors.toList());
 
         List<BVarSymbol> retParamSymbols =
@@ -754,11 +760,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         symbol.params = paramSymbols;
         symbol.retParams = retParamSymbols;
+        symbol.defaultableParams = namedParamSymbols;
 
         // Create function type
         List<BType> paramTypes = paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
+
+        namedParamSymbols.forEach(paramSymbol -> paramTypes.add(paramSymbol.type));
+
+        if (invokableNode.restParam != null) {
+            defineNode(invokableNode.restParam, invokableEnv);
+            symbol.restParam = invokableNode.restParam.symbol;
+            paramTypes.add(symbol.restParam.type);
+        }
+        
         List<BType> retTypes = invokableNode.retParams.stream()
                 .map(varNode -> varNode.type != null ? varNode.type : varNode.typeNode.type)
                 .collect(Collectors.toList());
@@ -822,6 +838,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
                 env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+
+        if (varType.tag == TypeTags.INVOKABLE) {
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
+                    env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        } else {
+            varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
+                    env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        }
 
         // Add it to the enclosing scope
         // Find duplicates
@@ -928,7 +952,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (!funcNode.params.isEmpty() || !funcNode.retParams.isEmpty()) {
+        if (!funcNode.requiredParams.isEmpty() || !funcNode.retParams.isEmpty()) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
         }

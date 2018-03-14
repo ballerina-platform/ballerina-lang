@@ -50,6 +50,7 @@ import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -1272,10 +1273,19 @@ public class ProgramFileReader {
                 }
                 return lnNoTblAttrInfo;
             case DEFAULT_VALUE_ATTRIBUTE:
-                StructFieldDefaultValue defaultValue = getDefaultValue(dataInStream, constantPool);
+                DefaultValue defaultValue = getDefaultValue(dataInStream, constantPool);
                 DefaultValueAttributeInfo defaultValAttrInfo =
                         new DefaultValueAttributeInfo(attribNameCPIndex, defaultValue);
                 return defaultValAttrInfo;
+            case PARAMETER_DEFAULTS_ATTRIBUTE:
+                ParamDefaultValueAttributeInfo paramDefaultValAttrInfo =
+                        new ParamDefaultValueAttributeInfo(attribNameCPIndex);
+                int paramDefaultsInfoCount = dataInStream.readShort();
+                for (int i = 0; i < paramDefaultsInfoCount; i++) {
+                    DefaultValue paramDefaultValue = getDefaultValue(dataInStream, constantPool);
+                    paramDefaultValAttrInfo.addParamDefaultValueInfo(paramDefaultValue);
+                }
+                return paramDefaultValAttrInfo;
             default:
                 throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
@@ -1793,9 +1803,9 @@ public class ProgramFileReader {
         }
     }
 
-    private StructFieldDefaultValue getDefaultValue(DataInputStream dataInStream, ConstantPool constantPool)
+    private DefaultValue getDefaultValue(DataInputStream dataInStream, ConstantPool constantPool)
             throws IOException {
-        StructFieldDefaultValue defaultValue;
+        DefaultValue defaultValue;
         int typeDescCPIndex = dataInStream.readInt();
         UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeDescCPIndex);
         String typeDesc = typeDescCPEntry.getValue();
@@ -1804,25 +1814,25 @@ public class ProgramFileReader {
         switch (typeDesc) {
             case TypeSignature.SIG_BOOLEAN:
                 boolean boolValue = dataInStream.readBoolean();
-                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setBooleanValue(boolValue);
                 break;
             case TypeSignature.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setIntValue(integerCPEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setFloatValue(floatCPEntry.getValue());
                 break;
             case TypeSignature.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue = new DefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setStringValue(stringCPEntry.getValue());
                 break;
             default:

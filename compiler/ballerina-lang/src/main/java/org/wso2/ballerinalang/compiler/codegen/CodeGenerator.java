@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -142,12 +143,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.ActionInfo;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.ConnectorInfo;
+import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.EnumInfo;
 import org.wso2.ballerinalang.programfile.EnumeratorInfo;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
@@ -166,7 +169,6 @@ import org.wso2.ballerinalang.programfile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StreamletInfo;
-import org.wso2.ballerinalang.programfile.StructFieldDefaultValue;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
 import org.wso2.ballerinalang.programfile.StructInfo;
 import org.wso2.ballerinalang.programfile.TransformerInfo;
@@ -179,6 +181,7 @@ import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -203,6 +206,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -1101,7 +1105,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-
     public void visit(BLangTypeConversionExpr convExpr) {
         int opcode = convExpr.conversionSymbol.opcode;
         RegIndex[] convExprRegIndexes = convExpr.getRegIndexes();
@@ -1419,6 +1422,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // TODO Read param and return param annotations
         invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
+        invokableSymbol.defaultableParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
+        if (invokableSymbol.restParam != null) {
+            visitVarSymbol(invokableSymbol.restParam, lvIndexes, localVarAttrInfo);
+        }
+
         invokableSymbol.retParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttrInfo);
     }
@@ -1572,12 +1580,22 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Operand[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
         // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
         int i = 0;
-        int nArgRegs = iExpr.argExprs.size();
+        int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
         int nRetRegs = iExpr.types.size();
         Operand[] operands = new Operand[nArgRegs + nRetRegs + 3];
         operands[i++] = getOperand(funcRefCPIndex);
         operands[i++] = getOperand(nArgRegs);
-        for (BLangExpression argExpr : iExpr.argExprs) {
+
+        // Write required arguments
+        for (BLangExpression argExpr : iExpr.requiredArgs) {
+            operands[i++] = genNode(argExpr, this.env).regIndex;
+        }
+
+        // Write named arguments
+        i = generateNamedArgs(iExpr, operands, i);
+
+        // Write rest arguments
+        for (BLangExpression argExpr : iExpr.restArgs) {
             operands[i++] = genNode(argExpr, this.env).regIndex;
         }
 
@@ -1603,6 +1621,87 @@ public class CodeGenerator extends BLangNodeVisitor {
         return operands;
     }
 
+    private int generateNamedArgs(BLangInvocation iExpr, Operand[] operands, int currentIndex) {
+        if (iExpr.namedArgs.isEmpty()) {
+            return currentIndex;
+        }
+
+        PackageInfo pkgInfo = programFile.getPackageInfo(iExpr.symbol.pkgID.name.value);
+
+        CallableUnitInfo callableUnitInfo;
+        if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
+            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.name.value);
+        } else if (iExpr.symbol.kind == SymbolKind.ACTION) {
+            ConnectorInfo connectorInfo = pkgInfo.connectorInfoMap.get(iExpr.symbol.owner.name.value);
+            callableUnitInfo = connectorInfo.actionInfoMap.get(iExpr.symbol.name.value);
+        } else {
+            throw new IllegalStateException("Unsupported callable unit");
+        }
+
+        ParamDefaultValueAttributeInfo defaultValAttrInfo = (ParamDefaultValueAttributeInfo) callableUnitInfo
+                .getAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
+
+        for (int i = 0; i < iExpr.namedArgs.size(); i++) {
+            BLangExpression argExpr = iExpr.namedArgs.get(i);
+            // If some named parameter is not passed when invoking the function, then it will be null
+            // at this point. If so, get the default value for that parameter from the function info.
+            if (argExpr == null) {
+                DefaultValue defaultVal = defaultValAttrInfo.getDefaultValueInfo()[i];
+                argExpr = getDefaultValExpr(defaultVal);
+            }
+            operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
+        }
+
+        return currentIndex;
+    }
+
+    private BLangExpression getDefaultValExpr(DefaultValue defaultVal) {
+        switch (defaultVal.desc) {
+            case TypeDescriptor.SIG_INT:
+                return getIntLiteral(defaultVal.intValue);
+            case TypeDescriptor.SIG_FLOAT:
+                return getFloatLiteral(defaultVal.floatValue);
+            case TypeDescriptor.SIG_STRING:
+                return getStringLiteral(defaultVal.stringValue);
+            case TypeDescriptor.SIG_BOOLEAN:
+                return getBooleanLiteral(defaultVal.booleanValue);
+            default:
+                throw new IllegalStateException("Unsupported default value type");
+        }
+    }
+
+    private BLangLiteral getStringLiteral(String value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.STRING;
+        literal.type = symTable.stringType;
+        return literal;
+    }
+
+    private BLangLiteral getIntLiteral(long value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.INT;
+        literal.type = symTable.intType;
+        return literal;
+    }
+
+    private BLangLiteral getFloatLiteral(double value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.FLOAT;
+        literal.type = symTable.floatType;
+        return literal;
+    }
+
+    private BLangLiteral getBooleanLiteral(boolean value) {
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.value = value;
+        literal.typeTag = TypeTags.BOOLEAN;
+        literal.type = symTable.booleanType;
+        return literal;
+    }
+
     private void addVariableCountAttributeInfo(ConstantPool constantPool,
                                                AttributeInfoPool attributeInfoPool,
                                                int[] fieldCount) {
@@ -1618,10 +1717,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
 
-    private DefaultValueAttributeInfo getStructFieldDefaultValue(BLangLiteral literalExpr) {
+    private DefaultValue getDefaultValue(BLangLiteral literalExpr) {
         String desc = literalExpr.type.getDesc();
         int typeDescCPIndex = addUTF8CPEntry(currentPkgInfo, desc);
-        StructFieldDefaultValue defaultValue = new StructFieldDefaultValue(typeDescCPIndex, desc);
+        DefaultValue defaultValue = new DefaultValue(typeDescCPIndex, desc);
 
         int typeTag = literalExpr.type.tag;
         switch (typeTag) {
@@ -1640,8 +1739,15 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
                 break;
+            default:
+                defaultValue = null;
         }
 
+        return defaultValue;
+    }
+
+    private DefaultValueAttributeInfo getDefaultValueAttributeInfo(BLangLiteral literalExpr) {
+        DefaultValue defaultValue = getDefaultValue(literalExpr);
         UTF8CPEntry defaultValueAttribUTF8CPEntry =
                 new UTF8CPEntry(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE.toString());
         int defaultValueAttribNameIndex = currentPkgInfo.addCPEntry(defaultValueAttribUTF8CPEntry);
@@ -1690,7 +1796,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             // Populate default values
             if (structField.expr != null) {
-                DefaultValueAttributeInfo defaultVal = getStructFieldDefaultValue((BLangLiteral) structField.expr);
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) structField.expr);
                 structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
@@ -1766,6 +1872,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
+
+        // Add parameter default value info
+        addParameterDefaultValues(funcNode, funcInfo);
+
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
@@ -1782,6 +1892,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         transformerInfo.flags = transformerSymbol.flags;
 
         this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
+
+        // Add parameter default value info
+        addParameterDefaultValues(invokable, transformerInfo);
 
         transformerInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
                 generateFunctionSig(transformerInfo.paramTypes, transformerInfo.retParamTypes));
@@ -1870,6 +1983,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add worker info
         this.addWorkerInfoEntries(actionInfo, actionNode.getWorkers());
 
+        // Add parameter default value info
+        addParameterDefaultValues(actionNode, actionInfo);
+
         // Add action info to the connector info
         connectorInfo.actionInfoMap.put(actionNode.name.getValue(), actionInfo);
     }
@@ -1954,10 +2070,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void setParameterNames(BLangResource resourceNode, ResourceInfo resourceInfo) {
-        int paramCount = resourceNode.params.size();
+        int paramCount = resourceNode.requiredParams.size();
         resourceInfo.paramNameCPIndexes = new int[paramCount];
         for (int i = 0; i < paramCount; i++) {
-            BLangVariable paramVar = resourceNode.params.get(i);
+            BLangVariable paramVar = resourceNode.requiredParams.get(i);
             String paramName = null;
             boolean isAnnotated = false;
             for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
@@ -3071,4 +3187,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex);
         return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
     }
+
+    private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
+        int paramDefaultsAttrNameIndex =
+                addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());
+        ParamDefaultValueAttributeInfo paramDefaulValAttrInfo =
+                new ParamDefaultValueAttributeInfo(paramDefaultsAttrNameIndex);
+
+        // Only named parameters can have default values.
+        for (BLangVariableDef param : invokableNode.defaultableParams) {
+            DefaultValue defaultVal = getDefaultValue((BLangLiteral) param.var.expr);
+            paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+        }
+
+        callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);
+    }
+
 }

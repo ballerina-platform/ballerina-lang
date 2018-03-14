@@ -16,16 +16,16 @@
 
 package ballerina.auth.userstore;
 
-@Description {value:"Represents the credentials store. Any type of implementation, such as ldap, jdbc, file based,
+@Description {value:"Represents the user store. Any type of implementation, such as ldap, jdbc, file based,
 etc. should be struct-wise similar"}
-public struct CredentialsStore {
+public struct UserStore {
 }
 
 @Description {value:"Attempts to authenticate with username and password"}
 @Param {value:"username: user name"}
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <CredentialsStore credentialsStore> authenticate (string username, string password) (boolean) {
+public function <UserStore userStore> authenticate (string username, string password) (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;
@@ -34,7 +34,7 @@ public function <CredentialsStore credentialsStore> authenticate (string usernam
 @Description {value:"Reads the group(s) for the user with the given username"}
 @Param {value:"username: user name"}
 @Return {value:"string: relevant group(s) for the user, null if not found"}
-public function <CredentialsStore userstore> readGroupsOfUser (string username) (string) {
+public function <UserStore userstore> readGroupsOfUser (string username) (string) {
     error e = {message:"Not implemented"};
     throw e;
     return null;
