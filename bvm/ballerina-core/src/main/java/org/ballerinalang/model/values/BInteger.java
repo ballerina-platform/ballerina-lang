@@ -34,8 +34,18 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     }
 
     @Override
+    public int byteValue() {
+        return (byte) this.value;
+    }
+
+    @Override
     public long intValue() {
         return this.value;
+    }
+
+    @Override
+    public int charValue() {
+        return (char) this.value;
     }
 
     @Override

@@ -180,7 +180,7 @@ public class NativeCallContext implements Context {
             throw new ArgumentOutOfRangeException(index);
         }
 
-        byte[] result = workerLocal.byteRegs[index];
+        byte[] result = workerLocal.blobRegs[index];
         if (result == null) {
             throw new BallerinaException("argument " + index + " is null");
         }

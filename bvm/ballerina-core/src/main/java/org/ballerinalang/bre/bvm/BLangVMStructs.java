@@ -66,6 +66,26 @@ public class BLangVMStructs {
                     }
                 }
                 break;
+            case TypeTags.CHAR_TAG:
+                ++booleanRegIndex;
+                if (values[i] != null) {
+                    if (values[i] instanceof Character) {
+                        bStruct.setBooleanField(booleanRegIndex, (Character) values[i]);
+                    } else if (values[i] instanceof Integer) {
+                        bStruct.setBooleanField(booleanRegIndex, (Integer) values[i]);
+                    }
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                ++booleanRegIndex;
+                if (values[i] != null) {
+                    if (values[i] instanceof Byte) {
+                        bStruct.setBooleanField(booleanRegIndex, (Byte) values[i]);
+                    } else if (values[i] instanceof Integer) {
+                        bStruct.setBooleanField(booleanRegIndex, (Integer) values[i]);
+                    }
+                }
+                break;
             case TypeTags.FLOAT_TAG:
                 ++doubleRegIndex;
                 if (values[i] != null) {

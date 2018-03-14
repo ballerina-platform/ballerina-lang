@@ -27,14 +27,14 @@ import org.ballerinalang.model.values.BRefType;
 public class WorkerData {
 
     public long[] longRegs;
-    
+
     public double[] doubleRegs;
     
     public String[] stringRegs;
     
     public int[] intRegs;
     
-    public byte[][] byteRegs;
+    public byte[][] blobRegs;
     
     public BRefType<?>[] refRegs;
         

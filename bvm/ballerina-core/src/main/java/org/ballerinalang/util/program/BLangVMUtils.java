@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -65,6 +67,12 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
                 break;
+            case TypeTags.CHAR_TAG:
+                callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                break;
+            case TypeTags.BYTE_TAG:
+                callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
+                break;
             case TypeTags.FLOAT_TAG:
                 callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
                 break;
@@ -75,7 +83,7 @@ public class BLangVMUtils {
                 callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
                 break;
             case TypeTags.BLOB_TAG:
-                callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
+                callee.blobRegs[++blobRegIndex] = caller.blobRegs[argReg];
                 break;
             default:
                 callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
@@ -84,10 +92,10 @@ public class BLangVMUtils {
     }
 
     public static void copyValuesForForkJoin(WorkerData caller, WorkerData callee, int[] argRegs) {
-        int longLocalVals = argRegs[0];
-        int doubleLocalVals = argRegs[1];
-        int stringLocalVals = argRegs[2];
-        int booleanLocalVals = argRegs[3];
+        int booleanLocalVals = argRegs[0];
+        int longLocalVals = argRegs[1];
+        int doubleLocalVals = argRegs[2];
+        int stringLocalVals = argRegs[3];
         int blobLocalVals = argRegs[4];
         int refLocalVals = argRegs[5];
 
@@ -112,7 +120,7 @@ public class BLangVMUtils {
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
-            callee.byteRegs[i] = caller.byteRegs[i];
+            callee.blobRegs[i] = caller.blobRegs[i];
         }
     }
 
@@ -137,7 +145,7 @@ public class BLangVMUtils {
         wd.doubleRegs = new double[ci.getMaxDoubleRegs()];
         wd.stringRegs = new String[ci.getMaxStringRegs()];
         wd.intRegs = new int[ci.getMaxIntRegs()];
-        wd.byteRegs = new byte[ci.getMaxByteRegs()][];
+        wd.blobRegs = new byte[ci.getMaxBlobRegs()][];
         wd.refRegs = new BRefType[ci.getMaxRefRegs()];
         return wd;
     }
@@ -157,6 +165,20 @@ public class BLangVMUtils {
                     break;
                 }
                 data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
+                break;
+            case TypeTags.CHAR_TAG:
+                if (vals[i] == null) {
+                    data.intRegs[callersRetRegIndex] = 0;
+                    break;
+                }
+                data.intRegs[callersRetRegIndex] = ((BCharacter) vals[i]).charValue();
+                break;
+            case TypeTags.BYTE_TAG:
+                if (vals[i] == null) {
+                    data.intRegs[callersRetRegIndex] = 0;
+                    break;
+                }
+                data.intRegs[callersRetRegIndex] = ((BByte) vals[i]).byteValue();
                 break;
             case TypeTags.FLOAT_TAG:
                 if (vals[i] == null) {
@@ -181,10 +203,10 @@ public class BLangVMUtils {
                 break;
             case TypeTags.BLOB_TAG:
                 if (vals[i] == null) {
-                    data.byteRegs[callersRetRegIndex] = new byte[0];
+                    data.blobRegs[callersRetRegIndex] = new byte[0];
                     break;
                 }
-                data.byteRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
+                data.blobRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
                 break;
             default:
                 data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
@@ -203,6 +225,12 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
                 break;
+            case TypeTags.CHAR_TAG:
+                returnValues[i] = new BCharacter(data.intRegs[retRegs[i]]);
+                break;
+            case TypeTags.BYTE_TAG:
+                returnValues[i] = new BByte(data.intRegs[retRegs[i]]);
+                break;
             case TypeTags.FLOAT_TAG:
                 returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
                 break;
@@ -214,7 +242,7 @@ public class BLangVMUtils {
                 returnValues[i] = new BBoolean(boolValue);
                 break;
             case TypeTags.BLOB_TAG:
-                returnValues[i] = new BBlob(data.byteRegs[retRegs[i]]);
+                returnValues[i] = new BBlob(data.blobRegs[retRegs[i]]);
                 break;
             default:
                 returnValues[i] = data.refRegs[retRegs[i]];
@@ -233,6 +261,12 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 result[i] += paramWDI.longRegCount;
                 break;
+            case TypeTags.CHAR_TAG:
+                result[i] += paramWDI.intRegCount;
+                break;
+            case TypeTags.BYTE_TAG:
+                result[i] += paramWDI.intRegCount;
+                break;
             case TypeTags.FLOAT_TAG:
                 result[i] += paramWDI.doubleRegCount;
                 break;
@@ -243,7 +277,7 @@ public class BLangVMUtils {
                 result[i] += paramWDI.intRegCount;
                 break;
             case TypeTags.BLOB_TAG:
-                result[i] += paramWDI.byteRegCount;
+                result[i] += paramWDI.blobRegCount;
                 break;
             default:
                 result[i] += paramWDI.refRegCount;
@@ -260,13 +294,21 @@ public class BLangVMUtils {
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
-                byteParamCount = 0, refParamCount = 0;
+        int longParamCount = 0, charParamCount = 0, byteParamCount = 0, doubleParamCount = 0, stringParamCount = 0,
+                intParamCount = 0, blobParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
                     local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     longParamCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    local.intRegs[intParamCount] = ((BCharacter) args[i]).charValue();
+                    intParamCount++;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    local.intRegs[intParamCount] = ((BByte) args[i]).byteValue();
+                    intParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
@@ -281,8 +323,8 @@ public class BLangVMUtils {
                     intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    local.byteRegs[byteParamCount] = ((BBlob) args[i]).blobValue();
-                    byteParamCount++;
+                    local.blobRegs[blobParamCount] = ((BBlob) args[i]).blobValue();
+                    blobParamCount++;
                     break;
                 default:
                     local.refRegs[refParamCount] = (BRefType) args[i];
@@ -301,7 +343,7 @@ public class BLangVMUtils {
         wd.doubleRegs = new double[wdi.doubleRegCount];
         wd.stringRegs = new String[wdi.stringRegCount];
         wd.intRegs = new int[wdi.intRegCount];
-        wd.byteRegs = new byte[wdi.byteRegCount][];
+        wd.blobRegs = new byte[wdi.blobRegCount][];
         wd.refRegs = new BRefType[wdi.refRegCount];
         return wd;
     }
@@ -312,7 +354,7 @@ public class BLangVMUtils {
         wd.doubleRegs = new double[wdi1.doubleRegCount + wdi2.doubleRegCount];
         wd.stringRegs = new String[wdi1.stringRegCount + wdi2.stringRegCount];
         wd.intRegs = new int[wdi1.intRegCount + wdi2.intRegCount];
-        wd.byteRegs = new byte[wdi1.byteRegCount + wdi2.byteRegCount][];
+        wd.blobRegs = new byte[wdi1.blobRegCount + wdi2.blobRegCount][];
         wd.refRegs = new BRefType[wdi1.refRegCount + wdi2.refRegCount];
         return wd;
     }
@@ -355,13 +397,19 @@ public class BLangVMUtils {
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
-        int byteRegCount = 0;
+        int blobRegCount = 0;
         for (int i = 0; i < types.length; i++) {
             BType retType = types[i];
             callersRetRegIndex = regIndexes[i];
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
+                break;
+            case TypeTags.CHAR_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                break;
+            case TypeTags.BYTE_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
                 break;
             case TypeTags.FLOAT_TAG:
                 targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
@@ -373,7 +421,7 @@ public class BLangVMUtils {
                 targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
                 break;
             case TypeTags.BLOB_TAG:
-                targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
+                targetData.blobRegs[callersRetRegIndex] = sourceData.blobRegs[blobRegCount++];
                 break;
             default:
                 targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
@@ -384,8 +432,8 @@ public class BLangVMUtils {
     
     public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
             CodeAttributeInfo initWorkerCAI) {
-        for (int i = 0; i < initWorkerCAI.getMaxByteLocalVars(); i++) {
-            targetData.byteRegs[i] = sourceData.byteRegs[i];
+        for (int i = 0; i < initWorkerCAI.getMaxBlobLocalVars(); i++) {
+            targetData.blobRegs[i] = sourceData.blobRegs[i];
         }
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];

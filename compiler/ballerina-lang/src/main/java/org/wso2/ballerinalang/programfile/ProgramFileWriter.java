@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamAnnotationAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.CharacterCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -131,6 +133,14 @@ public class ProgramFileWriter {
                 case CP_ENTRY_INTEGER:
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
                     dataOutStream.writeLong(longVal);
+                    break;
+                case CP_ENTRY_CHARACTER:
+                    int charVal = ((CharacterCPEntry) cpEntry).getValue();
+                    dataOutStream.writeInt(charVal);
+                    break;
+                case CP_ENTRY_BYTE:
+                    int byteVal = ((ByteCPEntry) cpEntry).getValue();
+                    dataOutStream.writeInt(byteVal);
                     break;
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();
@@ -496,28 +506,28 @@ public class ProgramFileWriter {
                 CodeAttributeInfo codeAttributeInfo = (CodeAttributeInfo) attributeInfo;
                 dataOutStream.writeInt(codeAttributeInfo.codeAddrs);
 
+                dataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
                 dataOutStream.writeShort(codeAttributeInfo.maxLongLocalVars);
                 dataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
                 dataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                dataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
+                dataOutStream.writeShort(codeAttributeInfo.maxBlobLocalVars);
                 dataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
+                dataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
                 dataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
                 dataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
                 dataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                dataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
+                dataOutStream.writeShort(codeAttributeInfo.maxBlobRegs);
                 dataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
             case VARIABLE_TYPE_COUNT_ATTRIBUTE:
                 VarTypeCountAttributeInfo varCountAttributeInfo = (VarTypeCountAttributeInfo) attributeInfo;
+                dataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
                 dataOutStream.writeShort(varCountAttributeInfo.getMaxLongVars());
                 dataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
                 dataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                dataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
+                dataOutStream.writeShort(varCountAttributeInfo.getMaxBlobVars());
                 dataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 

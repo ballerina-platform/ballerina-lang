@@ -74,6 +74,8 @@ public class SymbolTable {
 
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType intType = new BType(TypeTags.INT, null);
+    public final BType charType = new BType(TypeTags.CHAR, null);
+    public final BType byteType = new BType(TypeTags.BYTE, null);
     public final BType floatType = new BType(TypeTags.FLOAT, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
@@ -125,6 +127,8 @@ public class SymbolTable {
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
+        initializeType(charType, TypeKind.CHAR.typeName());
+        initializeType(byteType, TypeKind.BYTE.typeName());
         initializeType(floatType, TypeKind.FLOAT.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
@@ -158,6 +162,10 @@ public class SymbolTable {
         switch (tag) {
             case TypeTags.INT:
                 return intType;
+            case TypeTags.CHAR:
+                return charType;
+            case TypeTags.BYTE:
+                return byteType;
             case TypeTags.FLOAT:
                 return floatType;
             case TypeTags.STRING:
@@ -204,6 +212,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, charType, stringType, stringType, InstructionCodes.SADD);
+        defineBinaryOperator(OperatorKind.ADD, stringType, charType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
         defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType, InstructionCodes.FADD);
@@ -227,6 +237,8 @@ public class SymbolTable {
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+//        defineBinaryOperator(OperatorKind.EQUAL, charType, charType, booleanType, InstructionCodes.CEQ);
+//        defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType, InstructionCodes.BTEQ);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
@@ -249,6 +261,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, stringType, nullType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, stringType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+//        defineBinaryOperator(OperatorKind.NOT_EQUAL, charType, charType, booleanType, InstructionCodes.CNE);
+//        defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BTNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
@@ -334,6 +348,13 @@ public class SymbolTable {
         defineCastOperator(intType, jsonType, true, InstructionCodes.I2JSON);
         defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
         defineCastOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineCastOperator(intType, charType, true, InstructionCodes.I2C);
+        defineCastOperator(intType, byteType, true, InstructionCodes.I2BT);
+        defineCastOperator(charType, intType, true, InstructionCodes.C2I);
+        defineCastOperator(charType, floatType, true, InstructionCodes.C2F);
+        defineCastOperator(charType, anyType, true, InstructionCodes.C2ANY);
+        defineCastOperator(byteType, intType, true, InstructionCodes.BT2I);
+        defineCastOperator(byteType, anyType, true, InstructionCodes.BT2ANY);
         defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
         defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);
         defineCastOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
@@ -346,6 +367,8 @@ public class SymbolTable {
 
         // Define explicit cast operators
         defineExplicitCastOperator(anyType, intType, false, InstructionCodes.ANY2I);
+        defineExplicitCastOperator(anyType, charType, false, InstructionCodes.ANY2C);
+        defineExplicitCastOperator(anyType, byteType, false, InstructionCodes.ANY2BT);
         defineExplicitCastOperator(anyType, floatType, false, InstructionCodes.ANY2F);
         defineExplicitCastOperator(anyType, stringType, false, InstructionCodes.ANY2S);
         defineExplicitCastOperator(anyType, booleanType, false, InstructionCodes.ANY2B);
@@ -368,9 +391,16 @@ public class SymbolTable {
         defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
+        defineConversionOperator(intType, charType, true, InstructionCodes.I2C);
+        defineConversionOperator(intType, byteType, true, InstructionCodes.I2BT);
+        defineConversionOperator(charType, intType, true, InstructionCodes.C2I);
+        defineConversionOperator(charType, floatType, true, InstructionCodes.C2F);
+        defineConversionOperator(charType, stringType, true, InstructionCodes.C2S);
+        defineConversionOperator(byteType, intType, true, InstructionCodes.BT2I);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
+        defineConversionOperator(floatType, charType, true, InstructionCodes.F2C);
         defineConversionOperator(stringType, floatType, false, InstructionCodes.S2F);
         defineConversionOperator(stringType, intType, false, InstructionCodes.S2I);
         defineConversionOperator(stringType, booleanType, false, InstructionCodes.S2B);

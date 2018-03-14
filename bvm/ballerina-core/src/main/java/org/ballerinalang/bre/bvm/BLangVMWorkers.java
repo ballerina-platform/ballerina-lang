@@ -78,7 +78,7 @@ public class BLangVMWorkers {
         startSF.setStringRegs(new String[returnIndex.stringRegCount]);
         startSF.setIntRegs(new int[returnIndex.intRegCount]);
         startSF.setRefRegs(new BRefType[returnIndex.refRegCount]);
-        startSF.setByteRegs(new byte[returnIndex.byteRegCount][]);
+        startSF.setBlobRegs(new byte[returnIndex.blobRegCount][]);
 
         StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, returnIndex.retRegs);
         controlStack.pushFrame(calleeSF);
@@ -106,7 +106,7 @@ public class BLangVMWorkers {
                     index.retRegs[i] = index.intRegCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    index.retRegs[i] = index.byteRegCount++;
+                    index.retRegs[i] = index.blobRegCount++;
                     break;
                 default:
                     index.retRegs[i] = index.refRegCount++;
@@ -191,6 +191,6 @@ public class BLangVMWorkers {
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
-        int byteRegCount = 0;
+        int blobRegCount = 0;
     }
 }

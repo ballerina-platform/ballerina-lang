@@ -35,6 +35,11 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
+    public int byteValue() {
+        return 0;
+    }
+
+    @Override
     public long intValue() {
         long result;
         try {
@@ -43,6 +48,11 @@ public final class BString extends BValueType implements BRefType<String> {
             throw new BallerinaException("input value " + this.value + " cannot be cast to integer");
         }
         return result;
+    }
+
+    @Override
+    public int charValue() {
+        return 0;
     }
 
     @Override

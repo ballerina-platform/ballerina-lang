@@ -111,6 +111,11 @@ public native function <string mainString> replace (string replacePattern, strin
 @Return { value:"The split string array" }
 public native function <string mainString> split (string regex) (string[]);
 
+@Description { value:"Converts the string to a new character array and returns it."}
+@Param { value:"mainString: The original string argument" }
+@Return { value:"The character array" }
+public native function <string mainString> toCharArray () (char[]);
+
 @Description { value:"Converts string to a blob"}
 @Param { value:"mainString: string value to be converted" }
 @Param { value:"encoding: Encoding to used in the conversion" }
