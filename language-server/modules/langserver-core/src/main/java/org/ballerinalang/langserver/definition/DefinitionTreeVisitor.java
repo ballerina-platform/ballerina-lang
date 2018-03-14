@@ -88,8 +88,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
 
         if (funcNode.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!funcNode.params.isEmpty()) {
-                funcNode.params.forEach(this::acceptNode);
+            if (!funcNode.requiredParams.isEmpty()) {
+                funcNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!funcNode.retParams.isEmpty()) {
@@ -124,8 +124,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangResource resourceNode) {
         if (resourceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!resourceNode.params.isEmpty()) {
-                resourceNode.params.forEach(this::acceptNode);
+            if (!resourceNode.requiredParams.isEmpty()) {
+                resourceNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!resourceNode.retParams.isEmpty()) {
@@ -160,8 +160,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangAction actionNode) {
         if (actionNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (!actionNode.params.isEmpty()) {
-                actionNode.params.forEach(this::acceptNode);
+            if (!actionNode.requiredParams.isEmpty()) {
+                actionNode.requiredParams.forEach(this::acceptNode);
             }
 
             if (!actionNode.retParams.isEmpty()) {
@@ -318,8 +318,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.params.isEmpty()) {
-            transformerNode.params.forEach(this::acceptNode);
+        if (!transformerNode.requiredParams.isEmpty()) {
+            transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!transformerNode.retParams.isEmpty()) {

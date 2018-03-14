@@ -49,6 +49,9 @@ insert into DataTypeTable (row_id) values (2);
 insert into Customers (firstName,lastName,registrationID,creditLimit,country)
   values ('Peter', 'Stuart', 1, 5000.75, 'USA');
 /
+insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+  values ('John', 'Watson', 2, 2348.93, 'UK');
+/
 CREATE PROCEDURE InsertPersonData(IN p_RegID INTEGER, IN p_PersonName VARCHAR(50))
   MODIFIES SQL DATA
   BEGIN ATOMIC
@@ -61,6 +64,15 @@ CREATE PROCEDURE SelectPersonData()
   BEGIN ATOMIC
   DECLARE result CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
   open result;
+  END
+/
+CREATE PROCEDURE SelectPersonDataMultiple()
+  READS SQL DATA DYNAMIC RESULT SETS 2
+  BEGIN ATOMIC
+  DECLARE result1 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
+  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 2 FOR READ ONLY;
+  open result1;
+  open result2;
   END
 /
 CREATE PROCEDURE TestOutParams (IN id INT, OUT paramInt INT, OUT paramBigInt BIGINT, OUT paramFloat FLOAT,

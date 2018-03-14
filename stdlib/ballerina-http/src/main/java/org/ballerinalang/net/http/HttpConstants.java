@@ -82,6 +82,7 @@ public class HttpConstants {
     public static final String ANN_NAME_HTTP_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
+    public static final String ANN_CONFIG_ATTR_HTTP_VERSION = "httpVersion";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
     public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
@@ -136,6 +137,7 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String CLIENT_CONNECTOR = "ClientConnector";
+    public static final String B_CONNECTOR = "BConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -152,11 +154,15 @@ public class HttpConstants {
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String TRANSPORT_HANDLE = "transport_handle";
+    public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
 
@@ -208,6 +214,10 @@ public class HttpConstants {
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
 
+    //PushPromise struct indexes
+    public static final int PUSH_PROMISE_PATH_INDEX = 0;
+    public static final int PUSH_PROMISE_METHOD_INDEX = 1;
+
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
     public static final int PROXY_HOST_INDEX = 0;
@@ -250,6 +260,11 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+    public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
+    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
+    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
+    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
 
     public static final String ENDPOINT_CONFIG_SSL = "ssl";
 

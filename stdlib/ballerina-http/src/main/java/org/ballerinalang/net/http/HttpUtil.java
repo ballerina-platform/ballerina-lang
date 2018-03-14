@@ -31,6 +31,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
@@ -64,6 +65,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -85,8 +87,10 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * Utility class providing utility methods.
@@ -302,6 +306,42 @@ public class HttpUtil {
         return responseFuture;
     }
 
+    /**
+     * Sends an HTTP/2 Server Push message back to the client.
+     *
+     * @param requestMsg   the request message associated to the server push response
+     * @param pushResponse the server push message
+     * @param pushPromise  the push promise associated with the server push
+     * @return the future to get notifications of the operation asynchronously
+     */
+    public static HttpResponseFuture pushResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage pushResponse,
+                                                  Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
+        }
+        return responseFuture;
+    }
+
+    /**
+     * Sends an HTTP/2 Push Promise message back to the client.
+     *
+     * @param requestMsg  the request message associated to the push promise
+     * @param pushPromise the push promise message
+     * @return the future to get notifications of the operation asynchronously
+     */
+    public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
+        HttpResponseFuture responseFuture;
+        try {
+            responseFuture = requestMsg.pushPromise(pushPromise);
+        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+            throw new BallerinaConnectorException("Error occurred during response", e);
+        }
+        return responseFuture;
+    }
+
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
@@ -371,6 +411,54 @@ public class HttpUtil {
         }
         addCarbonMsg(struct, defaultMsg);
         return defaultMsg;
+    }
+
+    /**
+     * Gets the {@code Http2PushPromise} represented by the PushPromise struct.
+     *
+     * @param pushPromiseStruct  the push promise struct
+     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native data of a push promise
+     * @return the {@code Http2PushPromise} represented by the PushPromise struct
+     */
+    public static Http2PushPromise getPushPromise(BStruct pushPromiseStruct, Http2PushPromise defaultPushPromise) {
+        Http2PushPromise pushPromise =
+                (Http2PushPromise) pushPromiseStruct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
+        if (pushPromise != null) {
+            return pushPromise;
+        }
+        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
+        return defaultPushPromise;
+    }
+
+    /**
+     * Populates the push promise struct from native {@code Http2PushPromise}.
+     *
+     * @param pushPromiseStruct the push promise struct
+     * @param pushPromise the native Http2PushPromise
+     */
+    public static void populatePushPromiseStruct(BStruct pushPromiseStruct, Http2PushPromise pushPromise) {
+        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX, pushPromise.getPath());
+        pushPromiseStruct.setStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX, pushPromise.getMethod());
+    }
+
+    /**
+     * Creates native {@code Http2PushPromise} from PushPromise struct.
+     *
+     * @param struct the PushPromise struct
+     * @return the populated the native {@code Http2PushPromise}
+     */
+    public static Http2PushPromise createHttpPushPromise(BStruct struct) {
+        String method = struct.getStringField(HttpConstants.PUSH_PROMISE_METHOD_INDEX);
+        if (method == null || method.isEmpty()) {
+            method = HttpConstants.HTTP_METHOD_GET;
+        }
+
+        String path = struct.getStringField(HttpConstants.PUSH_PROMISE_PATH_INDEX);
+        if (path == null || path.isEmpty()) {
+            path = HttpConstants.DEFAULT_BASE_PATH;
+        }
+        return new Http2PushPromise(method, path);
     }
 
     public static void addCarbonMsg(BStruct struct, HTTPCarbonMessage httpCarbonMessage) {
@@ -614,12 +702,13 @@ public class HttpUtil {
     }
 
     public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
-        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-        if (configAnn != null) {
-            AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
-                    HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-            if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                                                                   context.getServiceInfo().getType());
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+
+        if (configAnnot != null) {
+            boolean isCompressionEnabled = configAnnot.getValue().getBooleanField(ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+            if (isCompressionEnabled) {
                 outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
                                           Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }
@@ -669,6 +758,7 @@ public class HttpUtil {
         AnnAttrValue maxHeaderSize = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE);
         AnnAttrValue maxEntityBodySize = configInfo.getAnnAttrValue(
                 HttpConstants.ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE);
+        AnnAttrValue versionAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -728,6 +818,9 @@ public class HttpUtil {
                     throw new BallerinaConnectorException("Invalid configuration found for maxEntityBodySize : "
                             + maxEntityBodySize.getIntValue());
                 }
+            }
+            if (versionAttrVal != null) {
+                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
             }
 
             listenerConfiguration
@@ -921,7 +1014,7 @@ public class HttpUtil {
         }
     }
 
-    private static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+    public static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
         if (reqMsg == null) {
             throw new BallerinaException("operation not allowed:invalid Connection variable");
         }

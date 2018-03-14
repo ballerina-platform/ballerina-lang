@@ -19,6 +19,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.WorkspaceServiceContext;
+import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -96,7 +97,8 @@ public class CommandExecutor {
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY));
+                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
+                    LSCustomErrorStrategy.class);
             
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
             DiagnosticPos pos;

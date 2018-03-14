@@ -19,19 +19,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.lo#writeBytes.
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class Write extends BlockingNativeCallableUnit {
+public class Write implements NativeCallableUnit {
 
     /**
      * Index which holds the byte channel in ballerina.io#writeBytes.
@@ -71,28 +71,26 @@ public class Write extends BlockingNativeCallableUnit {
      */
     private static final int NUMBER_OF_BYTES_INDEX = 1;
 
-    private static final Logger log = LoggerFactory.getLogger(Write.class);
-
     /*
      * Function which will be notified on the response obtained after the async operation.
      *
      * @param result context of the callback.
      * @return Once the callback is processed we further return back the result.
      */
-    /*private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
-        *//*
-         * Async task response goes here
-         *//*
+    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
         Integer numberOfBytesWritten = result.getResponse();
-        BStruct errorStruct;
+        CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
+        context.setReturnValues(new BInteger(numberOfBytesWritten), errorStruct);
+        callback.notifySuccess();
         return result;
-    }*/
+    }
 
 
     /**
@@ -101,24 +99,18 @@ public class Write extends BlockingNativeCallableUnit {
      * {@inheritDoc}
      */
     @Override
-    public void execute(Context context) {
-        int numberOfBytesWritten = 0;
-        BStruct errorStruct = null;
-        try {
-            BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
-            byte[] content = context.getBlobArgument(CONTENT_INDEX);
-            int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
-            int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
-            Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(context);
-            numberOfBytesWritten = IOUtils.writeFull(byteChannel, content, offset, numberOfBytes, eventContext);
-            //TODO when async functions are available this should be modified
-//            IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
-        } catch (Throwable e) {
-            String message = "Error occurred while writing bytes:" + e.getMessage();
-            log.error(message, e);
-            errorStruct = IOUtils.createError(context, message);
-        }
-        context.setReturnValues(new BInteger(numberOfBytesWritten), errorStruct);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+        byte[] content = context.getBlobArgument(CONTENT_INDEX);
+        int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
+        int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
+        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

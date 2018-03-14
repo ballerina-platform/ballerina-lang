@@ -58,7 +58,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final CompletionOptions completionOptions = new CompletionOptions();
-        completionOptions.setTriggerCharacters(Arrays.asList(":", "."));
+        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
         final ExecuteCommandOptions executeCommandOptions =
                 new ExecuteCommandOptions(Collections.singletonList(CommandConstants.CMD_IMPORT_PACKAGE));
         
@@ -71,6 +71,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
+        res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);

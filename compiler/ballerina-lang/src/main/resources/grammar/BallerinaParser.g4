@@ -73,11 +73,11 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
 connectorDefinition
@@ -170,11 +170,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* endpointType Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
     ;
 
 endpointType
-    :   ENDPOINT (LT nameReference GT)
+    :   nameReference
     ;
 
 typeName
@@ -247,6 +247,8 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   compoundAssignmentStatement
+    |   postIncrementStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -292,6 +294,26 @@ typeInitExpr
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    ;
+
+compoundAssignmentStatement
+    :   variableReference compoundOperator expression SEMICOLON
+    ;
+
+compoundOperator
+    :   COMPOUND_ADD
+    |   COMPOUND_SUB
+    |   COMPOUND_MUL
+    |   COMPOUND_DIV
+    ;
+
+postIncrementStatement
+    :   variableReference postArithmeticOperator SEMICOLON
+    ;
+
+postArithmeticOperator
+    :   INCREMENT
+    |   DECREMENT
     ;
 
 variableReferenceList
@@ -346,7 +368,7 @@ joinClause
     ;
 
 joinConditions
-    : SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    : SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
     | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
@@ -418,11 +440,21 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+invocationArgList
+    :   invocationArg (COMMA invocationArg)*
+    ;
+    
+invocationArg
+    :   expression  // required args
+    |   namedArgs   // named args
+    |   restArgs    // rest args
     ;
 
 actionInvocation
@@ -529,16 +561,45 @@ parameter
     :   annotationAttachment* typeName Identifier
     ;
 
+defaultableParameter
+    :   parameter ASSIGN expression
+    ;
+
+restParameter
+    :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+formalParameterList
+    :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
 fieldDefinition
     :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
     ;
 
 simpleLiteral
-    :   (SUB)? IntegerLiteral
+    :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
+    ;
+
+// §3.10.1 Integer Literals
+integerLiteral
+    :   DecimalIntegerLiteral
+    |   HexIntegerLiteral
+    |   OctalIntegerLiteral
+    |   BinaryIntegerLiteral
+    ;
+
+namedArgs
+    :   Identifier ASSIGN expression
+    ;
+
+restArgs
+    :   ELLIPSIS expression
     ;
 
 // XML parsing

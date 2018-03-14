@@ -9,6 +9,16 @@ public struct Service {
     ServiceEndpointConfiguration config;
 }
 
+@Description {value:"Request validation limits configuration for HTTP service endpoint"}
+@Field {value:"maxUriLength: Maximum length allowed in the URL"}
+@Field {value:"maxHeaderSize: Maximum size allowed in the headers"}
+@Field {value:"maxEntityBodySize: Maximum size allowed in the entity body"}
+public struct RequestLimits {
+    int maxUriLength = -1;
+    int maxHeaderSize = -1;
+    int maxEntityBodySize = -1;
+}
+
 @Description {value:"Configuration for HTTP service endpoint"}
 @Field {value:"host: Host of the service"}
 @Field {value:"port: Port number of the service"}
@@ -17,6 +27,8 @@ public struct Service {
 @Field {value:"transferEncoding: The types of encoding applied to the response"}
 @Field {value:"chunking: The chunking behaviour of the response"}
 @Field {value:"ssl: The SSL configurations for the service endpoint"}
+@Field {value:"httpVersion: Highest HTTP version supported"}
+@Field {value:"requestLimits: Request validation limits configuration"}
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
@@ -24,6 +36,8 @@ public struct ServiceEndpointConfiguration {
     TransferEncoding transferEncoding;
     Chunking chunking;
     SslConfiguration ssl;
+    string httpVersion;
+    RequestLimits requestLimits;
 }
 
 @Description {value:"Initializes a ServiceEndpointConfiguration struct"}
