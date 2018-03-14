@@ -95,7 +95,7 @@ public class HTTPServicesRegistry {
         // TODO: Add websocket services to the service registry when service creation get available.
         servicesInfoMap.put(httpService.getBasePath(), httpService);
         logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
-//        postProcessService(httpService);
+
         //basePath will get cached after registering service
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
@@ -109,36 +109,6 @@ public class HTTPServicesRegistry {
         }
 
     }
-
-//    public List<String> populateListFromValueArray(Value[] valueArray) {
-//        List<String> list = new ArrayList<>();
-//        if (valueArray != null) {
-//            for (Value method : valueArray) {
-//                list.add(method.getStringValue());
-//            }
-//        }
-//        return list;
-//    }
-
-//    private String discoverBasePathFrom(HttpService service, Annotation annotation) {
-//        String basePath = service.getName();
-//        if (annotation == null) {
-//            //service name cannot start with / hence concat
-//            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-//        }
-//
-//        Struct annStruct = annotation.getValue();
-//        String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-//        if (annotationValue == null) {
-//            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-//        }
-//        if (!annotationValue.trim().isEmpty()) {
-//            basePath = annotationValue;
-//        } else {
-//            basePath = HttpConstants.DEFAULT_BASE_PATH;
-//        }
-//        return sanitizeBasePath(basePath);
-//    }
 
     private String sanitizeBasePath(String basePath) {
         basePath = basePath.trim();
@@ -159,26 +129,6 @@ public class HTTPServicesRegistry {
         webSocketServicesRegistry.addUpgradableServiceByName(
                 new WebSocketService(BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType)), uri);
     }
-
-//    private void postProcessService(HttpService httpService) {
-//        List<HttpResource> resources = new ArrayList<>();
-//        for (Resource resource : httpService.getBallerinaService().getResources()) {
-//            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-//            httpResource.prepareAndValidateSignatureParams();
-//            try {
-//                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-//                                                   new HttpResourceElementFactory());
-//            } catch (URITemplateException | UnsupportedEncodingException e) {
-//                throw new BallerinaConnectorException(e.getMessage());
-//            }
-//            resources.add(httpResource);
-//        }
-//        httpService.setResources(resources);
-//        httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
-//        //basePath will get cached after registering service
-//        sortedServiceURIs.add(httpService.getBasePath());
-//        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-//    }
 
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
         for (Object key : sortedServiceURIs) {

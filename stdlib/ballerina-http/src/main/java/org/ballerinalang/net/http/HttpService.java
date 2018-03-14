@@ -71,7 +71,7 @@ public class HttpService {
         return balService;
     }
 
-    public HttpService(Service service) {
+    private HttpService(Service service) {
         this.balService = service;
     }
 
