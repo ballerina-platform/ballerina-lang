@@ -18,7 +18,9 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -41,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -85,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -99,12 +103,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -433,6 +439,73 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
+    }
+
+    public void visit(BLangPostIncrement postIncrement) {
+        BLangExpression varRef = postIncrement.varRef;
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            if (postIncrement.opKind == OperatorKind.ADD) {
+                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
+                        OperatorKind.INCREMENT, varRef);
+            } else {
+                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_ALLOWED_VARIABLE,
+                        OperatorKind.DECREMENT, varRef);
+            }
+            return;
+        } else {
+            this.typeChecker.checkExpr(varRef, env).get(0);
+        }
+        this.typeChecker.checkExpr(postIncrement.increment, env).get(0);
+        if (varRef.type == symTable.intType || varRef.type == symTable.floatType) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(postIncrement.opKind, varRef.type,
+                    postIncrement.increment.type);
+            postIncrement.modifiedExpr = getBinaryExpr(varRef,
+                    postIncrement.increment,
+                    postIncrement.opKind,
+                    opSymbol);
+        } else {
+            if (postIncrement.opKind == OperatorKind.ADD) {
+                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
+                        OperatorKind.INCREMENT, varRef.type);
+            } else {
+                dlog.error(varRef.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED,
+                        OperatorKind.DECREMENT, varRef.type);
+            }
+        }
+    }
+
+    public void visit(BLangCompoundAssignment compoundAssignment) {
+        List<BType> expTypes = new ArrayList<>();
+        BLangExpression varRef = compoundAssignment.varRef;
+        if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+            dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
+            expTypes.add(symTable.errType);
+        } else {
+            this.typeChecker.checkExpr(varRef, env).get(0);
+            expTypes.add(varRef.type);
+        }
+        this.typeChecker.checkExpr(compoundAssignment.expr, env).get(0);
+        if (expTypes.get(0) != symTable.errType && compoundAssignment.expr.type != symTable.errType) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
+                    compoundAssignment.expr.type);
+            if (opSymbol == symTable.notFoundSymbol) {
+                dlog.error(compoundAssignment.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES,
+                        compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
+            } else {
+                compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
+                        compoundAssignment.expr,
+                        compoundAssignment.opKind,
+                        opSymbol);
+                this.types.checkTypes(compoundAssignment.modifiedExpr,
+                        Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+            }
+        }
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -1212,6 +1285,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
+    }
+
+    private BLangExpression getBinaryExpr(BLangExpression lExpr,
+                                          BLangExpression rExpr,
+                                          OperatorKind opKind,
+                                          BSymbol opSymbol) {
+        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpressionNode.lhsExpr = lExpr;
+        binaryExpressionNode.rhsExpr = rExpr;
+        binaryExpressionNode.pos = rExpr.pos;
+        binaryExpressionNode.opKind = opKind;
+        if (opSymbol != symTable.notFoundSymbol) {
+            binaryExpressionNode.type = opSymbol.type.getReturnTypes().get(0);
+            binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
+        } else {
+            binaryExpressionNode.type = symTable.errType;
+        }
+        return binaryExpressionNode;
     }
 
 }

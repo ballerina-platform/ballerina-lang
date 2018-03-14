@@ -117,12 +117,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -460,6 +462,22 @@ public class Desugar extends BLangNodeVisitor {
         generatedXMLNSNode.prefix = xmlnsNode.prefix;
         generatedXMLNSNode.symbol = xmlnsNode.symbol;
         result = generatedXMLNSNode;
+    }
+
+    public void visit(BLangCompoundAssignment compoundAssignment) {
+        BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignStmt.pos = compoundAssignment.pos;
+        assignStmt.addVariable(rewriteExpr((BLangVariableReference) compoundAssignment.varRef));
+        assignStmt.expr = rewriteExpr(compoundAssignment.modifiedExpr);
+        result = assignStmt;
+    }
+
+    public void visit(BLangPostIncrement postIncrement) {
+        BLangAssignment assignStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignStmt.pos = postIncrement.pos;
+        assignStmt.addVariable(rewriteExpr((BLangVariableReference) postIncrement.varRef));
+        assignStmt.expr = rewriteExpr(postIncrement.modifiedExpr);
+        result = assignStmt;
     }
 
     @Override

@@ -33,26 +33,25 @@ public interface WorkerResponseContext {
      *         the same calling thread to execute the following worker execution
      */
     WorkerExecutionContext signal(WorkerSignal signal);
-
-    /**
-     * This is called to (re-)execute the logic that would execute when the worker response context
-     * is fulfilled. That is, when the function call which represent this workder response context
-     * is returned, an error is generated etc.. An example implementation of this would be to set
-     * the return values to the parent context's local variables.
-     * 
-     * @param runInCaller if the execution after this should run in the calling thread
-     * @return the worker execution context that should be continued in the caller thread
-     */
-    WorkerExecutionContext onFulfillment(boolean runInCaller);
     
     /**
-     * Update the target worker execution context information.
+     * Joins a new target worker execution context to the current response
+     * context. This will add a new interested party to the current response,
+     * which will be notified immediately if the response is already fulfilled,
+     * by returning a worker execution context to execute, which would be the
+     * calling context itself if there's no error (or else, after the error is 
+     * resolved, the final executable worker execution context), or else, 
+     * it will return null, and the caller should be notified later, by resuming 
+     * the worker execution context later, when the response is fulfilled.
      * 
-     * @param targetCtx the target worker execution context
-     * @param retRegIndexes  the return registry locations of the target execution context
-     *                       where the current worker execution context should report to
+     * @param targetCtx
+     *            the target worker execution context
+     * @param retRegIndexes
+     *            the return registry locations of the target execution context
+     *            where the current worker execution context should report to
+     * @return the worker execution context that should be executed after the join
      */
-    void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
+    WorkerExecutionContext joinTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
     
     /**
      * Creates and returns the data channels used to communicate between the workers.

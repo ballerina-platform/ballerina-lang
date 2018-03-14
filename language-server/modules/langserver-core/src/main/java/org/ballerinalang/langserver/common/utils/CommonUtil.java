@@ -465,17 +465,19 @@ public class CommonUtil {
      * @return {@link JsonArray}    Converted array value
      */
     public static JsonArray getType(Node node) {
-        BType type = ((BLangNode) node).type;
-        if (node instanceof BLangInvocation) {
-            JsonArray jsonElements = new JsonArray();
-            for (BType returnType : ((BLangInvocation) node).types) {
-                jsonElements.add(returnType.getKind().typeName());
+        if (node instanceof BLangNode) {
+            BType type = ((BLangNode) node).type;
+            if (node instanceof BLangInvocation) {
+                JsonArray jsonElements = new JsonArray();
+                for (BType returnType : ((BLangInvocation) node).types) {
+                    jsonElements.add(returnType.getKind().typeName());
+                }
+                return jsonElements;
+            } else if (type != null) {
+                JsonArray jsonElements = new JsonArray();
+                jsonElements.add(type.getKind().typeName());
+                return jsonElements;
             }
-            return jsonElements;
-        } else if (type != null) {
-            JsonArray jsonElements = new JsonArray();
-            jsonElements.add(type.getKind().typeName());
-            return jsonElements;
         }
 
         return null;

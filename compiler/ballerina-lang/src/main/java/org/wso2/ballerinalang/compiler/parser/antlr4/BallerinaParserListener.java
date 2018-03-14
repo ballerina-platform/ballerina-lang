@@ -536,6 +536,46 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compoundAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompoundAssignmentStatement(BallerinaParser.CompoundAssignmentStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compoundAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompoundAssignmentStatement(BallerinaParser.CompoundAssignmentStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compoundOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompoundOperator(BallerinaParser.CompoundOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compoundOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#postIncrementStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#postIncrementStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#postArithmeticOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#postArithmeticOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#variableReferenceList}.
 	 * @param ctx the parse tree
 	 */
