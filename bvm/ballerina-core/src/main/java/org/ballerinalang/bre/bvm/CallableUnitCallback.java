@@ -22,6 +22,9 @@ import org.ballerinalang.util.tracer.TraceUtil;
 import org.ballerinalang.util.tracer.Tracer;
 
 /**
+ * This interface represents a callback to report back a success or a
+ * failure state back to the originator.
+ *
  * @since 0.965.0
  */
 public abstract class CallableUnitCallback {
@@ -45,8 +48,18 @@ public abstract class CallableUnitCallback {
         notifyFailure(error);
     }
 
+    /**
+     * This should be called when you want to notify that your operation
+     * is done successfully.
+     */
     public abstract void notifySuccess();
 
+    /**
+     * This should be called to notify the listener that your operation
+     * failed with a specific error.
+     *
+     * @param error the error to be reported when the operation failed
+     */
     public abstract void notifyFailure(BStruct error);
 
 }

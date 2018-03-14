@@ -46,7 +46,7 @@ public class DocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.")
+    @Test(description = "Test doc annotation.", enabled = false)
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -156,7 +156,7 @@ public class DocumentationTest {
 
     }
 
-    @Test(description = "Test doc negative cases.")
+    @Test(description = "Test doc negative cases.", enabled = false)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 18);
@@ -393,7 +393,7 @@ public class DocumentationTest {
                 "    ```xml x = xml `<{{tagName}}>hello</{{tagName}}>`;```\n");
     }
 
-    @Test(description = "Test doc multiple.")
+    @Test(description = "Test doc multiple.", enabled = false)
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/multiple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -479,7 +479,7 @@ public class DocumentationTest {
                 "usage of deprecated function 'randomNumber'", 10, 12);
     }
 
-    @Test(description = "Test doc deprecated.")
+    @Test(description = "Test doc deprecated.", enabled = false)
     public void testDeprecated() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/deprecated.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);

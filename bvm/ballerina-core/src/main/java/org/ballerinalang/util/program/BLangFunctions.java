@@ -300,7 +300,7 @@ public class BLangFunctions {
         WorkerSet result = new WorkerSet();
         result.generalWorkers = callableUnitInfo.getWorkerInfoEntries();
         if (result.generalWorkers.length == 0) {
-            result.generalWorkers = new WorkerInfo[] { callableUnitInfo.getDefaultWorkerInfo() };
+            result.generalWorkers = callableUnitInfo.getDefaultWorkerInfoAsArray();
         } else {
             result.initWorker = callableUnitInfo.getDefaultWorkerInfo();
         }

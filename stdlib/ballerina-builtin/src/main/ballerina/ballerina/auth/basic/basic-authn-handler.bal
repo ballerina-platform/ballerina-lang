@@ -33,7 +33,9 @@ const string AUTH_SCHEME = "Basic";
 BasicAuthenticator authenticator;
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
+@Field {value:"name: Authentication handler name"}
 public struct HttpBasicAuthnHandler {
+    string name = "basic";
 }
 
 @Description {value:"Intercepts a request for authentication"}

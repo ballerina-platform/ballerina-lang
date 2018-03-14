@@ -223,6 +223,22 @@
     "before }": "",
     "after }": ""
   },
+  "Endpoint": {
+    "before annotationAttachments": "",
+    "after annotationAttachments": "",
+    "before endpoint": " ",
+    "after endpoint": "",
+    "before <": " ",
+    "after <": "",
+    "before endPointType": "",
+    "after endPointType": "",
+    "before >": "",
+    "after >": "",
+    "before name": " ",
+    "after name": "",
+    "before configurationExpression": " ",
+    "after configurationExpression": ""
+  },
   "EndpointType": {
     "before <": "",
     "after <": "",
