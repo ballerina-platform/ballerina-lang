@@ -184,7 +184,7 @@ public class PackagingUtils {
      * @param resourceName        package name to be pulled
      * @param ballerinaCentralURL URL of ballerina central
      */
-    public static void pullPackages(String resourceName, String ballerinaCentralURL) {
+    static void pullPackages(String resourceName, String ballerinaCentralURL) {
         Path baloFilePath = null;
         try {
             URI uri = PackagingUtils.class.getResource("/packaging/pullPkg.balx").toURI();
@@ -313,7 +313,7 @@ public class PackagingUtils {
      *
      * @return path of the user repository
      */
-    public static Path getUserRepositoryPath() {
+    private static Path getUserRepositoryPath() {
         Path userRepoPath;
         String userRepoDir = System.getenv(USER_REPO_ENV_KEY);
         if (userRepoDir == null || userRepoDir.isEmpty()) {
