@@ -212,6 +212,8 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CHAR_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -1286,10 +1288,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         switch (typeTag) {
             case TypeTags.CHAR:
-                opcode = baseOpcode - 2;
+                opcode = baseOpcode - CHAR_NEGATIVE_OFFSET;
                 break;
             case TypeTags.BYTE:
-                opcode = baseOpcode - 1;
+                opcode = baseOpcode - BYTE_NEGATIVE_OFFSET;
                 break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;

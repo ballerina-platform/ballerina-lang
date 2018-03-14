@@ -273,6 +273,9 @@ public class ParserUtils {
             case BuiltInType.CHAR:
                 symbolInfo.setDefaultValue(BuiltInType.CHAR_DEFAULT);
                 break;
+            case BuiltInType.BYTE:
+                symbolInfo.setDefaultValue(BuiltInType.BYTE_DEFAULT);
+                break;
             case BuiltInType.FLOAT:
                 symbolInfo.setDefaultValue(BuiltInType.FLOAT_DEFAULT);
                 break;

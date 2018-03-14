@@ -22,12 +22,14 @@ package org.ballerinalang.composer.service.ballerina.parser.service.model;
 public class BuiltInType {
     public static final String INT = "int";
     public static final String CHAR = "char";
+    public static final String BYTE = "byte";
     public static final String FLOAT = "float";
     public static final String BOOLEAN = "boolean";
     public static final String STRING = "string";
 
     public static final String INT_DEFAULT = "0";
     public static final String CHAR_DEFAULT = "0";
+    public static final String BYTE_DEFAULT = "0";
     public static final String FLOAT_DEFAULT = "0.0";
     public static final String BOOLEAN_DEFAULT = "false";
     public static final String STRING_DEFAULT = "";
