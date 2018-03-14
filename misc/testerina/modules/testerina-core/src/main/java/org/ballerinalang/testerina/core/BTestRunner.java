@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BTestRunner {
 
-    private static Path programDirPath = Paths.get(System.getProperty("user.dir"));
+    private Path programDirPath = Paths.get(System.getProperty("user.dir"));
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();

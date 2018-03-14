@@ -1,4 +1,4 @@
-package samples.functionTest;
+package functionTest;
 
 
 import ballerina.test;
