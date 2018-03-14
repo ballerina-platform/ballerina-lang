@@ -24,7 +24,7 @@ public function main (string[] args) {
     secureFunction(returnValue8, returnValue7);
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 

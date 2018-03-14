@@ -22,7 +22,7 @@ package org.ballerinalang.util.codegen;
  *
  * @since 0.92
  */
-public class StructFieldDefaultValue {
+public class DefaultValue {
     private int typeDescCPIndex;
     private String typeDesc;
 
@@ -32,7 +32,7 @@ public class StructFieldDefaultValue {
     private String stringValue;
     private boolean booleanValue;
 
-    public StructFieldDefaultValue(int typeDescCPIndex, String typeDesc) {
+    public DefaultValue(int typeDescCPIndex, String typeDesc) {
         this.typeDescCPIndex = typeDescCPIndex;
         this.typeDesc = typeDesc;
     }
