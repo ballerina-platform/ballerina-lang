@@ -878,6 +878,32 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitCompoundAssignmentStatement(BallerinaParser.CompoundAssignmentStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addCompoundAssignmentStatement(getCurrentPos(ctx), getWS(ctx),
+                ctx.compoundOperator().getText().substring(0, 1));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitPostIncrementStatement(BallerinaParser.PostIncrementStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addPostIncrementStatement(getCurrentPos(ctx), getWS(ctx),
+                ctx.postArithmeticOperator().getText().substring(0, 1));
+    }
+
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
         if (ctx.exception != null) {
@@ -1097,9 +1123,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        if (ctx.IntegerLiteral() != null) {
+        Long longObject;
+        if ((longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             try {
-                joinCount = Integer.valueOf(ctx.IntegerLiteral().getText());
+                joinCount = longObject.intValue();
             } catch (NumberFormatException ex) {
                 // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
                 // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
@@ -1727,8 +1754,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         TerminalNode node;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
-        if ((node = ctx.IntegerLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+        Long longObject;
+        BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
+        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -2309,12 +2338,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return node == null ? null : node.getText();
     }
 
-    private String getNodeValue(BallerinaParser.SimpleLiteralContext ctx, TerminalNode node) {
+    private String getNodeValue(ParserRuleContext ctx, TerminalNode node) {
         String op = ctx.getChild(0).getText();
         String value = node.getText();
         if (op != null && "-".equals(op)) {
             value = "-" + value;
         }
         return value;
+    }
+
+    private Long getIntegerLiteral(ParserRuleContext simpleLiteralContext,
+                                   BallerinaParser.IntegerLiteralContext integerLiteralContext) {
+        if (integerLiteralContext.DecimalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
+        } else if (integerLiteralContext.HexIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral())
+                    .toLowerCase().replace("0x", ""), 16);
+        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral())
+                    .replace("0_", ""), 8);
+        } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
+            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
+                    .toLowerCase().replace("0b", ""), 2);
+        }
+        return null;
     }
 }

@@ -91,11 +91,6 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return null;
     }
 
-    @Override
-    public WorkerExecutionContext onFulfillment(boolean runInCaller) {
-        return null;
-    }
-
     protected void modifyDebugCommands(WorkerExecutionContext parent, WorkerExecutionContext child) {
         if (child.programFile == null || !child.programFile.getDebugger().isDebugEnabled()
                 || parent == null || parent.getDebugContext() == null) {
@@ -113,9 +108,10 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
 
     @Override
-    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
+    public WorkerExecutionContext joinTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
         this.targetCtx = targetCtx;
         this.retRegIndexes = retRegIndexes;
+        return null;
     }
 
     public void waitForResponse() {

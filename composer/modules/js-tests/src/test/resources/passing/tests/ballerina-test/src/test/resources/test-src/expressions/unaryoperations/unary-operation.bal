@@ -56,7 +56,7 @@ function unaryExprInIfConditionTest() (boolean) {
 }
 
 function unaryNegationTest(int a, int b) (int) {
-    return a--b;
+    return a-(-b);
 }
 
 function unaryPositiveNegationTest(int a) (int) {

@@ -30,4 +30,5 @@ public class ContextConstants {
     public static final String PARAM = "Param";
     public static final String RETURN = "Return";
     public static final String FIELD = "Field";
+    public static final String COMPLETION_ERROR_STRATEGY = "CompletionCustomErrorStrategy";
 }
