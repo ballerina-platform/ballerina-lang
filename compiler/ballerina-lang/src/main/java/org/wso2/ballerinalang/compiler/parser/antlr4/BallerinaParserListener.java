@@ -1516,6 +1516,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntegerLiteral(BallerinaParser.IntegerLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namedArgs}.
 	 * @param ctx the parse tree
 	 */
