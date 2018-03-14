@@ -216,7 +216,7 @@ public class HttpResource {
 
     private static void processResourceCors(HttpResource resource, HttpService service) {
         CorsHeaders corsHeaders = resource.getCorsHeaders();
-        if (corsHeaders == null || !corsHeaders.isAvailable()) {
+        if (!corsHeaders.isAvailable()) {
             //resource doesn't have CORS headers, hence use service CORS
             resource.setCorsHeaders(service.getCorsHeaders());
             return;
