@@ -800,7 +800,14 @@ public class BLangPackageBuilder {
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
-        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = nameReference.pos;
+        varRef.addWS(nameReference.ws);
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
+        invocationExpr.expr = varRef;
         exprNodeStack.push(invocationExpr);
     }
 

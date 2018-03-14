@@ -129,6 +129,7 @@ transformerDefinition
 
 attachmentPoint
      : SERVICE
+     | RESOURCE
      | FUNCTION
      | STRUCT
      | STREAMLET
@@ -428,7 +429,7 @@ invocationArg
     ;
 
 actionInvocation
-    : variableReference RARROW functionInvocation
+    : nameReference RARROW functionInvocation
     ;
 
 expressionList
