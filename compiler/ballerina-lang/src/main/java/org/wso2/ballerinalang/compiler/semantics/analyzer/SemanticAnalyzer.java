@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
@@ -565,6 +566,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
             this.analyzeDef(a, serviceEnv);
+        });
+        serviceNode.boundEndpoints.forEach(ep -> {
+            typeChecker.checkExpr(ep, env);
+            if (ep.symbol != null && (ep.symbol.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
+                serviceSymbol.boundEndpoints.add((BEndpointVarSymbol) ep.symbol);
+            } else {
+                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE,
+                        ep.symbol != null ? ep.symbol : ep.variableName);
+            }
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));

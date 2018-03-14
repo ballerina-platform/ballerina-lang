@@ -1594,6 +1594,19 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
+    public void addServiceEndpointAttachments(int size) {
+        ServiceNode serviceNode = serviceNodeStack.peek();
+        for (int i = 0; i < size; i++) {
+            BLangNameReference nameReference = nameReferenceStack.pop();
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = nameReference.pos;
+            varRef.addWS(nameReference.ws);
+            varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+            varRef.variableName = (BLangIdentifier) nameReference.name;
+            serviceNode.bindToEndpoint(varRef);
+        }
+    }
+
     public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));

@@ -51,5 +51,6 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     FunctionNode getInitFunction();
 
     void bindToEndpoint(SimpleVariableReferenceNode endpointRef);
-    
+
+    List<? extends SimpleVariableReferenceNode> getBoundEndpoints();
 }

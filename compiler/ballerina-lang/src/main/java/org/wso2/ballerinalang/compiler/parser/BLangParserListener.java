@@ -206,6 +206,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
+    @Override
+    public void exitServiceEndpointAttachments(BallerinaParser.ServiceEndpointAttachmentsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addServiceEndpointAttachments(ctx.nameReference().size());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -346,85 +354,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
                 ctx.formalParameterList() != null, ctx.returnParameters() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startConnectorDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean publicConnector = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.endConnectorDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicConnector);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startConnectorBody();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endConnectorBody(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startActionDef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean nativeAction = ctx.NATIVE() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
-        boolean docExists = ctx.documentationAttachment() != null;
-        boolean isDeprecated = ctx.deprecatedAttachment() != null;
-        this.pkgBuilder.endActionDef(
-                getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size(),
-                nativeAction, bodyExists, docExists, isDeprecated);
     }
 
     /**
@@ -843,7 +772,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String endpointName = ctx.Identifier().getText();
-        boolean isInitExprExist = ctx.recordLiteral() != null;
+        boolean isInitExprExist = ctx.endpointInitlization() != null;
         this.pkgBuilder.addEndpointDefinition(getCurrentPos(ctx), getWS(ctx), endpointName, isInitExprExist);
     }
 
@@ -1663,9 +1592,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
                 parent instanceof BallerinaParser.ReturnParametersContext &&
                         parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
-        if (parent instanceof BallerinaParser.ConnectorDefinitionContext) {
-            this.pkgBuilder.endConnectorParamList(getWS(ctx));
-        } else if (inFuncTypeSig) {
+        if (inFuncTypeSig) {
             this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
         } else {
             this.pkgBuilder.endCallableParamList(getWS(ctx));
@@ -1686,9 +1613,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
                 parent instanceof BallerinaParser.ReturnParametersContext &&
                         parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
-        if (parent instanceof BallerinaParser.ConnectorDefinitionContext) {
-            this.pkgBuilder.endConnectorParamList(getWS(ctx));
-        } else if (inFuncTypeSig) {
+        if (inFuncTypeSig) {
             this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
         } else {
             this.pkgBuilder.endCallableParamList(getWS(ctx));

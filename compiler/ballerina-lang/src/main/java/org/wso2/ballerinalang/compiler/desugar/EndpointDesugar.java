@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -83,13 +84,14 @@ public class EndpointDesugar {
     }
 
     private void rewriteService(BLangService service, SymbolEnv pkgEnv) {
-        if (service.attachedEndpoints.isEmpty()) {
+        final BServiceSymbol serviceSymbol = (BServiceSymbol) service.symbol;
+        if (serviceSymbol.boundEndpoints.isEmpty()) {
             return;
         }
         final BSymbol enclosingSymbol = pkgEnv.enclPkg.symbol;
         final BSymbol varSymbol = pkgEnv.enclPkg.startFunction.symbol;
         final BLangBlockStmt startBlock = pkgEnv.enclPkg.startFunction.body;
-        service.attachedEndpoints.forEach(endpointVarSymbol -> {
+        serviceSymbol.boundEndpoints.forEach(endpointVarSymbol -> {
             final BLangBlockStmt generateCode = generateServiceRegistered(endpointVarSymbol, service, pkgEnv,
                     enclosingSymbol, varSymbol);
             ASTBuilderUtil.prependStatements(generateCode, startBlock);
