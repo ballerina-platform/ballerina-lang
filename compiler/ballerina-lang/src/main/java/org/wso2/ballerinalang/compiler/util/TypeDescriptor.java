@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.util;
  */
 public class TypeDescriptor {
     public static final String SIG_INT = "I";
-    public static final String SIG_CHAR = "X";
+    public static final String SIG_CHAR = "H";
     public static final String SIG_BYTE = "Z";
     public static final String SIG_FLOAT = "F";
     public static final String SIG_STRING = "S";
@@ -32,6 +32,7 @@ public class TypeDescriptor {
     public static final String SIG_JSON = "J";
     public static final String SIG_TABLE = "D";
     public static final String SIG_CONNECTOR = "C";
+    public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ENUM = "E";
     public static final String SIG_FUNCTION = "U";

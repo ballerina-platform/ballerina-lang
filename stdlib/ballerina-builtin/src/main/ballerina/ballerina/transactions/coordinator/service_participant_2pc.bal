@@ -42,8 +42,8 @@ service<http> Participant2pcService {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource prepare (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        http:OutResponse res;
+    resource prepare (http:Connection conn, http:Request req, string transactionBlockId) {
+        http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
 
@@ -101,13 +101,12 @@ service<http> Participant2pcService {
         When the initiator sends "notify(commit | abort)" this resource on the participant will get called.
         This participant will in turn call "commit" or "abort" on all the resource managers registered with the
         respective transaction.
-
         P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource notify (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        http:OutResponse res;
+    resource notify (http:Connection conn, http:Request req, string transactionBlockId) {
+        http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
         if (payloadError != null || txnBlockIdConversionErr != null) {

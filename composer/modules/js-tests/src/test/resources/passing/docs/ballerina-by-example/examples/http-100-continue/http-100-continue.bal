@@ -9,7 +9,7 @@ service<http> helloWorld {
     @http:resourceConfig {
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         // Check if the client expects a 100-continue response.
         if (req.expects100Continue()) {
             // Send a 100-continue response to the client.
@@ -18,7 +18,7 @@ service<http> helloWorld {
 
         // The client will start sending the payload once it receives the 100-continue response. Get this payload sent by the client.
         var payload, payloadError = req.getStringPayload();
-        http:OutResponse res = {};
+        http:Response res = {};
         if (payloadError == null) {
             // Process the payload
             io:println(payload);

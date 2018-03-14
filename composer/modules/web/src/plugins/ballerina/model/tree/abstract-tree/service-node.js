@@ -22,6 +22,125 @@ import Node from '../node';
 class AbstractServiceNode extends Node {
 
 
+    setEndpointNodes(newValue, silent, title) {
+        const oldValue = this.endpointNodes;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.endpointNodes = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'endpointNodes',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getEndpointNodes() {
+        return this.endpointNodes;
+    }
+
+
+    addEndpointNodes(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.endpointNodes.push(node);
+            index = this.endpointNodes.length;
+        } else {
+            this.endpointNodes.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEndpointNodes(node, silent) {
+        const index = this.getIndexOfEndpointNodes(node);
+        this.removeEndpointNodesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeEndpointNodesByIndex(index, silent) {
+        this.endpointNodes.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEndpointNodes(oldChild, newChild, silent) {
+        const index = this.getIndexOfEndpointNodes(oldChild);
+        this.endpointNodes[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceEndpointNodesByIndex(index, newChild, silent) {
+        this.endpointNodes[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfEndpointNodes(child) {
+        return _.findIndex(this.endpointNodes, ['id', child.id]);
+    }
+
+    filterEndpointNodes(predicateFunction) {
+        return _.filter(this.endpointNodes, predicateFunction);
+    }
+
+
     setInitFunction(newValue, silent, title) {
         const oldValue = this.initFunction;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -48,12 +167,12 @@ class AbstractServiceNode extends Node {
     }
 
 
-    setProtocolPackageIdentifier(newValue, silent, title) {
-        const oldValue = this.protocolPackageIdentifier;
+    setEndpointType(newValue, silent, title) {
+        const oldValue = this.endpointType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.protocolPackageIdentifier = newValue;
+        this.endpointType = newValue;
 
-        this.protocolPackageIdentifier.parent = this;
+        this.endpointType.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -61,7 +180,7 @@ class AbstractServiceNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'protocolPackageIdentifier',
+                    attributeName: 'endpointType',
                     newValue,
                     oldValue,
                 },
@@ -69,8 +188,8 @@ class AbstractServiceNode extends Node {
         }
     }
 
-    getProtocolPackageIdentifier() {
-        return this.protocolPackageIdentifier;
+    getEndpointType() {
+        return this.endpointType;
     }
 
 
@@ -478,6 +597,244 @@ class AbstractServiceNode extends Node {
 
     filterAnnotationAttachments(predicateFunction) {
         return _.filter(this.annotationAttachments, predicateFunction);
+    }
+
+
+    setDocumentationAttachments(newValue, silent, title) {
+        const oldValue = this.documentationAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.documentationAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'documentationAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDocumentationAttachments() {
+        return this.documentationAttachments;
+    }
+
+
+    addDocumentationAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.documentationAttachments.push(node);
+            index = this.documentationAttachments.length;
+        } else {
+            this.documentationAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachments(node, silent) {
+        const index = this.getIndexOfDocumentationAttachments(node);
+        this.removeDocumentationAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDocumentationAttachmentsByIndex(index, silent) {
+        this.documentationAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDocumentationAttachments(oldChild);
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDocumentationAttachmentsByIndex(index, newChild, silent) {
+        this.documentationAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDocumentationAttachments(child) {
+        return _.findIndex(this.documentationAttachments, ['id', child.id]);
+    }
+
+    filterDocumentationAttachments(predicateFunction) {
+        return _.filter(this.documentationAttachments, predicateFunction);
+    }
+
+
+    setDeprecatedAttachments(newValue, silent, title) {
+        const oldValue = this.deprecatedAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.deprecatedAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'deprecatedAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDeprecatedAttachments() {
+        return this.deprecatedAttachments;
+    }
+
+
+    addDeprecatedAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.deprecatedAttachments.push(node);
+            index = this.deprecatedAttachments.length;
+        } else {
+            this.deprecatedAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachments(node, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(node);
+        this.removeDeprecatedAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachmentsByIndex(index, silent) {
+        this.deprecatedAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(oldChild);
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDeprecatedAttachments(child) {
+        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
+    }
+
+    filterDeprecatedAttachments(predicateFunction) {
+        return _.filter(this.deprecatedAttachments, predicateFunction);
     }
 
 

@@ -75,7 +75,8 @@ public class StructNegativeTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "missing token {'int', 'char', 'float', 'boolean', 'string', 'blob'} before 'Person'");
+                            "missing token {'int', 'char', 'byte', 'float', " +
+                                    "'boolean', 'string', 'blob'} before 'Person'");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

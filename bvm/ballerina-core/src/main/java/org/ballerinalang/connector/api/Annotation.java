@@ -26,11 +26,26 @@ package org.ballerinalang.connector.api;
 public interface Annotation {
 
     /**
+     * Returns name of the Annotation.
+     *
+     * @return name of the annotation
+     */
+    String getName();
+
+    /**
+     * Returns struct value Annotation.
+     *
+     * @return struct value
+     */
+    Struct getValue();
+
+    /**
      * This method returns annAttrValue object for the given attribute name.
      *
      * @param attributeName of the annotation attribute.
      * @return annAttrValue object.
      */
+    @Deprecated
     AnnAttrValue getAnnAttrValue(String attributeName);
 
 }

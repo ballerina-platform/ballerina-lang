@@ -20,10 +20,13 @@ package ballerina.data.sql;
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
+@Field {value:"structType: In case of OUT direction, if the sqlType is REFCURSOR, this represents the struct type to
+map a result row"}
 public struct Parameter {
 	Type sqlType;
 	any value;
 	Direction direction;
+	type structType;
 }
 
 @Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -49,14 +52,14 @@ public struct Parameter {
 @Field {value:"leakDetectionThreshold: Amount of time that a connection can be out of the pool before a message is logged indicating a possible connection leak"}
 @Field {value:"datasourceProperties: Data source specific properties which are used along with the dataSourceClassName"}
 public struct ConnectionProperties {
-	string url;
-	string dataSourceClassName;
-	string connectionTestQuery;
-	string poolName;
-	string catalog;
-	string connectionInitSql;
-	string driverClassName;
-	string transactionIsolation;
+	string url = "";
+	string dataSourceClassName = "";
+	string connectionTestQuery = "";
+	string poolName = "";
+	string catalog = "";
+	string connectionInitSql = "";
+	string driverClassName = "";
+	string transactionIsolation = "";
 	boolean autoCommit = true;
 	boolean isolateInternalQueries;
 	boolean allowPoolSuspension;
@@ -70,6 +73,11 @@ public struct ConnectionProperties {
 	int validationTimeout = -1;
 	int leakDetectionThreshold = -1;
 	map datasourceProperties;
+}
+
+@Description { value:"Initialize the ConnectionProperties with default values"}
+public function<ConnectionProperties c> ConnectionProperties () {
+	c.datasourceProperties = {};
 }
 
 @Description { value:"The Databases which has direct parameter support."}
@@ -162,7 +170,8 @@ public enum Type {
 	DATETIME,
 	TIMESTAMP,
 	ARRAY,
-	STRUCT
+	STRUCT,
+	REFCURSOR
 }
 
 @Description { value:"The direction of the parameter"}
@@ -175,6 +184,10 @@ public enum Direction {
 	INOUT
 }
 
+///////////////////////////////
+// SQL Client Connector
+///////////////////////////////
+
 @Description { value:"The Client Connector for SQL databases."}
 @Param { value:"dbType: SQL database type" }
 @Param { value:"hostOrPath: Host name of the database or file path for file based database" }
@@ -185,13 +198,12 @@ public enum Direction {
 @Param { value:"options: ConnectionProperties for the connection pool configuration" }
 public connector ClientConnector (DB dbType, string hostOrPath, int port, string dbName, string username,
 								  string password, ConnectionProperties options) {
-    map sharedMap = {};
 
 	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
 	@Param { value:"query: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Result set for the given query" }
-	native action call (string query, Parameter[] parameters, type structType) (table);
+	@Return { value:"Result set(s) for the given query" }
+	native action call (string query, Parameter[] parameters, type structType) (table[]);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
 	@Param { value:"query: SQL query to execute" }
@@ -224,3 +236,58 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 
 }
 
+///////////////////////////////
+// SQL Client Endpoint
+///////////////////////////////
+
+public struct Client {
+	string epName;
+	ClientEndpointConfiguration config;
+}
+
+public struct ClientEndpointConfiguration {
+	DB database;
+	string host = "";
+	int port = 0;
+	string name = "";
+	string username = "";
+	string password = "";
+	ConnectionProperties options;
+}
+
+public function<ClientEndpointConfiguration c> ClientEndpointConfiguration () {
+	c.database = DB.GENERIC;
+	c.options = {};
+}
+
+@Description { value:"Gets called when the endpoint is being initialize during package init time"}
+@Param { value:"epName: The endpoint name" }
+@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
+public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
+	ep.epName = epName;
+	ep.config = config;
+	ep.initEndpoint();
+}
+
+@Description { value:"Initialize the endpoint"}
+public native function<Client ep> initEndpoint();
+
+@Description { value:"Returns the connector that client code uses"}
+@Return { value:"The connector that client code uses" }
+public native function <Client ep> getConnector () returns (ClientConnector conn);
+
+@Description { value:"Stops the registered service"}
+@Param { value:"Type of the service" }
+public function <Client ep> register (type serviceType){
+
+}
+
+@Description { value:"Starts the registered service"}
+public function <Client ep> start (){
+
+}
+
+@Description { value:"Stops the registered service"}
+public function <Client ep> stop () {
+
+}

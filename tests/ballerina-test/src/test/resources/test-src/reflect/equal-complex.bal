@@ -221,12 +221,12 @@ public function testJSONEmpty() (boolean) {
 }
 
 public function testJSONObjects() (boolean) {
-    json jObj1 = {name:"apple", price: 40.50, new: true};
-    json jObj2 = {name:"apple", price: 40.50, new: true};
+    json jObj1 = {name:"apple", price: 40.50, isNew: true};
+    json jObj2 = {name:"apple", price: 40.50, isNew: true};
 
-    json jObjUnordered = {price: 40.50, new: true, name:"apple"};
-    json jObjUnmatch1 = {price: 40.50, new: true, name:"orange"};
-    json jObjUnmatch2 = {price: 20.00, new: true, name:"apple"};
+    json jObjUnordered = {price: 40.50, isNew: true, name:"apple"};
+    json jObjUnmatch1 = {price: 40.50, isNew: true, name:"orange"};
+    json jObjUnmatch2 = {price: 20.00, isNew: true, name:"apple"};
 
     return reflect:equals(jObj1,jObj2) &&
             reflect:equals(jObj1,jObjUnordered) &&
@@ -258,7 +258,7 @@ public function testJSONNested() (boolean) {
                                   address1:"19, sample road",
                                   postalCode: 6789
                               },
-                     products:[{price: 40.50, new: true, name:"apple"},
+                     products:[{price: 40.50, isNew: true, name:"apple"},
                                {name:"orange", price: 30.50}],
                      manager: null
                  };
@@ -267,13 +267,13 @@ public function testJSONNested() (boolean) {
                                   address1:"19, sample road",
                                   postalCode: 6789
                               },
-                     products:[{price: 40.50, new: true, name:"apple"},
+                     products:[{price: 40.50, isNew: true, name:"apple"},
                                {name:"orange", price: 30.50}],
                      manager: null
                  };
 
     json jObjUnordered = {name:"Target",
-                             products:[{price:40.50, new:true, name:"apple"},
+                             products:[{price:40.50, isNew:true, name:"apple"},
                                        {name:"orange", price:30.50}],
                              location:{
                                           address1:"19, sample road",
@@ -283,7 +283,7 @@ public function testJSONNested() (boolean) {
                          };
 
     json jObjUnmatch1 = {name:"Cubs",
-                            products:[{price:40.50, new:true, name:"apple"},
+                            products:[{price:40.50, isNew:true, name:"apple"},
                                       {name:"orange", price:30.50}],
                             location:{
                                          address1:"19, sample road",
@@ -294,7 +294,7 @@ public function testJSONNested() (boolean) {
 
     json jObjUnmatch2 = {name:"Target",
                             products:[{name:"orange", price:30.50},
-                                      {price:40.50, new:true, name:"apple"}
+                                      {price:40.50, isNew:true, name:"apple"}
                                      ],
                             location:{
                                          address1:"19, sample road",
@@ -305,7 +305,7 @@ public function testJSONNested() (boolean) {
 
     json jObjUnmatch3 = {name:"Target",
                             products:[{name:"orange", price:30.50},
-                                      {price:40.50, new:true, name:"apple"}
+                                      {price:40.50, isNew:true, name:"apple"}
                                      ],
                             location:{
                                          address1:"70, sample road",
@@ -316,7 +316,7 @@ public function testJSONNested() (boolean) {
 
     json jObjUnmatch4 = {name:"Target",
                             products:[{name:"orange", price:30.50},
-                                      {price:40.50, new:false, name:"apple"}
+                                      {price:40.50, isNew:false, name:"apple"}
                                      ],
                             location:{
                                          address1:"19, sample road",
@@ -330,7 +330,7 @@ public function testJSONNested() (boolean) {
                                          address1:"19, sample road",
                                          postalCode: 6789
                                      },
-                            products:[{price: 88.99, new: true, name:"apple"},
+                            products:[{price: 88.99, isNew: true, name:"apple"},
                                       {name:"orange", price: 30.50}],
                             manager: null
                         };
@@ -340,7 +340,7 @@ public function testJSONNested() (boolean) {
                                          address1:"19, sample road",
                                          postalCode: 6789
                                      },
-                            products:[{price: 40.50, new: true, name:"apple"},
+                            products:[{price: 40.50, isNew: true, name:"apple"},
                                       {name:"orange", price: 30.50}],
                             manager: {name: "Larry Ben"}
                         };

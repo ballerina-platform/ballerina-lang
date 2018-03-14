@@ -79,11 +79,11 @@ service<http> InitiatorService {
 
         Micro-Transaction-Unknown
     }
-    resource register (http:Connection conn, http:InRequest req, string transactionBlockId) {
+    resource register (http:Connection conn, http:Request req, string transactionBlockId) {
 
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
         var payload, payloadError = req.getJsonPayload();
-        http:OutResponse res;
+        http:Response res;
         if (payloadError != null || txnBlockIdConversionErr != null) {
             res = {statusCode:400};
             RequestError err = {errorMessage:"Bad Request"};

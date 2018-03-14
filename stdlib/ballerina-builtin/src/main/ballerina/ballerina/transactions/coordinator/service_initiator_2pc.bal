@@ -36,8 +36,8 @@ service<http> Initiator2pcService {
     documentation {
         When a participant wants to abort a transaction, it will make a call to this resource.
     }
-    resource abortTransaction (http:Connection conn, http:InRequest req, string transactionBlockId) {
-        http:OutResponse res;
+    resource abortTransaction (http:Connection conn, http:Request req, string transactionBlockId) {
+        http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
 
@@ -63,7 +63,7 @@ service<http> Initiator2pcService {
             } else {
                 // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
                 // participant
-                txn.participants.remove(participantId);
+                _ = txn.participants.remove(participantId);
                 var msg, err = abortInitiatorTransaction(transactionId, txnBlockId);
                 if (err == null) {
                     res = {statusCode:500};

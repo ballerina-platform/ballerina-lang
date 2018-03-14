@@ -19,7 +19,6 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BType;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,11 +46,10 @@ public final class BConnector implements BRefType, StructureType {
     public BConnector(BConnectorType connectorType) {
         this.connectorType = connectorType;
         int[] fieldIndexes = this.connectorType.getFieldTypeCount();
-        longFields = new long[fieldIndexes[0]];
-        doubleFields = new double[fieldIndexes[1]];
-        stringFields = new String[fieldIndexes[2]];
-        Arrays.fill(stringFields, "");
-        intFields = new int[fieldIndexes[3]];
+        intFields = new int[fieldIndexes[0]];
+        longFields = new long[fieldIndexes[1]];
+        doubleFields = new double[fieldIndexes[2]];
+        stringFields = new String[fieldIndexes[3]];
         blobFields = new byte[fieldIndexes[4]][];
         refFields = new BRefType[fieldIndexes[5]];
     }
@@ -72,7 +70,7 @@ public final class BConnector implements BRefType, StructureType {
         nativeData.put(key, value);
     }
 
-    public Object getnativeData(String key) {
+    public Object getNativeData(String key) {
         return nativeData.get(key);
     }
 

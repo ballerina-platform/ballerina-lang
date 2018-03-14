@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.io.events;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,10 @@ public class EventContext {
      * Holds the context which will be used to set the relevant results.
      */
     private Context context;
+    /**
+     * Callback which will be triggered upon completion.
+     */
+    private CallableUnitCallback callback;
     /**
      * Represents any error which will be thrown.
      */
@@ -45,6 +50,15 @@ public class EventContext {
 
     public EventContext(Context context) {
         this.context = context;
+    }
+
+    public EventContext(Context context, CallableUnitCallback callback) {
+        this.context = context;
+        this.callback = callback;
+    }
+
+    public CallableUnitCallback getCallback() {
+        return callback;
     }
 
     public Context getContext() {

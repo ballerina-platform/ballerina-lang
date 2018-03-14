@@ -121,7 +121,7 @@ function testCharMapValues() (map){
     map addrMap = {code:'S', allowed:'Y', name: "Some Name"};
     var code, _ = (char)addrMap["code"];
     addrMap.continue = 'N';
-    addrMap.remove("allowed");
+    var a = addrMap.remove("allowed");
     return addrMap;
 }
 

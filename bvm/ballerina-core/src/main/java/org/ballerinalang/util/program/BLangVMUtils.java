@@ -32,14 +32,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
@@ -294,8 +289,8 @@ public class BLangVMUtils {
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, charParamCount = 0, byteParamCount = 0, doubleParamCount = 0, stringParamCount = 0,
-                intParamCount = 0, blobParamCount = 0, refParamCount = 0;
+        int longParamCount = 0,  doubleParamCount = 0, stringParamCount = 0, intParamCount = 0,
+                blobParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
@@ -359,37 +354,7 @@ public class BLangVMUtils {
         return wd;
     }
     
-    public static void processUnresolvedAnnAttrValues(ProgramFile programFile) {
-        programFile.getUnresolvedAnnAttrValues().forEach(entry -> {
-            PackageInfo packageInfo = programFile.getPackageInfo(entry.getConstPkg());
-            LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) packageInfo
-                    .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-
-            LocalVariableInfo localVariableInfo = localVariableAttributeInfo.getLocalVarialbeDetails(
-                    entry.getConstName());
-
-            switch (localVariableInfo.getVariableType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    entry.setBooleanValue(programFile.getGlobalMemoryBlock().getBooleanField(localVariableInfo
-                            .getVariableIndex()) == 1 ? true : false);
-                    break;
-                case TypeTags.INT_TAG:
-                    entry.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    entry.setFloatValue(programFile.getGlobalMemoryBlock().getFloatField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-                case TypeTags.STRING_TAG:
-                    entry.setStringValue(programFile.getGlobalMemoryBlock().getStringField(localVariableInfo
-                            .getVariableIndex()));
-                    break;
-            }
-        });
-    }
-    
-    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types, 
+    public static void mergeResultData(WorkerData sourceData, WorkerData targetData, BType[] types,
             int[] regIndexes) {
         int callersRetRegIndex;
         int longRegCount = 0;
