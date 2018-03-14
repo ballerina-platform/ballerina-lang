@@ -70,6 +70,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     function outdent() {
         --l;
         if (shouldIndent) {
+            if (node.documentationText) {
+                const indent = _.last(node.documentationText.split('\n'));
+                if(indent === _.repeat(tab, l)) {
+                    // if documentation text already contains the correct dent
+                    return '';
+                }
+            }
             return '\n' + _.repeat(tab, l);
         }
         return '';
@@ -85,6 +92,10 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
 
     if (replaceLambda && node.kind === 'Lambda') {
         return '$ function LAMBDA $';
+    }
+    // if this is a primitive value, return value directly
+    if (Object(node) !== node) {
+        return node;
     }
 
     switch (node.kind) {

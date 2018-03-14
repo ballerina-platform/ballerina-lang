@@ -27,14 +27,14 @@ const string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
 int[] errorCodes = [400, 500, 404];
 resiliency:CircuitBreakerConfig circuitBreakerConfig = {failureThreshold:0.1, resetTimeout:20000, httpStatusCodes:errorCodes};
 
-function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
+function testTypicalScenario () (http:Response[], http:HttpConnectorError[]) {
 
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
-    http:InResponse[] responses = [];
+    http:Request request;
+    http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
 
@@ -53,14 +53,14 @@ function testTypicalScenario () (http:InResponse[], http:HttpConnectorError[]) {
     return responses, errs;
 }
 
-function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
+function testTrialRunFailure () (http:Response[], http:HttpConnectorError[]) {
 
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
-    http:InResponse[] responses = [];
+    http:Request request;
+    http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
 
@@ -78,14 +78,14 @@ function testTrialRunFailure () (http:InResponse[], http:HttpConnectorError[]) {
     return responses, errs;
 }
 
-function testHttpStatusCodeFailure () (http:InResponse[], http:HttpConnectorError[]) {
+function testHttpStatusCodeFailure () (http:Response[], http:HttpConnectorError[]) {
 
     endpoint<resiliency:CircuitBreaker> circuitBreakerEP {
         create resiliency:CircuitBreaker((http:HttpClient)create MockHttpClient("http://localhost:8080", {}), circuitBreakerConfig);
     }
 
-    http:OutRequest request;
-    http:InResponse[] responses = [];
+    http:Request request;
+    http:Response[] responses = [];
     http:HttpConnectorError[] errs = [];
     int counter = 0;
 
@@ -107,32 +107,32 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
 
     int actualRequestNumber = 0;
 
-    action post (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action post (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action head (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action head (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action put (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action put (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action execute (string httpVerb, string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action patch (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action patch (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action delete (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action delete (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action get (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
-        http:InResponse response;
+    action get (string path, http:Request req) (http:Response, http:HttpConnectorError) {
+        http:Response response;
         http:HttpConnectorError err;
         actualRequestNumber = actualRequestNumber + 1;
 
@@ -149,45 +149,69 @@ connector MockHttpClient (string serviceUri, http:Options connectorOptions) {
         return response, err;
     }
 
-    action options (string path, http:OutRequest req) (http:InResponse, http:HttpConnectorError) {
+    action options (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
     }
 
-    action forward (string path, http:InRequest req) (http:InResponse, http:HttpConnectorError) {
+    action forward (string path, http:Request req) (http:Response, http:HttpConnectorError) {
         return null, null;
+    }
+
+    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action hasPromise (http:HttpHandle handle) (boolean) {
+        return false;
+    }
+
+    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+        return null, null;
+    }
+
+    action rejectPromise (http:PushPromise promise) (boolean) {
+        return false;
     }
 }
 
-function handleBackendFailureScenario (int requesetNo) (http:InResponse, http:HttpConnectorError) {
+function handleBackendFailureScenario (int requesetNo) (http:Response, http:HttpConnectorError) {
     // Deliberately fail a request
     if (requesetNo == 3) {
         http:HttpConnectorError err = getErrorStruct();
         return null, err;
     }
 
-    http:InResponse response = getResponse();
+    http:Response response = getResponse();
     return response, null;
 }
 
-function handleTrialRunFailureScenario (int counter) (http:InResponse, http:HttpConnectorError) {
+function handleTrialRunFailureScenario (int counter) (http:Response, http:HttpConnectorError) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         http:HttpConnectorError err = getErrorStruct();
         return null, err;
     }
 
-    http:InResponse response = getResponse();
+    http:Response response = getResponse();
     return response, null;
 }
 
-function handleHTTPStatusCodeErrorScenario (int counter) (http:InResponse, http:HttpConnectorError) {
+function handleHTTPStatusCodeErrorScenario (int counter) (http:Response, http:HttpConnectorError) {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         http:HttpConnectorError err = getMockErrorStruct();
         return null, err;
     }
 
-    http:InResponse response = getResponse();
+    http:Response response = getResponse();
     return response, null;
 }
 
@@ -198,9 +222,9 @@ function getErrorStruct () (http:HttpConnectorError) {
     return err;
 }
 
-function getResponse () (http:InResponse) {
+function getResponse () (http:Response) {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
-    http:InResponse response = {};
+    http:Response response = {};
   //  MockInResponse response = {};
     response.statusCode = 200;
     return response;

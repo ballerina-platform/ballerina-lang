@@ -70,8 +70,7 @@ TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
-CREATE      : 'create' ;
-ATTACH      : 'attach' ;
+NEW         : 'new' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
@@ -143,6 +142,7 @@ LARROW      : '<-' ;
 AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
+ELLIPSIS    : '...' ;
 
 // §3.10.1 Integer Literals
 IntegerLiteral

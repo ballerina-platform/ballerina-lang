@@ -6,13 +6,13 @@ service<http> chunkingSample {
     @http:resourceConfig {
         path:"/"
     }
-    resource sample (http:Connection conn, http:InRequest req) {
+    resource sample (http:Connection conn, http:Request req) {
         //Config client connector chunking behaviour by adding auto (default value), always or never to chunking option.
         endpoint<http:HttpClient> endPoint {
             create http:HttpClient("http://localhost:9090", {chunking:"never"});
         }
         //Create new outbound request and set payload.
-        http:OutRequest newReq = {};
+        http:Request newReq = {};
         newReq.setJsonPayload({"hello":"world!"});
         var clientResponse, _ = endPoint.post("/echo/", newReq);
         //Forward the inbound response.
@@ -25,7 +25,7 @@ service<http> echo {
     @http:resourceConfig {
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:InRequest req) {
+    resource echoResource (http:Connection conn, http:Request req) {
         string value;
         //Set response according to the request headers.
         if (req.getHeader("content-length") != null) {
@@ -33,7 +33,7 @@ service<http> echo {
         } else {
             value = req.getHeader("Transfer-Encoding");
         }
-        http:OutResponse res = {};
+        http:Response res = {};
         res.setJsonPayload({"Outbound request content":value});
         _ = conn.respond(res);
     }
