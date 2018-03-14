@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
@@ -58,7 +59,7 @@ public class Compiler {
     public BLangPackage compile(String sourcePackage) {
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
-            throw new IllegalArgumentException("cannot find file '" + sourcePackage + "'");
+            throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
         return compile(packageID);
@@ -66,6 +67,13 @@ public class Compiler {
 
     public BLangPackage compile(PackageID packageID) {
         BLangPackage packageNode = this.pkgLoader.loadPackage(packageID);
+        if (packageNode == null) {
+            throw ProjectDirs.getPackageNotFoundError(packageID);
+        }
+
+        if (dlog.errorCount > 0) {
+            return packageNode;
+        }
         return compile(packageNode);
     }
 
@@ -77,12 +85,17 @@ public class Compiler {
         // TODO Check for compilation errors
         this.sourceDirectoryManager.listSourceFilesAndPackages()
                 .map(this.pkgLoader::loadPackage)
-                .peek(this.compilerDriver::compilePackage)
+                .map(this.compilerDriver::compilePackage)
+                .filter(bLangPackage -> this.dlog.errorCount == 0)
                 .forEach(this.binaryFileWriter::writeExecutableBinary);
     }
 
     public void build(String sourcePackage, String targetFileName) {
         BLangPackage bLangPackage = compile(sourcePackage);
+        if (this.dlog.errorCount > 0) {
+            return;
+        }
+
         // Code gen and save...
         this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
     }

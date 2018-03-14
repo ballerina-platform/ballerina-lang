@@ -30,8 +30,6 @@ public enum CompilerOptionName {
 
     COMPILER_PHASE("compilerPhase"),
 
-    SKIP_PACKAGE_VALIDATION("skipPackageValidation"),
-
     TRANSACTION_EXISTS("transactionBlockExists"),
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),

@@ -38,7 +38,7 @@ public class RegexTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "regex/regex-test.bal");
+        result = BCompileUtil.compile("test-src/regex/regex-test.bal");
     }
 
     @Test(description = "Test for executing on matches regex method")

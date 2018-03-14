@@ -41,9 +41,8 @@ public class ConstantAssignmentTest {
 
     @BeforeClass
     public void setup() {
-        positiveCompileResult = BCompileUtil.compile(this, "test-src", "types/constant/constant-assignment.bal");
-        negativeCompileResult = BCompileUtil.compile(this, "test-src",
-                "types/constant/constant-assignment-negative.bal");
+        positiveCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment.bal");
+        negativeCompileResult = BCompileUtil.compile("test-src/types/constant/constant-assignment-negative.bal");
     }
 
     @Test(description = "Test accessing constant evaluated by an expression.")

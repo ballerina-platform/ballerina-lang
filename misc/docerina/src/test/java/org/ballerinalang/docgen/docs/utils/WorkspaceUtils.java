@@ -52,10 +52,7 @@ public class WorkspaceUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.DEFINE.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        options.put(CompilerOptionName.SKIP_PACKAGE_VALIDATION, Boolean.TRUE.toString());
-
         return getBallerinaPackage(fileName, context);
-
     }
 
     private static BLangPackage getBallerinaPackage(String fileName, CompilerContext context) {

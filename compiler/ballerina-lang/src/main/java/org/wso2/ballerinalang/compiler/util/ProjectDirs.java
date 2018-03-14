@@ -17,6 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
+
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -41,5 +44,21 @@ public class ProjectDirs {
 
     public static Path getLastComp(Path path) {
         return path.getName(path.getNameCount() - 1);
+    }
+
+    public static BLangCompilerException getPackageNotFoundError(PackageID packageID) {
+        if (packageID.isUnnamed) {
+            return new BLangCompilerException("cannot find file '" + packageID + "'");
+        }
+
+        return new BLangCompilerException("cannot find package '" + packageID + "'");
+    }
+
+    public static BLangCompilerException getPackageNotFoundError(String sourcePackage) {
+        if (sourcePackage.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+            return new BLangCompilerException("cannot find file '" + sourcePackage + "'");
+        }
+
+        return new BLangCompilerException("cannot find package '" + sourcePackage + "'");
     }
 }

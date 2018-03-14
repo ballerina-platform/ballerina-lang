@@ -212,6 +212,10 @@ public class BCompileUtil {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName);
         comResult.setAST(packageNode);
+        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+            return comResult;
+        }
+
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
