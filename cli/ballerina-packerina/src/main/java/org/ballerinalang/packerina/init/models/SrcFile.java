@@ -24,6 +24,25 @@ import java.util.Locale;
  * Model class for a source file.
  */
 public class SrcFile {
+    private static final String SERVICE_CONTENT = "package %s;%n" +
+                                                  "import ballerina.net.http;%n" +
+                                                  "%n" +
+                                                  "service<http> service1 {%n" +
+                                                  "    @http:resourceConfig {%n" +
+                                                  "        methods: [\"GET\"],%n" +
+                                                  "        path: \"/\"%n" +
+                                                  "    }%n" +
+                                                  "    resource echo1 (http:Connection conn, http:InRequest req) {%n" +
+                                                  "        http:OutResponse res = {};%n" +
+                                                  "        res.setStringPayload(\"Hello World!\");%n" +
+                                                  "        _ = conn.respond(res);%n" +
+                                                  "    }%n" +
+                                                  "}%n";
+    
+    private static final String MAIN_FUNCTION_CONTENT = "import ballerina.io;\n" +
+                                                        "function main(string[] args) {\n" +
+                                                        "    io:println(\"Hello World!\");\n" +
+                                                        "}\n";
     private SrcFileType srcFileType;
     private String content = "";
     private String name;
@@ -32,14 +51,14 @@ public class SrcFile {
         this.name = name;
         switch (fileType) {
             case SERVICE:
-                content = "service<http> service1 {}";
+                content = String.format(SERVICE_CONTENT, this.name);
                 break;
             case MAIN:
             default:
                 if (!this.name.toLowerCase(Locale.getDefault()).endsWith(".bal")) {
                     this.name = this.name + ".bal";
                 }
-                content = "public function main(string[] args){}";
+                content = MAIN_FUNCTION_CONTENT;
                 break;
         }
     }

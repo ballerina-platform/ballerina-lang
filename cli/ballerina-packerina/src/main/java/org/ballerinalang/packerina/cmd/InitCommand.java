@@ -67,54 +67,51 @@ public class InitCommand implements BLauncherCmd {
                 return;
             }
         
-            if (!yesFlag) {
+            if (yesFlag) {
                 manifest.setName("home");
                 manifest.setVersion("1.0.0");
             } else {
                 sourceFiles = new ArrayList<>();
         
                 // Get org name.
-                out.print("Organization name: (home)");
-                String orgName = scanner.next().trim();
+                out.print("Organization name: (home) ");
+                String orgName = scanner.nextLine().trim();
                 manifest.setName(orgName.isEmpty() ? "home" : orgName);
             
-                out.print("Version: (1.0.0)");
+                out.print("Version: (1.0.0) ");
                 // TODO: Validation with semver
-                String version = scanner.next().trim();
+                String version = scanner.nextLine().trim();
                 manifest.setVersion(version.isEmpty() ? "1.0.0" : version);
-            
-                out.print("Ballerina source [package/p, main/m, skip/(empty)]");
-                String srcInput = scanner.next().trim();
-                while (srcInput.equalsIgnoreCase("package") ||
-                       srcInput.equalsIgnoreCase("p") ||
-                       srcInput.equalsIgnoreCase("main") ||
-                       srcInput.equalsIgnoreCase("m")) {
-                
+    
+                String srcInput;
+                do  {
+                    out.print("Ballerina source [package/p, main/m, skip/(empty)] ");
+                    srcInput = scanner.nextLine().trim();
+                    
                     if (srcInput.equalsIgnoreCase("package") || srcInput.equalsIgnoreCase("p")) {
-                        out.print("Package Name: (my.package)");
-                        String packageName = scanner.next().trim();
+                        out.print("--Package Name: (my.package) ");
+                        String packageName = scanner.nextLine().trim();
                         packageName = packageName.isEmpty() ? "my.package" : packageName;
                         SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Main function: (main)");
-                        String mainBal = scanner.next().trim();
+                        out.print("--Main function: (main) ");
+                        String mainBal = scanner.nextLine().trim();
                         mainBal = mainBal.isEmpty() ? "main" : mainBal;
                         SrcFile srcFile = new SrcFile(mainBal, SrcFile.SrcFileType.MAIN);
                         sourceFiles.add(srcFile);
                     }
-                
-                    srcInput = scanner.next();
-                }
+                } while ((srcInput.equalsIgnoreCase("package") ||
+                          srcInput.equalsIgnoreCase("p") ||
+                          srcInput.equalsIgnoreCase("main") ||
+                          srcInput.equalsIgnoreCase("m")));
+    
+                out.print("\n");
             }
-        
-            out.print("Proceed to create project? (yes) n");
-            String createProject = scanner.next().trim();
-            if (!createProject.equalsIgnoreCase("n")) {
-                InitHandler.initialize(System.out, projectPath, manifest, sourceFiles);
-            } else {
-                out.println("Aborting");
-            }
+            
+            InitHandler.initialize(System.out, projectPath, manifest, sourceFiles);
+            out.println("Ballerina project initialized.");
+
         } catch (IOException e) {
             out.println("Error occurred while creating project: " + e.getMessage());
         }
