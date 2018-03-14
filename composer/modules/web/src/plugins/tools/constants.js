@@ -15,22 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-export const DIALOG = {
-    IMPORT_STRUCT: 'composer.dialog.import.struct',
-};
-
-export const COMMANDS = {
-    SHOW_IMPORT_STRUCT_DIALOG: 'show-import-struct-dialog',
-    IMPORT_STRUCT: 'import-struct',
-};
 
 export const MENUS = {
-    IMPORT_STRUCT_MENU: 'composer.menu.import.struct',
+    TOOLS_MENU: 'composer.menu.tools',
 };
 
 export const LABELS = {
-    IMPORT_STRUCT_MENU_TITLE: 'Import Struct',
+    TOOLS: 'Tools',
 };
 
-
-export const PLUGIN_ID = 'import.struct';
+export const PLUGIN_ID = 'composer.tools';

@@ -29,16 +29,16 @@ import { MENUS, COMMANDS, LABELS } from './constants';
 export function getMenuDefinitions(plugin) {
     return [
         {
-            id: MENUS.EXPORT_DIAGRAM_MENU,
+            id: MENUS.IMPORT_STRUCT_MENU,
             parent: TOOLS_MENUS.TOOLS_MENU,
-            label: LABELS.EXPORT_DIAGRAM_MENU_TITLE,
+            label: LABELS.IMPORT_STRUCT_MENU_TITLE,
             isActive: () => {
                 const { editor } = plugin.appContext;
                 const activeTab = editor.getActiveEditor();
                 return activeTab && activeTab.file;
             },
-            icon: 'export',
-            command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
+            icon: 'import',
+            command: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },
     ];

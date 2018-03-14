@@ -16,28 +16,19 @@
  * under the License.
  */
 
-import { MENUS, COMMANDS, LABELS } from './constants';
-import { MENUS as TOOLS_MENUS } from './../tools/constants';
-import { MENU_DEF_TYPES } from './../../core/menu/constants';
+import { COMMANDS } from './constants';
 
 /**
- * Provides menu definitions of help plugin.
- *
- * @returns {Object[]} menu definitions.
- *
+ * Provides command definitions of help plugin.
+ * @returns {Object[]} command definitions.
  */
-export function getMenuDefinitions(plugin) {
+export function getCommandDefinitions(plugin) {
     return [
         {
-            id: MENUS.IMPORT_SWAGGER_MENU,
-            parent: TOOLS_MENUS.TOOLS_MENU,
-            label: LABELS.IMPORT_SWAGGER_MENU_TITLE,
-            isActive: (appContext) => {
-                return true;
-            },
-            icon: 'swagger',
-            command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
-            type: MENU_DEF_TYPES.ITEM,
+            id: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
+        },
+        {
+            id: COMMANDS.IMPORT_STRUCT,
         },
     ];
 }
