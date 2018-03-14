@@ -45,7 +45,7 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> expandBal(Path path) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.find(path, 1, PathConverter::isBal);
+                return Files.find(path, Integer.MAX_VALUE, PathConverter::isBal);
             } catch (IOException ignore) {
             }
         }
