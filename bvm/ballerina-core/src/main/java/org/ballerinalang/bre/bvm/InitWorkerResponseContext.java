@@ -56,13 +56,8 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
     }
 
     @Override
-    public WorkerExecutionContext onFulfillment(boolean runInCaller) {
+    public WorkerExecutionContext joinTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
         return null;
-    }
-
-    @Override
-    public void updateTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
-        /* nothing to do */
     }
 
     @Override

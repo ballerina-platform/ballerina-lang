@@ -82,7 +82,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     protected WorkerExecutionContext propagateErrorToTarget() {
         this.notifyResponseChecker();
-        return this.onFinalizedError(BLangVMErrors.createCallFailedException(
+        return this.onFinalizedError(this.targetCtx, BLangVMErrors.createCallFailedException(
                 this.targetCtx, this.getWorkerErrors()));
     }
 
@@ -150,9 +150,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return null;
     }
     
-    protected WorkerExecutionContext onFinalizedError(BStruct error) {
-        this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
-        WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(this.targetCtx, error);
+    protected WorkerExecutionContext onFinalizedError(WorkerExecutionContext targetCtx, BStruct error) {
+        this.modifyDebugCommands(targetCtx, this.currentSignal.getSourceContext());
+        WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(targetCtx, error);
         return runInCallerCtx;
     }
     
@@ -177,7 +177,6 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return runInCallerCtx;
     }
 
-    @Override
     public WorkerExecutionContext onFulfillment(boolean runInCaller) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.targetCtx != null) {
