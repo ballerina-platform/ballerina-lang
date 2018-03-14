@@ -18,6 +18,8 @@
 
 package org.ballerinalang.packerina.init.models;
 
+import java.util.Locale;
+
 /**
  * Model class for a source file.
  */
@@ -34,7 +36,7 @@ public class SrcFile {
                 break;
             case MAIN:
             default:
-                if (!this.name.toLowerCase().endsWith(".bal")) {
+                if (!this.name.toLowerCase(Locale.getDefault()).endsWith(".bal")) {
                     this.name = this.name + ".bal";
                 }
                 content = "public function main(string[] args){}";

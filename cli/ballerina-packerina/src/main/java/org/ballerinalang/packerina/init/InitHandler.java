@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -182,7 +183,7 @@ public class InitHandler {
      * @throws IOException
      */
     private static void writeContent(Path file, String content) throws IOException {
-        byte data[] = content.getBytes();
+        byte data[] = content.getBytes(Charset.defaultCharset());
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(file, CREATE, APPEND))) {
             out.write(data, 0, data.length);
         }

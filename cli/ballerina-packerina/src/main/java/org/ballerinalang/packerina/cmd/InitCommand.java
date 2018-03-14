@@ -28,6 +28,7 @@ import org.ballerinalang.packerina.toml.model.Manifest;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class InitCommand implements BLauncherCmd {
     
         // Get source root path.
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
         try {
             Manifest manifest = new Manifest();
             List<SrcFile> sourceFiles = null;
