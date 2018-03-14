@@ -28,8 +28,11 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
+
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 
 /**
  * Native function to respond the caller.
@@ -37,15 +40,16 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
  * @since 0.96.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
-                structPackage = "ballerina.net.grpc"),
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
 public class Start extends AbstractGrpcNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
-    
+    private static final PrintStream console = System.out;
+
     @Override
     public void execute(Context context) {
         BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
@@ -54,6 +58,7 @@ public class Start extends AbstractGrpcNativeFunction {
             Server server = GrpcServicesBuilder.start(serverBuilder);
             serviceEndpoint.addNativeData("server", server);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
+            console.println("ballerina: started gRPC server connector on port " + server.getPort());
             GrpcServicesBuilder.blockUntilShutdown(server);
         } catch (GrpcServerException e) {
             context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error in starting gRPC " +

@@ -20,11 +20,9 @@ package org.ballerinalang.net.grpc.proto;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -43,7 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -57,6 +55,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
+import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
 
 
 /**
@@ -100,42 +101,42 @@ public class ServiceProtoUtils {
             if (!ServiceProtoConstants.ANN_SERVICE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
                 continue;
             }
-            for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
-                String attributeName = attributeNode.getName().getValue();
-                Node attributeValueNode = attributeNode.getValue() != null ? attributeNode.getValue().getValue() : null;
-                Object attributeValue = null;
-                if (attributeValueNode instanceof BLangLiteral) {
-                    attributeValue = ((BLangLiteral) attributeValueNode).getValue();
-                }
+            if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
+                        .getExpression()).getKeyValuePairs();
+                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                    String attributeName = attributeNode.getKey().toString();
+                    String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
+                            null;
 
-                switch (attributeName) {
-                    case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
-                        port = attributeValue != null ? (Long) attributeValue : 0;
-                        break;
-                    }
-                    case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
-                        rpcEndpoint = attributeValue instanceof String ? (String) attributeValue : null;
-                        break;
-                    }
-                    case ServiceProtoConstants.SERVICE_CONFIG_CLIENT_STREAMING: {
-                        clientStreaming = attributeValue != null ? (Boolean) attributeValue : false;
-                        break;
-                    }
-                    case ServiceProtoConstants.SERVICE_CONFIG_SERVER_STREAMING: {
-                        serverStreaming = attributeValue != null ? (Boolean) attributeValue : false;
-                        break;
-                    }
-                    case ServiceProtoConstants.SERVICE_CONFIG_GENERATE_CLIENT: {
-                        generateClientConnector = attributeValue != null ? (Boolean) attributeValue : false;
-                        break;
-                    }
-                    default: {
-                        break;
+                    switch (attributeName) {
+                        case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
+                            port = attributeValue != null ? Integer.parseInt(attributeValue) : 0;
+                            break;
+                        }
+                        case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
+                            rpcEndpoint = attributeValue != null ? attributeValue : null;
+                            break;
+                        }
+                        case ServiceProtoConstants.SERVICE_CONFIG_CLIENT_STREAMING: {
+                            clientStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                            break;
+                        }
+                        case ServiceProtoConstants.SERVICE_CONFIG_SERVER_STREAMING: {
+                            serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                            break;
+                        }
+                        case ServiceProtoConstants.SERVICE_CONFIG_GENERATE_CLIENT: {
+                            generateClientConnector = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
                     }
                 }
             }
         }
-
         return new ServiceConfig(port, rpcEndpoint, clientStreaming, serverStreaming,
                 generateClientConnector);
     }
@@ -245,13 +246,20 @@ public class ServiceProtoUtils {
     private static boolean isServerStreaming(ResourceNode resourceNode) {
         boolean serverStreaming = false;
         for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
-            if (!"resourceConfig".equals(annotationNode.getAnnotationName().getValue())) {
+            if (!ANN_RESOURCE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
                 continue;
             }
-            for (AnnotationAttachmentAttributeNode attributeNode : annotationNode.getAttributes()) {
-                if ("streaming".equals(attributeNode.getName().getValue())) {
-                    serverStreaming = attributeNode.getValue() != null && (boolean) ((BLangLiteral) attributeNode
-                            .getValue().getValue()).getValue();
+
+            if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
+                        .getExpression()).getKeyValuePairs();
+                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                    String attributeName = attributeNode.getKey().toString();
+                    String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
+                            null;
+                    if (ANN_ATTR_RESOURCE_SERVER_STREAM.equals(attributeName)) {
+                        serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                    }
                 }
             }
         }

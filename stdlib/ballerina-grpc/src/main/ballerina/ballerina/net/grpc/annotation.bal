@@ -10,6 +10,7 @@ bidirectional streaming. Flag sets to true, if the service is client/bidirection
 bidirectional streaming. Flag sets to true, if the service is bidirectional streaming."}
 public struct ServiceConfig {
     Service[] endpoints;
+    string rpcEndpoint;
     boolean clientStreaming;
     boolean serverStreaming;
     boolean generateClientConnector;

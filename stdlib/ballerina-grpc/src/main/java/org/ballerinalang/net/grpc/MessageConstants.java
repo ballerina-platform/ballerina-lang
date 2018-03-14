@@ -46,6 +46,8 @@ public class MessageConstants {
     public static final String CONNECTOR_ERROR = "ConnectorError";
     public static final String ANN_NAME_CONFIG = "serviceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
+    public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
+    public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
 
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;

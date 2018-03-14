@@ -38,8 +38,6 @@ public class ServiceProtoConstants {
 
     // dot symbol for generate full class path
     public static final String CLASSPATH_SYMBOL = ".";
-    // Proto contract directory.
-    public static final String PROTO_BUF_DIRECTORY = "proto-def";
     // Invalid wire type.
     public static final int INVALID_WIRE_TYPE = -1;
     // Embedded messages, packed repeated fields wire type.
@@ -49,6 +47,8 @@ public class ServiceProtoConstants {
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
 
     public static final String ANN_SERVICE_CONFIG = "serviceConfig";
+    public static final String ANN_MESSAGE_LISTENER = "messageListener";
+
     public static final String SERVICE_CONFIG_PORT = "port";
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "rpcEndpoint";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";

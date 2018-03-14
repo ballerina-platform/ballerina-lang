@@ -1,31 +1,18 @@
 package ballerina.net.grpc;
 
+@Description {value:"Represents the gRPC client connector"}
+@Field {value:"epName: connector endpoint identifier"}
+@Field {value:"config: gRPC client endpoint configuration"}
 public struct Client {
     // TODO : Make all field Read-Only
     string epName;
     ClientEndpointConfiguration config;
 }
 
-@Description {value:"Configuration for HTTP service endpoint"}
-@Field {value:"host: Host of the service"}
-@Field {value:"port: Port number of the service"}
-@Field {value:"httpsPort: HTTPS port number of service"}
-@Field {value:"keyStoreFile: File path to keystore file"}
-@Field {value:"keyStorePassword: The keystore password"}
-@Field {value:"trustStoreFile: File path to truststore file"}
-@Field {value:"trustStorePassword: The truststore password"}
-@Field {value:"sslVerifyClient: The type of client certificate verification"}
-@Field {value:"certPassword: The certificate password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled"}
-@Field {value:"ciphers: List of ciphers to be used"}
-@Field {value:"sslProtocol: The SSL protocol version"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled {default value : false (disable)}"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
-@Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
-@Field {value:"keepAlive: The keepAlive behaviour of the connection for a particular port"}
-@Field {value:"transferEncoding: The types of encoding applied to the response"}
-@Field {value:"chunking: The chunking behaviour of the response"}
+@Description {value:"Represents the gRPC client endpoint configuration"}
+@Field {value:"host: The server hostname"}
+@Field {value:"port: The server port"}
+@Field {value:"ssl: The SSL configurations for the client endpoint"}
 public struct ClientEndpointConfiguration {
     string host;
     int port;
@@ -33,7 +20,7 @@ public struct ClientEndpointConfiguration {
     SSL ssl;
 }
 
-@Description { value:"SSL struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Description { value:"SSL struct represents SSL/TLS options to be used for client invocation" }
 @Field {value:"trustStoreFile: File path to trust store file"}
 @Field {value:"trustStorePassword: Trust store password"}
 @Field {value:"keyStoreFile: File path to key store file"}
@@ -61,7 +48,7 @@ public struct SSL {
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
+@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
 public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
     ep.epName = epName;
@@ -71,9 +58,9 @@ public function <Client ep> init (string epName, ClientEndpointConfiguration con
 
 public native function<Client ep> initEndpoint();
 
-@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
-@Param { value:"conn: The server connector connection" }
-@Param { value:"res: The outbound response message" }
+@Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package
+init time. not supported in client connector"}
+@Param { value:"serviceType: The type of the service to be registered" }
 @Return { value:"Error occured during registration" }
 public native function <Client ep> register (type serviceType);
 
