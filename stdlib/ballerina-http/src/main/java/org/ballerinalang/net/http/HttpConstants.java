@@ -304,4 +304,14 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "pasword";
+
+    //The response codes for HTTP
+    public static final int HTTP_CONTINUE = 100;
+    public static final int HTTP_MULTIPLE_CHOICES = 300;
+    public static final int HTTP_MOVED_PERMANENTLY = 301;
+    public static final int HTTP_FOUND = 302;
+    public static final int HTTP_SEE_OTHER = 303;
+    public static final int HTTP_NOT_MODIFIED = 304;
+    public static final int HTTP_USE_PROXY = 305;
+    public static final int HTTP_TEMPORARY_REDIRECT = 307;
 }

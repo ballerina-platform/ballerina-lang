@@ -56,7 +56,7 @@ public class RespondContinue extends AbstractConnectorAction {
         BStruct outboundResponseStruct = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.RESPONSE);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil.createHttpCarbonMessage(false);
-        outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 100);
+        outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_CONTINUE);
         prepareAndRespond(context, bConnector, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
     }
 }

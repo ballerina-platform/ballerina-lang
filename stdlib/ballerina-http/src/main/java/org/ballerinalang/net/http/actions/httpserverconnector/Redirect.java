@@ -62,21 +62,29 @@ public class Redirect extends AbstractConnectorAction {
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         BEnumerator code = (BEnumerator) context.getRefArgument(2);
-
-        if (code.stringValue().equals(RedirectCode.MULTIPLE_CHOICES_300.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 300);
-        } else if (code.stringValue().equals(RedirectCode.MOVED_PERMANENTLY_301.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 301);
-        } else if (code.stringValue().equals(RedirectCode.FOUND_302.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 302);
-        } else if (code.stringValue().equals(RedirectCode.SEE_OTHER_303.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 303);
-        } else if (code.stringValue().equals(RedirectCode.NOT_MODIFIED_304.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 304);
-        } else if (code.stringValue().equals(RedirectCode.USE_PROXY_305.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 305);
-        } else if (code.stringValue().equals(RedirectCode.TEMPORARY_REDIRECT_307.toString())) {
-            outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 307);
+        RedirectCode redirectCode = RedirectCode.valueOf(code.stringValue());
+        switch (redirectCode) {
+            case MULTIPLE_CHOICES_300:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_MULTIPLE_CHOICES);
+                break;
+            case MOVED_PERMANENTLY_301:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_MOVED_PERMANENTLY);
+                break;
+            case FOUND_302:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_FOUND);
+                break;
+            case SEE_OTHER_303:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_SEE_OTHER);
+                break;
+            case NOT_MODIFIED_304:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_NOT_MODIFIED);
+                break;
+            case USE_PROXY_305:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_USE_PROXY);
+                break;
+            case TEMPORARY_REDIRECT_307:
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_TEMPORARY_REDIRECT);
+                break;
         }
 
         BStringArray locations = (BStringArray) context.getRefArgument(3);
@@ -89,5 +97,15 @@ public class Redirect extends AbstractConnectorAction {
                 locationsStr.substring(0, locationsStr.length() - 1));
 
         prepareAndRespond(context, bConnector, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
+    }
+
+    enum RedirectCode {
+        MULTIPLE_CHOICES_300,
+        MOVED_PERMANENTLY_301,
+        FOUND_302,
+        SEE_OTHER_303,
+        NOT_MODIFIED_304,
+        USE_PROXY_305,
+        TEMPORARY_REDIRECT_307
     }
 }
