@@ -39,9 +39,9 @@ public class RepoHierarchy {
                 List<Path> paths = patten.convertToPaths(converter)
                                          .filter(path -> Files.isRegularFile(path))
                                          .collect(Collectors.toList());
-                out.println("\t looking in " + repo + " for patten\n\t\t" +
-                                    patten + " and found \n\t\t\t" +
-                                    paths);
+                out.println("\t looking in " + repo + "\n\t\t for patten " +
+                                    patten + "\n\t\t\t and found " +
+                                    (paths.isEmpty() ? "noting" : paths));
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
                 }
