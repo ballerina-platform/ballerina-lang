@@ -50,8 +50,6 @@ public class HttpService {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private static final String ENDPOINTS_FIELD = "endpoints"; // TODO: populate this in the service
-    private static final String LIFETIME_FIELD = "lifetime"; // TODO: populate this in the service
     private static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_ENABLED_FIELD = "compressionEnabled";
     private static final String CORS_FIELD = "cors";
@@ -205,7 +203,7 @@ public class HttpService {
         List<Annotation> annotationList = service.getAnnotationList(HTTP_PACKAGE_PATH,
                                                                     HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
 
-        if (annotationList == null) {
+        if (annotationList == null || annotationList.isEmpty()) {
             return null;
         }
 
@@ -214,7 +212,7 @@ public class HttpService {
                     "multiple service configuration annotations found in service: " + service.getName());
         }
 
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+        return annotationList.get(0);
     }
 
     private String sanitizeBasePath(String basePath) {
