@@ -665,7 +665,7 @@ class TransformerExpanded extends React.Component {
     addSource(source) {
         const vertex = this.state.vertices.filter((val) => { return val === source; })[0];
         if (vertex) {
-            this.props.model.setSourceParam(this.transformNodeManager.createVariable('source', vertex));
+            this.props.model.setSource(this.transformNodeManager.createVariable('source', vertex));
             this.setState({ typedSource: '' });
         }
     }
@@ -723,16 +723,14 @@ class TransformerExpanded extends React.Component {
         if (!isTemp && !this.transformNodeManager.isTransformerConversion(stmtExp) &&
         (TreeUtil.isFieldBasedAccessExpr(expression) || TreeUtil.isSimpleVariableRef(expression))) {
             variables.forEach((variable) => {
-                // TODO : remove replace whitespace once its handled from backend
-                const sourceExprString = expression.getSource().replace(/ /g, '').trim();
+                const sourceExprString = this.generateEndpointId(expression.getSource());
                 let sourceId = `${sourceExprString}:${viewId}`;
                 let folded = false;
                 if (!this.sourceElements[sourceId]) {
                     folded = true;
                     sourceId = this.getFoldedEndpointId(sourceExprString, viewId, 'source');
                 }
-                // TODO : remove replace whitespace once its handled from backend
-                const targetExprString = variable.getSource().replace(/ /g, '').trim();
+                const targetExprString = this.generateEndpointId(variable.getSource());
                 let targetId = `${targetExprString}:${viewId}`;
                 if (!this.targetElements[targetId]) {
                     folded = true;
@@ -748,6 +746,18 @@ class TransformerExpanded extends React.Component {
         } else if (this.transformNodeManager.isTransformerConversion(stmtExp)) {
             this.drawIntermediateNode(variables, stmtExp, statement, isTemp);
         }
+    }
+
+    /**
+     * Generate endpoint ID
+     * @param {string} expression expression string
+     * @returns {string} id generated
+     */
+    generateEndpointId(expression) {
+        if (expression.lastIndexOf('\n') !== -1) {
+            expression = expression.substring(expression.lastIndexOf('\n'));
+        }
+        return expression.replace(/ /g, '').trim();
     }
 
     /**
