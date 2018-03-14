@@ -237,8 +237,8 @@ public class SymbolTable {
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
-//        defineBinaryOperator(OperatorKind.EQUAL, charType, charType, booleanType, InstructionCodes.CEQ);
-//        defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType, InstructionCodes.BTEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, charType, charType, booleanType, InstructionCodes.BEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
@@ -261,8 +261,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, stringType, nullType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.EQUAL, nullType, stringType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
-//        defineBinaryOperator(OperatorKind.NOT_EQUAL, charType, charType, booleanType, InstructionCodes.CNE);
-//        defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BTNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, charType, charType, booleanType, InstructionCodes.BNE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
