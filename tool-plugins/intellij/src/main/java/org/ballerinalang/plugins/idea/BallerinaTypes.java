@@ -26,7 +26,6 @@ import java.util.List;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttachment;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callableUnitBody;
@@ -140,7 +139,6 @@ public class BallerinaTypes {
     public static final RuleIElementType CONNECTOR_BODY = ruleIElementTypes.get(RULE_connectorBody);
     public static final RuleIElementType SERVICE_BODY = ruleIElementTypes.get(RULE_serviceBody);
     public static final RuleIElementType STRUCT_BODY = ruleIElementTypes.get(RULE_structBody);
-    public static final RuleIElementType ANNOTATION_BODY = ruleIElementTypes.get(RULE_annotationBody);
 
     public static final RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(RULE_functionDefinition);
     public static final RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(RULE_serviceDefinition);
@@ -206,14 +204,12 @@ public class BallerinaTypes {
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
     public static final TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.TYPE_ANY);
     public static final TokenIElementType AS = tokenIElementTypes.get(BallerinaLexer.AS);
-    public static final TokenIElementType ATTACH = tokenIElementTypes.get(BallerinaLexer.ATTACH);
     public static final TokenIElementType BIND = tokenIElementTypes.get(BallerinaLexer.BIND);
     public static final TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
     public static final TokenIElementType BY = tokenIElementTypes.get(BallerinaLexer.BY);
     public static final TokenIElementType CATCH = tokenIElementTypes.get(BallerinaLexer.CATCH);
     public static final TokenIElementType CONNECTOR = tokenIElementTypes.get(BallerinaLexer.CONNECTOR);
     public static final TokenIElementType CONST = tokenIElementTypes.get(BallerinaLexer.CONST);
-    public static final TokenIElementType CREATE = tokenIElementTypes.get(BallerinaLexer.CREATE);
     public static final TokenIElementType DELETE = tokenIElementTypes.get(BallerinaLexer.DELETE);
     public static final TokenIElementType ELSE = tokenIElementTypes.get(BallerinaLexer.ELSE);
     public static final TokenIElementType ENDPOINT = tokenIElementTypes.get(BallerinaLexer.ENDPOINT);

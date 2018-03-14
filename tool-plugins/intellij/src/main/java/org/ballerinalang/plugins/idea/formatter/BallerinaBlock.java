@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CODE_BLOCK_BODY;
@@ -177,8 +176,7 @@ public class BallerinaBlock extends AbstractBlock {
 
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
         if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
-                || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                || childElementType == ANNOTATION_BODY) {
+                || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
             return true;
         }
         return false;

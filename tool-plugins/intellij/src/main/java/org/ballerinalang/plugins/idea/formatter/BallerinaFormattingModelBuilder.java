@@ -40,7 +40,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY_IDENTIFIER_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.AS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.AT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ATTACHMENT_POINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.BANG;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.BIND;
@@ -52,7 +51,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CREATE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
@@ -203,7 +201,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(GROUP).spaceIf(true)
                 .after(CONNECTOR).spaceIf(true)
                 .after(CONST).spaceIf(true)
-                .after(CREATE).spaceIf(true)
                 .around(DELETE).spaceIf(true)
                 .around(ELSE).spaceIf(true)
                 .between(FORK, LBRACE).spaceIf(true)
@@ -282,7 +279,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RETURN, EXPRESSION_LIST).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
                 .after(ANNOTATION).spaceIf(true)
-                .around(ATTACH).spaceIf(true)
                 .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)
                 .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)

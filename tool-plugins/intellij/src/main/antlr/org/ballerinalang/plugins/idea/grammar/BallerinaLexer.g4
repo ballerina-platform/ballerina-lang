@@ -70,8 +70,6 @@ TYPE_TYPE       : 'type';
 
 VAR             : 'var';
 NEW             : 'new';
-CREATE          : 'create';
-ATTACH          : 'attach';
 IF              : 'if';
 ELSE            : 'else';
 FOREACH         : 'foreach';
@@ -98,7 +96,7 @@ WITH            : 'with';
 BIND            : 'bind';
 IN              : 'in';
 LOCK            : 'lock';
-UNTAINT     : 'untaint' ;
+UNTAINT         : 'untaint';
 
 // Separators
 
@@ -143,6 +141,7 @@ LARROW      : '<-';
 AT          : '@';
 BACKTICK    : '`';
 RANGE       : '..';
+ELLIPSIS    : '...';
 
 TILDE           : '~';
 BITAND          : '&';
@@ -507,6 +506,7 @@ fragment
 XMLEscapedSequence
     :   '\\\\'
     |   '\\{{'
+    |   '\\}}'
     ;
 
 fragment

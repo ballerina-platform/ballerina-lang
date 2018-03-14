@@ -71,16 +71,16 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   (PUBLIC)? FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   (PUBLIC)? NATIVE FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
+    |   (PUBLIC)? FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
+    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
     ;
 
 connectorBody
@@ -88,8 +88,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   NATIVE ACTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   ACTION Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   NATIVE ACTION Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
+    |   ACTION Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 structDefinition
@@ -141,24 +141,20 @@ transformerDefinition
     ;
 
 attachmentPoint
-     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
-     | RESOURCE                             # resourceAttachPoint
-     | CONNECTOR                            # connectorAttachPoint
-     | ACTION                               # actionAttachPoint
-     | FUNCTION                             # functionAttachPoint
-     | STRUCT                               # structAttachPoint
-     | STREAMLET                            # streamletAttachPoint
-     | ENUM                                 # enumAttachPoint
-     | ENDPOINT                             # endpointAttachPoint
-     | CONST                                # constAttachPoint
-     | PARAMETER                            # parameterAttachPoint
-     | ANNOTATION                           # annotationAttachPoint
-     | TRANSFORMER                          # transformerAttachPoint
+     : SERVICE
+     | RESOURCE
+     | CONNECTOR
+     | ACTION
+     | FUNCTION
+     | STRUCT
+     | STREAMLET
+     | ENUM
+     | ENDPOINT
+     | CONST
+     | PARAMETER
+     | ANNOTATION
+     | TRANSFORMER
      ;
-
-annotationBody
-    :   fieldDefinition*
-    ;
 
 constantDefinition
     :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
@@ -177,11 +173,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* endpointType Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
     ;
 
 endpointType
-    :   ENDPOINT (LT nameReference GT)
+    :   nameReference
     ;
 
 typeName
@@ -244,9 +240,9 @@ xmlLocalName
     :   Identifier
     ;
 
- annotationAttachment
-     :    AT nameReference recordLiteral?
-     ;
+annotationAttachment
+    :   AT nameReference recordLiteral?
+    ;
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -424,11 +420,21 @@ xmlAttrib
     ;
 
 functionInvocation
-    : functionReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : functionReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+invocationArgList
+    :   invocationArg (COMMA invocationArg)*
+    ;
+
+invocationArg
+    :   expression  // required args
+    |   namedArgs   // named args
+    |   restArgs    // rest args
     ;
 
 actionInvocation
@@ -571,6 +577,19 @@ parameter
     :   annotationAttachment* typeName Identifier
     ;
 
+defaultableParameter
+    :   parameter ASSIGN expression
+    ;
+
+restParameter
+    :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+formalParameterList
+    :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
 fieldDefinition
     :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
     ;
@@ -581,6 +600,14 @@ simpleLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
+    ;
+
+namedArgs
+    :   Identifier ASSIGN expression
+    ;
+
+restArgs
+    :   ELLIPSIS expression
     ;
 
 // XML parsing

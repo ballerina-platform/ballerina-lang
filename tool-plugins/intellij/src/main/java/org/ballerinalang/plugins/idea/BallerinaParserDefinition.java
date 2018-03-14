@@ -138,7 +138,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ACTION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ALL;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ANNOTATION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.AS;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ATTACH;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BIND;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BREAK;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BY;
@@ -148,7 +147,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COLON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COMMA;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONNECTOR;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONST;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CREATE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DELETE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ELSE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ENDPOINT;
@@ -261,7 +259,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             IntegerLiteral, FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ABORT, ACTION, ALL, ANNOTATION, AS, ATTACH, BIND, BREAK, BY, CATCH, CONNECTOR, CONST, CREATE, DELETE, ELSE,
+            ABORT, ACTION, ALL, ANNOTATION, AS, BIND, BREAK, BY, CATCH, CONNECTOR, CONST, DELETE, ELSE,
             ENDPOINT, ENUM, FAILED, FINALLY, FOLLOWED, FOREACH, FOR, FORK, FROM, FUNCTION, GROUP, HAVING, IF, IMPORT,
             IN, INSERT, INTO, JOIN, LENGTHOF, LOCK, NATIVE, NEW, NEXT, ON, ORDER, PACKAGE, PARAMETER, PRIVATE, PUBLIC,
             QUERY, RESOURCE, RETRIES, RETURN, RETURNS, SELECT, SERVICE, SET, SOME, STREAMLET, STRUCT, THROW, TIMEOUT,
