@@ -93,15 +93,18 @@ public class XMLNativeFunctionTest {
     @Test
     public void testGetItemType() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemType");
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "element");
         
         Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "element");
+        Assert.assertEquals(returns[1].stringValue(), "comment");
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertEquals(returns[2].stringValue(), "element");
+        
+        Assert.assertSame(returns[3].getClass(), BString.class);
+        Assert.assertEquals(returns[3].stringValue(), "sequence");
     }
 
     @Test
@@ -1391,5 +1394,18 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" "
                         + "foo1=\"bar1\" ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
+    }
+
+    @Test
+    public void testGetChildrenOfSequence() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetChildrenOfSequence");
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(),
+                "<fname1>John</fname1><lname1>Doe</lname1><fname2>Jane</fname2><lname2>Doe</lname2>apple");
     }
 }

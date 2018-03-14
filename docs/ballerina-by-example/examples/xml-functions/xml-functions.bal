@@ -42,7 +42,7 @@ function main (string[] args) {
     io:println(book);
 
     // Get all the children of an XML.
-    x = book.children();
+    x = book.*;
     io:println(x);
 
     // Get a particular child of an XML.

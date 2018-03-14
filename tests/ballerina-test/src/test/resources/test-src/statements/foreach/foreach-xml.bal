@@ -37,7 +37,7 @@ function testXMLWithArityTwo () (string) {
 
 function testXMLWithArityChildren () (string) {
     output = "";
-    foreach i,x in xdata.children().elements() {
+    foreach i,x in xdata.*.elements() {
         var s = <string> x;
         concatIntString(i,s);
     }
