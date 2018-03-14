@@ -88,14 +88,12 @@ public class EndpointUtils {
         
         SSLConfig config = new SSLConfig();
         config.setTLSStoreType(EndpointConstants.PKCS_STORE_TYPE);
-        if(keyStoreFile != null) {
-            config.setKeyStore(new File(substituteVariables(keyStoreFile)));
-            config.setKeyStorePass(keyStorePassword);
-        }
+        config.setKeyStore(new File(substituteVariables(keyStoreFile)));
+        config.setKeyStorePass(keyStorePassword);
         config.setCertPass(certPassword);
         
         config.setSslVerifyClient(sslVerifyClient);
-        if(trustStoreFile != null) {
+        if (trustStoreFile != null) {
             config.setTrustStore(new File(substituteVariables(trustStoreFile)));
             config.setTrustStorePass(trustStorePassword);
         }
