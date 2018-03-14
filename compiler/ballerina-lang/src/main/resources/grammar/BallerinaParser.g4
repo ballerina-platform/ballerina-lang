@@ -754,7 +754,7 @@ joinStreamingInput
     ;
 
 outputRate
-    : OUTPUT outputRateType? EVERY IntegerLiteral EVENTS
+    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
     ;
 
 patternStreamingInput
