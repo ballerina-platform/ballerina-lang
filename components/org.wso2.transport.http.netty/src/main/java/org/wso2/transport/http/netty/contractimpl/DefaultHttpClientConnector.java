@@ -108,7 +108,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     @Override
     public HttpResponseFuture getPushResponse(Http2PushPromise pushPromise) {
-        return pushPromise.getOutboundMsgHolder().getResponseFuture();
+        OutboundMsgHolder outboundMsgHolder = pushPromise.getOutboundMsgHolder();
+        if (pushPromise.isRejected()) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyPushResponse(pushPromise.getPromisedStreamId(),
+                                       new ClientConnectorException("Cannot fetch a response for an rejected promise",
+                                                                    HttpResponseStatus.BAD_REQUEST.code()));
+        }
+        return outboundMsgHolder.getResponseFuture();
     }
 
     @Override
@@ -160,7 +167,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
 
             // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
-            freshHttp2ClientChannel.putInFlightMessage(1, outboundMsgHolder);
+            freshHttp2ClientChannel.putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
 
             targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
                 @Override

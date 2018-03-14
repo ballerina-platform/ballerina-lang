@@ -112,6 +112,14 @@ public class OutboundMsgHolder {
     }
 
     /**
+     * Mark no push promises received.
+     */
+    public void markNoPromisesReceived() {
+        allPromisesReceived = true;
+        responseFuture.notifyPromiseAvailability();
+    }
+
+    /**
      * Gets a push response received over a particular stream.
      *
      * @param steamId id of the stream in which the push response is received

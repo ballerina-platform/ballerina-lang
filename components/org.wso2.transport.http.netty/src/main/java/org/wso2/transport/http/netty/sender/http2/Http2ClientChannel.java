@@ -119,7 +119,7 @@ public class Http2ClientChannel {
      * @param streamId stream id
      * @return in-flight message associated with the a particular stream id
      */
-    OutboundMsgHolder getInFlightMessage(int streamId) {
+    public OutboundMsgHolder getInFlightMessage(int streamId) {
         return inFlightMessages.get(streamId);
     }
 
