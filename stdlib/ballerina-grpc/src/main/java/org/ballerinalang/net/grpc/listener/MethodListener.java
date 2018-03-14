@@ -18,7 +18,6 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -33,11 +32,12 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.Map;
+
+import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
  * Abstract Method listener.
@@ -54,7 +54,7 @@ public abstract class MethodListener {
     }
 
     BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
-        ProgramFile programFile = MessageUtils.getProgramFile(resource);
+        ProgramFile programFile = getProgramFile(resource);
         BConnector connection = BLangConnectorSPIUtil.createBConnector(programFile,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVER_CONNECTOR);
         connection.setIntField(0, responseObserver.hashCode());
@@ -88,8 +88,8 @@ public abstract class MethodListener {
         int refIndex = 0;
 
         if (structType instanceof BStructType) {
-            BStruct requestStruct = ConnectorUtils.createStruct(resource, structType.getPackagePath(), structType
-                    .getName());
+            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), structType
+                            .getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {

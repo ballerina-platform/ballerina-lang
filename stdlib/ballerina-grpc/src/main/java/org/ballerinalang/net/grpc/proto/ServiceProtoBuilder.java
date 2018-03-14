@@ -28,13 +28,16 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.MessageConstants.ANN_MESSAGE_LISTENER;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
  * This class validates annotations attached to Ballerina service and resource nodes.
  *
  * @since 1.0
  */
 @SupportedAnnotationPackages(
-        value = "ballerina.net.grpc"
+        value = PROTOCOL_PACKAGE_GRPC
 )
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
@@ -47,8 +50,8 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
-            if ("messageListener".equals(annotationNode.getAnnotationName().getValue())) {
+        for (AnnotationAttachmentNode annotationNode : annotations) {
+            if (ANN_MESSAGE_LISTENER.equals(annotationNode.getAnnotationName().getValue())) {
                 return;
             }
         }

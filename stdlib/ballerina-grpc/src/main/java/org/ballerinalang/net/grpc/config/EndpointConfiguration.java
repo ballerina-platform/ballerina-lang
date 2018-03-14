@@ -23,9 +23,20 @@ import org.ballerinalang.net.grpc.ssl.SSLConfig;
  * Endpoint configuration of gRPC Service.
  */
 public class EndpointConfiguration {
-    private String host;
-    private int port;
-    private String scheme;
+    private String host = "0.0.0.0";
+    private int port = 9090;
+    private String scheme = "http";
+    private String tlsStoreType;
+    private String keyStoreFile;
+    private String keyStorePass;
+    private String certPass;
+    private String verifyClient;
+    private String trustStoreFile;
+    private String trustStorePass;
+    private boolean validateCertEnabled;
+    private int cacheSize;
+    private int cacheValidityPeriod;
+    private String sslProtocol;
     private SSLConfig sslConfig;
     
     public String getHost() {
