@@ -20,7 +20,7 @@ public struct TestConfig {
 @Field {value:"packageName: Name of the package that the function to be mocked resides in"}
 @Field {value:"functionName: Name of the function to be mocked"}
 public struct MockConfig {
-    string packageName;
+    string packageName = ".";
     string functionName;
 }
 

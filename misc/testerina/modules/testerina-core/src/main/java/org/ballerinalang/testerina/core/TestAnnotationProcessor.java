@@ -117,6 +117,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addAfterEachFunction(functionName);
             } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String[] vals = new String[2];
+                // If package property not present the package is .
+                // TODO: when default values are supported in annotation struct we can remove this
+                vals[0] = ".";
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
                     List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getKeyValuePairs();
