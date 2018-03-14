@@ -52,7 +52,7 @@ public abstract class CallableUnitCallback {
      * This should be called when you want to notify that your operation
      * is done successfully.
      */
-    public abstract void notifySuccess();
+    protected abstract void notifySuccess();
 
     /**
      * This should be called to notify the listener that your operation
@@ -60,6 +60,6 @@ public abstract class CallableUnitCallback {
      *
      * @param error the error to be reported when the operation failed
      */
-    public abstract void notifyFailure(BStruct error);
+    protected abstract void notifyFailure(BStruct error);
 
 }

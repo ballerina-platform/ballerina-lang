@@ -75,7 +75,7 @@ public class ReadCharacters implements NativeCallableUnit {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
         context.setReturnValues(new BString(readChars), errorStruct);
-        callback.notifySuccess();
+        callback.onSuccess();
         return result;
     }
 

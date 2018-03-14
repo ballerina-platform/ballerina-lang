@@ -83,13 +83,13 @@ public class LoadToTable implements NativeCallableUnit {
         } catch (InvalidPathException e) {
             String msg = "Unable to resolve the file path[" + filePath + "]: " + e.getMessage();
             context.setReturnValues(null, IOUtils.createError(context, msg));
-            callback.notifySuccess();
+            callback.onSuccess();
             return;
         }
         if (Files.notExists(path)) {
             String msg = "Unable to find a file in given path: " + filePath;
             context.setReturnValues(null, IOUtils.createError(context, msg));
-            callback.notifySuccess();
+            callback.onSuccess();
             return;
         }
         try {
@@ -133,7 +133,7 @@ public class LoadToTable implements NativeCallableUnit {
             }
         }
         CallableUnitCallback callback = eventContext.getCallback();
-        callback.notifySuccess();
+        callback.onSuccess();
         return result;
     }
 

@@ -69,7 +69,7 @@ public class NextTextRecord implements NativeCallableUnit {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
         context.setReturnValues(new BStringArray(fields), errorStruct);
-        callback.notifySuccess();
+        callback.onSuccess();
         return result;
     }
 

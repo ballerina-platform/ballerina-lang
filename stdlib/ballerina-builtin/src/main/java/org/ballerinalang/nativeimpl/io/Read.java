@@ -86,7 +86,7 @@ public class Read implements NativeCallableUnit {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
         context.setReturnValues(new BBlob(content), new BInteger(numberOfBytes), errorStruct);
-        callback.notifySuccess();
+        callback.onSuccess();
         return result;
     }
 

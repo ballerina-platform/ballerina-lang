@@ -67,7 +67,7 @@ public class HasNextTextRecord implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Boolean response = result.getResponse();
         context.setReturnValues(new BBoolean(response));
-        callback.notifySuccess();
+        callback.onSuccess();
         return result;
     }
 

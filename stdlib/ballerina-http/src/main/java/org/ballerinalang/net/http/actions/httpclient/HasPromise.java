@@ -83,7 +83,7 @@ public class HasPromise extends AbstractHTTPAction {
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
             context.setReturnValues(new BBoolean(isPromiseAvailable));
-            callback.notifySuccess();
+            callback.onSuccess();
         }
     }
 }
