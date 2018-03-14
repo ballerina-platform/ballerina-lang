@@ -105,7 +105,7 @@ export function getHandlerDefinitions(plugin) {
             cmdID: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
             handler: () => {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
-                let structNode = DefaultNodeFactory.createStruct();
+                const structNode = DefaultNodeFactory.createStruct();
 
                 const onImport = (json, structName) => {
                     let success = true;

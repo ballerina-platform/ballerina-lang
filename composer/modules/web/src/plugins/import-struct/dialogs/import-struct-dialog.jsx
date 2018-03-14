@@ -56,8 +56,7 @@ class ImportStructDialog extends React.Component {
      * Called when user clicks 'Import Struct' menu item.
      */
     onImportJson() {
-        const { structName } = this.state;
-        if (this.props.onImport(this.state.json, structName)) {
+        if (this.props.onImport(this.state.json, this.state.structName)) {
             this.setState({
                 error: '',
                 json: '',
