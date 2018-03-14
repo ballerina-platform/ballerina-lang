@@ -42,8 +42,8 @@ public class CallbackedInvocableWorkerResponseContext extends SyncCallableWorker
     }
     
     @Override
-    protected WorkerExecutionContext onFinalizedError(BStruct error) {
-        WorkerExecutionContext ctx = super.onFinalizedError(error);
+    protected WorkerExecutionContext onFinalizedError(WorkerExecutionContext targetCtx, BStruct error) {
+        WorkerExecutionContext ctx = super.onFinalizedError(targetCtx, error);
         this.responseCallback.notifyFailure(error);
         return ctx;
     }
