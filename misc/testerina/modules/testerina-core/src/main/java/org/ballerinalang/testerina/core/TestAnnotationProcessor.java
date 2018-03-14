@@ -257,7 +257,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     if (ins instanceof Instruction.InstructionCALL) {
                         // replace the function pointer of the instruction with the mock function pointer
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
-                        if (call.functionInfo.getName().equals(info[1])) {
+                        if (call.functionInfo.getPkgPath().equals(info[0]) && call.functionInfo.getName().equals
+                                (info[1])) {
                             suite.addMockedRealFunction(k, call.functionInfo);
                             call.functionInfo = v.getbFunction();
                         }
@@ -287,7 +288,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 for (Instruction ins : packageInfo.getInstructions()) {
                     if (ins instanceof Instruction.InstructionCALL) {
                         Instruction.InstructionCALL call = (Instruction.InstructionCALL) ins;
-                        if (call.functionInfo.getName().equals(info[1])) {
+                        if (call.functionInfo.getPkgPath().equals(info[0]) && call.functionInfo.getName().equals
+                                (info[1])) {
                             call.functionInfo = mockedRealFunctionsMap.get(k);
                         }
                     }
