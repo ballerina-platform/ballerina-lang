@@ -40,10 +40,45 @@ function getParticipantPort () returns (int port) {
     return;
 }
 
-connector InitiatorClient (string registerAtURL) {
-    endpoint<http:HttpClient> initiatorEP {
-        create http:HttpClient(registerAtURL, {});
-    }
+struct InitiatorClientEP {
+    InitiatorClientConfig conf;
+    http:Client client;
+}
+
+struct InitiatorClientConfig {
+    string registerAtURL;
+}
+
+function <InitiatorClientEP ep> init(string name, InitiatorClientConfig conf){
+    ep.conf = conf;
+    ep.client = {};
+    ep.client.init("httpClient" , {serviceUri : conf.coordinatorProtocolAt});
+}
+
+function <InitiatorClientEP ep> start(){
+    ep.client.start();
+}
+
+function <InitiatorClientEP ep> stop(){
+    ep.client.stop();
+}
+
+function <InitiatorClientEP ep> register(type serviceName){
+    ep.client.register(serviceName);
+}
+
+function <InitiatorClientEP ep> getConnector() (InitiatorClient) {
+    return new InitiatorClient(ep);
+}
+
+connector InitiatorClient (InitiatorClientEP initiatorEP) {
+
+// connector InitiatorClient (string registerAtURL) {
+//     endpoint<http:Client> initiatorEP {
+//         serviceUri: registerAtURL,
+//         retryConfig:{count:5, interval:5000},
+//         endpointTimeout:180000
+//     }
 
     action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
                                                                             error err) {
@@ -58,7 +93,7 @@ connector InitiatorClient (string registerAtURL) {
         json j = <json, regRequestToJson()>regReq;
         http:Request req = {};
         req.setJsonPayload(j);
-        var res, e = initiatorEP.post("", req);
+        var res, e = initiatorEP -> post("", req);
         if (e == null) {
             int statusCode = res.statusCode;
             var payload, payloadError = res.getJsonPayload();

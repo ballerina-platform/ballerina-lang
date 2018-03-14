@@ -36,11 +36,9 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
-
 @http:configuration {
     basePath:initiatorCoordinatorBasePath,
-    host:coordinatorHost,
-    port:coordinatorPort
+    endpoints:[coordinatorServerEP]
 }
 documentation {
     Service on the initiator which is independent from the coordination type and handles registration of remote participants.
@@ -79,7 +77,7 @@ service<http> InitiatorService {
 
         Micro-Transaction-Unknown
     }
-    resource register (http:Connection conn, http:Request req, string transactionBlockId) {
+    resource register (http:ServerConnector conn, http:Request req, string transactionBlockId) {
 
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
         var payload, payloadError = req.getJsonPayload();
@@ -89,7 +87,7 @@ service<http> InitiatorService {
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
-            var connError = conn.respond(res);
+            var connErr = conn -> respond(res);
             if (connError != null) {
                 log:printErrorCause("Sending response to Bad Request for register request failed", (error)connError);
             }
@@ -101,14 +99,14 @@ service<http> InitiatorService {
 
             if (txn == null) {
                 res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
-                var connError = conn.respond(res);
+                var connErr = conn -> respond(res);
                 if (connError != null) {
                     log:printErrorCause("Sending response for register request with null transaction ID failed",
                                         (error)connError);
                 }
             } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
-                var connError = conn.respond(res);
+                var connErr = conn -> respond(res);
                 if (connError != null) {
                     log:printErrorCause("Sending response for register request by already registered participant
                                          for transaction " + txnId + " failed", (error)connError);
@@ -116,7 +114,7 @@ service<http> InitiatorService {
             } else if (!protocolCompatible(txn.coordinationType,
                                            regReq.participantProtocols)) { // Invalid-Protocol
                 res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
-                var connError = conn.respond(res);
+                var connErr = conn -> respond(res);
                 if (connError != null) {
                     log:printErrorCause("Sending response for register request by participant with invalid protocol
                                          for transaction " + txnId + " failed", (error)connError);
@@ -142,7 +140,7 @@ service<http> InitiatorService {
                 json resPayload = <json, regResposeToJson()>(regRes);
                 res = {statusCode:200};
                 res.setJsonPayload(resPayload);
-                var connError = conn.respond(res);
+                var connErr = conn -> respond(res);
                 if (connError != null) {
                     log:printErrorCause("Sending response for register request for transaction " + txnId +
                                         " failed", (error)connError);

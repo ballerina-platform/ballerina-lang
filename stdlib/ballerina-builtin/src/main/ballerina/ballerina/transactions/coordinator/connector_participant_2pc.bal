@@ -20,7 +20,9 @@ import ballerina.net.http;
 
 connector Participant2pcClient (string participantURL) {
     endpoint<http:HttpClient> participantEP {
-        create http:HttpClient(participantURL, {});
+        serviceUri: participantURL,
+        retryConfig:{count:5, interval:5000},
+        endpointTimeout:180000
     }
 
     action prepare (string transactionId) returns (string status, error err) {
@@ -28,7 +30,7 @@ connector Participant2pcClient (string participantURL) {
         PrepareRequest prepareReq = {transactionId:transactionId};
         var j, _ = <json>prepareReq;
         req.setJsonPayload(j);
-        var res, communicationErr = participantEP.post("/prepare", req);
+        var res, communicationErr = participantEP -> post("/prepare", req);
         if (communicationErr == null) {
             var payload, payloadError = res.getJsonPayload();
             if (payloadError == null) {
@@ -62,7 +64,7 @@ connector Participant2pcClient (string participantURL) {
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         var j, _ = <json>notifyReq;
         req.setJsonPayload(j);
-        var res, commErr = participantEP.post("/notify", req);
+        var res, commErr = participantEP -> post("/notify", req);
         if (commErr == null) {
             var payload, payloadError = res.getJsonPayload();
             if (payloadError == null) {

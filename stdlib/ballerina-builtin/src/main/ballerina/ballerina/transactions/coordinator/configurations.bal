@@ -45,3 +45,8 @@ function getCoordinatorPort () returns (int port) {
     }
     return;
 }
+
+endpoint<http:Service> coordinatorServerEP {
+    host:coordinatorHost,
+    port:coordinatorPort
+}

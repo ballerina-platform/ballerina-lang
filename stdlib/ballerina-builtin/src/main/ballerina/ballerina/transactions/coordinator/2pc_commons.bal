@@ -201,6 +201,7 @@ function notifyAbort (TwoPhaseCommitTransaction txn) returns (string message, er
 }
 
 function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) returns (boolean successful) {
+    successful = true;
     foreach _, p in txn.participants {
         var participant, _ = (Participant)p;
         Protocol[] protocols = participant.participantProtocols;
@@ -210,11 +211,12 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
                     if (proto.protocolFn != null) {
                         // if the participant if a local participant, i.e. protoFn is set, then call that fn
                         log:printInfo("Preparing local participant: " + participant.participantId);
-                        successful = proto.protocolFn(txn.transactionId, proto.transactionBlockId, "prepare");
+                        if (!proto.protocolFn(txn.transactionId, proto.transactionBlockId, "prepare")) {
+                            successful = false;
+                        }
                     } else if (proto.url != null) {
                         if (!prepareRemoteParticipant(txn, participant, proto.url)) {
                             successful = false;
-                            return;
                         }
                     } else {
                         error err = {message:"Both protocol function and URL are null"};
@@ -224,7 +226,6 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
             }
         }
     }
-    successful = true;
     return;
 }
 
@@ -248,10 +249,10 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
     bind client with participantEP;
 
     log:printInfo("Preparing remote participant: " + participantId);
-    // If a participant voted NO then abort
-    var status, e = participantEP.prepare(transactionId);
-    if (e != null || status == "aborted") {
-        log:printInfo("Remote participant: " + participantId + " failed or aborted");
+    // If a participant voted NO or failed then abort
+    var status, err = participantEP.prepare(transactionId);
+    if (status == "aborted") {
+        log:printInfo("Remote participant: " + participantId + " aborted.");
         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
         // participant
         txn.participants.remove(participantId);
@@ -267,8 +268,15 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         log:printInfo("Remote participant: " + participantId + " read-only");
         // Don't send notify to this participant because it is read-only. We can forget about this participant.
         txn.participants.remove(participantId);
+    } else if (err != null) {
+        log:printErrorCause("Remote participant: " + participantId + " failed", err);
+        txn.participants.remove(participantId);
+        successful = false;
+    } else if (status == "prepared") {
+        log:printInfo("Remote participant: " + participantId + " prepared");
     } else {
         log:printInfo("Remote participant: " + participantId + ", status: " + status);
+        successful = false;
     }
     return;
 }
@@ -375,6 +383,7 @@ function abortInitiatorTransaction (string transactionId, int transactionBlockId
         if (!localAbortSuccessful) {
             log:printError("Aborting local resource managers failed");
         }
+        initiatedTransactions.remove(transactionId);
     }
     return;
 }
@@ -404,21 +413,21 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         log:printError(msg);
         err = {message:msg};
     } else {
-        string protocolUrl = txn.coordinatorProtocols[0].url;
-        var client, cacheErr = (Initiator2pcClient)httpClientCache.get(protocolUrl);
-        if (cacheErr != null) {
-            throw cacheErr; // We can't continue due to a programmer error
-        }
-        if (client == null) {
-            client = create Initiator2pcClient(protocolUrl);
-            httpClientCache.put(protocolUrl, client);
-        }
-        bind client with initiatorEP;
-        message, err = initiatorEP.abortTransaction(transactionId, transactionBlockId);
+        //string protocolUrl = txn.coordinatorProtocols[0].url;
+        //var client, cacheErr = (Initiator2pcClient)httpClientCache.get(protocolUrl);
+        //if (cacheErr != null) {
+        //    throw cacheErr; // We can't continue due to a programmer error
+        //}
+        //if (client == null) {
+        //    client = create Initiator2pcClient(protocolUrl);
+        //    httpClientCache.put(protocolUrl, client);
+        //}
+        //bind client with initiatorEP;
+        //message, err = initiatorEP.abortTransaction(transactionId, transactionBlockId);
         if (err == null) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
-            // do not remove the transaction since we may get a msg from the initiator
+            //TODO do not remove the transaction since we may get a msg from the initiator
         } else {
             log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
         }
@@ -478,8 +487,9 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
         if (txn.state != TransactionState.ABORTED) {
             msg, err = commitTransaction(transactionId, transactionBlockId);
             if (err == null) {
-                // do not remove the transaction since we may get a msg from the initiator
                 txn.state = TransactionState.COMMITTED;
+                // TODO do not remove the transaction since we may get a msg from the initiator
+                initiatedTransactions.remove(transactionId);
             }
         }
     } // Nothing to do on endTransaction if you are a participant
@@ -500,12 +510,17 @@ documentation {
     R{{err}} - Error if something fails during beginning a transaction
 }
 function abortTransaction (string transactionId, int transactionBlockId) returns (string msg, error err) {
+    log:printInfo("########### abort called");
+
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (initiatedTransactions.hasKey(transactionId)) {
-        string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (participatedTransactions.hasKey(participatedTxnId)) {
+
+            log:printInfo("########### aborting local participant transaction");
+
             // if I am a local participant, then I will remove myself because I don't want to be notified on abort,
             // and then call abort on the initiator
-            var txn, _ = (TwoPhaseCommitTransaction )initiatedTransactions.get(transactionId);
+            var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
             boolean successful = abortResourceManagers(transactionId, transactionBlockId);
             if (!successful) {
                 err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
@@ -515,14 +530,24 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             // do not remove the transaction since we may get a msg from the initiator
             txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
-            if(err == null) {
+            if (err == null) {
                 txn.state = TransactionState.ABORTED;
             }
         } else {
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
         }
     } else {
-        msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId);
+        //msg, err = abortLocalParticipantTransaction(transactionId, transactionBlockId); // TODO: we can move the core logic here from the function
+        var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
+        boolean successful = abortResourceManagers(transactionId, transactionBlockId);
+        if (!successful) {
+            err = {message:"Aborting local resource managers failed for transaction:" + participatedTxnId};
+            log:printErrorCause("Local participant transaction: " + participatedTxnId + " failed to abort", err);
+            return;
+        } else {
+            txn.state = TransactionState.ABORTED;
+            log:printInfo("Local participant aborted transaction: " + participatedTxnId);
+        }
     }
     // do not remove the transaction since we may get a msg from the initiator
     return;

@@ -17,6 +17,7 @@
 package ballerina.transactions.coordinator;
 
 import ballerina.caching;
+import ballerina.io;
 import ballerina.log;
 import ballerina.net.http;
 import ballerina.util;
@@ -28,20 +29,54 @@ documentation {
 }
 string localParticipantId = util:uuid();
 
+const boolean initialized = initialize();
+
 documentation {
     This cache is used for caching transaction that are initiated.
 }
-caching:Cache initiatedTransactions = caching:createCache("ballerina.transactions.initiated.cache", 600000, 10, 0.1);
+Cache initiatedTransactions;
+//caching:Cache initiatedTransactions = caching:createCache("ballerina.transactions.initiated.cache", 1200000, 100000000, 0.1);
 
 documentation {
     This cache is used for caching transaction that are this Ballerina instance participates in.
 }
-caching:Cache participatedTransactions = caching:createCache("ballerina.transactions.participated.cache", 600000, 10, 0.1);
+Cache participatedTransactions;
+//caching:Cache participatedTransactions = caching:createCache("ballerina.transactions.participated.cache", 1200000, 100000000, 0.1);
 
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 10, 0.1);
+caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
+
+struct Cache {
+    map content;
+}
+
+function <Cache c> get (string key) returns (any) {
+    return c.content[key];
+}
+
+function <Cache c> put (string key, any value) {
+    c.content[key] = value;
+}
+
+function <Cache c> remove (string key) {
+    //io:println("Remove:" + key); //TODO remove this
+    c.content.remove(key);
+    //io:println(lengthof c.content); //TODO remove this
+}
+
+function <Cache c> hasKey (string key) returns (boolean) {
+    return c.content.hasKey(key);
+}
+
+function initialize () returns (boolean) {
+    initiatedTransactions = {};
+    initiatedTransactions.content = {};
+    participatedTransactions = {};
+    participatedTransactions.content = {};
+    return true;
+}
 
 struct Transaction {
     string transactionId;
@@ -176,7 +211,7 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (string msg) returns (http:Response res) {
+function respondToBadRequest (string msg) returns (http:OutResponse res) {
     log:printError(msg);
     res = {statusCode:400};
     RequestError err = {errorMessage:msg};
@@ -269,12 +304,34 @@ function registerParticipantWithLocalInitiator (string transactionId,
 function localParticipantProtocolFn (string transactionId,
                                      int transactionBlockId,
                                      string protocolAction) returns (boolean successful) {
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
+    if(txn == null) {
+        successful = false;
+        return;
+    }
     if (protocolAction == "prepare") {
-        successful = prepareResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.ABORTED) {
+            participatedTransactions.remove(participatedTxnId);
+        } else {
+            successful = prepareResourceManagers(transactionId, transactionBlockId);
+            if (successful) {
+                txn.state = TransactionState.PREPARED;
+            }
+            successful = true;
+        }
     } else if (protocolAction == "notifycommit") {
-        successful = commitResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.PREPARED) {
+            successful = commitResourceManagers(transactionId, transactionBlockId);
+            participatedTransactions.remove(participatedTxnId);
+            successful = true;
+        }
     } else if (protocolAction == "notifyabort") {
-        successful = abortResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.PREPARED) {
+            successful = abortResourceManagers(transactionId, transactionBlockId);
+            participatedTransactions.remove(participatedTxnId);
+            successful = true;
+        }
     }
     return;
 }
