@@ -7,11 +7,11 @@ public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-public function untaintedNamedReturn (string input) (@untainted{} string output) {
+public function untaintedNamedReturn (string input) (@untainted string output) {
     output = input;
     return output;
 }
 
-public function untaintedReturn (string input) (@untainted{} string) {
+public function untaintedReturn (string input) (@untainted string) {
     return input;
 }

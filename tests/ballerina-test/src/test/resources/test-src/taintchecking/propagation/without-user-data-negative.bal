@@ -7,7 +7,7 @@ public function returnString() {
     secureFunction(data, data);
 }
 
-public function taintedReturn()(@tainted{} string) {
+public function taintedReturn()(@tainted string) {
     return "example";
 }
 

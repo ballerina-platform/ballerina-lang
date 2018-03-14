@@ -28,22 +28,22 @@ public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-public function taintedNamedReturnFirstReturnUntainted (string inputData) (@untainted{} string output1, string output2) {
+public function taintedNamedReturnFirstReturnUntainted (string inputData) (@untainted string output1, string output2) {
     output1 = inputData;
     output2 = inputData;
     return;
 }
 
-public function taintedReturnFirstReturnUntainted (string inputData) (@untainted{} string, string) {
+public function taintedReturnFirstReturnUntainted (string inputData) (@untainted string, string) {
     return inputData, inputData;
 }
 
-public function taintedNamedReturnSecondReturnUntainted (string inputData) (string output1, @untainted{} string output2) {
+public function taintedNamedReturnSecondReturnUntainted (string inputData) (string output1, @untainted string output2) {
     output1 = inputData;
     output2 = inputData;
     return;
 }
 
-public function taintedReturnSecondReturnUntainted (string inputData) (string, @untainted{} string) {
+public function taintedReturnSecondReturnUntainted (string inputData) (string, @untainted string) {
     return inputData, inputData;
 }

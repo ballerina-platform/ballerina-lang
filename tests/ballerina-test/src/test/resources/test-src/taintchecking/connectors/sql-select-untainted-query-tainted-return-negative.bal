@@ -30,6 +30,6 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
     return;
 }
 
-public function testFunction (@sensitive{} string sensitiveValue, string anyValue) {
+public function testFunction (@sensitive string sensitiveValue, string anyValue) {
 
 }
