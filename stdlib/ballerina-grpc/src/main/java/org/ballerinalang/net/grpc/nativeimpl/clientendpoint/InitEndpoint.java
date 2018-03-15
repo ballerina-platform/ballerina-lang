@@ -22,12 +22,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -52,7 +48,6 @@ import java.net.UnknownHostException;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
-import static org.ballerinalang.net.grpc.ssl.SSLHandlerFactory.preferredTestCiphers;
 
 
 /**
@@ -85,12 +80,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                         .usePlaintext(true)
                         .build();
             } else {
-                SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
-                SslContext sslContext = GrpcSslContexts.forClient()
-                        .trustManager(SSLHandlerFactory.generateTrustManagerFactory(configuration.getSslConfig()))
-                        .ciphers(preferredTestCiphers(), SupportedCipherSuiteFilter.INSTANCE)
-                        .sslProvider(provider)
-                        .build();
+                SslContext sslContext = new SSLHandlerFactory(configuration.getSslConfig())
+                        .createHttp2TLSContextForClient();
                 channel = NettyChannelBuilder
                         .forAddress(generateSocketAddress(configuration.getPort(), configuration.getHost()))
                         .flowControlWindow(65 * 1024)

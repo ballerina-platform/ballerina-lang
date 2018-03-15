@@ -30,6 +30,7 @@ public struct SslConfiguration {
     boolean validateCertEnabled;
     string sslVerifyClient;
     string certPassword;
+    string tlsStoreType;
     int cacheSize;
     int cacheValidityPeriod;
 }
