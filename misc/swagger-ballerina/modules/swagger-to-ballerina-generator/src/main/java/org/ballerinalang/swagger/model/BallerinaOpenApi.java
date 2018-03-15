@@ -39,6 +39,7 @@ import java.util.Set;
  * Wrapper for <code>io.swagger.oas.models.OpenAPI</code>
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
+public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
 public class BallerinaOpenApi {
     private static final int HTTP_PORT = 80;
     private static final int HTTPS_PORT = 443;
@@ -69,7 +70,8 @@ public class BallerinaOpenApi {
      * @return Converted {@link BallerinaOpenApi} object
      * @throws BallerinaOpenApiException when OpenAPI to BallerinaOpenApi parsing failed
      */
-    public BallerinaOpenApi buildFromOpenAPI(OpenAPI openAPI) throws BallerinaOpenApiException {
+    @Override
+    public BallerinaOpenApi buildContext(OpenAPI openAPI) throws BallerinaOpenApiException {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
@@ -90,6 +92,11 @@ public class BallerinaOpenApi {
         return this;
     }
 
+    @Override
+    public BallerinaOpenApi getDefaultValue() {
+        return null;
+    }
+
     /**
      * Populate schemas into a "Set".
      *
@@ -104,7 +111,7 @@ public class BallerinaOpenApi {
 
         schemaMap = openAPI.getComponents().getSchemas();
         for (Map.Entry entry : schemaMap.entrySet()) {
-            BallerinaSchema schema = new BallerinaSchema().buildFromSchema((Schema) entry.getValue());
+            BallerinaSchema schema = new BallerinaSchema().buildContext((Schema) entry.getValue());
             schemas.add(new AbstractMap.SimpleEntry<>((String) entry.getKey(), schema));
         }
     }
@@ -160,7 +167,7 @@ public class BallerinaOpenApi {
         }
 
         requirements.forEach(r -> r.forEach((key, value) -> {
-            Map.Entry entry = new AbstractMap.SimpleEntry(key, value);
+            Map.Entry entry = new AbstractMap.SimpleEntry<>(key, value);
             security.add(entry);
         }));
     }

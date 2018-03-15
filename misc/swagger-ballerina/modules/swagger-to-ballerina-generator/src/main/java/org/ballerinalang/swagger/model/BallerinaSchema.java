@@ -29,7 +29,7 @@ import java.util.Set;
  * This class wraps the {@link Schema} from swagger models inorder to overcome complications
  * while populating handlebar templates.
  */
-public class BallerinaSchema {
+public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, Schema> {
     private static final String LIST_SUFFIX = "List";
     private static final String OAS_PATH_SEPARATOR = "/";
     private static final String UNSUPPORTED_PROPERTY_MSG = "// Unsupported Property Found.";
@@ -37,7 +37,8 @@ public class BallerinaSchema {
     private Schema oasSchema;
     private Set<Map.Entry<String, Schema>> properties;
 
-    public BallerinaSchema buildFromSchema(Schema schema) {
+    @Override
+    public BallerinaSchema buildContext(Schema schema) {
         this.oasSchema = schema;
 
         // identify array type schema definitions
@@ -89,6 +90,11 @@ public class BallerinaSchema {
         return this;
     }
 
+    @Override
+    public BallerinaSchema getDefaultValue() {
+        return null;
+    }
+
     private String getReferenceType(String refPath) {
         // null check on refPath is not required since swagger parser always make this is not null
         return refPath.substring(refPath.lastIndexOf(OAS_PATH_SEPARATOR) + 1);
@@ -101,4 +107,5 @@ public class BallerinaSchema {
     public Set<Map.Entry<String, Schema>> getProperties() {
         return properties;
     }
+
 }
