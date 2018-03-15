@@ -23,8 +23,8 @@ import io.opentracing.mock.MockTracer;
 import org.ballerinalang.observe.trace.OpenTracer;
 import org.ballerinalang.observe.trace.exception.InvalidConfigurationException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -32,21 +32,17 @@ import java.util.Properties;
  */
 public class BMockTracer implements OpenTracer {
 
-    private static Map<String, MockTracer> tracerMap = new HashMap<>();
+    private static List<MockTracer> tracerMap = new ArrayList<>();
 
     @Override
     public Tracer getTracer(String tracerName, Properties configProperties, String serviceName)
             throws InvalidConfigurationException {
         MockTracer mockTracer = new MockTracer();
-        BMockTracer.tracerMap.put(serviceName, mockTracer);
+        BMockTracer.tracerMap.add(mockTracer);
         return mockTracer;
     }
 
-    public static Map<String, MockTracer> getTracerMap() {
+    public static List<MockTracer> getTracerMap() {
         return tracerMap;
-    }
-
-    public static MockTracer getTracer(String serviceName) {
-        return tracerMap.get(serviceName);
     }
 }
