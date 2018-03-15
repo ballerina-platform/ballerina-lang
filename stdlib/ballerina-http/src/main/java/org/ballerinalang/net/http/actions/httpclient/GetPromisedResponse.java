@@ -28,6 +28,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -72,8 +73,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
         clientConnector.getPushResponse(http2PushPromise).
-                setPushResponseListener(new PushResponseListener(dataContext),
-                                        http2PushPromise.getPromisedStreamId());
+                setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
     private class PushResponseListener implements HttpClientConnectorListener {
@@ -88,6 +88,18 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
             dataContext.notifyReply(
                     createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            BStruct httpConnectorError = createStruct(
+                    dataContext.context, HttpConstants.HTTP_CONNECTOR_ERROR, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            httpConnectorError.setStringField(0, throwable.getMessage());
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                httpConnectorError.setIntField(0, clientConnectorException.getHttpStatusCode());
+            }
+            dataContext.notifyReply(null, httpConnectorError);
         }
     }
 }
