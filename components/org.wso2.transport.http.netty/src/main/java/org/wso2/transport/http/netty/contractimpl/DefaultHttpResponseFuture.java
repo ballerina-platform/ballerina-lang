@@ -128,7 +128,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     public HttpResponseFuture sync() throws InterruptedException {
-        // sync operation is not synchronize with locks as it might cause a deadlock.
+        // sync operation is not synchronized with locks as it might cause a deadlock.
         // We may have to refactor this using conditions in ReentrantLock later.
         executionWaitSem = new Semaphore(0);
         if (this.httpCarbonMessage == null && this.throwable == null && this.returnError == null) {

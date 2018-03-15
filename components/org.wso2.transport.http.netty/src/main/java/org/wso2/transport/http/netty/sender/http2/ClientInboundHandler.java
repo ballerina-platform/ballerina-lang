@@ -191,8 +191,7 @@ public class ClientInboundHandler extends Http2EventAdapter {
 
         // Setting properties of the HTTP Carbon Response
         responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-        responseCarbonMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
-                                      org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        responseCarbonMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
         /* copy required properties for service chaining from incoming carbon message to the response carbon message

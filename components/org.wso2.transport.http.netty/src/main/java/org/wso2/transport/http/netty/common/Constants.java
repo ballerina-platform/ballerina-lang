@@ -188,6 +188,11 @@ public final class Constants {
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
+    // Message direction related parameters
+    public static final String DIRECTION = "DIRECTION";
+    public static final String DIRECTION_REQUEST = "DIRECTION_REQUEST";
+    public static final String DIRECTION_RESPONSE = "DIRECTION_RESPONSE";
+
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
