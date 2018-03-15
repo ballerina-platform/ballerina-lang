@@ -44,8 +44,8 @@ public class InitCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
     private JCommander parentCmdParser;
     
-    @Parameter(names = {"--yes", "-y"})
-    private boolean yesFlag;
+    @Parameter(names = {"--interactive", "-i"})
+    private boolean interactiveFlag;
     
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -58,7 +58,7 @@ public class InitCommand implements BLauncherCmd {
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
         Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
         try {
-            Manifest manifest = new Manifest();
+            Manifest manifest = null;
             List<SrcFile> sourceFiles = null;
         
             if (helpFlag) {
@@ -67,25 +67,29 @@ public class InitCommand implements BLauncherCmd {
                 return;
             }
         
-            if (yesFlag) {
-                manifest.setName("home");
-                manifest.setVersion("1.0.0");
-            } else {
+            if (interactiveFlag) {
                 sourceFiles = new ArrayList<>();
+                manifest = new Manifest();
+    
+                // Check if Ballerina.toml file needs to be created.
+                out.print("Create Ballerina.toml: (yes/y) ");
+                String createToml = scanner.nextLine().trim();
+                
+                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")) {
+                    // Get org name.
+                    out.print("Organization name: (home) ");
+                    String orgName = scanner.nextLine().trim();
+                    manifest.setName(orgName.isEmpty() ? "home" : orgName);
         
-                // Get org name.
-                out.print("Organization name: (home) ");
-                String orgName = scanner.nextLine().trim();
-                manifest.setName(orgName.isEmpty() ? "home" : orgName);
-            
-                out.print("Version: (1.0.0) ");
-                // TODO: Validation with semver
-                String version = scanner.nextLine().trim();
-                manifest.setVersion(version.isEmpty() ? "1.0.0" : version);
+                    out.print("Version: (1.0.0) ");
+                    // TODO: Validation with semver
+                    String version = scanner.nextLine().trim();
+                    manifest.setVersion(version.isEmpty() ? "1.0.0" : version);
+                }
     
                 String srcInput;
                 do  {
-                    out.print("Ballerina source [package/p, main/m, skip/(empty)] ");
+                    out.print("Ballerina source [package/p, main/m, (empty to finish)]: ");
                     srcInput = scanner.nextLine().trim();
                     
                     if (srcInput.equalsIgnoreCase("package") || srcInput.equalsIgnoreCase("p")) {
@@ -132,9 +136,7 @@ public class InitCommand implements BLauncherCmd {
     public void printLongDesc(StringBuilder out) {
         out.append("Initializes a Ballerina Project. \n");
         out.append("\n");
-        out.append("By default, it will ask for the project details. \n");
-        out.append("\n");
-        out.append("Use --yes or -y to create a project without having to input anything.\n");
+        out.append("Use --interactive or -i to create a project in interactive mode.\n");
     }
     
     /**

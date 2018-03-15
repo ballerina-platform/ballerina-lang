@@ -51,9 +51,7 @@ public class InitHandler {
         createBallerinaToml(out, projectPath, manifest);
         createBallerinaCacheFile(out, projectPath);
         createSrcFolder(out, projectPath, srcFiles);
-        createTestFolder(out, projectPath);
         createGitignore(out, projectPath);
-        
     }
     
     /**
@@ -61,18 +59,20 @@ public class InitHandler {
      * @param out The output stream for printing.
      * @param projectPath The output path.
      * @param manifest The manifest for the file.
-     * @throws IOException
+     * @throws IOException If file write exception occurs.
      */
     private static void createBallerinaToml(PrintStream out, Path projectPath, Manifest manifest) throws IOException {
-        Path tomlPath = Paths.get(projectPath.toString() + File.separator + "Ballerina.toml");
-        if (!Files.exists(tomlPath)) {
-            // Creating main function file.
-            Files.createFile(tomlPath);
-            // Writing content.
-            writeContent(tomlPath, getManifestContent(manifest));
-            out.println("Created Ballerina.toml file.");
-        } else {
-            out.println("Ballerina.toml already exists, hence skipping.");
+        if (null != manifest) {
+            Path tomlPath = Paths.get(projectPath.toString() + File.separator + "Ballerina.toml");
+            if (!Files.exists(tomlPath)) {
+                // Creating main function file.
+                Files.createFile(tomlPath);
+                // Writing content.
+                writeContent(tomlPath, getManifestContent(manifest));
+                out.println("Created Ballerina.toml file.");
+            } else {
+                out.println("Ballerina.toml already exists, hence skipping.");
+            }
         }
     }
     
@@ -80,7 +80,7 @@ public class InitHandler {
      * Create the .ballerina/ cache folder.
      * @param out The output stream for printing.
      * @param projectPath The output path.
-     * @throws IOException
+     * @throws IOException If file write exception occurs.
      */
     private static void createBallerinaCacheFile(PrintStream out, Path projectPath) throws IOException {
         Path cacheFolder = Paths.get(projectPath.toString() + File.separator + ".ballerina");
@@ -98,61 +98,38 @@ public class InitHandler {
      * @param out The output stream for printing.
      * @param projectPath The output path.
      * @param srcFiles The source files to be created.
-     * @throws IOException
+     * @throws IOException If file write exception occurs.
      */
     private static void createSrcFolder(PrintStream out, Path projectPath, List<SrcFile> srcFiles) throws IOException {
-        Path srcPath = Paths.get(projectPath.toString() + File.separator + "src");
-        if (!Files.exists(srcPath)) {
-            // Creating src/ directory.
-            Files.createDirectory(srcPath);
-            if (null != srcFiles && srcFiles.size() > 0) {
-                for (SrcFile srcFile : srcFiles) {
-                    if (srcFile.getSrcFileType() == SrcFile.SrcFileType.MAIN) {
-                        // Creating main function file.
-                        Path srcFilePath = Paths.get(srcPath.toString() + File.separator + srcFile.getName());
-                        if (!Files.exists(srcFilePath)) {
-                            Files.createFile(srcFilePath);
-                            // Writing content.
-                            writeContent(srcFilePath, srcFile.getContent());
-                        } else {
-                            out.println(srcFilePath.toString() + " already exists, hence skipping.");
-                        }
-                    } else if (srcFile.getSrcFileType() == SrcFile.SrcFileType.SERVICE) {
-                        // Creating package directory.
-                        Path packagePath = Paths.get(srcPath.toString() + File.separator + srcFile.getName());
-                        Files.createDirectory(packagePath);
-                        
-                        // Creating service file.
-                        Path servicesBalFile = Paths.get(packagePath.toString() + File.separator + "services.bal");
-                        if (!Files.exists(servicesBalFile)) {
-                            Files.createFile(servicesBalFile);
-        
-                            // Writing content.
-                            writeContent(servicesBalFile, srcFile.getContent());
-                        } else {
-                            out.println(servicesBalFile.toString() + " already exists, hence skipping.");
-                        }
+        if (null != srcFiles && srcFiles.size() > 0) {
+            for (SrcFile srcFile : srcFiles) {
+                if (srcFile.getSrcFileType() == SrcFile.SrcFileType.MAIN) {
+                    // Creating main function file.
+                    Path srcFilePath = Paths.get(projectPath.toString() + File.separator + srcFile.getName());
+                    if (!Files.exists(srcFilePath)) {
+                        Files.createFile(srcFilePath);
+                        // Writing content.
+                        writeContent(srcFilePath, srcFile.getContent());
+                    } else {
+                        out.println(srcFilePath.toString() + " already exists, hence skipping.");
+                    }
+                } else if (srcFile.getSrcFileType() == SrcFile.SrcFileType.SERVICE) {
+                    // Creating package directory.
+                    Path packagePath = Paths.get(projectPath.toString() + File.separator + srcFile.getName());
+                    Files.createDirectory(packagePath);
+                    
+                    // Creating service file.
+                    Path servicesBalFile = Paths.get(packagePath.toString() + File.separator + "services.bal");
+                    if (!Files.exists(servicesBalFile)) {
+                        Files.createFile(servicesBalFile);
+    
+                        // Writing content.
+                        writeContent(servicesBalFile, srcFile.getContent());
+                    } else {
+                        out.println(servicesBalFile.toString() + " already exists, hence skipping.");
                     }
                 }
             }
-        } else {
-            out.println("src folder already exists, hence skipping.");
-        }
-    }
-    
-    /**
-     * Creates the test/ folder.
-     * @param out The output stream for printing.
-     * @param projectPath The output path.
-     * @throws IOException
-     */
-    private static void createTestFolder(PrintStream out, Path projectPath) throws IOException {
-        Path testPath = Paths.get(projectPath.toString() + File.separator + "test");
-        if (!Files.exists(testPath)) {
-            Files.createDirectory(testPath);
-            out.println("Created test/ folder.");
-        } else {
-            out.println("test/ folder already exists, hence skipping.");
         }
     }
     
@@ -160,7 +137,7 @@ public class InitHandler {
      * Creates the .gitignore file.
      * @param out The output stream for printing.
      * @param projectPath The output path.
-     * @throws IOException
+     * @throws IOException If file write exception occurs.
      */
     private static void createGitignore(PrintStream out, Path projectPath) throws IOException {
         Path gitIgnorePath = Paths.get(projectPath.toString() + File.separator + ".gitignore");
@@ -180,7 +157,7 @@ public class InitHandler {
      * Write content to a file.
      * @param file The file.
      * @param content The content.
-     * @throws IOException
+     * @throws IOException If file write exception occurs.
      */
     private static void writeContent(Path file, String content) throws IOException {
         byte data[] = content.getBytes(Charset.defaultCharset());
