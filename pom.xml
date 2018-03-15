@@ -835,7 +835,7 @@
 
                 <module>composer</module>
 
-                <!--<module>distribution/docker</module>-->
+                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -904,7 +904,7 @@
 
                 <module>composer</module>
 
-                <!--<module>distribution/docker</module>-->
+                <module>distribution/docker</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
