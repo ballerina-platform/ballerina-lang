@@ -187,7 +187,7 @@ public class HttpMessageDataStreamer {
                     return new GZIPInputStream(createInputStreamIfNull());
                 } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
                     return new InflaterInputStream(createInputStreamIfNull());
-                } else {
+                } else if (!contentEncodingHeader.equalsIgnoreCase(Constants.HTTP_TRANSFER_ENCODING_IDENTITY)) {
                     log.warn("Unknown Content-Encoding: " + contentEncodingHeader);
                 }
             } catch (IOException e) {

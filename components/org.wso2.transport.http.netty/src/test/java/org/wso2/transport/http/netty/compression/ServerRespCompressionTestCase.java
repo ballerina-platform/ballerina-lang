@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.util.client.http.HttpClient;
 import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 /**
  * This class tests compression outbound responses.
@@ -109,6 +110,12 @@ public class ServerRespCompressionTestCase {
             httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
+
+            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+            httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
+            httpResponse = httpClient.sendRequest(httpRequest);
+            assertNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
 
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running serverConnectorRespCompressionTest", e);

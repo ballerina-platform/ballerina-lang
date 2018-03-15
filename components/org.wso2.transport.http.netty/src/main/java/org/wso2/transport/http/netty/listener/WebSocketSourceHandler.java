@@ -51,6 +51,8 @@ import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import static org.wso2.transport.http.netty.common.Constants.LISTENER_PORT;
+
 /**
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
@@ -70,12 +72,12 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
-     * @param isSecured indication of whether the connection is secured or not.
-     * @param channelSession session relates to the channel.
-     * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
-     * @param headers Headers obtained from HTTP WebSocket upgrade request.
-     * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
-     * @param interfaceId given ID for the socket interface.
+     * @param isSecured       indication of whether the connection is secured or not.
+     * @param channelSession  session relates to the channel.
+     * @param httpRequest     {@link HttpRequest} which contains the details of WebSocket Upgrade.
+     * @param headers         Headers obtained from HTTP WebSocket upgrade request.
+     * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
+     * @param interfaceId     given ID for the socket interface.
      */
     public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured,
                                   WebSocketSessionImpl channelSession, HttpRequest httpRequest,
@@ -114,6 +116,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Set if there is any negotiated sub protocol.
+     *
      * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
      */
     public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
@@ -231,8 +234,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         webSocketMessage.setSessionlID(channelSession.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
-        webSocketMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
-                                            ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+        webSocketMessage.setProperty(LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
@@ -241,7 +243,7 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.channel().writeAndFlush(new CloseWebSocketFrame(1011,
-                                                            "Encountered an unexpected condition"));
+                "Encountered an unexpected condition"));
         ctx.close();
         connectorFuture.notifyWSListener(cause);
     }
