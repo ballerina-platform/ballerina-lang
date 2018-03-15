@@ -11,7 +11,6 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import static org.wso2.carbon.launcher.utils.Utils.getSystemVariableValue;
 
 /**
@@ -22,8 +21,9 @@ public class EndpointUtils {
     
     /**
      * Generate server endpoint object from service endpoint configuration struct.
-     * @param endpointConfig  service endpoint configuration struct.
-     * @return  server endpoint object
+     *
+     * @param endpointConfig service endpoint configuration struct.
+     * @return server endpoint object
      */
     public static EndpointConfiguration getEndpointConfiguration(Struct endpointConfig) {
         String host = endpointConfig.getStringField(EndpointConstants.ENDPOINT_CONFIG_HOST);
@@ -49,6 +49,7 @@ public class EndpointUtils {
     
     /**
      * Generate SSL configs.
+     *
      * @param sslConfig service endpoint configuration struct.
      * @return SSL beans.
      */
@@ -60,6 +61,10 @@ public class EndpointUtils {
         String sslVerifyClient = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
         String certPassword = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_CERT_PASSWORD);
         String sslProtocol = sslConfig.getStringField(EndpointConstants.SSL_CONFIG_SSL_PROTOCOL);
+        String tlsStoreType = sslConfig.getStringField(EndpointConstants.SSL_TLS_STORE_TYPE);
+        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
+        tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
+        
         boolean validateCertificateEnabled = sslConfig.getBooleanField(EndpointConstants
                 .SSL_CONFIG_VALIDATE_CERT_ENABLED);
         long cacheSize = sslConfig.getIntField(EndpointConstants.SSL_CONFIG_CACHE_SIZE);
@@ -91,7 +96,7 @@ public class EndpointUtils {
         config.setKeyStore(new File(substituteVariables(keyStoreFile)));
         config.setKeyStorePass(keyStorePassword);
         config.setCertPass(certPassword);
-        
+        config.setTLSStoreType(tlsStoreType);
         config.setSslVerifyClient(sslVerifyClient);
         if (trustStoreFile != null) {
             config.setTrustStore(new File(substituteVariables(trustStoreFile)));
@@ -102,16 +107,13 @@ public class EndpointUtils {
             config.setCacheSize(Math.toIntExact(cacheSize));
             config.setCacheValidityPeriod(Math.toIntExact(cacheValidationPeriod));
         }
-        
-        if (sslProtocol != null) {
-            config.setSslProtocol(sslProtocol);
-        }
-        
+        config.setSslProtocol(sslProtocol);
         return config;
     }
     
     /**
      * Resolve and Validate file path.
+     *
      * @param filePath file path
      * @return resolved file path
      */

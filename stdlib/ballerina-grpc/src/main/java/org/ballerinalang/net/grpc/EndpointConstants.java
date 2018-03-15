@@ -39,6 +39,7 @@ public class EndpointConstants {
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_SSL_PROTOCOL = "sslProtocol";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
+    public static final String SSL_TLS_STORE_TYPE =   "tlsStoreType";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String SSL_CONFIG_VALIDATE_CERT_ENABLED = "validateCertEnabled";
 

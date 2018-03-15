@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
+import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -32,9 +33,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Native function to InitEndpoint connector.
@@ -61,10 +59,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
             if (configuration.getSslConfig() != null) {
-                TrustManagerFactory tmf = SSLHandlerFactory.generateTrustManagerFactory(configuration.getSslConfig());
-                KeyManagerFactory kmf = SSLHandlerFactory.generateKeyManagerFactory(configuration.getSslConfig());
-                serverBuilder = GrpcServicesBuilder.initService(configuration,
-                        SSLHandlerFactory.createSSLContext(configuration.getSslConfig(), tmf, kmf));
+                SslContext sslCtx = new SSLHandlerFactory(configuration.getSslConfig())
+                        .createHttp2TLSContextForServer();
+                serverBuilder = GrpcServicesBuilder.initService(configuration, sslCtx);
             } else {
                 serverBuilder = GrpcServicesBuilder.initService(configuration, null);
             }
