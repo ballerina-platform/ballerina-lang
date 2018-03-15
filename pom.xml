@@ -671,6 +671,7 @@
                 <version>${mimepull.version}</version>
             </dependency>
 
+            <!-- Siddhi Stream Dependencies -->
             <dependency>
                 <groupId>org.wso2.orbit.com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
@@ -696,6 +697,11 @@
 
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>siddhi-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>siddhi-query-api</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -711,12 +717,12 @@
             </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
-                <artifactId>broker-core</artifactId>
+                <artifactId>broker-common</artifactId>
                 <version>${broker.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
-                <artifactId>broker-common</artifactId>
+                <artifactId>broker-core</artifactId>
                 <version>${broker.version}</version>
             </dependency>
         </dependencies>
@@ -1239,7 +1245,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.105</transport.http.version>
+        <transport.http.version>6.0.106</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

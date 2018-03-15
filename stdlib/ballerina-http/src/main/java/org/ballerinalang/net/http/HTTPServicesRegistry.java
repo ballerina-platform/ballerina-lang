@@ -19,30 +19,20 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.net.uri.DispatcherUtil;
-import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This services registry holds all the services of HTTP + WebSocket. This is a singleton class where all HTTP +
@@ -87,7 +77,7 @@ public class HTTPServicesRegistry {
      *
      * @param service requested serviceInfo to be registered.
      */
-    public void registerService(HttpService service) {
+    public void registerService(Service service) {
         String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
         if (accessLogConfig != null) {
             try {
@@ -97,26 +87,25 @@ public class HTTPServicesRegistry {
             }
         }
 
-        Annotation annotation = HttpUtil.getHttpServiceConfigAnnotation(service.getBalService(),
-                                                                    HttpConstants.HTTP_PACKAGE_PATH);
+        HttpService httpService = HttpService.buildHttpService(service);
 
-        Struct serviceConfig = annotation.getValue();
-        String basePath = discoverBasePathFrom(service, annotation);
         //TODO check with new method
 //        HttpUtil.populateKeepAliveAndCompressionStatus(service, annotation);
 
-        basePath = urlDecode(basePath);
-        service.setBasePath(basePath);
         // TODO: Add websocket services to the service registry when service creation get available.
-        servicesInfoMap.put(service.getBasePath(), service);
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-        postProcessService(service, serviceConfig);
-        // If WebSocket upgrade path is available, then register the name of the WebSocket service.
+        servicesInfoMap.put(httpService.getBasePath(), httpService);
+        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
 
-        Struct websocketConfig = serviceConfig.getStructField(WebSocketConstants.WEBSOCKET_UPGRADE_CONFIG);
+        //basePath will get cached after registering service
+        sortedServiceURIs.add(httpService.getBasePath());
+        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+
+        // If WebSocket upgrade path is available, then register the name of the WebSocket service.
+        Struct websocketConfig = httpService.getWebSocketUpgradeConfig();
         if (websocketConfig != null) {
-            registerWebSocketUpgradePath(WebSocketUtil.getProgramFile(service.getBalerinaService().getResources()[0]),
-                                         websocketConfig, basePath);
+            registerWebSocketUpgradePath(
+                    WebSocketUtil.getProgramFile(httpService.getBallerinaService().getResources()[0]),
+                    websocketConfig, httpService.getBasePath());
         }
 
     }
@@ -124,9 +113,9 @@ public class HTTPServicesRegistry {
     /**
      * Register a WebSubSubscriber service in the map.
      *
-     * @param service the {@link HttpService} to be registered
+     * @param service the {@link Service} to be registered
      */
-    public void registerWebSubSubscriberHttpService(HttpService service) {
+    public void registerWebSubSubscriberService(Service service) {
         String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
         if (accessLogConfig != null) {
             try {
@@ -136,46 +125,16 @@ public class HTTPServicesRegistry {
             }
         }
 
-        Annotation annotation = HttpUtil.getWebSubSubscriberServiceConfigAnnotation(service.getBalService(),
-                                                                    HttpConstants.HTTP_PACKAGE_PATH);
-        service.setAllAllowMethods(populateListFromValueArray(null));
-        String basePath = discoverBasePathFrom(service, annotation);
-        basePath = urlDecode(basePath);
-        service.setBasePath(basePath);
-        servicesInfoMap.put(service.getBasePath(), service);
-        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
-        postProcessService(service, null); //TODO: introduce a proper fix instead of passing null
-        WebSubSubscriberServiceValidator.validateResources(service);
-    }
+        HttpService httpService = HttpService.buildWebSubSubscriberHttpService(service);
 
-    public List<String> populateListFromValueArray(Value[] valueArray) {
-        List<String> list = new ArrayList<>();
-        if (valueArray != null) {
-            for (Value method : valueArray) {
-                list.add(method.getStringValue());
-            }
-        }
-        return list;
-    }
+        servicesInfoMap.put(httpService.getBasePath(), httpService);
+        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
 
-    private String discoverBasePathFrom(HttpService service, Annotation annotation) {
-        String basePath = service.getName();
-        if (annotation == null) {
-            //service name cannot start with / hence concat
-            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-        }
+        //basePath will get cached after registering service
+        sortedServiceURIs.add(httpService.getBasePath());
+        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        Struct annStruct = annotation.getValue();
-        String annotationValue = annStruct.getStringField(HttpConstants.ANN_CONFIG_ATTR_BASE_PATH);
-        if (annotationValue == null) {
-            return HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-        if (!annotationValue.trim().isEmpty()) {
-            basePath = annotationValue;
-        } else {
-            basePath = HttpConstants.DEFAULT_BASE_PATH;
-        }
-        return sanitizeBasePath(basePath);
+        WebSubSubscriberServiceValidator.validateResources(httpService);
     }
 
     private String sanitizeBasePath(String basePath) {
@@ -198,36 +157,6 @@ public class HTTPServicesRegistry {
                 new WebSocketService(BLangConnectorSPIUtil.getServiceFromType(programFile, serviceType)), uri);
     }
 
-    private void postProcessService(HttpService httpService, Struct serviceConfig) {
-        populateServiceCors(httpService, serviceConfig);
-        List<HttpResource> resources = new ArrayList<>();
-        for (Resource resource : httpService.getBalerinaService().getResources()) {
-            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-            httpResource.prepareAndValidateSignatureParams();
-            try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-                                                   new HttpResourceElementFactory());
-            } catch (URITemplateException | UnsupportedEncodingException e) {
-                throw new BallerinaConnectorException(e.getMessage());
-            }
-            resources.add(httpResource);
-        }
-        httpService.setResources(resources);
-        httpService.setAllAllowMethods(DispatcherUtil.getAllResourceMethods(httpService));
-        //basePath will get cached after registering service
-        sortedServiceURIs.add(httpService.getBasePath());
-        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-    }
-
-    private String urlDecode(String basePath) {
-        try {
-            basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaConnectorException(e.getMessage());
-        }
-        return basePath;
-    }
-
     public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
         for (Object key : sortedServiceURIs) {
             if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
@@ -244,54 +173,5 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
-    }
-
-    private void populateServiceCors(HttpService service, Struct serviceConfig) {
-        CorsHeaders corsHeaders = populateAndGetCorsHeaders(serviceConfig);
-        service.setCorsHeaders(corsHeaders);
-        if (!corsHeaders.isAvailable()) {
-            return;
-        }
-        if (corsHeaders.getAllowOrigins() == null) {
-            corsHeaders.setAllowOrigins(Stream.of("*").collect(Collectors.toList()));
-        }
-        if (corsHeaders.getAllowMethods() == null) {
-            corsHeaders.setAllowMethods(Stream.of("*").collect(Collectors.toList()));
-        }
-    }
-
-    private CorsHeaders populateAndGetCorsHeaders(Struct serviceConfig) {
-        CorsHeaders corsHeaders = new CorsHeaders();
-        if (serviceConfig == null) {
-            return corsHeaders;
-        }
-        if (serviceConfig.getArrayField(HttpConstants.ALLOW_ORIGIN) != null) {
-            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_ORIGIN);
-            corsHeaders.setAllowOrigins(populateListFromValueArray(allowedMethods));
-        }
-
-        corsHeaders.setAllowCredentials(serviceConfig.getBooleanField("allowCredentials") ? 1 : 0);
-
-
-        if (serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS) != null) {
-            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_METHODS);
-            corsHeaders.setAllowMethods(populateListFromValueArray(allowedMethods));
-        }
-
-        if (serviceConfig.getArrayField(HttpConstants.ALLOW_HEADERS) != null) {
-            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.ALLOW_HEADERS);
-            corsHeaders.setAllowHeaders(populateListFromValueArray(allowedMethods));
-        }
-
-        long maxAge = serviceConfig.getIntField("maxAge");
-        corsHeaders.setMaxAge(maxAge > 0 ? maxAge : -1);
-
-
-        if (serviceConfig.getArrayField(HttpConstants.EXPOSE_HEADERS) != null) {
-            Value[] allowedMethods = serviceConfig.getArrayField(HttpConstants.EXPOSE_HEADERS);
-            corsHeaders.setExposeHeaders(populateListFromValueArray(allowedMethods));
-        }
-
-        return corsHeaders;
     }
 }

@@ -37,7 +37,8 @@ import java.util.Arrays;
 public class PackageNameContextResolver extends AbstractItemResolver {
     
     private static final ArrayList<String> TERMINAL_TOKENS = new ArrayList<>(Arrays.asList("\n", "\r", ";", "{",
-            "<EOF>", "const", "function", "struct", "service", "connector", "enum", "transform", "import"));
+            "<EOF>", "const", "function", "struct", "service", "connector", "enum", "transform", "import",
+            "streamlet"));
     
     private static final String IMPORT_KEYWORD = "import";
     

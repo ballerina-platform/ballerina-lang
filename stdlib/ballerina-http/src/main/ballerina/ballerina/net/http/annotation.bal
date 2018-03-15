@@ -4,36 +4,36 @@ package ballerina.net.http;
 /// Service Annotations ///
 ///////////////////////////
 @Description {value: "Configuration for an HTTP service"}
-@Field {value: "endpoints: An array of endpoints the service would be attached to"}
-@Field {value: "lifetime: The life time of the service"}
-@Field {value: "basePath: Service base path"}
+@Field {value:"endpoints: An array of endpoints the service would be attached to"}
+@Field {value:"lifetime: The life time of the service"}
+@Field {value:"basePath: Service base path"}
 @Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
-@Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
-@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
-@Field {value:"allowMethods: The array of allowed methods by the service"}
-@Field {value:"allowHeaders: The array of allowed headers by the service"}
-@Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
-@Field {value:"maxUriLength: Maximum length allowed for the URL"}
-@Field {value:"maxHeaderSize: Maximum size allowed for the headers"}
-@Field {value:"maxEntityBodySize: Maximum size allowed for the entity body"}
+@Field {value:"cors: The CORS configurations for the service"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
-public struct HttpServiceConfiguration {
+public struct HttpServiceConfig {
     Service[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
     boolean compressionEnabled;
-    string[] allowOrigins;
-    boolean allowCredentials;
-    string[] allowMethods;
-    string[] allowHeaders;
-    int maxAge = -1;
-    string[] exposeHeaders;
-    int maxUriLength;
-    int maxHeaderSize;
-    int maxEntityBodySize;
+    CorsConfig cors;
     WebSocketUpgradeConfig webSocketUpgrade;
 }
 
+@Description {value:"Configurations for CORS support"}
+@Field {value:"allowHeaders: The array of allowed headers by the service"}
+@Field {value:"allowMethods: The array of allowed methods by the service"}
+@Field {value:"allowOrigins: The array of origins with which the response is shared by the service"}
+@Field {value:"exposeHeaders: The whitelisted headers which clients are allowed to access"}
+@Field {value:"allowCredentials: Specifies whether credentials are required to access the service"}
+@Field {value:"maxAge: The maximum duration to cache the preflight from client side"}
+public struct CorsConfig {
+    string[] allowHeaders;
+    string[] allowMethods;
+    string[] allowOrigins;
+    string[] exposeHeaders;
+    boolean allowCredentials;
+    int maxAge = -1;
+}
 
 public struct WebSocketUpgradeConfig {
     string upgradePath;
@@ -46,7 +46,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public struct WebSocketServiceConfiguration {
+public struct WebSocketServiceConfig {
     Service[] endpoints;
     string basePath;
     string[] subProtocols;
@@ -86,10 +86,10 @@ public enum HttpServiceLifeTime {
 }
 
 @Description {value:"Configurations annotation for an HTTP service"}
-public annotation <service> serviceConfig HttpServiceConfiguration;
+public annotation <service> serviceConfig HttpServiceConfig;
 
 @Description {value:"Configurations annotation for a WebSocket service"}
-public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;
+public annotation <service> webSocketServiceConfig WebSocketServiceConfig;
 
 @Description {value:"WebebSubSubscriber Configuration for service"}
 public annotation <service> webSubSubscriberServiceConfig WebSubSubscriberServiceConfiguration;
@@ -103,24 +103,14 @@ public annotation <service> webSubSubscriberServiceConfig WebSubSubscriberServic
 @Field {value:"body: Inbound request entity body name which declared in signature"}
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
-@Field {value:"allowOrigins: The array of origins with which the response is shared by the resource"}
-@Field {value:"allowCredentials: Specifies whether credentials are required to access the resource"}
-@Field {value:"allowMethods: The array of allowed methods by the resource"}
-@Field {value:"allowHeaders: The array of allowed headers by the resource"}
-@Field {value:"maxAge: The duration to cache the preflight from client side"}
-@Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
+@Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
 public struct ResourceConfig {
     string[] methods;
     string path;
     string body;
     string[] consumes;
     string[] produces;
-    string[] allowOrigins;
-    boolean allowCredentials;
-    string[] allowMethods;
-    string[] allowHeaders;
-    int maxAge = -1;
-    string[] exposeHeaders;
+    CorsConfig cors;
 }
 
 @Description {value:"Configurations annotation for an HTTP resource"}

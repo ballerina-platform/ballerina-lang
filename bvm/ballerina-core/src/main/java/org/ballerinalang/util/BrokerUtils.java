@@ -137,7 +137,5 @@ public class BrokerUtils {
         void registerConfigurationObject(String namespace, Object configObject) {
             configMap.put(namespace, configObject);
         }
-
     }
-
 }
