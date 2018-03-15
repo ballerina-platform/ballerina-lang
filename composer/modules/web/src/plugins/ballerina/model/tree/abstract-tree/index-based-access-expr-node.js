@@ -48,7 +48,6 @@ class AbstractIndexBasedAccessExprNode extends ExpressionNode {
     }
 
 
-
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,7 +72,6 @@ class AbstractIndexBasedAccessExprNode extends ExpressionNode {
     getExpression() {
         return this.expression;
     }
-
 
 
 }

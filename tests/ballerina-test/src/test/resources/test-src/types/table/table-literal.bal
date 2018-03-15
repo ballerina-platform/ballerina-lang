@@ -413,6 +413,24 @@ function testTableRemoveFailed () (int count, json j) {
     return;
 }
 
+function testTableAddAndAccess () (string s1, string s2) {
+    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
+    Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
+
+    table<Person> dt = {};
+    dt.add(p1);
+    dt.add(p2);
+
+    var j1, _ = <json>dt;
+    s1 = j1.toString();
+
+    dt.add(p3);
+    var j2, _ = <json>dt;
+    s2 = j2.toString();
+    return;
+}
+
 function getPersonId (Person p) (int) {
     return p.id;
 }

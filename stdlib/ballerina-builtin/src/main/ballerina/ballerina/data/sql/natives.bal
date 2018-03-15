@@ -200,39 +200,39 @@ public connector ClientConnector (DB dbType, string hostOrPath, int port, string
 								  string password, ConnectionProperties options) {
 
 	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
-	@Param { value:"query: SQL query to execute" }
+	@Param { value:"sqlQuery: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set(s) for the given query" }
-	native action call (@sensitive string query, Parameter[] parameters, type structType) (@tainted table[]);
+	native action call (@sensitive string sqlQuery, Parameter[] parameters, type structType) (@tainted table[]);
 
 	@Description { value:"The select action implementation for SQL connector to select data from tables."}
-	@Param { value:"query: SQL query to execute" }
+	@Param { value:"sqlQuery: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Result set for the given query" }
-	native action select (@sensitive string query, Parameter[] parameters, type structType) (@tainted table);
+	native action select (@sensitive string sqlQuery, Parameter[] parameters, type structType) (@tainted table);
 
 	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
 	native action close ();
 
 	@Description { value:"The update action implementation for SQL connector to update data and schema of the database."}
-	@Param { value:"query: SQL query to execute" }
+	@Param { value:"sqlQuery: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Updated row count" }
-	native action update (@sensitive string query, Parameter[] parameters) (int);
+	native action update (@sensitive string sqlQuery, Parameter[] parameters) (int);
 
 	@Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
-	@Param { value:"query: SQL query to execute" }
+	@Param { value:"sqlQuery: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Return { value:"Array of update counts" }
-	native action batchUpdate (@sensitive string query, Parameter[][] parameters) (int[]);
+	native action batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters) (int[]);
 
 	@Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
-	@Param { value:"query: SQL query to execute" }
+	@Param { value:"sqlQuery: SQL query to execute" }
 	@Param { value:"parameters: Parameter array used with the SQL query" }
 	@Param { value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned" }
 	@Return { value:"Updated row count during the query exectuion" }
 	@Return { value:"Array of auto generated key values during the query execution" }
-	native action updateWithGeneratedKeys (@sensitive string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
+	native action updateWithGeneratedKeys (@sensitive string sqlQuery, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
 
