@@ -69,17 +69,15 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private final boolean isSecure;
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
-    private final String target;
     private String actualSubProtocol = null;
     private WebSocketSessionImpl channelSession;
     private ChannelPromise handshakeFuture;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
-                                  String target, WebSocketConnectorListener webSocketConnectorListener) {
+                                  WebSocketConnectorListener webSocketConnectorListener) {
         this.handshaker = handshaker;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
-        this.target = target;
         this.connectorListener = webSocketConnectorListener;
         handshakeFuture = null;
     }
@@ -232,13 +230,12 @@ public class WebSocketTargetHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(WebSocketMessageImpl webSocketChannelContext,
                                                        ChannelHandlerContext ctx) {
         webSocketChannelContext.setSubProtocol(actualSubProtocol);
-        webSocketChannelContext.setTarget(target);
         webSocketChannelContext.setIsConnectionSecured(isSecure);
         webSocketChannelContext.setChannelSession(channelSession);
         webSocketChannelContext.setIsServerMessage(false);
 
         webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
-        webSocketChannelContext.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
+        webSocketChannelContext.setProperty(Constants.LISTENER_PORT,
                                             ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketChannelContext.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketChannelContext.setProperty(
