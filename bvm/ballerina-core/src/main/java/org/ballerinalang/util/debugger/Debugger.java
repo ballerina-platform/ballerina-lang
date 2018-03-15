@@ -24,6 +24,8 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -351,6 +353,12 @@ public class Debugger {
                 case TypeTags.INT_TAG:
                     variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
                     break;
+                case TypeTags.CHAR_TAG:
+                    variableDTO.setBValue(new BCharacter(ctx.workerLocal.intRegs[l.getVariableIndex()]));
+                    break;
+                case TypeTags.BYTE_TAG:
+                    variableDTO.setBValue(new BByte(ctx.workerLocal.intRegs[l.getVariableIndex()]));
+                    break;
                 case TypeTags.FLOAT_TAG:
                     variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
                     break;
@@ -361,7 +369,7 @@ public class Debugger {
                     variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
                     break;
                 case TypeTags.BLOB_TAG:
-                    variableDTO.setBValue(new BBlob(ctx.workerLocal.byteRegs[l.getVariableIndex()]));
+                    variableDTO.setBValue(new BBlob(ctx.workerLocal.blobRegs[l.getVariableIndex()]));
                     break;
                 default:
                     variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);

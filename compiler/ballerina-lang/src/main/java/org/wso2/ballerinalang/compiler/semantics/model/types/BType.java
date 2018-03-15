@@ -27,6 +27,8 @@ import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BLOB;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.CHAR;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NULL;
@@ -50,6 +52,10 @@ public class BType implements ValueType {
         switch (tag) {
             case INT:
                 return TypeDescriptor.SIG_INT;
+            case CHAR:
+                return TypeDescriptor.SIG_CHAR;
+            case BYTE:
+                return TypeDescriptor.SIG_BYTE;
             case FLOAT:
                 return TypeDescriptor.SIG_FLOAT;
             case STRING:
@@ -78,6 +84,10 @@ public class BType implements ValueType {
         switch (tag) {
             case INT:
                 return TypeKind.INT;
+            case CHAR:
+                return TypeKind.CHAR;
+            case BYTE:
+                return TypeKind.BYTE;
             case FLOAT:
                 return TypeKind.FLOAT;
             case STRING:

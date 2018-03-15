@@ -74,12 +74,12 @@ public class VarTypeCountAttributeInfo implements AttributeInfo {
         this.varTypeCount[BOOL_OFFSET] = maxIntVars;
     }
 
-    public int getMaxByteVars() {
+    public int getMaxBlobVars() {
         return this.varTypeCount[BLOB_OFFSET];
     }
 
-    public void setMaxByteVars(int maxByteVars) {
-        this.varTypeCount[BLOB_OFFSET] = maxByteVars;
+    public void setMaxBlobVars(int maxBlobVars) {
+        this.varTypeCount[BLOB_OFFSET] = maxBlobVars;
     }
 
     public int getMaxRefVars() {

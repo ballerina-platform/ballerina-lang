@@ -25,6 +25,8 @@ public class Mnemonics {
 
     static {
         mnemonics[InstructionCodes.ICONST] = "iconst";
+        mnemonics[InstructionCodes.CCONST] = "cconst";
+        mnemonics[InstructionCodes.BTCONST] = "btconst";
         mnemonics[InstructionCodes.FCONST] = "fconst";
         mnemonics[InstructionCodes.SCONST] = "sconst";
         mnemonics[InstructionCodes.ICONST_0] = "iconst_0";
@@ -50,6 +52,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LMOVE] = "lmove";
         mnemonics[InstructionCodes.RMOVE] = "rmove";
         mnemonics[InstructionCodes.IALOAD] = "iaload";
+        mnemonics[InstructionCodes.CALOAD] = "caload";
+        mnemonics[InstructionCodes.BTALOAD] = "btaload";
         mnemonics[InstructionCodes.FALOAD] = "faload";
         mnemonics[InstructionCodes.SALOAD] = "saload";
         mnemonics[InstructionCodes.BALOAD] = "baload";
@@ -63,13 +67,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-        mnemonics[InstructionCodes.ISTORE] = "istore";
-        mnemonics[InstructionCodes.FSTORE] = "fstore";
-        mnemonics[InstructionCodes.SSTORE] = "sstore";
-        mnemonics[InstructionCodes.BSTORE] = "bstore";
-        mnemonics[InstructionCodes.LSTORE] = "lstore";
-        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
+        mnemonics[InstructionCodes.CASTORE] = "castore";
+        mnemonics[InstructionCodes.BTASTORE] = "btastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
         mnemonics[InstructionCodes.BASTORE] = "bastore";
@@ -161,11 +161,20 @@ public class Mnemonics {
         mnemonics[InstructionCodes.TCALL] = "tcall";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
+        mnemonics[InstructionCodes.I2C] = "i2c";
+        mnemonics[InstructionCodes.I2BT] = "i2bt";
         mnemonics[InstructionCodes.I2S] = "i2s";
         mnemonics[InstructionCodes.I2B] = "i2b";
         mnemonics[InstructionCodes.I2ANY] = "i2any";
         mnemonics[InstructionCodes.I2JSON] = "i2json";
+        mnemonics[InstructionCodes.C2I] = "c2i";
+        mnemonics[InstructionCodes.C2F] = "c2f";
+        mnemonics[InstructionCodes.C2S] = "c2s";
+        mnemonics[InstructionCodes.C2ANY] = "c2any";
+        mnemonics[InstructionCodes.BT2I] = "bt2i";
+        mnemonics[InstructionCodes.BT2ANY] = "bt2any";
         mnemonics[InstructionCodes.F2I] = "f2i";
+        mnemonics[InstructionCodes.F2C] = "f2c";
         mnemonics[InstructionCodes.F2S] = "f2s";
         mnemonics[InstructionCodes.F2B] = "f2b";
         mnemonics[InstructionCodes.F2ANY] = "f2any";
@@ -193,6 +202,8 @@ public class Mnemonics {
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
+        mnemonics[InstructionCodes.ANY2C] = "any2c";
+        mnemonics[InstructionCodes.ANY2BT] = "any2bt";
         mnemonics[InstructionCodes.ANY2F] = "any2f";
         mnemonics[InstructionCodes.ANY2S] = "any2s";
         mnemonics[InstructionCodes.ANY2B] = "any2b";
@@ -216,6 +227,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
+        mnemonics[InstructionCodes.CNEWARRAY] = "cnewarray";
+        mnemonics[InstructionCodes.BTNEWARRAY] = "btnewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";

@@ -103,6 +103,8 @@ public class Equals extends BlockingNativeCallableUnit {
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.CHAR_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.TYPE_TAG:
@@ -162,30 +164,31 @@ public class Equals extends BlockingNativeCallableUnit {
      * @return True if deeply equals, else false.
      */
     private boolean isEqual(BStruct lhsStruct, BStruct rhsStruct, BStructType structType) {
-        // Checking equality for integer fields.
+
+        // Checking equality for boolean fields.
         for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
+            if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
+                return false;
+            }
+        }
+
+        // Checking equality for integer fields.
+        for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
             if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
                 return false;
             }
         }
         
         // Checking equality for float fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
+        for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
             if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
                 return false;
             }
         }
         
         // Checking equality for string fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
-            if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
-                return false;
-            }
-        }
-        
-        // Checking equality for boolean fields.
         for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
-            if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
+            if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
                 return false;
             }
         }

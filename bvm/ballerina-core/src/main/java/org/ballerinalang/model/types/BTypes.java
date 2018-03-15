@@ -24,6 +24,8 @@ package org.ballerinalang.model.types;
  */
 public class BTypes {
     public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, null);
+    public static BType typeChar = new BCharacterType(TypeConstants.CHAR_TNAME, null);
+    public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, null);
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
@@ -44,6 +46,8 @@ public class BTypes {
 
     public static boolean isValueType(BType type) {
         return type == BTypes.typeInt ||
+                type == BTypes.typeChar ||
+                type == BTypes.typeByte ||
                 type == BTypes.typeFloat ||
                 type == BTypes.typeString ||
                 type == BTypes.typeBoolean ||

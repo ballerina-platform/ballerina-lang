@@ -732,7 +732,7 @@ public class Types {
         @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2CN);
             } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }

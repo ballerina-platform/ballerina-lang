@@ -180,6 +180,8 @@ import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.CharacterCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -210,6 +212,8 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CHAR_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -509,6 +513,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         switch (typeTag) {
             case TypeTags.INT:
                 return InstructionCodes.IRET;
+            case TypeTags.CHAR:
+                return InstructionCodes.BRET;
+            case TypeTags.BYTE:
+                return InstructionCodes.BRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.STRING:
@@ -541,6 +549,20 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
+                break;
+
+            case TypeTags.CHAR:
+                char charVal = (Character) literalExpr.value;
+                CharacterCPEntry characterCPEntry = new CharacterCPEntry(charVal);
+                int charCPIndex = currentPkgInfo.addCPEntry(characterCPEntry);
+                emit(InstructionCodes.CCONST, getOperand(charCPIndex), regIndex);
+                break;
+
+            case TypeTags.BYTE:
+                byte byteVal = (Byte) literalExpr.value;
+                ByteCPEntry byteCPEntry = new ByteCPEntry(byteVal);
+                int byteCPIndex = currentPkgInfo.addCPEntry(byteCPEntry);
+                emit(InstructionCodes.BTCONST, getOperand(byteCPIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -586,7 +608,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         // Emit create array instruction
-        int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
+        int opcode = getOpcodeForArrayOperations(etype.tag, InstructionCodes.BNEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
         emit(opcode, arrayVarRegIndex, typeCPIndex);
@@ -602,7 +624,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             indexLiteral.type = symTable.intType;
             genNode(indexLiteral, this.env);
 
-            opcode = getOpcode(argExpr.type.tag, InstructionCodes.IASTORE);
+            opcode = getOpcodeForArrayOperations(argExpr.type.tag, InstructionCodes.BASTORE);
             emit(opcode, arrayVarRegIndex, indexLiteral.regIndex, argExpr.regIndex);
         }
     }
@@ -697,7 +719,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             genNode(keyValue.valueExpr, this.env);
 
-            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
+            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.BFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
         }
     }
@@ -712,7 +734,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangLocalVarRef localVarRef) {
         if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
-            emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
+            emit(getOpcode(localVarRef.type.tag, InstructionCodes.BMOVE),
                     localVarRef.symbol.varIndex, localVarRef.regIndex);
             return;
         }
@@ -728,12 +750,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
-            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
+            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.BFIELDSTORE);
             emit(opcode, varRegIndex, fieldIndex, fieldVarRef.regIndex);
             return;
         }
 
-        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
+        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.BFIELDLOAD);
         RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
         emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
     }
@@ -742,12 +764,12 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangPackageVarRef packageVarRef) {
         Operand gvIndex = packageVarRef.symbol.varIndex;
         if (varAssignment) {
-            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
+            int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.BGSTORE);
             emit(opcode, packageVarRef.regIndex, gvIndex);
             return;
         }
 
-        int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGLOAD);
+        int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.BGLOAD);
         packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
         emit(opcode, gvIndex, packageVarRef.regIndex);
     }
@@ -768,10 +790,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         Operand fieldIndex = fieldAccessExpr.symbol.varIndex;
         if (variableStore) {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
+            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.BFIELDSTORE);
             emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
         } else {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
+            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.BFIELDLOAD);
             emit(opcode, varRefRegIndex, fieldIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
 
@@ -855,10 +877,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.BASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.BALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
@@ -989,7 +1011,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression argExpr = argExprs.get(i);
             genNode(argExpr, this.env);
             BVarSymbol paramSymbol = connectorSymbol.params.get(i);
-            int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.IFIELDSTORE);
+            int opcode = getOpcode(paramSymbol.type.tag, InstructionCodes.BFIELDSTORE);
             emit(opcode, connectorRegIndex, paramSymbol.varIndex, argExpr.regIndex);
         }
 
@@ -1063,7 +1085,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(castExpr.expr, this.env);
         if (opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
+                opcode == InstructionCodes.ANY2CN ||
                 opcode == InstructionCodes.ANY2E ||
                 opcode == InstructionCodes.CHECKCAST) {
             Operand typeCPIndex = getTypeCPIndex(castExpr.type);
@@ -1208,6 +1230,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 index = ++indexes.tInt;
                 break;
+            case TypeTags.CHAR:
+                index = ++indexes.tBoolean;
+                break;
+            case TypeTags.BYTE:
+                index = ++indexes.tBoolean;
+                break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
                 break;
@@ -1231,8 +1259,13 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int getOpcode(int typeTag, int baseOpcode) {
         int opcode;
         switch (typeTag) {
-            case TypeTags.INT:
+            case TypeTags.CHAR:
+            case TypeTags.BYTE:
+            case TypeTags.BOOLEAN:
                 opcode = baseOpcode;
+                break;
+            case TypeTags.INT:
+                opcode = baseOpcode + INT_OFFSET;
                 break;
             case TypeTags.FLOAT:
                 opcode = baseOpcode + FLOAT_OFFSET;
@@ -1240,8 +1273,37 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
+            case TypeTags.BLOB:
+                opcode = baseOpcode + BLOB_OFFSET;
+                break;
+            default:
+                opcode = baseOpcode + REF_OFFSET;
+                break;
+        }
+
+        return opcode;
+    }
+
+    private int getOpcodeForArrayOperations(int typeTag, int baseOpcode) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.CHAR:
+                opcode = baseOpcode - CHAR_NEGATIVE_OFFSET;
+                break;
+            case TypeTags.BYTE:
+                opcode = baseOpcode - BYTE_NEGATIVE_OFFSET;
+                break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.INT:
+                opcode = baseOpcode + INT_OFFSET;
+                break;
+            case TypeTags.FLOAT:
+                opcode = baseOpcode + FLOAT_OFFSET;
+                break;
+            case TypeTags.STRING:
+                opcode = baseOpcode + STRING_OFFSET;
                 break;
             case TypeTags.BLOB:
                 opcode = baseOpcode + BLOB_OFFSET;
@@ -1441,14 +1503,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
+        codeAttributeInfo.maxBlobLocalVars = lvIndexes.tBlob + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
+        codeAttributeInfo.maxBlobRegs = codeAttributeInfo.maxBlobLocalVars + maxRegIndexes.tBlob + 1;
         codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
         // Update register indexes.
@@ -1456,6 +1518,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
+                    break;
+                case TypeTags.CHAR:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    break;
+                case TypeTags.BYTE:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -1467,7 +1535,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                     regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
                     break;
                 case TypeTags.BLOB:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxByteLocalVars;
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxBlobLocalVars;
                     break;
                 default:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxRefLocalVars;
@@ -1524,7 +1592,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
-        varCountAttribInfo.setMaxByteVars(fieldCount.tBlob);
+        varCountAttribInfo.setMaxBlobVars(fieldCount.tBlob);
         varCountAttribInfo.setMaxRefVars(fieldCount.tRef);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1672,11 +1740,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         UTF8CPEntry attribNameCPEntry = new UTF8CPEntry(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE.toString());
         int attribNameCPIndex = constantPool.addCPEntry(attribNameCPEntry);
         VarTypeCountAttributeInfo varCountAttribInfo = new VarTypeCountAttributeInfo(attribNameCPIndex);
+        varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
         varCountAttribInfo.setMaxLongVars(fieldCount[INT_OFFSET]);
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
-        varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
-        varCountAttribInfo.setMaxByteVars(fieldCount[BLOB_OFFSET]);
+        varCountAttribInfo.setMaxBlobVars(fieldCount[BLOB_OFFSET]);
         varCountAttribInfo.setMaxRefVars(fieldCount[REF_OFFSET]);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1691,6 +1759,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 defaultValue.intValue = (Long) literalExpr.value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
+                break;
+            case TypeTags.CHAR:
+                defaultValue.charValue = (Character) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new CharacterCPEntry(defaultValue.charValue));
+                break;
+            case TypeTags.BYTE:
+                defaultValue.byteValue = (Byte) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 defaultValue.floatValue = (Double) literalExpr.value;
@@ -1770,8 +1846,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tBoolean, fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, structInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -1896,8 +1972,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        int[] fieldCount = new int[]{fieldIndexes.tBoolean, fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
 
         // Create the init function info
@@ -2099,10 +2175,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         public int[] toArray() {
             int[] result = new int[6];
-            result[0] = this.tInt;
-            result[1] = this.tFloat;
-            result[2] = this.tString;
-            result[3] = this.tBoolean;
+            result[0] = this.tBoolean;
+            result[1] = this.tInt;
+            result[2] = this.tFloat;
+            result[3] = this.tString;
             result[4] = this.tBlob;
             result[5] = this.tRef;
             return result;
@@ -3031,7 +3107,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             // store the comparing uri as string
             BXMLNSSymbol nsSymbol = keyValues.getValue();
 
-            int opcode = getOpcode(TypeTags.STRING, InstructionCodes.IEQ);
+            int opcode = getOpcode(TypeTags.STRING, InstructionCodes.BEQ);
             RegIndex conditionExprIndex = getRegIndex(TypeTags.BOOLEAN);
             emit(opcode, uriRegIndex, getNamespaceURIIndex(nsSymbol, symbolEnv), conditionExprIndex);
 

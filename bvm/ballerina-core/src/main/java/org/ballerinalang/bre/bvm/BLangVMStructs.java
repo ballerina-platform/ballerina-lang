@@ -91,8 +91,18 @@ public class BLangVMStructs {
     private static void setValue(StructureType structureType, int[] regIndexes, int typeTag, Object value) {
         int index;
         switch (typeTag) {
-            case TypeTags.INT_TAG:
+            case TypeTags.BOOLEAN_TAG:
                 index = ++regIndexes[0];
+                if (value != null) {
+                    if (value instanceof Boolean) {
+                        structureType.setBooleanField(index, (Boolean) value ? 1 : 0);
+                    } else if (value instanceof BBoolean) {
+                        structureType.setBooleanField(index, ((BBoolean) value).booleanValue() ? 1 : 0);
+                    }
+                }
+                break;
+            case TypeTags.INT_TAG:
+                index = ++regIndexes[1];
                 if (value != null) {
                     if (value instanceof Integer) {
                         structureType.setIntField(index, (Integer) value);
@@ -104,7 +114,7 @@ public class BLangVMStructs {
                 }
                 break;
             case TypeTags.FLOAT_TAG:
-                index = ++regIndexes[1];
+                index = ++regIndexes[2];
                 if (value != null) {
                     if (value instanceof Float) {
                         structureType.setFloatField(index, (Float) value);
@@ -116,22 +126,12 @@ public class BLangVMStructs {
                 }
                 break;
             case TypeTags.STRING_TAG:
-                index = ++regIndexes[2];
+                index = ++regIndexes[3];
                 if (value != null) {
                     if (value instanceof String) {
                         structureType.setStringField(index, (String) value);
                     } else if (value instanceof BValue) {
                         structureType.setStringField(index, ((BValue) value).stringValue());
-                    }
-                }
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                index = ++regIndexes[3];
-                if (value != null) {
-                    if (value instanceof Boolean) {
-                        structureType.setBooleanField(index, (Boolean) value ? 1 : 0);
-                    } else if (value instanceof BBoolean) {
-                        structureType.setBooleanField(index, ((BBoolean) value).booleanValue() ? 1 : 0);
                     }
                 }
                 break;

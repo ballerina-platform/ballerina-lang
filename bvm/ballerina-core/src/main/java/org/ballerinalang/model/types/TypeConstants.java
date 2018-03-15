@@ -25,6 +25,8 @@ package org.ballerinalang.model.types;
 public class TypeConstants {
 
     public static final String INT_TNAME = "int";
+    public static final String CHAR_TNAME = "char";
+    public static final String BYTE_TNAME = "byte";
     public static final String FLOAT_TNAME = "float";
     public static final String STRING_TNAME = "string";
     public static final String BOOLEAN_TNAME = "boolean";
@@ -45,6 +47,8 @@ public class TypeConstants {
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";
 
     public static final String INT_TSIG = "I";
+    public static final String CHAR_TSIG = "H";
+    public static final String BYTE_TSIG = "Z";
     public static final String FLOAT_TSIG = "F";
     public static final String STRING_TSIG = "S";
     public static final String BOOLEAN_TSIG = "B";

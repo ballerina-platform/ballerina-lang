@@ -32,17 +32,19 @@ public interface ConstantPoolEntry {
     enum EntryType {
         CP_ENTRY_UTF8((byte) 1),
         CP_ENTRY_INTEGER((byte) 2),
-        CP_ENTRY_FLOAT((byte) 3),
-        CP_ENTRY_STRING((byte) 4),
-        CP_ENTRY_PACKAGE((byte) 5),
-        CP_ENTRY_FUNCTION_REF((byte) 6),
-        CP_ENTRY_ACTION_REF((byte) 7),
-        CP_ENTRY_FUNCTION_CALL_ARGS((byte) 8),
-        CP_ENTRY_STRUCTURE_REF((byte) 9),
-        CP_ENTRY_TYPE_REF((byte) 10),
-        CP_ENTRY_FORK_JOIN((byte) 11),
-        CP_ENTRY_WRKR_DATA_CHNL_REF((byte) 12),
-        CP_ENTRY_TRANSFORMER_REF((byte) 13);
+        CP_ENTRY_CHARACTER((byte) 3),
+        CP_ENTRY_BYTE((byte) 4),
+        CP_ENTRY_FLOAT((byte) 5),
+        CP_ENTRY_STRING((byte) 6),
+        CP_ENTRY_PACKAGE((byte) 7),
+        CP_ENTRY_FUNCTION_REF((byte) 8),
+        CP_ENTRY_ACTION_REF((byte) 9),
+        CP_ENTRY_FUNCTION_CALL_ARGS((byte) 10),
+        CP_ENTRY_STRUCTURE_REF((byte) 11),
+        CP_ENTRY_TYPE_REF((byte) 12),
+        CP_ENTRY_FORK_JOIN((byte) 13),
+        CP_ENTRY_WRKR_DATA_CHNL_REF((byte) 14),
+        CP_ENTRY_TRANSFORMER_REF((byte) 15);
 
         byte value;
 

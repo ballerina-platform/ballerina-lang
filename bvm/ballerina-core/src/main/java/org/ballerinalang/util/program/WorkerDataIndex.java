@@ -27,5 +27,5 @@ public class WorkerDataIndex {
     public int stringRegCount = 0;
     public int intRegCount = 0;
     public int refRegCount = 0;
-    public int byteRegCount = 0;
+    public int blobRegCount = 0;
 }
