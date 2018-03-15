@@ -13,7 +13,7 @@ service<http> sample {
     resource echo (http:Connection conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         if (session != null) {
             result = "session created";
         }
@@ -29,7 +29,7 @@ service<http> sample {
     resource echo2 (http:Connection conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session is returned";
         } else {
@@ -47,7 +47,7 @@ service<http> sample {
     resource echo3 (http:Connection conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session != null) {
             result = "session created";
         } else {
@@ -65,7 +65,7 @@ service<http> sample {
     resource testGetAt (http:Connection conn, http:Request req) {
 
         string result = "";
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
         if (attribute != null) {
             result = "attribute available";
@@ -85,7 +85,7 @@ service<http> sample {
 
         http:Response res = {};
         string result = "chamil";
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         any attribute = session.getAttribute("name");
         res.setStringPayload(result);
         _ = conn.respond(res);
@@ -99,8 +99,8 @@ service<http> sample {
 
         string myName = "chamil";
         error err;
-        http:Session session1 = conn.createSessionIfAbsent();
-        http:Session session2 = conn.createSessionIfAbsent();
+        http:Session session1 = req.createSessionIfAbsent();
+        http:Session session2 = req.createSessionIfAbsent();
         session1.setAttribute("name", "wso2");
         any attribute = session2.getAttribute("name");
         if (attribute != null) {
@@ -119,7 +119,7 @@ service<http> sample {
 
         error err;
         var result, _ = req.getStringPayload();
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
         if (attribute != null) {
             result, err = (string)attribute;
@@ -142,7 +142,7 @@ service<http> counter {
 
         int sessionCounter;
         error err;
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
@@ -164,7 +164,7 @@ service<http> counter {
 
         int sessionCounter;
         error err;
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
@@ -187,7 +187,7 @@ service<http> sample2 {
     resource echoName (http:Connection conn, http:Request req) {
         string myName = "wso2";
         error err;
-        http:Session Session = conn.createSessionIfAbsent();
+        http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {
             myName, err = (string)attribute;
@@ -207,7 +207,7 @@ service<http> sample2 {
         var result, _ = req.getStringPayload();
         error err;
         Data d = {name:result};
-        http:Session Session = conn.createSessionIfAbsent();
+        http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("nameStruct");
         if (attribute != null) {
             d, err = (Data)attribute;
@@ -225,7 +225,7 @@ service<http> sample2 {
     }
     resource keyNames (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         string[] arr = session.getAttributeNames();
@@ -242,7 +242,7 @@ service<http> sample2 {
     }
     resource keyNames2 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("location", "colombo");
         string[] arr = session.getAttributeNames();
@@ -258,7 +258,7 @@ service<http> sample2 {
     }
     resource keyNames3 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.setAttribute("channel", "yue");
         session.setAttribute("month", "june");
@@ -278,7 +278,7 @@ service<http> sample2 {
     }
     resource keyNames4 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         session.removeAttribute("Name");
@@ -297,7 +297,7 @@ service<http> sample2 {
     }
     resource keyNames5 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
         int arrsize = lengthof arr;
 
@@ -312,7 +312,7 @@ service<http> sample2 {
     }
     resource keyNames6 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
@@ -330,7 +330,7 @@ service<http> sample2 {
     resource getmap (http:Connection conn, http:Request req) {
 
         http:Response res = {};
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         var value = req.getHeader("counter");
         if (value == null) {
             session.setAttribute("Name", "chamil");
@@ -356,7 +356,7 @@ service<http> sample2 {
     }
     resource getmap2 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         map attributes = session.getAttributes();
         string v0 = "map not present";
         if ((lengthof attributes) != 0) {
@@ -374,7 +374,7 @@ service<http> sample2 {
     }
     resource id1 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string id = session.getId();
 
         http:Response res = {};
@@ -388,7 +388,7 @@ service<http> sample2 {
     }
     resource id2 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.getSession();
+        http:Session session = req.getSession();
         string id = session.getId();
 
         http:Response res = {};
@@ -402,7 +402,7 @@ service<http> sample2 {
     }
     resource new1 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
 
         http:Response res = {};
@@ -416,7 +416,7 @@ service<http> sample2 {
     }
     resource new2 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
 
         http:Response res = {};
@@ -430,7 +430,7 @@ service<http> sample2 {
     }
     resource new3 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getCreationTime();
 
@@ -445,7 +445,7 @@ service<http> sample2 {
     }
     resource new4 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
 
         http:Response res = {};
@@ -459,7 +459,7 @@ service<http> sample2 {
     }
     resource new5 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getLastAccessedTime();
 
@@ -474,7 +474,7 @@ service<http> sample2 {
     }
     resource new6 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
 
@@ -489,7 +489,7 @@ service<http> sample2 {
     }
     resource new7 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         session.setMaxInactiveInterval(89);
 
@@ -504,7 +504,7 @@ service<http> sample2 {
     }
     resource new8 (http:Connection conn, http:Request req) {
 
-        http:Session session = conn.createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
 
@@ -516,7 +516,7 @@ service<http> sample2 {
     resource new9 (http:Connection conn, http:Request req) {
         string myName = "FirstName";
         error err;
-        http:Session Session = conn.createSessionIfAbsent();
+        http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
         if (attribute != null) {
             myName, err = (string)attribute;

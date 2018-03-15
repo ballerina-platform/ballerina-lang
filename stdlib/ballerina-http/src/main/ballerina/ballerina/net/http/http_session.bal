@@ -4,6 +4,16 @@ package ballerina.net.http;
 public struct Session {
 }
 
+@Description {value:"Gets the Session struct for a valid session cookie from the request. Otherwise creates a new Session struct."}
+@Param {value:"request: The request message"}
+@Return {value:"HTTP Session struct"}
+public native function <Request request> createSessionIfAbsent () (Session);
+
+@Description {value:"Gets the Session struct from the request if it is present"}
+@Param {value:"request: The request message"}
+@Return {value:"The HTTP Session struct assoicated with the request"}
+public native function <Request request> getSession () (Session);
+
 @Description { value:"Gets the named session attribute" }
 @Param { value:"session: A Session struct" }
 @Param { value:"attributeKey: HTTP session attribute key" }

@@ -16,43 +16,44 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl.connection;
+package org.ballerinalang.net.http.actions.httpserverconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code Promise} is the native function to respond back to the client with a PUSH_PROMISE frame.
+ * {@code Promise} is the native action to respond back to the client with a PUSH_PROMISE frame.
+ *
+ * @since 0.965.0
  */
-@BallerinaFunction(
+@BallerinaAction(
         packageName = "ballerina.net.http",
-        functionName = "promise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                             structPackage = "ballerina.net.http"),
+        actionName = "promise",
+        connectorName = HttpConstants.SERVER_CONNECTOR,
         args = {@Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
-                        structPackage = "ballerina.net.http")
-        },
+                        structPackage = "ballerina.net.http")},
         returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.net.http"),
-        isPublic = true
+                                 structPackage = "ballerina.net.http")
 )
-public class Promise extends ConnectionAction {
+public class Promise extends AbstractConnectorAction {
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
+        BConnector serverConnector = (BConnector) context.getRefArgument(0);
+        HTTPCarbonMessage inboundRequestMsg =
+                (HTTPCarbonMessage) serverConnector.getNativeData(HttpConstants.TRANSPORT_MESSAGE);
+        HttpUtil.serverBConnectorCheck(inboundRequestMsg);
 
         BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,

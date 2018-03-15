@@ -13,7 +13,7 @@ service<http:Service> sessionTest {
     }
     resource sayHello (http:ServerConnector conn, http:Request req) {
         //createSessionIfAbsent() function returns an existing session for a valid session id, otherwise it returns a new session.
-        http:Session session = conn -> createSessionIfAbsent();
+        http:Session session = req.createSessionIfAbsent();
         string result;
         //Session status(new or already existing) is informed by isNew() as boolean value.
         if (session.isNew()) {
@@ -33,7 +33,7 @@ service<http:Service> sessionTest {
     }
     resource doTask (http:ServerConnector conn, http:Request req) {
         //getSession() returns an existing session for a valid session id. otherwise null.
-        http:Session session = conn -> getSession();
+        http:Session session = req.getSession();
         string attributeValue;
         if (session != null) {
             //Returns the object bound with the specified key.
@@ -50,7 +50,7 @@ service<http:Service> sessionTest {
         methods:["GET"]
     }
     resource sayBye (http:ServerConnector conn, http:Request req) {
-        http:Session session = conn -> getSession();
+        http:Session session = req.getSession();
         http:Response res = {};
         if (session != null) {
             //Returns session id.

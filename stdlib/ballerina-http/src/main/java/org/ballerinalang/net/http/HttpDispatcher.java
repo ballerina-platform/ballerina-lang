@@ -49,7 +49,7 @@ import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_CONNECTOR;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_CON_CONNECTION_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -171,10 +171,6 @@ public class HttpDispatcher {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, SERVER_CONNECTOR);
 
-        BStruct connection = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
-
         BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
@@ -187,8 +183,7 @@ public class HttpDispatcher {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
 
-        serverConnector.setRefField(SERVER_CON_CONNECTION_INDEX, connection);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
+        serverConnector.setNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();

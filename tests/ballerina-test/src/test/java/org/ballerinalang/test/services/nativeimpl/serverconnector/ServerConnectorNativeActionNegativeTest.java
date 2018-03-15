@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.services.nativeimpl.connection;
+package org.ballerinalang.test.services.nativeimpl.serverconnector;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -31,13 +31,13 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
- * Test cases for ballerina.net.http.response negative native functions.
+ * Negative test cases for server connector native actions.
  */
-public class ConnectionNativeFunctionNegativeTest {
+public class ServerConnectorNativeActionNegativeTest {
 
     private CompileResult serviceResult;
     private String filePath =
-            "test-src/statements/services/nativeimpl/connection/connection-native-function-negative.bal";
+            "test-src/statements/services/nativeimpl/serverconnector/connector-native-action-negative.bal";
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
@@ -58,14 +58,14 @@ public class ConnectionNativeFunctionNegativeTest {
                 .contains("argument 1 is null"));
     }
 
-    @Test(description = "Test respond with invalid connection struct", enabled = false)
-    public void testRespondWithInvalidConnectionStruct() {
+    @Test(description = "Test respond with invalid connector struct")
+    public void testRespondWithInvalidConnector() {
         String path = "/hello/11";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertTrue(StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream())
-                .contains("operation not allowed:invalid Connection variable"));
+                .contains("operation not allowed:invalid ServerConnector instance"));
     }
 
     @Test(description = "Test forward with null parameter")
@@ -81,12 +81,12 @@ public class ConnectionNativeFunctionNegativeTest {
                 .contains("argument 1 is null"));
     }
 
-    @Test(description = "Test forward with invalid connection struct", enabled = false)
+    @Test(description = "Test forward with invalid connector")
     public void testForwardWithInvalidConnectionStruct() {
         String path = "/hello/21";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         String msg = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertTrue(msg.contains("operation not allowed:invalid Connection variable"));
+        Assert.assertTrue(msg.contains("operation not allowed:invalid ServerConnector instance"));
     }
 }

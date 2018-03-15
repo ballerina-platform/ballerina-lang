@@ -195,13 +195,6 @@ public class HttpConstants {
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
 
-    // ServeConnector struct indices
-    public static final int SERVER_CON_CONNECTION_INDEX = 0;
-
-    //Connection struct indexes
-    public static final int CONNECTION_HOST_INDEX = 0;
-    public static final int CONNECTION_PORT_INDEX = 0;
-
     //Request struct indexes
     public static final int REQUEST_RAW_PATH_INDEX = 0;
     public static final int REQUEST_METHOD_INDEX = 1;
@@ -315,4 +308,14 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "pasword";
+
+    //The response codes for HTTP
+    public static final int HTTP_CONTINUE = 100;
+    public static final int HTTP_MULTIPLE_CHOICES = 300;
+    public static final int HTTP_MOVED_PERMANENTLY = 301;
+    public static final int HTTP_FOUND = 302;
+    public static final int HTTP_SEE_OTHER = 303;
+    public static final int HTTP_NOT_MODIFIED = 304;
+    public static final int HTTP_USE_PROXY = 305;
+    public static final int HTTP_TEMPORARY_REDIRECT = 307;
 }

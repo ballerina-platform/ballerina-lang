@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.services.nativeimpl.connection;
+package org.ballerinalang.test.services.nativeimpl.serverconnector;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -30,16 +30,16 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
- * Test cases for ballerina.net.http.response native functions.
+ * Test cases for server connector native actions.
  */
-public class ConnectionNativeFunctionTest {
+public class ServerConnectorNativeActionTest {
 
     private CompileResult serviceResult;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
-        String filePath = "test-src/statements/services/nativeimpl/connection/connection-native-function.bal";
+        String filePath = "test-src/statements/services/nativeimpl/serverconnector/connector-native-action.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, filePath);
     }
 
