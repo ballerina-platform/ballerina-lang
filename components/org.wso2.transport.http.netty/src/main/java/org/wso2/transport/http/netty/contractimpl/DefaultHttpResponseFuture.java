@@ -90,6 +90,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     @Override
     public void notifyHttpListener(Throwable throwable) {
         this.throwable = throwable;
+        returnError = throwable;
         if (executionWaitSem != null) {
             executionWaitSem.release();
         }
@@ -100,7 +101,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     public HttpResponseFuture sync() throws InterruptedException {
         executionWaitSem = new Semaphore(0);
-        if (this.httpCarbonMessage == null && this.throwable == null) {
+        if (this.httpCarbonMessage == null && this.throwable == null && this.returnError == null) {
             executionWaitSem.acquire();
         }
         if (httpCarbonMessage != null) {
@@ -117,6 +118,10 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     public DefaultOperationStatus getStatus() {
         return this.returnError != null ? new DefaultOperationStatus(this.returnError)
                                         : new DefaultOperationStatus(null);
+    }
+
+    public void resetStatus() {
+        this.returnError = null;
     }
 
     @Override
