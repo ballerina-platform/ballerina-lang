@@ -50,6 +50,16 @@ public native function <Request req> setProperty (string propertyName, string pr
 @Return {value:"A map of matrix paramters which can be found for a given path"}
 public native function <Request req> getMatrixParams (string path) (map);
 
+@Description {value:" Gets the string representation of the address of the remote host"}
+@Param {value:"req: The inbound request message"}
+@Return {value:"String representation of the address of the remote server"}
+public native function <Request req> getRemoteAddress () (string);
+
+@Description {value:" Gets the string representation of the address of the local server host"}
+@Param {value:"req: The inbound request message"}
+@Return {value:"String representation of the address of the local server"}
+public native function <Request req> getLocalAddress () (string);
+
 @Description {value:"Get the entity from the request"}
 @Param {value:"req: The request message"}
 @Return {value:"Entity of the request"}

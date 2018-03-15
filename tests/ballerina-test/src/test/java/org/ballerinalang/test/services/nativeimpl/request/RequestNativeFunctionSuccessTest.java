@@ -55,6 +55,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -360,6 +363,27 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), value);
     }
 
+    @Test (description = "Test the functionality getRemoteAddress native function in main method.")
+    public void testGetRemoteAddress() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BValue[] inputArg = {inRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetRemoteAddress", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(((BJSON) returnVals[0]).value().get("remoteAddress").asText(), "remote address is null");
+    }
+
+    @Test (description = "Test the functionality getLocalAddress native function in main method.")
+    public void testGetLocalAddress() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BValue[] inputArg = {inRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetLocalAddress", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(((BJSON) returnVals[0]).value().get("localAddress").asText(), "local address is null");
+    }
+
+
     @Test
     public void testGetMethod() {
         String path = "/hello/11";
@@ -649,5 +673,47 @@ public class RequestNativeFunctionSuccessTest {
 
         Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
 
+    }
+
+    @Test(description = "Test whether getLocalAddress native function populates the correct value.")
+    public void testServiceGetLocalAddress() {
+        String path = "/hello/localAddress";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String expectedAddress = null;
+        if (cMsg.getProperty(HttpConstants.LOCAL_ADDRESS) != null) {
+            expectedAddress =
+                    ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getAddress().getHostAddress()
+                            + ":" + ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getPort();
+        }
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        if (expectedAddress != null) {
+            Assert.assertEquals(bJson.value().get("localAddress").asText(), expectedAddress,
+                    "Local address is not correct.");
+        }
+    }
+
+    @Test(description = "Test whether getRemoteAddress native function populates the correct value.")
+    public void testServiceGetRemoteAddress() throws UnknownHostException {
+        String path = "/hello/remoteAddress";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost(), 12345);
+        cMsg.setProperty(HttpConstants.REMOTE_ADDRESS, inetSocketAddress);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String expectedAddress = null;
+        if (cMsg.getProperty(HttpConstants.REMOTE_ADDRESS) != null) {
+            expectedAddress =
+                    ((InetSocketAddress) cMsg.getProperty(HttpConstants.REMOTE_ADDRESS)).getAddress().getHostAddress()
+                            + ":" + ((InetSocketAddress) cMsg.getProperty(HttpConstants.REMOTE_ADDRESS)).getPort();
+        }
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        if (expectedAddress != null) {
+            Assert.assertEquals(bJson.value().get("remoteAddress").asText(), expectedAddress,
+                    "Remote address is not correct.");
+        }
     }
 }

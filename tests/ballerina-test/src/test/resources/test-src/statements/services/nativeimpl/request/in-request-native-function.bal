@@ -93,6 +93,24 @@ function testGetXmlPayload (http:Request req) (xml, mime:EntityError) {
     return req.getXmlPayload();
 }
 
+function testGetRemoteAddress (http:Request req) (json, mime:EntityError) {
+    string localAddr = req.getRemoteAddress();
+    if (localAddr == null) {
+        json remoteAddressJson = {remoteAddress:"remote address is null"};
+        return remoteAddressJson, null;
+    }
+    return null, null;
+}
+
+function testGetLocalAddress (http:Request req) (json, mime:EntityError) {
+    string localAddr = req.getLocalAddress();
+    if (localAddr == null) {
+        json localAddressJson = {localAddress:"local address is null"};
+        return localAddressJson, null;
+    }
+    return null, null;
+}
+
 endpoint<mock:NonListeningService> mockEP {
     port:9090
 }
@@ -346,4 +364,28 @@ service<http:Service> hello {
         res.setJsonPayload({lang:name});
         _ = conn -> respond(res);
     }
+
+    @http:resourceConfig {
+        path:"/remoteAddress",
+        methods:["GET"]
+    }
+    resource remoteAddress (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
+        string remoteAddr = req.getRemoteAddress();
+        json remoteAddressJson = {remoteAddress:remoteAddr};
+        res.setJsonPayload(remoteAddressJson);
+        _ = conn -> respond(res);
+    }
+
+    @http:resourceConfig {
+        path:"/localAddress",
+        methods:["GET"]
+    }
+    resource localAddress (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
+        string localAddr = req.getLocalAddress();
+        json remoteAddressJson = {localAddress:localAddr};
+        res.setJsonPayload(remoteAddressJson);
+        _ = conn -> respond(res);
+    }  
 }
