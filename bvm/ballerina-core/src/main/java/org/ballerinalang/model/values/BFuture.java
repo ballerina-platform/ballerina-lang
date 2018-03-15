@@ -20,6 +20,9 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BType;
 
+/**
+ * Ballerina value for the "future" type.
+ */
 public class BFuture implements BRefType<WorkerResponseContext> {
 
     @Override
