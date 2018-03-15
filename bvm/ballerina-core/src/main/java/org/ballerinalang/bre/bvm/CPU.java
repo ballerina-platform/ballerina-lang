@@ -1931,7 +1931,7 @@ public class CPU {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeTable);
                 break;
-            case InstructionCodes.ANYSTM:
+            case InstructionCodes.ANY2STM:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeStream);
                 break;
             case InstructionCodes.ANY2E:

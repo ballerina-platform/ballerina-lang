@@ -7,6 +7,7 @@ lexer grammar BallerinaLexer;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
+    boolean inSiddhiTimeScaleQuery = false;
 }
 
 // Reserved words
@@ -62,13 +63,20 @@ WITHIN      : 'within' ;
 LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
 FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
 SNAPSHOT    : 'snapshot' ;
-OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; } ;
+OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; inSiddhiTimeScaleQuery = true; } ;
 INNER       : 'inner' ;
 OUTER       : 'outer' ;
 RIGHT       : 'right' ;
 LEFT        : 'left' ;
 FULL        : 'full' ;
 UNIDIRECTIONAL  : 'unidirectional' ;
+REDUCE      : 'reduce' ;
+SECOND      : {inSiddhiTimeScaleQuery}? 'second' { inSiddhiTimeScaleQuery = false; } ;
+MINUTE      : {inSiddhiTimeScaleQuery}? 'minute' { inSiddhiTimeScaleQuery = false; } ;
+HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false; } ;
+DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
+MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
+YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -80,7 +88,6 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
-TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 

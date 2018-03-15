@@ -1,23 +1,4 @@
-/*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
-// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
-
+// Generated from /home/mohan/ballerina/git-new/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -1925,15 +1906,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Enter a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void enterOutputRate(BallerinaParser.OutputRateContext ctx);
+	void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Exit a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void exitOutputRate(BallerinaParser.OutputRateContext ctx);
+	void exitOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#patternStreamingInput}.
 	 * @param ctx the parse tree
@@ -2014,6 +1995,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#timeScale}.
+	 * @param ctx the parse tree
+	 */
+	void enterTimeScale(BallerinaParser.TimeScaleContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#timeScale}.
+	 * @param ctx the parse tree
+	 */
+	void exitTimeScale(BallerinaParser.TimeScaleContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAttachment}.
 	 * @param ctx the parse tree

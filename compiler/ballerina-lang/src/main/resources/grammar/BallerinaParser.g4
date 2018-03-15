@@ -210,7 +210,6 @@ builtInReferenceTypeName
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
     |   STREAMLET
-    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -715,7 +714,7 @@ streamingQueryStatement
     :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
         orderByClause?
-        outputRate?
+        outputRateLimit?
         streamingAction
     ;
 
@@ -775,8 +774,9 @@ joinStreamingInput
     :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
     ;
 
-outputRate
-    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
+outputRateLimit
+    : OUTPUT outputRateType? EVERY ( integerLiteral timeScale | integerLiteral EVENTS )
+    | OUTPUT SNAPSHOT EVERY integerLiteral timeScale
     ;
 
 patternStreamingInput
@@ -820,6 +820,15 @@ outputRateType
     : ALL
     | LAST
     | FIRST
+    ;
+
+timeScale
+    : SECOND
+    | MINUTE
+    | HOUR
+    | DAY
+    | MONTH
+    | YEAR
     ;
 
 // Deprecated parsing.
