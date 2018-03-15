@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@link BConnectorSymbol} represents a connector symbol in a scope.
@@ -31,6 +32,7 @@ public class BConnectorSymbol extends BTypeSymbol {
 
     public List<BVarSymbol> params;
     public BInvokableSymbol initFunctionSymbol;
+    public Map<Integer, TaintRecord> taintTable;
 
     public BConnectorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(SymTag.CONNECTOR, flags, name, pkgID, type, owner);
