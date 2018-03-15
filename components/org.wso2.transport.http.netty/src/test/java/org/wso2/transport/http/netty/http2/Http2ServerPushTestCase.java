@@ -103,7 +103,6 @@ public class Http2ServerPushTestCase {
         ResponseHandle handle = msgSender.submitMessage(request);
         assertNotNull(handle, "Response handle not found");
 
-
         // Look for 1st promise
         assertTrue(msgSender.checkPromiseAvailability(handle), "Promises not available");
         // Get the 1st promise
