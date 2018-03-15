@@ -45,17 +45,23 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
+    private static final String DISTRIBUTED_TRANSACTION_ENABLED = "distributed.transactions";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
 
     private List<String> pkgNameComps;
     private String pkgVersion;
+    private boolean distributedTransactionEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
+        String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTION_ENABLED);
+        if (distributedTxEnabledProp != null && !distributedTxEnabledProp.isEmpty()) {
+            distributedTransactionEnabled = true;
+        }
     }
 
     @Override
@@ -1390,7 +1396,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx), this.distributedTransactionEnabled);
     }
 
     /**

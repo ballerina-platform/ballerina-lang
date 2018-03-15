@@ -30,7 +30,7 @@ public class Constants {
     public static final String SYSTEM_PROP_BAL_DEBUG = "debug";
 
     // Transaction constants
+    public static final String DISTRIBUTED_TRANSACTION_ENABLED = "distributed.transactions";
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
-    public static final String TRANSACTION_PROTOCOL_2PC = "2pc";
 }

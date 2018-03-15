@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -50,6 +51,8 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
+        initializeDistributeTransactionStatus(programFile);
+
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
@@ -77,6 +80,9 @@ public class BLangProgramRunner {
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
+
+        initializeDistributeTransactionStatus(programFile);
+
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
             BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
@@ -86,6 +92,15 @@ public class BLangProgramRunner {
             }
             BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
+    }
+
+    private static void initializeDistributeTransactionStatus(ProgramFile programFile) {
+        boolean distributedTxEnabled = false;
+        String distributedTxEnabledProp = System.getProperty(Constants.DISTRIBUTED_TRANSACTION_ENABLED);
+        if (distributedTxEnabledProp != null && !distributedTxEnabledProp.isEmpty()) {
+            distributedTxEnabled = true;
+        }
+        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
     }
 
     private static BValue[] extractMainArgs(String[] args) {
