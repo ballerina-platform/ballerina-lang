@@ -47,30 +47,31 @@ function isFloat(val) {
  * @param  {object} literalExpr JSON expression
  * @return {boolean}             status
  */
-function processJSONStruct(parent, literalExpr) {
+function processJSONStruct(parent, literalExpr, removeDefaults) {
     let currentValue;
     let success = true;
     parent.setFields([], true);
-    literalExpr.keyValuePairs.every((ketValPair) => {
+    literalExpr.keyValuePairs.every((keyValPair) => {
         let currentName;
-        if (TreeUtils.isLiteral(ketValPair.getKey())) {
-            currentName = ketValPair.getKey().getValue().replace(/"/g, '');
+        if (TreeUtils.isLiteral(keyValPair.getKey())) {
+            currentName = keyValPair.getKey().getValue().replace(/"/g, '');
         } else {
-            currentName = ketValPair.getKey().getVariableName().getValue();
+            currentName = keyValPair.getKey().getVariableName().getValue();
         }
-        if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
+        if (TreeUtils.isRecordLiteralExpr(keyValPair.getValue())) {
             const parsedJson = FragmentUtils.parseFragment(
                             FragmentUtils.createStatementFragment(`struct { } ${currentName};`));
             const anonStruct = TreeBuilder.build(parsedJson);
             success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct,
-                        ketValPair.getValue());
+                        keyValPair.getValue());
             if (success) {
                 parent.addFields(anonStruct.getVariable());
             }
             return success;
-        } else if (TreeUtils.isLiteral(ketValPair.getValue())) {
-            currentValue = ketValPair.getValue().getValue();
+        } else if (TreeUtils.isLiteral(keyValPair.getValue())) {
+            currentValue = keyValPair.getValue().getValue();
             let currentType = 'string';
+            let refExpr;
             if (isInt(currentValue)) {
                 currentType = 'int';
             } else if (isFloat(currentValue)) {
@@ -78,8 +79,13 @@ function processJSONStruct(parent, literalExpr) {
             } else if (currentValue === 'true' || currentValue === 'false') {
                 currentType = 'boolean';
             }
-            const refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
+            if (removeDefaults){
+                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                    FragmentUtils.createStatementFragment(`${currentType} ${currentName};`)));
+            } else {
+                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
+                    FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
+            }
             if (!refExpr.error) {
                 parent.addFields(refExpr.getVariable());
             } else {
@@ -107,13 +113,13 @@ export function getHandlerDefinitions(plugin) {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
                 const structNode = DefaultNodeFactory.createStruct();
 
-                const onImport = (json, structName) => {
+                const onImport = (json, structName, removeDefaults) => {
                     let success = true;
                     const refExpr = TreeBuilder.build(
                         FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json))
                     );
                     if (!refExpr.error) {
-                        success = processJSONStruct(structNode, refExpr.variable.initialExpression);
+                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, removeDefaults);
                         if (structName !== undefined && structName !== ''){
                             structNode.getName().setValue(structName, true);
                             structNode.setName(structNode.getName(), false); 

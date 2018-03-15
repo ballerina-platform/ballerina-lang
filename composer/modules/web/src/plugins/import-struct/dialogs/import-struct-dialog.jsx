@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, Input } from 'semantic-ui-react';
+import { Button, Form, Input, Checkbox } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import AceEditor from 'react-ace';
 
@@ -56,7 +56,7 @@ class ImportStructDialog extends React.Component {
      * Called when user clicks 'Import Struct' menu item.
      */
     onImportJson() {
-        if (this.props.onImport(this.state.json, this.state.structName)) {
+        if (this.props.onImport(this.state.json, this.state.structName, this.state.removeDefaults)) {
             this.setState({
                 error: '',
                 json: '',
@@ -141,6 +141,20 @@ class ImportStructDialog extends React.Component {
                                     this.setState({
                                         error: '',
                                         structName: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Field>
+                    </Form.Group>
+                    <Form.Group controlId='removeDefaults' inline className='inverted'>
+                        <Form.Field width={15} className='inverted'>
+                            <Checkbox
+                                label='Import JSON without defaults values.'
+                                value={this.state.removeDefaults}
+                                onChange={(evt, data) => {
+                                    this.setState({
+                                        error: '',
+                                        removeDefaults: data.checked,
                                     });
                                 }}
                             />
