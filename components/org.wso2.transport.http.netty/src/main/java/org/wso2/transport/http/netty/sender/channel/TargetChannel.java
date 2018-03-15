@@ -72,7 +72,7 @@ public class TargetChannel {
 
     private List<HttpContent> contentList = new ArrayList<>();
     private int contentLength = 0;
-    ConnectionAvailabilityFuture connectionAvailabilityFuture;
+    private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -151,7 +151,7 @@ public class TargetChannel {
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
         targetHandler.setIncomingMsg(httpCarbonMessage);
-        this.getTargetHandler().setConnectionManager(connectionManager);
+        targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
         this.httpInboundResponseFuture = httpInboundResponseFuture;

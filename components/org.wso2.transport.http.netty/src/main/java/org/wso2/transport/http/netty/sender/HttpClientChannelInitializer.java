@@ -24,8 +24,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContentDecompressor;
-import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.DelegatingDecompressorFrameListener;
 import io.netty.handler.codec.http2.Http2ClientUpgradeCodec;
@@ -54,6 +52,7 @@ import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.DEBUG;
 
@@ -82,8 +81,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private ClientOutboundHandler clientOutboundHandler;
     private Http2Connection connection;
     private SenderConfiguration senderConfiguration;
-    private SslContext sslCtx;
-    private SSLConfig sslConfig;
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
     private static final Http2FrameLogger logger =
@@ -104,7 +101,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
         this.cacheSize = senderConfiguration.getCacheSize();
         this.senderConfiguration = senderConfiguration;
-        this.sslConfig = senderConfiguration.getSSLConfig();
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
@@ -121,10 +117,32 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) throws Exception {
         // Add the generic handlers to the pipeline
         // e.g. SSL handler
-        ChannelPipeline clientPipeline = ch.pipeline();
+        ChannelPipeline clientPipeline = socketChannel.pipeline();
+        configureProxyServer(clientPipeline);
+        HttpClientCodec sourceCodec = new HttpClientCodec();
+        targetHandler = new TargetHandler();
+        targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
+        targetHandler.setKeepAlive(isKeepAlive);
+        if (http2) {
+            SSLConfig sslConfig = senderConfiguration.getSSLConfig();
+            if (sslConfig != null) {
+                configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
+            } else {
+                configureH2cPipeline(clientPipeline, sourceCodec, targetHandler);
+            }
+        } else {
+            if (sslEngine != null) {
+                configureSslForHttp(clientPipeline, targetHandler);
+            } else {
+                configureHttpPipeline(clientPipeline, targetHandler);
+            }
+        }
+    }
+
+    private void configureProxyServer(ChannelPipeline clientPipeline) {
         if (proxyServerConfiguration != null) {
             if (proxyServerConfiguration.getProxyUsername() != null
                     && proxyServerConfiguration.getProxyPassword() != null) {
@@ -137,39 +155,31 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                         new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
             }
         }
-        HttpClientCodec sourceCodec = new HttpClientCodec();
-        targetHandler = new TargetHandler();
-        targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
-        targetHandler.setKeepAlive(isKeepAlive);
-        if (http2) {
-            SSLConfig sslConfig = senderConfiguration.getSSLConfig();
-            if (sslConfig != null) {
-                connectionAvailabilityFuture.setSSLEnabled(true);
-                sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient();
-                clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
-                if (validateCertEnabled && sslEngine != null) {
-                    clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                            new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
-                }
-                clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
-                        connectionAvailabilityFuture));
-            } else {
-                configureH2cPipeline(clientPipeline, sourceCodec, targetHandler);
-            }
-        } else {
-            if (sslEngine != null) {
-                log.debug("adding ssl handler");
-                connectionAvailabilityFuture.setSSLEnabled(true);
-                clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(this.sslEngine));
-                if (validateCertEnabled) {
-                    clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                            new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
-                }
-                clientPipeline.addLast(Constants.TLS_COMPLETION_HANDLER,
-                        new TLSHandshakeCompletionHandler(connectionAvailabilityFuture));
-            }
-            configureHttpPipeline(clientPipeline, targetHandler);
+    }
+
+    private void configureSslForHttp(ChannelPipeline clientPipeline, TargetHandler targetHandler) {
+        log.debug("adding ssl handler");
+        connectionAvailabilityFuture.setSSLEnabled(true);
+        clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(this.sslEngine));
+        if (validateCertEnabled) {
+            clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                    new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
+        clientPipeline.addLast(Constants.TLS_COMPLETION_HANDLER,
+                new TLSHandshakeCompletionHandler(connectionAvailabilityFuture, this, targetHandler));
+    }
+
+    private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)
+            throws SSLException {
+        connectionAvailabilityFuture.setSSLEnabled(true);
+        SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient();
+        clientPipeline.addLast(sslCtx.newHandler(ch.alloc()));
+        if (validateCertEnabled && sslEngine != null) {
+            clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                    new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
+        }
+        clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler,
+                connectionAvailabilityFuture));
     }
 
     public TargetHandler getTargetHandler() {
@@ -215,9 +225,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      * @param pipeline client channel pipeline.
      * @param targetHandler target handler.
      */
-    private void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
-        pipeline.addLast(Constants.HTTP_DECODER, new HttpResponseDecoder());
-        pipeline.addLast(Constants.HTTP_ENCODER, new HttpRequestEncoder());
+    public void configureHttpPipeline(ChannelPipeline pipeline, TargetHandler targetHandler) {
+        pipeline.addLast(Constants.HTTP_CLIENT_CODEC, new HttpClientCodec());
         addCommonHandlers(pipeline);
         pipeline.addLast(Constants.TARGET_HANDLER, targetHandler);
     }

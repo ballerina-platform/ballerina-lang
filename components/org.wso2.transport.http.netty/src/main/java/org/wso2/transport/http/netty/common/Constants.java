@@ -202,7 +202,7 @@ public final class Constants {
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
     public static final String HTTP_ENCODER = "encoder";
-    public static final String HTTP_DECODER = "decoder";
+    public static final String HTTP_CLIENT_CODEC = "codec";
     public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
