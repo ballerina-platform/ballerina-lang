@@ -21,11 +21,17 @@ package org.ballerinalang.nativeimpl.config;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+
+import java.util.regex.Matcher;
+
+import static org.ballerinalang.config.ConfigRegistry.encryptedFieldPattern;
 
 /**
  * Native function ballerina.config:getAsString.
@@ -41,11 +47,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetAsString extends BlockingNativeCallableUnit {
 
+    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+
     @Override
     public void execute(Context context) {
         String configKey = context.getStringArgument(0);
         // TODO: Change the signature of getAsString() once default params are available
-        String globalValue = ConfigRegistry.getInstance().getConfigOrDefault(configKey, null);
+        String globalValue = configRegistry.getConfigOrDefault(configKey, null);
         context.setReturnValues(new BString(globalValue));
     }
 }

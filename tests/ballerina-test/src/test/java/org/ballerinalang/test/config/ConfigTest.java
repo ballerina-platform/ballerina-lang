@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.nativeimpl.functions.config;
+package org.ballerinalang.test.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -43,6 +44,7 @@ import java.util.Map;
  */
 public class ConfigTest {
 
+    private static final ConfigRegistry registry = ConfigRegistry.getInstance();
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;
     private String resourceRoot;
@@ -53,7 +55,7 @@ public class ConfigTest {
     @BeforeClass
     public void setup() throws IOException {
         resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        sourceRoot = Paths.get(resourceRoot, "test-src", "nativeimpl", "functions");
+        sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "default", BALLERINA_CONF);
         customConfigFilePath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF).toString();
 
@@ -65,7 +67,6 @@ public class ConfigTest {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -81,7 +82,6 @@ public class ConfigTest {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -97,7 +97,6 @@ public class ConfigTest {
         BString key = new BString("ballerina.http.host");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -113,7 +112,6 @@ public class ConfigTest {
         BString key = new BString("ballerina.wso2");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -129,7 +127,6 @@ public class ConfigTest {
         BString key = new BString("http1.ballerina.http.port");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -145,7 +142,6 @@ public class ConfigTest {
         BString key = new BString("http1.ballerina.http.port");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -161,7 +157,6 @@ public class ConfigTest {
         BString key = new BString("http1.ballerina.http.port");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -177,7 +172,6 @@ public class ConfigTest {
         BString key = new BString("http1.ballerina.wso2");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -193,7 +187,6 @@ public class ConfigTest {
         BString key = new BString("http3.ballerina.http.port");
         BValue[] inputArg = {key};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
@@ -210,7 +203,6 @@ public class ConfigTest {
         BString value = new BString("ballerinalang.org");
         BValue[] inputArgs = {key, value};
 
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
 
         BRunUtil.invoke(compileResult, "testSetConfig", inputArgs);
@@ -219,17 +211,29 @@ public class ConfigTest {
         Assert.assertEquals(registry.getConfiguration(key.stringValue()), value.stringValue());
     }
 
+    @Test(description = "Test contains() method")
+    public void testContains() throws IOException {
+        BString key = new BString("ballerina.http.host");
+
+        registry.initRegistry(null, null, ballerinaConfPath);
+
+        BValue[] inputArg = {key};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testContains", inputArg);
+
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
+    }
+
     @Test(description = "Test for configuring a service")
     public void testConfiguringAService() throws IOException {
-        ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "config", "service-config.conf").toString(),
                               null);
-        CompileResult configuredService = BServiceUtil.setupProgramFile(this,
-                                                                        Paths.get(resourceRoot, "test-src", "config",
-                                                                                  "service-configuration.bal")
-                                                                                .toString());
+
+        String serviceFile = Paths.get(resourceRoot, "test-src", "config", "service_configuration.bal").toString();
+        CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
+
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
         HTTPCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
+
         Assert.assertNotNull(responseMsg);
     }
 
