@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
 import org.ballerinalang.model.elements.DocTag;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;

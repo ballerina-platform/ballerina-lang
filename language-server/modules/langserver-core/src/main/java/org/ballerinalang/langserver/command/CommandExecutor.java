@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.WorkspaceServiceContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -29,6 +30,7 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -61,6 +63,9 @@ public class CommandExecutor {
             case CommandConstants.CMD_IMPORT_PACKAGE:
                 executeImportPackage(context);
                 break;
+            case CommandConstants.CMD_ADD_DOCUMENTATION:
+                executeAddDocumentation(context);
+                break;
             default:
                 // Do Nothing
                 break;
@@ -74,9 +79,6 @@ public class CommandExecutor {
      */
     private static void executeImportPackage(WorkspaceServiceContext context) {
         String documentUri = null;
-        
-        ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
@@ -134,12 +136,77 @@ public class CommandExecutor {
                     + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
-            TextEdit textEdit = new TextEdit(range, editText);
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier,
-                    Collections.singletonList(textEdit));
-            workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
-            applyWorkspaceEditParams.setEdit(workspaceEdit);
-            context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient().applyEdit(applyWorkspaceEditParams);
+
+            applySingleTextEdit(editText, range, textDocumentIdentifier,
+                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
+    }
+
+    /**
+     * Execute the add documentation command.
+     * @param context   Workspace service context
+     */
+    private static void executeAddDocumentation(WorkspaceServiceContext context) {
+        String topLevelNodeType = "";
+        String documentUri = "";
+        String documentationContent = null;
+        int line = 0;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+                textDocumentIdentifier.setUri(documentUri);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_NODE_TYPE)) {
+                topLevelNodeType = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_NODE_LINE)) {
+                line = Integer.parseInt((String) ((LinkedTreeMap) arg).get(ARG_VALUE));
+            }
+        }
+
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
+
+        switch (topLevelNodeType) {
+            case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
+                documentationContent = CommandUtil.getFunctionDocumentation(bLangPackage, line);
+                break;
+            case UtilSymbolKeys.STRUCT_KEYWORD_KEY:
+                documentationContent = CommandUtil.getStructDocumentation(bLangPackage, line);
+                break;
+            case UtilSymbolKeys.ENUM_KEYWORD_KEY:
+                documentationContent = CommandUtil.getEnumDocumentation(bLangPackage, line);
+                break;
+            case UtilSymbolKeys.TRANSFORMER_KEYWORD_KEY:
+                documentationContent = CommandUtil.getTransformerDocumentation(bLangPackage, line);
+                break;
+            default:
+                break;
+        }
+
+        if (documentationContent != null) {
+            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
+                    .getFileContent(Paths.get(URI.create(documentUri)));
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int replaceEndCol = contentComponents[line - 1].length();
+            String replaceText = fileContent.substring(0, fileContent.indexOf(contentComponents[line]))
+                    + documentationContent;
+            Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
+
+            applySingleTextEdit(replaceText, range, textDocumentIdentifier,
+                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+        }
+    }
+
+    private static void applySingleTextEdit(String editText, Range range, VersionedTextDocumentIdentifier identifier,
+                                            LanguageClient client) {
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+        ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
+        TextEdit textEdit = new TextEdit(range, editText);
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(identifier,
+                Collections.singletonList(textEdit));
+        workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
+        applyWorkspaceEditParams.setEdit(workspaceEdit);
+        client.applyEdit(applyWorkspaceEditParams);
     }
 }
