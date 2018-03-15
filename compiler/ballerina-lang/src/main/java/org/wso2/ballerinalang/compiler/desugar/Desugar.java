@@ -812,6 +812,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // LHS unary expression
         BLangUnaryExpr lhsUnary = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        lhsUnary.pos = typeOfBinaryExpr.lhsExpr.pos;
+        lhsUnary.addWS(typeOfBinaryExpr.lhsExpr.getWS());
         lhsUnary.expr = rewriteExpr(typeOfBinaryExpr.lhsExpr);
         lhsUnary.type = symTable.typeType;
         lhsUnary.operator = OperatorKind.TYPEOF;
@@ -826,7 +828,8 @@ public class Desugar extends BLangNodeVisitor {
         rhsTypeOfExpr.type = symTable.typeType;
 
         // Binary operator for equality
-        binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL, symTable.typeType, symTable.typeType);
+        binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+                symTable.typeType, symTable.typeType);
         binaryExpr.type = symTable.booleanType;
 
         binaryExpr.lhsExpr = lhsUnary;
