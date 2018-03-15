@@ -32,7 +32,7 @@ under the License.
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
-            <package name="org.ballerinalang.test.statements.*"> 
+            <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transaction.*"/>
                 <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
             </package>
@@ -63,6 +63,7 @@ under the License.
             <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
+            <package name="org.ballerinalang.test.streaming.*"/>
         </packages>
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">

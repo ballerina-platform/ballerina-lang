@@ -47,6 +47,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     TRANSFORMER,
+    STREAMLET,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -55,6 +56,7 @@ public enum NodeKind {
     ARRAY_LITERAL_EXPR,
     BINARY_EXPR,
     Type_INIT_EXPR,
+    STREAMLET_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
     INDEX_BASED_ACCESS_EXPR,
     INT_RANGE_EXPR,
@@ -109,6 +111,7 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    STREAM,
 
     /* Types */
     ARRAY_TYPE,
@@ -130,4 +133,14 @@ public enum NodeKind {
     STREAMING_INPUT,
     JOIN_STREAMING_INPUT,
     TABLE_QUERY,
+    SET_ASSIGNMENT_CLAUSE,
+    SET,
+    STREAM_ACTION,
+    PATTERN_STREAMING_EDGE_INPUT,
+    PATTERN_STREAMING_INPUT,
+    STREAMING_QUERY,
+    QUERY,
+    STREAMING_QUERY_DECLARATION,
+    WITHIN,
+    PATTERN_CLAUSE,
 }

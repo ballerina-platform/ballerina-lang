@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BStreamType;
+import org.ballerinalang.model.types.BStreamletType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
@@ -59,6 +61,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TransformerRefCPEntry;
@@ -203,6 +206,29 @@ public class ProgramFileReader {
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
                 return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
 
+            case CP_ENTRY_STREAMLET_REF:
+                pkgCPIndex = dataInStream.readInt();
+                packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
+
+                cpIndex = dataInStream.readInt();
+                UTF8CPEntry streamletNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
+                String streamletName = streamletNameCPEntry.getValue();
+                StreamletRefCPEntry streamletRefCPEntry = new StreamletRefCPEntry(pkgCPIndex,
+                        packageRefCPEntry.getPackageName(), cpIndex, streamletName);
+
+                // Find the streamletInfo
+                packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
+                StreamletInfo streamletInfo = packageInfo.getStreamletInfo(streamletName);
+                if (streamletInfo == null) {
+                    // This must reference to the current package and the current package is not been read yet.
+                    // Therefore we add this to the unresolved CP Entry list.
+                    unresolvedCPEntries.add(streamletRefCPEntry);
+                    return streamletRefCPEntry;
+                }
+
+                streamletRefCPEntry.setStreamletInfo(streamletInfo);
+                return streamletRefCPEntry;
+
             case CP_ENTRY_FUNCTION_REF:
                 pkgCPIndex = dataInStream.readInt();
                 packageRefCPEntry = (PackageRefCPEntry) constantPool.getCPEntry(pkgCPIndex);
@@ -337,6 +363,9 @@ public class ProgramFileReader {
 
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
+
+        // Read streamlet info entries
+        readStreamletInfoEntries(dataInStream, packageInfo);
 
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
@@ -554,6 +583,42 @@ public class ProgramFileReader {
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
         }
+    }
+
+    private void readStreamletInfoEntries(DataInputStream dataInStream,
+                                          PackageInfo packageInfo) throws IOException {
+        int stremletCount = dataInStream.readShort();
+        for (int i = 0; i < stremletCount; i++) {
+            // Create streamlet info entry
+            int streamletNameCPIndex = dataInStream.readInt();
+            int siddhiQueryCPIndex = dataInStream.readInt();
+            int streamIdsAsStringCPIndex = dataInStream.readInt();
+            int flags = dataInStream.readInt();
+            UTF8CPEntry streamletNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamletNameCPIndex);
+            String streamletName = streamletNameUTF8Entry.getValue();
+
+            UTF8CPEntry siddhiQueryUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(siddhiQueryCPIndex);
+            String siddhiQuery = siddhiQueryUTF8Entry.getValue();
+
+            UTF8CPEntry streamIdsAsStringUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(streamIdsAsStringCPIndex);
+            String streamIdsAsString = streamIdsAsStringUTF8Entry.getValue();
+
+            StreamletInfo streamletInfo = new StreamletInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
+                    streamletNameCPIndex, streamletName, flags);
+            packageInfo.addStreamletInfo(streamletName, streamletInfo);
+
+            // Set streamlet type
+            BStreamletType bStreamletType = new BStreamletType(streamletInfo, streamletName,
+                    packageInfo.getPkgPath(), flags);
+            streamletInfo.setType(bStreamletType);
+
+            // Set Siddhi query
+            streamletInfo.setSiddhiQuery(siddhiQuery);
+
+            // Set Stream Ids
+            streamletInfo.setStreamIdsAsString(streamIdsAsString);
+        }
+
     }
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
@@ -870,6 +935,8 @@ public class ProgramFileReader {
             case 'T':
             case 'E':
             case 'D':
+            case 'H':
+            case 'M':
                 char typeChar = chars[index];
                 // TODO Improve this logic
                 index++;
@@ -908,6 +975,18 @@ public class ProgramFileReader {
                         typeStack.push(BTypes.typeTable);
                     } else {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
+                } else if (typeChar == 'H') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeStream);
+                    } else {
+                        typeStack.push(new BStreamType(packageInfoOfType.getStructInfo(name).getType()));
+                    }
+                } else if (typeChar == 'M') {
+                    if (name.isEmpty()) {
+                        typeStack.push(BTypes.typeStreamlet);
+                    } else {
+                        typeStack.push(packageInfoOfType.getStreamletInfo(name).getType());
                     }
                 } else if (typeChar == 'E') {
                     typeStack.push(packageInfoOfType.getEnumInfo(name).getType());
@@ -956,6 +1035,8 @@ public class ProgramFileReader {
             case 'J':
             case 'T':
             case 'E':
+            case 'H':
+            case 'M':
             case 'D':
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
@@ -965,6 +1046,10 @@ public class ProgramFileReader {
                         return BTypes.typeJSON;
                     } else if (ch == 'D') {
                         return BTypes.typeTable;
+                    } else if (ch == 'H') { //TODO:CHECK
+                        return BTypes.typeStream;
+                    } else if (ch == 'M') {
+                        return BTypes.typeStreamlet;
                     }
                 }
 
@@ -979,6 +1064,10 @@ public class ProgramFileReader {
                     return packageInfoOfType.getServiceInfo(name).getType();
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'H') {
+                    return new BStreamType(packageInfoOfType.getStructInfo(name).getType());
+                } else if (ch == 'M') {
+                    return packageInfoOfType.getStreamletInfo(name).getType();
                 } else if (ch == 'E') {
                     return packageInfoOfType.getEnumInfo(name).getType();
                 } else {
@@ -1353,6 +1442,7 @@ public class ProgramFileReader {
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWTABLE:
+                case InstructionCodes.NEWSTREAMLET:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1476,6 +1566,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.ANY2SCONV:
+                case InstructionCodes.NEWSTREAM:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1601,6 +1692,13 @@ public class ProgramFileReader {
                     StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
+                    break;
+                case CP_ENTRY_STREAMLET_REF:
+                    StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) cpEntry;
+                    packageInfo = programFile.getPackageInfo(streamletRefCPEntry.getPackagePath());
+                    StreamletInfo streamletInfo = packageInfo.getStreamletInfo(
+                            streamletRefCPEntry.getStreamletName());
+                    streamletRefCPEntry.setStreamletInfo(streamletInfo);
                     break;
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
