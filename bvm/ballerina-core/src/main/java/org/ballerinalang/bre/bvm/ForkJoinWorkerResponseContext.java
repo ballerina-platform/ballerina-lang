@@ -60,7 +60,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     public ForkJoinWorkerResponseContext(WorkerExecutionContext targetCtx, int joinTargetIp, int joinVarReg,
             int timeoutTargetIp, int timeoutVarReg, int workerCount, int reqJoinCount, Set<String> joinWorkerNames,
             Map<String, String> channelNames) {
-        super(null, workerCount, false);
+        super(null, workerCount);
         this.targetCtx = targetCtx;
         this.joinTargetIp = joinTargetIp;
         this.joinVarReg = joinVarReg;

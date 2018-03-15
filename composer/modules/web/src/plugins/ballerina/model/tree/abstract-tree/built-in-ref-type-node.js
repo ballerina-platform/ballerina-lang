@@ -46,7 +46,6 @@ class AbstractBuiltInRefTypeNode extends Node {
     }
 
 
-
 }
 
 export default AbstractBuiltInRefTypeNode;

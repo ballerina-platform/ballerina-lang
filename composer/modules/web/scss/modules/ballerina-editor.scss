@@ -1,3 +1,5 @@
+$diagram-background: #f9f9f9;
+
 .editor-area {
   .rc-tabs-tab-active {
     .tab-title-wrapper {
@@ -91,7 +93,7 @@
 
 .ballerina-editor {
   .design-view-container {
-    background-color: #f9f9f9;
+    background-color: $diagram-background;
   }
 
   .protocol-http, .svg-container {
@@ -326,6 +328,17 @@
 
   .fork-bar{
     fill: #a5a5a5;
+  }
+
+  .diagram-menu {
+    position: fixed;
+    background: $diagram-background;
+    height: 45px;
+    width: 100%;
+    -webkit-box-shadow: -6px 6px 6px -6px #a5a5a5;
+    -moz-box-shadow: -6px 6px 6px -6px #a5a5a5;
+    box-shadow: -6px 6px 6px -6px #a5a5a5;
+    padding: 5px;
   }
 }
 

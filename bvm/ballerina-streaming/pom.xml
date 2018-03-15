@@ -30,7 +30,7 @@
     <artifactId>ballerina-streaming</artifactId>
     <packaging>pom</packaging>
 
-    <name>Ballerina - Streaming</name>
+    <name>Ballerina - Streaming - Parent</name>
     <url>http://ballerinalang.org</url>
 
     <modules>

@@ -167,7 +167,6 @@ class AbstractWorkerReceiveNode extends StatementNode {
     }
 
 
-
 }
 
 export default AbstractWorkerReceiveNode;
