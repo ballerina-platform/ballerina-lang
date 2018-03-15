@@ -48,7 +48,6 @@ class AbstractTypeofExpressionNode extends ExpressionNode {
     }
 
 
-
 }
 
 export default AbstractTypeofExpressionNode;
