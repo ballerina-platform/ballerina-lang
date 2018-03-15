@@ -160,7 +160,7 @@ public class HttpClientRedirectTestCase {
         embeddedChannel.attr(Constants.ORIGINAL_REQUEST)
                 .set(createHttpRequest(Constants.HTTP_GET_METHOD, FINAL_DESTINATION));
         embeddedChannel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(new DefaultHttpResponseFuture());
-        TargetChannel targetChannel = new TargetChannel(null, null, null);
+        TargetChannel targetChannel = new TargetChannel(null, null, null, null);
         targetChannel.setChannel(embeddedChannel);
         embeddedChannel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
         embeddedChannel.attr(Constants.REDIRECT_COUNT).set(5);

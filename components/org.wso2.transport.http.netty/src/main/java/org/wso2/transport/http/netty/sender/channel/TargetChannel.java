@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
@@ -71,9 +72,10 @@ public class TargetChannel {
 
     private List<HttpContent> contentList = new ArrayList<>();
     private int contentLength = 0;
+    ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
-                         HttpRoute httpRoute) {
+                         HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
@@ -84,6 +86,11 @@ public class TargetChannel {
                                            httpClientChannelInitializer.getConnection(),
                                            httpRoute, channelFuture.channel());
         }
+        this.connectionAvailabilityFuture = connectionAvailabilityFuture;
+    }
+
+    public ConnectionAvailabilityFuture getConnectionAvailabilityFuture() {
+        return connectionAvailabilityFuture;
     }
 
     public Channel getChannel() {

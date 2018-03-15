@@ -21,9 +21,9 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.ssl.ApplicationProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
@@ -166,13 +167,27 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest, freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
 
-            // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id
-            freshHttp2ClientChannel.putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
-
-            targetChannel.getChannelFuture().addListener(new ChannelFutureListener() {
+            targetChannel.getConnectionAvailabilityFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (isValidateChannel(channelFuture)) {
+                public void onSuccess(String protocol, ChannelFuture channelFuture) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Created the connection to address: {}",
+                                route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    }
+
+                    if (protocol.equalsIgnoreCase(ApplicationProtocolNames.HTTP_2)) {
+
+                        connectionManager.getHttp2ConnectionManager().
+                                addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                        freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
+                            freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
+                        });
+
+                        httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
+                    } else {
+                        // Response for the upgrade request will arrive in stream 1, so use 1 as the stream id.
+                        freshHttp2ClientChannel
+                                .putInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID, outboundMsgHolder);
                         httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                         targetChannel.setChannel(channelFuture.channel());
                         targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
@@ -193,41 +208,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         }
                         targetChannel.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
                         targetChannel.writeContent(httpOutboundRequest);
-                    } else {
-                        notifyErrorState(channelFuture);
                     }
                 }
 
-                private boolean isValidateChannel(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone() && channelFuture.isSuccess()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Created the connection to address: {}",
-                                    route.toString() + " " + "Original Channel ID is : " + channelFuture.channel()
-                                            .id());
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-
-                private void notifyErrorState(ChannelFuture channelFuture) {
-                    ClientConnectorException cause;
-
-                    if (channelFuture.isDone() && channelFuture.isCancelled()) {
-                        cause = new ClientConnectorException("Request Cancelled, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else if (!channelFuture.isDone() && !channelFuture.isSuccess() &&
-                            !channelFuture.isCancelled() && (channelFuture.cause() == null)) {
-                        cause = new ClientConnectorException("Connection timeout, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    } else {
-                        cause = new ClientConnectorException("Connection refused, " + route.toString(),
-                                HttpResponseStatus.BAD_GATEWAY.code());
-                    }
-
-                    if (channelFuture.cause() != null) {
-                        cause.initCause(channelFuture.cause());
-                    }
+                @Override
+                public void onFailure(ClientConnectorException cause) {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });

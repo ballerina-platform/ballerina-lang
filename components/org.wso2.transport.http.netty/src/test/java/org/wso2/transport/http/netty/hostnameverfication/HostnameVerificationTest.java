@@ -78,7 +78,8 @@ public class HostnameVerificationTest {
         String password = "ballerina";
         return new Object[][] {
                 { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
-                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 } };
+                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 }
+        };
     }
 
     @Test(dataProvider = "configurations")
@@ -138,7 +139,7 @@ public class HostnameVerificationTest {
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (throwable.getMessage()
-                            .contains("javax.net.ssl.SSLHandshakeException"))) {
+                            .contains("General SSLEngine problem"))) {
                         hasSSLException = true;
                         break;
                     }
