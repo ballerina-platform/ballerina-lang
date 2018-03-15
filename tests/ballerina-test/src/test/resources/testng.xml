@@ -33,7 +33,7 @@ under the License.
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"> 
-                <exclude name="org.ballerinalang.test.statements.transaction.*"/>
+                <!--<exclude name="org.ballerinalang.test.statements.transaction.*"/>-->
                 <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
             </package>
             <package name="org.ballerinalang.test.types.*"/>
