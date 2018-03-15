@@ -33,13 +33,15 @@ const string AUTH_SCHEME = "Basic";
 BasicAuthenticator authenticator;
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
+@Field {value:"name: Authentication handler name"}
 public struct HttpBasicAuthnHandler {
+    string name = "basic";
 }
 
 @Description {value:"Intercepts a request for authentication"}
-@Param {value:"req: InRequest object"}
+@Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request req) (boolean) {
 
     // extract the header value
     var basicAuthHeaderValue, err = utils:extractBasicAuthHeaderValue(req);
@@ -50,7 +52,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest
 
     if (authenticator == null) {
         userstore:FilebasedUserstore fileBasedUserstore = {};
-        authenticator = createAuthenticator((userstore:CredentialsStore)fileBasedUserstore,
+        authenticator = createAuthenticator((userstore:UserStore)fileBasedUserstore,
                                             utils:createCache(AUTH_CACHE));
     }
     AuthenticationInfo authInfo;
@@ -80,18 +82,18 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:InRequest
     // cache result
     authenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
     if (authInfo.isAuthenticated) {
-        log:printInfo("Successfully authenticated against the userstore");
+        log:printDebug("Successfully authenticated against the userstore");
     } else {
-        log:printInfo("Authentication failure");
+        log:printDebug("Authentication failure");
     }
 
     return authInfo.isAuthenticated;
 }
 
 @Description {value:"Checks if the provided request can be authenticated with basic auth"}
-@Param {value:"req: InRequest object"}
+@Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:InRequest req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Request req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
         return true;

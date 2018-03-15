@@ -128,6 +128,7 @@
                 <include>org.ballerinalang:ballerina-logging:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
+                <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
@@ -165,6 +166,24 @@
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
                 <include>com.h2database:h2</include>
+                <include>io.ballerina.messaging:broker-core</include>
+                <include>io.ballerina.messaging:broker-common</include>
+                <include>io.ballerina.messaging:broker-rest-runner</include>
+                <include>io.ballerina.messaging:broker-coordination</include>
+                <include>com.google.guava:guava</include>
+                <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
+
+                <!-- Siddhi Dependencies -->
+                <include>org.ballerinalang:siddhi-core:jar</include>
+                <include>org.ballerinalang:siddhi-query-api:jar</include>
+                <include>org.ballerinalang:siddhi-query-compiler:jar</include>
+                <include>org.ballerinalang:siddhi-annotations:jar</include>
+
+                <include>org.wso2.orbit.com.lmax:disruptor:jar</include>
+                <include>io.dropwizard.metrics:metrics-core:jar</include>
+                <include>io.ballerina.messaging:broker-common:jar</include>
+                <include>io.ballerina.messaging:broker-core:jar</include>
+
             </includes>
         </dependencySet>
 

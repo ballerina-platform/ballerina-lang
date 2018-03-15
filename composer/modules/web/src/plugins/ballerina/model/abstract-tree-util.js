@@ -47,6 +47,18 @@ class AbstractTreeUtil {
         return node.kind === 'Connector';
     }
 
+    isDeprecated(node) {
+        return node.kind === 'Deprecated';
+    }
+
+    isDocumentation(node) {
+        return node.kind === 'Documentation';
+    }
+
+    isEndpoint(node) {
+        return node.kind === 'Endpoint';
+    }
+
     isEnum(node) {
         return node.kind === 'Enum';
     }
@@ -107,6 +119,10 @@ class AbstractTreeUtil {
         return node.kind === 'Transformer';
     }
 
+    isDocumentationAttribute(node) {
+        return node.kind === 'DocumentationAttribute';
+    }
+
     isAnnotationAttachmentAttribute(node) {
         return node.kind === 'AnnotationAttachmentAttribute';
     }
@@ -123,8 +139,8 @@ class AbstractTreeUtil {
         return node.kind === 'BinaryExpr';
     }
 
-    isConnectorInitExpr(node) {
-        return node.kind === 'ConnectorInitExpr';
+    isTypeInitExpr(node) {
+        return node.kind === 'TypeInitExpr';
     }
 
     isFieldBasedAccessExpr(node) {
@@ -133,6 +149,10 @@ class AbstractTreeUtil {
 
     isIndexBasedAccessExpr(node) {
         return node.kind === 'IndexBasedAccessExpr';
+    }
+
+    isIntRangeExpr(node) {
+        return node.kind === 'IntRangeExpr';
     }
 
     isInvocation(node) {
@@ -187,20 +207,16 @@ class AbstractTreeUtil {
         return node.kind === 'XmlAttribute';
     }
 
+    isXmlAttributeAccessExpr(node) {
+        return node.kind === 'XmlAttributeAccessExpr';
+    }
+
     isXmlQuotedString(node) {
         return node.kind === 'XmlQuotedString';
     }
 
-    isXmlElementLiteral(node) {
-        return node.kind === 'XmlElementLiteral';
-    }
-
     isXmlTextLiteral(node) {
         return node.kind === 'XmlTextLiteral';
-    }
-
-    isXmlCommentLiteral(node) {
-        return node.kind === 'XmlCommentLiteral';
     }
 
     isXmlPiLiteral(node) {
@@ -263,10 +279,6 @@ class AbstractTreeUtil {
         return node.kind === 'Transaction';
     }
 
-    isTransform(node) {
-        return node.kind === 'Transform';
-    }
-
     isTry(node) {
         return node.kind === 'Try';
     }
@@ -277,6 +289,10 @@ class AbstractTreeUtil {
 
     isWhile(node) {
         return node.kind === 'While';
+    }
+
+    isLock(node) {
+        return node.kind === 'Lock';
     }
 
     isWorkerReceive(node) {

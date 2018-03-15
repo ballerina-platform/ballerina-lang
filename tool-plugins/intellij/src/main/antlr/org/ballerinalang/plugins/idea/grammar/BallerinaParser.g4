@@ -24,7 +24,7 @@ version
     ;
 
 importDeclaration
-    :   IMPORT fullyQualifiedPackageName version? (AS alias)? SEMICOLON
+    :   IMPORT fullyQualifiedPackageName version? (AS packageAlias)? SEMICOLON
     ;
 
 fullyQualifiedPackageName
@@ -35,7 +35,7 @@ packageName
     :   Identifier
     ;
 
-alias
+packageAlias
     :   packageName
     ;
 
@@ -44,19 +44,17 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   globalEndpointDefinition
     |   transformerDefinition
     ;
 
 serviceDefinition
-    :   SERVICE sourceNotation Identifier LEFT_BRACE serviceBody RIGHT_BRACE
-    ;
-
-sourceNotation
-    :   LT packageName GT
+    :   SERVICE LT nameReference GT Identifier LEFT_BRACE serviceBody RIGHT_BRACE
     ;
 
 serviceBody
@@ -102,12 +100,24 @@ structBody
     :   fieldDefinition* privateStructBody?
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
+    ;
+
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
+    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 enumDefinition
@@ -137,7 +147,9 @@ attachmentPoint
      | ACTION                               # actionAttachPoint
      | FUNCTION                             # functionAttachPoint
      | STRUCT                               # structAttachPoint
+     | STREAMLET                            # streamletAttachPoint
      | ENUM                                 # enumAttachPoint
+     | ENDPOINT                             # endpointAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
@@ -158,6 +170,18 @@ workerDeclaration
 
 workerBody
     :   statement*
+    ;
+
+globalEndpointDefinition
+    :   PUBLIC? endpointDeclaration
+    ;
+
+endpointDeclaration
+    :   annotationAttachment* endpointType Identifier recordLiteral?
+    ;
+
+endpointType
+    :   ENDPOINT (LT nameReference GT)
     ;
 
 typeName
@@ -203,11 +227,13 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT structReference GT)?
     |   TYPE_TABLE (LT structReference GT)?
+    |   TYPE_STREAM (LT nameReference GT)?
+    |   TYPE_AGGREGTION (LT nameReference GT)?
     |   functionTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | typeList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
     ;
 
 xmlNamespaceName
@@ -219,26 +245,7 @@ xmlLocalName
     ;
 
  annotationAttachment
-     :   AT annotationReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
-
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
-
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
-
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
-
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
+     :    AT nameReference recordLiteral?
      ;
 
  //============================================================================================================
@@ -247,7 +254,6 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -263,10 +269,11 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -290,24 +297,12 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInit
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
-endpointDeclaration
-    :   ENDPOINT (LT connectorReference GT) Identifier LEFT_BRACE endpointBody RIGHT_BRACE
-    ;
-
-endpointBody
-    :   ((variableReference | connectorInit) SEMICOLON)?
+typeInitExpr
+    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-bindStatement
-    :   BIND expression WITH nameReference SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 variableReferenceList
@@ -436,12 +431,16 @@ invocation
     : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
+actionInvocation
+    : variableReference RARROW functionInvocation
+    ;
+
 expressionList
     :   expression (COMMA expression)*
     ;
 
 expressionStmt
-    :   expression SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement
@@ -489,11 +488,12 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   connectorInit                                                       # connectorInitExpression
+    |   typeInitExpr                                                        # typeInitExpression
+    |   tableQuery                                                          # tableQueryExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
-    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) simpleExpression    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -527,14 +527,6 @@ functionReference
     :   (packageName COLON)? Identifier
     ;
 
-connectorReference
-    :   (packageName COLON)? Identifier
-    ;
-
-annotationReference
-    :   (packageName COLON)? Identifier
-    ;
-
 structReference
     :   (packageName COLON)? Identifier
     ;
@@ -560,11 +552,15 @@ codeBlockParameter
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | typeList) RIGHT_PARENTHESIS
+    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
     ;
 
-typeList
-    :   typeName (COMMA typeName)*
+parameterTypeNameList
+    :   parameterTypeName (COMMA parameterTypeName)*
+    ;
+
+parameterTypeName
+    :   annotationAttachment* typeName
     ;
 
 parameterList
@@ -621,6 +617,106 @@ reservedWord
     |   TYPE_MAP
     ;
 
+tableQuery
+    :   FROM streamingInput joinStreamingInput?
+        selectClause?
+        orderByClause?
+    ;
+
+aggregationQuery
+    :   FROM streamingInput
+        selectClause?
+        orderByClause?
+
+    ;
+
+streamingQueryStatement
+    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+        selectClause?
+        orderByClause?
+        streamingAction
+    ;
+
+orderByClause
+    :   ORDER BY variableReferenceList
+    ;
+
+selectClause
+    :   SELECT (MUL| selectExpressionList )
+            groupByClause?
+            havingClause?
+    ;
+
+selectExpressionList
+    :   selectExpression (COMMA selectExpression)*
+    ;
+
+selectExpression
+    :   expression (AS Identifier)?
+    ;
+
+groupByClause
+    : GROUP BY variableReferenceList
+    ;
+
+havingClause
+    :   HAVING expression
+    ;
+
+streamingAction
+    :   INSERT INTO Identifier
+    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
+    |   DELETE Identifier ON expression
+    ;
+
+setClause
+    :   SET setAssignmentClause (COMMA setAssignmentClause)*
+    ;
+
+setAssignmentClause
+    :   variableReference ASSIGN expression
+    ;
+
+streamingInput
+    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    ;
+
+joinStreamingInput
+    :   JOIN streamingInput ON expression
+    ;
+
+pattenStreamingInput
+    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
+    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH pattenStreamingInput
+    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
+    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
+    |   pattenStreamingEdgeInput
+    ;
+
+pattenStreamingEdgeInput
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
+    ;
+
+queryDeclaration
+     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+     ;
+
+queryDefinition
+     :   QUERY Identifier
+     ;
 // Deprecated parsing.
 
 deprecatedAttachment

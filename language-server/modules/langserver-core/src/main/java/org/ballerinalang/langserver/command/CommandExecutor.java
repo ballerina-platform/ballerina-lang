@@ -19,6 +19,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.WorkspaceServiceContext;
+import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -35,6 +36,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Command Executor for Ballerina Workspace service execute command operation.
@@ -45,6 +48,8 @@ public class CommandExecutor {
     private static final String ARG_KEY = "argumentK";
     
     private static final String ARG_VALUE = "argumentV";
+    
+    private static final String RUNTIME_PKG_ALIAS = ".runtime";
 
     /**
      * Command Execution router.
@@ -92,15 +97,21 @@ public class CommandExecutor {
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY));
+                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
+                    LSCustomErrorStrategy.class);
             
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
             DiagnosticPos pos;
+
+            // Filter the imports except the runtime import
+            List<BLangImportPackage> imports = bLangPackage.getImports().stream()
+                    .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS))
+                    .collect(Collectors.toList());
             
-            if (!bLangPackage.getImports().isEmpty()) {
+            if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
                 pos = lastImport.getPosition();
-            } else if (bLangPackage.getImports().isEmpty() && bLangPackage.getPackageDeclaration() != null) {
+            } else if (imports.isEmpty() && bLangPackage.getPackageDeclaration() != null) {
                 pos = (DiagnosticPos) bLangPackage.getPackageDeclaration().getPosition();
             } else {
                 pos = null;
@@ -119,7 +130,7 @@ public class CommandExecutor {
                 remainingTextToReplace = fileContent;
             }
             
-            String editText = "\r\nimport " + pkgName + ";"
+            String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
                     + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));

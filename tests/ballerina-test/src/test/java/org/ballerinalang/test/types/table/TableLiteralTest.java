@@ -54,7 +54,7 @@ public class TableLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-literal-test.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
     @Test
@@ -209,7 +209,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":0,\"salary\":0.0,\"name\":\"\","
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":0,\"salary\":0.0,\"name\":null,"
                 + "\"married\":false}]");
     }
 
@@ -217,7 +217,8 @@ public class TableLiteralTest {
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><age>0</age><salary>0.0</salary>"
-                + "<name></name><married>false</married></result></results>");
+                + "<name xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                + "<married>false</married></result></results>");
     }
 
     @Test(priority = 1)
@@ -225,7 +226,7 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToStruct");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertEquals(returns[2].stringValue(), null);
         Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false);
     }
 
@@ -297,6 +298,16 @@ public class TableLiteralTest {
                 + "\"name\":\"john\",\"married\":false}]");
     }
 
+    @Test(priority = 1)
+    public void testTableAddAndAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
+                + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+    }
+
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },
@@ -325,6 +336,6 @@ public class TableLiteralTest {
     @Test(priority = 3)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }

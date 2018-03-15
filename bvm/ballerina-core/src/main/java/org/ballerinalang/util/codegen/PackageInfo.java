@@ -24,6 +24,7 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private int pkgNameCPIndex;
     private String pkgPath;
-    private FunctionInfo initFunctionInfo;
+    private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
@@ -56,6 +57,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, StructInfo> structInfoMap = new HashMap<>();
 
+    private Map<String, StreamletInfo> streamletInfoMap = new HashMap<>();
+
     private Map<String, EnumInfo> enumInfoMap = new HashMap<>();
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
@@ -63,7 +66,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-    
+
     private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     // cache values.
@@ -148,6 +151,19 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     public void addStructInfo(String structName, StructInfo structInfo) {
         structInfoMap.put(structName, structInfo);
         structureTypeInfoMap.put(structName, structInfo);
+    }
+
+    public StreamletInfo[] getStreamletInfoEntries() {
+        return streamletInfoMap.values().toArray(new StreamletInfo[0]);
+    }
+
+    public StreamletInfo getStreamletInfo(String streamletName) {
+        return streamletInfoMap.get(streamletName);
+    }
+
+    public void addStreamletInfo(String streamletName, StreamletInfo streamletInfo) {
+        streamletInfoMap.put(streamletName, streamletInfo);
+        streamletInfoMap.put(streamletName, streamletInfo);
     }
 
     public StructInfo[] getStructInfoEntries() {
@@ -235,23 +251,33 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return null;
     }
 
+    /**
+     * This gets the line number info given the IP. The following example can be taken as a reference
+     * to explain the below algorithm.
+     * 
+     *     Code Line                           IP
+     *     =======================================
+     *     int a = 1 + 1;                      136
+     *     runtime:CallStackElement trace1;    138
+     *     runtime:CallStackElement trace2;    138
+     *     myFunc(a + 1);                      138
+     *     int x = 1 + 2;                      140 
+     *     int g = 1 + 3;                      142
+     * 
+     * @param currentIP the current IP
+     * @return the resolved line number information
+     */
     public LineNumberInfo getLineNumberInfo(int currentIP) {
-        LineNumberInfo old = null;
         LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
                 .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
-        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        List<LineNumberInfo> lineNumberInfos = new ArrayList<>(lineNumberTableAttributeInfo.getLineNumberInfoList());
+        Collections.reverse(lineNumberInfos);
         for (LineNumberInfo lineNumberInfo : lineNumberInfos) {
-            if (currentIP == lineNumberInfo.getIp()) {
-                // best case.
+            if (currentIP >= lineNumberInfo.getIp()) {
                 return lineNumberInfo;
             }
-            if (old != null && currentIP > old.getIp() && currentIP < lineNumberInfo.getIp()) {
-                // TODO : Check condition currentIP > lineNumberInfo.getIP() in different scopes.
-                return old;
-            }
-            old = lineNumberInfo;
         }
-        return old;
+        return null;
     }
 
     public ProgramFile getProgramFile() {
@@ -268,6 +294,22 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public void setInitFunctionInfo(FunctionInfo initFunctionInfo) {
         this.initFunctionInfo = initFunctionInfo;
+    }
+
+    public FunctionInfo getStartFunctionInfo() {
+        return startFunctionInfo;
+    }
+
+    public void setStartFunctionInfo(FunctionInfo startFunctionInfo) {
+        this.startFunctionInfo = startFunctionInfo;
+    }
+
+    public FunctionInfo getStopFunctionInfo() {
+        return stopFunctionInfo;
+    }
+
+    public void setStopFunctionInfo(FunctionInfo stopFunctionInfo) {
+        this.stopFunctionInfo = stopFunctionInfo;
     }
 
     public void complete() {

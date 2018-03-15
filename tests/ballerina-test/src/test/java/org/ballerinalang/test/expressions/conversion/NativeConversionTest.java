@@ -522,7 +522,7 @@ public class NativeConversionTest {
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"null\", a:0, f:0.0, b:false, j:null, blb:null}");
     }
 
     @Test
@@ -565,7 +565,7 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexMapToJson");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"foo\":{\"a\":4,\"b\":2.5,\"c\":true,\"d\":\"apple\"," +
-                "\"e\":{\"foo\":\"bar\"},\"f\":{\"name\":\"\",\"age\":0},\"g\":[1,8,7],\"h\":null}}");
+                "\"e\":{\"foo\":\"bar\"},\"f\":{\"name\":null,\"age\":0},\"g\":[1,8,7],\"h\":null}}");
     }
 
     @Test
@@ -573,8 +573,8 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "structWithComplexArraysToJson");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"a\":[4,6,9],\"b\":[4.6,7.5],\"c\":[true,true,false]," +
-                "\"d\":[\"apple\",\"orange\"],\"e\":[{},{}],\"f\":[{\"name\":\"\",\"age\":0}," +
-                "{\"name\":\"\",\"age\":0}],\"g\":[{\"foo\":\"bar\"}]}");
+                "\"d\":[\"apple\",\"orange\"],\"e\":[{},{}],\"f\":[{\"name\":null,\"age\":0}," +
+                "{\"name\":null,\"age\":0}],\"g\":[{\"foo\":\"bar\"}]}");
     }
 
     @Test

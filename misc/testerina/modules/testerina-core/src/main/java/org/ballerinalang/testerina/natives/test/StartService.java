@@ -18,13 +18,11 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
@@ -40,7 +38,7 @@ import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -73,7 +71,7 @@ import java.util.stream.Collectors;
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "serviceName",
                                                value = "Name of the service to start") })
-public class StartService extends AbstractNativeFunction {
+public class StartService extends BlockingNativeCallableUnit {
 
     private static final String MSG_PREFIX = "test:startService: ";
     private static final String DEFAULT_HOSTNAME = "0.0.0.0";
@@ -94,8 +92,8 @@ public class StartService extends AbstractNativeFunction {
      *
      */
     @Override
-    public BValue[] execute(Context ctx) {
-        String serviceName = getStringArgument(ctx, 0);
+    public void execute(Context ctx) {
+        String serviceName = ctx.getStringArgument(0);
 
         ServiceInfo matchingService = null;
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
@@ -118,7 +116,7 @@ public class StartService extends AbstractNativeFunction {
 
         // 6) return the service url
         BString str = new BString(getServiceURL(matchingService));
-        return getBValues(str);
+        ctx.setReturnValues(str);
     }
 
     private void startService(ProgramFile programFile, ServiceInfo matchingService) {
@@ -135,20 +133,18 @@ public class StartService extends AbstractNativeFunction {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        // This is required to invoke package/service init functions;
-        Context bContext = new Context(programFile);
+        Debugger debugger = new Debugger(programFile);
+        initDebugger(programFile, debugger);
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
+
+        // Invoke package init function
+        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         int serviceCount = 0;
         // Invoke service init function
-        bContext.setServiceInfo(matchingService);
-        BLangFunctions.invokeFunction(programFile, matchingService.getInitFunctionInfo(), bContext);
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
+        BLangFunctions.invokeServiceInitFunction(matchingService.getInitFunctionInfo());
 
         // Deploy service
         serverConnectorRegistry.registerService(matchingService);
@@ -161,6 +157,15 @@ public class StartService extends AbstractNativeFunction {
 
         serverConnectorRegistry.deploymentComplete();
     }
+
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
+        if (debugger.isDebugEnabled()) {
+            debugger.init();
+            debugger.waitTillDebuggeeResponds();
+        }
+    }
+
 
     private String getServiceURL(ServiceInfo service) {
         try {
@@ -221,6 +226,7 @@ public class StartService extends AbstractNativeFunction {
         AnnAttributeValue transferEncoding = configInfo.getAttributeValue(
                 HttpConstants.ANN_CONFIG_ATTR_TRANSFER_ENCODING);
         AnnAttributeValue chunking = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_CHUNKING);
+        AnnAttributeValue versionAttrVal = configInfo.getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTP_VERSION);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (portAttrVal != null && portAttrVal.getIntValue() > 0) {
@@ -252,6 +258,10 @@ public class StartService extends AbstractNativeFunction {
                 listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking.getStringValue()));
             } else {
                 listenerConfiguration.setChunkConfig(ChunkConfig.AUTO);
+            }
+
+            if (versionAttrVal != null) {
+                listenerConfiguration.setVersion(versionAttrVal.getStringValue());
             }
 
             listenerConfiguration

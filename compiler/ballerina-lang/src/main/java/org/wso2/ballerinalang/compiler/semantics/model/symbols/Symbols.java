@@ -51,9 +51,10 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
-        return typeSymbol;    
+        return typeSymbol;
     }
 
+    @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,
                                                                              BType type,
@@ -82,23 +83,33 @@ public class Symbols {
         return symbol;
     }
 
-    public static BTypeSymbol createConnectorSymbol(int flags,
+    public static BConnectorSymbol createConnectorSymbol(int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        BConnectorSymbol connectorSymbol = new BConnectorSymbol(flags, name, pkgID, type, owner);
+        connectorSymbol.kind = SymbolKind.CONNECTOR;
+        return connectorSymbol;
+    }
+
+    public static BServiceSymbol createServiceSymbol(int flags,
+                                                     Name name,
+                                                     PackageID pkgID,
+                                                     BType type,
+                                                     BSymbol owner) {
+        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner);
+        serviceSymbol.kind = SymbolKind.SERVICE;
+        return serviceSymbol;
+    }
+
+    public static BStreamletSymbol createStreamletSymbol(int flags,
                                                     Name name,
                                                     PackageID pkgID,
                                                     BType type,
                                                     BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.CONNECTOR, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.CONNECTOR;
-        return typeSymbol;
-    }
-
-    public static BTypeSymbol createServiceSymbol(int flags,
-                                                  Name name,
-                                                  PackageID pkgID,
-                                                  BType type,
-                                                  BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SERVICE, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SERVICE;
+        BStreamletSymbol typeSymbol = createStreamletSymbol(SymTag.STREAMLET, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.STREAMLET;
         return typeSymbol;
     }
 
@@ -141,6 +152,15 @@ public class Symbols {
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
     }
 
+    public static BStreamletSymbol createStreamletSymbol(int symTag,
+                                                         int flags,
+                                                         Name name,
+                                                         PackageID pkgID,
+                                                         BType type,
+                                                         BSymbol owner) {
+        return new BStreamletSymbol(symTag, flags, name, pkgID, type, owner);
+    }
+
     public static BInvokableSymbol createInvokableSymbol(int kind,
                                                          int flags,
                                                          Name name,
@@ -175,12 +195,12 @@ public class Symbols {
     }
 
     public static BConversionOperatorSymbol createConversionOperatorSymbol(BType sourceType,
-                                                               BType targetType,
-                                                               BType errorType,
-                                                               boolean safe,
-                                                               int opcode,
-                                                               PackageID pkgID,
-                                                               BSymbol owner) {
+                                                                           BType targetType,
+                                                                           BType errorType,
+                                                                           boolean safe,
+                                                                           int opcode,
+                                                                           PackageID pkgID,
+                                                                           BSymbol owner) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         List<BType> retTypes = Lists.of(targetType, errorType);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
@@ -188,7 +208,7 @@ public class Symbols {
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
         return symbol;
     }
-    
+
     public static BTransformerSymbol createTransformerSymbol(int flags,
                                                              Name name,
                                                              PackageID pkgID,

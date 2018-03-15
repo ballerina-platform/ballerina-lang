@@ -40,7 +40,10 @@ public enum OperatorKind {
     POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
-    TYPEOF("typeof");
+    TYPEOF("typeof"),
+    UNTAINT("untaint"),
+    INCREMENT("++"),
+    DECREMENT("--");
 
     private final String opValue;
 

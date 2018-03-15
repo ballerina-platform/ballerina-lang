@@ -18,17 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function ballerina.io#writeCharacters.
@@ -41,10 +43,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.STRING),
                 @Argument(name = "startOffset", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteCharacters extends AbstractNativeFunction {
+public class WriteCharacters implements NativeCallableUnit {
     /**
      * Index of the content provided in ballerina.io#writeCharacters.
      */
@@ -61,29 +64,44 @@ public class WriteCharacters extends AbstractNativeFunction {
     private static final int START_OFFSET_INDEX = 0;
 
     /**
-     * Writes characters to a given file.
+     * Processors the response after reading characters.
      *
+     * @param result the response returned after reading characters.
+     * @return the response returned from the event.
+     */
+    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct = null;
+        EventContext eventContext = result.getContext();
+        Integer numberOfCharactersWritten = result.getResponse();
+        Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        context.setReturnValues(new BInteger(numberOfCharactersWritten), errorStruct);
+        callback.notifySuccess();
+        return result;
+    }
+
+    /**
+     * Writes characters to a given file.
+     * <p>
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct channel;
-        String content;
-        long startOffset;
-        int numberOfCharactersWritten;
-        try {
-            channel = (BStruct) getRefArgument(context, CHAR_CHANNEL_INDEX);
-            content = getStringArgument(context, CONTENT_INDEX);
-            startOffset = getIntArgument(context, START_OFFSET_INDEX);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+        String content = context.getStringArgument(CONTENT_INDEX);
+        long startOffset = context.getIntArgument(START_OFFSET_INDEX);
+        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
+                .CHARACTER_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.write(characterChannel, content, (int) startOffset, eventContext, WriteCharacters::writeResponse);
+    }
 
-            CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-
-            numberOfCharactersWritten = characterChannel.write(content, (int) startOffset);
-        } catch (Throwable e) {
-            String message = "Error occurred while writing characters:" + e.getMessage();
-            throw new BallerinaException(message, context);
-        }
-        return getBValues(new BInteger(numberOfCharactersWritten));
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

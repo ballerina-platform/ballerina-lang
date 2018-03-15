@@ -54,4 +54,8 @@ public class DocumentServiceKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<BLangPackageContext> B_LANG_PACKAGE_CONTEXT_KEY
             = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<TextDocumentServiceContext> OPERATION_META_CONTEXT_KEY
+            = new LanguageServerContext.Key<>();
 }

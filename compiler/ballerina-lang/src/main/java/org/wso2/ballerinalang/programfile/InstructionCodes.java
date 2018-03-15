@@ -214,7 +214,9 @@ public interface InstructionCodes {
     int ANY2XML = 171;
     int ANY2MAP = 172;
     int ANY2DT = 174;
+    int ANYSTM = 175;
 
+    int ANY2M = 176;
     int ANY2E = 177;
     int ANY2T = 178;
     int ANY2C = 179;
@@ -235,8 +237,6 @@ public interface InstructionCodes {
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
     int FORKJOIN = 192;
-    int WRKSTART = 193;
-    int WRKRETURN = 194;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -253,6 +253,8 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWJSON = 213;
     int NEWTABLE = 215;
+    int NEWSTREAMLET = 216;
+    int NEWSTREAM = 217;
 
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;

@@ -29,10 +29,10 @@ public native function <string mainString> toUpperCase () (string);
 
 @Description { value:"Returns a new string that is the substring of the specified string"}
 @Param { value:"mainString: The original string argument" }
-@Param { value:"from: The starting index" }
-@Param { value:"to: The ending index" }
+@Param { value:"beginIndex: The starting index" }
+@Param { value:"endIndex: The ending index" }
 @Return { value:"The derived sub string" }
-public native function <string mainString> subString (int from, int to) (string);
+public native function <string mainString> subString (int beginIndex, int endIndex) (string);
 
 @Description { value:"Returns the first index of the last occurence of the substring within the specified string"}
 @Param { value:"mainString: The original string argument" }

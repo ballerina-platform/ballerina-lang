@@ -62,10 +62,12 @@ public class TransactionResourceManager {
      * This method will register connection resources with a particular transaction.
      *
      * @param transactionId the global transaction id.
+     * @param transactionBlockId the block id of the transaction.
      * @param txContext ballerina transaction context which includes the underlying connection info.
      */
-    public void register(String transactionId, BallerinaTransactionContext txContext) {
-        resourceRegistry.computeIfAbsent(transactionId, resourceList -> new ArrayList<>()).add(txContext);
+    public void register(String transactionId, int transactionBlockId, BallerinaTransactionContext txContext) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        resourceRegistry.computeIfAbsent(combinedId, resourceList -> new ArrayList<>()).add(txContext);
     }
 
     /**
@@ -73,24 +75,24 @@ public class TransactionResourceManager {
      * transaction scenarios, this phase will be ignored.
      *
      * @param transactionId the global transaction id.
+     * @param transactionBlockId the block id of the transaction.
      */
-    public boolean prepare(String transactionId) {
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+    public boolean prepare(String transactionId, int transactionBlockId) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(transactionId);
                     if (xaResource != null) {
+                        Xid xid = xidRegistry.get(combinedId);
                         xaResource.prepare(xid);
                     }
                 } catch (Throwable e) {
-                    log.error("error in prepare the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    log.error("error in prepare the transaction, " + combinedId + ":" + e.getMessage(), e);
                     return false;
                 }
             }
-        } else {
-            log.info("no transacted actions registered for prepare : " + transactionId);
         }
         return true;
     }
@@ -99,31 +101,31 @@ public class TransactionResourceManager {
      * This method acts as the callback which commits all the resources participated in the given transaction.
      *
      * @param transactionId the global transaction id.
+     * @param transactionBlockId the block id of the transaction.
      */
-    public boolean notifyCommit(String transactionId) {
+    public boolean notifyCommit(String transactionId, int transactionBlockId) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(transactionId);
                     if (xaResource != null) {
+                        Xid xid = xidRegistry.get(combinedId);
                         xaResource.commit(xid, false);
                     } else {
                         ctx.commit();
                     }
                 } catch (Throwable e) {
-                    log.error("error in commit the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    log.error("error in commit the transaction, " + combinedId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
                 }
             }
-        } else {
-            log.info("no transacted actions registered for commit : " + transactionId);
         }
-        removeContextsFromRegistry(transactionId);
+        removeContextsFromRegistry(combinedId);
         return commitSuccess;
     }
 
@@ -132,30 +134,29 @@ public class TransactionResourceManager {
      *
      * @param transactionId the global transaction id.
      */
-    public boolean notifyAbort(String transactionId) {
+    public boolean notifyAbort(String transactionId, int transactionBlockId) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
-        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+        List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
             for (BallerinaTransactionContext ctx : txContextList) {
                 try {
                     XAResource xaResource = ctx.getXAResource();
-                    Xid xid = xidRegistry.get(transactionId);
+                    Xid xid = xidRegistry.get(combinedId);
                     if (xaResource != null) {
                         ctx.getXAResource().rollback(xid);
                     } else {
                         ctx.rollback();
                     }
                 } catch (Throwable e) {
-                    log.error("error in abort the transaction, " + transactionId + ":" + e.getMessage(), e);
+                    log.error("error in abort the transaction, " + combinedId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
                 }
             }
-        } else {
-            log.info("no transacted actions registered for rollback : " + transactionId);
         }
-        removeContextsFromRegistry(transactionId);
+        removeContextsFromRegistry(combinedId);
         return abortSuccess;
     }
 
@@ -166,17 +167,18 @@ public class TransactionResourceManager {
      * @param transactionId the global transaction id.
      * @param xaResource the XA resource which participates in the transaction.
      */
-    public void beginXATransaction(String transactionId, XAResource xaResource) {
-        Xid xid = xidRegistry.get(transactionId);
+    public void beginXATransaction(String transactionId, int transactionBlockId, XAResource xaResource) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        Xid xid = xidRegistry.get(combinedId);
         if (xid == null) {
             xid = XIDGenerator.createXID();
-            xidRegistry.put(transactionId, xid);
+            xidRegistry.put(combinedId, xid);
         }
         try {
             xaResource.start(xid, TMNOFLAGS);
         } catch (XAException e) {
-            throw new BallerinaException("error in starting the XA transaction: id: " + transactionId + " error:" + e
-                            .getMessage());
+            throw new BallerinaException("error in starting the XA transaction: id: " + combinedId + " error:" + e
+                    .getMessage());
         }
     }
 
@@ -184,11 +186,13 @@ public class TransactionResourceManager {
      * This method marks the end of a transaction for the given transaction id.
      *
      * @param transactionId the global transaction id.
+     * @param transactionBlockId the block id of the transaction.
      */
-    void endXATransaction(String transactionId) {
-        Xid xid = xidRegistry.get(transactionId);
+    void endXATransaction(String transactionId, int transactionBlockId) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
+        Xid xid = xidRegistry.get(combinedId);
         if (xid != null) {
-            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(transactionId);
+            List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
             if (txContextList != null) {
                 for (BallerinaTransactionContext ctx : txContextList) {
                     try {
@@ -198,23 +202,24 @@ public class TransactionResourceManager {
                         }
                     } catch (Throwable e) {
                         throw new BallerinaException(
-                                "error in ending the XA transaction: id: " + transactionId + " error:" + e
-                                        .getMessage());
+                                "error in ending the XA transaction: id: " + combinedId + " error:" + e.getMessage());
                     }
                 }
-            } else {
-                log.info("no transacted actions registered for rollback : " + transactionId);
             }
         }
     }
 
-    void rollbackTransaction(String transactionId) {
-        endXATransaction(transactionId);
-        notifyAbort(transactionId);
+    void rollbackTransaction(String transactionId, int transactionBlockId) {
+        endXATransaction(transactionId, transactionBlockId);
+        notifyAbort(transactionId, transactionBlockId);
     }
 
-    private void removeContextsFromRegistry(String transactionId) {
-        resourceRegistry.remove(transactionId);
-        xidRegistry.remove(transactionId);
+    private void removeContextsFromRegistry(String transactionCombinedId) {
+        resourceRegistry.remove(transactionCombinedId);
+        xidRegistry.remove(transactionCombinedId);
+    }
+
+    private String generateCombinedTransactionId(String transactionId, int transactionBlockId) {
+        return transactionId + ":" + transactionBlockId;
     }
 }

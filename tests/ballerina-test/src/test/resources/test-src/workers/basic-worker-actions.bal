@@ -106,7 +106,7 @@ function simpleWorkerMessagePassingTest() {
    }
 }
 
-function forkJoinWithSomeJoin() (map) {
+function forkJoinWithSomeJoin() (int) {
     map m = {};
     m["x"] = 25;
     fork {
@@ -128,7 +128,8 @@ function forkJoinWithSomeJoin() (map) {
 	     m["x"] = b;
 	   }
 	} join (some 1) (map results) {  io:println(results);  }
-	return m;
+	var ret, _ = (int) m["x"];
+	return ret;
 }
 
 function workerReturnTest() (int) {

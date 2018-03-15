@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -55,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -64,12 +65,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -86,12 +91,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -109,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -284,6 +290,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangEndpoint endpointNode) {
+    }
+
+    @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
         this.loopWithintransactionCheckStack.push(false);
@@ -431,6 +441,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         connectorNode.actions.forEach(a -> a.accept(this));
     }
 
+    public void visit(BLangStreamlet streamletNode) {
+        //TODO Implement
+    }
+
     public void visit(BLangAction actionNode) {
         this.visitInvocable(actionNode);
     }
@@ -474,7 +488,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransformer transformerNode) {
         List<BVarSymbol> inputs = new ArrayList<>();
         inputs.add(transformerNode.source.symbol);
-        transformerNode.params.forEach(param -> inputs.add(param.symbol));
+        transformerNode.requiredParams.forEach(param -> inputs.add(param.symbol));
 
         List<BVarSymbol> outputs = new ArrayList<>();
         transformerNode.retParams.forEach(param -> outputs.add(param.symbol));
@@ -518,6 +532,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         varDefNode.var.accept(this);
+    }
+
+    public void visit(BLangCompoundAssignment compoundAssignment) {
+        this.checkStatementExecutionValidity(compoundAssignment);
+        analyzeExpr(compoundAssignment.varRef);
+        analyzeExpr(compoundAssignment.expr);
+    }
+
+    public void visit(BLangPostIncrement postIncrement) {
+        this.checkStatementExecutionValidity(postIncrement);
+        analyzeExpr(postIncrement.varRef);
+        analyzeExpr(postIncrement.increment);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -629,7 +655,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangInvocation invocationExpr) {
         analyzeExpr(invocationExpr.expr);
-        analyzeExprs(invocationExpr.argExprs);
+        analyzeExprs(invocationExpr.requiredArgs);
+        analyzeExprs(invocationExpr.namedArgs);
+        analyzeExprs(invocationExpr.restArgs);
+
+        checkDuplicateNamedArgs(invocationExpr.namedArgs);
+
         // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
@@ -639,8 +670,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-
-    public void visit(BLangConnectorInit cIExpr) {
+    public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
     }
 
@@ -743,6 +773,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangTableQueryExpression tableQueryExpression) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
+        /* ignore */
+    }
+
     private <E extends BLangExpression> void analyzeExpr(E node) {
         if (node == null) {
             return;
@@ -835,6 +880,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkNextBreakValidityInTransaction() {
         return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0;
+    }
+    
+    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
+        List<BLangIdentifier> existingArgs = new ArrayList<>();
+        args.forEach(arg -> {
+            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
+            if (existingArgs.contains(namedArg.name)) {
+                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
+            }
+            existingArgs.add(namedArg.name);
+        });
     }
 
     /**
@@ -971,8 +1027,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         @Override
         public void visit(BLangInvocation invocationExpr) {
             if (invocationExpr.expr != null) {
-                if (invocationExpr.expr.type.tag == TypeTags.CONNECTOR
-                        || invocationExpr.expr.type.tag == TypeTags.ENDPOINT) {
+                if (invocationExpr.isActionInvocation()) {
                     dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
                             "action invocation");
                 }
@@ -1030,7 +1085,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             indexAccessExpr.indexExpr.accept(this);
         }
 
-        public void visit(BLangConnectorInit connectorInitExpr) {
+        public void visit(BLangTypeInit connectorInitExpr) {
             dlog.error(connectorInitExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "connector init");
         }
 

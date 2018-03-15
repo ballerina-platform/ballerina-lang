@@ -23,6 +23,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -41,7 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConnectorInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -54,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -88,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -173,6 +176,11 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangEndpoint endpointNode) {
+        // No implementation
+    }
+
+    @Override
     public void visit(BLangIdentifier identifierNode) {
         // No implementation
     }
@@ -207,8 +215,22 @@ public class NodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    // Statements
+    @Override
+    public void visit(BLangDocumentationAttribute docAttribute) {
+        // No implementation
+    }
 
+    @Override
+    public void visit(BLangDocumentation doc) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangDeprecatedNode deprecatedNode) {
+        // No implementation
+    }
+
+    // Statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
         // No implementation
@@ -246,11 +268,6 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangReturn.BLangWorkerReturn returnNode) {
         // No implementation
     }
 
@@ -309,6 +326,15 @@ public class NodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        // No implementation
+    }
 
     // Expressions
 
@@ -348,7 +374,7 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConnectorInit connectorInitExpr) {
+    public void visit(BLangTypeInit connectorInitExpr) {
         // No implementation
     }
 
@@ -428,16 +454,6 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         // No implementation
     }
@@ -470,11 +486,6 @@ public class NodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEndpointTypeNode endpointType) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangConstrainedType constrainedType) {
         // No implementation
     }
@@ -489,9 +500,7 @@ public class NodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-
     // expressions that will used only from the Desugar phase
-
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         // No implementation
@@ -544,6 +553,11 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangTableLiteral tableLiteral) {
         // No implementation
     }
 

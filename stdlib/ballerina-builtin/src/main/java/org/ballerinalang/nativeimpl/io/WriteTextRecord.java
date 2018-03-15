@@ -18,16 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.io#writeTextRecord.
@@ -41,9 +44,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteTextRecord extends AbstractNativeFunction {
+public class WriteTextRecord implements NativeCallableUnit {
 
     /**
      * Index of the record channel in ballerina.io#writeTextRecord.
@@ -56,24 +60,42 @@ public class WriteTextRecord extends AbstractNativeFunction {
     private static final int CONTENT_INDEX = 1;
 
     /**
-     * Writes records for a given file.
+     * Callback response received after the bytes are written.
      *
+     * @param result the response received.
+     * @return the result context.
+     */
+    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct = null;
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            errorStruct = IOUtils.createError(context, error.getMessage());
+        }
+        context.setReturnValues(errorStruct);
+        callback.notifySuccess();
+        return result;
+    }
+
+    /**
+     * Writes records to a given file.
+     * <p>
      * {@inheritDoc}
      */
     @Override
-    public BValue[] execute(Context context) {
-        BStruct channel;
-        BStringArray content;
-        try {
-            channel = (BStruct) getRefArgument(context, RECORD_CHANNEL_INDEX);
-            content = (BStringArray) getRefArgument(context, CONTENT_INDEX);
-            DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
-                    .TXT_RECORD_CHANNEL_NAME);
-            delimitedRecordChannel.write(content);
-        } catch (Throwable e) {
-            String message = "Error occurred while writing text record:" + e.getMessage();
-            throw new BallerinaException(message, context);
-        }
-        return VOID_RETURN;
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+        BStringArray content = (BStringArray) context.getRefArgument(CONTENT_INDEX);
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
+                .TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.write(delimitedRecordChannel, content, eventContext, WriteTextRecord::writeResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

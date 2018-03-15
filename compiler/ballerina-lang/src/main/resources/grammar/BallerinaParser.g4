@@ -40,15 +40,17 @@ definition
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
+    |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   globalEndpointDefinition
     |   transformerDefinition
     ;
 
 serviceDefinition
-    :   SERVICE (LT Identifier GT) Identifier serviceBody
+    :   SERVICE LT nameReference GT Identifier serviceBody
     ;
 
 serviceBody
@@ -71,11 +73,11 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? callableUnitBody
     ;
 
 callableUnitSignature
-    :   Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
 connectorDefinition
@@ -99,14 +101,12 @@ structBody
     :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
     ;
 
-
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? annotationBody
-
+    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 enumDefinition
@@ -126,22 +126,20 @@ transformerDefinition
     ;
 
 attachmentPoint
-     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
-     | RESOURCE                             # resourceAttachPoint
-     | CONNECTOR                            # connectorAttachPoint
-     | ACTION                               # actionAttachPoint
-     | FUNCTION                             # functionAttachPoint
-     | STRUCT                               # structAttachPoint
-     | ENUM                                 # enumAttachPoint
-     | CONST                                # constAttachPoint
-     | PARAMETER                            # parameterAttachPoint
-     | ANNOTATION                           # annotationAttachPoint
-     | TRANSFORMER                          # transformerAttachPoint
+     : SERVICE
+     | RESOURCE
+     | CONNECTOR
+     | ACTION
+     | FUNCTION
+     | STRUCT
+     | STREAMLET
+     | ENUM
+     | ENDPOINT
+     | CONST
+     | PARAMETER
+     | ANNOTATION
+     | TRANSFORMER
      ;
-
-annotationBody
-    :  LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
 
 constantDefinition
     :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
@@ -153,6 +151,18 @@ workerDeclaration
 
 workerDefinition
     :   WORKER Identifier
+    ;
+
+globalEndpointDefinition
+    :   PUBLIC? endpointDeclaration
+    ;
+
+endpointDeclaration
+    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
+    ;
+
+endpointType
+    :   nameReference
     ;
 
 typeName
@@ -198,6 +208,9 @@ builtInReferenceTypeName
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
+    |   TYPE_STREAM (LT nameReference GT)?
+    |   STREAMLET
+    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -213,28 +226,9 @@ xmlLocalName
     :   Identifier
     ;
 
- annotationAttachment
-     :   AT nameReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
-
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
-
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
-
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
-
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
-     ;
+annotationAttachment
+    :   AT nameReference recordLiteral?
+    ;
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -242,7 +236,8 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
+    |   compoundAssignmentStatement
+    |   postIncrementStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -258,10 +253,11 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -281,24 +277,32 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInit
-    :   CREATE userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
-endpointDeclaration
-    :   endpointDefinition LEFT_BRACE ((variableReference | connectorInit) SEMICOLON)? RIGHT_BRACE
-    ;
-
-endpointDefinition
-    :   ENDPOINT (LT nameReference GT) Identifier
+typeInitExpr
+    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
-bindStatement
-    :   BIND expression WITH Identifier SEMICOLON
+compoundAssignmentStatement
+    :   variableReference compoundOperator expression SEMICOLON
+    ;
+
+compoundOperator
+    :   COMPOUND_ADD
+    |   COMPOUND_SUB
+    |   COMPOUND_MUL
+    |   COMPOUND_DIV
+    ;
+
+postIncrementStatement
+    :   variableReference postArithmeticOperator SEMICOLON
+    ;
+
+postArithmeticOperator
+    :   INCREMENT
+    |   DECREMENT
     ;
 
 variableReferenceList
@@ -327,7 +331,7 @@ foreachStatement
 
 intRangeExpression
     : expression RANGE expression
-    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -353,7 +357,7 @@ joinClause
     ;
 
 joinConditions
-    : SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    : SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
     | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
@@ -425,11 +429,25 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
-    : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : DOT anyIdentifierName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+invocationArgList
+    :   invocationArg (COMMA invocationArg)*
+    ;
+    
+invocationArg
+    :   expression  // required args
+    |   namedArgs   // named args
+    |   restArgs    // rest args
+    ;
+
+actionInvocation
+    : variableReference RARROW functionInvocation
     ;
 
 expressionList
@@ -437,7 +455,7 @@ expressionList
     ;
 
 expressionStmt
-    :   variableReference SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement
@@ -489,7 +507,8 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   connectorInit                                                       # connectorInitExpression
+    |   typeInitExpr                                                        # typeInitExpression
+    |   tableQuery                                                          # tableQueryExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
@@ -531,37 +550,66 @@ parameter
     :   annotationAttachment* typeName Identifier
     ;
 
+defaultableParameter
+    :   parameter ASSIGN expression
+    ;
+
+restParameter
+    :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+formalParameterList
+    :   (parameter | defaultableParameter) (COMMA (parameter | defaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
 fieldDefinition
     :   typeName Identifier (ASSIGN simpleLiteral)? SEMICOLON
     ;
 
 simpleLiteral
-    :   (SUB)? IntegerLiteral
+    :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
     ;
-    
+
+// §3.10.1 Integer Literals
+integerLiteral
+    :   DecimalIntegerLiteral
+    |   HexIntegerLiteral
+    |   OctalIntegerLiteral
+    |   BinaryIntegerLiteral
+    ;
+
+namedArgs
+    :   Identifier ASSIGN expression
+    ;
+
+restArgs
+    :   ELLIPSIS expression
+    ;
+
 // XML parsing
 
 xmlLiteral
     :   XMLLiteralStart xmlItem XMLLiteralEnd
     ;
 
-xmlItem 
+xmlItem
     :   element
     |   procIns
     |   comment
     |   text
     |   CDATA
     ;
-    
+
 content
     :   text? ((element | CDATA | procIns | comment) text?)*
     ;
-                
-comment 
+
+comment
     :   XML_COMMENT_START (XMLCommentTemplateText expression ExpressionEnd)* XMLCommentText
     ;
 
@@ -585,7 +633,7 @@ emptyTag
 procIns
     :   XML_TAG_SPECIAL_OPEN (XMLPITemplateText expression ExpressionEnd)* XMLPIText
     ;
-    
+
 attribute
     :   xmlQualifiedName EQUALS xmlQuotedString;
 
@@ -630,6 +678,148 @@ anyIdentifierName
 reservedWord
     :   FOREACH
     |   TYPE_MAP
+    ;
+
+
+//Siddhi Streams and Tables related
+tableQuery
+    :   FROM streamingInput joinStreamingInput?
+        selectClause?
+        orderByClause?
+    ;
+
+aggregationQuery
+    :   FROM streamingInput
+        selectClause?
+        orderByClause?
+
+    ;
+
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
+    ;
+
+queryStatement
+    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+    ;
+
+streamingQueryStatement
+    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
+        selectClause?
+        orderByClause?
+        outputRate?
+        streamingAction
+    ;
+
+patternClause
+    :   EVERY? patternStreamingInput withinClause?
+    ;
+
+withinClause
+    :   WITHIN expression
+    ;
+
+orderByClause
+    :   ORDER BY variableReferenceList
+    ;
+
+selectClause
+    :   SELECT (MUL| selectExpressionList )
+            groupByClause?
+            havingClause?
+    ;
+
+selectExpressionList
+    :   selectExpression (COMMA selectExpression)*
+    ;
+
+selectExpression
+    :   expression (AS Identifier)?
+    ;
+
+groupByClause
+    : GROUP BY variableReferenceList
+    ;
+
+havingClause
+    :   HAVING expression
+    ;
+
+streamingAction
+    :   INSERT outputEventType? INTO Identifier
+    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
+    |   DELETE Identifier ON expression
+    ;
+
+setClause
+    :   SET setAssignmentClause (COMMA setAssignmentClause)*
+    ;
+
+setAssignmentClause
+    :   variableReference ASSIGN expression
+    ;
+
+streamingInput
+    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    ;
+
+joinStreamingInput
+    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
+    ;
+
+outputRate
+    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
+    ;
+
+patternStreamingInput
+    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH patternStreamingInput
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
+    |   patternStreamingEdgeInput
+    ;
+
+patternStreamingEdgeInput
+    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+functionClause
+    :   FUNCTION functionInvocation
+    ;
+
+windowClause
+    :   WINDOW functionInvocation
+    ;
+
+outputEventType
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
+    ;
+
+joinType
+    : LEFT OUTER JOIN
+    | RIGHT OUTER JOIN
+    | FULL OUTER JOIN
+    | OUTER JOIN
+    | INNER? JOIN
+    ;
+
+outputRateType
+    : ALL
+    | LAST
+    | FIRST
     ;
 
 // Deprecated parsing.

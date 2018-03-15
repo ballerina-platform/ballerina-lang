@@ -34,7 +34,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.AbstractChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
@@ -97,7 +96,7 @@ public class MimeUtilityFunctionTest {
         BStruct mediaType = (BStruct) returns[0];
         Assert.assertEquals(mediaType.getStringField(PRIMARY_TYPE_INDEX), "multipart");
         Assert.assertEquals(mediaType.getStringField(SUBTYPE_INDEX), "form-data");
-        Assert.assertEquals(mediaType.getStringField(SUFFIX_INDEX), "");
+        Assert.assertNull(mediaType.getStringField(SUFFIX_INDEX));
         BMap map = (BMap) mediaType.getRefField(PARAMETER_MAP_INDEX);
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
@@ -354,13 +353,13 @@ public class MimeUtilityFunctionTest {
         String path = "/test/largepayload";
         try {
             ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            AbstractChannel channel = new MockByteChannel(byteChannel, 10);
+            Channel channel = new MockByteChannel(byteChannel, 10);
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
                     responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, cMsg);
+            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
             Assert.assertNotNull(response, "Response message not found");
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
             Assert.assertNotNull(inputStream, "Inputstream is null");

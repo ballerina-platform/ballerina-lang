@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.963.1-SNAPSHOT</version>
+        <version>0.964.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -113,6 +113,33 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.ballerina.messaging</groupId>
+            <artifactId>broker-core</artifactId>
+        </dependency>
+
+        <!-- Siddhi Stream Dependencies -->
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>siddhi-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>siddhi-query-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>siddhi-query-compiler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>siddhi-annotations</artifactId>
+        </dependency>
+
     </dependencies>
 
     <properties>
