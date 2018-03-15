@@ -372,9 +372,9 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangPostIncrement postIncrement) {
-        postIncrement.increment.accept(this);
-        boolean varTaintedStatus = getObservedTaintedStatus();
         BLangExpression varRefExpr = postIncrement.varRef;
+        varRefExpr.accept(this);
+        boolean varTaintedStatus = getObservedTaintedStatus();
         visitAssignment(varRefExpr, varTaintedStatus, postIncrement.pos);
     }
 
