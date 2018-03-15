@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperat
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -134,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
@@ -1127,18 +1125,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
-        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
-            // Convert to endpoint.getConnector(). iExpr has to be a VarRef.
-            final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
-            final BStructSymbol.BAttachedFunction getConnectorFunction = ((BStructSymbol) epSymbol.type.tsymbol)
-                    .attachedFuncs.stream()
-                    .filter(f -> f.funcName.equals(Names.EP_SPI_GET_CONNECTOR))
-                    .findAny().get();
-            final BLangInvocation invocationExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
-                    getConnectorFunction.symbol, Collections.emptyList(), symResolver);
-            invocationExpr.expr = iExpr.expr;
-            iExpr.expr = invocationExpr;
-        }
+        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+        // Convert to endpoint.getClient(). iExpr has to be a VarRef.
+        final BLangInvocation getClientExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
+                epSymbol.getClientFunction, Collections.emptyList(), symResolver);
+        getClientExpr.expr = iExpr.expr;
+        iExpr.expr = getClientExpr;
     }
 
     @SuppressWarnings("unchecked")

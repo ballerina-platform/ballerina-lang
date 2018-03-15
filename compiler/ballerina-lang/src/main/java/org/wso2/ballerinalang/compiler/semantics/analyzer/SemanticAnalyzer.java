@@ -224,7 +224,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
 
-        funcNode.endpoints.forEach(e -> analyzeDef(e, env));
+        funcNode.endpoints.forEach(e -> analyzeDef(e, funcEnv));
         analyzeStmt(funcNode.body, funcEnv);
 
         this.processWorkers(funcNode, funcEnv);
@@ -525,7 +525,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
         connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-        connectorNode.endpoints.forEach(e -> analyzeDef(e, env));
+        connectorNode.endpoints.forEach(e -> analyzeDef(e, connectorEnv));
         this.analyzeDef(connectorNode.initFunction, connectorEnv);
         connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
         this.analyzeDef(connectorNode.initAction, connectorEnv);
@@ -552,35 +552,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(actionNode.restParam, actionEnv);
         }
 
-        actionNode.endpoints.forEach(e -> analyzeDef(e, env));
+        actionNode.endpoints.forEach(e -> analyzeDef(e, actionEnv));
         analyzeStmt(actionNode.body, actionEnv);
         this.processWorkers(actionNode, actionEnv);
     }
 
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
-        SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, env);
+        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
         serviceSymbol.endpointType = symResolver.resolveTypeNode(serviceNode.endpointType, env);
         endpointSPIAnalyzer.isValidEndpointType(serviceNode.endpointType.pos, serviceSymbol.endpointType);
+        handleServiceEndpointAttachments(serviceNode, serviceSymbol);
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
             this.analyzeDef(a, serviceEnv);
-        });
-        serviceNode.boundEndpoints.forEach(ep -> {
-            typeChecker.checkExpr(ep, env);
-            if (ep.symbol != null && (ep.symbol.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
-                serviceSymbol.boundEndpoints.add((BEndpointVarSymbol) ep.symbol);
-            } else {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE,
-                        ep.symbol != null ? ep.symbol : ep.variableName);
-            }
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.endpoints.forEach(e -> this.analyzeDef(e, serviceEnv));
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
+    }
+
+    private void handleServiceEndpointAttachments(BLangService serviceNode, BServiceSymbol serviceSymbol) {
+        for (BLangSimpleVarRef ep : serviceNode.boundEndpoints) {
+            typeChecker.checkExpr(ep, env);
+            final BEndpointVarSymbol epSym = (BEndpointVarSymbol) ep.symbol;
+            if (epSym != null && (epSym.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
+                if (epSym.registrable) {
+                    serviceSymbol.boundEndpoints.add(epSym);
+                } else {
+                    dlog.error(ep.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_REGISTRATION, epSym);
+                }
+            } else {
+                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, epSym != null ? epSym : ep.variableName);
+            }
+        }
     }
 
     public void visit(BLangResource resourceNode) {
@@ -593,7 +601,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
-        resourceNode.endpoints.forEach(e -> analyzeDef(e, env));
+        resourceNode.endpoints.forEach(e -> analyzeDef(e, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
     }
@@ -712,13 +720,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.ENDPOINT);
             this.analyzeDef(annotationAttachment, env);
         });
+        if (endpointNode.configurationExpr == null) {
+            return;
+        }
         BType configType = symTable.errType;
         if (endpointNode.symbol != null && endpointNode.symbol.type.tag == TypeTags.STRUCT) {
-            configType = endpointSPIAnalyzer.getEndpointConfigType((BStructSymbol) endpointNode.symbol.type.tsymbol);
+            if (endpointNode.configurationExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                // Init expression.
+                configType = endpointSPIAnalyzer.getEndpointConfigType(
+                        (BStructSymbol) endpointNode.symbol.type.tsymbol);
+            } else {
+                // assign Expression.
+                configType = endpointNode.symbol.type;
+            }
         }
-        if (endpointNode.configurationExpr != null) {
-            this.typeChecker.checkExpr(endpointNode.configurationExpr, env, Lists.of(configType));
-        }
+        this.typeChecker.checkExpr(endpointNode.configurationExpr, env, Lists.of(configType));
     }
 
     private boolean isInTopLevelWorkerEnv() {
