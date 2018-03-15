@@ -24,6 +24,8 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.config.cipher.AESCipherTool;
+import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -111,6 +113,10 @@ public class Main {
             VersionCmd versionCmd = new VersionCmd();
             cmdParser.addCommand("version", versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
+
+            EncryptCmd encryptCmd = new EncryptCmd();
+            cmdParser.addCommand("encrypt", encryptCmd);
+            encryptCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
@@ -405,6 +411,52 @@ public class Main {
         @Override
         public void printUsage(StringBuilder out) {
             out.append("  ballerina version\n");
+        }
+
+        @Override
+        public void setParentCmdParser(JCommander parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+
+        @Override
+        public void setSelfCmdParser(JCommander selfCmdParser) {
+
+        }
+    }
+
+    public static class EncryptCmd implements BLauncherCmd {
+
+        private JCommander parentCmdParser;
+
+        @Override
+        public void execute() {
+            outStream.println("ballerina: enter the value to be encrypted:");
+            String value = new String(System.console().readPassword());
+
+            outStream.println("ballerina: enter a secret to be used in encrypting the value:");
+            String secret = new String(System.console().readPassword());
+
+            try {
+                AESCipherTool cipherTool = new AESCipherTool(secret);
+                outStream.println(cipherTool.encrypt(value));
+            } catch (AESCipherToolException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "encrypt";
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina encrypt\n");
         }
 
         @Override

@@ -39,6 +39,7 @@ public class BConfigLangListener extends TomlBaseListener {
     private String currentTableHeader;
     private String currentKey;
     private String currentValue;
+    private boolean hasEncryptedFields;
 
     public BConfigLangListener(BConfig configEntries) {
         this.configEntries = configEntries;
@@ -62,26 +63,26 @@ public class BConfigLangListener extends TomlBaseListener {
     @Override
     public void enterBasicString(TomlParser.BasicStringContext context) {
         currentValue = context.basicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
-        configEntries.setHasEncryptedValues(currentValue.matches(ENCRYPTED_FIELD_REGEX));
+        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
     }
 
     @Override
     public void enterLiteralString(TomlParser.LiteralStringContext context) {
         currentValue = context.LITERALCHAR().stream().map(x -> x.getText()).collect(Collectors.joining());
-        configEntries.setHasEncryptedValues(currentValue.matches(ENCRYPTED_FIELD_REGEX));
+        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
     }
 
     @Override
     public void enterMlBasicString(TomlParser.MlBasicStringContext context) {
         currentValue = context.mlBasicBody().mlBasicChar().stream().map(x -> x.getText()).collect(Collectors.joining());
-        configEntries.setHasEncryptedValues(currentValue.matches(ENCRYPTED_FIELD_REGEX));
+        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
     }
 
     @Override
     public void enterMlLiteralString(TomlParser.MlLiteralStringContext context) {
         currentValue = context.mlLiteralBody().MLLITERALCHAR().stream().map(x -> x.getText()).collect(
                 Collectors.joining());
-        configEntries.setHasEncryptedValues(currentValue.matches(ENCRYPTED_FIELD_REGEX));
+        hasEncryptedFields = hasEncryptedFields || currentValue.matches(ENCRYPTED_FIELD_REGEX);
     }
 
     @Override
@@ -111,5 +112,10 @@ public class BConfigLangListener extends TomlBaseListener {
 
         configEntries.addConfiguration(configKey, currentValue);
         currentValue = null; // Reset the current value once the config entry is added to the map
+    }
+
+    @Override
+    public void exitToml(TomlParser.TomlContext context) {
+        configEntries.setHasEncryptedValues(hasEncryptedFields);
     }
 }
