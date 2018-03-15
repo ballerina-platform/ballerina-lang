@@ -104,6 +104,7 @@ import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.tree.types.ConstrainedTypeNode;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
+import org.ballerinalang.model.tree.types.UnionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.model.tree.types.ValueTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -196,6 +197,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
@@ -292,6 +294,10 @@ public class TreeBuilder {
 
     public static ArrayTypeNode createArrayTypeNode() {
         return new BLangArrayType();
+    }
+
+    public static UnionTypeNode createUnionTypeNode() {
+        return new BLangUnionTypeNode();
     }
 
     public static UserDefinedTypeNode createUserDefinedTypeNode() {

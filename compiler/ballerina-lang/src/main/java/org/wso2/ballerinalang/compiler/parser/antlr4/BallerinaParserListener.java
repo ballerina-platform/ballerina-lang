@@ -358,15 +358,51 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEndpointType(BallerinaParser.EndpointTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeName}.
+	 * Enter a parse tree produced by the {@code arrayTypeName}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeName(BallerinaParser.TypeNameContext ctx);
+	void enterArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeName}.
+	 * Exit a parse tree produced by the {@code arrayTypeName}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeName(BallerinaParser.TypeNameContext ctx);
+	void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code simpleTypeNameTemp}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code simpleTypeNameTemp}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code unionTypeName}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnionTypeName(BallerinaParser.UnionTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code unionTypeName}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#simpleTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#builtInTypeName}.
 	 * @param ctx the parse tree

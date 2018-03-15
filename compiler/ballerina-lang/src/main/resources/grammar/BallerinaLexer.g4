@@ -143,6 +143,7 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
+PIPE        : '#' ;
 
 // §3.10.1 Integer Literals
 IntegerLiteral

@@ -178,11 +178,17 @@ endpointType
     ;
 
 typeName
+    :   simpleTypeName                              # simpleTypeNameTemp
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
+    |   typeName (PIPE typeName)+                   # unionTypeName
+    ;
+
+// Temporary production rule name
+simpleTypeName
     :   TYPE_ANY
     |   TYPE_TYPE
     |   valueTypeName
     |   referenceTypeName
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
 builtInTypeName
@@ -190,7 +196,7 @@ builtInTypeName
      |   TYPE_TYPE
      |   valueTypeName
      |   builtInReferenceTypeName
-     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
+     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
 
 referenceTypeName

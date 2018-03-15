@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -314,6 +315,27 @@ public class BLangPackageBuilder {
         typeNode.typeKind = (TreeUtils.stringToTypeKind(typeName));
 
         addType(typeNode);
+    }
+
+    public void addUnionType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangType rhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType lhsTypeNode = (BLangType) this.typeNodeStack.pop();
+
+        BLangUnionTypeNode unionTypeNode;
+        if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+            unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
+            unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
+            this.typeNodeStack.push(unionTypeNode);
+            return;
+        } else {
+            unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+            unionTypeNode.memberTypeNodes.add(lhsTypeNode);
+            unionTypeNode.memberTypeNodes.add(rhsTypeNode);
+        }
+
+        unionTypeNode.pos = pos;
+        unionTypeNode.addWS(ws);
+        this.typeNodeStack.push(unionTypeNode);
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {

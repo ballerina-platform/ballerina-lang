@@ -436,13 +436,49 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeName(BallerinaParser.TypeNameContext ctx) { }
+	@Override public void enterArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeName(BallerinaParser.TypeNameContext ctx) { }
+	@Override public void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
