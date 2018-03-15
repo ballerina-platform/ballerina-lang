@@ -98,7 +98,8 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
+    //public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
@@ -261,6 +262,10 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
     public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
+    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
+    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
+    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
 
     public static final String ENDPOINT_CONFIG_SSL = "ssl";
 

@@ -247,6 +247,8 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   compoundAssignmentStatement
+    |   postIncrementStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -292,6 +294,26 @@ typeInitExpr
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    ;
+
+compoundAssignmentStatement
+    :   variableReference compoundOperator expression SEMICOLON
+    ;
+
+compoundOperator
+    :   COMPOUND_ADD
+    |   COMPOUND_SUB
+    |   COMPOUND_MUL
+    |   COMPOUND_DIV
+    ;
+
+postIncrementStatement
+    :   variableReference postArithmeticOperator SEMICOLON
+    ;
+
+postArithmeticOperator
+    :   INCREMENT
+    |   DECREMENT
     ;
 
 variableReferenceList
@@ -346,7 +368,7 @@ joinClause
     ;
 
 joinConditions
-    : SOME IntegerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
+    : SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
     | ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
     ;
 
@@ -557,11 +579,19 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   (SUB)? IntegerLiteral
+    :   (SUB)? integerLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
+    ;
+
+// §3.10.1 Integer Literals
+integerLiteral
+    :   DecimalIntegerLiteral
+    |   HexIntegerLiteral
+    |   OctalIntegerLiteral
+    |   BinaryIntegerLiteral
     ;
 
 namedArgs

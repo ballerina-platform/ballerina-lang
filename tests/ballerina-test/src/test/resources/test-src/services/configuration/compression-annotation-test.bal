@@ -5,8 +5,8 @@ endpoint<mock:NonListeningService> mockEP {
     port:9090
 }
 
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> defaultCompressionValue {
+@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.AUTO}
+service<http:Service> autoCompress {
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
@@ -18,8 +18,8 @@ service<http:Service> defaultCompressionValue {
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compressionEnabled : true}
-service<http:Service> explicitlyCompressionEnabled {
+@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.ALWAYS}
+service<http:Service> alwaysCompress {
      @http:resourceConfig {
         methods:["GET"],
         path:"/"
@@ -31,8 +31,8 @@ service<http:Service> explicitlyCompressionEnabled {
     }
 }
 
-@http:serviceConfig {endpoints:[mockEP], compressionEnabled : false}
-service<http:Service> explicitlyCompressionDisabled {
+@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
+service<http:Service> neverCompress {
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
@@ -40,6 +40,20 @@ service<http:Service> explicitlyCompressionDisabled {
     resource test3 (http:ServerConnector conn, http:Request req) {
         http:Response res = {};
         res.setStringPayload("Hello World!!!");
+        _ = conn -> respond(res);
+    }
+}
+
+@http:serviceConfig {endpoints:[mockEP], compression: http:Compression.NEVER}
+service<http:Service> userOverridenValue {
+    @http:resourceConfig {
+            methods:["GET"],
+            path:"/"
+    }
+    resource test3 (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
+        res.setStringPayload("Hello World!!!");
+        res.setHeader("content-encoding", "deflate");
         _ = conn -> respond(res);
     }
 }

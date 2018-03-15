@@ -27,12 +27,19 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+
 /**
- * Unit test for 'compressionEnabled' service annotation. Unit test cannot be written when the request contains
- * "Accept-Encoding" since this back end is just a mock. Those are covered under integration tests.
+ * Unit tests for 'Compression' service annotation. Since this back end is just a mock, these tests only check the
+ * correct response is sent to the backend. Integration test cover the full set of scenarios.
  *
  * @since 0.966.0
  */
@@ -47,23 +54,80 @@ public class CompressionConfigurationTest {
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
-    @Test(description = "Test default compression case, when no value is received for Accept-Encoding")
-    public void testDefaultCompressionWithoutAcceptEncoding() {
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/defaultCompressionValue",
+    @Test(description = "Test Compression.AUTO, with no Accept-Encoding header. The response here means the one " +
+            "that should be sent to transport, not to end user.")
+    public void testAutoCompress() {
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompress",
                 HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                Constants.HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header should be identity");
+        Assert.assertNull(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                "The content-encoding header should be null and the identity which means no compression " +
+                        "should be done to the response");
     }
 
-    @Test(description = "Explicitly enable compression, but no Accept-Encoding header is set")
-    public void testExplicitCompressionEnabled() {
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionEnabled",
+    @Test(description = "Test Compression.AUTO, with Accept-Encoding header. The response here means the one " +
+            "that should be sent to transport, not to end user.")
+    public void testAutoCompressWithAcceptEncoding() {
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP));
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/autoCompress",
+                HttpConstants.HTTP_METHOD_GET, headers, "hello");
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                "The content-encoding header should be null and the original value of Accept-Encoding should " +
+                        "be used for compression from the backend");
+    }
+
+    @Test(description = "Test Compression.ALWAYS, with no Accept-Encoding header. The response here means the one " +
+            "that should be sent to transport, not to end user.")
+    public void testAlwaysCompress() {
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompress",
+                HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()), ENCODING_GZIP,
+                "The content-encoding header should be gzip.");
+    }
+
+    @Test(description = "Test Compression.ALWAYS, with Accept-Encoding header. The response here means the one " +
+            "that should be sent to transport, not to end user.")
+    public void testAlwaysCompressWithAcceptEncoding() {
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE));
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/alwaysCompress",
+                HttpConstants.HTTP_METHOD_GET, headers, "hello");
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                "The content-encoding header should be set to null and the transport will use the original" +
+                        "Accept-Encoding value for compression.");
+    }
+
+    @Test(description = "Test Compression.NEVER, with no Accept-Encoding header. The response here means the one " +
+            "that should be sent to transport, not to end user.")
+    public void testNeverCompress() {
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/neverCompress",
                 HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                Constants.HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header should be identity");
+                HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response that was sent " +
+                        "to transport should be set to identity.");
+    }
+
+    @Test(description = "Test Compression.NEVER, with a user overridden content-encoding header. The response here " +
+            "means the one that should be sent to transport, not to end user.")
+    public void testNeverCompressWithAcceptEncoding() {
+        List<Header> headers = new ArrayList<>();
+        headers.add(new Header(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP));
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/userOverridenValue",
+                HttpConstants.HTTP_METHOD_GET, headers, "hello");
+        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                ENCODING_DEFLATE, "The content-encoding header of the response that was sent " +
+                        "to transport should be set to identity.");
     }
 }

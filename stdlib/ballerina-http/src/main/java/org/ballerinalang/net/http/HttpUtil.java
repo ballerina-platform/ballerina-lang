@@ -54,7 +54,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
@@ -87,10 +86,14 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED;
+import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
 /**
  * Utility class providing utility methods.
@@ -253,9 +256,7 @@ public class HttpUtil {
 
         HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
-        //CompressionHeaders should be set after copying all the headers from request struct to outbound message,
-        // since in the case of compression disabled, 'Accept-Encoding' headers should be removed from outbound message.
-        setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
     }
 
     public static BStruct createSessionStruct(Context context, Session session) {
@@ -681,46 +682,23 @@ public class HttpUtil {
         return entity;
     }
 
-    /**
-     * Set connection content-encoding headers to transport message.
-     *
-     * @param context         ballerina context.
-     * @param outboundMessage transport message.
-     */
-    public static void setKeepAliveAndCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
-        HttpService service = (HttpService) context.getProperty(HttpConstants.HTTP_SERVICE);
-
-        if (!service.isCompressionEnabled()) {
-            outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
-                    Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
-        }
-
-        if (service.isKeepAlive()) {
-            outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER,
-                    HttpConstants.HEADER_VAL_CONNECTION_KEEP_ALIVE);
-            return;
-        }
-        outboundMessage.setHeader(HttpConstants.CONNECTION_HEADER, HttpConstants.HEADER_VAL_CONNECTION_CLOSE);
-    }
-
-    public static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg,
-                                             HTTPCarbonMessage outboundMessage) {
+    static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
+            outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                                                                   context.getServiceInfo().getType());
+                context.getServiceInfo().getType());
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-
         if (configAnnot != null) {
-            boolean isCompressionEnabled = configAnnot.getValue().getBooleanField(ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-            if (isCompressionEnabled) {
-                if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
-                    outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
-                            Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
-                }
-            } else {
-                if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null) {
-                    outboundMessage.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
-                    outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
-                            Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
+            String compressionValue = configAnnot.getValue().getEnumField(ANN_CONFIG_ATTR_COMPRESSION);
+            String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
+            String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
+            if (contentEncoding == null) {
+                if (ALWAYS.equalsIgnoreCase(compressionValue)) {
+                    if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
+                        outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
+                    }
+                } else if (NEVER.equalsIgnoreCase(compressionValue)) {
+                        outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
+                                HTTP_TRANSFER_ENCODING_IDENTITY);
                 }
             }
         }
@@ -846,7 +824,7 @@ public class HttpUtil {
                 return ChunkConfig.AUTO;
             case HttpConstants.ALWAYS:
                 return ChunkConfig.ALWAYS;
-            case HttpConstants.NEVER:
+            case NEVER:
                 return ChunkConfig.NEVER;
             default:
                 throw new BallerinaConnectorException(
@@ -860,7 +838,7 @@ public class HttpUtil {
                 return KeepAliveConfig.AUTO;
             case HttpConstants.ALWAYS:
                 return KeepAliveConfig.ALWAYS;
-            case HttpConstants.NEVER:
+            case NEVER:
                 return KeepAliveConfig.NEVER;
             default:
                 throw new BallerinaConnectorException(
