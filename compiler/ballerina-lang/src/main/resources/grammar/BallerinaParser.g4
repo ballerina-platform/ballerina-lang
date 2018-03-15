@@ -205,6 +205,7 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
@@ -429,7 +430,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : ASYNC? nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -523,6 +524,7 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   expression TYPEOF typeName                                          # typeOfBinaryExpression
+    |   AWAIT expression                                                    # awaitExpression
     ;
 
 //reusable productions

@@ -65,9 +65,4 @@ public class InitWorkerResponseContext implements WorkerResponseContext {
         return null;
     }
 
-    @Override
-    public void waitForResponse() {
-        /* nothing to do */
-    }
-
 }

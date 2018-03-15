@@ -1239,6 +1239,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeOfBinaryExpression(BallerinaParser.TypeOfBinaryExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code awaitExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAwaitExpression(BallerinaParser.AwaitExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code awaitExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAwaitExpression(BallerinaParser.AwaitExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code valueTypeTypeExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
