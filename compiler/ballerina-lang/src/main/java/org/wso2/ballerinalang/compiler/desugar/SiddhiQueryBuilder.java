@@ -453,7 +453,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
-
         boolean isFollowedByPattern = patternStreamingInput.isFollowedBy();
         boolean enclosedInParanthesisPattern = patternStreamingInput.enclosedInParanthesis();
         List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs =
@@ -484,7 +483,6 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     }
 
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-
         varRef = patternStreamingEdgeInput.getIdentifier();
         streamIds.add(varRef);
         varRef = "";

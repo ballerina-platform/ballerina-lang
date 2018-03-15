@@ -44,6 +44,5 @@ public class Publish extends BlockingNativeCallableUnit {
         BStream stream = (BStream) context.getRefArgument(0);
         BStruct data = (BStruct) context.getRefArgument(1);
         stream.publish(data);
-        context.getReturnValues();
     }
 }
