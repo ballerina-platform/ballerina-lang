@@ -120,7 +120,7 @@ public class PackageID {
 
     @Override
     public String toString() {
-        if (version == Names.DEFAULT_VERSION) {
+        if (version == Names.DEFAULT_VERSION || version == Names.EMPTY) {
             return this.name.value;
         }
 
