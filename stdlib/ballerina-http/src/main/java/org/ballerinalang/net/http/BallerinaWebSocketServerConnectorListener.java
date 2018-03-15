@@ -100,7 +100,7 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
                     .filter(c -> c.getKey().startsWith(TraceConstants.TRACE_PREFIX))
                     .forEach(e -> tracer.addProperty(e.getKey(), e.getValue()));
 
-            Executor.submit(onHandshakeResource, new CallableUnitCallback(tracer) {
+            Executor.submit(onHandshakeResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
                     isResourceExeSuccessful.set(true);
@@ -196,7 +196,7 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
 
                 Tracer tracer = TraceManagerWrapper.newTracer(null, false);
                 //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(tracer), null,
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null,
                         tracer, bValues);
             }
 

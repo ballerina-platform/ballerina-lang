@@ -36,7 +36,7 @@ public class DataContext {
 
     public void notifyReply(BStruct response, BStruct httpConnectorError) {
         context.setReturnValues(response, httpConnectorError);
-        callback.onSuccess();
+        callback.notifySuccess();
     }
 
 

@@ -93,7 +93,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         tags.put("http.url", (String) httpCarbonMessage.getProperty("REQUEST_URL"));
         tracer.addTags(tags);
 
-        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage, tracer);
+        CallableUnitCallback callback = new HttpCallableUnitCallback(httpCarbonMessage);
         //TODO handle BallerinaConnectorException
         Executor.submit(httpResource.getBalResource(), callback, properties, tracer, signatureParams);
     }

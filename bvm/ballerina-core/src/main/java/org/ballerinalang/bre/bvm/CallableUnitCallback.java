@@ -18,8 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.tracer.TraceUtil;
-import org.ballerinalang.util.tracer.Tracer;
 
 /**
  * This interface represents a callback to report back a success or a
@@ -27,32 +25,13 @@ import org.ballerinalang.util.tracer.Tracer;
  *
  * @since 0.965.0
  */
-public abstract class CallableUnitCallback {
-
-    private Tracer bTracer;
-
-    private CallableUnitCallback() {
-    }
-
-    public CallableUnitCallback(Tracer bTracer) {
-        this.bTracer = bTracer;
-    }
-
-    public final void onSuccess() {
-        TraceUtil.finishTraceSpan(this.bTracer);
-        notifySuccess();
-    }
-
-    public final void onFailure(BStruct error) {
-        TraceUtil.finishTraceSpan(this.bTracer, error);
-        notifyFailure(error);
-    }
+public interface CallableUnitCallback {
 
     /**
      * This should be called when you want to notify that your operation
      * is done successfully.
      */
-    protected abstract void notifySuccess();
+    void notifySuccess();
 
     /**
      * This should be called to notify the listener that your operation
@@ -60,6 +39,6 @@ public abstract class CallableUnitCallback {
      *
      * @param error the error to be reported when the operation failed
      */
-    protected abstract void notifyFailure(BStruct error);
+    void notifyFailure(BStruct error);
 
 }

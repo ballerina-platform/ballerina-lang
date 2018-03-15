@@ -59,7 +59,7 @@ public class Close implements NativeCallableUnit {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
         context.setReturnValues(errorStruct);
-        callback.onSuccess();
+        callback.notifySuccess();
         return result;
     }
 

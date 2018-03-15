@@ -67,6 +67,6 @@ public class RejectPromise extends AbstractHTTPAction {
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
         clientConnector.rejectPushResponse(http2PushPromise);
         context.setReturnValues(new BBoolean(true)); // TODO: Implement a listener to see the progress
-        callback.onSuccess();
+        callback.notifySuccess();
     }
 }

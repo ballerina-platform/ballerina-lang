@@ -29,7 +29,7 @@ import org.ballerinalang.util.program.BLangVMUtils;
  *
  * @since 0.964
  */
-public class BLangCallableUnitCallback extends CallableUnitCallback {
+public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     private WorkerExecutionContext parentCtx;
 
@@ -41,7 +41,6 @@ public class BLangCallableUnitCallback extends CallableUnitCallback {
 
     public BLangCallableUnitCallback(Context nativeCallCtx, WorkerExecutionContext parentCtx,
                                      int[] retRegs, BType[] retTypes) {
-        super(parentCtx.getTracer());
         this.parentCtx = parentCtx;
         this.nativeCallCtx = nativeCallCtx;
         this.retRegs = retRegs;
