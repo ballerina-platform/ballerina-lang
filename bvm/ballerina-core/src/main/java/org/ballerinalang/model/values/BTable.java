@@ -115,10 +115,8 @@ public class BTable implements BRefType<Object>, BCollection {
 
 
     public boolean hasNext(boolean isInTransaction) {
-        if (this.isInMemoryTable) {
-            if (this.iterator == null) {
-                generateIterator();
-            }
+        if (this.isInMemoryTable && this.iterator == null) {
+            generateIterator();
         }
         if (!nextPrefetched) {
             hasNextVal = iterator.next();
