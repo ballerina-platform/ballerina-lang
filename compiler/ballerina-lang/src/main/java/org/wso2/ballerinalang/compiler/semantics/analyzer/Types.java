@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStruct
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -150,8 +151,6 @@ public class Types {
             return actualType;
         } else if (actualType.tag == TypeTags.NULL && isNullable(expType)) {
             return actualType;
-        } else if (isSameType(actualType, expType)) {
-            return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
         }
@@ -161,19 +160,12 @@ public class Types {
         return symTable.errType;
     }
 
-    public Boolean isSameType(BType source, BType target) {
+    private boolean isSameType(BType source, BType target) {
         return target.accept(sameTypeVisitor, source);
     }
 
     public boolean isValueType(BType type) {
         return type.tag < TypeTags.TYPE;
-    }
-
-    public boolean isAnnotationFieldType(BType type) {
-        return this.isValueType(type) ||
-                (type.tag == TypeTags.ANNOTATION) ||
-                (type.tag == TypeTags.ARRAY && ((BArrayType) type).eType.tag == TypeTags.ANNOTATION) ||
-                (type.tag == TypeTags.ARRAY && isValueType(((BArrayType) type).eType));
     }
 
     /**
@@ -189,7 +181,11 @@ public class Types {
      * @param target type.
      * @return true if source type is assignable to the target type.
      */
-    public boolean isAssignable(BType source, BType target) {
+    private boolean isAssignable(BType source, BType target) {
+        if (isSameType(source, target)) {
+            return true;
+        }
+
         if (target.tag == TypeTags.ANY && !isValueType(source)) {
             return true;
         }
@@ -200,6 +196,11 @@ public class Types {
 
         BSymbol symbol = symResolver.resolveImplicitCastOperator(source, target);
         if (symbol != symTable.notFoundSymbol) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.UNION &&
+                isAssignableToUnionType(source, (BUnionType) target)) {
             return true;
         }
 
@@ -263,7 +264,6 @@ public class Types {
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
             if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !isSameType(source.paramTypes.get(i), target.paramTypes.get(i))
                     && !isAssignable(source.paramTypes.get(i), target.paramTypes.get(i))) {
                 return false;
             }
@@ -271,7 +271,6 @@ public class Types {
 
         for (int i = 0; i < source.retTypes.size(); i++) {
             if (target.retTypes.get(i).tag != TypeTags.ANY
-                    && !isSameType(source.retTypes.get(i), target.retTypes.get(i))
                     && !isAssignable(source.retTypes.get(i), target.retTypes.get(i))) {
                 return false;
             }
@@ -430,12 +429,15 @@ public class Types {
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
         BSymbol symbol = symResolver.resolveImplicitCastOperator(actualType, expType);
+        if (expType.tag == TypeTags.UNION && isValueType(actualType)) {
+            symbol = symResolver.resolveImplicitCastOperator(actualType, symTable.anyType);
+        }
+
         if (symbol == symTable.notFoundSymbol) {
             return;
         }
 
         BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
-
         BLangTypeCastExpr implicitCastExpr = (BLangTypeCastExpr) TreeBuilder.createTypeCastNode();
         implicitCastExpr.pos = expr.pos;
         implicitCastExpr.expr = expr.impCastExpr == null ? expr : expr.impCastExpr;
@@ -570,8 +572,7 @@ public class Types {
             return checkStructToJSONCompatibility(fieldType);
         }
 
-        if (isSameType(fieldType, symTable.jsonType) ||
-                isAssignable(fieldType, symTable.jsonType)) {
+        if (isAssignable(fieldType, symTable.jsonType)) {
             return true;
         }
 
@@ -641,8 +642,7 @@ public class Types {
             return checkStructFieldToJSONConvertibility(structType, getElementType(fieldType));
         }
 
-        return isSameType(fieldType, symTable.jsonType) ||
-                isAssignable(fieldType, symTable.jsonType);
+        return isAssignable(fieldType, symTable.jsonType);
 
     }
 
@@ -755,6 +755,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BUnionType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BErrorType t, BType s) {
             // TODO Implement. Not needed for now.
             throw new AssertionError();
@@ -842,6 +847,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BUnionType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BErrorType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -918,6 +928,11 @@ public class Types {
         public Boolean visit(BInvokableType t, BType s) {
             return s.tag == TypeTags.INVOKABLE &&
                     checkFunctionTypeEquality((BInvokableType) s, t);
+        }
+
+        @Override
+        public Boolean visit(BUnionType t, BType s) {
+            return false;
         }
 
         @Override
@@ -1022,5 +1037,21 @@ public class Types {
                 .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private boolean isAssignableToUnionType(BType source, BUnionType target) {
+        if (source.tag == TypeTags.UNION) {
+            BUnionType sourceUnionType = (BUnionType) source;
+            // Check whether source is a subset of target
+            return target.memberTypes.containsAll(sourceUnionType.memberTypes);
+        }
+
+        for (BType memberType : target.memberTypes) {
+            boolean assignable = isAssignable(source, memberType);
+            if (assignable) {
+                return true;
+            }
+        }
+        return false;
     }
 }

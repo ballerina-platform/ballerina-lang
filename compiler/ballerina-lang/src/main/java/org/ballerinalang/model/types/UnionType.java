@@ -15,18 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.types;
+package org.ballerinalang.model.types;
 
-import java.util.List;
+import java.util.Set;
 
 /**
- * {@code UnionTypeNode} represents a union type node in Ballerina
- * <p>
- * e.g. int | float | string
+ * {@code UnionType} represents a union type in Ballerina.
  *
  * @since 0.966.0
  */
-public interface UnionTypeNode {
-
-    List<? extends TypeNode> getMemberTypeNodes();
+public interface UnionType extends ReferenceType {
+    Set<? extends Type> getMemberTypes();
 }

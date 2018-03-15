@@ -490,8 +490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
         if (varNode.type == null) {
-            BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
-            varNode.type = varType;
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
         Name varName = names.fromIdNode(varNode.name);

@@ -39,12 +39,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -62,6 +64,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -464,6 +468,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             resultType = new BArrayType(resultType);
         }
+    }
+
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
+                .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
+                .collect(Collectors.toSet());
+        resultType = new BUnionType(TypeTags.UNION, null, memberTypes);
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {
