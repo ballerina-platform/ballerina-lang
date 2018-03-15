@@ -38,8 +38,6 @@ import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerInitializer;
 
-import java.io.File;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -55,14 +53,14 @@ public class Http2ClientConnectorBasicTestCase {
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
         connectorFactory = new DefaultHttpWsConnectorFactory();
+
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }

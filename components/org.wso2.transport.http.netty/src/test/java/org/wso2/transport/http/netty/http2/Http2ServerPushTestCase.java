@@ -43,8 +43,6 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 
-import java.io.File;
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -68,10 +66,6 @@ public class Http2ServerPushTestCase {
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-
         connectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
@@ -86,6 +80,7 @@ public class Http2ServerPushTestCase {
         future.setHttpConnectorListener(http2ServerConnectorListener);
         future.sync();
 
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
