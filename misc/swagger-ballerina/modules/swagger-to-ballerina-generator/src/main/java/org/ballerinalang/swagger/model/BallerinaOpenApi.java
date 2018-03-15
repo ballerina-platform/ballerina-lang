@@ -27,9 +27,8 @@ import io.swagger.oas.models.servers.Server;
 import io.swagger.oas.models.tags.Tag;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,26 +39,17 @@ import java.util.Set;
  * <p>This class can be used to push additional context variables for handlebars</p>
  */
 public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi, OpenAPI> {
-public class BallerinaOpenApi {
-    private static final int HTTP_PORT = 80;
-    private static final int HTTPS_PORT = 443;
-    
     private String apiPackage;
     private String openapi = "3.0.0";
     private Info info = null;
     private ExternalDocumentation externalDocs = null;
-    private List<Server> servers = null;
+    private List<BallerinaServer> servers = null;
     private Set<Map.Entry<String, String>> security = null;
     private List<Tag> tags = null;
     private Set<Map.Entry<String, PathItem>> paths = null;
     private Set<Map.Entry<String, BallerinaSchema>> schemas = null;
     private Components components = null;
     private Map<String, Object> extensions = null;
-    private String host = null;
-    private int port = 0;
-    private int httpsPort = 0;
-    private String basePath = null;
-    private String url = null;
 
     /**
      * Build a {@link BallerinaOpenApi} object from a {@link OpenAPI} object.
@@ -75,20 +65,14 @@ public class BallerinaOpenApi {
         this.openapi = openAPI.getOpenapi();
         this.info = openAPI.getInfo();
         this.externalDocs = openAPI.getExternalDocs();
-        this.servers = openAPI.getServers();
         this.tags = openAPI.getTags();
         this.components = openAPI.getComponents();
         this.extensions = openAPI.getExtensions();
         this.paths = openAPI.getPaths().entrySet();
 
-        try {
-            setSecurityRequirements(openAPI);
-            setHostInfo(openAPI);
-            setSchemas(openAPI);
-        } catch (MalformedURLException e) {
-            throw new BallerinaOpenApiException("Failed to parse server information", e);
-        }
-
+        setSecurityRequirements(openAPI);
+        setServers(openAPI);
+        setSchemas(openAPI);
         return this;
     }
 
@@ -117,41 +101,32 @@ public class BallerinaOpenApi {
     }
 
     /**
-     * Extract host information from OpenAPI server list.
+     * Extract endpoint information from OpenAPI server list.
+     * If no servers were found, default {@link BallerinaServer} will be set as the server
      *
-     * @param openAPI <code>OpenAPI</code> definition object with host information
+     * @param openAPI <code>OpenAPI</code> definition object with server details
+     * @throws BallerinaOpenApiException on failure to parse {@code Server} list
      */
-    private void setHostInfo(OpenAPI openAPI) throws MalformedURLException {
+    private void setServers(OpenAPI openAPI) throws BallerinaOpenApiException {
+        this.servers = new ArrayList<>();
         List<Server> serverList = openAPI.getServers();
         if (serverList == null) {
-            this.host = "localhost";
-            this.port = HTTP_PORT;
-            this.httpsPort = HTTPS_PORT;
-            this.basePath = "/";
-
+            BallerinaServer server = new BallerinaServer().getDefaultValue();
+            servers.add(server);
             return;
         }
 
-        // Swagger parser returns a server object with "/" url when no servers are defined
-        // this check is to overcome possible errors due to that
-        if (serverList.size() > 1 || !"/".equals(serverList.get(0).getUrl())) {
-
-            // We select the first server in the list as the Host of generated service
-            // Other servers will be kept as extra information but will not be used within the service
-            URL url = new URL(serverList.get(0).getUrl());
-            this.url = serverList.get(0).getUrl();
-            host = url.getHost();
-            basePath = url.getPath();
-            boolean isHttps = "https".equalsIgnoreCase(url.getProtocol());
-
-            if (isHttps) {
-                httpsPort = url.getPort();
-                httpsPort = httpsPort == -1 ? HTTPS_PORT : httpsPort;
-            } else {
-                port = url.getPort();
-                port = port == -1 ? HTTP_PORT : port;
+        serverList.forEach(server -> {
+            try {
+                // Note that only one base path is allowed. Though we extract base path per each server
+                // defined in the Open Api definition, only the base path of first server will be used
+                // in ballerina code generation. Ballerina all endpoints to be in a single base path
+                BallerinaServer balServer = new BallerinaServer().buildContext(server);
+                servers.add(balServer);
+            } catch (BallerinaOpenApiException e) {
+                // Ignore the exception and move to other servers
             }
-        }
+        });
     }
 
     /**
@@ -193,7 +168,7 @@ public class BallerinaOpenApi {
         return externalDocs;
     }
 
-    public List<Server> getServers() {
+    public List<BallerinaServer> getServers() {
         return servers;
     }
 
@@ -217,27 +192,7 @@ public class BallerinaOpenApi {
         return extensions;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getBasePath() {
-        return basePath;
-    }
-
-    public int getHttpsPort() {
-        return httpsPort;
-    }
-
     public Set<Map.Entry<String, BallerinaSchema>> getSchemas() {
         return schemas;
-    }
-
-    public String getUrl() {
-        return url;
     }
 }

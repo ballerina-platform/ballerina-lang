@@ -4,12 +4,11 @@ import {{apiPackage}}.model;{{/apiPackage}}
 import ballerina.net.http;
 import ballerina.net.http.swagger;
 
-endpoint<http:Service> ep { {{#host}}
-    host: "{{host}}",{{/host}}{{#port}}
-    port: {{port}},{{/port}}{{#httpsPort}}
-    httpsPort: {{httpsPort}}{{/httpsPort}}
+{{#servers}}endpoint<http:Service> ep{{@index}} {
+    host: "{{host}}",
+    port: {{port}}
 }
-
+{{/servers}}
 @swagger:serviceInfo { {{#info}}
     title: "{{title}}",
     description: "{{description}}",
@@ -25,9 +24,9 @@ endpoint<http:Service> ep { {{#host}}
         {{>security}}{{/security}}
     ]
 }
-@http:serviceConfig { {{#basePath}}
-    basePath: "{{basePath}}",{{/basePath}}
-    endpoints: [ep]
+@http:serviceConfig {
+    basePath: "{{servers.0.basePath}}",
+    endpoints: [{{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}}]
 }
 service<http:Service> {{cut info.title " "}} {
 {{#paths}}{{#value}}{{#get}}
