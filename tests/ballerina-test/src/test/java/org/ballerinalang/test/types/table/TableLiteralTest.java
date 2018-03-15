@@ -54,7 +54,7 @@ public class TableLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-literal-test.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
     @Test
@@ -326,6 +326,6 @@ public class TableLiteralTest {
     @Test(priority = 3)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }
