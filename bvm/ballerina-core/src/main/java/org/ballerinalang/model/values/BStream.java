@@ -121,6 +121,7 @@ public class BStream implements BRefType<Object> {
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
 
+        //TODO - remove with subscription related improvements
         List<SiddhiAppRuntime> siddhiAppRuntimeList = StreamingRuntimeManager.getInstance().
                 getStreamSpecificSiddhiAppRuntimes(streamId);
         for (SiddhiAppRuntime siddhiAppRuntime : siddhiAppRuntimeList) {

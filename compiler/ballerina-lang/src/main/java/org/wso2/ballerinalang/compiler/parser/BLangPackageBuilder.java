@@ -313,7 +313,7 @@ public class BLangPackageBuilder {
     private Set<BLangImportPackage> imports = new HashSet<>();
 
     private List<VariableDefinitionNode> defaultableParamsList = new ArrayList<>();
-    
+
     private Stack<VariableNode> restParamStack = new Stack<>();
 
     private Set<Whitespace> endpointVarWs;
@@ -1954,7 +1954,7 @@ public class BLangPackageBuilder {
         BLangVariable restParam = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, false);
         attachAnnotations(restParam, annotCount);
         restParam.pos = pos;
-        
+
         BLangArrayType typeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         typeNode.elemtype = restParam.typeNode;
         typeNode.dimensions = 1;
@@ -2285,7 +2285,7 @@ public class BLangPackageBuilder {
     public void startSetAssignmentClauseNode(DiagnosticPos pos, Set<Whitespace> ws) {
         SetAssignmentNode setAssignmentNode = TreeBuilder.createSetAssignmentNode();
         ((BLangSetAssignment) setAssignmentNode).pos = pos;
-        ((BLangSetAssignment) setAssignmentNode).addWS(ws);
+        setAssignmentNode.addWS(ws);
         this.setAssignmentStack.push(setAssignmentNode);
     }
 
@@ -2296,7 +2296,7 @@ public class BLangPackageBuilder {
         SetAssignmentNode setAssignmentNode = this.setAssignmentStack.peek();
 
         ((BLangSetAssignment) setAssignmentNode).pos = pos;
-        ((BLangSetAssignment) setAssignmentNode).addWS(ws);
+        setAssignmentNode.addWS(ws);
 
         setAssignmentNode.setExpression(exprNodeStack.pop());
         setAssignmentNode.setVariableReference(exprNodeStack.pop());
@@ -2325,7 +2325,7 @@ public class BLangPackageBuilder {
     public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
-        ((BLangStreamAction) streamActionNode).addWS(ws);
+        streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
     }
 
@@ -2334,7 +2334,7 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
 
         ((BLangStreamAction) streamActionNode).pos = pos;
-        ((BLangStreamAction) streamActionNode).addWS(ws);
+        streamActionNode.addWS(ws);
 
         if (!exprNodeStack.empty()) {
             streamActionNode.setExpression(exprNodeStack.pop());
@@ -2351,7 +2351,7 @@ public class BLangPackageBuilder {
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = TreeBuilder.createPatternStreamingEdgeInputNode();
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
-        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).addWS(ws);
+        patternStreamingEdgeInputNode.addWS(ws);
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
@@ -2361,7 +2361,7 @@ public class BLangPackageBuilder {
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
 
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
-        ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).addWS(ws);
+        patternStreamingEdgeInputNode.addWS(ws);
 
         if (!exprNodeStack.empty()) {
             patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
@@ -2377,7 +2377,7 @@ public class BLangPackageBuilder {
     public void startPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
         PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-        ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
+        patternStreamingInputNode.addWS(ws);
         this.patternStreamingInputStack.push(patternStreamingInputNode);
     }
 
@@ -2388,7 +2388,7 @@ public class BLangPackageBuilder {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.peek();
 
             ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
-            ((BLangPatternStreamingInput) patternStreamingInputNode).addWS(ws);
+            patternStreamingInputNode.addWS(ws);
 
             if (isFollowedBy) {
                 patternStreamingInputNode.setFollowedBy(true);
@@ -2417,7 +2417,7 @@ public class BLangPackageBuilder {
     public void startStreamingQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamingQueryStatementNode streamingQueryStatementNode = TreeBuilder.createStreamingQueryStatementNode();
         ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
-        ((BLangStreamingQueryStatement) streamingQueryStatementNode).addWS(ws);
+        streamingQueryStatementNode.addWS(ws);
         this.streamingQueryStatementStack.push(streamingQueryStatementNode);
     }
 
@@ -2425,7 +2425,7 @@ public class BLangPackageBuilder {
         StreamingQueryStatementNode streamingQueryStatementNode = this.streamingQueryStatementStack.peek();
 
         ((BLangStreamingQueryStatement) streamingQueryStatementNode).pos = pos;
-        ((BLangStreamingQueryStatement) streamingQueryStatementNode).addWS(ws);
+        streamingQueryStatementNode.addWS(ws);
 
         if (!streamingInputStack.empty()) {
             streamingQueryStatementNode.setStreamingInput(streamingInputStack.pop());
@@ -2451,7 +2451,7 @@ public class BLangPackageBuilder {
     public void startQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
         QueryStatementNode queryStatementNode = TreeBuilder.createQueryStatementNode();
         ((BLangQueryStatement) queryStatementNode).pos = pos;
-        ((BLangQueryStatement) queryStatementNode).addWS(ws);
+        queryStatementNode.addWS(ws);
         this.queryStatementStack.push(queryStatementNode);
     }
 
@@ -2459,21 +2459,22 @@ public class BLangPackageBuilder {
 
         QueryStatementNode queryStatementNode = this.queryStatementStack.peek();
         ((BLangQueryStatement) queryStatementNode).pos = pos;
-        ((BLangQueryStatement) queryStatementNode).addWS(ws);
+        queryStatementNode.addWS(ws);
 
         queryStatementNode.setIdentifier(identifier);
         queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
     }
 
     public void endStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
-
         BlockNode blocknode = this.blockNodeStack.peek();
         if (!streamingQueryStatementStack.empty()) {
             blocknode.addStatement(streamingQueryStatementStack.pop());
         }
 
-        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
+        ((BLangBlockStmt) blocknode).pos = pos;
+        blocknode.addWS(ws);
 
+        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
         while (!queryStatementStack.empty()) {
             StatementNode statementNode = queryStatementStack.pop();
             if (statementNode instanceof BLangQueryStatement) {
@@ -2486,31 +2487,6 @@ public class BLangPackageBuilder {
         while (!queryStatementNodeStack.isEmpty()) {
             blocknode.addStatement(queryStatementNodeStack.pop());
         }
-    }
-
-    public void startStreamletNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        ((BLangStreamlet) streamletNode).addWS(ws);
-        startBlock();
-        this.streamletNodeStack.push(streamletNode);
-    }
-
-    public void endStreamletNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-
-        StreamletNode streamletNode = this.streamletNodeStack.peek();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        ((BLangStreamlet) streamletNode).addWS(ws);
-
-        streamletNode.setName(this.createIdentifier(identifier));
-        BlockNode blocknode = this.blockNodeStack.pop();
-        streamletNode.setBody(blocknode);
-
-        if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(streamletNode::addParameter);
-        }
-
-        this.compUnit.addTopLevelNode(streamletNode);
     }
 
     public void startWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2535,7 +2511,7 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternClause(boolean isForEvents, boolean isWithinClauseAvailable, DiagnosticPos pos,
-            Set<Whitespace> ws) {
+                                 Set<Whitespace> ws) {
         PatternClause patternClause = this.patternClauseStack.peek();
         ((BLangPatternClause) patternClause).pos = pos;
         patternClause.addWS(ws);
@@ -2545,4 +2521,29 @@ public class BLangPackageBuilder {
             patternClause.setWithinClause(this.withinClauseStack.pop());
         }
     }
+
+    public void startStreamletNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        streamletNode.addWS(ws);
+        startBlock();
+        this.streamletNodeStack.push(streamletNode);
+    }
+
+    public void endStreamletNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+        StreamletNode streamletNode = this.streamletNodeStack.peek();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        streamletNode.addWS(ws);
+
+        streamletNode.setName(this.createIdentifier(identifier));
+        BlockNode blocknode = this.blockNodeStack.pop();
+        streamletNode.setBody(blocknode);
+
+        if (!this.varListStack.empty()) {
+            this.varListStack.pop().forEach(streamletNode::addParameter);
+        }
+
+        this.compUnit.addTopLevelNode(streamletNode);
+    }
+
 }

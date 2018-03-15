@@ -1915,7 +1915,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void createStreamletInfoEntry(BLangStreamlet streamletNode) {
-
         BStreamletType streamletType = (BStreamletType) streamletNode.symbol.type;
         // Add streamlet name as an UTFCPEntry to the constant pool
         int streamletNameCPIndex = addUTF8CPEntry(currentPkgInfo, streamletNode.name.value);
