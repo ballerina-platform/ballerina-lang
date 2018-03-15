@@ -28,6 +28,8 @@ import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of the response returnError future.
@@ -48,6 +50,17 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private Throwable throwable, responseHandleError, returnError;
     private Semaphore executionWaitSem;
 
+    // Lock to synchronize response related operations
+    private Lock responseLock = new ReentrantLock();
+    // Lock to synchronize response handle related operations
+    private Lock responseHandleLock = new ReentrantLock();
+    // Lock to synchronize promise availability related operations
+    private Lock promiseAvailabilityLock = new ReentrantLock();
+    // Lock to synchronize promise related operations
+    private Lock promiseLock = new ReentrantLock();
+    // Lock to synchronize push response related operations
+    private Lock pushResponseLock = new ReentrantLock();
+
     public DefaultHttpResponseFuture(OutboundMsgHolder outboundMsgHolder) {
         this.outboundMsgHolder = outboundMsgHolder;
         pushResponseListeners = new ConcurrentHashMap<>();
@@ -60,14 +73,19 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void setHttpConnectorListener(HttpConnectorListener connectorListener) {
-        this.httpConnectorListener = connectorListener;
-        if (httpCarbonMessage != null) {
-            notifyHttpListener(httpCarbonMessage);
-            httpCarbonMessage = null;
-        }
-        if (this.throwable != null) {
-            notifyHttpListener(this.throwable);
-            this.throwable = null;
+        responseLock.lock();
+        try {
+            this.httpConnectorListener = connectorListener;
+            if (httpCarbonMessage != null) {
+                notifyHttpListener(httpCarbonMessage);
+                httpCarbonMessage = null;
+            }
+            if (this.throwable != null) {
+                notifyHttpListener(this.throwable);
+                this.throwable = null;
+            }
+        } finally {
+            responseLock.unlock();
         }
     }
 
@@ -78,28 +96,40 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
-        this.httpCarbonMessage = httpCarbonMessage;
-        if (executionWaitSem != null) {
-            executionWaitSem.release();
-        }
-        if (httpConnectorListener != null) {
-            httpConnectorListener.onMessage(httpCarbonMessage);
+        responseLock.lock();
+        try {
+            this.httpCarbonMessage = httpCarbonMessage;
+            if (executionWaitSem != null) {
+                executionWaitSem.release();
+            }
+            if (httpConnectorListener != null) {
+                httpConnectorListener.onMessage(httpCarbonMessage);
+            }
+        } finally {
+            responseLock.unlock();
         }
     }
 
     @Override
     public void notifyHttpListener(Throwable throwable) {
-        this.throwable = throwable;
-        returnError = throwable;
-        if (executionWaitSem != null) {
-            executionWaitSem.release();
-        }
-        if (httpConnectorListener != null) {
-            httpConnectorListener.onError(throwable);
+        responseLock.lock();
+        try {
+            this.throwable = throwable;
+            returnError = throwable;
+            if (executionWaitSem != null) {
+                executionWaitSem.release();
+            }
+            if (httpConnectorListener != null) {
+                httpConnectorListener.onError(throwable);
+            }
+        } finally {
+            responseLock.unlock();
         }
     }
 
     public HttpResponseFuture sync() throws InterruptedException {
+        // sync operation is not synchronize with locks as it might cause a deadlock.
+        // We may have to refactor this using conditions in ReentrantLock later.
         executionWaitSem = new Semaphore(0);
         if (this.httpCarbonMessage == null && this.throwable == null && this.returnError == null) {
             executionWaitSem.acquire();
@@ -126,14 +156,19 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void setResponseHandleListener(HttpClientConnectorListener responseHandleListener) {
-        this.responseHandleListener = responseHandleListener;
-        if (responseHandle != null) {
-            notifyResponseHandle(responseHandle);
-            responseHandle = null;
-        }
-        if (responseHandleError != null) {
-            notifyHttpListener(responseHandleError);
-            this.responseHandleError = null;
+        responseHandleLock.lock();
+        try {
+            this.responseHandleListener = responseHandleListener;
+            if (responseHandle != null) {
+                notifyResponseHandle(responseHandle);
+                responseHandle = null;
+            }
+            if (responseHandleError != null) {
+                notifyHttpListener(responseHandleError);
+                this.responseHandleError = null;
+            }
+        } finally {
+            responseHandleLock.unlock();
         }
     }
 
@@ -144,30 +179,45 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyResponseHandle(ResponseHandle responseHandle) {
-        this.responseHandle = responseHandle;
-        if (responseHandleListener != null) {
-            HttpClientConnectorListener listener = responseHandleListener;
-            removeResponseHandleListener();
-            this.responseHandle = null;
-            listener.onResponseHandle(responseHandle);
+        responseHandleLock.lock();
+        try {
+            this.responseHandle = responseHandle;
+            if (responseHandleListener != null) {
+                HttpClientConnectorListener listener = responseHandleListener;
+                removeResponseHandleListener();
+                this.responseHandle = null;
+                listener.onResponseHandle(responseHandle);
+            }
+        } finally {
+            responseHandleLock.unlock();
         }
     }
 
     @Override
     public void notifyResponseHandle(Throwable throwable) {
-        responseHandleError = throwable;
-        if (responseHandleListener != null) {
-            HttpConnectorListener listener = responseHandleListener;
-            removeResponseHandleListener();
-            responseHandleError = null;
-            listener.onError(throwable);
+        responseHandleLock.lock();
+        try {
+            responseHandleError = throwable;
+            if (responseHandleListener != null) {
+                HttpConnectorListener listener = responseHandleListener;
+                removeResponseHandleListener();
+                responseHandleError = null;
+                listener.onError(throwable);
+            }
+        } finally {
+            responseHandleLock.unlock();
         }
     }
 
     @Override
     public void setPromiseAvailabilityListener(HttpClientConnectorListener promiseAvailabilityListener) {
-        this.promiseAvailabilityListener = promiseAvailabilityListener;
-        notifyPromiseAvailability();
+        promiseAvailabilityLock.lock();
+        try {
+            this.promiseAvailabilityListener = promiseAvailabilityListener;
+            notifyPromiseAvailability();
+        } finally {
+            promiseAvailabilityLock.unlock();
+        }
     }
 
     @Override
@@ -177,23 +227,33 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyPromiseAvailability() {
-        if (promiseAvailabilityListener != null) {
-            HttpClientConnectorListener listener = promiseAvailabilityListener;
-            if (outboundMsgHolder.hasPromise()) {
-                removePromiseAvailabilityListener();
-                listener.onPushPromiseAvailability(true);
-            } else if (outboundMsgHolder.isAllPromisesReceived()) {
-                removePromiseAvailabilityListener();
-                listener.onPushPromiseAvailability(false);
+        promiseAvailabilityLock.lock();
+        try {
+            if (promiseAvailabilityListener != null) {
+                HttpClientConnectorListener listener = promiseAvailabilityListener;
+                if (outboundMsgHolder.hasPromise()) {
+                    removePromiseAvailabilityListener();
+                    listener.onPushPromiseAvailability(true);
+                } else if (outboundMsgHolder.isAllPromisesReceived()) {
+                    removePromiseAvailabilityListener();
+                    listener.onPushPromiseAvailability(false);
+                }
             }
+        } finally {
+            promiseAvailabilityLock.unlock();
         }
     }
 
     @Override
     public void setPushPromiseListener(HttpConnectorListener pushPromiseListener) {
-        this.pushPromiseListener = pushPromiseListener;
-        if (outboundMsgHolder.hasPromise()) {
-            notifyPushPromise();
+        promiseLock.lock();
+        try {
+            this.pushPromiseListener = pushPromiseListener;
+            if (outboundMsgHolder.hasPromise()) {
+                notifyPushPromise();
+            }
+        } finally {
+            promiseLock.unlock();
         }
     }
 
@@ -204,22 +264,32 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyPushPromise() {
-        if (pushPromiseListener != null) {
-            HttpConnectorListener listener = pushPromiseListener;
-            removePushPromiseListener();
-            listener.onPushPromise(outboundMsgHolder.getNextPromise());
+        promiseLock.lock();
+        try {
+            if (pushPromiseListener != null) {
+                HttpConnectorListener listener = pushPromiseListener;
+                removePushPromiseListener();
+                listener.onPushPromise(outboundMsgHolder.getNextPromise());
+            }
+        } finally {
+            promiseLock.unlock();
         }
     }
 
     @Override
     public void setPushResponseListener(HttpConnectorListener pushResponseListener, int promiseId) {
-        pushResponseListeners.put(promiseId, pushResponseListener);
-        HTTPCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
-        if (pushResponse != null) {
-            notifyPushResponse(promiseId, pushResponse);
-        }
-        if (pushResponseListenerErrors.get(promiseId) != null) {
-            notifyPushResponse(promiseId, pushResponseListenerErrors.get(promiseId));
+        pushResponseLock.lock();
+        try {
+            pushResponseListeners.put(promiseId, pushResponseListener);
+            HTTPCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
+            if (pushResponse != null) {
+                notifyPushResponse(promiseId, pushResponse);
+            }
+            if (pushResponseListenerErrors.get(promiseId) != null) {
+                notifyPushResponse(promiseId, pushResponseListenerErrors.get(promiseId));
+            }
+        } finally {
+            pushResponseLock.unlock();
         }
     }
 
@@ -230,21 +300,31 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
 
     @Override
     public void notifyPushResponse(int streamId, HTTPCarbonMessage pushResponse) {
-        HttpConnectorListener listener = pushResponseListeners.get(streamId);
-        if (listener != null) {
-            pushResponseListeners.remove(streamId);
-            listener.onPushResponse(streamId, pushResponse);
+        pushResponseLock.lock();
+        try {
+            HttpConnectorListener listener = pushResponseListeners.get(streamId);
+            if (listener != null) {
+                pushResponseListeners.remove(streamId);
+                listener.onPushResponse(streamId, pushResponse);
+            }
+        } finally {
+            pushResponseLock.unlock();
         }
     }
 
     @Override
     public void notifyPushResponse(int streamId, Throwable throwable) {
-        pushResponseListenerErrors.put(streamId, throwable);
-        HttpConnectorListener listener = pushResponseListeners.get(streamId);
-        if (listener != null) {
-            pushResponseListeners.remove(streamId);
-            pushResponseListenerErrors.remove(streamId);
-            listener.onError(throwable);
+        pushResponseLock.lock();
+        try {
+            pushResponseListenerErrors.put(streamId, throwable);
+            HttpConnectorListener listener = pushResponseListeners.get(streamId);
+            if (listener != null) {
+                pushResponseListeners.remove(streamId);
+                pushResponseListenerErrors.remove(streamId);
+                listener.onError(throwable);
+            }
+        } finally {
+            pushResponseLock.unlock();
         }
     }
 }
