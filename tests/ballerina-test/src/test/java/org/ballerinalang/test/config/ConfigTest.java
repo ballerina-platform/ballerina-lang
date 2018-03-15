@@ -20,12 +20,17 @@ package org.ballerinalang.test.nativeimpl.functions.config;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -212,6 +217,20 @@ public class ConfigTest {
 
         // The config we set in Ballerina code should overwrite the configs set from other sources
         Assert.assertEquals(registry.getConfiguration(key.stringValue()), value.stringValue());
+    }
+
+    @Test(description = "Test for configuring a service")
+    public void testConfiguringAService() throws IOException {
+        ConfigRegistry registry = ConfigRegistry.getInstance();
+        registry.initRegistry(null, Paths.get(resourceRoot, "datafiles", "config", "service-config.conf").toString(),
+                              null);
+        CompileResult configuredService = BServiceUtil.setupProgramFile(this,
+                                                                        Paths.get(resourceRoot, "test-src", "config",
+                                                                                  "service-configuration.bal")
+                                                                                .toString());
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
+        HTTPCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
+        Assert.assertNotNull(responseMsg);
     }
 
     private Map<String, String> getRuntimeProperties() {
