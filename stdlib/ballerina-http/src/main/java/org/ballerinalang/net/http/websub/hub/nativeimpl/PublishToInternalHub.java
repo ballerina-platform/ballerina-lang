@@ -32,12 +32,12 @@ import org.ballerinalang.net.http.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http.websubhub",
-        functionName = "publishToTopic",
+        packageName = "ballerina.net.http",
+        functionName = "publishToInternalHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)}
 )
-public class PublishToTopic extends BlockingNativeCallableUnit {
+public class PublishToInternalHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

@@ -2,17 +2,20 @@ package ballerina.net.http;
 
 import ballerina.security.crypto;
 
-@Description { value : "Function to build intent verification response for subscription requests sent" }
-@Param { value : "request: The intent verification request from the hub" }
-@Return { value : "The response to the hub verifying/denying intent to subscribe" }
+///////////////////////////////////////////////////////////////////
+//////////////////// WebSub Subscriber Commons ////////////////////
+///////////////////////////////////////////////////////////////////
+@Description {value:"Function to build intent verification response for subscription requests sent"}
+@Param {value:"request: The intent verification request from the hub"}
+@Return {value:"The response to the hub verifying/denying intent to subscribe"}
 public function buildSubscriptionVerificationResponse(Request request) (Response) {
     WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
     return buildIntentVerificationResponse(request, MODE_SUBSCRIBE, webSubSubscriberAnnotations);
 }
 
-@Description { value : "Function to build intent verification response for unsubscription requests sent" }
-@Param { value : "request: The intent verification request from the hub" }
-@Return { value : "The response to the hub verifying/denying intent to subscribe" }
+@Description {value:"Function to build intent verification response for unsubscription requests sent"}
+@Param {value:"request: The intent verification request from the hub"}
+@Return {value:"The response to the hub verifying/denying intent to subscribe"}
 public function buildUnsubscriptionVerificationResponse(Request request) (Response) {
     WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
     return buildIntentVerificationResponse(request, MODE_UNSUBSCRIBE, webSubSubscriberAnnotations);
@@ -53,10 +56,10 @@ function buildIntentVerificationResponse(Request request, string mode,
 
 }
 
-@Description {value : "Function to process and extract information for requests received at the callback" }
-@Param { value : "request: The request received" }
-@Return { value : "WebSubNotification extracting the WebSub headers and the payload" }
-@Return { value : "WebSubError, if an error occurred in extraction" }
+@Description {value:"Function to process and extract information for requests received at the callback" }
+@Param {value:"request: The request received"}
+@Return {value:"WebSubNotification extracting the WebSub headers and the payload"}
+@Return {value:"WebSubError, if an error occurred in extraction"}
 public function processWebSubNotification(Request request)
                                 (WebSubNotification webSubNotification, WebSubError webSubError) {
 
@@ -97,10 +100,10 @@ public function processWebSubNotification(Request request)
 
 }
 
-@Description {value : "Function to validate the signature header included in the notification" }
-@Param { value : "payload: The string representation of the notification payload received" }
-@Param { value : "secret: The secret used when subscribing" }
-@Return { value : "WebSubError if an error occurs validating the signature or the signature is invalid" }
+@Description {value:"Function to validate the signature header included in the notification"}
+@Param {value:"payload: The string representation of the notification payload received"}
+@Param {value:"secret: The secret used when subscribing"}
+@Return {value:"WebSubError if an error occurs validating the signature or the signature is invalid"}
 function validateSignature (string xHubSignature, string stringPayload, string secret) (WebSubError webSubError) {
 
     string[] splitSignature = xHubSignature.split("=");
@@ -126,6 +129,33 @@ function validateSignature (string xHubSignature, string stringPayload, string s
 
 }
 
-@Description { value : "Function to retrieve annotations specified for the WebSub Subscriber Service" }
-@Return { value : "WebSubSubscriberServiceConfiguration representing the annotation" }
-native function retrieveAnnotations () (WebSubSubscriberServiceConfiguration);
+///////////////////////////////////////////////////////////////////
+//////////////////// WebSub Publisher Commons /////////////////////
+///////////////////////////////////////////////////////////////////
+endpoint<Client> hubClientEp {
+    serviceUri:"http://localhost:8080"
+}
+
+@Description {value:"Function to publish an update to a remote hub"}
+@Param {value:"hub: The hub the publisher requires updates to be published to"}
+@Param {value:"topic: The topic for which the update occurred"}
+@Param {value:"payload: The update payload"}
+public function publish (string hub, string topic, json payload) {
+    hubClientEp.init("hubClientEp", {serviceUri:hub});
+    hubClientEp.start();
+    var hubClient = hubClientEp.getConnector();
+
+    Response response;
+    HttpConnectorError err;
+    Request request = {};
+
+    string queryParams = HUB_MODE + "=" + MODE_PUBLISH
+                         + "&" + HUB_TOPIC + "=" + topic;
+    request.setJsonPayload(payload);
+    response, err = hubClient -> post("?" + queryParams, request);
+    if (err != null) {
+        log:printError("Notification failed for hub [" + hub +"] for topic [" + topic + "]");
+    } else {
+        log:printInfo("Notification successful for hub [" + hub +"] for topic [" + topic + "]");
+    }
+}

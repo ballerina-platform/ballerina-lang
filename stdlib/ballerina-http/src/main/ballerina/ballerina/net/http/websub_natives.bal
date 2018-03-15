@@ -31,6 +31,9 @@ public struct WebSubError {
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Natives ////////////////////
 ///////////////////////////////////////////////////////////////////
+@Description {value:"Function to retrieve annotations specified for the WebSub Subscriber Service"}
+@Return {value:"WebSubSubscriberServiceConfiguration representing the annotation"}
+native function retrieveAnnotations () (WebSubSubscriberServiceConfiguration);
 
 @Description {value:"Struct to represent content by the callback"}
 @Field {value:"webSubHeaders: WebSub specific headers"}
@@ -83,3 +86,11 @@ public native function startUpHubService () (string);
 @Return {value:"True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been started
                 up"}
 public native function stopHubService () (boolean);
+
+///////////////////////////////////////////////////////////////////
+//////////////////// WebSub Publisher Natives /////////////////////
+///////////////////////////////////////////////////////////////////
+@Description {value:"Publishes an update against the topic in the Ballerina Hub"}
+@Param {value:"topic: The topic for which the update should happen"}
+@Param {value:"payload: The update payload"}
+public native function publishToInternalHub (string topic, json payload);
