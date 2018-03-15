@@ -28,15 +28,17 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.http2.listeners.Http2ServerConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
@@ -45,18 +47,24 @@ import java.io.File;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
- * This contains basic test cases for HTTP2 Client connector.
+ * {@code Http2ServerPushTestCase} contains test cases for HTTP2 Server push functionality.
  */
-public class Http2ServerConnectorBasicTestCase {
+public class Http2ServerPushTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
+    private static Logger log = LoggerFactory.getLogger(Http2ServerPushTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
     private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
+
+    private final String expectedResource = "/main";
+    private final String promisedResource1 = "/resource1";
+    private final String promisedResource2 = "/resource2";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -72,7 +80,10 @@ public class Http2ServerConnectorBasicTestCase {
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
-        future.setHttpConnectorListener(new EchoMessageListener());
+        Http2ServerConnectorListener http2ServerConnectorListener = new Http2ServerConnectorListener();
+        http2ServerConnectorListener.
+                setExpectedResource(expectedResource).setPromisedResources(promisedResource1, promisedResource2);
+        future.setHttpConnectorListener(http2ServerConnectorListener);
         future.sync();
 
         senderConfiguration =
@@ -84,13 +95,57 @@ public class Http2ServerConnectorBasicTestCase {
     }
 
     @Test
-    public void testHttp2Post() {
-        String testValue = "Test Http2 Message";
-        HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
-        assertNotNull(response, "Expected response not received");
+    public void testHttp2ServerPush() {
+        MessageSender msgSender = new MessageSender(httpClientConnector);
+
+        HTTPCarbonMessage request = RequestGenerator.generateRequest(HttpMethod.POST, expectedResource);
+        // Submit a request and get the handle
+        ResponseHandle handle = msgSender.submitMessage(request);
+        assertNotNull(handle, "Response handle not found");
+
+
+        // Look for 1st promise
+        assertTrue(msgSender.checkPromiseAvailability(handle), "Promises not available");
+        // Get the 1st promise
+        Http2PushPromise promise1 = msgSender.getNextPromise(handle);
+        assertNotNull(promise1, "Promise 1 not available");
+        String path = promise1.getPath();
+        boolean promise1Received = false;
+        if (path.equals(promisedResource1)) {
+            promise1Received = true;
+        } else if (!path.equals(promisedResource2)) {
+            fail("Invalid Promise received");
+        }
+
+        // Look for 2nd promise
+        assertTrue(msgSender.checkPromiseAvailability(handle), "Promises not available");
+        // Get the 2nd promise
+        Http2PushPromise promise2 = msgSender.getNextPromise(handle);
+        assertNotNull(promise2, "Promise 2 not available");
+        path = promise2.getPath();
+        if (promise1Received) {
+            assertEquals(path, promisedResource2, "Invalid Promise received");
+        } else {
+            assertEquals(path, promisedResource1, "Invalid Promise received");
+        }
+
+        // Get the expected response
+        HTTPCarbonMessage response = msgSender.getResponse(handle);
+        assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(testValue, result, "Expected response not received");
+        assertEquals(expectedResource, result, "Expected response not received");
+
+        // Get the 1st promised response
+        HTTPCarbonMessage promisedResponse = msgSender.getPushResponse(promise1);
+        assertNotNull(promisedResponse);
+        result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(promisedResponse).getInputStream());
+        assertTrue(result.contains(promisedResource1), "Promised response 1 not received");
+
+        // Get the 2nd promised response
+        promisedResponse = msgSender.getPushResponse(promise2);
+        assertNotNull(promisedResponse);
+        result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(promisedResponse).getInputStream());
+        assertTrue(result.contains(promisedResource2), "Promised response 2 not received");
     }
 
     @AfterClass

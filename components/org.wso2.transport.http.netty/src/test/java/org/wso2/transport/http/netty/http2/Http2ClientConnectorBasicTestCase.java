@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerIni
 import java.io.File;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * This contains basic test cases for HTTP2 Client connector.
@@ -70,18 +70,18 @@ public class Http2ClientConnectorBasicTestCase {
     @Test
     public void testHttp2Get() {
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
-        assertNotNull(response);
+        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
+        assertNotNull(response, "Expected response not received");
     }
 
     @Test
     public void testHttp2Post() {
         String testValue = "Test Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
+        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(testValue, result);
+        assertEquals(testValue, result, "Expected response not received");
     }
 
     @AfterClass

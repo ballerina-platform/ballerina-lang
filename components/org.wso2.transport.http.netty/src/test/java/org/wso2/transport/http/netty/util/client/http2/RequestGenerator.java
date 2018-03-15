@@ -37,9 +37,9 @@ import java.nio.charset.Charset;
 public class RequestGenerator {
 
     public static HTTPCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
-        HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(
-                new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true), httpMethod,
-                                       "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+        HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
+                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
         httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
         httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         httpCarbonMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
