@@ -34,16 +34,22 @@ public struct JWTValidatorConfig {
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
 public function validate (string jwtToken, JWTValidatorConfig config) (boolean, Payload, error) {
-    var encodedJWTComponents, e = getJWTComponents(jwtToken);
-    if (e == null) {
-        var header, payload = parseJWT(encodedJWTComponents);
-        var isValid, err = validateJWT(encodedJWTComponents, header, payload, config);
-        if (isValid) {
-            return true, payload, null;
+    error err;
+    string[] encodedJWTComponents;
+    encodedJWTComponents, err = getJWTComponents(jwtToken);
+    if (err == null) {
+        Header header;
+        Payload payload;
+        header, payload, err = parseJWT(encodedJWTComponents);
+        if (err == null) {
+            boolean isValid;
+            isValid, err = validateJWT(encodedJWTComponents, header, payload, config);
+            if (isValid) {
+                return true, payload, null;
+            }
         }
-        return false, null, err;
     }
-    return false, null, e;
+    return false, null, err;
 }
 
 function getJWTComponents (string jwtToken) (string[], error) {
@@ -56,22 +62,27 @@ function getJWTComponents (string jwtToken) (string[], error) {
     return jwtComponents, null;
 }
 
-function parseJWT (string[] encodedJWTComponents) (Header, Payload) {
-    var headerJson, payloadJson = getDecodedJWTComponents(encodedJWTComponents);
+function parseJWT (string[] encodedJWTComponents) (Header, Payload, error) {
+    var headerJson, payloadJson, err = getDecodedJWTComponents(encodedJWTComponents);
+    if (err != null) {
+        return null, null, err;
+    }
     Header jwtHeader = parseHeader(headerJson);
     Payload jwtPayload = parsePayload(payloadJson);
-    return jwtHeader, jwtPayload;
+    return jwtHeader, jwtPayload, null;
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) (json, json) {
+function getDecodedJWTComponents (string[] encodedJWTComponents) (json, json, error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
 
-    json jwtHeaderJson;
-    json jwtPayloadJson;
-    jwtHeaderJson, _ = <json>jwtHeader;
-    jwtPayloadJson, _ = <json>jwtPayload;
-    return jwtHeaderJson, jwtPayloadJson;
+    var jwtHeaderJson, e1 = <json>jwtHeader;
+    var jwtPayloadJson, e2 = <json>jwtPayload;
+    if (e1 != null || e2 != null) {
+        error err = {message:"Invalid JWT payload"};
+        return null, null, err;
+    }
+    return jwtHeaderJson, jwtPayloadJson, null;
 }
 
 function parseHeader (json jwtHeaderJson) (Header) {
@@ -180,12 +191,12 @@ function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWT
 }
 
 function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) (boolean) {
-    return jwtPayload.iss.equalsIgnoreCase(config.issuer);
+    return jwtPayload.iss == config.issuer;
 }
 
 function validateAudience (Payload jwtPayload, JWTValidatorConfig config) (boolean) {
     foreach audience in jwtPayload.aud {
-        if (audience.equalsIgnoreCase(config.audience)) {
+        if (audience == config.audience) {
             return true;
         }
     }

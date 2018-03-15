@@ -74,7 +74,7 @@ public struct SocketProperties {
 @Param {value:"path: path to the file location"}
 @Param {value:"accessMode: whether the file should be opened for read,write or append"}
 @Return {value:"Channel which will allow to source/sink"}
-public native function openFile (string path, string accessMode) (ByteChannel);
+public native function openFile (@sensitive string path, @sensitive string accessMode) (@tainted ByteChannel);
 
 @Description {value:"Opens a socket from a specified network location"}
 @Param {value:"host: Remote server domain/IP"}
@@ -82,14 +82,16 @@ public native function openFile (string path, string accessMode) (ByteChannel);
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSocket (string host, int port, SocketProperties options) (Socket, IOError);
+public native function openSocket (@sensitive string host, @sensitive int port,
+                                   SocketProperties options) (@tainted Socket, IOError);
 
 @Description {value:"Function to create a CharacterChannel from ByteChannel"}
 @Param {value:"channel: The ByteChannel to be converted"}
 @Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
 @Return {value:"CharacterChannel converted from ByteChannel"}
 @Return {value:"Returns an IOError if CharacterChannel could not be created"}
-public native function createCharacterChannel (ByteChannel byteChannel, string encoding) (CharacterChannel, IOError);
+public native function createCharacterChannel (ByteChannel byteChannel,
+                                               string encoding) (@tainted CharacterChannel, IOError);
 
 @Description {value:"Function to create a CharacterChannel to DelimitedRecordChannel"}
 @Param {value:"channel: The CharacterChannel to be converted"}
@@ -98,7 +100,7 @@ public native function createCharacterChannel (ByteChannel byteChannel, string e
 @Return {value:"DelimitedRecordChannel converted from CharacterChannel"}
 @Return {value:"Returns an IOError if DelimitedRecordChannel could not be created"}
 public native function createDelimitedRecordChannel (CharacterChannel channel, string recordSeparator,
-                                                     string fieldSeparator) (DelimitedRecordChannel, IOError);
+                                                     string fieldSeparator) (@tainted DelimitedRecordChannel, IOError);
 
 @Description {value:"Function to read bytes"}
 @Param {value:"channel: The ByteChannel to read bytes from"}
@@ -106,7 +108,8 @@ public native function createDelimitedRecordChannel (CharacterChannel channel, s
 @Return {value:"The bytes which were read"}
 @Return {value:"Number of bytes read"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function <ByteChannel channel> read (int numberOfBytes, int offset) (blob, int, IOError);
+public native function <ByteChannel channel> read (@sensitive int numberOfBytes, @sensitive int offset) (blob, int,
+                                                                                                         IOError);
 
 @Description {value:"Function to write bytes"}
 @Param {value:"channel: The ByteChannel to write bytes to"}
@@ -114,14 +117,14 @@ public native function <ByteChannel channel> read (int numberOfBytes, int offset
 @Param {value:"startOffset: If the bytes need to be written with an offset, the value of that offset"}
 @Return {value:"Number of bytes written"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function <ByteChannel channel> write (blob content, int startOffset, int numberOfBytes) (int, IOError);
+public native function <ByteChannel channel> write (blob content, int startOffset, int numberOfBytes)(int, IOError);
 
 @Description {value:"Function to read characters"}
 @Param {value:"channel: The CharacterChannel to read characters from"}
 @Param {value:"numberOfChars: Number of characters which should be read"}
 @Return {value:"The character sequence which was read"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function <CharacterChannel channel> readCharacters (int numberOfChars) (string, IOError);
+public native function <CharacterChannel channel> readCharacters (@sensitive int numberOfChars) (string, IOError);
 
 @Description {value:"Function to write characters"}
 @Param {value:"channel: The CharacterChannel which will allow writing characters"}
@@ -169,9 +172,22 @@ public native function <CharacterChannel channel> closeCharacterChannel () (IOEr
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSecureSocket (string host, int port, SocketProperties options) (Socket, IOError);
+public native function openSecureSocket (@sensitive string host, @sensitive int port,
+                                         SocketProperties options) (@tainted Socket, IOError);
 
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}
 @Return {value:"Returns an IOError if socket could not be closed"}
 public native function <Socket socket> closeSocket () (IOError);
+
+@Description {value:"Function to load delimited records to in-memory table"}
+@Param {value:"filePath: Path to delimited file"}
+@Param {value:"recordSeparator: Terminating expression to distinguish between records"}
+@Param {value:"fieldSeparator: Terminating expression to distinguish between fields"}
+@Param {value:"encoding: The charset/encoding of the content (i.e UTF-8, ASCII)"}
+@Param {value:"headerLineIncluded: To indicate whether given file included the header line or not"}
+@Param {value:"structType: Name of the struct that each record need to populate"}
+@Return {value:"table of delimited values"}
+@Return {value:"Returns if there's any error while performaing I/O operation"}
+public native function loadToTable(@sensitive string filePath, string recordSeparator, string fieldSeparator,
+                                   string encoding, boolean headerLineIncluded, type structType) (table, IOError);

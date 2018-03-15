@@ -25,6 +25,7 @@ public enum SymbolKind {
     STRUCT,
     ENUM,
     CONNECTOR,
+    STREAMLET,
     ACTION,
     SERVICE,
     RESOURCE,

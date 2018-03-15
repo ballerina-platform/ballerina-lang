@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTACHMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
@@ -45,7 +43,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED_CLAUSE;
@@ -60,7 +57,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_LITERAL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
@@ -130,10 +126,6 @@ public class BallerinaBlock extends AbstractBlock {
                     if (isADefinitionElement(parentElementType) || isACodeBlock(parentElementType)) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == ANNOTATION_ATTRIBUTE_LIST) {
-                    if (parentElementType == ANNOTATION_ATTACHMENT) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
                 } else if (childElementType == WORKER_DECLARATION) {
                     if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
@@ -143,9 +135,7 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == RECORD_KEY_VALUE) {
-                    if (parentElementType == RECORD_LITERAL) {
-                        indent = Indent.getSpaceIndent(4);
-                    }
+                    indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
@@ -188,7 +178,7 @@ public class BallerinaBlock extends AbstractBlock {
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
         if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
                 || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY
-                || childElementType == ANNOTATION_BODY || childElementType == ENDPOINT_BODY) {
+                || childElementType == ANNOTATION_BODY) {
             return true;
         }
         return false;

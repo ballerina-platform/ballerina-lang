@@ -48,7 +48,6 @@ class AbstractLambdaNode extends ExpressionNode {
     }
 
 
-
 }
 
 export default AbstractLambdaNode;
