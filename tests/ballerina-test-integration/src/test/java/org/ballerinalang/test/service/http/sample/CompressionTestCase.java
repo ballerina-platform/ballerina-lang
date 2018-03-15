@@ -104,7 +104,9 @@ public class CompressionTestCase {
                 "qvalue of 0 means not acceptable");
     }
 
-    @Test(description = "Explicitly disable compression, with Accept-Encoding header")
+    @Test(description = "Explicitly disable compression, with Accept-Encoding header. When no Accept-Encoding header " +
+            "present, back end, by default compresses it using gzip, hence identity should be received, if no " +
+            "modification was done to content.")
     public void testExplicitCompressionDisabled() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
@@ -113,19 +115,21 @@ public class CompressionTestCase {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertNull(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                "The content-encoding header should be null");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                IDENTITY, "The content-encoding header should be identity");
     }
 
-    @Test(description = "Explicitly disable compression, without Accept-Encoding header")
+    @Test(description = "Explicitly disable compression, without Accept-Encoding header. When no Accept-Encoding  " +
+            "header present, back end, by default compresses it using gzip, hence identity should be received, if no " +
+            "modification was done to content.")
     public void testCompressionDisabledWithoutAcceptEncoding() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
                 "test3"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertNull(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                "The content-encoding header should be null");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING.toString()),
+                IDENTITY, "The content-encoding header should be identity");
     }
 
     @AfterClass

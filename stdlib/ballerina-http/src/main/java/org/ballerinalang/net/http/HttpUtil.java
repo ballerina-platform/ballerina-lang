@@ -719,6 +719,8 @@ public class HttpUtil {
             } else {
                 if (requestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null) {
                     outboundMessage.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+                    outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
+                            Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
                 }
             }
         }

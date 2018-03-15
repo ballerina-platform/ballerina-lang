@@ -66,14 +66,4 @@ public class CompressionConfigurationTest {
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
                 Constants.HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header should be identity");
     }
-
-    @Test(description = "Explicitly disable compression")
-    public void testExplicitCompressionDisabled() {
-        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage("/explicitlyCompressionDisabled",
-                HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
-        Assert.assertNotNull(response, "Response message not found");
-        Assert.assertNull(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                "The content-encoding header should be null");
-    }
 }
