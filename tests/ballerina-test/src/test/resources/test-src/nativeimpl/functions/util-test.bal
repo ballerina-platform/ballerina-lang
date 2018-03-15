@@ -32,3 +32,11 @@ function testHMACValueFromBase16ToBase64Encoding (string base, string key) (stri
 function testHMACValueFromBase64ToBase16Encoding (string base, string key) (string) {
     return util:base64ToBase16Encode(util:base16ToBase64Encode(crypto:getHmac(base, key, crypto:Algorithm.MD5)));
 }
+
+function testBase64UrlEncoding (string s) (string) {
+    return util:base64UrlEncode(s);
+}
+
+function testBase64UrlDecoding (string s) (string) {
+    return util:base64UrlDecode(s);
+}
