@@ -522,6 +522,7 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   expression TYPEOF typeName                                          # typeOfBinaryExpression
     ;
 
 //reusable productions
