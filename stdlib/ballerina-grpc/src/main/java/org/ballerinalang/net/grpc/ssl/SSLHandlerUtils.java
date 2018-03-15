@@ -18,8 +18,6 @@
 package org.ballerinalang.net.grpc.ssl;
 
 import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -42,7 +40,6 @@ import javax.net.ssl.SSLContext;
  * Util class for generating certificates.
  */
 public class SSLHandlerUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SSLHandlerFactory.class);
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
     private static final String END_CERT = "-----END CERTIFICATE-----";
     private static final String BEGIN_KEY = "-----BEGIN PRIVATE KEY-----";
@@ -98,6 +95,7 @@ public class SSLHandlerUtils {
         }
         return BEGIN_CERT + LINE_SEPARATOR + encodedCerts.toString() + LINE_SEPARATOR + END_CERT;
     }
+    
     /**
      * Returns the ciphers preferred to use during tests. They may be chosen because they are widely,
      * available or because they are fast. There is no requirement that they provide confidentiality
@@ -120,6 +118,7 @@ public class SSLHandlerUtils {
         }
         return Collections.unmodifiableList(ciphersMinusGcm);
     }
+    
     public static String formatKeyFileContents(final byte[] rawKeyText) {
         Base64.Encoder encoder;
         String encodedCertText;

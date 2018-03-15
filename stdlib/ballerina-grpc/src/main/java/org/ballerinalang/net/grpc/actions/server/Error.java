@@ -29,8 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Native function to send server error the caller.
@@ -51,8 +49,7 @@ import org.slf4j.LoggerFactory;
         }
 )
 public class Error extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Error.class);
-
+    
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);

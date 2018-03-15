@@ -31,8 +31,6 @@ import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
 import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Native function to InitEndpoint connector.
@@ -49,7 +47,6 @@ import org.slf4j.LoggerFactory;
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(InitEndpoint.class);
     
     @Override
     public void execute(Context context) {

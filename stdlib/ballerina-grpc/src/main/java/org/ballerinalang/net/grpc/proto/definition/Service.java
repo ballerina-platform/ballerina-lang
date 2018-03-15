@@ -25,56 +25,54 @@ import java.util.List;
 
 /**
  * Service Definition Builder.
- *
  */
 public class Service {
     private DescriptorProtos.ServiceDescriptorProto serviceDescriptor;
     private List<Method> methodList = new ArrayList<>();
-
+    
     private Service(DescriptorProtos.ServiceDescriptorProto serviceDescriptor) {
         this.serviceDescriptor = serviceDescriptor;
     }
-
+    
     public static Builder newBuilder(String serviceName) {
         return new Builder(serviceName);
     }
-
+    
     public DescriptorProtos.ServiceDescriptorProto getServiceDescriptor() {
         return serviceDescriptor;
     }
-
+    
     public String getServiceDefinition() {
         StringBuilder serviceDefinition = new StringBuilder();
         serviceDefinition.append("service ").append(serviceDescriptor.getName()).append(" {").append
                 (ServiceProtoConstants.NEW_LINE_CHARACTER);
-
+        
         for (Method method : methodList) {
             serviceDefinition.append("\t").append(method.getMethodDefinition());
         }
         serviceDefinition.append("}").append(ServiceProtoConstants.NEW_LINE_CHARACTER);
         return serviceDefinition.toString();
     }
-
+    
     /**
      * ServiceDefinition.Builder
      */
     public static class Builder {
         private DescriptorProtos.ServiceDescriptorProto.Builder serviceBuilder;
         private List<Method> methodList = new ArrayList<>();
-
+        
         public Builder addMethod(Method methodDefinition) {
             methodList.add(methodDefinition);
             serviceBuilder.addMethod(methodDefinition.getMethodDescriptor());
             return this;
         }
-
+        
         public Service build() {
             Service service = new Service(serviceBuilder.build());
             service.methodList = methodList;
             return service;
         }
-
-
+        
         private Builder(String serviceName) {
             serviceBuilder = DescriptorProtos.ServiceDescriptorProto.newBuilder();
             serviceBuilder.setName(serviceName);

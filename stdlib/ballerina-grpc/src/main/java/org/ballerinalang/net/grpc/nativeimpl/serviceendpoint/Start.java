@@ -25,8 +25,6 @@ import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 
@@ -47,9 +45,8 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
         isPublic = true
 )
 public class Start extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(Start.class);
     private static final PrintStream console = System.out;
-
+    
     @Override
     public void execute(Context context) {
         BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);

@@ -57,13 +57,10 @@ import static org.ballerinalang.net.grpc.ssl.SSLHandlerUtils.writeFile;
  * A class that encapsulates SSL Certificate Information.
  */
 public class SSLHandlerFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SSLHandlerFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
     private static final String SSL_SERVER_KEY_FILE = "grpcSslServer.key";
     private static final String SSL_SERVER_CERT_FILE = "grpcSslServer.pem";
-    private String protocol = null;
-    private final SSLContext sslContext;
     private SSLConfig sslConfig;
-    private boolean needClientAuth;
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
     
@@ -73,8 +70,7 @@ public class SSLHandlerFactory {
         if (algorithm == null) {
             algorithm = "SunX509";
         }
-        needClientAuth = sslConfig.isNeedClientAuth();
-        protocol = sslConfig.getSSLProtocol();
+        String protocol = sslConfig.getSSLProtocol();
         try {
             KeyManager[] keyManagers = null;
             if (sslConfig.getKeyStore() != null) {
@@ -95,7 +91,7 @@ public class SSLHandlerFactory {
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
-            sslContext = SSLContext.getInstance(protocol);
+            SSLContext sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
             
         } catch (UnrecoverableKeyException | KeyManagementException |
@@ -135,7 +131,7 @@ public class SSLHandlerFactory {
         File certfile = new File(SSL_SERVER_CERT_FILE);
         try {
             if (keyfile.createNewFile() && certfile.createNewFile()) {
-                LOGGER.debug("Successfully created meta cert and key files. ");
+                LOG.debug("Successfully created meta cert and key files. ");
             }
             keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
         } catch (IOException e) {
@@ -164,7 +160,7 @@ public class SSLHandlerFactory {
             throw new GrpcSSLValidationException("Error generating SSL context.", e);
         }
         if (keyfile.delete() && certfile.delete()) {
-            LOGGER.debug("Successfully deleted meta cert and key files. ");
+            LOG.debug("Successfully deleted meta cert and key files. ");
         }
         return grpcSslContexts;
     }

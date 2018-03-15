@@ -81,7 +81,6 @@ public class Method {
             methodBuilder.setName(methodName);
         }
 
-
         private DescriptorProtos.MethodDescriptorProto.Builder methodBuilder;
     }
 }

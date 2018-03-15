@@ -25,23 +25,19 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import org.ballerinalang.net.grpc.MessageContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A interceptor to handle server header.
  */
 public class ServerHeaderInterceptor implements ServerInterceptor {
-
-    private static final Logger log = LoggerFactory.getLogger(ServerHeaderInterceptor.class);
-
+    
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
         MessageContext ctx = MessageContext.DATA_KEY.get();
         // Only initialize ctx if not yet initialized
         ctx = ctx != null ? ctx : new MessageContext();
-
+        
         boolean found = false;
         for (String keyName : headers.keys()) {
             if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
@@ -50,7 +46,7 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
                 if (values == null) {
                     continue;
                 }
-
+                
                 for (byte[] value : values) {
                     ctx.put(key, value);
                 }
@@ -60,15 +56,15 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
                 if (values == null) {
                     continue;
                 }
-
+                
                 for (String value : values) {
                     ctx.put(key, value);
                 }
             }
-
+            
             found = true;
         }
-
+        
         if (found) {
             return Contexts.interceptCall(Context.current().withValue(MessageContext.DATA_KEY, ctx), new
                     HeaderForwardingServerCall<>(call), headers, next);
@@ -77,14 +73,14 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
             return next.startCall(new HeaderForwardingServerCall<>(call), headers);
         }
     }
-
+    
     private class HeaderForwardingServerCall<ReqT, RespT> extends ForwardingServerCall
             .SimpleForwardingServerCall<ReqT, RespT> {
-
+        
         HeaderForwardingServerCall(ServerCall<ReqT, RespT> delegate) {
             super(delegate);
         }
-
+        
         @Override
         public void sendHeaders(Metadata headers) {
             // Only set headers if message context is exist.
@@ -97,7 +93,7 @@ public class ServerHeaderInterceptor implements ServerInterceptor {
                         headers.put(key, byteValues);
                     } else {
                         Metadata.Key<String> key = Metadata.Key.of(headerKey, Metadata.ASCII_STRING_MARSHALLER);
-                        String headerValue =  messageContext.get(key);
+                        String headerValue = messageContext.get(key);
                         headers.put(key, headerValue);
                     }
                 }

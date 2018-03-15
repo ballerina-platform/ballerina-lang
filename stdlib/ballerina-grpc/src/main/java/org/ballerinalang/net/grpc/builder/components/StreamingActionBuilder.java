@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc.builder.components;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.MessageConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
@@ -43,13 +44,14 @@ public class StreamingActionBuilder {
                         "            error e = {message:err1.message};" + NEW_LINE_CHARACTER +
                         "            return null, e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
-                        "        var response, err2 = (grpc:ClientConnection)res;" + NEW_LINE_CHARACTER +
+                        "        var response, err2 = (" + COMPONENT_IDENTIFIER + ":ClientConnection)res;"
+                        + NEW_LINE_CHARACTER +
                         "        if (err2 != null && err2.message != null) {" + NEW_LINE_CHARACTER +
                         "            error e = {message:err2.message};" + NEW_LINE_CHARACTER +
                         "            return null,e;" + NEW_LINE_CHARACTER +
                         "        }" + NEW_LINE_CHARACTER +
                         "        return response,null;" + NEW_LINE_CHARACTER +
                         "    }";
-            return String.format(actionTemplate, methodName, methodID);
+        return String.format(actionTemplate, methodName, methodID);
     }
 }

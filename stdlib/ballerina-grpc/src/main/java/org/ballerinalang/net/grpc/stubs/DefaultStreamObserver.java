@@ -46,15 +46,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
+import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
+import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
+import static org.ballerinalang.net.grpc.MessageConstants.INT;
+import static org.ballerinalang.net.grpc.MessageConstants.STRING;
+
 /**
  * This is Stream Observer Implementation for gRPC Client Call.
  */
 public class DefaultStreamObserver implements StreamObserver<Message> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultStreamObserver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, Resource> resourceMap = new HashMap<>();
     private StreamObserver<Message> requestSender = null;
     private Descriptors.Descriptor requestType = null;
-
+    
     public DefaultStreamObserver(Context context, String serviceName) throws
             GrpcClientException {
         // TODO: 3/10/18 Fix
@@ -69,7 +75,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             resourceMap.put(resource.getName(), resource);
         }*/
     }
-
+    
     public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
             throws GrpcClientException {
         if (requestType == null && requestSender == null) {
@@ -79,15 +85,15 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         this.requestSender = requestSender;
         this.requestType = requestType;
     }
-
+    
     public StreamObserver<Message> getRequestSender() {
         return requestSender;
     }
-
+    
     public Descriptors.Descriptor getRequestType() {
         return requestType;
     }
-
+    
     private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors
             .Descriptor inputType) {
         BStruct connection = ConnectorUtils.createStruct(resource,
@@ -96,13 +102,13 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         connection.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, inputType);
         return connection;
     }
-
+    
     @Override
     public void onNext(Message value) {
         Resource resource = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
         if (resource == null) {
             String message = "Error in listener service definition. onNext resource does not exists";
-            LOGGER.error(message);
+            LOG.error(message);
             throw new RuntimeException(message);
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
@@ -115,13 +121,13 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(resource, callback, null, signatureParams);
     }
-
+    
     @Override
     public void onError(Throwable t) {
         Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
         if (onError == null) {
             String message = "Error in listener service definition. onError resource does not exists";
-            LOGGER.error(message);
+            LOG.error(message);
             throw new RuntimeException(message);
         }
         List<ParamDetail> paramDetails = onError.getParamDetails();
@@ -130,7 +136,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         if (paramDetails.size() != 2) {
             String message = "Error in onError resource definition. It must have two input params, but have "
                     + paramDetails.size();
-            LOGGER.error(message);
+            LOG.error(message);
             throw new RuntimeException(message);
         }
         BType errorType = paramDetails.get(1).getVarType();
@@ -139,13 +145,13 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(onError, callback, null, signatureParams);
     }
-
+    
     @Override
     public void onCompleted() {
         Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
         if (onCompleted == null) {
             String message = "Error in listener service definition. onCompleted resource does not exists";
-            LOGGER.error(message);
+            LOG.error(message);
             throw new RuntimeException(message);
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
@@ -154,12 +160,12 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(onCompleted, callback, null, signatureParams);
     }
-
+    
     private BValue getRequestParameter(Resource resource, Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
-
+        
         if (resource.getParamDetails().size() == 2) {
             BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
                     .getVarType();
@@ -169,7 +175,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             return null;
         }
     }
-
+    
     private BValue generateRequestStruct(Message request, String fieldName, BType structType, Resource resource) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -177,7 +183,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-
+        
         if (structType instanceof BStructType) {
             BStruct requestStruct = ConnectorUtils.createStruct(resource, structType.getPackagePath(), structType
                     .getName());
@@ -194,31 +200,31 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
                         switch (fieldType) {
-                            case "string": {
+                            case STRING: {
                                 requestStruct.setStringField(stringIndex++, (String) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "int": {
+                            case INT: {
                                 requestStruct.setIntField(intIndex++, (Long) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "float": {
+                            case FLOAT: {
                                 Float value = (Float) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "double": {
+                            case DOUBLE: {
                                 Double value = (Double) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "boolean": {
+                            case BOOLEAN: {
                                 requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
                                         (structFieldName));
                                 break;
@@ -240,29 +246,29 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             if (fields.containsKey(fieldName)) {
                 String fieldType = structType.getName();
                 switch (fieldType) {
-                    case "string": {
+                    case STRING: {
                         bValue = new BString((String) fields.get(fieldName));
                         break;
                     }
-                    case "int": {
+                    case INT: {
                         bValue = new BInteger((Long) fields.get(fieldName));
                         break;
                     }
-                    case "float": {
+                    case FLOAT: {
                         Float value = (Float) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "double": {
+                    case DOUBLE: {
                         Double value = (Double) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "boolean": {
+                    case BOOLEAN: {
                         bValue = new BBoolean((Boolean) fields.get(fieldName));
                         break;
                     }
@@ -273,7 +279,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
                 }
             }
         }
-
+        
         return bValue;
     }
 }
