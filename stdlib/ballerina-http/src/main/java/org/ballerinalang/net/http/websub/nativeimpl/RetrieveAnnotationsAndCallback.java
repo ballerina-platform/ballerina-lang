@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.websubsubscriberservice;
+package org.ballerinalang.net.http.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -35,7 +35,7 @@ import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 /**
  * Retrieve annotations specified and the callback URL to which WebSub notification should happen.
  *
- * @since 0.965
+ * @since 0.965.0
  */
 
 @BallerinaFunction(

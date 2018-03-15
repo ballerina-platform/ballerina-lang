@@ -108,7 +108,7 @@ public class BRunUtil {
      *
      * @param compileResult CompileResult instance
      */
-    protected static void invokePackageInit(CompileResult compileResult) {
+    public static void invokePackageInit(CompileResult compileResult) {
         if (compileResult.getErrorCount() > 0) {
             throw new IllegalStateException(compileResult.toString());
         }

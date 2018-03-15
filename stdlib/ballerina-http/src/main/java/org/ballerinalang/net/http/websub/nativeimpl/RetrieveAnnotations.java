@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.websubsubscriberservice;
+package org.ballerinalang.net.http.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -31,7 +31,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 /**
  * Native function to retrieve annotations specified for the WebSub subscriber service.
  *
- * @since 0.965
+ * @since 0.965.0
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
