@@ -704,7 +704,7 @@ public class HttpUtil {
     public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                                                                    context.getServiceInfo().getType());
-        Annotation configAnnot = getHttpServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
 
         if (configAnnot != null) {
             boolean isCompressionEnabled = configAnnot.getValue().getBooleanField(ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
@@ -1025,16 +1025,9 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
-    public static Annotation getHttpServiceConfigAnnotation(Service service, String pkgPath) {
-        return getServiceConfigAnnotation(service, pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-    }
-
-    public static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service, String pkgPath) {
-        return getServiceConfigAnnotation(service, pkgPath, HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
-    }
-
-    private static Annotation getServiceConfigAnnotation(Service service, String pkgPath, String annotationName) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, annotationName);
+    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+        List<Annotation> annotationList = service
+                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
 
         if (annotationList == null) {
             return null;

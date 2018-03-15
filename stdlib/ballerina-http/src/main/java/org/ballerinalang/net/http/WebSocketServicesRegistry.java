@@ -181,7 +181,7 @@ public class WebSocketServicesRegistry {
             StringBuilder errorMsg = new StringBuilder("Cannot register following services: \n");
             for (String serviceName : slaveServices.keySet()) {
                 WebSocketService service = slaveServices.remove(serviceName);
-                if (HttpUtil.getHttpServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP) == null) {
+                if (HttpUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP) == null) {
                     String msg = "Cannot deploy WebSocket service without configuration annotation";
                     errorMsg.append(String.format("\t%s: %s\n", serviceName, msg));
                 } else {

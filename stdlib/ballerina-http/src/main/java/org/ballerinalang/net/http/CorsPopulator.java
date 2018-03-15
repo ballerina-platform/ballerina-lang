@@ -35,7 +35,7 @@ public class CorsPopulator {
     @Deprecated
     public static void populateServiceCors(HttpService service) {
         CorsHeaders corsHeaders = populateAndGetCorsHeaders(
-                HttpUtil.getHttpServiceConfigAnnotation(service.getBalService(), HttpConstants.HTTP_PACKAGE_PATH));
+                HttpUtil.getServiceConfigAnnotation(service.getBalService(), HttpConstants.HTTP_PACKAGE_PATH));
         service.setCorsHeaders(corsHeaders);
         if (!corsHeaders.isAvailable()) {
             return;
