@@ -21,17 +21,11 @@ package org.ballerinalang.nativeimpl.config;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-
-import java.util.regex.Matcher;
-
-import static org.ballerinalang.config.ConfigRegistry.encryptedFieldPattern;
 
 /**
  * Native function ballerina.config:getAsString.

@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class ConfigRegistry {
 
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
-    public static final Pattern encryptedFieldPattern =
+    private static final Pattern encryptedFieldPattern =
             Pattern.compile("@encrypted:\\{((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))\\}");
 
     private Map<String, String> configEntries = new HashMap<>();

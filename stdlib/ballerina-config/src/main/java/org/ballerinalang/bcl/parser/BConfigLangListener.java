@@ -21,7 +21,6 @@ package org.ballerinalang.bcl.parser;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

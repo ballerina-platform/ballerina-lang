@@ -424,12 +424,30 @@ public class Main {
         }
     }
 
+    /**
+     * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
+     * able to encrypt sensitive values before adding them to config files.
+     *
+     * @since 0.965.0
+     */
     public static class EncryptCmd implements BLauncherCmd {
+
+        @Parameter(names = "--java.debug", hidden = true)
+        private String javaDebugPort;
+
+        @Parameter(names = {"--help", "-h"}, hidden = true)
+        private boolean helpFlag;
 
         private JCommander parentCmdParser;
 
         @Override
         public void execute() {
+            if (helpFlag) {
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "encrypt");
+                outStream.println(commandUsageInfo);
+                return;
+            }
+
             outStream.println("ballerina: enter the value to be encrypted:");
             String value = new String(System.console().readPassword());
 
@@ -440,7 +458,7 @@ public class Main {
                 AESCipherTool cipherTool = new AESCipherTool(secret);
                 outStream.println(cipherTool.encrypt(value));
             } catch (AESCipherToolException e) {
-                e.printStackTrace();
+                throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }
         }
 
@@ -451,7 +469,11 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-
+            out.append("The encrypt command can be used to encrypt sensitive data.\n\n");
+            out.append("When the command is executed, the user will be prompted to enter the value to be encrypted ");
+            out.append("and a secret. The secret will be used in encrypting the value.\n\n");
+            out.append("Once encrypted, the user can place it in config files.\n");
+            out.append("\te.g: user.password=\"@encrypted:{UtD9d+o6eHpqFnBxtvhb+RWXey7qm7xLMt6+6mrt9w0=}\"\n");
         }
 
         @Override

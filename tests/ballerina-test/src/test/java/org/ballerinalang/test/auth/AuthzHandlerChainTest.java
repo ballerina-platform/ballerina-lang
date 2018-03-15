@@ -31,14 +31,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class AuthzHandlerChainTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
@@ -54,22 +49,11 @@ public class AuthzHandlerChainTest {
                 .get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore", BALLERINA_CONF);
         ballerinaConfCopyPath = sourceRoot.resolve(BALLERINA_CONF);
 
-        // Copy the ballerina.conf to the source root before starting the tests
-        Files.copy(ballerinaConfPath, ballerinaConfCopyPath, new CopyOption[] { REPLACE_EXISTING });
         compileResult = BCompileUtil.compile(sourceRoot.resolve("authz-handler-chain-test.bal").toString());
 
         // load configs
         ConfigRegistry registry = ConfigRegistry.getInstance();
-        registry.initRegistry(getRuntimeProperties(), ballerinaConfCopyPath);
-        registry.loadConfigurations();
-    }
-
-    private Map<String, String> getRuntimeProperties() {
-        Map<String, String> runtimeConfigs = new HashMap<>();
-        runtimeConfigs.put(BALLERINA_CONF,
-                Paths.get(resourceRoot, "datafiles", "config", "auth", "authorization", "permissionstore",
-                        BALLERINA_CONF).toString());
-        return runtimeConfigs;
+        registry.initRegistry(null, ballerinaConfPath.toString(), null);
     }
 
     @Test(description = "Test case for creating authz handler chain")
