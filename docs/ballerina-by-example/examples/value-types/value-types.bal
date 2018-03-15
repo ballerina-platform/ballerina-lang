@@ -12,6 +12,13 @@ function main (string[] args) {
     string s;
     io:println(s);
 
+    char c = 'D';
+    io:println(c);
+
+    //The zero value for a byte is 0.
+    byte y;
+    io:println(y);
+
     boolean b = true;
     io:println(b);
 }
