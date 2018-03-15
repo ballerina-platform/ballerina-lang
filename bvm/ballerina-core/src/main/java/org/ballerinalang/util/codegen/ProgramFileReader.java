@@ -204,7 +204,10 @@ public class ProgramFileReader {
             case CP_ENTRY_PACKAGE:
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(cpIndex);
-                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue());
+                int versionCPIndex = dataInStream.readInt();
+                UTF8CPEntry utf8VersionCPEntry = (UTF8CPEntry) constantPool.getCPEntry(versionCPIndex);
+                return new PackageRefCPEntry(cpIndex, utf8CPEntry.getValue(), versionCPIndex,
+                        utf8VersionCPEntry.getValue());
 
             case CP_ENTRY_STREAMLET_REF:
                 pkgCPIndex = dataInStream.readInt();
@@ -348,7 +351,10 @@ public class ProgramFileReader {
     private void readPackageInfo(DataInputStream dataInStream) throws IOException {
         int pkgNameCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgNameCPIndex);
-        PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue());
+        int pkgVersionCPIndex = dataInStream.readInt();
+        UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) programFile.getCPEntry(pkgVersionCPIndex);
+        PackageInfo packageInfo = new PackageInfo(pkgNameCPIndex, pkgNameCPEntry.getValue(), pkgVersionCPIndex,
+                pkgVersionCPEntry.getValue());
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.getPkgPath(), packageInfo);
 
