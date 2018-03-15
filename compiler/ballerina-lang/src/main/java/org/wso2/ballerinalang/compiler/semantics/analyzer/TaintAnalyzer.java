@@ -365,10 +365,12 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
+        compoundAssignment.varRef.accept(this);
+        boolean varRefTaintedStatus = getObservedTaintedStatus();
         compoundAssignment.expr.accept(this);
-        boolean varTaintedStatus = getObservedTaintedStatus();
-        BLangExpression varRefExpr = compoundAssignment.varRef;
-        visitAssignment(varRefExpr, varTaintedStatus, compoundAssignment.pos);
+        boolean exprTaintedStatus = getObservedTaintedStatus();
+        boolean combinedTaintedStatus = varRefTaintedStatus || exprTaintedStatus;
+        visitAssignment(compoundAssignment.varRef, combinedTaintedStatus, compoundAssignment.pos);
     }
 
     public void visit(BLangPostIncrement postIncrement) {
