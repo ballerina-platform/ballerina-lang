@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -130,46 +131,46 @@ public class ClientSocketTest {
 
     @Test(description = "Open client socket connection to the remote server that started in 9999")
     public void testOpenClientSocket() {
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
+        BValue[] args = {new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT)};
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
     }
 
     @Test(dependsOnMethods = "testOpenClientSocket",
-          description = "Test content read/write")
+            description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
+        BValue[] args = {new BByteArray(contentBytes), new BInteger(contentBytes.length)};
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
-        args = new BValue[] { new BInteger(content.length()) };
+        args = new BValue[]{new BInteger(content.length())};
         final BValue[] readReturns = BRunUtil.invoke(socketClient, "read", args);
-        final BBlob readContent = (BBlob) readReturns[0];
+        final BByteArray readContent = (BByteArray) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
 
-        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
+        Assert.assertTrue(Arrays.equals(contentBytes, readContent.getValues()));
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
+            description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invoke(socketClient, "closeSocket");
     }
 
     @Test(dependsOnMethods = "testClosure",
-          description = "Test connection open with properties")
+            description = "Test connection open with properties")
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
         StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), propertyStruct };
+        BValue[] args = {new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), propertyStruct};
         final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
         final BStruct socket = (BStruct) returns[0];
         Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
-        args = new BValue[] { socket };
+        args = new BValue[]{socket};
         BRunUtil.invoke(socketClient, "close", args);
     }
 }

@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -41,6 +41,7 @@ import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -154,15 +155,15 @@ public class SecureClientSocketTest {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
         final byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
+        BValue[] args = { new BByteArray(contentBytes), new BInteger(contentBytes.length) };
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[] { new BInteger(content.length()) };
         final BValue[] readReturns = BRunUtil.invoke(socketClient, "read", args);
-        final BBlob readContent = (BBlob) readReturns[0];
+        final BByteArray readContent = (BByteArray) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
-        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
+        Assert.assertTrue(Arrays.equals(contentBytes, readContent.getValues()));
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 

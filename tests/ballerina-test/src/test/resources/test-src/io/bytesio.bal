@@ -7,7 +7,7 @@ function initFileChannel (string filePath, string permission) {
 }
 
 function readBytes (int numberOfBytes) (byte[]) {
-    byte[] content;
+    byte[] content = [];
     int offset = 0;
     int numberOfBytesRead = 0;
     boolean hasRemaining = true;

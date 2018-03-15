@@ -164,9 +164,9 @@ function testGetJsonDataSource (io:ByteChannel byteChannel) (json, mime:EntityEr
 
 function consumeChannel (io:ByteChannel channel) {
     int numberOfBytesRead = 1;
-    blob readContent;
+    byte[] readContent = [];
     while (numberOfBytesRead != 0) {
-        readContent, numberOfBytesRead, _ = channel.read(10000,10000, 0);
+        numberOfBytesRead, _ = channel.read(readContent,10000, 0);
     }
 }
 
