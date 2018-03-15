@@ -1219,7 +1219,6 @@ class TransformerExpanded extends React.Component {
     }
 
     render() {
-        const { leftOffset } = this.props;
         const vertices = this.state.vertices;
         const sourceNode = this.props.model.getSource();
         const returnNodes = this.props.model.getReturnParameters();
@@ -1269,7 +1268,6 @@ class TransformerExpanded extends React.Component {
         return (
             <div
                 className='transformOverlay'
-                style={{ paddingLeft: leftOffset }}
             >
                 <div id='transformHeader' className='transform-header'>
                     <i onClick={this.onClose} className='fw fw-left close-transform' />
@@ -1468,7 +1466,6 @@ class TransformerExpanded extends React.Component {
 TransformerExpanded.propTypes = {
     model: PropTypes.instanceOf(TransformerNode).isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
-    leftOffset: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };

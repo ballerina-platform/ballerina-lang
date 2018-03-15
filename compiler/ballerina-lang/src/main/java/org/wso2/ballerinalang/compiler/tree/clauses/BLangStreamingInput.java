@@ -26,28 +26,49 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @since 0.965.0
  *
  * Implementation of {@link StreamingInput}.
  */
+
 public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
-    private List<WhereNode> streamingConditions = new ArrayList<>();
+    private WhereNode beforeStreamingCondition;
     private WindowClauseNode windowClause;
-    private ExpressionNode tableReference;
+    private WhereNode afterStreamingCondition;
+    private ExpressionNode streamReference;
     private String alias;
+    private boolean isWindowTraversedAfterWhere;
+
     @Override
-    public void addStreamingCondition(WhereNode where) {
-        this.streamingConditions.add(where);
+    public void setBeforeStreamingCondition(WhereNode where) {
+        this.beforeStreamingCondition = where;
     }
 
     @Override
-    public List<? extends WhereNode> getStreamingConditions() {
-        return this.streamingConditions;
+    public WhereNode getBeforeStreamingCondition() {
+        return this.beforeStreamingCondition;
+    }
+
+    @Override
+    public void setAfterStreamingCondition(WhereNode where) {
+        this.afterStreamingCondition = where;
+    }
+
+    @Override
+    public WhereNode getAfterStreamingCondition() {
+        return afterStreamingCondition;
+    }
+
+    @Override
+    public boolean isWindowTraversedAfterWhere() {
+        return isWindowTraversedAfterWhere;
+    }
+
+    @Override
+    public void setWindowTraversedAfterWhere(boolean windowTraversedAfterWhere) {
+        isWindowTraversedAfterWhere = windowTraversedAfterWhere;
     }
 
     @Override
@@ -60,12 +81,12 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
         return this.windowClause;
     }
 
-    public ExpressionNode getTableReference() {
-        return tableReference;
+    public ExpressionNode getStreamReference() {
+        return streamReference;
     }
 
-    public void setTableReference(ExpressionNode tableReference) {
-        this.tableReference = tableReference;
+    public void setStreamReference(ExpressionNode streamReference) {
+        this.streamReference = streamReference;
     }
 
     @Override
@@ -87,4 +108,6 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     public NodeKind getKind() {
         return NodeKind.STREAMING_INPUT;
     }
+
+
 }

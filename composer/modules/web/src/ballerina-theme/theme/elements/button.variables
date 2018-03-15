@@ -12,7 +12,6 @@
 
 @borderRadius           : 0;
 @secondaryTextColor     : @gray-700;
-@lineHeight             : 1.42857;
 @horizontalMargin       : 0em;
 @verticalMargin         : 0em;
 @verticalPadding        : 6px;

@@ -31,10 +31,12 @@ public class BTypes {
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
+    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
     public static BType typeType = new BTypeType(TypeConstants.TYPE_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
     public static BType typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null);
+    public static BType typeStreamlet = new BStreamletType(TypeConstants.STREAMLET_TNAME, null);
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
@@ -61,6 +63,8 @@ public class BTypes {
                 return typeMap;
             case TypeConstants.TABLE_TNAME:
                 return typeTable;
+            case TypeConstants.STREAM_TNAME:
+                return typeStream;
             default:
                 throw new IllegalStateException("Unknown type name");
         }
