@@ -15,12 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.protobuf.utils;
+package org.ballerinalang.protobuf;
 
 /**
  * Bal Generation Tool contants class.
  */
 public class BalGenerationConstants {
+    public static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
+    public static final String OS_ARCH_SYSTEM_PROPERTY = "os.arch";
     public static final String META_LOCATION = "desc_gen/";
     public static final String META_DEPENDENCY_LOCATION = "desc_gen/dependencies/";
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
@@ -34,4 +36,10 @@ public class BalGenerationConstants {
     public static final String PROTO_FOLDER_PLACEHOLDER = "{{PROTO_FOLDER}}";
     public static final String DESC_PATH_PLACEHOLDER = "{{DESC_PATH}}";
     public static final String PLUGIN_PROTO_FILEPATH = "google/protobuf/compiler/plugin.proto";
+    public static final String COMPONENT_IDENTIFIER = "grpc";
+    public static final String PROTOC_PLUGIN_EXE_PREFIX = ".exe";
+    public static final String PROTO_SUFFIX = ".proto";
+    public static final String DESC_SUFFIX = ".desc";
+    public static final String PROTOC_PLUGIN_EXE_URL_SUFFIX = "http://repo1.maven.org/maven2/com/google/" +
+            "protobuf/protoc/";
 }

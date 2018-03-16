@@ -41,15 +41,15 @@ import java.util.Map;
  */
 public class ClientStreamingListener extends MethodListener implements ServerCalls
         .ClientStreamingMethod<Message, Message> {
-
+    
     private final Map<String, Resource> resourceMap;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientStreamingListener.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(ClientStreamingListener.class);
+    
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
         super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));
         this.resourceMap = resourceMap;
     }
-
+    
     @Override
     public StreamObserver<Message> invoke(StreamObserver<Message> responseObserver) {
         Resource onOpen = resourceMap.get(MessageConstants.ON_OPEN_RESOURCE);
@@ -58,7 +58,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
         signatureParams[0] = getConnectionParameter(responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver);
         Executor.submit(onOpen, callback, null, signatureParams);
-
+        
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
@@ -71,13 +71,13 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 }
                 Executor.submit(resource, callback, null, signatureParams);
             }
-
+            
             @Override
             public void onError(Throwable t) {
                 Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
                 if (onError == null) {
                     String message = "Error in listener service definition. onError resource does not exists";
-                    LOGGER.error(message);
+                    LOG.error(message);
                     throw new RuntimeException(message);
                 }
                 List<ParamDetail> paramDetails = onError.getParamDetails();
@@ -86,7 +86,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 if (paramDetails.size() != 2) {
                     String message = "Error in onError resource definition. It must have two input params, but have "
                             + paramDetails.size();
-                    LOGGER.error(message);
+                    LOG.error(message);
                     throw new RuntimeException(message);
                 }
                 BType errorType = paramDetails.get(1).getVarType();
@@ -94,13 +94,13 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 signatureParams[1] = errorStruct;
                 Executor.submit(onError, callback, null, signatureParams);
             }
-
+            
             @Override
             public void onCompleted() {
                 Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
                 if (onCompleted == null) {
                     String message = "Error in listener service definition. onError resource does not exists";
-                    LOGGER.error(message);
+                    LOG.error(message);
                     throw new RuntimeException(message);
                 }
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();

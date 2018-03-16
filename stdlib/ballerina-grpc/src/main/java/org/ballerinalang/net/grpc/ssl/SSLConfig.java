@@ -29,7 +29,7 @@ import java.io.File;
 
 public class SSLConfig {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(SSLConfig.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SSLConfig.class);
     
     private static final String separator = ",";
     
@@ -44,7 +44,7 @@ public class SSLConfig {
     private String[] cipherSuites;
     private int cacheSize;
     private int cacheValidityPeriod;
-
+    
     private String[] enableProtocols;
     private boolean validateCertificateEnabled;
     private boolean enableSessionCreation;
@@ -81,8 +81,8 @@ public class SSLConfig {
     }
     
     public SSLConfig(File keyStore, String keyStorePass) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using key store" + keyStore);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using key store" + keyStore);
         }
         this.keyStore = keyStore;
         this.keyStorePass = keyStorePass;
@@ -110,8 +110,8 @@ public class SSLConfig {
     }
     
     public SSLConfig setTrustStore(File trustStore) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using trust store" + trustStore);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using trust store" + trustStore);
         }
         this.trustStore = trustStore;
         return this;
@@ -139,8 +139,8 @@ public class SSLConfig {
     }
     
     public void setSniMatchers(String sniMatchers) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using sniMatchers" + sniMatchers);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using sniMatchers" + sniMatchers);
         }
         this.sniMatchers = sniMatchers.split(separator);
     }
@@ -150,8 +150,8 @@ public class SSLConfig {
     }
     
     public void setServerNames(String serverNames) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using serverNames" + serverNames);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using serverNames" + serverNames);
         }
         this.serverNames = serverNames.replaceAll("\\s+", "").split(separator);
     }
@@ -161,8 +161,8 @@ public class SSLConfig {
     }
     
     public void setWantClientAuth(boolean wantClientAuth) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set WantClientAuth" + wantClientAuth);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set WantClientAuth" + wantClientAuth);
         }
         this.wantClientAuth = wantClientAuth;
     }
@@ -172,15 +172,15 @@ public class SSLConfig {
     }
     
     public void setNeedClientAuth(boolean needClientAuth) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set NeedClientAuth" + needClientAuth);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set NeedClientAuth" + needClientAuth);
         }
         this.needClientAuth = needClientAuth;
     }
     
     public void setSSLProtocol(String sslProtocol) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set SSLProtocol" + sslProtocol);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set SSLProtocol" + sslProtocol);
         }
         this.sslProtocol = sslProtocol;
     }
@@ -202,8 +202,8 @@ public class SSLConfig {
     }
     
     public void setEnableSessionCreation(boolean enableSessionCreation) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Enable Session Creation" + enableSessionCreation);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Enable Session Creation" + enableSessionCreation);
         }
         this.enableSessionCreation = enableSessionCreation;
     }
@@ -213,8 +213,8 @@ public class SSLConfig {
     }
     
     public void setEnableProtocols(String enableProtocols) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set enable protocols" + enableProtocols);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set enable protocols" + enableProtocols);
         }
         this.enableProtocols = enableProtocols.replaceAll("\\s+", "").split(separator);
     }
@@ -224,11 +224,12 @@ public class SSLConfig {
     }
     
     public void setCipherSuites(String cipherSuites) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set supported cipherSuites" + cipherSuites);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set supported cipherSuites" + cipherSuites);
         }
         this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(separator);
     }
+    
     public int getCacheSize() {
         return cacheSize;
     }
@@ -245,5 +246,5 @@ public class SSLConfig {
         this.cacheValidityPeriod = cacheValidityPeriod;
     }
     
-
+    
 }

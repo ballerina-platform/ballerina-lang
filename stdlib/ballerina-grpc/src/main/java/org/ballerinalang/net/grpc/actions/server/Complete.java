@@ -41,7 +41,8 @@ import org.slf4j.LoggerFactory;
         }
 )
 public class Complete extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(Complete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
+
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
@@ -52,7 +53,7 @@ public class Complete extends BlockingNativeCallableUnit {
         try {
             responseObserver.onCompleted();
         } catch (Throwable e) {
-            log.error("Error while sending client response.", e);
+            LOG.error("Error while sending client response.", e);
             context.setError(MessageUtils.getConnectorError(context, e));
         }
     }

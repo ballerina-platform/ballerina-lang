@@ -19,22 +19,37 @@ package org.ballerinalang.protobuf.cmd;
 
 import java.util.Locale;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.OS_ARCH_SYSTEM_PROPERTY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.OS_NAME_SYSTEM_PROPERTY;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.AIX;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.FREEBSD;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.HPUX;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.LINUX;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.MACOSX;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.NETBSD;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.OPENBSD;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.OS400;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.OSX;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.SOLARIS;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.SUNOS;
+import static org.ballerinalang.protobuf.cmd.SupportOSTypes.WINDOWS;
+
 /**
- *Class for detecting the system operating system version and type.
+ * Class for detecting the system operating system version and type.
  * Ref : https://github.com/trustin/os-maven-plugin/blob/master/src/main/java/kr/motd/maven/os/Detector.java
  */
 public abstract class OSDetector {
     
     private static final String UNKNOWN = "unknown";
-
+    
     public static String getDetectedClassifier() {
-
-        final String osName = System.getProperty("os.name");
-        final String osArch = System.getProperty("os.arch");
-
+        
+        final String osName = System.getProperty(OS_NAME_SYSTEM_PROPERTY);
+        final String osArch = System.getProperty(OS_ARCH_SYSTEM_PROPERTY);
+        
         final String detectedName = normalizeOs(osName);
         final String detectedArch = normalizeArch(osArch);
-
+        
         final String failOnUnknownOS = System.getProperty("failOnUnknownOS");
         if (!"false".equalsIgnoreCase(failOnUnknownOS)) {
             if (UNKNOWN.equals(detectedName)) {
@@ -47,48 +62,48 @@ public abstract class OSDetector {
         // Assume the default classifier, without any os "like" extension.
         return detectedName + '-' + detectedArch;
     }
-
+    
     private static String normalizeOs(String value) {
-
+        
         value = normalize(value);
-        if (value.startsWith("aix")) {
-            return "aix";
+        if (value.startsWith(AIX)) {
+            return AIX;
         }
-        if (value.startsWith("hpux")) {
-            return "hpux";
+        if (value.startsWith(HPUX)) {
+            return HPUX;
         }
-        if (value.startsWith("os400")) {
+        if (value.startsWith(OS400)) {
             // Avoid the names such as os4000
             if (value.length() <= 5 || !Character.isDigit(value.charAt(5))) {
-                return "os400";
+                return OS400;
             }
         }
-        if (value.startsWith("linux")) {
-            return "linux";
+        if (value.startsWith(LINUX)) {
+            return LINUX;
         }
-        if (value.startsWith("macosx") || value.startsWith("osx")) {
+        if (value.startsWith(MACOSX) || value.startsWith(OSX)) {
             return "osx";
         }
-        if (value.startsWith("freebsd")) {
-            return "freebsd";
+        if (value.startsWith(FREEBSD)) {
+            return FREEBSD;
         }
-        if (value.startsWith("openbsd")) {
-            return "openbsd";
+        if (value.startsWith(OPENBSD)) {
+            return OPENBSD;
         }
-        if (value.startsWith("netbsd")) {
-            return "netbsd";
+        if (value.startsWith(NETBSD)) {
+            return NETBSD;
         }
-        if (value.startsWith("solaris") || value.startsWith("sunos")) {
-            return "sunos";
+        if (value.startsWith(SOLARIS) || value.startsWith(SUNOS)) {
+            return SUNOS;
         }
-        if (value.startsWith("windows")) {
-            return "windows";
+        if (value.startsWith(WINDOWS)) {
+            return WINDOWS;
         }
         return UNKNOWN;
     }
-
+    
     private static String normalizeArch(String value) {
-
+        
         value = normalize(value);
         if (value.matches("^(x8664|amd64|ia32e|em64t|x64)$")) {
             return "x86_64";
@@ -128,9 +143,9 @@ public abstract class OSDetector {
         }
         return UNKNOWN;
     }
-
+    
     private static String normalize(String value) {
-
+        
         if (value == null) {
             return "";
         }

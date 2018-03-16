@@ -37,6 +37,11 @@ import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
+import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
+import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
+import static org.ballerinalang.net.grpc.MessageConstants.INT;
+import static org.ballerinalang.net.grpc.MessageConstants.STRING;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
@@ -44,15 +49,15 @@ import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
  * This provide method for all method listener child classes.
  */
 public abstract class MethodListener {
-
+    
     private Descriptors.MethodDescriptor methodDescriptor;
     public Resource resource;
-
+    
     public MethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         this.methodDescriptor = methodDescriptor;
         this.resource = resource;
     }
-
+    
     BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
         ProgramFile programFile = getProgramFile(resource);
         BConnector connection = BLangConnectorSPIUtil.createBConnector(programFile,
@@ -62,23 +67,23 @@ public abstract class MethodListener {
         connection.setNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
         return connection;
     }
-
+    
     BValue getRequestParameter(Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
-
+        
         if (resource.getParamDetails().size() == 2) {
             BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
                     .getVarType();
             String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX).getVarName();
-
+            
             return generateRequestStruct(requestMessage, requestName, requestType);
         } else {
             return null;
         }
     }
-
+    
     private BValue generateRequestStruct(Message request, String fieldName, BType structType) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -86,10 +91,10 @@ public abstract class MethodListener {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-
+        
         if (structType instanceof BStructType) {
             BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), structType
-                            .getPackagePath(), structType.getName());
+                    .getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {
@@ -103,31 +108,31 @@ public abstract class MethodListener {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
                         switch (fieldType) {
-                            case "string": {
+                            case STRING: {
                                 requestStruct.setStringField(stringIndex++, (String) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "int": {
+                            case INT: {
                                 requestStruct.setIntField(intIndex++, (Long) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "float": {
+                            case FLOAT: {
                                 Float value = (Float) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "double": {
+                            case DOUBLE: {
                                 Double value = (Double) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "boolean": {
+                            case BOOLEAN: {
                                 requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
                                         (structFieldName));
                                 break;
@@ -149,29 +154,29 @@ public abstract class MethodListener {
             if (fields.containsKey(fieldName)) {
                 String fieldType = structType.getName();
                 switch (fieldType) {
-                    case "string": {
+                    case STRING: {
                         bValue = new BString((String) fields.get(fieldName));
                         break;
                     }
-                    case "int": {
+                    case INT: {
                         bValue = new BInteger((Long) fields.get(fieldName));
                         break;
                     }
-                    case "float": {
+                    case FLOAT: {
                         Float value = (Float) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "double": {
+                    case DOUBLE: {
                         Double value = (Double) fields.get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "boolean": {
+                    case BOOLEAN: {
                         bValue = new BBoolean((Boolean) fields.get(fieldName));
                         break;
                     }
@@ -182,7 +187,7 @@ public abstract class MethodListener {
                 }
             }
         }
-
+        
         return bValue;
     }
 }

@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.protobuf.utils;
 
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.DESC_PATH_PLACEHOLDER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.EXE_PATH_PLACEHOLDER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.NEW_LINE_CHARATER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.PROTO_FOLDER_PLACEHOLDER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.PROTO_PATH_PLACEHOLDER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.SPACE_CHARATER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_PATH_PLACEHOLDER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.EXE_PATH_PLACEHOLDER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARATER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_FOLDER_PLACEHOLDER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_PATH_PLACEHOLDER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.SPACE_CHARATER;
 
 /**
  * This class is used to build the protoc compiler command to generate descriptor.

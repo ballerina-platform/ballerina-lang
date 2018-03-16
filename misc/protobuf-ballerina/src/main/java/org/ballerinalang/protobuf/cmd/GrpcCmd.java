@@ -23,9 +23,9 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFile;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
-import org.ballerinalang.protobuf.utils.BalGenerationConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +45,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
+import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.delete;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.FILE_SEPARATOR;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.NEW_LINE_CHARACTER;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
 
 /**
  * Class to implement "grpc" command for ballerina.
@@ -83,7 +86,7 @@ public class GrpcCmd implements BLauncherCmd {
     @Parameter(names = {"--protoc_version"},
             description = "Full path of the .exe file"
     )
-    private String protocVerstion = "3.4.0";
+    private String protocVersion = "3.4.0";
     
     @Parameter(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
@@ -231,9 +234,9 @@ public class GrpcCmd implements BLauncherCmd {
                 } catch (IOException e) {
                     throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
-                String url = "http://repo1.maven.org/maven2/com/google/protobuf/protoc/" + protocVerstion + "/" +
-                        "protoc-" + protocVerstion + "-" + org.ballerinalang.protobuf.cmd.OSDetector
-                        .getDetectedClassifier() + ".exe";
+                String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/" +
+                        "protoc-" + protocVersion + "-" + org.ballerinalang.protobuf.cmd.OSDetector
+                        .getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
                 try {
                     saveFile(new URL(url), exePath);
                     File file = new File(exePath);
@@ -253,7 +256,7 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public String getName() {
-        return "grpc";
+        return COMPONENT_IDENTIFIER;
     }
     
     @Override
@@ -266,7 +269,7 @@ public class GrpcCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder stringBuilder) {
         
-        stringBuilder.append("  ballerina grpc --proto_path <<proto-file-path>>  --exe_path " +
+        stringBuilder.append("  ballerina " + COMPONENT_IDENTIFIER + " --proto_path <<proto-file-path>>  --exe_path " +
                 "<<protoc-executor-path>> \n");
     }
     
@@ -311,8 +314,8 @@ public class GrpcCmd implements BLauncherCmd {
         this.exePath = exePath;
     }
     
-    public void setProtocVerstion(String protocVerstion) {
-        this.protocVerstion = protocVerstion;
+    public void setProtocVersion(String protocVersion) {
+        this.protocVersion = protocVersion;
     }
 }
 

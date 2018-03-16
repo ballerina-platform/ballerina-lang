@@ -28,8 +28,6 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -50,7 +48,6 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
         isPublic = true
 )
 public class Register extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(Register.class);
     
     @Override
     public void execute(Context context) {

@@ -1,8 +1,23 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.net.grpc.ssl;
 
 import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -25,7 +40,6 @@ import javax.net.ssl.SSLContext;
  * Util class for generating certificates.
  */
 public class SSLHandlerUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SSLHandlerFactory.class);
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
     private static final String END_CERT = "-----END CERTIFICATE-----";
     private static final String BEGIN_KEY = "-----BEGIN PRIVATE KEY-----";
@@ -81,6 +95,7 @@ public class SSLHandlerUtils {
         }
         return BEGIN_CERT + LINE_SEPARATOR + encodedCerts.toString() + LINE_SEPARATOR + END_CERT;
     }
+    
     /**
      * Returns the ciphers preferred to use during tests. They may be chosen because they are widely,
      * available or because they are fast. There is no requirement that they provide confidentiality
@@ -103,6 +118,7 @@ public class SSLHandlerUtils {
         }
         return Collections.unmodifiableList(ciphersMinusGcm);
     }
+    
     public static String formatKeyFileContents(final byte[] rawKeyText) {
         Base64.Encoder encoder;
         String encodedCertText;

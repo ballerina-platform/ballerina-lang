@@ -51,22 +51,28 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
+import static org.ballerinalang.net.grpc.MessageConstants.DOUBLE;
+import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
+import static org.ballerinalang.net.grpc.MessageConstants.INT;
+import static org.ballerinalang.net.grpc.MessageConstants.STRING;
+
 
 /**
- * Message Utils.
+ * Util methods to generate protobuff message.
  */
 public class MessageUtils {
-    private static final Logger log = LoggerFactory.getLogger(MessageUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     public static final String UNKNOWN_ERROR = "Unknown Error";
-
+    
     public static BValue getHeader(Context context) {
         String headerName = context.getStringArgument(0);
         String headerValue = getHeaderValue(headerName);
-
+        
         return new BString(headerValue);
     }
-
+    
     private static String getHeaderValue(String keyName) {
         String headerValue = null;
         if (MessageContext.isPresent()) {
@@ -80,12 +86,12 @@ public class MessageUtils {
                 headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
             } else {
                 Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                headerValue =  messageContext.get(key);
+                headerValue = messageContext.get(key);
             }
         }
         return headerValue;
     }
-
+    
     public static StreamObserver<Message> getStreamObserver(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BConnector) {
@@ -98,21 +104,21 @@ public class MessageUtils {
         }
         return null;
     }
-
+    
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         PackageInfo grpcPackageInfo = context.getProgramFile()
                 .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
         StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(MessageConstants.CONNECTOR_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
-
+    
     /**
      * Returns error struct of input type
      * Error type can be either ServerError or ClientError. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
      * @param errorType this is either ServerError or ClientError.
-     * @param error this is StatusRuntimeException send by opposite party.
+     * @param error     this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
     public static BStruct getConnectorError(BStructType errorType, Throwable error) {
@@ -132,28 +138,28 @@ public class MessageUtils {
         }
         return errorStruct;
     }
-
+    
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
     }
-
+    
     /**
      * Handles faliures in GRPC callable unit callback.
      *
      * @param streamObserver observer used the send the error back
-     * @param  error error message struct
+     * @param error          error message struct
      */
     public static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
         int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
         String errorMsg = error.getStringField(0);
-        log.error(errorMsg);
+        LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
             streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
                     (errorMsg)));
         }
     }
-
+    
     /**
      * Returns wire type corresponding to the field descriptor type.
      * <p>
@@ -178,7 +184,7 @@ public class MessageUtils {
             return ServiceProtoConstants.MESSAGE_WIRE_TYPE;
         }
     }
-
+    
     /**
      * Check whether message object is an array.
      *
@@ -188,37 +194,37 @@ public class MessageUtils {
     static boolean isArray(Object object) {
         return object != null && object.getClass().isArray();
     }
-
+    
     public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_NAME_CONFIG);
-
+        
         if (annotationList == null) {
             return null;
         }
-
+        
         if (annotationList.size() > 1) {
             throw new BallerinaException(
                     "multiple service configuration annotations found in service: " + service.getName());
         }
-
+        
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
-
+    
     public static Annotation getMessageListenerAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_MESSAGE_LISTENER);
-
+        
         if (annotationList == null) {
             return null;
         }
-
+        
         if (annotationList.size() > 1) {
             throw new BallerinaException(
                     "multiple service configuration annotations found in service: " + service.getName());
         }
-
+        
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
-
+    
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
@@ -320,7 +326,7 @@ public class MessageUtils {
         }
         return responseBuilder.build();
     }
-
+    
     public static BValue generateRequestStruct(Message request, String fieldName, BType structType, Context context) {
         BValue bValue = null;
         int stringIndex = 0;
@@ -328,7 +334,7 @@ public class MessageUtils {
         int floatIndex = 0;
         int boolIndex = 0;
         int refIndex = 0;
-
+        
         if (structType instanceof BStructType) {
             BStruct requestStruct = createStruct(context, fieldName);
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
@@ -344,31 +350,31 @@ public class MessageUtils {
                     if (request.getFields().containsKey(structFieldName)) {
                         String fieldType = structField.getFieldType().getName();
                         switch (fieldType) {
-                            case "string": {
+                            case STRING: {
                                 requestStruct.setStringField(stringIndex++, (String) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "int": {
+                            case INT: {
                                 requestStruct.setIntField(intIndex++, (Long) request.getFields().get
                                         (structFieldName));
                                 break;
                             }
-                            case "float": {
+                            case FLOAT: {
                                 Float value = (Float) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "double": {
+                            case DOUBLE: {
                                 Double value = (Double) request.getFields().get(structFieldName);
                                 if (value != null) {
                                     requestStruct.setFloatField(floatIndex++, Double.parseDouble(value.toString()));
                                 }
                                 break;
                             }
-                            case "boolean": {
+                            case BOOLEAN: {
                                 requestStruct.setBooleanField(boolIndex++, (Integer) request.getFields().get
                                         (structFieldName));
                                 break;
@@ -390,29 +396,29 @@ public class MessageUtils {
             if (request.getFields().containsKey(fieldName)) {
                 String fieldType = structType.getName();
                 switch (fieldType) {
-                    case "string": {
+                    case STRING: {
                         bValue = new BString((String) request.getFields().get(fieldName));
                         break;
                     }
-                    case "int": {
+                    case INT: {
                         bValue = new BInteger((Long) request.getFields().get(fieldName));
                         break;
                     }
-                    case "float": {
+                    case FLOAT: {
                         Float value = (Float) request.getFields().get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "double": {
+                    case DOUBLE: {
                         Double value = (Double) request.getFields().get(fieldName);
                         if (value != null) {
                             bValue = new BFloat(Double.parseDouble(value.toString()));
                         }
                         break;
                     }
-                    case "boolean": {
+                    case BOOLEAN: {
                         bValue = new BBoolean((Boolean) request.getFields().get(fieldName));
                         break;
                     }
@@ -423,17 +429,18 @@ public class MessageUtils {
                 }
             }
         }
-
+        
         return bValue;
     }
-
+    
     public static BStruct createStruct(Context context, String fieldName) {
         BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
     }
-
+    
     /**
      * Util method to get method type.
+     *
      * @param methodDescriptorProto method descriptor proto.
      * @return service method type.
      */

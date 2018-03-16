@@ -41,7 +41,6 @@ public final class ProtoFileDefinition {
     }
     
     /**
-     * .
      * Returns file descriptor of the gRPC service.
      *
      * @return file descriptor of the service.

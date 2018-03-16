@@ -22,8 +22,6 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
@@ -41,7 +39,6 @@ import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
         isPublic = true
 )
 public class Stop extends AbstractGrpcNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(Stop.class);
     
     @Override
     public void execute(Context context) {

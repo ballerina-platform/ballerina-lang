@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import static org.ballerinalang.net.grpc.MessageConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 
 /**
@@ -36,14 +37,15 @@ public class ConnectorBuilder {
     public String build() {
         String str =
                 "public connector %s(string host, int port){" + NEW_LINE_CHARACTER +
-                " endpoint<grpc:GRPCConnector> ep {" + NEW_LINE_CHARACTER +
-                "        create grpc:GRPCConnector(host, port, \"%s\", descriptorKey, descriptorMap);"
-                + NEW_LINE_CHARACTER +
-                "    }" + NEW_LINE_CHARACTER +
-                NEW_LINE_CHARACTER +
-                "%s" +
-                NEW_LINE_CHARACTER +
-                "}" + NEW_LINE_CHARACTER;
+                        " endpoint<" + COMPONENT_IDENTIFIER + ":GRPCConnector> ep {" + NEW_LINE_CHARACTER +
+                        "        create " + COMPONENT_IDENTIFIER + ":GRPCConnector(host, port, \"%s\", " +
+                        "descriptorKey, descriptorMap);"
+                        + NEW_LINE_CHARACTER +
+                        "    }" + NEW_LINE_CHARACTER +
+                        NEW_LINE_CHARACTER +
+                        "%s" +
+                        NEW_LINE_CHARACTER +
+                        "}" + NEW_LINE_CHARACTER;
         return String.format(str, connectorName, stubType, actionList);
     }
 }

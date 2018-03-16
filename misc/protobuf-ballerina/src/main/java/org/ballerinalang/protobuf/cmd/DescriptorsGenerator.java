@@ -18,8 +18,8 @@
 package org.ballerinalang.protobuf.cmd;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
-import org.ballerinalang.protobuf.utils.BalGenerationConstants;
 import org.ballerinalang.protobuf.utils.ProtocCommandBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +34,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
+import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.createMetaFolder;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.getDescriptorPath;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.GOOGLE_STANDARD_LIB;
-import static org.ballerinalang.protobuf.utils.BalGenerationConstants.META_LOCATION;
 
 /**
  * Class for generate file descriptors for proto files.

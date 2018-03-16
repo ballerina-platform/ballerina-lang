@@ -18,6 +18,7 @@
 package org.ballerinalang.protobuf.utils;
 
 import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+
+import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
 
 /**
  * Util function used when generating bal file from .proto definition.
@@ -70,7 +75,7 @@ public class BalFileGenerationUtils {
                 .toLowerCase(Locale.ENGLISH).startsWith("windows");
         ProcessBuilder builder = new ProcessBuilder();
         if (isWindows) {
-            builder.command("cmd.exe", "/c", "dir");
+            builder.command("cmd" + PROTOC_PLUGIN_EXE_PREFIX, "/c", "dir");
         } else {
             builder.command("sh", "-c", command);
         }
@@ -98,8 +103,8 @@ public class BalFileGenerationUtils {
     public static String getDescriptorPath(String protoPath) {
         return BalGenerationConstants.META_DEPENDENCY_LOCATION + protoPath
                 .substring(protoPath.lastIndexOf(BalGenerationConstants
-                        .FILE_SEPARATOR), protoPath.length()).replace(".proto",
-                        BalGenerationConstants.EMPTY_STRING) + ".desc";
+                        .FILE_SEPARATOR), protoPath.length()).replace(PROTO_SUFFIX,
+                        BalGenerationConstants.EMPTY_STRING) + DESC_SUFFIX;
     }
     
     /**
@@ -114,7 +119,7 @@ public class BalFileGenerationUtils {
         String command = new ProtocCommandBuilder
                 (exePath, protoPath, protoPath.substring(0, protoPath.lastIndexOf
                         (BalGenerationConstants.FILE_SEPARATOR)),
-                descriptorPath).build();
+                        descriptorPath).build();
         try {
             generateDescriptor(command);
         } catch (UnsupportedEncodingException e) {
@@ -184,7 +189,6 @@ public class BalFileGenerationUtils {
         } catch (IOException e) {
             throw new BalGenToolException("Error saving file '" + file + "'.", e);
         }
-        
     }
     
     /**
@@ -198,6 +202,8 @@ public class BalFileGenerationUtils {
         boolean isWritable = file.setWritable(true);
         if (isExecutable && isReadable && isWritable) {
             LOG.debug("Successfully grated permission for protoc exe file");
+        } else {
+            LOG.debug("Failed to prowide execute permission to protoc executor.");
         }
     }
 }

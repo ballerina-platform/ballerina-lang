@@ -29,13 +29,13 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
  * Proto Message Constants Class.
  */
 public class MessageConstants {
-    public static final  String PATH = "/home/yasara/Desktop/PR_ORG/ballerina/distribution/zip/ballerina" +
+    public static final String PATH = "/home/yasara/Desktop/PR_ORG/ballerina/distribution/zip/ballerina" +
             "/resources/security/";
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
     public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
     public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
             ASCII_STRING_MARSHALLER);
-
+    
     public static final String PROTO_MESSAGE = "proto_message";
     public static final String STREAM_OBSERVER = "stream_observer";
     public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
@@ -48,13 +48,15 @@ public class MessageConstants {
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
-
+    
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;
-
+    
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
+    
     static {
-        Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();;
+        Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();
+        ;
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, 5);
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32, 0);
@@ -72,11 +74,19 @@ public class MessageConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
     }
+    public static final String COMPONENT_IDENTIFIER = "grpc";
     // Server Streaming method resources.
     public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
     public static final String ON_ERROR_RESOURCE = "onError";
-
-    public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
+    
+    public static final String STRING = "string";
+    public static final String INT = "int";
+    public static final String FLOAT = "float";
+    public static final String DOUBLE = "double";
+    public static final String BOOLEAN = "boolean";
+    public static final String BOLB = "blob";
+    
+    
 }

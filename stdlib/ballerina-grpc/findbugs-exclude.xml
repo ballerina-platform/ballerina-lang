@@ -17,9 +17,5 @@
   -->
 <FindBugsFilter>
     <!--<Fix>TODO After Fix</Fix>-->
-    <Match>
-        <class name="org.ballerinalang.net.grpc.ssl.SSLHandlerFactory"/>
-        <Bug pattern="DM_DEFAULT_ENCODING"/>
-    </Match>
 
 </FindBugsFilter>

@@ -37,6 +37,7 @@ import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.ballerinalang.net.grpc.proto.definition.Service;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -61,10 +62,10 @@ import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
 
 
 /**
- * Utility class providing utility methods.
+ * Utility class providing proto file based of user defined Ballerina service.
  */
 public class ServiceProtoUtils {
-
+    
     public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         String packageName = serviceNode.getPosition().getSource().getPackageName();
@@ -89,14 +90,14 @@ public class ServiceProtoUtils {
         fileBuilder.setService(serviceDefinition);
         return fileBuilder.build();
     }
-
+    
     static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
         long port = 0;
         String rpcEndpoint = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
         boolean generateClientConnector = false;
-
+        
         for (AnnotationAttachmentNode annotationNode : serviceNode.getAnnotationAttachments()) {
             if (!ServiceProtoConstants.ANN_SERVICE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
                 continue;
@@ -108,7 +109,7 @@ public class ServiceProtoUtils {
                     String attributeName = attributeNode.getKey().toString();
                     String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
                             null;
-
+                    
                     switch (attributeName) {
                         case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
                             port = attributeValue != null ? Integer.parseInt(attributeValue) : 0;
@@ -249,7 +250,7 @@ public class ServiceProtoUtils {
             if (!ANN_RESOURCE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
                 continue;
             }
-
+            
             if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
                 List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
                         .getExpression()).getKeyValuePairs();
@@ -422,7 +423,7 @@ public class ServiceProtoUtils {
             return null;
         }
     }
-
+    
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
         try {
@@ -430,11 +431,11 @@ public class ServiceProtoUtils {
             byte[] descriptor = Files.readAllBytes(path);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
             Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto, new com.google
-                    .protobuf.Descriptors.FileDescriptor[]{com.google.protobuf.WrappersProto.getDescriptor()});
+                    .protobuf.Descriptors.FileDescriptor[] {com.google.protobuf.WrappersProto.getDescriptor()});
             Files.delete(path);
             return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new RuntimeException("Error while reading the service proto descriptor. check the service " +
+            throw new BallerinaException("Error while reading the service proto descriptor. check the service " +
                     "implementation. ", e);
         }
     }
@@ -458,7 +459,7 @@ public class ServiceProtoUtils {
             byte[] fileDescriptor = protoFileDefinition.getFileDescriptorProto().toByteArray();
             Path descFilePath = Paths.get(filename + ServiceProtoConstants.DESC_FILE_EXTENSION);
             Files.write(descFilePath, fileDescriptor);
-
+            
             if (generateClientConnector) {
                 List<byte[]> dependentDescriptorsList = new ArrayList<>();
                 dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
@@ -471,18 +472,5 @@ public class ServiceProtoUtils {
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);
         }
-    }
-    
-    
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    
-    public static String bytesToHex(byte[] data) {
-        char[] hexChars = new char[data.length * 2];
-        for (int j = 0; j < data.length; j++) {
-            int v = data[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }
