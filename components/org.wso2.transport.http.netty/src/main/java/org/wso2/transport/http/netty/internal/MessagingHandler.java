@@ -18,23 +18,12 @@
 
 package org.wso2.transport.http.netty.internal;
 
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
  * Interface for MessagingHandler.
  */
 public interface MessagingHandler {
-
-    /**
-     * Invoked when source request's headers are received at the source handler.
-     *
-     * @param carbonMessage client request with headers
-     * @param callback      response callback
-     * @return true to continue the message flow,
-     *         false to discontinue the flow and done the callback with response message.
-     */
-    boolean validateRequestContinuation(HTTPCarbonMessage carbonMessage, CarbonCallback callback);
 
     /**
      * Invoked when source connection is initiated.

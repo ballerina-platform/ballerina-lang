@@ -22,12 +22,10 @@ import io.netty.channel.EventLoopGroup;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DataHolder for the HTTP transport.
@@ -41,8 +39,6 @@ public class HTTPTransportContextHolder {
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private CarbonMessageProcessor singleCarbonMessageProcessor;
-    private Map<String, CarbonMessageProcessor> messageProcessorMap = new ConcurrentHashMap<>();
     public EventLoopGroup getBossGroup() {
         return bossGroup;
     }
@@ -81,40 +77,6 @@ public class HTTPTransportContextHolder {
 
     public BundleContext getBundleContext() {
         return this.bundleContext;
-    }
-
-    public CarbonMessageProcessor getMessageProcessor(String id) {
-        CarbonMessageProcessor carbonMessageProcessor = singleCarbonMessageProcessor;
-        if (carbonMessageProcessor != null) {
-            return carbonMessageProcessor;
-        } else if (id == null) {
-            log.error("More than one message processor has registered and cannot proceed with 'null' message " +
-                    "processor ID.");
-            return null;
-        } else {
-            return messageProcessorMap.get(id);
-        }
-    }
-
-    public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (carbonMessageProcessor.getId() == null) {
-            throw new IllegalStateException("Message processor ID cannot be 'null'");
-        }
-        messageProcessorMap.put(carbonMessageProcessor.getId(), carbonMessageProcessor);
-        if (messageProcessorMap.size() == 1) {
-            singleCarbonMessageProcessor = carbonMessageProcessor;
-        } else {
-            singleCarbonMessageProcessor = null;
-        }
-    }
-
-    public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (messageProcessorMap.size() > 1) {
-            messageProcessorMap.remove(carbonMessageProcessor.getId());
-        } else {
-            messageProcessorMap.clear();
-            singleCarbonMessageProcessor = null;
-        }
     }
 
     public void setHandlerExecutor(HandlerExecutor handlerExecutor) {

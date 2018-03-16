@@ -37,7 +37,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
@@ -47,15 +46,13 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
 /**
  * A class that responsible for build server side channels.
  */
-public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel>
-        implements CarbonTransportInitializer {
+public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Logger log = LoggerFactory.getLogger(HttpServerChannelInitializer.class);
 
@@ -74,10 +71,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheDelay;
     private int cacheSize;
     private ChannelGroup allChannels;
-
-    @Override
-    public void setup(Map<String, String> parameters) {
-    }
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -179,11 +172,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         /* Max size of the upgrade request is limited to 2GB. Need to see whether there is a better approach to handle
            large upgrade requests. Requests will be propagated to next handlers if no upgrade has been attempted */
         configureHTTPPipeline(pipeline);
-    }
-
-    @Override
-    public boolean isServerInitializer() {
-        return true;
     }
 
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
