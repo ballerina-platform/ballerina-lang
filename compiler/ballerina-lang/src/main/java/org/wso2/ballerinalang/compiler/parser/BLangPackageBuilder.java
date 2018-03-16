@@ -1349,15 +1349,16 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr) {
+    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr, DiagnosticPos currentPos) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        AnnotationAttachmentNode annotAttach = annotAttachmentStack.peek();
-        annotAttach.addWS(nameReference.ws);
-        annotAttach.addWS(ws);
-        annotAttach.setAnnotationName(nameReference.name);
-        annotAttach.setPackageAlias(nameReference.pkgAlias);
+        BLangAnnotationAttachment bLangAnnotationAttachment = (BLangAnnotationAttachment) annotAttachmentStack.peek();
+        bLangAnnotationAttachment.pos = currentPos;
+        bLangAnnotationAttachment.addWS(nameReference.ws);
+        bLangAnnotationAttachment.addWS(ws);
+        bLangAnnotationAttachment.setAnnotationName(nameReference.name);
+        bLangAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
         if (hasExpr) {
-            annotAttach.setExpression(exprNodeStack.pop());
+            bLangAnnotationAttachment.setExpression(exprNodeStack.pop());
         }
     }
 

@@ -460,7 +460,7 @@ public class CommonUtil {
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                    WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
-        List<String> topLevelKeywords = Arrays.asList("function", "connector", "action", "struct", "enum",
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
                 "transformer");
         String fileContent = docManager.getFileContent(getPath(identifier.getUri()));
         String lineContent = fileContent.split("\\n|\\r\\n|\\r")[startPosition.getLine()];

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -180,6 +181,20 @@ public class CommandExecutor {
             case UtilSymbolKeys.TRANSFORMER_KEYWORD_KEY:
                 documentationContent = CommandUtil.getTransformerDocumentation(bLangPackage, line);
                 break;
+            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
+                CommandUtil.DocAttachmentInfo attachInfo = CommandUtil.getResourceDocumentation(bLangPackage, line);
+                if (attachInfo != null) {
+                    documentationContent = attachInfo.getDocAttachment();
+                    line = attachInfo.getReplaceStartFrom();
+                }
+                break;
+            case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
+                CommandUtil.DocAttachmentInfo serviceInfo = CommandUtil.getServiceDocumentation(bLangPackage, line);
+                if (serviceInfo != null) {
+                    documentationContent = serviceInfo.getDocAttachment();
+                    line = serviceInfo.getReplaceStartFrom();
+                }
+                break;
             default:
                 break;
         }
@@ -189,8 +204,8 @@ public class CommandExecutor {
                     .getFileContent(Paths.get(URI.create(documentUri)));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int replaceEndCol = contentComponents[line - 1].length();
-            String replaceText = fileContent.substring(0, fileContent.indexOf(contentComponents[line]))
-                    + documentationContent;
+            String replaceText = String.join(System.lineSeparator(),
+                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line))) + documentationContent;
             Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
 
             applySingleTextEdit(replaceText, range, textDocumentIdentifier,
