@@ -30,9 +30,14 @@ import org.wso2.transport.http.netty.common.Constants;
 public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter {
 
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
+    private HttpClientChannelInitializer httpClientChannelInitializer;
+    private TargetHandler targetHandler;
 
-    public TLSHandshakeCompletionHandler(ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+    public TLSHandshakeCompletionHandler(ConnectionAvailabilityFuture connectionAvailabilityFuture,
+            HttpClientChannelInitializer httpClientChannelInitializer, TargetHandler targetHandler) {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
+        this.httpClientChannelInitializer = httpClientChannelInitializer;
+        this.targetHandler = targetHandler;
     }
 
     @Override
@@ -43,13 +48,12 @@ public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter 
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
+                this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
-                ctx.fireChannelRead(evt);
             } else {
                 connectionAvailabilityFuture.notifyFailure(event.cause());
             }
         }
-        ctx.fireUserEventTriggered(evt);
     }
 }
 
