@@ -275,9 +275,9 @@ message MethodDescriptorProto {
 
   optional MethodOptions options = 4;
 
-  // Identifies if client streams multiple client messages
+  // Identifies if client streams multiple servicestub messages
   optional bool client_streaming = 5 [default=false];
-  // Identifies if server streams multiple server messages
+  // Identifies if server streams multiple clientresponder messages
   optional bool server_streaming = 6 [default=false];
 }
 
