@@ -159,3 +159,18 @@ public function publish (string hub, string topic, json payload) {
         log:printInfo("Notification successful for hub [" + hub +"] for topic [" + topic + "]");
     }
 }
+
+@Description {value:"Function to add link headers to a response to allow WebSub discovery"}
+@Param {value:"response: The response being sent"}
+@Param {value:"hubs: The hubs the publisher advertises as the hubs that it publishes updates to"}
+@Param {value:"topic: The topic to which subscribers need to subscribe to, to receive updates for the resource/topic"}
+@Return{value:"Response with the link header added"}
+public function addWebSubLinkHeaders (Response response, string[] hubs, string topic) (Response) {
+    response = response == null ? {} : response;
+    string hubLinkHeader = "";
+    foreach hub in hubs {
+        hubLinkHeader = hubLinkHeader + "<" + hub + "> ; rel=\"hub\", ";
+    }
+    response.setHeader("Link", hubLinkHeader + "<" + topic + "> ; rel=\"self\"");
+    return response;
+}
