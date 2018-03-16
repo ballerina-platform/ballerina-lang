@@ -91,7 +91,7 @@ public function <Response res> setHeader (string headerName, string headerValue)
 @Param {value:"key: The header name"}
 public function <Response res> removeHeader (string key) {
     mime:Entity entity = res.getEntityWithoutBody();
-    entity.headers.remove(key);
+    _ = entity.headers.remove(key);
 }
 
 @Description {value:"Removes all transport headers from the response"}

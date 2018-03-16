@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -90,12 +91,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -438,6 +441,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         connectorNode.actions.forEach(a -> a.accept(this));
     }
 
+    public void visit(BLangStreamlet streamletNode) {
+        //TODO Implement
+    }
+
     public void visit(BLangAction actionNode) {
         this.visitInvocable(actionNode);
     }
@@ -525,6 +532,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         varDefNode.var.accept(this);
+    }
+
+    public void visit(BLangCompoundAssignment compoundAssignment) {
+        this.checkStatementExecutionValidity(compoundAssignment);
+        analyzeExpr(compoundAssignment.varRef);
+        analyzeExpr(compoundAssignment.expr);
+    }
+
+    public void visit(BLangPostIncrement postIncrement) {
+        this.checkStatementExecutionValidity(postIncrement);
+        analyzeExpr(postIncrement.varRef);
+        analyzeExpr(postIncrement.increment);
     }
 
     public void visit(BLangAssignment assignNode) {

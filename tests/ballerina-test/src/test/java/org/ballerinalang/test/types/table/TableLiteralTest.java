@@ -54,7 +54,7 @@ public class TableLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-literal-test.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
     @Test
@@ -298,6 +298,16 @@ public class TableLiteralTest {
                 + "\"name\":\"john\",\"married\":false}]");
     }
 
+    @Test(priority = 1)
+    public void testTableAddAndAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
+                + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+    }
+
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },
@@ -326,6 +336,6 @@ public class TableLiteralTest {
     @Test(priority = 3)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }

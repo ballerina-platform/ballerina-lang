@@ -34,8 +34,6 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 public interface WhereNode extends Node {
 
-    ExpressionNode getExpressions();
-
     void setExpression(ExpressionNode expression);
 
     ExpressionNode getExpression();

@@ -73,12 +73,11 @@ public class WriteCharactersEvent implements Event {
         try {
             int numberOfCharactersWritten = channel.write(content, offset);
             result = new NumericResult(numberOfCharactersWritten, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while writing characters", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

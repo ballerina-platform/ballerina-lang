@@ -157,4 +157,34 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns[1].stringValue(), "Colombo");
     }
 
+    @Test(description = "Test map remove key positive.")
+    public void testMapRemovePositive() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemovePositive", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+
+        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(true));
+        Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(true));
+        Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
+    }
+
+    @Test(description = "Test map remove key negative.")
+    public void testMapRemoveNegative() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemoveNegative", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+
+        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
+        Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(false));
+        Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
+    }
+
 }

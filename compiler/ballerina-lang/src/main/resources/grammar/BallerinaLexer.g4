@@ -6,6 +6,7 @@ lexer grammar BallerinaLexer;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
+    boolean inSiddhiInsertQuery = false;
 }
 
 // Reserved words
@@ -36,7 +37,7 @@ VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -52,8 +53,22 @@ DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
 FOR         : 'for' ;
 WINDOW      : 'window' ;
-QUERY       : {inSiddhi}? 'query' { inSiddhi = false; }  ;
-
+QUERY       : 'query' ;
+EXPIRED     : 'expired' ;
+CURRENT     : 'current' ;
+EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
+EVERY       : 'every' ;
+WITHIN      : 'within' ;
+LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
+FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
+SNAPSHOT    : 'snapshot' ;
+OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; } ;
+INNER       : 'inner' ;
+OUTER       : 'outer' ;
+RIGHT       : 'right' ;
+LEFT        : 'left' ;
+FULL        : 'full' ;
+UNIDIRECTIONAL  : 'unidirectional' ;
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
@@ -65,7 +80,7 @@ TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
 TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
-TYPE_AGGREGTION : 'aggergation' ;
+TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
 
@@ -144,30 +159,30 @@ BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
 
-// §3.10.1 Integer Literals
-IntegerLiteral
-    :   DecimalIntegerLiteral
-    |   HexIntegerLiteral
-    |   OctalIntegerLiteral
-    |   BinaryIntegerLiteral
-    ;
+// Compound Assignment operators.
 
-fragment
+COMPOUND_ADD   : '+=' ;
+COMPOUND_SUB   : '-=' ;
+COMPOUND_MUL   : '*=' ;
+COMPOUND_DIV   : '/=' ;
+
+// Post Arithmetic operators.
+
+INCREMENT      : '++' ;
+DECREMENT      : '--' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 HexIntegerLiteral
     :   HexNumeral IntegerTypeSuffix?
     ;
 
-fragment
 OctalIntegerLiteral
     :   OctalNumeral IntegerTypeSuffix?
     ;
 
-fragment
 BinaryIntegerLiteral
     :   BinaryNumeral IntegerTypeSuffix?
     ;
