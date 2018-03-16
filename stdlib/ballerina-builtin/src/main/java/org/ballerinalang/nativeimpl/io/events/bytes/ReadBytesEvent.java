@@ -52,10 +52,11 @@ public class ReadBytesEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public ReadBytesEvent(Channel channel, byte[] content, int offset, EventContext context) {
+    public ReadBytesEvent(Channel channel, byte[] content, int offset, int size, EventContext context) {
         this.content = ByteBuffer.wrap(content);
         this.context = context;
         this.channel = channel;
+        this.content.limit(size);
         this.content.position(offset);
     }
 

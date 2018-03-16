@@ -50,28 +50,29 @@ public class AsyncReadWriteTest {
     @Test(description = "Read into fixed byte[] using async io framework")
     public void readBytes() throws IOException, URISyntaxException, ExecutionException,
             InterruptedException {
-        byte[] content = new byte[2];
+        byte[] content = new byte[4];
         //Number of characters in this file would be 6
         ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/6charfile.txt");
         Channel channel = new MockByteChannel(byteChannel);
 
-        byte[] expected = {49, 50};
+        byte[] expected = {49, 50, 0, 0};
         int offset = 0;
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        int size = 2;
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
 
-        expected = new byte[]{51, 52};
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        expected = new byte[]{51, 52, 0, 0};
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
 
-        expected = new byte[]{53, 54};
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        expected = new byte[]{53, 54, 0, 0};
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
 
         int expectedNumberOfBytes = 0;
         content = new byte[2];
         expected = new byte[]{0, 0};
-        int numberOfBytesRead = IOUtils.readFull(channel, content, offset, new EventContext());
+        int numberOfBytesRead = IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(numberOfBytesRead, expectedNumberOfBytes);
         Assert.assertEquals(expected, content);
     }
@@ -87,16 +88,17 @@ public class AsyncReadWriteTest {
         byte[] expected = "123".getBytes();
 
         int offset = 0;
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        int size = 3;
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
 
         expected = "456".getBytes();
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
 
         content = new byte[3];
         expected = new byte[3];
-        IOUtils.readFull(channel, content, offset, new EventContext());
+        IOUtils.readFull(channel, content, offset, size, new EventContext());
         Assert.assertEquals(expected, content);
     }
 

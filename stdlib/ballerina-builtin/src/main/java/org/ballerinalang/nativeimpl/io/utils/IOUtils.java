@@ -138,15 +138,16 @@ public class IOUtils {
      *
      * @param content the initialized array which should be filled with the content.
      * @param channel the channel the content should be read into.
-     * @param offset  if the array size should be read from an offset
+     * @param offset  if the array size should be read from an offset.
+     * @param size    size of the buffer.
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.
      */
-    public static int readFull(Channel channel, byte[] content, int offset, EventContext context)
+    public static int readFull(Channel channel, byte[] content, int offset, int size, EventContext context)
             throws InterruptedException, ExecutionException {
         int numberOfBytesToRead = content.length - offset;
         do {
-            offset = offset + read(channel, content, offset, context);
+            offset = offset + read(channel, content, offset, size, context);
         } while (offset < numberOfBytesToRead && !channel.hasReachedEnd());
         return offset;
     }
@@ -193,14 +194,15 @@ public class IOUtils {
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
      * @param offset  if the bytes should be read by specifying an offset.
+     * @param size    the size of the content buffer.
      * @param context context obtained from the native function.
      * @return the number of bytes read.
      * @throws InterruptedException errors which occur if the thread is interrupted.
      * @throws ExecutionException   errors which occur during execution.
      */
-    private static int read(Channel channel, byte[] content, int offset, EventContext context)
+    private static int read(Channel channel, byte[] content, int offset, int size, EventContext context)
             throws InterruptedException, ExecutionException {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
+        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, size, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         EventResult eventResponse = future.get();
         offset = (Integer) eventResponse.getResponse();
@@ -219,12 +221,13 @@ public class IOUtils {
      * @param channel  the channel which the bytes should be read from.
      * @param content  the byte[] which will holds the content which will be read.
      * @param offset   the offset which should be set while reading bytes.
+     * @param size     the number of bytes which should be written.
      * @param context  context which will be obtained from the native function call.
      * @param function the callback function which will be triggered.
      */
-    public static void read(Channel channel, byte[] content, int offset, EventContext context,
+    public static void read(Channel channel, byte[] content, int offset, int size, EventContext context,
                             Function<EventResult, EventResult> function) {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, context);
+        ReadBytesEvent event = new ReadBytesEvent(channel, content, offset, size, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
@@ -266,7 +269,7 @@ public class IOUtils {
      * @param function     callback function which will be triggered.
      */
     public static void close(Channel byteChannel, EventContext eventContext,
-                      Function<EventResult, EventResult> function) {
+                             Function<EventResult, EventResult> function) {
         CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);

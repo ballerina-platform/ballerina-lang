@@ -8,24 +8,28 @@ function getFileChannel (string filePath, string permission) (io:ByteChannel) {
 }
 
 @Description {value:"This function reads the specified number of bytes from the given channel."}
-function readBytes (io:ByteChannel channel, int numberOfBytes, int offset) (blob, int) {
-    blob bytes;
+function readBytes (io:ByteChannel channel, int numberOfBytes, int offset) (byte[], int) {
+    byte[] content = [];
     int numberOfBytesRead;
     io:IOError readError;
     // Here is how the bytes are read from the channel.
-    bytes, numberOfBytesRead, readError = channel.read(numberOfBytes, offset);
+    numberOfBytesRead, readError = channel.read(content, numberOfBytes, offset);
     if (readError != null) {
         throw readError.cause;
     }
-    return bytes, numberOfBytesRead;
+    return content, numberOfBytesRead;
 }
 
 @Description {value:"This function writes a byte content with the given offset to a channel."}
-function writeBytes (io:ByteChannel channel, blob content, int startOffset, int size) (int) {
+function writeBytes (io:ByteChannel channel, byte[] content, int size) (int) {
     int numberOfBytesWritten;
+    int totalNumberOfBytesWritten;
     io:IOError writeError;
     // Here is how the bytes are written to the channel.
-    numberOfBytesWritten, writeError = channel.write(content, startOffset, size);
+    while(totalNumberOfBytesWritten < size){
+      numberOfBytesWritten, writeError = channel.write(content, size, totalNumberOfBytesWritten);
+      totalNumberOfBytesWritten = totalNumberOfBytesWritten + numberOfBytesWritten;
+    }
     if (writeError != null) {
         throw writeError.cause;
     }
@@ -39,7 +43,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
     int numberOfBytesWritten = 0;
     int readCount = 0;
     int offset = 0;
-    blob readContent;
+    byte[] readContent;
     boolean done = false;
     try {
         // Here is how to specify to read all the content from
@@ -50,7 +54,7 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
                 //If no content is read we end the loop
                 done = true;
             }
-            numberOfBytesWritten = writeBytes(dst, readContent, offset, readCount);
+            numberOfBytesWritten = writeBytes(dst, readContent, readCount);
         }
     } catch (error err) {
         throw err;
@@ -69,9 +73,9 @@ function main (string[] args) {
         io:println("Start to copy files from " + srcFilePath + " to " + dstFilePath);
         copy(sourceChannel, destinationChannel);
         io:println("File copy completed. The copied file could be located in " + dstFilePath);
-    }catch (error err) {
+    } catch (error err) {
         io:println("error occurred while performing copy " + err.message);
-    }finally {
+    } finally {
         // Close the created connections.
         srcCloseError = sourceChannel.close();
         dstCloseError = destinationChannel.close();

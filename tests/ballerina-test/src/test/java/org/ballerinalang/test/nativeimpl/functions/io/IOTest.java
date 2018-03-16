@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -35,6 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * Tests I/O related functions.
@@ -69,11 +70,22 @@ public class IOTest {
         return pathValue;
     }
 
+    /**
+     * Resize a given array to fit with the specified size.
+     *
+     * @param source the source byte array.
+     * @param size   the size which the array should be resized.
+     * @return the resized byte array.
+     */
+    private byte[] getResizedArray(byte[] source, int size) {
+        return Arrays.copyOfRange(source, 0, size);
+    }
+
     @Test(description = "Test 'readBytes' function in ballerina.io package")
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BBlob readBytes;
+        BByteArray readBytes;
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r")};
@@ -83,22 +95,25 @@ public class IOTest {
         byte[] expectedBytes = "123".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        byte[] values = getResizedArray(readBytes.getValues(), expectedBytes.length);
+        Assert.assertEquals(expectedBytes, values);
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        values = getResizedArray(readBytes.getValues(), expectedBytes.length);
+        Assert.assertEquals(expectedBytes, values);
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[3];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invoke(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        values = getResizedArray(readBytes.getValues(), expectedBytes.length);
+        Assert.assertEquals(expectedBytes, values);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
     }
@@ -188,7 +203,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w")};
         BRunUtil.invoke(bytesInputOutputProgramFile, "initFileChannel", args);
 
-        args = new BValue[]{new BBlob(content), new BInteger(0), new BInteger(content.length)};
+        args = new BValue[]{new BByteArray(content), new BInteger(content.length), new BInteger(0)};
         BRunUtil.invoke(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invoke(bytesInputOutputProgramFile, "close");
