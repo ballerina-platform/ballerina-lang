@@ -9,13 +9,13 @@ function initFileChannel (string filePath, string permission) {
 function readBytes (int numberOfBytes) (blob) {
     blob bytes;
     int numberOfBytesRead;
-    bytes, numberOfBytesRead, _ = channel.read(numberOfBytes, 0);
+    bytes, numberOfBytesRead, _ = channel.read(numberOfBytes);
     return bytes;
 }
 
-function writeBytes (blob content, int startOffset, int size) (int) {
+function writeBytes (blob content, int startOffset) (int) {
     int numberOfBytesWritten;
-    numberOfBytesWritten, _ = channel.write(content, startOffset, size);
+    numberOfBytesWritten, _ = channel.write(content, startOffset);
     return numberOfBytesWritten;
 }
 
