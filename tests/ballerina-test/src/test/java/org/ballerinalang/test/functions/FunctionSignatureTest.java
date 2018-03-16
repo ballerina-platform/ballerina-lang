@@ -26,6 +26,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.NativeElementRepository;
+import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.test.utils.mock.StandardNativeElementProvider;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -391,8 +394,29 @@ public class FunctionSignatureTest {
 
     @Test
     public void testOptionalArgsInNativeFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/functions/native-function-signatures.bal");
-        BValue[] returns = BRunUtil.invoke(result, "foo");
-        System.out.println(returns[0]);
+        NativeElementRepository repo = NativeUnitLoader.getInstance().getNativeElementRepository();
+        StandardNativeElementProvider provider = new StandardNativeElementProvider();
+        provider.populateNatives(repo);
+
+        CompileResult result = BCompileUtil.compile(this, "test-src/functions/", "foo.bar");
+        BValue[] returns = BRunUtil.invoke(result, "testOptionalArgsInNativeFunc");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 78);
+
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 89.0);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "John");
+
+        Assert.assertTrue(returns[3] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 5);
+
+        Assert.assertTrue(returns[4] instanceof BString);
+        Assert.assertEquals(returns[4].stringValue(), "Doe");
+
+        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertEquals(returns[5].stringValue(), "[4, 5, 6]");
     }
 }
