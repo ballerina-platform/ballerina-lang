@@ -46,11 +46,8 @@ import java.util.stream.Collectors;
  * @since v0.964.0
  */
 public class CommandExecutor {
-    
     private static final String ARG_KEY = "argumentK";
-    
     private static final String ARG_VALUE = "argumentV";
-    
     private static final String RUNTIME_PKG_ALIAS = ".runtime";
 
     /**
@@ -69,7 +66,6 @@ public class CommandExecutor {
             default:
                 // Do Nothing
                 break;
-                    
         }
     }
 
@@ -100,8 +96,9 @@ public class CommandExecutor {
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
                     context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
-                    LSCustomErrorStrategy.class);
-            
+                    LSCustomErrorStrategy.class, false).get(0);
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                    bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
             DiagnosticPos pos;
 
@@ -109,7 +106,7 @@ public class CommandExecutor {
             List<BLangImportPackage> imports = bLangPackage.getImports().stream()
                     .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS))
                     .collect(Collectors.toList());
-            
+
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
                 pos = lastImport.getPosition();
@@ -118,12 +115,12 @@ public class CommandExecutor {
             } else {
                 pos = null;
             }
-            
+
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
             int endLine = pos == null ? 0 : pos.getEndLine() - 1;
-            
+
             String remainingTextToReplace;
-            
+
             if (endCol != -1) {
                 int contentLengthToReplaceStart = fileContent.substring(0,
                         fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
@@ -131,7 +128,7 @@ public class CommandExecutor {
             } else {
                 remainingTextToReplace = fileContent;
             }
-            
+
             String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
                     + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;
@@ -165,7 +162,8 @@ public class CommandExecutor {
         }
 
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
+                LSCustomErrorStrategy.class, false).get(0);
 
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
