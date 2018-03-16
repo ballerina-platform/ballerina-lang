@@ -468,6 +468,8 @@ transactionClause
 
 transactionPropertyInitStatement
     : retriesStatement
+    | committedStatement
+    | abortedStatement
     ;
 
 transactionPropertyInitStatementList
@@ -487,6 +489,14 @@ abortStatement
 
 retriesStatement
     :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+committedStatement
+    :   COMMITTED LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+abortedStatement
+    :   ABORTED LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

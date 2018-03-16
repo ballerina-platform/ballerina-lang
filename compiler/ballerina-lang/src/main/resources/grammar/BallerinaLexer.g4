@@ -33,6 +33,8 @@ WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
+ABORTED     : 'aborted' ;
+COMMITTED   : 'committed' ;
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
