@@ -1408,6 +1408,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeOfBinaryExpression(BallerinaParser.TypeOfBinaryExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeOfBinaryExpression(BallerinaParser.TypeOfBinaryExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAwaitExpression(BallerinaParser.AwaitExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

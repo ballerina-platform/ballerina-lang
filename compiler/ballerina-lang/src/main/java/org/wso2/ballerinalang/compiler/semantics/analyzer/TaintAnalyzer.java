@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -704,6 +705,12 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         binaryExpr.rhsExpr.accept(this);
         boolean rhsTaintedCheckResult = getObservedTaintedStatus();
         setTaintedStatusList(lhsTaintedCheckResult || rhsTaintedCheckResult);
+    }
+
+    public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
+        typeOfBinaryExpr.lhsExpr.accept(this);
+        boolean lhsTaintedCheckResult = getObservedTaintedStatus();
+        setTaintedStatusList(lhsTaintedCheckResult);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {

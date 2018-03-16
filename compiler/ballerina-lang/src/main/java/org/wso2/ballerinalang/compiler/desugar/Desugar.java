@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -100,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -799,6 +801,40 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
+    }
+
+    @Override
+    public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
+
+        // Generate binary expression for equality with two types.
+        BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+
+        // LHS unary expression
+        BLangUnaryExpr lhsUnary = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        lhsUnary.pos = typeOfBinaryExpr.lhsExpr.pos;
+        lhsUnary.addWS(typeOfBinaryExpr.lhsExpr.getWS());
+        lhsUnary.expr = rewriteExpr(typeOfBinaryExpr.lhsExpr);
+        lhsUnary.type = symTable.typeType;
+        lhsUnary.operator = OperatorKind.TYPEOF;
+        lhsUnary.opSymbol = typeOfBinaryExpr.lhsOpSymbol;
+
+        // RHS typeof expression
+        BLangTypeofExpr rhsTypeOfExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        rhsTypeOfExpr.pos = typeOfBinaryExpr.rhsTypeNode.pos;
+        rhsTypeOfExpr.addWS(typeOfBinaryExpr.rhsTypeNode.getWS());
+        rhsTypeOfExpr.typeNode = typeOfBinaryExpr.rhsTypeNode;
+        rhsTypeOfExpr.resolvedType = typeOfBinaryExpr.rhsTypeNode.type;
+        rhsTypeOfExpr.type = symTable.typeType;
+
+        // Binary operator for equality
+        binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+                symTable.typeType, symTable.typeType);
+        binaryExpr.type = symTable.booleanType;
+
+        binaryExpr.lhsExpr = lhsUnary;
+        binaryExpr.rhsExpr = rhsTypeOfExpr;
+
+        result = binaryExpr;
     }
 
     @Override

@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -685,6 +686,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(binaryExpr.rhsExpr);
     }
 
+    public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
+        analyzeExpr(typeOfBinaryExpr.lhsExpr);
+    }
+
     public void visit(BLangUnaryExpr unaryExpr) {
         analyzeExpr(unaryExpr.expr);
     }
@@ -1047,6 +1052,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         public void visit(BLangBinaryExpr binaryExpr) {
             binaryExpr.rhsExpr.accept(this);
             binaryExpr.lhsExpr.accept(this);
+        }
+
+        public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
+            typeOfBinaryExpr.lhsExpr.accept(this);
         }
 
         @Override

@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -395,6 +396,11 @@ public class NodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
         // No implementation
     }
 

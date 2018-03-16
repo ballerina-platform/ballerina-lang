@@ -139,6 +139,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -872,6 +873,17 @@ public class BLangPackageBuilder {
         binaryExpressionNode.lhsExpr = (BLangExpression) exprNodeStack.pop();
         binaryExpressionNode.opKind = OperatorKind.valueFrom(operator);
         addExpressionNode(binaryExpressionNode);
+    }
+
+    public void createTypeOfBinaryExpr(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
+        BLangTypeOfBinaryExpr typeOfBinaryExpressionNode = (BLangTypeOfBinaryExpr) TreeBuilder
+                .createTypeOfBinaryExpressionNode();
+        typeOfBinaryExpressionNode.pos = pos;
+        typeOfBinaryExpressionNode.addWS(ws);
+        typeOfBinaryExpressionNode.rhsTypeNode = (BLangType) this.typeNodeStack.pop();
+        typeOfBinaryExpressionNode.lhsExpr = (BLangExpression) exprNodeStack.pop();
+        typeOfBinaryExpressionNode.opKind = OperatorKind.valueFrom(operator);
+        addExpressionNode(typeOfBinaryExpressionNode);
     }
 
     public void createTypeCastExpr(DiagnosticPos pos, Set<Whitespace> ws) {

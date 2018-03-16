@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeOfBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -579,6 +580,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
+    }
+
+    public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
+        BType exprType = checkExpr(typeOfBinaryExpr.lhsExpr, env).get(0);
+
+        if (exprType != symTable.errType) {
+            List<BType> paramTypes = Lists.of(exprType);
+            List<BType> retTypes = Lists.of(symTable.typeType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            if (!types.isValueType(exprType)) {
+                BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                        symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
+                typeOfBinaryExpr.lhsOpSymbol = symbol;
+            } else {
+                BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                        symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
+                typeOfBinaryExpr.lhsOpSymbol = symbol;
+            }
+        }
+
+        symResolver.resolveTypeNode(typeOfBinaryExpr.rhsTypeNode, env);
+
+        // Set boolean type as the actual type.
+        BType actualType = symTable.booleanType;
+        resultTypes = types.checkTypes(typeOfBinaryExpr, Lists.of(actualType), expTypes);
     }
 
     public void visit(BLangTypeofExpr accessExpr) {

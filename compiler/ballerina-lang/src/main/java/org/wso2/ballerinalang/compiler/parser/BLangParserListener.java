@@ -1622,6 +1622,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTypeOfBinaryExpression(BallerinaParser.TypeOfBinaryExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createTypeOfBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
     public void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
