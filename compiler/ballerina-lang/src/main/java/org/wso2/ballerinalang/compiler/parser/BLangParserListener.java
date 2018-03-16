@@ -203,7 +203,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        boolean constrained = ctx.serviceEndpointAttachments() != null;
+        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), constrained);
     }
 
     @Override
@@ -260,8 +261,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean docExists = ctx.documentationAttachment() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
+        boolean hasParameters = ctx.resourceParameterList() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists, isDeprecated);
+                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists, isDeprecated, hasParameters);
+    }
+
+    @Override
+    public void exitResourceParameterList(BallerinaParser.ResourceParameterListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        final boolean isEndpointDefined = ctx.ENDPOINT() != null;
+        if (isEndpointDefined) {
+            this.pkgBuilder.addEndpointVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        }
     }
 
     /**

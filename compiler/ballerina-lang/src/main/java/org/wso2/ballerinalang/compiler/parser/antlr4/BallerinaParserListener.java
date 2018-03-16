@@ -118,6 +118,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#resourceParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void enterResourceParameterList(BallerinaParser.ResourceParameterListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#resourceParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void exitResourceParameterList(BallerinaParser.ResourceParameterListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitBody}.
 	 * @param ctx the parse tree
 	 */

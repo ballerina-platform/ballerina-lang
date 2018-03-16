@@ -49,11 +49,11 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE LT nameReference GT Identifier serviceEndpointAttachments? serviceBody
+    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
     ;
 
 serviceEndpointAttachments
-    :   ENDPOINT nameReference ( COMMA nameReference)*
+    :   BIND nameReference (COMMA nameReference)*
     ;
 
 serviceBody
@@ -61,7 +61,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+resourceParameterList
+    :   ENDPOINT Identifier (COMMA parameterList)?
+    |   parameterList
     ;
 
 callableUnitBody
