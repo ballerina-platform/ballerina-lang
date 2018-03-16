@@ -318,4 +318,7 @@ public class HttpConstants {
     public static final String PROXY_PASSWORD = "pasword";
 
     public static final String HTTP_SERVICE_TYPE = "Service";
+    // Filter related
+    public static final String ENDPOINT_CONFIG_FILTERS = "filters";
+    public static final String FILTERS = "FILTERS";
 }
