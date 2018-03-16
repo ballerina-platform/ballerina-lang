@@ -17,3 +17,25 @@
     color       : #222;
     padding-left: 7px;
 }
+.package-input{
+    border      : 0 !important;
+    padding     : 0 !important;
+    
+    input{
+        border  : 0 !important;
+    }
+}
+
+.design-view-container {
+   .item{
+       border   : 0;
+       padding  : 0 !important;
+       margin   : 5px !important;
+   }
+   .ui.menu .item:before{
+        width   : 0;
+    }
+    a.item:hover{
+        border-radius: 50% !important;
+    }
+ }

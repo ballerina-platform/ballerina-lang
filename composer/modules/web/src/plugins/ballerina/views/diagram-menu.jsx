@@ -32,7 +32,7 @@ class DiagramMenu extends React.Component {
         return (
             <Menu style={{ position: 'fixed', width: this.props.width }}>
                 <Menu.Item>
-                    <Input icon='fw fw-package' iconPosition='left' placeholder='Package...' />
+                    <Input  className='package-input' icon='fw fw-package' iconPosition='left' placeholder='Package...' />
                 </Menu.Item>
 
                 <Menu.Menu position='right'>
