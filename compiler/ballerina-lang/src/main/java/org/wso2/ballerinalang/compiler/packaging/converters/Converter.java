@@ -1,6 +1,8 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 
+import org.ballerinalang.model.elements.PackageID;
+
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -22,5 +24,5 @@ public interface Converter<T> {
 
     T start();
 
-    Stream<Path> finalize(T t);
+    Stream<Path> finalize(T t, PackageID id);
 }

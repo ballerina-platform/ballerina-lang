@@ -97,11 +97,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.xml.XMLConstants;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 
@@ -287,7 +287,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
-        PackageID pkgId = new PackageID(orgName, nameComps, names.fromIdNode(importPkgNode.version));
+        String version = names.fromIdNode(importPkgNode.version).getValue().replaceAll("[^\\d.]", "");
+        PackageID pkgId = new PackageID(orgName, nameComps, new Name(version));
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

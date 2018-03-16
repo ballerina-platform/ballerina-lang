@@ -1,5 +1,6 @@
 package org.ballerinalang.test.packaging;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,8 +46,8 @@ public class JarIntegrationTest {
         Patten balPatten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
         JarRepo repo = new JarRepo(tempJar.toUri());
         Converter<Path> subject = repo.getConverterInstance();
-
-        List<Path> paths = balPatten.convertToPaths(subject)
+        PackageID packageID = null;
+        List<Path> paths = balPatten.convertToPaths(subject, packageID)
                                     .collect(Collectors.toList());
 
         Assert.assertEquals(paths.size(), 1);

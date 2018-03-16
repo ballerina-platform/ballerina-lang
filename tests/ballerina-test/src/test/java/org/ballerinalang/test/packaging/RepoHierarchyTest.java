@@ -115,7 +115,7 @@ public class RepoHierarchyTest {
             public Converter getConverterInstance() {
                 return new StringConverter() {
                     @Override
-                    public Stream<Path> finalize(String s) {
+                    public Stream<Path> finalize(String s, PackageID packageID) {
                         return Stream.of(tempFile);
                     }
                 };

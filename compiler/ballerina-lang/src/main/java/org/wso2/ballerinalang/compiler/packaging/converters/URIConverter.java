@@ -1,5 +1,6 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
  */
 public class URIConverter implements Converter<URI> {
 
-    public static final String BALLERINA_PULL_BALX = "/ballerina.pull.balx";
+    public static final String BALLERINA_PULL_BALX = "/pull.bal.balx";
     private final URI base;
     private final EmbeddedExecutor executor;
     private final URI pullBalxLocation;
@@ -63,15 +64,16 @@ public class URIConverter implements Converter<URI> {
 
     }
 
-    public Stream<Path> finalize(URI u) {
+    public Stream<Path> finalize(URI u, PackageID packageID) {
         try {
             Path tmp = Files.createTempDirectory("bal-download-tmp-");
-            executor.execute(pullBalxLocation, u.toString(),
-                             tmp.toAbsolutePath().toString(),
-                             "",
-                             "",
-                             "",
-                             "");
+            String pkgName =  packageID.getName().getValue();
+            String destDir = tmp.resolve(pkgName + ".zip").toString();
+            String fullPkgPath = packageID.getOrgName() + "/" + packageID.getName() + ":" + packageID.getPackageVersion();
+            executor.execute(pullBalxLocation,
+                             u.toString(),
+                             destDir,
+                             fullPkgPath);
             return Files.find(tmp, 1, (s, b) -> {
                 Path fileName = s.getFileName();
                 return fileName != null && fileName.endsWith(".zip");

@@ -36,7 +36,7 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<Path> paths = patten.convertToPaths(converter)
+                List<Path> paths = patten.convertToPaths(converter, pkg)
                                          .filter(path -> Files.isRegularFile(path))
                                          .collect(Collectors.toList());
                 out.println("\t looking in " + repo + "\n\t\t for patten " +

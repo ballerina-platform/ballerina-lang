@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import com.sun.nio.zipfs.ZipFileSystem;
+import org.ballerinalang.model.elements.PackageID;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -58,7 +59,7 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> finalize(Path path) {
+    public Stream<Path> finalize(Path path, PackageID packageID) {
         return Stream.of(path);
     }
 
