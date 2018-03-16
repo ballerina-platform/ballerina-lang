@@ -54,20 +54,14 @@ public class TableLiteralTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-literal.bal");
-        resultHelper = BCompileUtil.compile("test-src/types/table/table-literal-test.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
-    @Test
+    @Test(enabled = false) //Issue #5106
     public void testEmptyTableCreate() {
-        BRunUtil.invoke(result, "testEmptyTableCreate");
-        BValue[] args = new BValue[1];
-        args[0] = new BString("TABLE_PERSON_%");
-        BValue[] returns = BRunUtil.invoke(resultHelper, "getTableCount", args);
+        BValue[] returns = BRunUtil.invoke(result, "testEmptyTableCreate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
-
-        args[0] = new BString("TABLE_COMPANY_%");
-        returns = BRunUtil.invoke(resultHelper, "getTableCount", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test(priority = 1)
@@ -298,6 +292,16 @@ public class TableLiteralTest {
                 + "\"name\":\"john\",\"married\":false}]");
     }
 
+    @Test(priority = 1)
+    public void testTableAddAndAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
+                + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+    }
+
     @Test(priority = 1,
           description = "Test struct with any typed field",
           expectedExceptions = { BLangRuntimeException.class },
@@ -323,9 +327,9 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
 
-    @Test(priority = 3)
+    @Test(priority = 3, enabled = false) //Issue #5106
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3); //Count is 3 as there are two global tables.
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }

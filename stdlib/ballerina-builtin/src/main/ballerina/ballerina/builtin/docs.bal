@@ -25,10 +25,10 @@ struct docData {
 }
 
 deprecated {}
-public annotation<resource, function, connector, action> Param docData;
+public annotation<resource, function> Param docData;
 
 deprecated {}
-public annotation<function, action> Return docData;
+public annotation<function> Return docData;
 
 deprecated {}
 public annotation<annotation, enum, struct> Field docData;

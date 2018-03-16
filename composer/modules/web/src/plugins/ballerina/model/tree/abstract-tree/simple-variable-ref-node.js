@@ -48,7 +48,6 @@ class AbstractSimpleVariableRefNode extends ExpressionNode {
     }
 
 
-
     setVariableName(newValue, silent, title) {
         const oldValue = this.variableName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,7 +72,6 @@ class AbstractSimpleVariableRefNode extends ExpressionNode {
     getVariableName() {
         return this.variableName;
     }
-
 
 
 }

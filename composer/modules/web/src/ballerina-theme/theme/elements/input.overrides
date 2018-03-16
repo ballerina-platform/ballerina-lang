@@ -6,7 +6,7 @@
 .ui.action.input:not([class*="left action"]) > .dropdown:last-child,
 .ui.action.input:not([class*="left action"]) > .button:last-child,
 .ui.action.input:not([class*="left action"]) > .buttons:last-child > .button  {
-    border-radius   :@border-radius-none;
+    border-radius   : @border-radius-none;
     height          : @inputHeight;
 }
 
@@ -19,4 +19,6 @@
             height      : @inputHeight;
      }
 }
-
+.ui.input input {
+    border-radius   : 0;
+}

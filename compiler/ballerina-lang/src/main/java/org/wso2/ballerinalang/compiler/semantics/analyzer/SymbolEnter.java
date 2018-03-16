@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStreamletSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -54,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -75,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -200,6 +203,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define connector params and type.
         defineConnectorParams(pkgNode.connectors, pkgEnv);
+
+        // Define streamlet nodes.
+        pkgNode.streamlets.forEach(con -> defineNode(con, pkgEnv));
+
+        // Define streamlet params and type.
+        defineStreamletParams(pkgNode.streamlets, pkgEnv);
 
         // Define transformer nodes.
         pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
@@ -403,6 +412,14 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangStreamlet streamletNode) {
+        BStreamletSymbol conSymbol = Symbols.createStreamletSymbol(Flags.asMask(streamletNode.flagSet),
+                names.fromIdNode(streamletNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        streamletNode.symbol = conSymbol;
+        defineSymbol(streamletNode.pos, conSymbol);
+    }
+
+    @Override
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
@@ -483,6 +500,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         resourceNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
+        if (!resourceNode.getParameters().isEmpty()
+                && resourceNode.getParameters().get(0) != null
+                && resourceNode.getParameters().get(0).typeNode == null) {
+            // This is endpoint variable. Setting temporary type for now till we find actual type at semantic phase.
+            resourceNode.getParameters().get(0).type = symTable.endpointType;
+        }
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
@@ -637,6 +660,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONNECTOR:
                 pkgNode.connectors.add((BLangConnector) node);
                 break;
+            case STREAMLET:
+                pkgNode.streamlets.add((BLangStreamlet) node);
+                break;
             case SERVICE:
                 pkgNode.services.add((BLangService) node);
                 break;
@@ -688,6 +714,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         connectors.forEach(connector -> {
             SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
             defineConnectorSymbolParams(connector, connector.symbol, conEnv);
+        });
+    }
+
+    private void defineStreamletParams(List<BLangStreamlet> streamlets, SymbolEnv pkgEnv) {
+        streamlets.forEach(streamlet -> {
+            SymbolEnv conEnv = SymbolEnv.createStreamletEnv(streamlet, streamlet.symbol.scope, pkgEnv);
+            defineStreamletSymbolParams(streamlet, streamlet.symbol, conEnv);
         });
     }
 
@@ -773,6 +806,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.type = new BConnectorType(paramTypes, symbol);
     }
 
+    private void defineStreamletSymbolParams(BLangStreamlet streamletNode, BStreamletSymbol symbol,
+                                             SymbolEnv streamletEnv) {
+        List<BVarSymbol> paramSymbols =
+                streamletNode.params.stream()
+                        .peek(varNode -> defineNode(varNode, streamletEnv))
+                        .map(varNode -> varNode.symbol)
+                        .collect(Collectors.toList());
+
+        symbol.setParams(paramSymbols);
+
+        // Create streamlet type
+        List<BType> paramTypes = paramSymbols.stream()
+                .map(paramSym -> paramSym.type)
+                .collect(Collectors.toList());
+
+        symbol.type = new BStreamletType(paramTypes, symbol);
+    }
+
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
@@ -791,8 +842,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        BVarSymbol varSymbol;
 
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
@@ -811,8 +861,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    private BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name
-            varName, SymbolEnv env) {
+    public BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType,
+                                                      Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,
@@ -1049,6 +1099,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && varType.tag != TypeTags.XML
                 && varType.tag != TypeTags.MAP
                 && varType.tag != TypeTags.TABLE
+                && varType.tag != TypeTags.STREAM
+                && varType.tag != TypeTags.STREAMLET
                 && varType.tag != TypeTags.STRUCT) {
             dlog.error(funcNode.receiver.pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE,
                     funcNode.name.value, varType.toString());

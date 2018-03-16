@@ -34,7 +34,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     private boolean errored;
     
     public AsyncInvocableWorkerResponseContext(BType[] responseTypes, int workerCount) {
-        super(responseTypes, workerCount, false);
+        super(responseTypes, workerCount);
     }
     
     @Override
@@ -65,23 +65,15 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
 
     @Override
     public WorkerExecutionContext onFulfillment(boolean runInCaller) {
+        this.doSuccessCallbackNotify();
         if (this.targetContextInfos.size() == 0) {
             return null;
         }
-        WorkerExecutionContext runInCallerCtx = this.doFulfillmentOnWorker(this.targetContextInfos.get(0), true);
+        TargetContextInfo info = this.targetContextInfos.get(0);
+        WorkerExecutionContext runInCallerCtx = this.onFulfillment(info.targetCtx, info.retRegIndexes, true);
         for (int i = 1; i < this.targetContextInfos.size(); i++) {
-            this.doFulfillmentOnWorker(this.targetContextInfos.get(i), false);
-        }
-        return runInCallerCtx;
-    }
-    
-    private WorkerExecutionContext doFulfillmentOnWorker(TargetContextInfo targetCtxInfo, boolean runInCaller) {
-        WorkerExecutionContext runInCallerCtx = null;
-        BLangVMUtils.mergeResultData(this.currentSignal.getResult(), targetCtxInfo.targetCtx.workerLocal, 
-                this.responseTypes, targetCtxInfo.retRegIndexes);
-        this.modifyDebugCommands(targetCtxInfo.targetCtx, this.currentSignal.getSourceContext());
-        if (!targetCtxInfo.targetCtx.isRootContext()) {
-            runInCallerCtx = BLangScheduler.resume(targetCtxInfo.targetCtx, runInCaller);
+            info = this.targetContextInfos.get(i);
+            this.onFulfillment(info.targetCtx, info.retRegIndexes, false);
         }
         return runInCallerCtx;
     }
@@ -89,6 +81,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     @Override
     protected WorkerExecutionContext propagateErrorToTarget() {
         this.errored = true;
+        this.doFailCallbackNotify(null);
         if (this.targetContextInfos.size() == 0) {
             return null;
         }

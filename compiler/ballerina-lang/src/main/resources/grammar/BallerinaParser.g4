@@ -38,7 +38,6 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   connectorDefinition
     |   structDefinition
     |   streamletDefinition
     |   enumDefinition
@@ -50,7 +49,11 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE LT nameReference GT Identifier serviceBody
+    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
+    ;
+
+serviceEndpointAttachments
+    :   BIND nameReference (COMMA nameReference)*
     ;
 
 serviceBody
@@ -58,7 +61,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+resourceParameterList
+    :   ENDPOINT Identifier (COMMA parameterList)?
+    |   parameterList
     ;
 
 callableUnitBody
@@ -80,37 +88,12 @@ callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
-connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
-    ;
-
-connectorBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
-    ;
-
-actionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* documentationAttachment? deprecatedAttachment? ACTION callableUnitSignature callableUnitBody
-    ;
-
 structDefinition
     :   (PUBLIC)? STRUCT Identifier structBody
     ;
 
 structBody
     :   LEFT_BRACE fieldDefinition* privateStructBody? RIGHT_BRACE
-    ;
-
-streamletDefinition
-    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
-    ;
-
-streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
-    ;
-
-streamingQueryDeclaration
-    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
     ;
 
 privateStructBody
@@ -140,8 +123,6 @@ transformerDefinition
 attachmentPoint
      : SERVICE
      | RESOURCE
-     | CONNECTOR
-     | ACTION
      | FUNCTION
      | STRUCT
      | STREAMLET
@@ -170,11 +151,16 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
     ;
 
 endpointType
     :   nameReference
+    ;
+
+endpointInitlization
+    :   recordLiteral
+    |   ASSIGN variableReference
     ;
 
 typeName
@@ -217,11 +203,13 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
+    |   TYPE_FUTURE (LT typeName GT)?    
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
-    |   TYPE_AGGREGTION (LT nameReference GT)?
+    |   STREAMLET
+    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -341,8 +329,7 @@ foreachStatement
     ;
 
 intRangeExpression
-    : expression RANGE expression
-    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    :   (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement
@@ -440,7 +427,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : ASYNC? nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -458,7 +445,7 @@ invocationArg
     ;
 
 actionInvocation
-    : variableReference RARROW functionInvocation
+    : nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -533,6 +520,7 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   AWAIT expression                                                    # awaitExpression    
     ;
 
 //reusable productions
@@ -691,6 +679,8 @@ reservedWord
     |   TYPE_MAP
     ;
 
+
+//Siddhi Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?
@@ -704,11 +694,36 @@ aggregationQuery
 
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
+    ;
+
+queryStatement
+    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+    ;
+
 streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
         orderByClause?
+        outputRate?
         streamingAction
+    ;
+
+patternClause
+    :   EVERY? patternStreamingInput withinClause?
+    ;
+
+withinClause
+    :   WITHIN expression
     ;
 
 orderByClause
@@ -738,7 +753,7 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT INTO Identifier
+    :   INSERT outputEventType? INTO Identifier
     |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
     |   DELETE Identifier ON expression
     ;
@@ -756,19 +771,23 @@ streamingInput
     ;
 
 joinStreamingInput
-    :   JOIN streamingInput ON expression
+    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
     ;
 
-pattenStreamingInput
-    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
-    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH pattenStreamingInput
-    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
-    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
-    |   pattenStreamingEdgeInput
+outputRate
+    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
     ;
 
-pattenStreamingEdgeInput
+patternStreamingInput
+    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH patternStreamingInput
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
+    |   patternStreamingEdgeInput
+    ;
+
+patternStreamingEdgeInput
     :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
@@ -784,13 +803,24 @@ windowClause
     :   WINDOW functionInvocation
     ;
 
-queryDeclaration
-     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
-     ;
+outputEventType
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
+    ;
 
-queryDefinition
-     :   QUERY Identifier
-     ;
+joinType
+    : LEFT OUTER JOIN
+    | RIGHT OUTER JOIN
+    | FULL OUTER JOIN
+    | OUTER JOIN
+    | INNER? JOIN
+    ;
+
+outputRateType
+    : ALL
+    | LAST
+    | FIRST
+    ;
+
 // Deprecated parsing.
 
 deprecatedAttachment

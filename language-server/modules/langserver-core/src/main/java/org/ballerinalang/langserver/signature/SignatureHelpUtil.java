@@ -17,13 +17,15 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.UtilSymbolKeys;
+import org.ballerinalang.model.elements.DocTag;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -174,33 +176,46 @@ public class SignatureHelpUtil {
                 .findFirst()
                 .orElse(null);
 
-        // Iterate over the attachments list and extract the attachment Description Map
-        blangFunction.getAnnotationAttachments().forEach(annotationAttachment -> {
-            BLangExpression expr = annotationAttachment.expr;
-            if (expr instanceof BLangRecordLiteral) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                        ((BLangRecordLiteral) expr).keyValuePairs;
-                for (BLangRecordLiteral.BLangRecordKeyValue recordKeyValue : recordKeyValues) {
-                    BLangExpression key = recordKeyValue.key.expr;
-                    BLangExpression value = recordKeyValue.getValue();
-                    if (key instanceof BLangSimpleVarRef
-                            && ((BLangSimpleVarRef) key).getVariableName().getValue().equals("value")
-                            && value instanceof BLangLiteral) {
-                        String annotationValue = ((BLangLiteral) value).getValue().toString();
-                        if (annotationAttachment.getAnnotationName().getValue().equals("Param")) {
-                            String paramName = annotationValue
-                                    .substring(0, annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD));
-                            String annotationDesc = annotationValue
-                                    .substring(annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) + 1)
-                                    .trim();
-                            paramDescMap.put(paramName, annotationDesc);
-                        } else if (annotationAttachment.getAnnotationName().getValue().equals("Description")) {
-                            signatureInfoModel.setSignatureDescription(annotationValue);
+
+        if (!blangFunction.getDocumentationAttachments().isEmpty()) {
+            // Get the first documentation attachment
+            BLangDocumentation bLangDocumentation = blangFunction.getDocumentationAttachments().get(0);
+            signatureInfoModel.setSignatureDescription(bLangDocumentation.documentationText.trim());
+            bLangDocumentation.attributes.forEach(attribute -> {
+                if (attribute.docTag.equals(DocTag.PARAM)) {
+                    paramDescMap.put(attribute.documentationField.getValue(), attribute.documentationText.trim());
+                }
+            });
+        } else {
+            // TODO: Should be deprecated in due course
+            // Iterate over the attachments list and extract the attachment Description Map
+            blangFunction.getAnnotationAttachments().forEach(annotationAttachment -> {
+                BLangExpression expr = annotationAttachment.expr;
+                if (expr instanceof BLangRecordLiteral) {
+                    List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
+                            ((BLangRecordLiteral) expr).keyValuePairs;
+                    for (BLangRecordLiteral.BLangRecordKeyValue recordKeyValue : recordKeyValues) {
+                        BLangExpression key = recordKeyValue.key.expr;
+                        BLangExpression value = recordKeyValue.getValue();
+                        if (key instanceof BLangSimpleVarRef
+                                && ((BLangSimpleVarRef) key).getVariableName().getValue().equals("value")
+                                && value instanceof BLangLiteral) {
+                            String annotationValue = ((BLangLiteral) value).getValue().toString();
+                            if (annotationAttachment.getAnnotationName().getValue().equals("Param")) {
+                                String paramName = annotationValue
+                                        .substring(0, annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD));
+                                String annotationDesc = annotationValue
+                                        .substring(annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) + 1)
+                                        .trim();
+                                paramDescMap.put(paramName, annotationDesc);
+                            } else if (annotationAttachment.getAnnotationName().getValue().equals("Description")) {
+                                signatureInfoModel.setSignatureDescription(annotationValue);
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
