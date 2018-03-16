@@ -2330,21 +2330,19 @@ public class BLangPackageBuilder {
         this.streamActionNodeStack.push(streamActionNode);
     }
 
-    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action,
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String action,
                                     boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
 
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
-
-        if (!exprNodeStack.empty()) {
+        if (!action.equalsIgnoreCase("insert")) {
             streamActionNode.setExpression(exprNodeStack.pop());
         }
-
         if (!setAssignmentListStack.empty()) {
             streamActionNode.setSetClause(setAssignmentListStack.pop());
         }
-        streamActionNode.setIdentifier(identifier);
+        streamActionNode.setTargetReference(exprNodeStack.pop());
         streamActionNode.setStreamActionType(action);
         streamActionNode.setOutputEventType(isAllEvents, isCurrentEvents, isExpiredEvents);
     }
@@ -2356,8 +2354,7 @@ public class BLangPackageBuilder {
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
-    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                 String alias) {
+    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String alias) {
 
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
 
@@ -2371,7 +2368,7 @@ public class BLangPackageBuilder {
         if (!whereClauseStack.empty()) {
             patternStreamingEdgeInputNode.setWhereClause(whereClauseStack.pop());
         }
-        patternStreamingEdgeInputNode.setIdentifier(identifier);
+        patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 

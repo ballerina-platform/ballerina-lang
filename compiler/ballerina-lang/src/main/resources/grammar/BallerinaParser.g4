@@ -756,9 +756,9 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT outputEventType? INTO Identifier
-    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
-    |   DELETE Identifier ON expression
+    :   INSERT outputEventType? INTO variableReference
+    |   UPDATE (OR INSERT INTO)? variableReference setClause ? ON expression
+    |   DELETE variableReference ON expression
     ;
 
 setClause
@@ -791,7 +791,7 @@ patternStreamingInput
     ;
 
 patternStreamingEdgeInput
-    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
 whereClause

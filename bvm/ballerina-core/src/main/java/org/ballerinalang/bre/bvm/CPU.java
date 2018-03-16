@@ -2617,13 +2617,10 @@ public class CPU {
         int cpIndex = operands[0];
         int i = operands[1];
         StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
-        StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
+        StreamletInfo streamletInfo = streamletRefCPEntry.getStreamletInfo();
         BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
         streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
         streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
-        StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
-        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
-                                                                          streamletInfo.getStreamIdsAsString());
         sf.refRegs[i] = streamlet;
     }
 

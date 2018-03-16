@@ -162,6 +162,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
+    private static final String CREATE_STREAMLET = "startStreamlet";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -170,6 +171,7 @@ public class Desugar extends BLangNodeVisitor {
     private EndpointDesugar endpointDesugar;
     private SqlQueryBuilder sqlQueryBuilder;
     private Types types;
+    private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
 
     private BLangNode result;
@@ -200,6 +202,7 @@ public class Desugar extends BLangNodeVisitor {
         this.sqlQueryBuilder = SqlQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
+        this.names = Names.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -220,9 +223,9 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
+        pkgNode.streamlets = rewrite(pkgNode.streamlets, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
-        pkgNode.streamlets = rewrite(pkgNode.streamlets, env);
         pkgNode.services = rewrite(pkgNode.services, env);
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
         annotationDesugar.rewritePackageAnnotations(pkgNode);
@@ -594,10 +597,34 @@ public class Desugar extends BLangNodeVisitor {
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
             result = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
-            result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
+            BLangRecordLiteral.BLangStreamletLiteral streamletLiteral = new BLangRecordLiteral.BLangStreamletLiteral
+                    (recordLiteral.type);
+            result = createInvocationForStreamletCreation(streamletLiteral);
         } else {
             result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
+    }
+
+    private BLangInvocation createInvocationForStreamletCreation(BLangExpression expression) {
+        List<BLangExpression> args = new ArrayList<>();
+        List<BType> retTypes = new ArrayList<>();
+        retTypes.add(expression.type);
+        args.add(expression);
+
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
+
+        return createInvocationNode(CREATE_STREAMLET, args, retTypes);
+    }
+
+    private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {
+        BLangArrayLiteral localRefs = createArrayLiteralExprNode();
+        for (BLangExpression varRef : varRefs) {
+            localRefs.exprs.add(rewrite(varRef, env));
+        }
+        args.add(localRefs);
     }
 
     @Override
@@ -1054,10 +1081,10 @@ public class Desugar extends BLangNodeVisitor {
         }
         args.add(getSQLStatementParameters(tableQueryExpression));
         args.add(getReturnType(tableQueryExpression));
-        return createQueryTableInvocation(functionName, args, retTypes);
+        return createInvocationNode(functionName, args, retTypes);
     }
 
-    private BLangInvocation createQueryTableInvocation(String functionName, List<BLangExpression> args, List<BType>
+    private BLangInvocation createInvocationNode(String functionName, List<BLangExpression> args, List<BType>
             retTypes) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -1130,15 +1157,15 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef joinTable = null;
         if (joinStreamingInput != null) {
             joinTable = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
-            joinTable = new BLangLocalVarRef(joinTable.symbol);
+            joinTable = rewrite(joinTable, env);
         }
         return joinTable;
     }
 
-    private BLangLocalVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
+    private BLangSimpleVarRef getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
         BLangSimpleVarRef fromTable = (BLangSimpleVarRef) tableQueryExpression.getTableQuery().getStreamingInput()
                 .getStreamReference();
-        return new BLangLocalVarRef(fromTable.symbol);
+        return rewrite(fromTable, env);
     }
 
     // private functions

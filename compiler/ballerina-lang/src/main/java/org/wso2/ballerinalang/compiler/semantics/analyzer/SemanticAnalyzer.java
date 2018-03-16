@@ -980,17 +980,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv streamletEnv = SymbolEnv.createStreamletEnv(streamletNode, streamletSymbol.scope, env);
 
         List<? extends StatementNode> statementNodes = streamletNode.getBody().getStatements();
-        for (StatementNode statementNode : statementNodes) {
+        statementNodes.forEach(statementNode -> {
             this.analyzeDef((BLangStatement) statementNode, streamletEnv);
             ((BLangStatement) statementNode).accept(this);
-        }
+        });
 
         List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
         if (globalVariableList != null) {
             for (BLangVariable variable : globalVariableList) {
                 if (((variable).type.tsymbol) != null) {
                     if ("stream".equals((((variable).type.tsymbol)).name.value)) {
-                        ((BLangStreamlet) streamletNode).addGlobalVariable(variable);
+                        streamletNode.addGlobalVariable(variable);
                     }
                 }
             }
@@ -1034,6 +1034,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamingInput streamingInput) {
+        BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
+        typeChecker.checkExpr(streamRef, env);
+
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         if (beforeWhereNode != null) {
             ((BLangWhere) beforeWhereNode).accept(this);
@@ -1114,11 +1117,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamAction streamAction) {
+        BLangExpression targetRef = (BLangExpression) streamAction.getTargetReference();
+        typeChecker.checkExpr(targetRef, env);
         ExpressionNode expressionNode = streamAction.getExpression();
         if (expressionNode != null) {
             ((BLangExpression) expressionNode).accept(this);
         }
-
         List<SetAssignmentNode> setAssignmentNodeList = streamAction.getSetClause();
         if (setAssignmentNodeList != null) {
             for (SetAssignmentNode setAssignmentNode : setAssignmentNodeList) {
