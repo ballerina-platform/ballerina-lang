@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 
 package org.ballerinalang.observe.trace;
 
@@ -23,6 +23,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.trace.config.ConfigLoader;
 import org.ballerinalang.observe.trace.config.OpenTracingConfig;
 import org.ballerinalang.util.tracer.TraceManager;
@@ -30,6 +31,8 @@ import org.ballerinalang.util.tracer.TraceManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.observe.trace.Constants.DISABLE_OBSERVE_KEY;
 
 /**
  * This is the class which holds the tracers that are enabled,
@@ -39,11 +42,12 @@ import java.util.Map;
  */
 public class OpenTracerManager implements TraceManager {
     private TracersStore tracerStore;
-    private boolean enabled = false;
+    private boolean enabled;
 
     public OpenTracerManager() {
+        enabled = !Boolean.valueOf(ConfigRegistry.getInstance().getGlobalConfigValue(DISABLE_OBSERVE_KEY));
         OpenTracingConfig openTracingConfig = ConfigLoader.load();
-        if (openTracingConfig != null) {
+        if (enabled && openTracingConfig != null) {
             tracerStore = new TracersStore(openTracingConfig);
             enabled = true;
         }

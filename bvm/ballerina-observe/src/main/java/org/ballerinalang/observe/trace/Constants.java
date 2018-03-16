@@ -23,4 +23,5 @@ package org.ballerinalang.observe.trace;
 public class Constants {
     public static final String BALLERINA_TRACE_CONFIG_KEY = "trace.config";
     public static final String INVOCATION_ID_PROPERTY = "invocation_id";
+    public static final String DISABLE_OBSERVE_KEY = "disable.observe";
 }
