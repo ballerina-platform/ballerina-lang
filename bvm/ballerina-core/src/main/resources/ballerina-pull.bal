@@ -43,10 +43,8 @@ function pullPackage (string url, string destDirPath, string fullPkgPath) {
 }
 
 function main(string[] args){
-    pullPackage("https://staging.central.ballerina.io:9090/hemika/foo.bar/1.0.0/",
-                "/tmp/bal-download-tmp-6890244866054220646/foo.bar.zip",
-                "hemika/foo.bar:1.0.0"); }
-
+    pullPackage(args[0], args[1], args[2]);
+}
 
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(filePath, permission);
