@@ -68,7 +68,7 @@ service<http:Service> hubService {
                     } else {
                         response = { statusCode:202 };
                         _ = conn -> respond(response);
-                        http:publishToInternalHub(topic, payload);
+                        publishToInternalHub(topic, payload);
                         log:printInfo("Event notification done for Topic [" + topic + "]");
                     }
                 } else {
@@ -352,6 +352,11 @@ function <PendingSubscriptionChangeRequest pendingRequestOne> equals
 @Description {value:"Adds a new subscription for the specified topic in the Ballerina Hub"}
 @Param {value:"subscriptionDetails: The details of the subscription including WebSub specifics"}
 native function addSubscription (SubscriptionDetails subscriptionDetails);
+
+@Description {value:"Publishes an update against the topic in the Ballerina Hub"}
+@Param {value:"topic: The topic for which the update should happen"}
+@Param {value:"payload: The update payload"}
+native function publishToInternalHub (string topic, json payload);
 
 @Description {value:"Removes a subscription added for the specified topic in the Ballerina Hub"}
 @Param {value:"topic: The topic for which the subscription was added"}

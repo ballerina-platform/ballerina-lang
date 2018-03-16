@@ -2,6 +2,34 @@ package ballerina.net.http;
 
 import ballerina.security.crypto;
 
+public const string HUB_CHALLENGE = "hub.challenge";
+public const string HUB_MODE = "hub.mode";
+public const string HUB_TOPIC = "hub.topic";
+public const string HUB_CALLBACK = "hub.callback";
+public const string HUB_LEASE_SECONDS = "hub.lease_seconds";
+public const string HUB_SECRET = "hub.secret";
+
+public const string MODE_SUBSCRIBE = "subscribe";
+public const string MODE_UNSUBSCRIBE = "unsubscribe";
+public const string MODE_PUBLISH = "publish";
+
+public const string X_HUB_UUID = "X-Hub-Uuid";
+public const string X_HUB_TOPIC = "X-Hub-Topic";
+public const string X_HUB_SIGNATURE = "X-Hub-Signature";
+
+public const string CONTENT_TYPE = "Content-Type";
+public const string SHA1 = "SHA1";
+public const string SHA256 = "SHA256";
+public const string MD5 = "MD5";
+
+@Description {value:"Struct to represent WebSub related errors"}
+@Field {value:"errorMessage: Error message indicating an issue"}
+@Field {value:"connectorError: HttpConnectorError if occurred"}
+public struct WebSubError {
+    string errorMessage;
+    HttpConnectorError connectorError;
+}
+
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -129,6 +157,67 @@ function validateSignature (string xHubSignature, string stringPayload, string s
 
 }
 
+@Description {value:"Struct to represent content received by the callback"}
+@Field {value:"webSubHeaders: WebSub specific headers"}
+@Field {value:"payload: The payload received"}
+public struct WebSubNotification {
+    WebSubHeaders webSubHeaders;
+    json payload;
+}
+
+@Description {value:"Struct to represent WebSub specific headers"}
+@Field {value:"xHubUuid: Unique ID representing the content delivery"}
+@Field {value:"xHubTopic: The topic for which the content delivery happened"}
+@Field {value:"xHubSignature: The signature if the subscription was created specifying a secret"}
+public struct WebSubHeaders {
+    string xHubUuid;
+    string xHubTopic;
+    string xHubSignature;
+}
+
+@Description {value:"Struct to represent a WebSub subscription request"}
+@Field {value:"topic: The topic for which the subscription/unsubscription request is sent"}
+@Field {value:"callback: The callback which should be registered/unregistered for the subscription/unsubscription
+                request is sent"}
+@Field {value:"leaseSeconds: The lease period for which the subscription is expected to be active"}
+@Field {value:"secret: The secret to be used for authenticated content distribution with this subscription"}
+public struct SubscriptionChangeRequest {
+    string topic;
+    string callback;
+    int leaseSeconds;
+    string secret;
+}
+
+@Description {value:"Struct to represent subscription/unsubscription details on success"}
+@Field {value:"hub: The hub at which the subscription/unsubscription was successful"}
+@Field {value:"topic: The topic for which the subscription/unsubscription was successful"}
+@Field {value:"response: The response from the hub to the subscription/unsubscription requests"}
+public struct SubscriptionChangeResponse {
+    string hub;
+    string topic;
+    Response response;
+}
+
+/////////////////////////////////////////////////////////////
+//////////////////// WebSub Hub Commons /////////////////////
+/////////////////////////////////////////////////////////////
+@Description {value:"Starts up the Ballerina Hub"}
+@Param {value:"ballerinaWebSubHub: The WebSubHub struct representing the started up hub"}
+public function startUpBallerinaHub () (WebSubHub ballerinaWebSubHub) {
+    string hubUrl = startUpHubService();
+    ballerinaWebSubHub = { hubUrl:hubUrl };
+    return;
+}
+
+@Description {value:"Stops the started up Ballerina Hub"}
+@Param {value:"ballerinaWebSubHub: The WebSubHub struct representing the started up hub"}
+@Return {value:"Boolean indicating whether the internal Ballerina Hub was stopped"}
+public function <WebSubHub ballerinaWebSubHub> shutdownBallerinaHub () (boolean) {
+    //TODO: fix to stop
+    string hubUrl = ballerinaWebSubHub.hubUrl;
+    return stopHubService(hubUrl);
+}
+
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -137,10 +226,12 @@ endpoint<Client> hubClientEp {
 }
 
 @Description {value:"Function to publish an update to a remote hub"}
-@Param {value:"hub: The hub the publisher requires updates to be published to"}
+@Param {value:"webSubHub: The WebSubHub struct representing the hub the publisher requires updates to be published to"}
 @Param {value:"topic: The topic for which the update occurred"}
 @Param {value:"payload: The update payload"}
-public function publish (string hub, string topic, json payload) {
+public function <WebSubHub webSubHub> publishUpdateToRemoteHub (string topic, json payload) (WebSubError) {
+    WebSubError webSubError;
+    string hub = webSubHub.hubUrl;
     hubClientEp.init("hubClientEp", {serviceUri:hub});
     hubClientEp.start();
     var hubClient = hubClientEp.getConnector();
@@ -154,10 +245,10 @@ public function publish (string hub, string topic, json payload) {
     request.setJsonPayload(payload);
     response, err = hubClient -> post("?" + queryParams, request);
     if (err != null) {
-        log:printError("Notification failed for hub [" + hub +"] for topic [" + topic + "]");
-    } else {
-        log:printInfo("Notification successful for hub [" + hub +"] for topic [" + topic + "]");
+        webSubError = { errorMessage:"Notification failed for hub [" + hub +"] for topic [" + topic + "]",
+                          connectorError:err };
     }
+    return webSubError;
 }
 
 @Description {value:"Function to add link headers to a response to allow WebSub discovery"}
@@ -173,4 +264,27 @@ public function addWebSubLinkHeaders (Response response, string[] hubs, string t
     }
     response.setHeader("Link", hubLinkHeader + "<" + topic + "> ; rel=\"self\"");
     return response;
+}
+
+@Description {value:"Struct to represent a WebSub Hub"}
+@Field {value:"hubUrl: The URL of the WebSub Hub"}
+public struct WebSubHub {
+    string hubUrl;
+}
+
+@Description {value:"Publishes an update against the topic in the initialized Ballerina Hub"}
+@Param {value:"topic: The topic for which the update should happen"}
+@Param {value:"payload: The update payload"}
+@Return {value:"WebSubError if the hub is not initialized or ballerinaWebSubHub does not represent the internal hub"}
+public function <WebSubHub ballerinaWebSubHub> publishUpdate (string topic, json payload)
+(WebSubError webSubError) {
+    if (ballerinaWebSubHub.hubUrl == null) {
+        webSubError = { errorMessage:"Internal Ballerina Hub not initialized or incorrectly referenced" };
+    } else {
+        string errorMessage = validateAndPublishToInternalHub(ballerinaWebSubHub.hubUrl, topic, payload);
+        if (errorMessage != null) {
+            webSubError = { errorMessage:errorMessage };
+        }
+    }
+    return;
 }
