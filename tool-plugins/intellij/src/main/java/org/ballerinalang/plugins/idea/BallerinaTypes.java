@@ -21,7 +21,6 @@ import org.antlr.jetbrains.adaptor.lexer.PSIElementTypeFactory;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.lexer.TokenIElementType;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
-import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 
 import java.util.List;
 
