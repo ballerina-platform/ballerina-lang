@@ -29,6 +29,7 @@ import CodeExplorerPlugin from './plugins/code-explorer/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
 import ImportStructPlugin from './plugins/import-struct/plugin';
+import ToolsPlugin from './plugins/tools/plugin';
 
 export default {
     app: {
@@ -38,6 +39,7 @@ export default {
             DebuggerPlugin,
             HelpPlugin,
             TryItPlugin,
+            ToolsPlugin,
             WelcomeTabPlugin,
             ImportSwaggerPlugin,
             ImportStructPlugin,

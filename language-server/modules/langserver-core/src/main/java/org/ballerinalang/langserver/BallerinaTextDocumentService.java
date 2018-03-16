@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -278,10 +279,17 @@ public class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
-            params.getContext().getDiagnostics().forEach(diagnostic -> {
-                commands.addAll(CommonUtil
-                        .getCommandsByDiagnostic(diagnostic, params, documentManager, bLangPackageContext));
-            });
+            String topLevelNodeType = CommonUtil
+                    .topLevelNodeTypeInLine(params.getTextDocument(), params.getRange().getStart(), documentManager);
+            if (topLevelNodeType != null) {
+                commands.add(CommandUtil.getDocGenerationCommand(topLevelNodeType,
+                        params.getTextDocument().getUri(), params.getRange().getStart().getLine()));
+            } else if (!params.getContext().getDiagnostics().isEmpty()) {
+                params.getContext().getDiagnostics().forEach(diagnostic -> {
+                    commands.addAll(CommandUtil
+                            .getCommandsByDiagnostic(diagnostic, params, documentManager, bLangPackageContext));
+                });
+            }
             return commands;
         });
     }
