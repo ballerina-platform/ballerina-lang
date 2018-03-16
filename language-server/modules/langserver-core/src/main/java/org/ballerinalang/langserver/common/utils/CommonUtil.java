@@ -48,12 +48,13 @@ import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.lang.reflect.InvocationTargetException;
@@ -73,9 +74,9 @@ import java.util.stream.Collectors;
 
 /**
  * Common utils to be reuse in language server implementation.
- * */
+ */
 public class CommonUtil {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TextDocumentFormatUtil.class);
 
     private static final String SYMBOL_TYPE = "symbolType";
@@ -85,7 +86,7 @@ public class CommonUtil {
     private static final String UNESCAPED_VALUE = "unescapedValue";
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
-    
+
     /**
      * Get the package URI to the given package name.
      *
@@ -94,15 +95,22 @@ public class CommonUtil {
      * @param currentPkgName Name of the current package
      * @return String URI for the given path.
      */
-    public static String getPackageURI(List<Name> pkgName, String currentPkgPath, List<Name> currentPkgName) {
+    public static String getPackageURI(String pkgName, String currentPkgPath, String currentPkgName) {
         String newPackagePath;
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
-        if (currentPkgPath != null && !currentPkgName.get(0).getValue().equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName.get(0).getValue());
-            newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
-            for (Name pkgDir : pkgName) {
-                newPackagePath = Paths.get(newPackagePath, pkgDir.getValue()).toString();
+        if (currentPkgPath != null && !currentPkgName.equals(".")) {
+            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName);
+            if (indexOfCurrentPkgName >= 0) {
+                newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
+            } else {
+                newPackagePath = currentPkgPath;
+            }
+
+            if (pkgName.equals(".")) {
+                newPackagePath = Paths.get(newPackagePath).toString();
+            } else {
+                newPackagePath = Paths.get(newPackagePath, pkgName).toString();
             }
         } else {
             newPackagePath = currentPkgPath;
@@ -112,11 +120,12 @@ public class CommonUtil {
 
     /**
      * Get the command instances for a given diagnostic.
-     * @param diagnostic        Diagnostic to get the command against
-     * @param params            Code Action parameters
-     * @param documentManager   Document Manager instance
-     * @param pkgContext        BLang Package Context
-     * @return  {@link List}    List of commands related to the given diagnostic
+     *
+     * @param diagnostic      Diagnostic to get the command against
+     * @param params          Code Action parameters
+     * @param documentManager Document Manager instance
+     * @param pkgContext      BLang Package Context
+     * @return {@link List}    List of commands related to the given diagnostic
      */
     public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
                                                         WorkspaceDocumentManager documentManager,
@@ -144,7 +153,7 @@ public class CommonUtil {
                                 params.getTextDocument().getUri());
                         commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_PACKAGE,
                                 new ArrayList<>(Arrays.asList(pkgArgument, docUriArgument))));
-            });
+                    });
         }
 
         return commands;
@@ -178,7 +187,8 @@ public class CommonUtil {
 
     /**
      * Common utility to get a Path from the given uri string.
-     * @param uri               URI of the file to get as a  Path
+     *
+     * @param uri URI of the file to get as a  Path
      * @return {@link Path}     Path of the uri
      */
     public static Path getPath(String uri) {
@@ -205,6 +215,7 @@ public class CommonUtil {
 
     /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
+     *
      * @param diagnosticPos - diagnostic position to be cloned
      * @return {@link DiagnosticPos} converted diagnostic position
      */
@@ -218,8 +229,9 @@ public class CommonUtil {
 
     /**
      * Get the previous default token from the given start index.
-     * @param tokenStream       Token Stream
-     * @param startIndex        Start token index
+     *
+     * @param tokenStream Token Stream
+     * @param startIndex  Start token index
      * @return {@link Token}    Previous default token
      */
     public static Token getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
@@ -228,8 +240,9 @@ public class CommonUtil {
 
     /**
      * Get the next default token from the given start index.
-     * @param tokenStream       Token Stream
-     * @param startIndex        Start token index
+     *
+     * @param tokenStream Token Stream
+     * @param startIndex  Start token index
      * @return {@link Token}    Previous default token
      */
     public static Token getNextDefaultToken(TokenStream tokenStream, int startIndex) {
@@ -238,9 +251,10 @@ public class CommonUtil {
 
     /**
      * Get the Nth Default token to the left of current token index.
-     * @param tokenStream       Token Stream to traverse
-     * @param startIndex        Start position of the token stream
-     * @param offset            Number of tokens to traverse left
+     *
+     * @param tokenStream Token Stream to traverse
+     * @param startIndex  Start position of the token stream
+     * @param offset      Number of tokens to traverse left
      * @return {@link Token}    Nth Token
      */
     public static Token getNthDefaultTokensToLeft(TokenStream tokenStream, int startIndex, int offset) {
@@ -250,15 +264,16 @@ public class CommonUtil {
             token = getPreviousDefaultToken(tokenStream, indexCounter);
             indexCounter = token.getTokenIndex();
         }
-        
+
         return token;
     }
 
     /**
      * Get the Nth Default token to the right of current token index.
-     * @param tokenStream       Token Stream to traverse
-     * @param startIndex        Start position of the token stream
-     * @param offset            Number of tokens to traverse right
+     *
+     * @param tokenStream Token Stream to traverse
+     * @param startIndex  Start position of the token stream
+     * @param offset      Number of tokens to traverse right
      * @return {@link Token}    Nth Token
      */
     public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
@@ -268,10 +283,10 @@ public class CommonUtil {
             token = getNextDefaultToken(tokenStream, indexCounter);
             indexCounter = token.getTokenIndex();
         }
-        
+
         return token;
     }
-    
+
     private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
         Token token;
         while (true) {
@@ -286,8 +301,9 @@ public class CommonUtil {
 
     /**
      * Generate json representation for the given node.
-     * @param node                          Node to get the json representation
-     * @param anonStructs                   Map of anonymous structs
+     *
+     * @param node        Node to get the json representation
+     * @param anonStructs Map of anonymous structs
      * @return {@link JsonElement}          Json Representation of the node
      */
     public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) {
@@ -451,8 +467,9 @@ public class CommonUtil {
 
     /**
      * Convert given name to the Json object name.
-     * @param name              Name to be converted
-     * @param prefixLen         Length of prefix
+     *
+     * @param name      Name to be converted
+     * @param prefixLen Length of prefix
      * @return {@link String}   Converted value
      */
     private static String toJsonName(String name, int prefixLen) {
@@ -461,7 +478,8 @@ public class CommonUtil {
 
     /**
      * Get Type of the node as an Json Array.
-     * @param node                  Node to get the types
+     *
+     * @param node Node to get the types
      * @return {@link JsonArray}    Converted array value
      */
     public static JsonArray getType(Node node) {
@@ -483,8 +501,9 @@ public class CommonUtil {
 
     /**
      * Check whether the given cursor position is within the brackets.
-     * @param context           Text document context
-     * @param terminalTokens    List of terminal tokens
+     *
+     * @param context        Text document context
+     * @param terminalTokens List of terminal tokens
      * @return {@link Boolean}  Whether the cursor is within the brackets or not
      */
     public static boolean isWithinBrackets(TextDocumentServiceContext context, List<String> terminalTokens) {
@@ -522,5 +541,32 @@ public class CommonUtil {
         }
 
         return false;
+    }
+
+    /**
+     * Get current package by given file name.
+     *
+     * @param packages list of packages to be searched
+     * @param fileUri  string file URI
+     * @return {@link BLangPackage} current package
+     */
+    public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
+        Path filePath = getPath(fileUri);
+        Path fileNamePath = filePath.getFileName();
+        BLangPackage currentPackage = null;
+        try {
+            found:
+            for (BLangPackage bLangPackage : packages) {
+                for (BLangCompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
+                    if (compilationUnit.name.equals(fileNamePath.getFileName().toString())) {
+                        currentPackage = bLangPackage;
+                        break found;
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            currentPackage = packages.get(0);
+        }
+        return currentPackage;
     }
 }
