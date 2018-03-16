@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketClientConnectorImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
@@ -98,7 +98,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     @Override
     public WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig) {
-        return new WebSocketClientConnectorImpl(clientConnectorConfig);
+        return new DefaultWebSocketClientConnector(clientConnectorConfig);
     }
 
     @Override

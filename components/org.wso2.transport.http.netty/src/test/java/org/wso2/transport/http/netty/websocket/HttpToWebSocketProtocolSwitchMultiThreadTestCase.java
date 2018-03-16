@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,7 @@ import java.net.URL;
 /**
  * Test cases to check the Protocol switch from HTTP to WebSocket.
  */
-public class HttpToWsProtocolSwitchTestCase {
+public class HttpToWebSocketProtocolSwitchMultiThreadTestCase {
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
@@ -53,7 +53,7 @@ public class HttpToWsProtocolSwitchTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(new HttpToWsProtocolSwitchWebSocketListener());
+        connectorFuture.setWSConnectorListener(new HttpToWsProtocolSwitchWebSocketMulthreadListener());
         connectorFuture.setHttpConnectorListener(new HttpToWsProtocolSwitchHttpListener());
         connectorFuture.sync();
     }
@@ -73,21 +73,6 @@ public class HttpToWsProtocolSwitchTestCase {
         Assert.assertEquals(urlConn.getHeaderField("upgrade"), "websocket");
         Assert.assertEquals(urlConn.getHeaderField("connection"), "upgrade");
         Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") != null);
-    }
-
-    @Test
-    public void testWebSocketPostUpgrade() throws IOException {
-        URL url = baseURI.resolve("/websocket").toURL();
-        HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-        urlConn.setRequestMethod("PUT");
-        urlConn.setRequestProperty("Connection", "Upgrade");
-        urlConn.setRequestProperty("Upgrade", "websocket");
-        urlConn.setRequestProperty("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
-        urlConn.setRequestProperty("Sec-WebSocket-Version", "13");
-
-        Assert.assertEquals(urlConn.getResponseCode(), 200);
-        Assert.assertEquals(urlConn.getResponseMessage(), "OK");
-        Assert.assertTrue(urlConn.getHeaderField("sec-websocket-accept") == null);
     }
 
     @AfterClass

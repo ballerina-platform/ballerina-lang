@@ -63,7 +63,6 @@ public class WebSocketClient {
 
     private final String url;
     private final String subProtocols;
-    private final String target;
     private final int idleTimeout;
     private final Map<String, String> headers;
     private final WebSocketConnectorListener connectorListener;
@@ -71,16 +70,14 @@ public class WebSocketClient {
     /**
      *
      * @param url url of the remote endpoint.
-     * @param target target for the inbound messages from the remote server.
      * @param subProtocols the negotiable sub-protocol if server is asking for it.
      * @param idleTimeout Idle timeout of the connection.
      * @param headers any specific headers which need to send to the server.
      * @param connectorListener connector listener to notify incoming messages.
      */
-    public WebSocketClient(String url, String target, String subProtocols, int idleTimeout,
+    public WebSocketClient(String url, String subProtocols, int idleTimeout,
                            Map<String, String> headers, WebSocketConnectorListener connectorListener) {
         this.url = url;
-        this.target = target;
         this.subProtocols = subProtocols;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
@@ -117,7 +114,7 @@ public class WebSocketClient {
 
             WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
-            handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, target, connectorListener);
+            handler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, connectorListener);
 
             Bootstrap clientBootstrap = new Bootstrap();
             clientBootstrap.group(group)

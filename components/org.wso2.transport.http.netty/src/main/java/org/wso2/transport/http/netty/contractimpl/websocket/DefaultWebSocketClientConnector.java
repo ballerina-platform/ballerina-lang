@@ -30,17 +30,15 @@ import java.util.Map;
 /**
  * Implementation of WebSocket client connector.
  */
-public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
+public class DefaultWebSocketClientConnector implements WebSocketClientConnector {
 
     private final String remoteUrl;
     private final String subProtocols;
-    private final String target;
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
 
-    public WebSocketClientConnectorImpl(WsClientConnectorConfig clientConnectorConfig) {
+    public DefaultWebSocketClientConnector(WsClientConnectorConfig clientConnectorConfig) {
         this.remoteUrl = clientConnectorConfig.getRemoteAddress();
-        this.target = clientConnectorConfig.getTarget();
         this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
         this.customHeaders = clientConnectorConfig.getHeaders();
         this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
@@ -48,7 +46,7 @@ public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
 
     @Override
     public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, idleTimeout,
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, subProtocols, idleTimeout,
                                                               customHeaders, connectorListener);
         return webSocketClient.handshake();
     }

@@ -51,8 +51,6 @@ import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import static org.wso2.transport.http.netty.common.Constants.LISTENER_PORT;
-
 /**
  * This class handles all kinds of WebSocketFrames
  * after connection is upgraded from HTTP to WebSocket.
@@ -234,7 +232,8 @@ public class WebSocketSourceHandler extends ChannelInboundHandlerAdapter {
         webSocketMessage.setSessionlID(channelSession.getId());
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
-        webSocketMessage.setProperty(LISTENER_PORT, ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+        webSocketMessage.setProperty(Constants.LISTENER_PORT,
+                                     ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());

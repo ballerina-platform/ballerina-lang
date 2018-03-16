@@ -22,13 +22,12 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -44,15 +43,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * Implementation of {@link WebSocketInitMessage}.
  */
-public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements WebSocketInitMessage {
+public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
     private final HttpRequest httpRequest;
     private final WebSocketSourceHandler webSocketSourceHandler;
     private boolean isCancelled = false;
+    private boolean handshakeStarted = false;
+    private HttpRequest request;
 
-    public WebSocketInitMessageImpl(ChannelHandlerContext ctx, HttpRequest httpRequest,
-                                    WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
+    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, HttpRequest httpRequest,
+                                       WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
         this.ctx = ctx;
         this.httpRequest = httpRequest;
         this.webSocketSourceHandler = webSocketSourceHandler;
@@ -65,7 +66,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, true);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, 0);
+        return handleHandshake(handshaker, 0, null);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
                                                      allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, 0);
+        return handleHandshake(handshaker, 0, null);
     }
 
     @Override
@@ -83,7 +84,17 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
                                                      getSubProtocolsCSV(subProtocols), allowExtensions);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, idleTimeout);
+        return handleHandshake(handshaker, idleTimeout, null);
+    }
+
+    @Override
+    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                     HttpHeaders responseHeaders) {
+        WebSocketServerHandshakerFactory wsFactory =
+                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
+                                                     getSubProtocolsCSV(subProtocols), allowExtensions);
+        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
+        return handleHandshake(handshaker, idleTimeout, responseHeaders);
     }
 
     @Override
@@ -105,7 +116,13 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         return isCancelled;
     }
 
-    private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout) {
+    @Override
+    public boolean isHandshakeStarted() {
+        return handshakeStarted;
+    }
+
+    private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
+                                            HttpHeaders headers) {
         HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
 
         if (isCancelled) {
@@ -115,34 +132,33 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         }
 
         try {
-            ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest);
+            ChannelFuture future = handshaker.handshake(ctx.channel(), httpRequest, headers,
+                                                        ctx.channel().newPromise());
             handshakeFuture.setChannelFuture(future);
-            future.addListener(new GenericFutureListener<Future<? super Void>>() {
-                @Override
-                public void operationComplete(Future<? super Void> future) throws Exception {
-                    String selectedSubProtocol = handshaker.selectedSubprotocol();
-                    webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
-                    setSubProtocol(selectedSubProtocol);
-                    WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
-                    session.setIsOpen(true);
-                    session.setNegotiatedSubProtocol(selectedSubProtocol);
+            future.addListener(future1 -> {
+                String selectedSubProtocol = handshaker.selectedSubprotocol();
+                webSocketSourceHandler.setNegotiatedSubProtocol(selectedSubProtocol);
+                setSubProtocol(selectedSubProtocol);
+                WebSocketSessionImpl session = (WebSocketSessionImpl) getChannelSession();
+                session.setIsOpen(true);
+                session.setNegotiatedSubProtocol(selectedSubProtocol);
 
-                    //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-                    ChannelPipeline pipeline = ctx.pipeline();
+                //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+                ChannelPipeline pipeline = ctx.pipeline();
 
-                    if (idleTimeout > 0) {
-                        pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                                         new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
-                                                              TimeUnit.MILLISECONDS));
-                    } else {
-                        pipeline.remove(Constants.IDLE_STATE_HANDLER);
-                    }
-                    pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
-                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
-                    setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
-                    handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
+                if (idleTimeout > 0) {
+                    pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                                     new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
+                                                          TimeUnit.MILLISECONDS));
+                } else {
+                    pipeline.remove(Constants.IDLE_STATE_HANDLER);
                 }
+                pipeline.addLast(Constants.WEBSOCKET_SOURCE_HANDLER, webSocketSourceHandler);
+                pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+                setProperty(Constants.SRC_HANDLER, webSocketSourceHandler);
+                handshakeFuture.notifySuccess(webSocketSourceHandler.getChannelSession());
             });
+            handshakeStarted = true;
             return handshakeFuture;
         } catch (Exception e) {
             /*
@@ -163,7 +179,7 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         if (isConnectionSecured) {
             protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
         }
-        String url =   protocol + "://" + req.headers().get("Host") + req.uri();
+        String url = protocol + "://" + req.headers().get("Host") + req.uri();
         return url;
     }
 
@@ -178,5 +194,13 @@ public class WebSocketInitMessageImpl extends WebSocketMessageImpl implements We
         }
         subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() - 1);
         return subProtocolsStr;
+    }
+
+    public HttpRequest getHttpRequest() {
+        return request;
+    }
+
+    public void setHttpRequest(HttpRequest request) {
+        this.request = request;
     }
 }
