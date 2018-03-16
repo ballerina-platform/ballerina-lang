@@ -18,10 +18,22 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
+import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.List;
+
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get all the header values associated with the given header name.
@@ -32,8 +44,31 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.mime",
         functionName = "getHeaders",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class GetHeaders {
+public class GetHeaders extends BlockingNativeCallableUnit {
+    @Override
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
+        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
+            context.setReturnValues(null);
+            return;
+        }
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        List<String> headerValueList = httpHeaders.getAll(headerName);
+        if (headerValueList == null) {
+            context.setReturnValues(null);
+            return;
+        }
+        int i = 0;
+        BRefValueArray bRefValueArray = new BRefValueArray();
+        for (String headerValue : headerValueList) {
+            bRefValueArray.add(i, new BString(headerValue));
+            i++;
+        }
+        context.setReturnValues(bRefValueArray);
+    }
 }

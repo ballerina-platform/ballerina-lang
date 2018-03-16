@@ -18,10 +18,17 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
 /**
  * Remove all headers associated with the entity.
@@ -35,5 +42,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.VOID)},
         isPublic = true
 )
-public class RemoveAllHeaders {
+public class RemoveAllHeaders extends BlockingNativeCallableUnit {
+    @Override
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
+            entityStruct.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
+        }
+        context.setReturnValues();
+    }
 }

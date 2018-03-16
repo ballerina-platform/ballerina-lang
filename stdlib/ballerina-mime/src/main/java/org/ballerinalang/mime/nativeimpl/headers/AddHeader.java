@@ -18,10 +18,20 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 
 /**
  * Add the given header value against the given header.
@@ -32,8 +42,30 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.mime",
         functionName = "addHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        args = {@Argument(name = "headerName", type = TypeKind.STRING),
+                @Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.VOID)},
         isPublic = true
 )
-public class AddHeader {
+public class AddHeader extends BlockingNativeCallableUnit {
+
+    @Override
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
+        String headerValue = context.getStringArgument(SECOND_PARAMETER_INDEX);
+        if (headerName == null || headerValue == null) {
+            return;
+        }
+        HttpHeaders httpHeaders;
+        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        } else {
+            httpHeaders = new DefaultHttpHeaders();
+            entityStruct.addNativeData(ENTITY_HEADERS, httpHeaders);
+        }
+        httpHeaders.add(headerName, headerValue);
+        context.setReturnValues();
+    }
 }
+

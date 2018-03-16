@@ -81,6 +81,7 @@ import java.util.Set;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -553,7 +554,7 @@ public class HttpUtil {
         } catch (NumberFormatException e) {
             throw new BallerinaException("Invalid content length");
         }
-        entity.setRefField(ENTITY_HEADERS_INDEX, prepareEntityHeaderMap(cMsg.getHeaders(), new BMap<>()));
+        entity.addNativeData(ENTITY_HEADERS, cMsg.getHeaders());
     }
 
     private static BMap<String, BValue> prepareEntityHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
@@ -591,17 +592,6 @@ public class HttpUtil {
             // to the HTTPCarbonMessage.
             // TODO: refactor this logic properly.
             // return;
-        }
-        BMap<String, BValue> entityHeaders = (BMap) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        if (entityHeaders == null) {
-            return;
-        }
-        Set<String> keys = entityHeaders.keySet();
-        for (String key : keys) {
-            BStringArray headerValues = (BStringArray) entityHeaders.get(key);
-            for (int i = 0; i < headerValues.size(); i++) {
-                transportHeaders.add(key, headerValues.get(i));
-            }
         }
     }
 

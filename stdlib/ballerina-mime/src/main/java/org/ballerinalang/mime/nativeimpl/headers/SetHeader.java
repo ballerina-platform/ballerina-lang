@@ -18,6 +18,8 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,5 +38,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.VOID)},
         isPublic = true
 )
-public class SetHeader {
+public class SetHeader extends BlockingNativeCallableUnit {
+
+    @Override
+    public void execute(Context context) {
+
+    }
 }

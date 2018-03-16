@@ -296,7 +296,6 @@ public function <Entity entity> getHeader (string headerName) (string) {
 @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
 public native function <Entity entity> getHeaders (string headerName) (string[]);
 
-
 @Description {value:"Add the given header value against the given header"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"headerName: Represent the header name"}
