@@ -25,7 +25,8 @@ package org.ballerinalang.net.grpc.proto.definition;
 public enum MessageKind {
     
     USER_DEFINED(0),
-    WRAPPER(1);
+    WRAPPER(1),
+    EMPTY(2);
     
     private final int typeValue;
     

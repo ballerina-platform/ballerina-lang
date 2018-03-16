@@ -16,6 +16,8 @@
 package org.ballerinalang.net.grpc.actions.server;
 
 import com.google.protobuf.Descriptors;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -61,14 +63,19 @@ public class Send extends BlockingNativeCallableUnit {
                 .RESPONSE_MESSAGE_DEFINITION);
         
         if (responseObserver == null) {
-            return;
-        }
-        try {
-            Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
-            responseObserver.onNext(responseMessage);
-        } catch (Throwable e) {
-            LOG.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                    "response sender doesnot exist"))));
+        } else {
+            try {
+                if (!MessageUtils.isEmptyResponse(outputType)) {
+                    Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    responseObserver.onNext(responseMessage);
+                }
+            } catch (Throwable e) {
+                LOG.error("Error while sending client response.", e);
+                context.setError(MessageUtils.getConnectorError(context, e));
+            }
         }
     }
 }

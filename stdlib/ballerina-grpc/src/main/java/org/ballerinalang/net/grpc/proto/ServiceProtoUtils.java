@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.builder.BallerinaFile;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.net.grpc.proto.definition.Message;
@@ -38,6 +39,7 @@ import org.ballerinalang.net.grpc.proto.definition.Service;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNullType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -268,22 +270,33 @@ public class ServiceProtoUtils {
     }
     
     private static Message getResponseMessage(ResourceNode resourceNode) throws GrpcServerException {
-        Message responseMessage = null;
+        org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType;
         BLangInvocation sendExpression = getInvocationExpression(resourceNode.getBody());
         if (sendExpression != null) {
-            org.wso2.ballerinalang.compiler.semantics.model.types.BType responseType = getReturnType(sendExpression);
-            responseMessage = responseType != null ? generateMessageDefinition(responseType) : null;
+            responseType = getReturnType(sendExpression);
+        } else {
+            // if compiler plugin could not find
+            responseType = new BNullType();
         }
-        return responseMessage;
+        return responseType != null ? generateMessageDefinition(responseType) : null;
     }
     
     private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
-        VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
+        if (!(resourceNode.getParameters().size() == 1 || resourceNode.getParameters().size() == 2)) {
+            throw new GrpcServerException("Service resource definition should contain either one param or two params." +
+                    " but contains " + resourceNode.getParameters().size());
+        }
+
         org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
-        if (requestVariable instanceof BLangVariable) {
-            requestType = ((BLangVariable) requestVariable).type;
+        if (resourceNode.getParameters().size() == 2) {
+            VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
+            if (requestVariable instanceof BLangVariable) {
+                requestType = ((BLangVariable) requestVariable).type;
+            } else {
+                throw new GrpcServerException("Request Message type is not supported, should be lang variable.");
+            }
         } else {
-            throw new GrpcServerException("unsupported request type");
+            requestType = new BNullType();
         }
         return generateMessageDefinition(requestType);
     }
@@ -320,6 +333,10 @@ public class ServiceProtoUtils {
                             .wso2.ballerinalang.compiler.semantics.model.types.BStructType) messageType;
                     message = getStructMessage(structType);
                 }
+                break;
+            }
+            case NULL: {
+                message = EmptyMessage.newBuilder().build();
                 break;
             }
             default: {
@@ -420,7 +437,7 @@ public class ServiceProtoUtils {
                         .name());
             }
         } else {
-            return null;
+            return new BNullType();
         }
     }
     
@@ -431,7 +448,8 @@ public class ServiceProtoUtils {
             byte[] descriptor = Files.readAllBytes(path);
             DescriptorProtos.FileDescriptorProto proto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptor);
             Descriptors.FileDescriptor fileDescriptor = Descriptors.FileDescriptor.buildFrom(proto, new com.google
-                    .protobuf.Descriptors.FileDescriptor[] {com.google.protobuf.WrappersProto.getDescriptor()});
+                    .protobuf.Descriptors.FileDescriptor[] {com.google.protobuf.WrappersProto.getDescriptor(), com
+                    .google.protobuf.EmptyProto.getDescriptor()});
             Files.delete(path);
             return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {

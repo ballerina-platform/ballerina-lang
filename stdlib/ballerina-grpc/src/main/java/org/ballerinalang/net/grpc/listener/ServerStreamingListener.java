@@ -47,7 +47,7 @@ public class ServerStreamingListener extends MethodListener implements ServerCal
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack();
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource, callback, null, signatureParams);
     }
 }

@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.net.grpc.actions.server;
 
+import com.google.protobuf.Descriptors;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -22,6 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +51,21 @@ public class Complete extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         StreamObserver responseObserver = MessageUtils.getStreamObserver(bConnector);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) bConnector.getNativeData(MessageConstants
+                .RESPONSE_MESSAGE_DEFINITION);
         if (responseObserver == null) {
-            return;
-        }
-        try {
-            responseObserver.onCompleted();
-        } catch (Throwable e) {
-            LOG.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "response sender doesnot exist"))));
+        } else {
+            try {
+                if (!MessageUtils.isEmptyResponse(outputType)) {
+                    responseObserver.onCompleted();
+                }
+            } catch (Throwable e) {
+                LOG.error("Error while sending client response.", e);
+                context.setError(MessageUtils.getConnectorError(context, e));
+            }
         }
     }
 }

@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -82,6 +83,15 @@ public abstract class MethodListener {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Checks whether method has response message.
+     *
+     * @return true if method response is empty, false otherwise
+     */
+    boolean isEmptyResponse() {
+        return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
     
     private BValue generateRequestStruct(Message request, String fieldName, BType structType) {

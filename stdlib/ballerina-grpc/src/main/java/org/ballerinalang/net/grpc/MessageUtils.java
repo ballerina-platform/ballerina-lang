@@ -458,4 +458,24 @@ public class MessageUtils {
             return MethodDescriptor.MethodType.UNKNOWN;
         }
     }
+
+    /**
+     * Checks whether method has response message.
+     *
+     * @param messageDescriptor Message Descriptor
+     * @return true if method response is empty, false otherwise
+     */
+    public static boolean isEmptyResponse(Descriptors.Descriptor messageDescriptor) {
+        if (messageDescriptor == null) {
+            return false;
+        }
+        List<Descriptors.Descriptor> descriptors = com.google.protobuf.EmptyProto.getDescriptor()
+                .getMessageTypes();
+        for (Descriptors.Descriptor descriptor : descriptors) {
+            if (descriptor.equals(messageDescriptor)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

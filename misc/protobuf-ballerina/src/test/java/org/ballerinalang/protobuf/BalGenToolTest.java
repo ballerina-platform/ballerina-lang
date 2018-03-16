@@ -20,6 +20,7 @@ package org.ballerinalang.protobuf;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
+import org.ballerinalang.protobuf.utils.BTestUtils;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.testng.Assert;
@@ -57,8 +58,7 @@ public class BalGenToolTest {
         Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.pb.bal"));
         Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
-        CompileResult compileResult = org.ballerinalang.testerina.test.utils.BTestUtils
-                .compile("protoFiles/helloWorld.gen.pb.bal");
+        CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorld.gen.pb.bal");
         Assert.assertNotNull(compileResult.getProgFile()
                         .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub"),
                 "Connector not found.");

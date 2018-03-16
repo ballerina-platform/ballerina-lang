@@ -56,9 +56,9 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
         List<ParamDetail> paramDetails = onOpen.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(responseObserver);
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
         Executor.submit(onOpen, callback, null, signatureParams);
-        
+
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
@@ -69,9 +69,10 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
                 Executor.submit(resource, callback, null, signatureParams);
             }
-            
+
             @Override
             public void onError(Throwable t) {
                 Resource onError = resourceMap.get(MessageConstants.ON_ERROR_RESOURCE);
@@ -92,9 +93,10 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 BType errorType = paramDetails.get(1).getVarType();
                 BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
                 signatureParams[1] = errorStruct;
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
                 Executor.submit(onError, callback, null, signatureParams);
             }
-            
+
             @Override
             public void onCompleted() {
                 Resource onCompleted = resourceMap.get(MessageConstants.ON_COMPLETE_RESOURCE);
@@ -106,6 +108,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(responseObserver);
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
                 Executor.submit(onCompleted, callback, null, signatureParams);
             }
         };

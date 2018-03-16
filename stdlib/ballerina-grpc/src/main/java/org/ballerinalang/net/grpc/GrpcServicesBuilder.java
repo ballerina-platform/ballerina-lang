@@ -103,10 +103,10 @@ public class GrpcServicesBuilder {
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         
         // In streaming service, method should be always one.
-        if (serviceDescriptor.getMethods().size() != 1) {
+/*        if (serviceDescriptor.getMethods().size() != 1) {
             throw new GrpcServerException("Invalid resource count in streaming server. Resource count should be one, " +
                     " no of resources: " + serviceDescriptor.getMethods().size());
-        }
+        }*/
         
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
             final String methodName = serviceName + FILE_SEPARATOR + methodDescriptor.getName();
