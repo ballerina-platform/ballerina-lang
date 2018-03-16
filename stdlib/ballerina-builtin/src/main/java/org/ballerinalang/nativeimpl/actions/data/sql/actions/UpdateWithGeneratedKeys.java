@@ -45,7 +45,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_DB_TYPE;
         actionName = "updateWithGeneratedKeys",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "query", type = TypeKind.STRING),
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter"),
                 @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},

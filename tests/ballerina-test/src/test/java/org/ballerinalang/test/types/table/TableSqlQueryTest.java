@@ -28,37 +28,47 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class TableSqlQueryTest {
+
     private CompileResult result;
+    private CompileResult resultHelper;
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-sql.bal");
+        resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
-    @Test(description = "Do a simple select all")
+    @Test(groups = "TableQueryTest", description = "Do a simple select all")
     public void testSimpleSelectAll() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectAll", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(description = "Do a simple select with few fields from a table")
+    @Test(groups = "TableQueryTest", description = "Do a simple select with few fields from a table")
     public void testSimpleSelectFewFields() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectFewFields", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(description = "Do a simple join with the select")
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select")
     public void testSimpleSelectWithJoin() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSimpleSelectWithJoin", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(description = "Do a simple join with the select and where")
+    @Test(groups = "TableQueryTest", description = "Do a simple join with the select and where")
     public void testSelectWithJoinAndWhere() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhere", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(dependsOnGroups = "TableQueryTest")
+    public void testSessionCount() {
+        BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 }

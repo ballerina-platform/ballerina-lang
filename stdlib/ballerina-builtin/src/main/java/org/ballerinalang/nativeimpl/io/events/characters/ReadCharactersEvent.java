@@ -65,12 +65,11 @@ public class ReadCharactersEvent implements Event {
         try {
             String content = channel.read(numberOfCharacters);
             result = new AlphaResult(content, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while closing character channel", e);
             context.setError(e);
             result = new AlphaResult(context);
-            return result;
         }
+        return result;
     }
 }

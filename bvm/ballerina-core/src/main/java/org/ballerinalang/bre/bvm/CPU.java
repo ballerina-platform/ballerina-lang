@@ -51,6 +51,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStream;
+import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -80,6 +82,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StreamletInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
@@ -91,6 +94,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -439,7 +443,7 @@ public class CPU {
                     break;
                 case InstructionCodes.WRKRECEIVE:
                     InstructionWRKSendReceive wrkReceiveIns = (InstructionWRKSendReceive) instruction;
-                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types, 
+                    if (!handleWorkerReceive(ctx, wrkReceiveIns.dataChannelInfo, wrkReceiveIns.types,
                             wrkReceiveIns.regs)) {
                         return;
                     }
@@ -629,6 +633,18 @@ public class CPU {
                     typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                     sf.refRegs[i] = new BTable(typeRefCPEntry.getType());
                     break;
+                case InstructionCodes.NEWSTREAM:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    StringCPEntry name = (StringCPEntry) ctx.constPool[operands[2]];
+                    BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
+                    StreamingRuntimeManager.getInstance().addStreamReference(name.getValue(), stream);
+                    sf.refRegs[i] = stream;
+                    break;
+                case InstructionCodes.NEWSTREAMLET:
+                    createNewStreamlet(ctx, operands, sf);
+                    break;
                 case InstructionCodes.NEW_INT_RANGE:
                     createNewIntRange(operands, sf);
                     break;
@@ -714,13 +730,22 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
+                case InstructionCodes.ASYNC:
+                    execAsync(ctx);
+                    break;
+                case InstructionCodes.AWAIT:
+                    ctx = execAwait(ctx);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
                 default:
                     throw new UnsupportedOperationException();
             }
         }
     }
 
-    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+    private static void execCmpAndBranchOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
             int[] operands) {
         int i;
         int j;
@@ -1915,6 +1940,9 @@ public class CPU {
             case InstructionCodes.ANY2DT:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeTable);
                 break;
+            case InstructionCodes.ANYSTM:
+                handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeStream);
+                break;
             case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
             case InstructionCodes.ANY2C:
@@ -1969,7 +1997,7 @@ public class CPU {
     }
 
     @SuppressWarnings("rawtypes")
-    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+    private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
             int[] operands) {
         int i;
         int j;
@@ -2268,7 +2296,7 @@ public class CPU {
         }
     }
 
-    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, 
+    private static void execXMLCreationOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
             int[] operands) {
         int i;
         int j;
@@ -2473,7 +2501,7 @@ public class CPU {
     }
 
     @SuppressWarnings("rawtypes")
-    private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands, 
+    private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
             BType targetType) {
         int i = operands[0];
         int j = operands[1];
@@ -2504,13 +2532,13 @@ public class CPU {
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex, 
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
             String sourceTypeName, String targetTypeName) {
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         handleTypeConversionError(ctx, sf, errorRegIndex, errorMsg);
     }
 
-    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, 
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
             int errorRegIndex, String errorMessage) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
@@ -2583,6 +2611,20 @@ public class CPU {
         }
 
         sf.refRegs[i] = bStruct;
+    }
+
+    private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
+        StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
+        BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
+        streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
+        streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
+        StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
+        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
+                                                                          streamletInfo.getStreamIdsAsString());
+        sf.refRegs[i] = streamlet;
     }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex) {
@@ -2724,17 +2766,17 @@ public class CPU {
     }
 
     @SuppressWarnings("rawtypes")
-    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo, 
+    private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
             BType[] types, int[] regs) {
         BRefType[] vals = extractValues(ctx.workerLocal, types, regs);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(vals);
     }
-    
+
     private static WorkerDataChannel getWorkerChannel(WorkerExecutionContext ctx, String name) {
         return ctx.respCtx.getWorkerDataChannel(name);
     }
-    
+
     @SuppressWarnings("rawtypes")
     private static BRefType[] extractValues(WorkerData data, BType[] types, int[] regs) {
         BRefType[] result = new BRefType[types.length];
@@ -2783,7 +2825,7 @@ public class CPU {
             return false;
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     public static void copyArgValuesForWorkerReceive(WorkerData currentSF, int[] argRegs, BType[] paramTypes,
                                                      BRefType[] passedInValues) {
@@ -3553,6 +3595,13 @@ public class CPU {
         BNewArray newArray = (BNewArray) entity;
         sf.longRegs[j] = newArray.size();
         return;
+    }
+    
+    private static void execAsync(WorkerExecutionContext ctx) {        
+    }
+    
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
+        return null;
     }
 
     /**

@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -212,6 +213,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyEndpointProcessors(endpointNode.symbol.type, attachmentList,
                 (processor, list) -> processor.process(endpointNode, list));
     }
+    public void visit(BLangStreamlet streamletNode) {
+        /* Ignore */
+    }
+
 
     // private methods
 

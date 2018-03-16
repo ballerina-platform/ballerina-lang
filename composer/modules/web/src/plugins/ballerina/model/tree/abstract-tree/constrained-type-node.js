@@ -48,7 +48,6 @@ class AbstractConstrainedTypeNode extends Node {
     }
 
 
-
     setType(newValue, silent, title) {
         const oldValue = this.type;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -73,7 +72,6 @@ class AbstractConstrainedTypeNode extends Node {
     getType() {
         return this.type;
     }
-
 
 
 }
