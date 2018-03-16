@@ -170,7 +170,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IN;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.INSERT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.INTO;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.Identifier;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.IntegerLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.JOIN;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LARROW;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LENGTHOF;
@@ -208,7 +207,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRANSACTION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRANSFORMER;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TRY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPEOF;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_AGGREGTION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_AGGREGATION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_ANY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BLOB;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BOOL;
@@ -257,14 +256,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
             QuotedStringLiteral);
 
     public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            IntegerLiteral, FloatingPointLiteral);
+            FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ACTION, ALL, ANNOTATION, AS, BIND, BREAK, BY, CATCH, CONNECTOR, CONST, DELETE, ELSE,
             ENDPOINT, ENUM, FAILED, FINALLY, FOLLOWED, FOREACH, FOR, FORK, FROM, FUNCTION, GROUP, HAVING, IF, IMPORT,
             IN, INSERT, INTO, JOIN, LENGTHOF, LOCK, NATIVE, NEW, NEXT, ON, ORDER, PACKAGE, PARAMETER, PRIVATE, PUBLIC,
             QUERY, RESOURCE, RETRIES, RETURN, RETURNS, SELECT, SERVICE, SET, SOME, STREAMLET, STRUCT, THROW, TIMEOUT,
-            TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_AGGREGTION, TYPE_BOOL, TYPE_INT,
+            TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_AGGREGATION, TYPE_BOOL, TYPE_INT,
             TYPE_FLOAT, TYPE_STRING, TYPE_BLOB, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_STREAM, TYPE_TABLE, TYPE_ANY,
             TYPE_TYPE, UNTAINT, UPDATE, VERSION, WHERE, WINDOW, WITH, BooleanLiteral, NullLiteral);
 

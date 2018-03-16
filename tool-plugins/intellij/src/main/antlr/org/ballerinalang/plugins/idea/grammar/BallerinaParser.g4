@@ -100,18 +100,6 @@ structBody
     :   fieldDefinition* privateStructBody?
     ;
 
-streamletDefinition
-    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
-    ;
-
-streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
-    ;
-
-streamingQueryDeclaration
-    : (TYPE_STREAM (LT nameReference GT)?)* (streamingQueryStatement | queryDeclaration+)
-    ;
-
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
@@ -225,7 +213,8 @@ builtInReferenceTypeName
     |   TYPE_JSON (LT structReference GT)?
     |   TYPE_TABLE (LT structReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
-    |   TYPE_AGGREGTION (LT nameReference GT)?
+    |   STREAMLET
+    |   TYPE_AGGREGATION (LT nameReference GT)?
     |   functionTypeName
     ;
 
@@ -251,6 +240,8 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   compoundAssignmentStatement
+    |   postIncrementStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -300,6 +291,26 @@ typeInitExpr
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    ;
+
+compoundAssignmentStatement
+    :   variableReference compoundOperator expression SEMICOLON
+    ;
+
+compoundOperator
+    :   COMPOUND_ADD
+    |   COMPOUND_SUB
+    |   COMPOUND_MUL
+    |   COMPOUND_DIV
+    ;
+
+postIncrementStatement
+    :   variableReference postArithmeticOperator SEMICOLON
+    ;
+
+postArithmeticOperator
+    :   INCREMENT
+    |   DECREMENT
     ;
 
 variableReferenceList
@@ -354,7 +365,7 @@ joinClause
     ;
 
 joinConditions
-    :   SOME IntegerLiteral (workerReference (COMMA workerReference)*)?     # anyJoinCondition
+    :   SOME integerLiteral (workerReference (COMMA workerReference)*)?     # anyJoinCondition
     |   ALL (workerReference (COMMA workerReference)*)?                     # allJoinCondition
     ;
 
@@ -421,7 +432,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : functionReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : ASYNC? functionReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -597,11 +608,19 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   (ADD | SUB)? IntegerLiteral
+    :   (ADD | SUB)? integerLiteral
     |   (ADD | SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
+    ;
+
+// §3.10.1 Integer Literals
+integerLiteral
+    :   DecimalIntegerLiteral
+    |   HexIntegerLiteral
+    |   OctalIntegerLiteral
+    |   BinaryIntegerLiteral
     ;
 
 namedArgs
@@ -646,6 +665,8 @@ reservedWord
     |   TYPE_MAP
     ;
 
+
+//Siddhi Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?
@@ -659,11 +680,36 @@ aggregationQuery
 
     ;
 
+streamletDefinition
+    :   STREAMLET Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS streamletBody
+    ;
+
+streamletBody
+    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    ;
+
+streamingQueryDeclaration
+    :   variableDefinitionStatement* (streamingQueryStatement | queryStatement+)
+    ;
+
+queryStatement
+    :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+    ;
+
 streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)?  | pattenStreamingInput)
+    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
         selectClause?
         orderByClause?
+        outputRate?
         streamingAction
+    ;
+
+patternClause
+    :   EVERY? patternStreamingInput withinClause?
+    ;
+
+withinClause
+    :   WITHIN expression
     ;
 
 orderByClause
@@ -693,7 +739,7 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT INTO Identifier
+    :   INSERT outputEventType? INTO Identifier
     |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
     |   DELETE Identifier ON expression
     ;
@@ -711,19 +757,23 @@ streamingInput
     ;
 
 joinStreamingInput
-    :   JOIN streamingInput ON expression
+    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
     ;
 
-pattenStreamingInput
-    :   pattenStreamingInput FOLLOWED BY pattenStreamingInput
-    |   LEFT_PARENTHESIS pattenStreamingInput RIGHT_PARENTHESIS
-    |   FOREACH pattenStreamingInput
-    |   NOT pattenStreamingEdgeInput (AND pattenStreamingEdgeInput | FOR StringTemplateText)
-    |   pattenStreamingEdgeInput (AND | OR ) pattenStreamingEdgeInput
-    |   pattenStreamingEdgeInput
+outputRate
+    : OUTPUT outputRateType? EVERY integerLiteral EVENTS
     ;
 
-pattenStreamingEdgeInput
+patternStreamingInput
+    :   patternStreamingEdgeInput FOLLOWED BY patternStreamingInput
+    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
+    |   FOREACH patternStreamingInput
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR StringTemplateText)
+    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
+    |   patternStreamingEdgeInput
+    ;
+
+patternStreamingEdgeInput
     :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
@@ -739,13 +789,24 @@ windowClause
     :   WINDOW functionInvocation
     ;
 
-queryDeclaration
-     :   queryDefinition LEFT_BRACE streamingQueryStatement RIGHT_BRACE
-     ;
+outputEventType
+    : ALL EVENTS | EXPIRED EVENTS | CURRENT EVENTS
+    ;
 
-queryDefinition
-     :   QUERY Identifier
-     ;
+joinType
+    : LEFT OUTER JOIN
+    | RIGHT OUTER JOIN
+    | FULL OUTER JOIN
+    | OUTER JOIN
+    | INNER? JOIN
+    ;
+
+outputRateType
+    : ALL
+    | LAST
+    | FIRST
+    ;
+
 // Deprecated parsing.
 
 deprecatedAttachment

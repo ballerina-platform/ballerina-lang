@@ -21,6 +21,7 @@ import org.antlr.jetbrains.adaptor.lexer.PSIElementTypeFactory;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.lexer.TokenIElementType;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
+import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
 
 import java.util.List;
 
@@ -50,6 +51,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_functi
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_ifElseStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_index;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_integerLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinConditions;
@@ -101,7 +103,7 @@ public class BallerinaTypes {
     public static final TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
     public static final TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
     public static final TokenIElementType FLOATING_POINT = tokenIElementTypes.get(BallerinaLexer.FloatingPointLiteral);
-    public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
+
     public static final TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
     public static final TokenIElementType DOUBLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.DOUBLEQUOTE);
     public static final TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
@@ -134,6 +136,7 @@ public class BallerinaTypes {
             tokenIElementTypes.get(BallerinaLexer.DeprecatedTemplateStart);
 
     public static final RuleIElementType STATEMENT = ruleIElementTypes.get(RULE_statement);
+    public static final RuleIElementType INTEGER_LITERAL = ruleIElementTypes.get(RULE_integerLiteral);
 
     public static final RuleIElementType FUNCTION_BODY = ruleIElementTypes.get(RULE_callableUnitBody);
     public static final RuleIElementType CONNECTOR_BODY = ruleIElementTypes.get(RULE_connectorBody);
@@ -256,7 +259,7 @@ public class BallerinaTypes {
     public static final TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
     public static final TokenIElementType TYPE = tokenIElementTypes.get(BallerinaLexer.TYPE_TYPE);
     public static final TokenIElementType TYPEOF = tokenIElementTypes.get(BallerinaLexer.TYPEOF);
-    public static final TokenIElementType TYPE_AGGREGTION = tokenIElementTypes.get(BallerinaLexer.TYPE_AGGREGTION);
+    public static final TokenIElementType TYPE_AGGREGATION = tokenIElementTypes.get(BallerinaLexer.TYPE_AGGREGATION);
     public static final TokenIElementType TYPE_STREAM = tokenIElementTypes.get(BallerinaLexer.TYPE_STREAM);
     public static final TokenIElementType UNTAINT = tokenIElementTypes.get(BallerinaLexer.UNTAINT);
     public static final TokenIElementType UPDATE = tokenIElementTypes.get(BallerinaLexer.UPDATE);

@@ -132,7 +132,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.TRANSFORMER_INVOCATI
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPEOF;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_AGGREGTION;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_AGGREGATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.TYPE_STREAM;
@@ -237,7 +237,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPE).spaceIf(true)
-                .around(TYPE_AGGREGTION).spaceIf(true)
+                .around(TYPE_AGGREGATION).spaceIf(true)
                 .around(TYPE_STREAM).spaceIf(true)
                 .after(UNTAINT).spaceIf(true)
                 .around(UPDATE).spaceIf(true)
