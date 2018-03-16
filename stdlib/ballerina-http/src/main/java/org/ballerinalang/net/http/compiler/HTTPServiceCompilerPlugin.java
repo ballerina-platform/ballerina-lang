@@ -68,9 +68,10 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-        resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getEndpointType().getTypeName().getValue())) {
+            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+            resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        }
     }
 
     @Override
