@@ -67,6 +67,7 @@ TYPE_STREAM     : 'stream';
 TYPE_AGGREGTION : 'aggergation';
 TYPE_ANY        : 'any';
 TYPE_TYPE       : 'type';
+TYPE_FUTURE     : 'future' ;
 
 VAR             : 'var';
 NEW             : 'new';
@@ -98,7 +99,9 @@ WITH            : 'with';
 BIND            : 'bind';
 IN              : 'in';
 LOCK            : 'lock';
-UNTAINT     : 'untaint' ;
+UNTAINT         : 'untaint' ;
+ASYNC           : 'async' ;
+AWAIT           : 'await' ;
 
 // Separators
 
