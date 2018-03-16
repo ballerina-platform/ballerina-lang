@@ -20,9 +20,10 @@ package org.ballerinalang.net.grpc.ssl;
 import org.ballerinalang.net.grpc.exception.GrpcSSLValidationException;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -51,8 +52,8 @@ public class SSLHandlerUtils {
     
     static void writeFile(KeyStore keyStore, String keyStorePass) throws KeyStoreException {
         List<Certificate> userCertificate = getCertificates(keyStore);
-        try (BufferedWriter writer2 = new BufferedWriter(new FileWriter(SSL_SERVER_KEY_FILE));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(SSL_SERVER_CERT_FILE))) {
+        try (BufferedWriter writer2 = Files.newBufferedWriter(Paths.get(SSL_SERVER_KEY_FILE));
+             BufferedWriter writer = Files.newBufferedWriter(Paths.get(SSL_SERVER_CERT_FILE))) {
             writer.write(formatCrtFileContents(userCertificate));
             writer2.write(formatKeyFileContents(keyStore.getKey(keyStorePass, keyStorePass.toCharArray())
                     .getEncoded()));
