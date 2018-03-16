@@ -21,7 +21,6 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
@@ -33,7 +32,6 @@ import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -122,34 +120,6 @@ public class HttpConnectionManager {
         startupDelayedHTTPServerConnectors.put(id, serverConnector);
     }
 
-//    /**
-//     * Start all the ServerConnectors which startup is delayed at the service deployment time.
-//     *
-//     * @param httpServerConnector {@link BallerinaHttpServerConnector} of the pending transport server connectors.
-//     * @throws ServerConnectorException if exception occurs while starting at least one connector.
-//     */
-//    void startPendingHTTPConnectors(BallerinaHttpServerConnector httpServerConnector)
-//                                                                       throws ServerConnectorException {
-//        ConnectorStartupSynchronizer startupSyncer =
-//                new ConnectorStartupSynchronizer(startupDelayedHTTPServerConnectors.size());
-//
-//        for (Map.Entry<String, ServerConnector> serverConnectorEntry :
-//                                                        startupDelayedHTTPServerConnectors.entrySet()) {
-//            ServerConnector serverConnector = serverConnectorEntry.getValue();
-//            ServerConnectorFuture connectorFuture = serverConnector.start();
-//            setConnectorListeners(connectorFuture, serverConnector.getConnectorID(), startupSyncer,
-//                                  httpServerConnector);
-//        }
-//        try {
-//            // Wait for all the connectors to start
-//            startupSyncer.syncConnectors();
-//        } catch (InterruptedException e) {
-//            throw new BallerinaConnectorException("Error in starting HTTP server connector(s)");
-//        }
-//        validateConnectorStartup(startupSyncer);
-//        startupDelayedHTTPServerConnectors.clear();
-//    }
-
     private static class HttpServerConnectorContext {
         private ServerConnector serverConnector;
         private ListenerConfiguration listenerConfiguration;
@@ -205,18 +175,6 @@ public class HttpConnectionManager {
         return trpConfig;
     }
 
-//    private void setConnectorListeners(ServerConnectorFuture connectorFuture, String serverConnectorId,
-//                                       ConnectorStartupSynchronizer startupSyncer,
-//                                       BallerinaHttpServerConnector httpServerConnector) {
-//        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
-//        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
-//        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
-//        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener
-//        (webSocketServicesRegistry));
-//        connectorFuture.setPortBindingEventListener(
-//                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));
-//    }
-
     /**
      * Gets the access logto value if available.
      * @return the access logto value from the ConfigRegistry
@@ -225,39 +183,9 @@ public class HttpConnectionManager {
         return ConfigRegistry.getInstance().getInstanceConfigValue(HTTP_ACCESS_LOG, LOG_TO);
     }
 
-
-    private void validateConnectorStartup(ConnectorStartupSynchronizer startupSyncer) {
-        int noOfExceptions = startupSyncer.getNoOfFailedConnectors();
-        if (noOfExceptions <= 0) {
-            return;
-        }
-        PrintStream console = System.err;
-
-        startupSyncer.failedConnectorsIterator()
-                .forEachRemaining(exceptionEntry -> console.println(
-                        "ballerina: " + makeFirstLetterLowerCase(exceptionEntry.getValue().getMessage())
-                                + ": [" + exceptionEntry.getKey() + "]"));
-
-        if (noOfExceptions > 0) {
-            // If there are any exceptions, stop all the connectors which started correctly and terminate the runtime.
-            startupSyncer.inUseConnectorsIterator()
-                    .forEachRemaining(connectorId -> startupDelayedHTTPServerConnectors.get(connectorId).stop());
-            throw new BallerinaConnectorException("failed to start the server connectors");
-        }
-    }
-
     public boolean isHTTPTraceLoggerEnabled() {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
-    }
-
-    private String makeFirstLetterLowerCase(String str) {
-        if (str == null) {
-            return null;
-        }
-        char ch[] = str.toCharArray();
-        ch[0] = Character.toLowerCase(ch[0]);
-        return new String(ch);
     }
 }

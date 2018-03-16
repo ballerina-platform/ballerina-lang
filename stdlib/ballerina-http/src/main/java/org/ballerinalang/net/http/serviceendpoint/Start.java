@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.BallerinaWebSocketServerConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -65,17 +65,31 @@ public class Start extends AbstractHttpNativeFunction {
         serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
         serverConnectorFuture
                 .setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
-        // TODO: set startup server port binder. Do we really need it with new design?
-        ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
         serverConnectorFuture.setPortBindingEventListener(
-                new HttpConnectorPortBindingListener(startupSynchronizer, serverConnector.getConnectorID()));
+                new HttpConnectorPortBindingListener());
 
-        context.setReturnValues();
+        try {
+            serverConnectorFuture.sync();
+            context.setReturnValues();
+        } catch (Throwable throwable) {
+            String errMsg = "failed to start server connector '" + serverConnector.getConnectorID() + "': " +
+                    makeFirstLetterLowerCase(throwable.getMessage());
+            // If at least one connector fails to start, the runtime needs to exit
+            throw new BLangRuntimeException(errMsg, throwable);
+        }
     }
 
     private boolean isHTTPTraceLoggerEnabled() {
-        // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;
+    }
+
+    private String makeFirstLetterLowerCase(String str) {
+        if (str == null) {
+            return null;
+        }
+        char ch[] = str.toCharArray();
+        ch[0] = Character.toLowerCase(ch[0]);
+        return new String(ch);
     }
 }
