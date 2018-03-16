@@ -62,17 +62,17 @@ public class BallerinaLexerTest extends LexerTestCase {
         doTest();
     }
 
-    public void testTweetMediumFeed() {
-        doTest();
-    }
-
-    public void testTweetOpenPR() {
-        doTest();
-    }
-
-    public void testTwitterConnector() {
-        doTest();
-    }
+//    public void testTweetMediumFeed() {
+//        doTest();
+//    }
+//
+//    public void testTweetOpenPR() {
+//        doTest();
+//    }
+//
+//    public void testTwitterConnector() {
+//        doTest();
+//    }
 
     private void doTest() {
         try {

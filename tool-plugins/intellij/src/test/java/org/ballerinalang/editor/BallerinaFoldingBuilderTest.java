@@ -28,9 +28,9 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         return getTestDataPath("editor/folding");
     }
 
-    public void testConnector() {
-        doTest();
-    }
+//    public void testConnector() {
+//        doTest();
+//    }
 
     public void testFunction() {
         doTest();

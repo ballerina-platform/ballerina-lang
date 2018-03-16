@@ -74,6 +74,7 @@ import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
+import org.ballerinalang.plugins.idea.psi.FormalParameterListNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
@@ -519,6 +520,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TripleBackTickDeprecatedInlineCodeNode(node);
             case BallerinaParser.RULE_documentationTemplateAttributeDescription:
                 return new DocumentationTemplateAttributeDescriptionNode(node);
+            case BallerinaParser.RULE_formalParameterList:
+                return new FormalParameterListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

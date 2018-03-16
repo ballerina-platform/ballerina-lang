@@ -80,7 +80,7 @@ lambdaFunction
     ;
 
 connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
+    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
     ;
 
 connectorBody
