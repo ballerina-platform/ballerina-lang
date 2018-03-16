@@ -28,12 +28,12 @@ class AddDefinitionMenu extends React.Component {
 
     render() {
         return (
-            <Dropdown icon='fw fw-plus' text='Definition' pointing className='link item' button primary>
+            <Dropdown icon='fw fw-add left-icon' text='Definition' pointing className='link item' button className=' primary definition-dropdown'>
                 <Dropdown.Menu>
                     {
                         TopLevelElements.map((element) => {
                             if (element.id === 'constructs_seperator') {
-                                return <Dropdown.Divider />;
+                                return;
                             }
                             return (<Dropdown.Item
                                 onClick={

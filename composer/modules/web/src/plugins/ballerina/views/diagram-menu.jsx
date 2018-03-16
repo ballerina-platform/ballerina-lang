@@ -37,10 +37,10 @@ class DiagramMenu extends React.Component {
 
                 <Menu.Menu position='right'>
                     <Menu.Item onClick={()=>{}}>
-                        <Icon name='fw fw-package' />
+                        <Icon name='fw fw-zoom-in menu-icon' />
                     </Menu.Item>
                     <Menu.Item onClick={()=>{}}>
-                        <Icon name='resize horizontal' />
+                        <Icon name='resize horizontal menu-icon' />
                     </Menu.Item>
                     <AddDefinitionMenu model={this.props.model} />
                 </Menu.Menu>
