@@ -585,17 +585,19 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTypeOfBinaryExpr typeOfBinaryExpr) {
         BType exprType = checkExpr(typeOfBinaryExpr.lhsExpr, env).get(0);
 
-        List<BType> paramTypes = Lists.of(exprType);
-        List<BType> retTypes = Lists.of(symTable.typeType);
-        BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-        if (!types.isValueType(exprType)) {
-            BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                    symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
-            typeOfBinaryExpr.lhsOpSymbol = symbol;
-        } else {
-            BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                    symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
-            typeOfBinaryExpr.lhsOpSymbol = symbol;
+        if (exprType != symTable.errType) {
+            List<BType> paramTypes = Lists.of(exprType);
+            List<BType> retTypes = Lists.of(symTable.typeType);
+            BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
+            if (!types.isValueType(exprType)) {
+                BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                        symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
+                typeOfBinaryExpr.lhsOpSymbol = symbol;
+            } else {
+                BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
+                        symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
+                typeOfBinaryExpr.lhsOpSymbol = symbol;
+            }
         }
 
         symResolver.resolveTypeNode(typeOfBinaryExpr.rhsTypeNode, env);
