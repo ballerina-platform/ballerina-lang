@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>siddhi-core</artifactId>
-    <name>Ballerina Streaming - Siddhi Core</name>
+    <name>Ballerina - Streaming - Siddhi Core</name>
     <packaging>jar</packaging>
 
     <dependencies>

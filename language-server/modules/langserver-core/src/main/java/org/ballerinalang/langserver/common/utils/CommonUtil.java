@@ -25,26 +25,18 @@ import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.BLangPackageContext;
 import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
-import org.ballerinalang.langserver.TextDocumentServiceUtil;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.repository.PackageRepository;
-import org.eclipse.lsp4j.CodeActionParams;
-import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -54,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +58,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,73 +106,6 @@ public class CommonUtil {
             newPackagePath = currentPkgPath;
         }
         return newPackagePath;
-    }
-
-    /**
-     * Get the command instances for a given diagnostic.
-     *
-     * @param diagnostic      Diagnostic to get the command against
-     * @param params          Code Action parameters
-     * @param documentManager Document Manager instance
-     * @param pkgContext      BLang Package Context
-     * @return {@link List}    List of commands related to the given diagnostic
-     */
-    public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
-                                                        WorkspaceDocumentManager documentManager,
-                                                        BLangPackageContext pkgContext) {
-        String diagnosticMessage = diagnostic.getMessage();
-        List<Command> commands = new ArrayList<>();
-        if (isUndefinedPackage(diagnosticMessage)) {
-            String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
-                    diagnosticMessage.lastIndexOf("'"));
-
-            Path openedPath = getPath(params.getTextDocument().getUri());
-            String pkgName = TextDocumentServiceUtil.getPackageFromContent(documentManager.getFileContent(openedPath));
-            String sourceRoot = TextDocumentServiceUtil.getSourceRoot(openedPath, pkgName);
-            PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-            CompilerContext context = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
-                    false);
-            ArrayList<PackageID> sdkPackages = pkgContext.getSDKPackages(context);
-            sdkPackages.stream()
-                    .filter(packageID -> packageID.getName().toString().endsWith("." + packageAlias))
-                    .forEach(packageID -> {
-                        String commandTitle = CommandConstants.IMPORT_PKG_TITLE + " " + packageID.getName().toString();
-                        CommandArgument pkgArgument =
-                                new CommandArgument(CommandConstants.ARG_KEY_PKG_NAME, packageID.getName().toString());
-                        CommandArgument docUriArgument = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI,
-                                params.getTextDocument().getUri());
-                        commands.add(new Command(commandTitle, CommandConstants.CMD_IMPORT_PACKAGE,
-                                new ArrayList<>(Arrays.asList(pkgArgument, docUriArgument))));
-                    });
-        }
-
-        return commands;
-    }
-
-    private static boolean isUndefinedPackage(String diagnosticMessage) {
-        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNDEFINED_PACKAGE);
-    }
-
-    /**
-     * Inner class for the command argument holding argument key and argument value.
-     */
-    private static class CommandArgument {
-        private String argumentK;
-
-        private String argumentV;
-
-        CommandArgument(String argumentK, String argumentV) {
-            this.argumentK = argumentK;
-            this.argumentV = argumentV;
-        }
-
-        public String getArgumentK() {
-            return argumentK;
-        }
-
-        public String getArgumentV() {
-            return argumentV;
-        }
     }
 
     /**
@@ -483,17 +406,19 @@ public class CommonUtil {
      * @return {@link JsonArray}    Converted array value
      */
     public static JsonArray getType(Node node) {
-        BType type = ((BLangNode) node).type;
-        if (node instanceof BLangInvocation) {
-            JsonArray jsonElements = new JsonArray();
-            for (BType returnType : ((BLangInvocation) node).types) {
-                jsonElements.add(returnType.getKind().typeName());
+        if (node instanceof BLangNode) {
+            BType type = ((BLangNode) node).type;
+            if (node instanceof BLangInvocation) {
+                JsonArray jsonElements = new JsonArray();
+                for (BType returnType : ((BLangInvocation) node).types) {
+                    jsonElements.add(returnType.getKind().typeName());
+                }
+                return jsonElements;
+            } else if (type != null) {
+                JsonArray jsonElements = new JsonArray();
+                jsonElements.add(type.getKind().typeName());
+                return jsonElements;
             }
-            return jsonElements;
-        } else if (type != null) {
-            JsonArray jsonElements = new JsonArray();
-            jsonElements.add(type.getKind().typeName());
-            return jsonElements;
         }
 
         return null;
@@ -541,6 +466,32 @@ public class CommonUtil {
         }
 
         return false;
+    }
+
+    /**
+     * Get the top level node type in the line.
+     *
+     * @param identifier    Document Identifier
+     * @param startPosition Start position
+     * @param docManager    Workspace document manager
+     * @return {@link String}   Top level node type
+     */
+    public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
+                                                WorkspaceDocumentManager docManager) {
+        // TODO: Need to support service and resources as well.
+        List<String> topLevelKeywords = Arrays.asList("function", "connector", "action", "struct", "enum",
+                "transformer");
+        String fileContent = docManager.getFileContent(getPath(identifier.getUri()));
+        String lineContent = fileContent.split("\\n|\\r\\n|\\r")[startPosition.getLine()];
+        List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
+
+        for (String topLevelKeyword : topLevelKeywords) {
+            if (alphaNumericTokens.contains(topLevelKeyword)) {
+                return topLevelKeyword;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -64,7 +64,7 @@ public final class BLangConnectorSPIUtil {
      * @param context invocation Context
      * @return register service.
      */
-    public static Service getServiceRegisted(Context context) {
+    public static Service getServiceRegistered(Context context) {
         BValue result = context.getRefArgument(1);
         if (result == null || result.getType().getTag() != TypeTags.TYPE_TAG
                 || ((BTypeValue) result).value().getTag() != TypeTags.SERVICE_TAG) {

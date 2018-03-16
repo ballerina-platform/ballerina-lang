@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Form, Input, Checkbox } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 import AceEditor from 'react-ace';
 
@@ -56,7 +56,7 @@ class ImportStructDialog extends React.Component {
      * Called when user clicks 'Import Struct' menu item.
      */
     onImportJson() {
-        if (this.props.onImport(this.state.json)) {
+        if (this.props.onImport(this.state.json, this.state.structName, this.state.removeDefaults)) {
             this.setState({
                 error: '',
                 json: '',
@@ -123,6 +123,44 @@ class ImportStructDialog extends React.Component {
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
+                <Form
+                    widths='equal'
+                    onSubmit={(e) => {
+                        this.onImportJson();
+                    }}
+                >
+                    <Form.Group controlId='structName' inline className='inverted'>
+                        <Form.Field width={3} htmlFor='structName'>
+                            <label>Struct Name</label>
+                        </Form.Field>
+                        <Form.Field width={12} className='inverted'>
+                            <Input
+                                type='text'
+                                value={this.state.structName}
+                                onChange={(evt) => {
+                                    this.setState({
+                                        error: '',
+                                        structName: evt.target.value,
+                                    });
+                                }}
+                            />
+                        </Form.Field>
+                    </Form.Group>
+                    <Form.Group controlId='removeDefaults' inline className='inverted'>
+                        <Form.Field width={15} className='inverted'>
+                            <Checkbox
+                                label='Import JSON without defaults values.'
+                                value={this.state.removeDefaults}
+                                onChange={(evt, data) => {
+                                    this.setState({
+                                        error: '',
+                                        removeDefaults: data.checked,
+                                    });
+                                }}
+                            />
+                        </Form.Field>
+                    </Form.Group>
+                </Form>
                 <p>Please enter a valid sample JSON to generate struct definition.</p>
                 <AceEditor
                     mode='json'
