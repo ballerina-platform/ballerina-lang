@@ -83,8 +83,7 @@ function checkTableCount(string tablePrefix) (int count) {
         testDB -> close();
     }
     return;
-
-    }
+}
 
 function testEmptyTableCreateInvalid () {
     table t1 = {};
