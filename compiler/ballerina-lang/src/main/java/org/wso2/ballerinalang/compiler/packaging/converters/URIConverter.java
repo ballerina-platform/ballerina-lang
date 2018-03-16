@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  */
 public class URIConverter implements Converter<URI> {
 
-    public static final String BALLERINA_PULL_BALX = "/pull.bal.balx";
+    public static final String BALLERINA_PULL_BALX = "/ballerina.pull.balx";
     private final URI base;
     private final EmbeddedExecutor executor;
     private final URI pullBalxLocation;

@@ -1,24 +1,19 @@
-import ballerina.file;
 import ballerina.io;
 import ballerina.net.http;
 import ballerina.runtime;
 
 function pullPackage (string url, string destDirPath, string fullPkgPath) {
     endpoint<http:HttpClient> httpEndpoint {
-        create http:HttpClient(url, {});
+        create http:HttpClient(url, getConnectorConfigs());
     }
     http:OutRequest req = {};
     req.addHeader("Accept-Encoding", "identity");
     var resp, errRes = httpEndpoint.get("", req);
-    io:println(errRes);
     if (errRes != null) {
         error err = {message:errRes.message};
-        io:println(errRes.message);
         throw err;
     }
-    io:println("STATUS" + resp.statusCode);
     if (resp.statusCode != 200) {
-        io:println("2222");
         var jsonResponse, errJson = resp.getJsonPayload();
         if (errJson != null) {
             error err = {message:errJson.message};
@@ -27,49 +22,18 @@ function pullPackage (string url, string destDirPath, string fullPkgPath) {
             io:println(jsonResponse.msg.toString());
         }
     } else {
-        // If there is no version in the requested package
-        // if (pkgVersion == "*") {
-            // Get the package version from the canonical header of the response
-            // string headerValue = resp.getHeader("Link");
-            // string canonicalLinkURL = headerValue.subString(headerValue.indexOf("<") + 1, headerValue.indexOf(">"));
-            // pkgVersion = canonicalLinkURL.subString(canonicalLinkURL.lastIndexOf("/") + 1, canonicalLinkURL.length());
-            // fullPkgPath = fullPkgPath + ":" + pkgVersion;
-            // homeRepoDirPath = homeRepoDirPath.replace("*", pkgVersion);
-        // }
-        io:println(resp);
         var pkgSize, conversionErr = <int>resp.getHeader("content-length");
-
-        // boolean homeDirExists = ifFileExists(homeRepoDirPath);
         var sourceChannel, sourceChannelErr = resp.getByteChannel();
         if (sourceChannelErr != null) {
             error err = {message:sourceChannelErr.message};
             throw err;
         }
-        io:ByteChannel destDirChannel = null;
+        io:ByteChannel destDirChannel = getFileChannel(destDirPath, "w");
         string toAndFrom = " [central.ballerina.io -> home repo]";
 
-        // string fileName = pkgName + ".zip";
-
-        // Create directories of the home repo
-        // createDirectories(homeRepoDirPath);
-        // string homeRepoFilePath = homeRepoDirPath + FileSeparator + fileName;
-        destDirChannel = getFileChannel(destDirPath, "w");
-
-        // io:ByteChannel projectDirChannel = null;
         io:IOError destDirChannelCloseError;
         io:IOError srcCloseError;
 
-        // if (projectRepoDirPath != null) {
-            // projectRepoDirPath = projectRepoDirPath.replace("*", pkgVersion);
-            // string projectRepoFilePath = projectRepoDirPath + FileSeparator + fileName;
-            // projectDirChannel = getFileChannel(projectRepoFilePath, "w");
-            // boolean projectDirExists = ifFileExists(projectRepoDirPath);
-            // if (homeDirExists && projectDirExists) {
-                // toAndFrom = " [home repo -> project repo]";
-            // } else {
-            //    toAndFrom = " [central.ballerina.io -> home repo -> project repo]";
-            //}
-        // }
         copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
         if (destDirChannel != null) {
             destDirChannelCloseError = destDirChannel.close();
@@ -78,33 +42,11 @@ function pullPackage (string url, string destDirPath, string fullPkgPath) {
     }
 }
 
-// function ifFileExists (string filePath) (boolean) {
-    // file:File fileDir = {path:filePath};
-    // return fileDir.exists();
-// }
+function main(string[] args){
+    pullPackage("https://staging.central.ballerina.io:9090/hemika/foo.bar/1.0.0/",
+                "/tmp/bal-download-tmp-6890244866054220646/foo.bar.zip",
+                "hemika/foo.bar:1.0.0"); }
 
-function main(string[] args){ pullPackage(args[0], args[1], args[2]); }
-
-
-function createDirectories (string directoryPath) {
-    file:AccessDeniedError adError;
-    file:IOError ioError;
-    boolean folderCreated;
-
-    file:File folder = {path:directoryPath};
-    if (!folder.exists()) {
-        folderCreated, adError, ioError = folder.mkdirs();
-    }
-    if (folderCreated) {
-        if (adError != null) {
-            error err = {message:"Error occurred while creating the directories", cause:adError.cause};
-            throw err;
-        } else if (ioError != null) {
-            error err = {message:"I/O error occurred while creating the directories", cause:ioError.cause};
-            throw err;
-        }
-    }
-}
 
 function getFileChannel (string filePath, string permission) (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(filePath, permission);
@@ -155,9 +97,6 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             if (dest != null) {
                 numberOfBytesWritten = writeBytes(dest, readContent, 0, readCount);
             }
-            // if (projectDst != null) {
-                // numberOfBytesWritten = writeBytes(projectDst, readContent, 0, readCount);
-            // }
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             runtime:sleepCurrentWorker(100);
@@ -203,4 +142,15 @@ function truncateString (string text) (string) {
         return truncatedStr + versionOfPkg;
     }
     return text;
+}
+
+function getConnectorConfigs() (http:Options) {
+    http:Options option = {
+                              ssl: {
+                                       trustStoreFile:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                                       trustStorePassword:"ballerina"
+                                   },
+                              followRedirects: {}
+                          };
+    return option;
 }
