@@ -48,7 +48,6 @@ class AbstractLockNode extends StatementNode {
     }
 
 
-
 }
 
 export default AbstractLockNode;

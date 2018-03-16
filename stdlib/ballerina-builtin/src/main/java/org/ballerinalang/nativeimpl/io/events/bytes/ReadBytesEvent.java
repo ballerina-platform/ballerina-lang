@@ -70,12 +70,11 @@ public class ReadBytesEvent implements Event {
             byte[] content = this.content.array();
             context.getProperties().put(CONTENT_PROPERTY, content);
             result = new NumericResult(numberOfBytesRead, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }
