@@ -44,6 +44,7 @@ import org.ballerinalang.plugins.idea.psi.DoubleBackTickInlineCodeNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.IntegerLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -92,6 +93,8 @@ public class BallerinaAnnotator implements Annotator {
             annotateConstants(element, holder);
         } else if (parent instanceof ConstantDefinitionNode) {
             annotateConstants(parent, holder);
+        } else if (element instanceof IntegerLiteralNode) {
+            annotateInteger(parent, holder);
         } else if (element instanceof VariableReferenceNode) {
             annotateVariableReferenceNodes((VariableReferenceNode) element, holder);
         } else if (element instanceof AnnotationDefinitionNode) {
@@ -236,7 +239,7 @@ public class BallerinaAnnotator implements Annotator {
             Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
         } else if (element instanceof IdentifierPSINode) {
-            if(parentElement.getParent() instanceof AnnotationAttachmentNode){
+            if (parentElement.getParent() instanceof AnnotationAttachmentNode) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
                 return;
@@ -377,6 +380,11 @@ public class BallerinaAnnotator implements Annotator {
         }
         Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+    }
+
+    private void annotateInteger(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+        Annotation annotation = holder.createInfoAnnotation(element, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.NUMBER);
     }
 
     private void annotateGlobalVariable(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {

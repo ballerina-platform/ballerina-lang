@@ -83,6 +83,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.IntegerLiteralNode;
 import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
@@ -521,6 +522,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new DocumentationTemplateAttributeDescriptionNode(node);
             case BallerinaParser.RULE_formalParameterList:
                 return new FormalParameterListNode(node);
+            case BallerinaParser.RULE_integerLiteral:
+                return new IntegerLiteralNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
