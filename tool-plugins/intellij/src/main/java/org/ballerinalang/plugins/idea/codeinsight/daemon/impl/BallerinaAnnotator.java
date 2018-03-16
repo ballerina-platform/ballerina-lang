@@ -124,7 +124,8 @@ public class BallerinaAnnotator implements Annotator {
 
     private void annotateLeafPsiElementNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         IElementType elementType = ((LeafPsiElement) element).getElementType();
-        if (elementType == BallerinaTypes.AT && element.getParent() instanceof AnnotationAttachmentNode) {
+        PsiElement parentElement = element.getParent();
+        if (elementType == BallerinaTypes.AT && parentElement instanceof AnnotationAttachmentNode) {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
         } else if (elementType == BallerinaTypes.QUOTED_STRING) {
@@ -235,7 +236,12 @@ public class BallerinaAnnotator implements Annotator {
             Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
         } else if (element instanceof IdentifierPSINode) {
-            if (element.getParent() instanceof DocumentationTemplateAttributeDescriptionNode) {
+            if(parentElement.getParent() instanceof AnnotationAttachmentNode){
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+                return;
+            }
+            if (parentElement instanceof DocumentationTemplateAttributeDescriptionNode) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
             }
