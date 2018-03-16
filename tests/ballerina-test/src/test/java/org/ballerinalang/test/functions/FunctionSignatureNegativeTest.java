@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 /**
  * Test function signatures and calling with optional and named params.
  */
-public class FunctionSigntaureNegativeTest {
+public class FunctionSignatureNegativeTest {
 
     @Test
     public void testNegativeFuncSignature() {

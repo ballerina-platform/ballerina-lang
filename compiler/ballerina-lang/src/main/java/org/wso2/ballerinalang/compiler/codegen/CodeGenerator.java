@@ -1630,7 +1630,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         CallableUnitInfo callableUnitInfo;
         if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
-            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.name.value);
+            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.symbol.name.value);
         } else if (iExpr.symbol.kind == SymbolKind.ACTION) {
             ConnectorInfo connectorInfo = pkgInfo.connectorInfoMap.get(iExpr.symbol.owner.name.value);
             callableUnitInfo = connectorInfo.actionInfoMap.get(iExpr.symbol.name.value);

@@ -245,17 +245,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+
         funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
-
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol)) {
-            return;
-        }
-
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
             this.analyzeDef(funcNode.restParam, funcEnv);
+        }
+
+        // Check for native functions
+        if (Symbols.isNative(funcNode.symbol)) {
+            return;
         }
 
         funcNode.endpoints.forEach(e -> analyzeDef(e, env));

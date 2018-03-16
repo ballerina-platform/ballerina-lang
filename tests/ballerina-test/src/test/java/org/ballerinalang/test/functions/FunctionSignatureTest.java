@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Test function signatures and calling with optional and named params.
  */
-public class FunctionSigntaureTest {
+public class FunctionSignatureTest {
     CompileResult result;
     CompileResult pkgResult;
 
@@ -387,5 +387,12 @@ public class FunctionSigntaureTest {
 
         Assert.assertTrue(returns[5] instanceof BIntArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
+    }
+
+    @Test
+    public void testOptionalArgsInNativeFunc() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/native-function-signatures.bal");
+        BValue[] returns = BRunUtil.invoke(result, "foo");
+        System.out.println(returns[0]);
     }
 }
