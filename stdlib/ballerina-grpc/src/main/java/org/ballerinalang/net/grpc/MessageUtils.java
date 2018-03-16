@@ -92,12 +92,12 @@ public class MessageUtils {
         return headerValue;
     }
     
-    public static StreamObserver<Message> getStreamObserver(BRefType refType) {
+    public static StreamObserver<Message> getResponder(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BConnector) {
-            observerObject = ((BConnector) refType).getNativeData(MessageConstants.STREAM_OBSERVER);
+            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONDER);
         } else if (refType instanceof BStruct) {
-            observerObject = ((BStruct) refType).getNativeData(MessageConstants.STREAM_OBSERVER);
+            observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONDER);
         }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver<Message>) observerObject);

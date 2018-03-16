@@ -22,7 +22,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -61,12 +60,16 @@ public abstract class MethodListener {
     
     BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
         ProgramFile programFile = getProgramFile(resource);
-        BConnector connection = BLangConnectorSPIUtil.createBConnector(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVER_CONNECTOR);
-        connection.setIntField(0, responseObserver.hashCode());
-        connection.setNativeData(MessageConstants.STREAM_OBSERVER, responseObserver);
-        connection.setNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
-        return connection;
+        BStruct endpointClient = BLangConnectorSPIUtil.createBStruct(programFile,
+                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
+        endpointClient.setIntField(0, responseObserver.hashCode());
+        endpointClient.addNativeData(MessageConstants.RESPONDER, responseObserver);
+        endpointClient.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
+
+        BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
+                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT);
+        endpoint.setRefField(0, endpointClient);
+        return endpoint;
     }
     
     BValue getRequestParameter(Message requestMessage) {

@@ -15,33 +15,35 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.actions.client;
+package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import io.grpc.MethodDescriptor;
+import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
 /**
- * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
+ * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        actionName = "nonBlockingExecute",
-        connectorName = "ClientConnector",
+        functionName = "streamingExecute",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
+                structPackage = "ballerina.net.grpc"),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
-                @Argument(name = "payload", type = TypeKind.ANY),
                 @Argument(name = "listenerService", type = TypeKind.STRING)
         },
         returnType = {
@@ -49,18 +51,15 @@ import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
                 @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
                         structPackage = "ballerina.net.grpc"),
         },
-        connectorArgs = {
-                @Argument(name = "host", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT)
-        }
+        isPublic = true
 )
-public class NonBlockingExecute extends AbstractExecute {
+public class StreamingExecute extends AbstractExecute {
     @Override
     public void execute(Context context) {
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         if (bConnector == null) {
-            notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
-                    "not initialized properly");
+            notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
+                    "is not initialized properly");
             return;
         }
 
@@ -83,31 +82,33 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
         if (connectionStub instanceof GrpcNonBlockingStub) {
-            BValue payloadBValue = context.getRefArgument(1);
-            Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
             String listenerService = context.getStringArgument(1);
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, listenerService),
-                            methodName);
-                } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
-                            listenerService), methodName);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
+                StreamObserver<Message> requestSender;
+                if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
+                    requestSender = grpcNonBlockingStub.executeClientStreaming
+                            (responseObserver, methodName);
+
+                } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
+                    requestSender = grpcNonBlockingStub.executeBidiStreaming
+                            (responseObserver, methodName);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                     return;
                 }
-                context.setReturnValues();
-                return;
+                responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
+                BStruct connStruct = createStruct(context, "ClientConnection");
+                connStruct.addNativeData(MessageConstants.RESPONDER, requestSender);
+                connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                        .getInputType());
+                context.setReturnValues(connStruct);
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
-                return;
             }
         }
-        notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
-                "type not supported");
     }
 }

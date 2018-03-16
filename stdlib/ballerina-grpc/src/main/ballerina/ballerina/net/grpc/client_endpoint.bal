@@ -71,12 +71,12 @@ public native function <Client ep> start ();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <Client ep> getConnector() returns (ClientConnector repConn);
+public native function <Client ep> getConnector() returns (ServiceStub stub);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public native function <Client ep> stop();
 
-@Description { value:"Returns the client sub that client code uses"}
-@Return { value:"client sub that client code uses" }
+@Description { value:"Returns the client sub that servicestub code uses"}
+@Return { value:"client sub that servicestub code uses" }
 public native function <Client ep> getStub() returns (any clientSub);

@@ -69,7 +69,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
                 Executor.submit(resource, callback, null, signatureParams);
             }
 
@@ -108,7 +108,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
                 signatureParams[0] = getConnectionParameter(responseObserver);
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
                 Executor.submit(onCompleted, callback, null, signatureParams);
             }
         };

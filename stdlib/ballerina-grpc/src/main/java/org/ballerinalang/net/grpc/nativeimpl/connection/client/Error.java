@@ -56,7 +56,7 @@ public class Error extends BlockingNativeCallableUnit {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getStreamObserver(connectionStruct);
+            StreamObserver responseObserver = MessageUtils.getResponder(connectionStruct);
             if (responseObserver == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +

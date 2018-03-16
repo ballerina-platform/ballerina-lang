@@ -20,9 +20,13 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 /**
@@ -33,16 +37,25 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "getConnector",
+        functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
                 structPackage = "ballerina.net.grpc"),
-        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetConnector extends AbstractGrpcNativeFunction {
+public class GetClient extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues();
+        BStruct endpoint = (BStruct) context.getRefArgument(0);
+
+        BRefType clientType = endpoint.getRefField(0);
+        if (clientType instanceof BStruct) {
+            BStruct endpointClient = (BStruct) clientType;
+            context.setReturnValues(endpointClient);
+        } else {
+            context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error while " +
+                    "retrieving endpoint client.")));
+        }
     }
 }

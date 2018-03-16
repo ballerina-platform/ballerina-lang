@@ -199,14 +199,18 @@ public class ServiceProtoUtils {
         for (ResourceNode resourceNode : serviceNode.getResources()) {
             if ("onMessage".equals(resourceNode.getName().getValue())) {
                 requestMessage = getRequestMessage(resourceNode);
-                responseMessage = getResponseMessage(resourceNode);
-                if (responseMessage != null) {
+                Message respMsg = getResponseMessage(resourceNode);
+                if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
+                    responseMessage = getResponseMessage(resourceNode);
                     break;
                 }
             }
             
             if ("onComplete".equals(resourceNode.getName().getValue())) {
-                responseMessage = getResponseMessage(resourceNode);
+                Message respMsg = getResponseMessage(resourceNode);
+                if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
+                    responseMessage = respMsg;
+                }
             }
         }
         
@@ -215,8 +219,9 @@ public class ServiceProtoUtils {
                     serviceNode.getName().getValue());
         }
         if (responseMessage == null) {
-            throw new GrpcServerException("Cannot find response message definition for streaming service: " +
-                    serviceNode.getName().getValue());
+            responseMessage = generateMessageDefinition(new BNullType());
+            /*throw new GrpcServerException("Cannot find response message definition for streaming service: " +
+                    serviceNode.getName().getValue());*/
         }
         
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {

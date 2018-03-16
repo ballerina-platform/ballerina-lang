@@ -52,10 +52,7 @@ public class Register extends AbstractGrpcNativeFunction {
     @Override
     public void execute(Context context) {
         BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
-        Service service = BLangConnectorSPIUtil.getServiceRegisted(context);
-/*        Annotation annotation = getServiceConfigAnnotation(service,
-                "ballerina.net.grpc");
-        Struct serviceConfig = annotation != null ? annotation.getValue() : null;*/
+        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             registerService(serverBuilder, service);

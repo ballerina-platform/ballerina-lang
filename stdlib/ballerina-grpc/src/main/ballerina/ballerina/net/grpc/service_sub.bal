@@ -1,24 +1,23 @@
 package ballerina.net.grpc;
 
-@Description {value:"gRPC protobuf client connector for outbound gRPC requests"}
-@Param {value:"serviceUri: Url of the service"}
-@Param {value:"connectorOptions: connector options"}
-public connector ClientConnector () {
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action blockingExecute (string methodID, any payload) (any , ConnectorError);
-
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
-
-    @Description {value:"The execute action implementation of the gRPC Connector."}
-    @Param {value:"Connection stub."}
-    @Param {value:"Any type of request parameters."}
-    native action streamingExecute (string methodID, string listenerService) (ClientConnection , ConnectorError);
+@Description {value:"gRPC Service Stub for outbound gRPC requests"}
+public struct ServiceStub {
 }
+
+@Description {value:"The execute action implementation of the gRPC Connector."}
+@Param {value:"Connection stub."}
+@Param {value:"Any type of request parameters."}
+public native function<ServiceStub ep>  blockingExecute (string methodID, any payload) (any , ConnectorError);
+
+@Description {value:"The execute action implementation of the gRPC Connector."}
+@Param {value:"Connection stub."}
+@Param {value:"Any type of request parameters."}
+public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
+
+@Description {value:"The execute action implementation of the gRPC Connector."}
+@Param {value:"Connection stub."}
+@Param {value:"Any type of request parameters."}
+public native function<ServiceStub ep>  streamingExecute (string methodID, string listenerService) (ClientConnection , ConnectorError);
 
 
 @Description {value:"Represents the gRPC client connector connection"}

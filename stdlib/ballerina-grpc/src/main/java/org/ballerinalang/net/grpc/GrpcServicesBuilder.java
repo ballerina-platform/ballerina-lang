@@ -174,7 +174,7 @@ public class GrpcServicesBuilder {
             GrpcServerException {
 
         if (serverBuilder == null) {
-            throw new GrpcServerException("Error while starting gRPC server, server builder is null");
+            throw new GrpcServerException("Error while starting gRPC server, clientresponder builder is null");
         }
         Server server = serverBuilder.build();
         if (server != null) {

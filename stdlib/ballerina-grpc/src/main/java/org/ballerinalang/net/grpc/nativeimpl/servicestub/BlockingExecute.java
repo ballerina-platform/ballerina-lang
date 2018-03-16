@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.actions.client;
+package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
@@ -24,7 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageRegistry;
@@ -35,10 +36,11 @@ import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        actionName = "blockingExecute",
-        connectorName = "ClientConnector",
+        functionName = "blockingExecute",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
+                structPackage = "ballerina.net.grpc"),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)
@@ -49,10 +51,7 @@ import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
                 @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
                         structPackage = "ballerina.net.grpc"),
         },
-        connectorArgs = {
-                @Argument(name = "host", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT)
-        }
+        isPublic = true
 )
 public class BlockingExecute extends AbstractExecute {
 

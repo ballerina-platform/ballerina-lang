@@ -4,7 +4,6 @@ package ballerina.net.grpc;
 @Field {value:"epName: connector endpoint identifier"}
 @Field {value:"config: gRPC service endpoint configuration"}
 public struct Service {
-    string epName;
     ServiceEndpointConfiguration config;
 }
 
@@ -39,8 +38,7 @@ public struct SslConfiguration {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <Service ep> init (string epName, ServiceEndpointConfiguration config) {
-    ep.epName = epName;
+public function <Service ep> init (ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
@@ -63,4 +61,4 @@ public native function <Service ep> stop ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Service ep> getConnector () returns (ServerConnector repConn);
+public native function <Service ep> getClient () returns (ClientResponder);

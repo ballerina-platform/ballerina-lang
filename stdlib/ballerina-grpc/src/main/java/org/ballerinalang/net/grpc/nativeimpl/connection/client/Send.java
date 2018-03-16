@@ -54,7 +54,7 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver requestSender = MessageUtils.getStreamObserver(connectionStruct);
+        StreamObserver requestSender = MessageUtils.getResponder(connectionStruct);
         if (requestSender == null) {
             return;
         }

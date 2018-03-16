@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.actions.server;
+package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
 
 import com.google.protobuf.Descriptors;
 import io.grpc.Status;
@@ -22,8 +22,9 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -35,23 +36,25 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.96.1
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        actionName = "complete",
-        connectorName = "ServerConnector",
+        functionName = "complete",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
+                structPackage = "ballerina.net.grpc"),
         returnType = {
                 @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
                         structPackage = "ballerina.net.grpc")
-        }
+        },
+        isPublic = true
 )
 public class Complete extends BlockingNativeCallableUnit {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        StreamObserver responseObserver = MessageUtils.getStreamObserver(bConnector);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) bConnector.getNativeData(MessageConstants
+        BStruct endpointClient = (BStruct) context.getRefArgument(0);
+        StreamObserver responseObserver = MessageUtils.getResponder(endpointClient);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status

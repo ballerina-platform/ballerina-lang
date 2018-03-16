@@ -13,33 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.actions.server;
+package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native action to get the unique id of the connection.
  *
  **/
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        actionName = "getID",
-        connectorName = "ServerConnector",
+        functionName = "getID",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
+                structPackage = "ballerina.net.grpc"),
         returnType = {
                 @ReturnType(type = TypeKind.STRING)
-        }
+        },
+        isPublic = true
 )
 public class GetID extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        context.setReturnValues(new BInteger(bConnector.getIntField(0)));
+        BStruct endpointClient = (BStruct) context.getRefArgument(0);
+        context.setReturnValues(new BInteger(endpointClient.getIntField(0)));
     }
 }

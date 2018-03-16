@@ -98,7 +98,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             .Descriptor inputType) {
         BStruct connection = ConnectorUtils.createStruct(resource,
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_CONNECTION);
-        connection.addNativeData(MessageConstants.STREAM_OBSERVER, requestSender);
+        connection.addNativeData(MessageConstants.RESPONDER, requestSender);
         connection.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, inputType);
         return connection;
     }

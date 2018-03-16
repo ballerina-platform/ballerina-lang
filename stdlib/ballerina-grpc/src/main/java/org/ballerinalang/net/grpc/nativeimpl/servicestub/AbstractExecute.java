@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.actions.client;
+package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
@@ -34,7 +34,7 @@ import org.ballerinalang.util.codegen.StructInfo;
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
  */
-abstract class AbstractExecute extends BlockingNativeCallableUnit {
+public abstract class AbstractExecute extends BlockingNativeCallableUnit {
 
     /**
      * Returns corresponding Ballerina type for the proto buffer type.
