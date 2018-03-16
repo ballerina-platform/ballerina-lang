@@ -38,10 +38,8 @@ import org.wso2.transport.http.netty.util.client.http2.RequestGenerator;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.Http2EchoServerInitializer;
 
-import java.io.File;
-
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * This contains basic test cases for HTTP2 Client connector.
@@ -55,14 +53,14 @@ public class Http2ClientConnectorBasicTestCase {
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration = TestUtil.getConfiguration(
-                "/simple-test-config" + File.separator + "netty-transports.yml");
-
         http2Server = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new Http2EchoServerInitializer());
         connectorFactory = new DefaultHttpWsConnectorFactory();
+
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
+
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
@@ -70,18 +68,18 @@ public class Http2ClientConnectorBasicTestCase {
     @Test
     public void testHttp2Get() {
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.GET, null);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
-        assertNotNull(response);
+        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
+        assertNotNull(response, "Expected response not received");
     }
 
     @Test
     public void testHttp2Post() {
         String testValue = "Test Message";
         HTTPCarbonMessage httpCarbonMessage = RequestGenerator.generateRequest(HttpMethod.POST, testValue);
-        HTTPCarbonMessage response = MessageSender.sendMessage(httpCarbonMessage, httpClientConnector);
+        HTTPCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(testValue, result);
+        assertEquals(testValue, result, "Expected response not received");
     }
 
     @AfterClass
