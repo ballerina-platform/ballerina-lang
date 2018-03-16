@@ -29,6 +29,7 @@ public struct RequestLimits {
 @Field {value:"ssl: The SSL configurations for the service endpoint"}
 @Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"requestLimits: Request validation limits configuration"}
+@Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
@@ -38,6 +39,7 @@ public struct ServiceEndpointConfiguration {
     SslConfiguration ssl;
     string httpVersion;
     RequestLimits requestLimits;
+    Filter[] filters;
 }
 
 @Description {value:"Initializes a ServiceEndpointConfiguration struct"}
@@ -88,6 +90,12 @@ public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) 
     var err = ep.initEndpoint();
     if (err != null) {
         throw err;
+    }
+    // if filters are defined, call init on them
+    if (config.filters != null) {
+        foreach filter in config.filters  {
+            filter.init();
+        }
     }
 }
 
