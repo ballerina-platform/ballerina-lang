@@ -28,12 +28,12 @@ import io.netty.handler.ssl.SslHandshakeCompletionEvent;
  * A handler to check whether TLS handshake has been completed. Rest of the handlers will be added to the pipeline
  * once this becomes successful.
  */
-public class TLSHandshakeCompletionHandlerForServer extends ChannelInboundHandlerAdapter {
+public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandlerAdapter {
 
     private HttpServerChannelInitializer httpServerChannelInitializer;
     private ChannelPipeline serverPipeline;
 
-    TLSHandshakeCompletionHandlerForServer(HttpServerChannelInitializer httpServerChannelInitializer,
+    SslHandshakeCompletionHandlerForServer(HttpServerChannelInitializer httpServerChannelInitializer,
             ChannelPipeline serverPipeline) {
         this.httpServerChannelInitializer = httpServerChannelInitializer;
         this.serverPipeline = serverPipeline;

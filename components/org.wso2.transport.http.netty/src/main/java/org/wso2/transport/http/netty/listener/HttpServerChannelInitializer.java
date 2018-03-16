@@ -96,7 +96,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             }
         } else {
             if (sslConfig != null) {
-            configureSslForHttp(serverPipeline);
+                configureSslForHttp(serverPipeline);
             } else {
                 configureHTTPPipeline(serverPipeline);
             }
@@ -106,13 +106,13 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private void configureSslForHttp(ChannelPipeline serverPipeline) {
 
         SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
-            serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-            if (validateCertEnabled) {
-                serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
-            }
-            serverPipeline.addLast(Constants.TLS_COMPLETION_HANDLER,
-                    new TLSHandshakeCompletionHandlerForServer(this, serverPipeline));
+        serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+        if (validateCertEnabled) {
+            serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                    new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+        }
+        serverPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                new SslHandshakeCompletionHandlerForServer(this, serverPipeline));
     }
 
     /**
@@ -150,8 +150,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
                                                  keepAliveConfig, this.serverName, this.allChannels));
         if (socketIdleTimeout > 0) {
-            serverPipeline.addBefore(
-                    Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
+            serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
                             TimeUnit.MILLISECONDS));
         }

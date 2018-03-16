@@ -207,7 +207,7 @@ public final class Constants {
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
     public static final String PROXY_HANDLER = "proxyServerHandler";
-    public static final String TLS_COMPLETION_HANDLER = "tlsHandshakeCompletionHandler";
+    public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
     public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String CONNECTION_HANDLER = "connectionHandler";
     public static final String OUTBOUND_HANDLER = "outboundHandler";
