@@ -24,10 +24,11 @@ import TransformerExpanded from 'plugins/ballerina/diagram/views/default/compone
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
 import DragLayer from './../drag-drop/drag-layer';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import { TOOL_PALETTE_WIDTH, ZOOM_LEVELS } from './constants';
+import { ZOOM_LEVELS } from './constants';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import ViewButton from './view-button';
+import DiagramMenu from './diagram-menu';
 
 const zoomLevels = [ZOOM_LEVELS.FIT_TO_SCREEN, ZOOM_LEVELS.ACTION, ZOOM_LEVELS.DEFAULT];
 
@@ -187,13 +188,13 @@ class DesignView extends React.Component {
                     <DragLayer />
                     <Scrollbars
                         style={{
-                            width: this.props.width - TOOL_PALETTE_WIDTH,
+                            width: this.props.width,
                             height: this.props.height,
-                            marginLeft: TOOL_PALETTE_WIDTH,
                         }}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
+                        <DiagramMenu width={this.props.width} model={this.props.model} />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
@@ -203,7 +204,7 @@ class DesignView extends React.Component {
                                         <BallerinaDiagram
                                             model={this.props.model}
                                             mode={mode}
-                                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                                            width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
                                         />
@@ -230,8 +231,7 @@ class DesignView extends React.Component {
                         <TransformerExpanded
                             model={activeTransformModel}
                             panelResizeInProgress={this.props.panelResizeInProgress}
-                            leftOffset={TOOL_PALETTE_WIDTH}
-                            width={this.props.width - TOOL_PALETTE_WIDTH}
+                            width={this.props.width}
                             height={this.props.height}
                         />
                     }
