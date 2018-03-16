@@ -87,6 +87,7 @@ public class Constants {
     public static final String ENTITY_BYTE_CHANNEL = "entity_byte_channel";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
     public static final String BODY_PARTS = "body_parts";
+    public static final String ENTITY_HEADERS = "entity_headers";
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
@@ -95,9 +96,8 @@ public class Constants {
     //Entity properties
     public static final int MEDIA_TYPE_INDEX = 0;
     public static final int CONTENT_ID_INDEX = 0;
-    public static final int ENTITY_HEADERS_INDEX = 1;
     public static final int SIZE_INDEX = 0;
-    public static final int CONTENT_DISPOSITION_INDEX = 2;
+    public static final int CONTENT_DISPOSITION_INDEX = 1;
 
     public static final int FIRST_BODY_PART_INDEX = 0;
 
