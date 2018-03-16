@@ -165,8 +165,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                     new CertificateValidationHandler(this.sslEngine, this.cacheDelay, this.cacheSize));
         }
-        clientPipeline.addLast(Constants.TLS_COMPLETION_HANDLER,
-                new TLSHandshakeCompletionHandler(connectionAvailabilityFuture, this, targetHandler));
+        clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
     }
 
     private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)

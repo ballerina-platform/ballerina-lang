@@ -27,13 +27,13 @@ import org.wso2.transport.http.netty.common.Constants;
 /**
  * A handler to check whether TLS handshake has been completed and notify the listener.
  */
-public class TLSHandshakeCompletionHandler extends ChannelInboundHandlerAdapter {
+public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandlerAdapter {
 
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private HttpClientChannelInitializer httpClientChannelInitializer;
     private TargetHandler targetHandler;
 
-    public TLSHandshakeCompletionHandler(ConnectionAvailabilityFuture connectionAvailabilityFuture,
+    public SslHandshakeCompletionHandlerForClient(ConnectionAvailabilityFuture connectionAvailabilityFuture,
             HttpClientChannelInitializer httpClientChannelInitializer, TargetHandler targetHandler) {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
         this.httpClientChannelInitializer = httpClientChannelInitializer;
