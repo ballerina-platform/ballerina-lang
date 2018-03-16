@@ -122,7 +122,9 @@ public class TableProvider {
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(TableConstants.SQL_SELECT + tableName);
-            itr = new TableIterator(conn, rs, type);
+            TableResourceManager rm = new TableResourceManager(conn, stmt);
+            rm.addResultSet(rs);
+            itr = new TableIterator(rm, rs, type);
         } catch (SQLException e) {
             releaseResources(conn, stmt);
             throw new BallerinaException("error in creating iterator for table : " + e.getMessage());

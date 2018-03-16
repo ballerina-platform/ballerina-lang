@@ -31,6 +31,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
@@ -86,8 +87,10 @@ import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * Utility class providing utility methods.
@@ -700,12 +703,13 @@ public class HttpUtil {
     }
 
     public static void setCompressionHeaders(Context context, HTTPCarbonMessage outboundMessage) {
-        AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-        if (configAnn != null) {
-            AnnAttributeValue compressionEnabled = configAnn.getAttributeValue(
-                    HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-            if (compressionEnabled != null && !compressionEnabled.getBooleanValue()) {
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                                                                   context.getServiceInfo().getType());
+        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
+
+        if (configAnnot != null) {
+            boolean isCompressionEnabled = configAnnot.getValue().getBooleanField(ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
+            if (isCompressionEnabled) {
                 outboundMessage.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(),
                                           Constants.HTTP_TRANSFER_ENCODING_IDENTITY);
             }

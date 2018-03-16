@@ -30,8 +30,9 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -57,10 +58,11 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
+        final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_ADD_DOCUMENTATION));
+        final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
-        completionOptions.setTriggerCharacters(Arrays.asList(":", "."));
-        final ExecuteCommandOptions executeCommandOptions =
-                new ExecuteCommandOptions(Collections.singletonList(CommandConstants.CMD_IMPORT_PACKAGE));
+        completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">"));
         
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
@@ -71,6 +73,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
+        res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);

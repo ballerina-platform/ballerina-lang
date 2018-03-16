@@ -33,9 +33,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -201,7 +201,8 @@ public class HoverUtil {
         StringBuilder value = new StringBuilder();
         for (BLangAnnotationAttachment annotationAttachment : annotationAttachments) {
             if (annotationAttachment.annotationName.getValue().equals(annotationName)) {
-                value.append(getAnnotationAttributes("value", annotationAttachment.attributes))
+                value.append(getAnnotationAttributes("value",
+                        ((BLangRecordLiteral) annotationAttachment.expr).keyValuePairs))
                         .append("\r\n");
             }
         }
@@ -216,11 +217,12 @@ public class HoverUtil {
      * @return concatenated string with annotation attribute value.
      */
     private static String getAnnotationAttributes(String attributeName,
-                                                  List<BLangAnnotAttachmentAttribute> annotAttachmentAttributes) {
+                                                  List<BLangRecordLiteral
+                                                          .BLangRecordKeyValue> annotAttachmentAttributes) {
         String value = "";
-        for (BLangAnnotAttachmentAttribute attribute : annotAttachmentAttributes) {
-            if (attribute.name.getValue().equals(attributeName)) {
-                value = ((BLangLiteral) attribute.value.value).getValue().toString();
+        for (BLangRecordLiteral.BLangRecordKeyValue attribute : annotAttachmentAttributes) {
+            if (attribute.key.fieldSymbol.name.getValue().equals(attributeName)) {
+                value = ((BLangLiteral) attribute.valueExpr).getValue().toString();
                 break;
             }
         }

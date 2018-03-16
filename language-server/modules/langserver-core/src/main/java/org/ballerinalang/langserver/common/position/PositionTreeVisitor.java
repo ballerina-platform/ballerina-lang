@@ -130,8 +130,8 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
-        if (!funcNode.params.isEmpty()) {
-            funcNode.params.forEach(this::acceptNode);
+        if (!funcNode.requiredParams.isEmpty()) {
+            funcNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!funcNode.retParams.isEmpty()) {
@@ -356,8 +356,8 @@ public class PositionTreeVisitor extends NodeVisitor {
             acceptNode(transformerNode.source);
         }
 
-        if (!transformerNode.params.isEmpty()) {
-            transformerNode.params.forEach(this::acceptNode);
+        if (!transformerNode.requiredParams.isEmpty()) {
+            transformerNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!transformerNode.retParams.isEmpty()) {
@@ -402,8 +402,8 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(actionNode);
         this.addToNodeStack(actionNode);
 
-        if (!actionNode.params.isEmpty()) {
-            actionNode.params.forEach(this::acceptNode);
+        if (!actionNode.requiredParams.isEmpty()) {
+            actionNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!actionNode.retParams.isEmpty()) {
@@ -444,8 +444,8 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(resourceNode);
         this.addToNodeStack(resourceNode);
 
-        if (!resourceNode.params.isEmpty()) {
-            resourceNode.params.forEach(this::acceptNode);
+        if (!resourceNode.requiredParams.isEmpty()) {
+            resourceNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!resourceNode.retParams.isEmpty()) {
@@ -533,8 +533,8 @@ public class PositionTreeVisitor extends NodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         setPreviousNode(workerNode);
-        if (!workerNode.params.isEmpty()) {
-            workerNode.params.forEach(this::acceptNode);
+        if (!workerNode.requiredParams.isEmpty()) {
+            workerNode.requiredParams.forEach(this::acceptNode);
         }
 
         if (!workerNode.retParams.isEmpty()) {

@@ -351,7 +351,7 @@ public function <Entity entity> setHeader (string headerName, string headerValue
 @Param {value:"headerName: Represent the header name"}
 public function <Entity entity> removeHeader (string headerName) {
     if (entity.headers != null) {
-        entity.headers.remove(headerName);
+        _ = entity.headers.remove(headerName);
     }
 }
 

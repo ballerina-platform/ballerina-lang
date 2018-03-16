@@ -5,6 +5,6 @@ public function main (string[] args) {
     words.foreach(function (string word){ secureFunction(word, word);});
 }
 
-public function secureFunction (@sensitive{} any secureIn, any insecureIn) {
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
 
 }

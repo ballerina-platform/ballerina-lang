@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.programfile.attributes.DefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.StreamletRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
@@ -152,6 +154,11 @@ public class ProgramFileWriter {
                     dataOutStream.writeInt(actionRefEntry.getPackageCPIndex());
                     dataOutStream.writeInt(actionRefEntry.getNameCPIndex());
                     break;
+                case CP_ENTRY_STREAMLET_REF:
+                    StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) cpEntry;
+                    dataOutStream.writeInt(streamletRefCPEntry.getPackageCPIndex());
+                    dataOutStream.writeInt(streamletRefCPEntry.getNameCPIndex());
+                    break;
                 case CP_ENTRY_STRUCTURE_REF:
                     StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) cpEntry;
                     dataOutStream.writeInt(structureRefCPEntry.packageCPIndex);
@@ -213,6 +220,13 @@ public class ProgramFileWriter {
             writeConnectorInfo(dataOutStream, connectorInfo);
         }
 
+        // Emit Streamlet info entries
+        StreamletInfo[] streamletInfoEntries = packageInfo.getStreamletInfoEntries();
+        dataOutStream.writeShort(streamletInfoEntries.length);
+        for (StreamletInfo streamletInfo : streamletInfoEntries) {
+            writeStreamletInfo(dataOutStream, streamletInfo);
+        }
+
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
@@ -270,8 +284,8 @@ public class ProgramFileWriter {
 
     /**
      * Write function info and transformer info entries to the compiling file.
-     * 
-     * @param dataOutStream Output stream to write
+     *
+     * @param dataOutStream    Output stream to write
      * @param callableUnitInfo Info object of the callable unit
      * @throws IOException
      */
@@ -331,7 +345,7 @@ public class ProgramFileWriter {
     }
 
     private static void writeEnumInfo(DataOutputStream dataOutStream,
-                                        EnumInfo enumInfo) throws IOException {
+                                      EnumInfo enumInfo) throws IOException {
         dataOutStream.writeInt(enumInfo.nameCPIndex);
         dataOutStream.writeInt(enumInfo.flags);
         EnumeratorInfo[] enumeratorInfoEntries = enumInfo.enumeratorInfoList.toArray(new EnumeratorInfo[0]);
@@ -352,8 +366,18 @@ public class ProgramFileWriter {
 //        dataOutStream.writeInt(connectorInfo.signatureCPIndex);
     }
 
+    private static void writeStreamletInfo(DataOutputStream dataOutStream,
+                                           StreamletInfo streamletInfo) throws IOException {
+        dataOutStream.writeInt(streamletInfo.nameCPIndex);
+        //Write the siddhi query
+        dataOutStream.writeInt(streamletInfo.siddhiQueryCPIndex);
+        //Write the stream ids
+        dataOutStream.writeInt(streamletInfo.streamIdsAsStringCPIndex);
+        dataOutStream.writeInt(streamletInfo.flags);
+    }
+
     private static void writeConnectorActionInfo(DataOutputStream dataOutStream,
-                                           ConnectorInfo connectorInfo) throws IOException {
+                                                 ConnectorInfo connectorInfo) throws IOException {
         ActionInfo[] actionInfoEntries = connectorInfo.actionInfoMap.values().toArray(new ActionInfo[0]);
         dataOutStream.writeShort(actionInfoEntries.length);
         for (ActionInfo actionInfo : actionInfoEntries) {
@@ -560,6 +584,14 @@ public class ProgramFileWriter {
                 DefaultValueAttributeInfo defaultValAttrInfo = (DefaultValueAttributeInfo) attributeInfo;
                 writeDefaultValue(dataOutStream, defaultValAttrInfo.getDefaultValue());
                 break;
+            case PARAMETER_DEFAULTS_ATTRIBUTE:
+                ParamDefaultValueAttributeInfo paramDefaultValAttrInfo = (ParamDefaultValueAttributeInfo) attributeInfo;
+                DefaultValue[] defaultValues = paramDefaultValAttrInfo.getDefaultValueInfo();
+                dataOutStream.writeShort(defaultValues.length);
+                for (DefaultValue defaultValue : defaultValues) {
+                    writeDefaultValue(dataOutStream, defaultValue);
+                }
+                break;
         }
 
         // TODO Support other types of attributes
@@ -621,7 +653,7 @@ public class ProgramFileWriter {
         return byteAOS.toByteArray();
     }
 
-    private static void writeDefaultValue(DataOutputStream dataOutStream, StructFieldDefaultValue defaultValueInfo)
+    private static void writeDefaultValue(DataOutputStream dataOutStream, DefaultValue defaultValueInfo)
             throws IOException {
         dataOutStream.writeInt(defaultValueInfo.typeDescCPIndex);
         String typeDesc = defaultValueInfo.desc;

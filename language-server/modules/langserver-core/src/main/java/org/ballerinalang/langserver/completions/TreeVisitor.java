@@ -1053,23 +1053,23 @@ public class TreeVisitor extends BLangNodeVisitor {
     }
     
     private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv, String epName) {
-        if (documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+        if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null) {
             // No syntax errors has occurred
             return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
-        } else if (documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+        } else if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY)) {
             // Syntax errors has occurred
-            boolean isWithinEndpoint = documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+            boolean isWithinEndpoint = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                     .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
-            String name = documentServiceContext.get(CompletionKeys.COMPLETION_META_CONTEXT_KEY)
+            String name = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                     .get(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY);
             
             if (isWithinEndpoint && epName.equals(name)) {
                 // Evaluating the particular Endpoint
                 this.populateSymbols(new HashMap<>(), symbolEnv);
                 this.setTerminateVisitor(true);
-                
+
                 return true;
             }
         }

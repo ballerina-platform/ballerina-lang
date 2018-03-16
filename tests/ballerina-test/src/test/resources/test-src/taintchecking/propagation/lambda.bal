@@ -8,6 +8,6 @@ public function main (string[] args) {
     secureFunction(testLambda("Hello ", "world.!!!"), testLambda("Hello ", "world.!!!"));
 }
 
-public function secureFunction (@sensitive{} string secureIn, string insecureIn) {
+public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
