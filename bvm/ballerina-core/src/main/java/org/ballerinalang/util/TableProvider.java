@@ -181,7 +181,7 @@ public class TableProvider {
             }
             seperator = ",";
         }
-        sb.append(");commit;");
+        sb.append(")");
         return sb.toString();
     }
 

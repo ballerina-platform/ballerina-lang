@@ -33,13 +33,13 @@ under the License.
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
-                <!--<exclude name="org.ballerinalang.test.statements.transaction.*"/>-->
                 <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
             </package>
             <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
+            <package name="org.ballerinalang.test.connectors.sql.*"/>
             <!-- <package name="org.ballerinalang.test.net.*"/> -->
             <!-- <package name="org.ballerinalang.test.connectors.*"/> -->
             <package name="org.ballerinalang.test.debugger.*"/>
