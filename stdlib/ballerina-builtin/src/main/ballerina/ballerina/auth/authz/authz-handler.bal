@@ -32,8 +32,9 @@ const string AUTH_SCHEME = "Basic";
 AuthzChecker authzChecker;
 
 @Description {value:"Representation of Authorization Handler"}
+@Field {value:"name: Authz handler name"}
 public struct HttpAuthzHandler {
-    // TODO
+    string name = "default";
 }
 
 @Description {value:"Performs a authorization check, by comparing the groups of the user and the groups of the scope"}
@@ -64,9 +65,9 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
                                      utils:createCache(AUTHZ_CACHE));
     }
 
-    // check in the cache. cache key is <username>-<resource>,
+    // check in the cache. cache key is <username>-<resource>-<http method>,
     // since different resources can have different scopes
-    string authzCacheKey = username + "-" + resourceName;
+    string authzCacheKey = username + "-" + resourceName + "-" + req.method;
     any cachedAuthzResult = authzChecker.getCachedAuthzResult(authzCacheKey);
     if (cachedAuthzResult != null) {
         log:printDebug("Authz cache hit for request URL: " + resourceName);

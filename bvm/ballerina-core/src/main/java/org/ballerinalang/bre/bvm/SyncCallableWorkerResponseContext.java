@@ -27,8 +27,8 @@ import org.ballerinalang.model.types.BType;
  */
 public class SyncCallableWorkerResponseContext extends CallableWorkerResponseContext {
 
-    public SyncCallableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
-        super(responseTypes, workerCount, checkResponse);
+    public SyncCallableWorkerResponseContext(BType[] responseTypes, int workerCount) {
+        super(responseTypes, workerCount);
     }
     
     @Override

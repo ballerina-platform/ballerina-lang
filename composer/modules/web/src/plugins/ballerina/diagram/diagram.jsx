@@ -18,7 +18,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import EventChannel from 'event_channel';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
 import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';
@@ -39,7 +38,6 @@ import {
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
-import TopLevelNodes from './views/default/components/nodes/top-level-nodes';
 
 const padding = 5;
 
@@ -145,7 +143,6 @@ class Diagram extends React.Component {
             disabled={this.props.disabled}
         >
             { children }
-            <TopLevelNodes model={this.props.model} />
         </CanvasDecorator>);
     }
 }

@@ -35,16 +35,16 @@
    	font-style:normal;
 }
 
-.{{ className }}, [class^="{{ className }}-"], [class*=" {{ className }}-"] {
-    font: normal normal normal 14px/1 {{ fontName }};
+i.icon.{{ className }}, .{{ className }}, [class^="{{ className }}-"], [class*=" {{ className }}-"] {
+    font-family: {{ fontName }};
+    font-style:normal;
     display: inline-block;
     font-weight: normal;
-    font-style: normal;
     font-size: inherit;
     font-variant: normal;
     speak: none;
     text-decoration: inherit;
-
+    
     /* Better Font Rendering =========== */
     text-transform: none;
     text-rendering: auto;
