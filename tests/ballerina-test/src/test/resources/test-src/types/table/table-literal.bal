@@ -75,7 +75,7 @@ function checkTableCount(string tablePrefix) (int count) {
     try {
         table dt = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
         parameters, typeof ResultCount);
-        if (dt.hasNext()) {
+        while (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();
             count = rs.COUNTVAL;
         }
