@@ -43,7 +43,7 @@ export const MENUS = {
 };
 
 export const LABELS = {
-    DEBUG: 'Debug',
+    DEBUG: 'Run',
     DEBUG_START: 'Start Debugging',
     DEBUG_STOP: 'Stop Debugging',
 };
