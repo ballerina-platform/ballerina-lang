@@ -21,6 +21,8 @@ package org.ballerinalang.config;
 import org.ballerinalang.bcl.parser.BConfig;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,9 +41,9 @@ import java.util.regex.Pattern;
  */
 public class ConfigRegistry {
 
+    private static final Logger log = LoggerFactory.getLogger(ConfigRegistry.class);
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
-    private static final Pattern encryptedFieldPattern =
-            Pattern.compile("@encrypted:\\{((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))\\}");
+    private static final Pattern encryptedFieldPattern = Pattern.compile("@encrypted:\\{(.*)\\}");
 
     private Map<String, String> configEntries = new HashMap<>();
     private AESCipherTool cipherTool;
@@ -163,18 +165,18 @@ public class ConfigRegistry {
      */
     public String getConfiguration(String key) {
         String config = configEntries.get(key);
+        Matcher base64Matcher = null;
 
         try {
             if (config != null) {
-                Matcher base64Matcher = encryptedFieldPattern.matcher(config);
+                base64Matcher = encryptedFieldPattern.matcher(config);
 
                 if (base64Matcher.find()) {
                     return cipherTool.decrypt(base64Matcher.group(1));
-
-                } else if (config.startsWith("@encrypted:{")) {
-                    throw new AESCipherToolException("invalid base 64 value: " + base64Matcher.group());
                 }
             }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("invalid base 64 value: " + base64Matcher.group(1));
         } catch (AESCipherToolException e) {
             throw new RuntimeException("failed to retrieve encrypted value: " + e.getMessage(), e);
         }

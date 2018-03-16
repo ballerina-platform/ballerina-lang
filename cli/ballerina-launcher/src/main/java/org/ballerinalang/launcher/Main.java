@@ -448,11 +448,32 @@ public class Main {
                 return;
             }
 
-            outStream.println("ballerina: enter the value to be encrypted:");
-            String value = new String(System.console().readPassword());
+            String value;
+            if ((value = promptForInput("enter the value to encrypt: ")).trim().isEmpty()) {
+                if (value.trim().isEmpty()) {
+                    value = promptForInput("value cannot be empty; enter the value to encrypt: ");
+                    if (value.trim().isEmpty()) {
+                        throw LauncherUtils.createLauncherException("encryption failed: empty value.");
+                    }
+                }
+            }
 
-            outStream.println("ballerina: enter a secret to be used in encrypting the value:");
-            String secret = new String(System.console().readPassword());
+            String secret;
+            if ((secret = promptForInput("enter a secret to be used in encrypting the value: ")).trim().isEmpty()) {
+                if (secret.trim().isEmpty()) {
+                    secret = promptForInput("secret cannot be empty; " +
+                                                    "enter a secret to be used in encrypting the value: ");
+                    if (secret.trim().isEmpty()) {
+                        throw LauncherUtils.createLauncherException("encryption failed: empty secret.");
+                    }
+                }
+            }
+
+            String secretVerifyVal = promptForInput("re-enter secret to verify: ");
+
+            if (!secret.equals(secretVerifyVal)) {
+                throw LauncherUtils.createLauncherException("failed to verify secret.");
+            }
 
             try {
                 AESCipherTool cipherTool = new AESCipherTool(secret);
@@ -470,10 +491,13 @@ public class Main {
         @Override
         public void printLongDesc(StringBuilder out) {
             out.append("The encrypt command can be used to encrypt sensitive data.\n\n");
-            out.append("When the command is executed, the user will be prompted to enter the value to be encrypted ");
-            out.append("and a secret. The secret will be used in encrypting the value.\n\n");
-            out.append("Once encrypted, the user can place it in config files.\n");
-            out.append("\te.g: user.password=\"@encrypted:{UtD9d+o6eHpqFnBxtvhb+RWXey7qm7xLMt6+6mrt9w0=}\"\n");
+            out.append("When the command is executed, the user will be prompted to\n");
+            out.append("enter the value to be encrypted and a secret. The secret will be used in \n");
+            out.append("encrypting the value.\n\n");
+            out.append("Once encrypted, the user can place the encrypted value in the config files,\n");
+            out.append("similar to the following example:\n");
+            out.append("\tuser.password=\"@encrypted:{UtD9d+o6eHpqFnBxtvhb+RWXey7qm7xLMt6+6mrt9w0=}\"\n\n");
+            out.append("The Ballerina Config API will automatically decrypt the values on-demand.\n");
         }
 
         @Override
@@ -489,6 +513,11 @@ public class Main {
         @Override
         public void setSelfCmdParser(JCommander selfCmdParser) {
 
+        }
+
+        private String promptForInput(String msg) {
+            outStream.println("ballerina: " + msg);
+            return new String(System.console().readPassword());
         }
     }
 

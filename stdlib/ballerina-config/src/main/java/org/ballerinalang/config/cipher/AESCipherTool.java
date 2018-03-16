@@ -18,6 +18,9 @@
 
 package org.ballerinalang.config.cipher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,6 +48,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class AESCipherTool {
 
+    private static final Logger log = LoggerFactory.getLogger(AESCipherTool.class);
     private static final String ALGORITHM_AES_CBC_PKCS5 = "AES/CBC/PKCS5Padding";
     private static final String ALGORITHM_AES = "AES";
     private static final String ALGORITHM_SHA_256 = "SHA-256";
@@ -100,6 +104,7 @@ public class AESCipherTool {
             return encodeBase64(appendByteArrays(ivByteArray, encryptedBytes));
         } catch (BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException
                 | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException  err) {
+            log.error("Failed to encrypt value: " + value, err);
             throw new AESCipherToolException(err.getMessage(), err);
         }
     }
@@ -121,6 +126,7 @@ public class AESCipherTool {
             return new String(decryptionCipher.doFinal(encryptedByteArray), StandardCharsets.UTF_8);
         } catch (BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException
                 | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException err) {
+            log.error("Failed to decrypt value: " + value, err);
             throw new AESCipherToolException(err.getMessage(), err);
         }
     }
@@ -147,6 +153,7 @@ public class AESCipherTool {
             System.arraycopy(messageDigest.digest(), 0, keyBytes, 0, keyBytes.length);
             return keyBytes;
         } catch (NoSuchAlgorithmException e) {
+            log.error("Failed to generate SHA256 digest for: " + key, e);
             throw new AESCipherToolException(e.getMessage(), e);
         }
     }

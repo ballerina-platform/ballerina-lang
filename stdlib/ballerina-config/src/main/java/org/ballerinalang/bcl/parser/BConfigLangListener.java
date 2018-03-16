@@ -30,8 +30,7 @@ import java.util.stream.Collectors;
  */
 public class BConfigLangListener extends TomlBaseListener {
 
-    private static final String ENCRYPTED_FIELD_REGEX =
-            "@encrypted:\\{((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))\\}";
+    private static final String ENCRYPTED_FIELD_REGEX = "@encrypted:\\{(.*)\\}";
     private static final String CONFIG_KEY_SEPARATOR = ".";
 
     private BConfig configEntries;
