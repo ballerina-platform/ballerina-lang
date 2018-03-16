@@ -23,30 +23,48 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
 
 /**
- * {@link TraceCallableUnitCallback} wraps {@link CallableUnitCallback}
+ * {@link TraceableUnitCallback} wraps {@link CallableUnitCallback}
  * and perform additional tracing related tasks.
  *
  * @since 0.965.0
  */
-public class TraceCallableUnitCallback implements CallableUnitCallback {
+public class TraceableUnitCallback implements CallableUnitCallback {
     private Tracer tracer;
-    private CallableUnitCallback cb;
+    private CallableUnitCallback callback;
 
-    public TraceCallableUnitCallback(CallableUnitCallback cb,
-                                     WorkerExecutionContext ctx) {
+    public TraceableUnitCallback(WorkerExecutionContext ctx) {
         this.tracer = ctx.getTracer();
-        this.cb = cb;
+        this.callback = new NoOpCallableUnitCallback();
+    }
+
+    public TraceableUnitCallback(WorkerExecutionContext ctx,
+                                 CallableUnitCallback callback) {
+        this.tracer = ctx.getTracer();
+        this.callback = callback;
     }
 
     @Override
     public void notifySuccess() {
-        TraceUtil.finishTraceSpan(tracer);
-        cb.notifySuccess();
+        TraceUtil.finishTraceSpan(this.tracer);
+        this.callback.notifySuccess();
     }
 
     @Override
     public void notifyFailure(BStruct error) {
-        TraceUtil.finishTraceSpan(tracer, error);
-        cb.notifyFailure(error);
+        TraceUtil.finishTraceSpan(this.tracer, error);
+        this.callback.notifyFailure(error);
+    }
+
+    private class NoOpCallableUnitCallback implements CallableUnitCallback {
+
+        @Override
+        public void notifySuccess() {
+            // do nothing
+        }
+
+        @Override
+        public void notifyFailure(BStruct error) {
+            // do nothing
+        }
     }
 }
