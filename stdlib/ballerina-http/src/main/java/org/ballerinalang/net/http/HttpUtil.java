@@ -682,25 +682,27 @@ public class HttpUtil {
         return entity;
     }
 
-    static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
+    private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().getType());
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot != null) {
-            String compressionValue = configAnnot.getValue().getEnumField(ANN_CONFIG_ATTR_COMPRESSION);
-            String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
-            String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
-            if (contentEncoding == null) {
-                if (ALWAYS.equalsIgnoreCase(compressionValue)) {
-                    if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
-                        outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
-                    }
-                } else if (NEVER.equalsIgnoreCase(compressionValue)) {
-                        outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
-                                HTTP_TRANSFER_ENCODING_IDENTITY);
-                }
+        if (configAnnot == null) {
+            return;
+        }
+        String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
+        if (contentEncoding != null) {
+            return;
+        }
+        String compressionValue = configAnnot.getValue().getEnumField(ANN_CONFIG_ATTR_COMPRESSION);
+        String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
+        if (ALWAYS.equalsIgnoreCase(compressionValue)) {
+            if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
+                outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
             }
+        } else if (NEVER.equalsIgnoreCase(compressionValue)) {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
+                    HTTP_TRANSFER_ENCODING_IDENTITY);
         }
     }
 
