@@ -37,3 +37,30 @@ public native function getVersion () returns (string);
 @Description {value:"Returns the architecture of the operating system."}
 @Return { value:"OS architecture if the OS can be identified, an empty string otherwise"}
 public native function getArchitecture () returns (string);
+
+
+public function runCommand (string command, string workspace = "", int timeout1 = -1)
+                                                (CommandExecutionError cErr, GenericError err){
+    cErr, err = runCommandNative (command, workspace, timeout1);
+    return;
+}
+
+@Description { value:"Execute a given CMD command or a script"}
+@Return { value:" Returns 1 if the execution is successfull, 0 otherwise"}
+public native function runCommandNative (string command, string workspace, int timeout1) (CommandExecutionError, GenericError);
+
+@Description { value: "Represents a error which could occur when executing a command"}
+@Field { value : "message: The error message"}
+@Field { value : "cause: The error cause"}
+public struct CommandExecutionError {
+    string message;
+    error[] cause;
+}
+
+@Description { value: "Represents an error which could occur if process id interrupted."}
+@Field { value : "message: The error message"}
+@Field { value : "cause: The caused of the error"}
+public struct GenericError {
+    string message;
+    error[] cause;
+}
