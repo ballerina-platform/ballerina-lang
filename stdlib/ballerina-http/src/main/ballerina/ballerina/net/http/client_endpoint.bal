@@ -69,17 +69,19 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param { value:"ep: The endpoint to be initialized" }
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
+public function <Client ep> init (ClientEndpointConfiguration config) {
     string uri = config.serviceUri;
     if (uri.hasSuffix("/")) {
         int lastIndex = uri.length() - 1;
         uri = uri.subString(0, lastIndex);
         config.serviceUri = uri;
     }
-    ep.epName = epName;
     ep.config = config;
+    //conn = new ClientConnector(uri, config);
     ep.initEndpoint();
 }
+
+//ClientConnector conn;
 
 public native function<Client ep> initEndpoint ();
 
@@ -93,7 +95,10 @@ public function <Client ep> start () {
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Client ep> getConnector () returns (ClientConnector repConn);
+public function <Client ep> getClient () returns (ClientConnector) {
+    ClientConnector conn = new ClientConnector(ep.config.serviceUri, ep.config);
+    return conn;
+}
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }

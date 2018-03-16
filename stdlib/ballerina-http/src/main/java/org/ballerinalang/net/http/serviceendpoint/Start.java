@@ -46,7 +46,7 @@ import java.util.logging.LogManager;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Endpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )

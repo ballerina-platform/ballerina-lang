@@ -38,8 +38,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "Service"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService")}
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "Endpoint")}
+//                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -59,7 +59,7 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getEndpointType().getTypeName().getValue())) {
+        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getServiceTypeStruct().getTypeName().getValue())) {
             List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
             resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
         }

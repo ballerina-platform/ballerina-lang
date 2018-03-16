@@ -74,7 +74,7 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           HttpConstants.SERVER_CONNECTOR);
+                           HttpConstants.ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            HttpConstants.REQUEST);
     }
