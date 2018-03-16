@@ -25,10 +25,9 @@ import TopLevelElements from '../tool-palette/item-provider/compilation-unit-too
 
 class AddDefinitionMenu extends React.Component {
 
-
     render() {
         return (
-            <Dropdown icon='fw fw-plus' text='Definition' pointing className='link item' button primary>
+            <Dropdown icon='fw fw-add left-icon' text='Definition' pointing className='link item' button className=' primary definition-dropdown'>
                 <Dropdown.Menu>
                     {
                         TopLevelElements.map((element) => {
