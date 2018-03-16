@@ -327,7 +327,7 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
 
-    @Test(priority = 3)
+    @Test(priority = 3, enabled = false)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
