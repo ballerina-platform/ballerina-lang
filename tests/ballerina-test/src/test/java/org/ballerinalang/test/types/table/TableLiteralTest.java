@@ -59,15 +59,9 @@ public class TableLiteralTest {
 
     @Test
     public void testEmptyTableCreate() {
-        BRunUtil.invoke(result, "testEmptyTableCreate");
-        BValue[] args = new BValue[1];
-        args[0] = new BString("TABLE_PERSON_%");
-        BValue[] returns = BRunUtil.invoke(resultHelper, "getTableCount", args);
+        BValue[] returns = BRunUtil.invoke(result, "testEmptyTableCreate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
-
-        args[0] = new BString("TABLE_COMPANY_%");
-        returns = BRunUtil.invoke(resultHelper, "getTableCount", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test(priority = 1)
