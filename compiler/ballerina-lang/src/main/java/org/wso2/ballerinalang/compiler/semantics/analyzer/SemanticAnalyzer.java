@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -36,6 +37,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -100,6 +103,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -560,9 +564,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceSymbol.scope, env);
-        serviceSymbol.endpointType = symResolver.resolveTypeNode(serviceNode.endpointType, env);
-        endpointSPIAnalyzer.isValidEndpointType(serviceNode.endpointType.pos, serviceSymbol.endpointType);
-        handleServiceEndpointAttachments(serviceNode, serviceSymbol);
+        handleServiceTypeStruct(serviceNode);
+        handleServiceEndpointBinds(serviceNode, serviceSymbol);
         serviceNode.annAttachments.forEach(a -> {
             a.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.SERVICE);
@@ -575,19 +578,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
     }
 
-    private void handleServiceEndpointAttachments(BLangService serviceNode, BServiceSymbol serviceSymbol) {
+    private void handleServiceTypeStruct(BLangService serviceNode) {
+        if (serviceNode.serviceTypeStruct != null) {
+            final BType serviceStructType = symResolver.resolveTypeNode(serviceNode.serviceTypeStruct, env);
+            serviceNode.endpointType = endpointSPIAnalyzer.getEndpointTypeFromServiceType(
+                    serviceNode.serviceTypeStruct.pos, serviceStructType);
+            if (serviceNode.endpointType != null) {
+                serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
+                        (BStructSymbol) serviceNode.endpointType.tsymbol);
+            }
+        }
+    }
+
+    private void handleServiceEndpointBinds(BLangService serviceNode, BServiceSymbol serviceSymbol) {
         for (BLangSimpleVarRef ep : serviceNode.boundEndpoints) {
             typeChecker.checkExpr(ep, env);
+            if (ep.symbol == null || (ep.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) {
+                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, ep.variableName);
+                continue;
+            }
             final BEndpointVarSymbol epSym = (BEndpointVarSymbol) ep.symbol;
-            if (epSym != null && (epSym.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
+            if ((epSym.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
                 if (epSym.registrable) {
                     serviceSymbol.boundEndpoints.add(epSym);
+                    if (serviceNode.endpointType == null) {
+                        serviceNode.endpointType = (BStructType) epSym.type;
+                        serviceNode.endpointClientType = endpointSPIAnalyzer.getClientType(
+                                (BStructSymbol) serviceNode.endpointType.tsymbol);
+                    }
+                    // TODO : Validate serviceType endpoint type with bind endpoint types.
                 } else {
                     dlog.error(ep.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_REGISTRATION, epSym);
                 }
             } else {
-                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, epSym != null ? epSym : ep.variableName);
+                dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, epSym);
             }
+        }
+        if (serviceNode.endpointType == null) {
+            dlog.error(serviceNode.pos, DiagnosticCode.SERVICE_INVALID_ENDPOINT_TYPE, serviceNode.name);
         }
     }
 
@@ -599,11 +627,40 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.RESOURCE);
             this.analyzeDef(a, resourceEnv);
         });
+        defineResourceEndpoint(resourceNode, resourceEnv);
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
         resourceNode.endpoints.forEach(e -> analyzeDef(e, resourceEnv));
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
+    }
+
+    private void defineResourceEndpoint(BLangResource resourceNode, SymbolEnv resourceEnv) {
+        if (!resourceNode.getParameters().isEmpty()) {
+            final BLangVariable variable = resourceNode.getParameters().get(0);
+            if (variable.type == symTable.endpointType) {
+                String actualVarName = variable.name.value.substring(1);
+                variable.name = new BLangIdentifier();
+                variable.name.value = actualVarName;
+                if (resourceEnv.enclService.endpointType != null) {
+                    variable.type = resourceEnv.enclService.endpointType;
+                    final BEndpointVarSymbol bEndpointVarSymbol = symbolEnter.defineEndpointVarSymbol(variable.pos,
+                            EnumSet.noneOf(Flag.class), variable.type, names.fromString(actualVarName), resourceEnv);
+                    variable.symbol = bEndpointVarSymbol;
+                    endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) variable.type.tsymbol,
+                            bEndpointVarSymbol);
+                } else {
+                    variable.type = symTable.errType;
+                    variable.symbol = symbolEnter.defineVarSymbol(variable.pos, EnumSet.noneOf(Flag.class),
+                            variable.type, names.fromString(actualVarName), resourceEnv);
+                }
+                // Replace old symbol with new one.
+                resourceNode.symbol.params.remove(0);
+                resourceNode.symbol.params.add(0, variable.symbol);
+                ((BInvokableType) resourceNode.symbol.type).paramTypes.remove(0);
+                ((BInvokableType) resourceNode.symbol.type).paramTypes.add(0, variable.type);
+            }
+        }
     }
 
     public void visit(BLangTryCatchFinally tryCatchFinally) {

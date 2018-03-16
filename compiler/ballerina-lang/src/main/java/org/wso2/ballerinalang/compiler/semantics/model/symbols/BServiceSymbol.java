@@ -30,7 +30,6 @@ import java.util.List;
  */
 public class BServiceSymbol extends BTypeSymbol {
 
-    public BType endpointType;
     public List<BEndpointVarSymbol> boundEndpoints = new ArrayList<>();
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {

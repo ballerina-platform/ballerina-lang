@@ -483,6 +483,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         resourceNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
+        if (!resourceNode.getParameters().isEmpty()
+                && resourceNode.getParameters().get(0) != null
+                && resourceNode.getParameters().get(0).typeNode == null) {
+            // This is endpoint variable. Setting temporary type for now till we find actual type at semantic phase.
+            resourceNode.getParameters().get(0).type = symTable.endpointType;
+        }
         defineInvokableSymbol(resourceNode, resourceSymbol, invokableEnv);
     }
 
@@ -791,8 +797,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
-                env.enclPkg.symbol.pkgID, varType, enclScope.owner);
+        BVarSymbol varSymbol;
 
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
@@ -811,8 +816,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    private BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name
-            varName, SymbolEnv env) {
+    public BEndpointVarSymbol defineEndpointVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType,
+                                                      Name varName, SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(Flags.asMask(flagSet), varName,

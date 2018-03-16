@@ -32,9 +32,9 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     
     void setName(IdentifierNode name);
 
-    UserDefinedTypeNode getEndpointType();
+    UserDefinedTypeNode getServiceTypeStruct();
 
-    void setEndpointType(UserDefinedTypeNode endpointType);
+    void setServiceTypeStruct(UserDefinedTypeNode endpointType);
 
     List<? extends VariableDefinitionNode> getVariables();
     

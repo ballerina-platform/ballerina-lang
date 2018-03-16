@@ -87,6 +87,7 @@ public class SymbolTable {
     public final BType nullType = new BNullType();
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType connectorType = new BConnectorType(null, null);
+    public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
     public final BType arrayType = new BArrayType(noType);
 
     public final BTypeSymbol errSymbol;

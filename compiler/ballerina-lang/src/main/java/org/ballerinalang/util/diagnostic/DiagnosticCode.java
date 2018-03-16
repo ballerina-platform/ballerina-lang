@@ -68,6 +68,9 @@ public enum DiagnosticCode {
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
     // Service, endpoint related errors codes
+    SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
+    SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
+    SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
     ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),

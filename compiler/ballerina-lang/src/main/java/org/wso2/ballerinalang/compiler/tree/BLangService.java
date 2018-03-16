@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -46,7 +47,7 @@ import java.util.Set;
 public class BLangService extends BLangNode implements ServiceNode {
     
     public BLangIdentifier name;
-    public BLangUserDefinedType endpointType;
+    public BLangUserDefinedType serviceTypeStruct;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
@@ -56,6 +57,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangSimpleVarRef> boundEndpoints;
+    public BStructType endpointType, endpointClientType;
 
     public BSymbol symbol;
 
@@ -81,13 +83,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public UserDefinedTypeNode getEndpointType() {
-        return this.endpointType;
+    public UserDefinedTypeNode getServiceTypeStruct() {
+        return this.serviceTypeStruct;
     }
 
     @Override
-    public void setEndpointType(UserDefinedTypeNode endpointType) {
-        this.endpointType = (BLangUserDefinedType) endpointType;
+    public void setServiceTypeStruct(UserDefinedTypeNode serviceTypeStruct) {
+        this.serviceTypeStruct = (BLangUserDefinedType) serviceTypeStruct;
     }
 
     @Override
@@ -188,7 +190,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + endpointType + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + serviceTypeStruct + "> "
                 + vars + " " + resources;
     }
 }

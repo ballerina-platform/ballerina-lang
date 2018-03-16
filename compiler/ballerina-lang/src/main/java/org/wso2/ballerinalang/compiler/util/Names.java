@@ -50,6 +50,7 @@ public class Names {
     public static final Name ANON_ORG = new Name("$anon");
 
     // Names related to Endpoint SPI.
+    public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");
     public static final Name EP_SPI_INIT = new Name("init");
     public static final Name EP_SPI_REGISTER = new Name("register");
     public static final Name EP_SPI_GET_CLIENT = new Name("getClient");
