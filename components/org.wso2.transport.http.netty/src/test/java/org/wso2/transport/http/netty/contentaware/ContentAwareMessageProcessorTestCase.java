@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
@@ -33,6 +32,7 @@ import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseTrans
 import org.wso2.transport.http.netty.contentaware.listeners.ResponseStreamingWithoutBufferingListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
