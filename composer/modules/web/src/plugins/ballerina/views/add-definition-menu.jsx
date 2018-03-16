@@ -25,7 +25,6 @@ import TopLevelElements from '../tool-palette/item-provider/compilation-unit-too
 
 class AddDefinitionMenu extends React.Component {
 
-
     render() {
         return (
             <Dropdown icon='fw fw-add left-icon' text='Definition' pointing className='link item' button className=' primary definition-dropdown'>
@@ -33,7 +32,7 @@ class AddDefinitionMenu extends React.Component {
                     {
                         TopLevelElements.map((element) => {
                             if (element.id === 'constructs_seperator') {
-                                return;
+                                return <Dropdown.Divider />;
                             }
                             return (<Dropdown.Item
                                 onClick={
