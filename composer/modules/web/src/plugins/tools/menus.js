@@ -16,30 +16,24 @@
  * under the License.
  */
 
-import { MENUS as TOOLS_MENUS } from './../tools/constants';
-import { MENU_DEF_TYPES } from 'core/menu/constants';
-import { MENUS, COMMANDS, LABELS } from './constants';
+import { MENUS, LABELS } from './constants';
+import { MENU_DEF_TYPES } from './../../core/menu/constants';
 
 /**
  * Provides menu definitions of help plugin.
- *
  * @returns {Object[]} menu definitions.
- *
  */
 export function getMenuDefinitions(plugin) {
     return [
         {
-            id: MENUS.EXPORT_DIAGRAM_MENU,
-            parent: TOOLS_MENUS.TOOLS_MENU,
-            label: LABELS.EXPORT_DIAGRAM_MENU_TITLE,
-            isActive: () => {
-                const { editor } = plugin.appContext;
-                const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.file;
+            id: MENUS.TOOLS_MENU,
+            label: LABELS.TOOLS,
+            isActive: (appContext) => {
+                return true;
             },
-            icon: 'export',
-            command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
-            type: MENU_DEF_TYPES.ITEM,
+            icon: '',
+            order: 2,
+            type: MENU_DEF_TYPES.ROOT,
         },
     ];
 }

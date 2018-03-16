@@ -732,6 +732,15 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
+                case InstructionCodes.ASYNC:
+                    execAsync(ctx);
+                    break;
+                case InstructionCodes.AWAIT:
+                    ctx = execAwait(ctx);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
                 default:
                     throw new UnsupportedOperationException();
             }
@@ -3617,6 +3626,13 @@ public class CPU {
         BNewArray newArray = (BNewArray) entity;
         sf.longRegs[j] = newArray.size();
         return;
+    }
+    
+    private static void execAsync(WorkerExecutionContext ctx) {        
+    }
+    
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
+        return null;
     }
 
     /**
