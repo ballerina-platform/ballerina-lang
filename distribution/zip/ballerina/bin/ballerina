@@ -187,6 +187,12 @@ fi
 
 #   cd "$BALLERINA_HOME"
 
+## Remove TEMP DIR content
+TMP_DIR="$BALLERINA_HOME"/tmp
+if [ -d "$TMP_DIR" ]; then
+    rm -rf "$TMP_DIR"/*
+fi
+
 $JAVACMD \
 	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
 	-Xms256m -Xmx1024m \

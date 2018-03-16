@@ -181,6 +181,12 @@ do
     COMPOSER_CLASSPATH="$COMPOSER_CLASSPATH":$j
 done
 
+## Remove TEMP DIR content
+TMP_DIR="$BAL_COMPOSER_HOME"/tmp
+if [ -d "$TMP_DIR" ]; then
+    rm -rf "$TMP_DIR"/*
+fi
+
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 

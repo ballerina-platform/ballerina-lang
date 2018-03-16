@@ -48,6 +48,14 @@
             </directory>
             <outputDirectory>docs/api</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>tmp</outputDirectory>
+            <fileMode>644</fileMode>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
         <!-- TODO remove below and find a better solution later -->
         <fileSet>
             <directory>
