@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
-import { PLUGIN_ID, DIALOG } from './constants';
-import { getCommandDefinitions } from './commands';
-import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import ImportStructDialog from './dialogs/import-struct-dialog';
+import { PLUGIN_ID } from './constants';
 
 /**
  * Help plugin.
  *
- * @class HelpPlugin
+ * @class ToolsPlugin
  */
-class ImportStructPlugin extends Plugin {
+class ToolsPlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -41,25 +39,11 @@ class ImportStructPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
+        const { MENUS } = CONTRIBUTIONS;
         return {
-            [COMMANDS]: getCommandDefinitions(this),
-            [HANDLERS]: getHandlerDefinitions(this),
             [MENUS]: getMenuDefinitions(this),
-            [DIALOGS]: [
-                {
-                    id: DIALOG.IMPORT_STRUCT,
-                    component: ImportStructDialog,
-                    propsProvider: () => {
-                        return {
-                            importStructPlugin: this,
-                            extensions: ['json'],
-                        };
-                    },
-                },
-            ],
         };
     }
 }
 
-export default ImportStructPlugin;
+export default ToolsPlugin;
