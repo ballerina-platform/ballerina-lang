@@ -221,7 +221,7 @@ public class LauncherUtils {
      * @param sourcePath Path to the source from the source root
      * @return Executable program
      */
-    public static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
+    private static ProgramFile compile(Path sourceRootPath, Path sourcePath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());

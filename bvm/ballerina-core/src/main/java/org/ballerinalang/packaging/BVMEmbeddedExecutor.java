@@ -18,19 +18,20 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.spi.PackageProvider;
+import org.ballerinalang.spi.EmbeddedExecutor;
+
+import java.net.URI;
 
 /**
  * This represents the Ballerina package provider.
  *
  * @since 0.964
  */
-@JavaSPIService("org.ballerinalang.spi.PackageProvider")
-public class BallerinaPackageProvider implements PackageProvider {
-    private static final String BALLERINA_CENTRAL_REPO_URL = "http://staging.central.ballerina.io:9090/";
+@JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
+public class BVMEmbeddedExecutor implements EmbeddedExecutor {
 
     @Override
-    public void pullPackage(String packageName) {
-        org.wso2.ballerinalang.util.PackagingUtils.pullPackages(packageName, BALLERINA_CENTRAL_REPO_URL);
+    public void execute(URI balxResource, String... args) {
+        org.wso2.ballerinalang.util.ExecutorUtils.execute(balxResource, args);
     }
 }

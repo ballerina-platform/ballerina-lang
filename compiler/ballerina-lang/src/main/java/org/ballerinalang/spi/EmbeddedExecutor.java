@@ -17,13 +17,15 @@
 */
 package org.ballerinalang.spi;
 
+import java.net.URI;
+
 /**
- * This represents the Java SPI interface for the Ballerina package provider.
+ * This represents the Java SPI interface for the resource runner.
  *
  * @since 0.964
  */
-public interface PackageProvider {
+public interface EmbeddedExecutor {
 
-    void pullPackage(String packageName);
+    void execute(URI balxResource, String... args);
 
 }

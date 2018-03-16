@@ -128,7 +128,7 @@
                     </processors>
                     <options>
                         <nativeEntityProviderPackage>org.ballerinalang.generated.providers</nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>PackageProvider</nativeEntityProviderClass>
+                        <nativeEntityProviderClass>EmbeddedExecutor</nativeEntityProviderClass>
                     </options>
                 </configuration>
                 <executions>
