@@ -45,7 +45,7 @@ service<http:Service> Ecommerce {
         path:"/products/{prodId}"
     }
     resource productsInfo (http:ServerConnector conn, http:Request req, string prodId) {
-        string reqPath = "/productsservice/" + prodId;
+        string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = {};
         var clientResponse, _ = productsService -> get(reqPath, clientRequest);
         _ = conn -> forward(clientResponse);
