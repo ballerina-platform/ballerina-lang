@@ -32,5 +32,9 @@ public class Constants {
     public static final String BALLERINA_LOG_INSTANCES = "ballerina.log.instances";
     public static final String LOG_LEVEL = "level";
     public static final String LOG_TO = "logto";
+    public static final String LOG_PUBLISH_HOST = "publish.host";
+    public static final String LOG_PUBLISH_PORT = "publish.port";
+    public static final String LOG_TO_CONSOLE = "console";
+    public static final String LOG_TO_SOCKET = "socket";
     public static final String LOG_FORMAT = "format";
 }
