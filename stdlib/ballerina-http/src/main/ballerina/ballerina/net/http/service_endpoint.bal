@@ -3,7 +3,7 @@ package ballerina.net.http;
 /////////////////////////////
 /// HTTP Service Endpoint ///
 /////////////////////////////
-public struct Endpoint {
+public struct ServiceEndpoint {
     // TODO : Make all field Read-Only
     Connection conn;
     ServiceEndpointConfiguration config;
@@ -83,7 +83,7 @@ public enum KeepAlive {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <Endpoint ep> init (ServiceEndpointConfiguration config) {
+public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
@@ -91,22 +91,22 @@ public function <Endpoint ep> init (ServiceEndpointConfiguration config) {
     }
 }
 
-public native function<Endpoint ep> initEndpoint () returns (error);
+public native function<ServiceEndpoint ep> initEndpoint () returns (error);
 
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <Endpoint ep> register (type serviceType);
+public native function <ServiceEndpoint ep> register (type serviceType);
 
 @Description { value:"Starts the registered service"}
-public native function <Endpoint ep> start ();
+public native function <ServiceEndpoint ep> start ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Endpoint ep> getClient () returns (Connection);
+public native function <ServiceEndpoint ep> getClient () returns (Connection);
 
 @Description { value:"Stops the registered service"}
-public native function <Endpoint ep> stop ();
+public native function <ServiceEndpoint ep> stop ();
 
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
@@ -114,7 +114,7 @@ public native function <Endpoint ep> stop ();
 public struct WebSocketEndpoint{
     string epName;
     ServiceEndpointConfiguration config;
-    Endpoint httpEndpoint;
+    ServiceEndpoint httpEndpoint;
 }
 
 public function <WebSocketEndpoint ep> WebSocketService() {

@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-public struct HttpService {
+public struct Service {
 }
 
-function <HttpService s> getEndpoint () returns (Endpoint) {
+function <Service s> getEndpoint () returns (ServiceEndpoint) {
     return null;
 }
