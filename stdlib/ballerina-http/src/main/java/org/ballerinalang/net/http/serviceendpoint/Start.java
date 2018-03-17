@@ -46,7 +46,7 @@ import java.util.logging.LogManager;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Endpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -73,7 +73,7 @@ public class Start extends AbstractHttpNativeFunction {
         context.setReturnValues();
     }
 
-    public boolean isHTTPTraceLoggerEnabled() {
+    private boolean isHTTPTraceLoggerEnabled() {
         // TODO: Take a closer look at this since looking up from the Config Registry here caused test failures
         return ((BLogManager) LogManager.getLogManager()).getPackageLogLevel(
                 org.ballerinalang.logging.util.Constants.HTTP_TRACE_LOG) == BLogLevel.TRACE;

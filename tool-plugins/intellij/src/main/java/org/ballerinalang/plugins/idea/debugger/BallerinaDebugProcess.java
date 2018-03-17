@@ -170,25 +170,25 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        String threadId = getThreadId(context);
-        if (threadId != null) {
-            myConnector.sendCommand(Command.STEP_OVER, threadId);
+        String workerID = getWorkerID(context);
+        if (workerID != null) {
+            myConnector.sendCommand(Command.STEP_OVER, workerID);
         }
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        String threadId = getThreadId(context);
-        if (threadId != null) {
-            myConnector.sendCommand(Command.STEP_IN, threadId);
+        String workerID = getWorkerID(context);
+        if (workerID != null) {
+            myConnector.sendCommand(Command.STEP_IN, workerID);
         }
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        String threadId = getThreadId(context);
-        if (threadId != null) {
-            myConnector.sendCommand(Command.STEP_OUT, threadId);
+        String workerID = getWorkerID(context);
+        if (workerID != null) {
+            myConnector.sendCommand(Command.STEP_OUT, workerID);
         }
     }
 
@@ -202,10 +202,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 if (suspendContext != null) {
                     XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
                     if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                        String threadId = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
-                                .getThreadId();
-                        if (threadId != null) {
-                            myConnector.sendCommand(Command.STOP, threadId);
+                        String workerID = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
+                                .getMyWorkerID();
+                        if (workerID != null) {
+                            myConnector.sendCommand(Command.STOP, workerID);
                         }
                     }
                 } else {
@@ -226,18 +226,18 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        String threadId = getThreadId(context);
+        String threadId = getWorkerID(context);
         if (threadId != null) {
             myConnector.sendCommand(Command.RESUME, threadId);
         }
     }
 
     @Nullable
-    private String getThreadId(@Nullable XSuspendContext context) {
+    private String getWorkerID(@Nullable XSuspendContext context) {
         if (context != null) {
             XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
             if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getMyWorkerID();
             }
         }
         getSession().getConsoleView().print("Error occurred while getting the thread ID.",
@@ -277,7 +277,15 @@ public class BallerinaDebugProcess extends XDebugProcess {
         if (Response.DEBUG_HIT.name().equals(code)) {
             ApplicationManager.getApplication().runReadAction(() -> {
                 XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(message.getLocation());
-                BallerinaSuspendContext context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+                // Get the current suspend context from the session. If the context is null, we need to create a new
+                // context. If the context is not null, we need to add a new execution stack to the current suspend
+                // context.
+                XSuspendContext context = getSession().getSuspendContext();
+                if (context == null) {
+                    context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+                } else {
+                    ((BallerinaSuspendContext) context).addToExecutionStack(BallerinaDebugProcess.this, message);
+                }
                 XDebugSession session = getSession();
                 if (breakpoint == null) {
                     session.positionReached(context);

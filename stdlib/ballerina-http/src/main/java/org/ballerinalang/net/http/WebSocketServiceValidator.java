@@ -39,8 +39,8 @@ public class WebSocketServiceValidator {
         for (Resource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
-                case WebSocketConstants.RESOURCE_NAME_ON_HANDSHAKE:
-                    validateOnHandshakeResource(serviceName, resource, isClientService);
+                case WebSocketConstants.RESOURCE_NAME_ON_UPGRADE:
+                    validateOnUpgradeResource(serviceName, resource, isClientService);
                     break;
                 case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
                     validateOnOpenResource(serviceName, resource, isClientService);
@@ -70,11 +70,13 @@ public class WebSocketServiceValidator {
         return true;
     }
 
-    private static void validateOnHandshakeResource(String serviceName, Resource resource, boolean isClientService) {
+    private static void validateOnUpgradeResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
+                           HttpConstants.ENDPOINT);
+        validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                           HttpConstants.REQUEST);
     }
 
     private static void validateOnOpenResource(String serviceName, Resource resource, boolean isClientService) {

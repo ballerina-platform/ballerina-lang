@@ -29,7 +29,6 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.DataContext;
@@ -46,11 +45,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -80,7 +80,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
 
         // Extract Argument values
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String path = context.getStringArgument(0);
         BStruct requestStruct  = ((BStruct) context.getRefArgument(1));
         HTTPCarbonMessage requestMsg = HttpUtil
@@ -95,7 +95,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(Context context, BConnector connector, String path,
+    protected void prepareOutboundRequest(Context context, BStruct connector, String path,
                                           HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
         if (context.isInTransaction()) {
@@ -184,7 +184,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return port;
     }
 
-    private void validateParams(BConnector connector) {
+    private void validateParams(BStruct connector) {
         if (connector == null || connector.getStringField(0) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
@@ -192,6 +192,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg)
             throws ClientConnectorException {
+        executeNonBlockingAction(dataContext, outboundRequestMsg, false);
+    }
+
+    protected void executeNonBlockingAction(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg,
+                                            boolean async) throws ClientConnectorException {
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
@@ -204,12 +209,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
         outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST,
                 dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
-        sendOutboundRequest(dataContext, outboundRequestMsg);
+        sendOutboundRequest(dataContext, outboundRequestMsg, async);
     }
 
-    private void sendOutboundRequest(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) {
+    private void sendOutboundRequest(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) {
         try {
-            send(dataContext, outboundRequestMsg);
+            send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
         } catch (Exception e) {
@@ -227,11 +232,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      *
      * @param dataContext               holds the ballerina context and callback
      * @param outboundRequestMsg        Outbound request that needs to be sent across the wire
+     * @param async                     whether a handle should be return
      * @return connector future for this particular request
      * @throws Exception When an error occurs while sending the outbound request via client connector
      */
-    private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) throws Exception {
-        BConnector bConnector = (BConnector) dataContext.context.getRefArgument(0);
+    private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) throws Exception {
+        BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
@@ -247,7 +253,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 retryConfig, outboundRequestMsg, outboundMsgDataStreamer);
 
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
-        future.setHttpConnectorListener(httpClientConnectorLister);
+        if (async) {
+            future.setResponseHandleListener(httpClientConnectorLister);
+        } else {
+            future.setHttpConnectorListener(httpClientConnectorLister);
+        }
         try {
             if (boundaryString != null) {
                 serializeMultiparts(dataContext.context, messageOutputStream, boundaryString);
@@ -322,7 +332,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     }
 
     private RetryConfig getRetryConfiguration(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         BStruct options = (BStruct) bConnector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options == null) {
             return new RetryConfig();
@@ -342,7 +352,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return false;
     }
 
-    private class HTTPClientConnectorListener implements HttpConnectorListener {
+    private class HTTPClientConnectorListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
         private RetryConfig retryConfig;
@@ -361,12 +371,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            BStruct inboundResponse = createStruct(this.dataContext.context, HttpConstants.RESPONSE,
-                    HttpConstants.PROTOCOL_PACKAGE_HTTP);
-            BStruct entity = createStruct(this.dataContext.context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
-            BStruct mediaType = createStruct(this.dataContext.context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-            HttpUtil.populateInboundResponse(inboundResponse, entity, mediaType, httpCarbonMessage);
-            this.dataContext.notifyReply(inboundResponse, null);
+            this.dataContext.notifyReply(createResponseStruct(
+                    this.dataContext.context, httpCarbonMessage), null);
+        }
+
+        @Override
+        public void onResponseHandle(ResponseHandle responseHandle) {
+            BStruct httpHandle = createStruct(this.dataContext.context, HttpConstants.HTTP_HANDLE,
+                                              HttpConstants.PROTOCOL_PACKAGE_HTTP);
+            httpHandle.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
+            this.dataContext.notifyReply(httpHandle, null);
         }
 
         @Override
@@ -379,7 +393,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             if (checkRetryState(throwable)) {
                 return;
             }
-            sendOutboundRequest(dataContext, outboundReqMsg);
+            sendOutboundRequest(dataContext, outboundReqMsg, false);
         }
 
         private boolean checkRetryState(Throwable throwable) {
@@ -413,13 +427,37 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             }
             this.dataContext.notifyReply(null, httpConnectorError);
         }
+    }
 
-        private BStruct createStruct(Context context, String structName, String protocolPackage) {
-            PackageInfo httpPackageInfo = context.getProgramFile()
-                    .getPackageInfo(protocolPackage);
-            StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-            BStructType structType = structInfo.getType();
-            return new BStruct(structType);
-        }
+    /**
+     * Creates a ballerina struct.
+     *
+     * @param context         ballerina context
+     * @param structName      name of the struct
+     * @param protocolPackage package name
+     * @return the ballerina struct
+     */
+    protected BStruct createStruct(Context context, String structName, String protocolPackage) {
+        PackageInfo httpPackageInfo = context.getProgramFile()
+                .getPackageInfo(protocolPackage);
+        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructType structType = structInfo.getType();
+        return new BStruct(structType);
+    }
+
+    /**
+     * Creates InResponse using the native {@code HTTPCarbonMessage}.
+     *
+     * @param context           ballerina context
+     * @param httpCarbonMessage the HTTPCarbonMessage
+     * @return the Response struct
+     */
+    BStruct createResponseStruct(Context context, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct responseStruct = createStruct(context, HttpConstants.RESPONSE,
+                                                HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
+        BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, httpCarbonMessage);
+        return responseStruct;
     }
 }

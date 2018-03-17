@@ -54,8 +54,4 @@ public class BLangWhere extends BLangNode implements WhereNode {
         return this.expression;
     }
 
-    @Override
-    public ExpressionNode getExpressions() {
-        return null;
-    }
 }

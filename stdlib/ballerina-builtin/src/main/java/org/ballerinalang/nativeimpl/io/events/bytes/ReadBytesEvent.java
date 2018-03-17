@@ -36,7 +36,7 @@ public class ReadBytesEvent implements Event {
     /**
      * Holds the name of the property which will hold a reference to the byte content.
      */
-    private static final String CONTENT_PROPERTY = "byte_content";
+    public static final String CONTENT_PROPERTY = "byte_content";
     /**
      * Buffer which will be provided to the channel.
      */
@@ -70,12 +70,11 @@ public class ReadBytesEvent implements Event {
             byte[] content = this.content.array();
             context.getProperties().put(CONTENT_PROPERTY, content);
             result = new NumericResult(numberOfBytesRead, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

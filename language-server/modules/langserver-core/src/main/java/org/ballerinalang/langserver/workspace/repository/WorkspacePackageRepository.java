@@ -31,12 +31,12 @@ public class WorkspacePackageRepository extends GeneralFSPackageRepository {
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID) {
-        Path path = this.generatePathOld(pkgID);
+        Path path = this.generatePath(pkgID);
         return new WorkspacePackageSource(pkgID, path);
     }
 
     protected PackageSource lookupPackageSource(PackageID pkgID, String entryName) {
-        Path path = this.generatePathOld(pkgID);
+        Path path = this.generatePath(pkgID);
         try {
             return new WorkspacePackageSource(pkgID, path, entryName);
         } catch (FSPackageEntityNotAvailableException e) {

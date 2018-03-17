@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:Service";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:Endpoint";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -82,6 +82,7 @@ public class HttpConstants {
     public static final String ANN_NAME_HTTP_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_CONFIG_ATTR_HOST = "host";
     public static final String ANN_CONFIG_ATTR_PORT = "port";
+    public static final String ANN_CONFIG_ATTR_HTTP_VERSION = "httpVersion";
     public static final String ANN_CONFIG_ATTR_HTTPS_PORT = "httpsPort";
     public static final String ANN_CONFIG_ATTR_KEEP_ALIVE = "keepAlive";
     public static final String ANN_CONFIG_ATTR_BASE_PATH = "basePath";
@@ -97,7 +98,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
@@ -106,8 +107,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String ANN_CONFIG_ATTR_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ANN_CONFIG_ATTR_CHUNKING = "chunking";
-    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
-    public static final String ANN_WEBSOCKET_ATTR_SERVICE_NAME = "serviceName";
+    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -137,6 +137,7 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
 
     public static final String CLIENT_CONNECTOR = "ClientConnector";
+    public static final String B_CONNECTOR = "BConnector";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -149,15 +150,19 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVER_CONNECTOR = "ServerConnector";
+    public static final String ENDPOINT = "Endpoint";
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
+    public static final String HTTP_HANDLE = "HttpHandle";
+    public static final String PUSH_PROMISE = "PushPromise";
     public static final String ENTITY = "Entity";
     public static final String HTTP_CONNECTOR_ERROR = "HttpConnectorError";
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String TRANSPORT_HANDLE = "transport_handle";
+    public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
     public static final String HTTP_SESSION = "http_session";
 
@@ -191,7 +196,7 @@ public class HttpConstants {
     public static final int ENTITY_INDEX = 1;
 
     // ServeConnector struct indices
-    public static final int SERVER_CON_CONNECTION_INDEX = 0;
+    public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 0;
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
@@ -208,6 +213,10 @@ public class HttpConstants {
     public static final int RESPONSE_STATUS_CODE_INDEX = 0;
     public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
     public static final int RESPONSE_SERVER_INDEX = 1;
+
+    //PushPromise struct indexes
+    public static final int PUSH_PROMISE_PATH_INDEX = 0;
+    public static final int PUSH_PROMISE_METHOD_INDEX = 1;
 
     //Proxy server struct indexes
     public static final int PROXY_STRUCT_INDEX = 3;
@@ -251,6 +260,11 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+    public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
+    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
+    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
+    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
 
     public static final String ENDPOINT_CONFIG_SSL = "ssl";
 
@@ -301,4 +315,6 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "pasword";
+
+    public static final String HTTP_SERVICE_TYPE = "HttpService";
 }

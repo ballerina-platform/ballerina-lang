@@ -20,10 +20,10 @@ import ballerina.auth.userstore;
 import ballerina.caching;
 
 @Description {value:"Represents a Basic Authenticator"}
-@Field {value:"credentialsStore: CredentialsStore object; ex.: in basic authenticator, the user store"}
+@Field {value:"userStore: UserStore object; ex.: in basic authenticator, the user store"}
 @Field {value:"authCache: Authentication cache object"}
 public struct BasicAuthenticator {
-    userstore:CredentialsStore credentialsStore;
+    userstore:UserStore userStore;
     caching:Cache authCache;
 }
 
@@ -36,18 +36,18 @@ public struct AuthenticationInfo {
 }
 
 @Description {value:"Creates a Basic Authenticator"}
-@Param {value:"credentialsStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
+@Param {value:"userStore: implementation of the credentials store - ldap, jdbc, file based userstore, etc."}
 @Param {value:"cache: cache instance"}
 @Return {value:"BasicAuthenticator instance"}
-public function createAuthenticator (userstore:CredentialsStore credentialsStore,
+public function createAuthenticator (userstore:UserStore userStore,
                                      caching:Cache cache) (BasicAuthenticator) {
-    if (credentialsStore == null) {
+    if (userStore == null) {
         // error, cannot proceed without validator
         error e = {message:"Userstore cannot be null for basic authenticator"};
         throw e;
     }
 
-    BasicAuthenticator authenticator = {credentialsStore:credentialsStore, authCache:cache};
+    BasicAuthenticator authenticator = {userStore:userStore, authCache:cache};
     return authenticator;
 }
 
@@ -56,7 +56,7 @@ public function createAuthenticator (userstore:CredentialsStore credentialsStore
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is successful, else false"}
 public function <BasicAuthenticator authenticator> authenticate (string username, string password) (boolean) {
-    return authenticator.credentialsStore.authenticate(username, password);
+    return authenticator.userStore.authenticate(username, password);
 }
 
 @Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}

@@ -30,9 +30,8 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -48,7 +47,7 @@ import java.util.Set;
 public class BLangService extends BLangNode implements ServiceNode {
     
     public BLangIdentifier name;
-    public BLangUserDefinedType endpointType;
+    public BLangUserDefinedType serviceTypeStruct;
     public List<BLangVariableDef> vars;
     public List<BLangResource> resources;
     public Set<Flag> flagSet;
@@ -57,7 +56,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
-    public List<BEndpointVarSymbol> attachedEndpoints;
+    public List<BLangSimpleVarRef> boundEndpoints;
+    public BStructType endpointType, endpointClientType;
 
     public BSymbol symbol;
 
@@ -69,7 +69,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
-        this.attachedEndpoints = new ArrayList<>();
+        this.boundEndpoints = new ArrayList<>();
     }
 
     @Override
@@ -83,13 +83,13 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public UserDefinedTypeNode getEndpointType() {
-        return this.endpointType;
+    public UserDefinedTypeNode getServiceTypeStruct() {
+        return this.serviceTypeStruct;
     }
 
     @Override
-    public void setEndpointType(UserDefinedTypeNode endpointType) {
-        this.endpointType = (BLangUserDefinedType) endpointType;
+    public void setServiceTypeStruct(UserDefinedTypeNode serviceTypeStruct) {
+        this.serviceTypeStruct = (BLangUserDefinedType) serviceTypeStruct;
     }
 
     @Override
@@ -170,9 +170,12 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void bindToEndpoint(SimpleVariableReferenceNode endpointRef) {
         final BLangSimpleVarRef endpointVar = (BLangSimpleVarRef) endpointRef;
-        if ((endpointVar.symbol.tag & SymTag.ENDPOINT) == SymTag.ENDPOINT) {
-            this.attachedEndpoints.add((BEndpointVarSymbol) endpointVar.symbol);
-        }
+        this.boundEndpoints.add(endpointVar);
+    }
+
+    @Override
+    public List<? extends SimpleVariableReferenceNode> getBoundEndpoints() {
+        return this.boundEndpoints;
     }
 
     @Override
@@ -187,7 +190,7 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     @Override
     public String toString() {
-        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + endpointType + "> "
+        return "BLangService: " + flagSet + " " + annAttachments + " " + getName() + "<" + serviceTypeStruct + "> "
                 + vars + " " + resources;
     }
 }

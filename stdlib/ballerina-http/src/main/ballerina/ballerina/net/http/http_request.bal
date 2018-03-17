@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
+import ballerina.mime;
 
 @Description { value:"Represents an HTTP request message"}
 @Field {value:"path: Resource path of request URI"}
@@ -109,7 +109,7 @@ public function <Request req> addHeader (string headerName, string headerValue) 
 @Param {value:"key: The header name"}
 public function <Request req> removeHeader (string key) {
     mime:Entity entity = req.getEntityWithoutBody();
-    entity.headers.remove(key);
+    _ = entity.headers.remove(key);
 }
 
 @Description {value:"Removes all transport headers from the message"}

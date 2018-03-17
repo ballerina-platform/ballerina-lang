@@ -111,20 +111,21 @@ public abstract class ConnectionAction extends BlockingNativeCallableUnit {
         }
     }
 
-    private BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
+    protected BValue[] handleResponseStatus(Context context, HttpResponseFuture outboundResponseStatusFuture) {
         try {
             outboundResponseStatusFuture = outboundResponseStatusFuture.sync();
         } catch (InterruptedException e) {
             throw new BallerinaException("interrupted sync: " + e.getMessage());
         }
-        if (outboundResponseStatusFuture.getStatus().getCause() != null) {
-            return new BValue[] {
-                    HttpUtil.getHttpConnectorError(context, outboundResponseStatusFuture.getStatus().getCause()) };
+        Throwable cause = outboundResponseStatusFuture.getStatus().getCause();
+        if (cause != null) {
+            outboundResponseStatusFuture.resetStatus();
+            return new BValue[]{HttpUtil.getHttpConnectorError(context, cause)};
         }
         return new BValue[0];
     }
 
-    private void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
+    protected void serializeMsgDataSource(HTTPCarbonMessage responseMessage, MessageDataSource outboundMessageSource,
                                         HttpResponseFuture outboundResponseStatusFuture, BStruct entityStruct) {
         OutputStream messageOutputStream = getOutputStream(responseMessage, outboundResponseStatusFuture);
         try {

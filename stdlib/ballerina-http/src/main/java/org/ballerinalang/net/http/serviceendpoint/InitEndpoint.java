@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -37,6 +36,7 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
@@ -51,10 +51,8 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Endpoint",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -93,6 +91,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         String transferEncoding = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_TRANSFER_ENCODING);
         String chunking = endpointConfig.getEnumField(HttpConstants.ENDPOINT_CONFIG_CHUNKING);
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
+        String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
+        Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -117,7 +117,51 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
+
+        // Set Request validation limits.
+        if (requestLimits != null) {
+            setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
+        }
+
+        // Set HTTP version
+        if (httpVersion != null) {
+            listenerConfiguration.setVersion(httpVersion);
+        }
         return listenerConfiguration;
+    }
+
+    private void setRequestSizeValidationConfig(Struct requestLimits, ListenerConfiguration listenerConfiguration) {
+        long maxUriLength = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
+        long maxHeaderSize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
+        long maxEntityBodySize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
+        RequestSizeValidationConfig requestSizeValidationConfig = listenerConfiguration
+                .getRequestSizeValidationConfig();
+
+        if (maxUriLength != -1) {
+            if (maxUriLength >= 0) {
+                requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength));
+            } else {
+                throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : " + maxUriLength);
+            }
+        }
+
+        if (maxHeaderSize != -1) {
+            if (maxHeaderSize >= 0) {
+                requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize));
+            } else {
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for maxHeaderSize : " + maxHeaderSize);
+            }
+        }
+
+        if (maxEntityBodySize != -1) {
+            if (maxEntityBodySize >= 0) {
+                requestSizeValidationConfig.setMaxEntityBodySize(Math.toIntExact(maxEntityBodySize));
+            } else {
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for maxEntityBodySize : " + maxEntityBodySize);
+            }
+        }
     }
 
     private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {

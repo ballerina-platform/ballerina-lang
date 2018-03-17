@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -45,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -170,7 +170,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
-        notifyEndpointProcessors(((BServiceSymbol) serviceNode.symbol).endpointType, attachmentList,
+        notifyEndpointProcessors(serviceNode.endpointType, attachmentList,
                 (processor, list) -> processor.process(serviceNode, list));
         serviceNode.resources.forEach(resource -> resource.accept(this));
         serviceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
@@ -212,6 +212,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyEndpointProcessors(endpointNode.symbol.type, attachmentList,
                 (processor, list) -> processor.process(endpointNode, list));
     }
+    public void visit(BLangStreamlet streamletNode) {
+        /* Ignore */
+    }
+
 
     // private methods
 

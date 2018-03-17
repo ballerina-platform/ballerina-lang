@@ -18,25 +18,19 @@
 package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Native function ballerina.io#writeTextRecord.
@@ -53,7 +47,7 @@ import java.util.concurrent.ExecutionException;
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
-public class WriteTextRecord extends BlockingNativeCallableUnit {
+public class WriteTextRecord implements NativeCallableUnit {
 
     /**
      * Index of the record channel in ballerina.io#writeTextRecord.
@@ -66,67 +60,42 @@ public class WriteTextRecord extends BlockingNativeCallableUnit {
     private static final int CONTENT_INDEX = 1;
 
     /**
-     * Will be the I/O event handler.
+     * Callback response received after the bytes are written.
+     *
+     * @param result the response received.
+     * @return the result context.
      */
-    private EventManager eventManager = EventManager.getInstance();
-
-    private static final Logger log = LoggerFactory.getLogger(WriteTextRecord.class);
-
-/*
-    private static EventResult writeRecordResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct;
+    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
+        BStruct errorStruct = null;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
+        CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
         }
+        context.setReturnValues(errorStruct);
+        callback.notifySuccess();
         return result;
     }
-*/
 
     /**
-     * Asynchronously writes records to the channel.
-     *
-     * @param recordChannel channel the records should be written.
-     * @param records       the record content.
-     * @param context       event context.
-     * @throws ExecutionException   during interrupt error.
-     * @throws InterruptedException errors which occurs while execution.
-     */
-    private void writeTextRecord(DelimitedRecordChannel recordChannel, BStringArray records, EventContext context)
-            throws ExecutionException, InterruptedException {
-        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records, context);
-        CompletableFuture<EventResult> future = eventManager.publish(recordWriteEvent);
-        //TODO when async functions are available this should be uncommented
-        //future.thenApply(WriteTextRecord::writeRecordResponse);
-        EventResult eventResult = future.get();
-        Throwable error = ((EventContext) eventResult.getContext()).getError();
-        if (error != null) {
-            throw new ExecutionException(error);
-        }
-    }
-
-    /**
-     * Writes records for a given file.
+     * Writes records to a given file.
      * <p>
      * {@inheritDoc}
      */
     @Override
-    public void execute(Context context) {
-        BStruct errorStruct = null;
-        try {
-            BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
-            BStringArray content = (BStringArray) context.getRefArgument(CONTENT_INDEX);
-            DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
-                    .TXT_RECORD_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(context);
-            writeTextRecord(delimitedRecordChannel, content, eventContext);
-        } catch (Throwable e) {
-            String message = "Error occurred while writing text record:" + e.getMessage();
-            log.error(message, e);
-            errorStruct = IOUtils.createError(context, message);
-        }
-        context.setReturnValues(errorStruct);
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct channel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+        BStringArray content = (BStringArray) context.getRefArgument(CONTENT_INDEX);
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
+                .TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(context, callback);
+        IOUtils.write(delimitedRecordChannel, content, eventContext, WriteTextRecord::writeResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
     }
 }

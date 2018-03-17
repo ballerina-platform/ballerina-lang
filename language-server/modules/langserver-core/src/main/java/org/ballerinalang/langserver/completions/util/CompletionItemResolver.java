@@ -20,12 +20,12 @@ package org.ballerinalang.langserver.completions.util;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
+import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangStructContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BlockStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.DefaultResolver;
-import org.ballerinalang.langserver.completions.resolvers.EndpointDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.FunctionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.PackageNameContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ParameterContextResolver;
@@ -49,11 +49,11 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.Collections;
@@ -95,8 +95,8 @@ public enum CompletionItemResolver {
             new ConnectorDefinitionContextResolver()),
     ACTION_DEF_CONTEXT(BLangAction.class,
             new ConnectorActionContextResolver()),
-    ENDPOINT_DEF_CONTEXT(BLangVariable.class,
-            new EndpointDefinitionContextResolver()),
+    BLANG_ENDPOINT_CONTEXT(BLangEndpoint.class,
+            new BLangEndpointContextResolver()),
     FUNCTION_DEF_CONTEXT(BLangFunction.class,
             new FunctionContextResolver()),
 

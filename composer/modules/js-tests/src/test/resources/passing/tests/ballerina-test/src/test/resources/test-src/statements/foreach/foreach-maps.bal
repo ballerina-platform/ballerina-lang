@@ -30,7 +30,7 @@ function testDeleteWhileIteration () (string) {
     foreach k, v in m {
         var val, _ = (string)v;
         if (k == "a") {
-            m.remove("c");
+            _ = m.remove("c");
         }
         stringConcat(k, val);
         var mval, _ = (string)m[k];

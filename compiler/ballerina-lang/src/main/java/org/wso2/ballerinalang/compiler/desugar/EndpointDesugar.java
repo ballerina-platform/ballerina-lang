@@ -17,23 +17,24 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -83,13 +84,14 @@ public class EndpointDesugar {
     }
 
     private void rewriteService(BLangService service, SymbolEnv pkgEnv) {
-        if (service.attachedEndpoints.isEmpty()) {
+        final BServiceSymbol serviceSymbol = (BServiceSymbol) service.symbol;
+        if (serviceSymbol.boundEndpoints.isEmpty()) {
             return;
         }
         final BSymbol enclosingSymbol = pkgEnv.enclPkg.symbol;
         final BSymbol varSymbol = pkgEnv.enclPkg.startFunction.symbol;
         final BLangBlockStmt startBlock = pkgEnv.enclPkg.startFunction.body;
-        service.attachedEndpoints.forEach(endpointVarSymbol -> {
+        serviceSymbol.boundEndpoints.forEach(endpointVarSymbol -> {
             final BLangBlockStmt generateCode = generateServiceRegistered(endpointVarSymbol, service, pkgEnv,
                     enclosingSymbol, varSymbol);
             ASTBuilderUtil.prependStatements(generateCode, startBlock);
@@ -111,10 +113,6 @@ public class EndpointDesugar {
             // Function, Action, Resource. Code generate to its body directly.
             encSymbol = varSymbol = env.enclInvokable.symbol;
             initBlock = startBlock = ((BLangInvokableNode) env.node).body;
-        } else if (env.enclConnector != null) {
-            encSymbol = env.enclConnector.symbol;
-            varSymbol = ((BLangConnector) env.node).initFunction.symbol;
-            initBlock = startBlock = ((BLangConnector) env.node).initFunction.body;
         } else if (env.enclService != null) {
             encSymbol = env.enclService.symbol;
             varSymbol = ((BLangService) env.node).initFunction.symbol;
@@ -128,36 +126,27 @@ public class EndpointDesugar {
             stopBlock = ((BLangPackage) env.node).stopFunction.body;
         }
 
-        boolean generateEndpointInit = endpoint.configurationExpr != null;
-        BLangBlockStmt genInit, genInitCall = null, genStartCall = null, genStopCall;
+        BLangBlockStmt genInit, genInitCall, genStartCall, genStopCall;
         genInit = generateEndpointInit(endpoint, env, encSymbol);
-        if (generateEndpointInit) {
-            genInitCall = generateEndpointInitFunctionCall(endpoint, env, encSymbol, varSymbol);
-            genStartCall = generateEndpointStartOrStop(endpoint, Names.EP_SPI_START, env, encSymbol);
-        }
-        genStopCall = generateEndpointStartOrStop(endpoint, Names.EP_SPI_STOP, env, encSymbol);
+        genInitCall = generateEndpointInitFunctionCall(endpoint, env, encSymbol, varSymbol);
+        genStartCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.startFunction, env, encSymbol);
+        genStopCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.stopFunction, env, encSymbol);
 
         if (env.enclInvokable != null) {
-            if (generateEndpointInit) {
-                ASTBuilderUtil.prependStatements(genStartCall, startBlock);
-                ASTBuilderUtil.prependStatements(genInitCall, initBlock);
-                // TODO : Implement stop.
-            }
+            ASTBuilderUtil.prependStatements(genStartCall, startBlock);
+            ASTBuilderUtil.prependStatements(genInitCall, initBlock);
+            // TODO : Implement stop.
             ASTBuilderUtil.prependStatements(genInit, initBlock);
-        } else if (env.enclConnector != null || env.enclService != null) {
+        } else if (env.enclService != null) {
             ASTBuilderUtil.appendStatements(genInit, initBlock);
-            if (generateEndpointInit) {
-                ASTBuilderUtil.appendStatements(genInitCall, initBlock);
-                ASTBuilderUtil.appendStatements(genStartCall, startBlock);
-                // TODO : Implement stop.
-            }
+            ASTBuilderUtil.appendStatements(genInitCall, initBlock);
+            ASTBuilderUtil.appendStatements(genStartCall, startBlock);
+            // TODO : Implement stop.
         } else {
             ASTBuilderUtil.appendStatements(genInit, initBlock);
-            if (generateEndpointInit) {
-                ASTBuilderUtil.appendStatements(genInitCall, initBlock);
-                ASTBuilderUtil.appendStatements(genStartCall, startBlock);
-                ASTBuilderUtil.appendStatements(genStopCall, Objects.requireNonNull(stopBlock));
-            }
+            ASTBuilderUtil.appendStatements(genInitCall, initBlock);
+            ASTBuilderUtil.appendStatements(genStartCall, startBlock);
+            ASTBuilderUtil.appendStatements(genStopCall, Objects.requireNonNull(stopBlock));
         }
     }
 
@@ -168,11 +157,24 @@ public class EndpointDesugar {
         final DiagnosticPos pos = endpoint.pos;
         BLangBlockStmt temp = new BLangBlockStmt();
 
-        // EPType ep_name = {};
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env,
                 names.fromString(epName), SymTag.VARIABLE);
-        final BLangRecordLiteral newExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, endpoint.symbol.type);
+
+        final BLangExpression newExpr;
+        if (endpoint.configurationExpr != null
+                && endpoint.configurationExpr.getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+            // Handle Endpoint Assignment.
+            newExpr = endpoint.configurationExpr;
+        } else if (endpoint.configurationExpr != null
+                && endpoint.configurationExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            // Handle Endpoint initialization.
+            newExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, endpoint.symbol.type);
+        } else {
+            newExpr = null;
+        }
+
+        // EPType ep_name = {};
         if (env.enclInvokable != null) {
             // In callable unit, endpoint is same scope variable.
             final BLangVariableDef epNewStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
@@ -180,15 +182,11 @@ public class EndpointDesugar {
             epNewStmt.var.expr = newExpr;
         } else {
             // This is an init function. ep variable is defined in outside.
-            if (env.enclConnector != null || env.enclService != null) {
+            if (env.enclService != null) {
                 // Add to endpoint variable to relevant location
                 final BLangVariableDef epVarDef = ASTBuilderUtil.createVariableDef(pos);
                 epVarDef.var = epVariable;
-                if (env.enclConnector != null) {
-                    env.enclConnector.varDefs.add(epVarDef);
-                } else {
-                    env.enclService.vars.add(epVarDef);
-                }
+                env.enclService.vars.add(epVarDef);
             }
             final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, temp);
             assignmentStmt.varRefs.add(ASTBuilderUtil.createVariableRef(pos, epVariable.symbol));
@@ -201,9 +199,13 @@ public class EndpointDesugar {
                                                             SymbolEnv env,
                                                             BSymbol encSymbol,
                                                             BSymbol varEncSymbol) {
+        BLangBlockStmt temp = new BLangBlockStmt();
+        if (endpoint.configurationExpr == null
+                || endpoint.configurationExpr.getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+            return temp;
+        }
         final String epName = endpoint.name.value;
         final DiagnosticPos pos = endpoint.pos;
-        BLangBlockStmt temp = new BLangBlockStmt();
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env,
                 names.fromString(epName), SymTag.VARIABLE);
@@ -214,34 +216,29 @@ public class EndpointDesugar {
                 endpoint.configurationExpr.type);
         epConfigNewStmt.var.expr = endpoint.configurationExpr;
         ASTBuilderUtil.defineVariable(epConfigNewStmt.var, varEncSymbol, names);
-
-        // String s = "epName";
-        final BLangVariableDef epNameDefinStmt = ASTBuilderUtil.createVariableDefStmt(pos, temp);
-        epNameDefinStmt.var = ASTBuilderUtil.createVariable(pos, epName + "epName", symTable.stringType);
-        epNameDefinStmt.var.expr = ASTBuilderUtil.createLiteral(pos, symTable.stringType, epName);
-        ASTBuilderUtil.defineVariable(epNameDefinStmt.var, varEncSymbol, names);
-
-        List<BLangVariable> args = Lists.of(epVariable, epNameDefinStmt.var, epConfigNewStmt.var);
-        final BStructSymbol.BAttachedFunction initFunction = ((BStructSymbol) endpoint.symbol.type.tsymbol)
-                .attachedFuncs.stream().filter(f -> f.funcName.value.equals(Names.EP_SPI_INIT.value))
-                .findAny().get();
+        List<BLangVariable> args = Lists.of(epVariable, epConfigNewStmt.var);
 
         // epName.init( "epName", ep_nameConf );
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
-        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, initFunction.symbol, args, symResolver);
+        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.symbol.initFunction, args,
+                symResolver);
         return temp;
     }
 
     private BLangBlockStmt generateEndpointStartOrStop(BLangEndpoint endpoint,
-                                                       Name functionName,
+                                                       BInvokableSymbol funSymbol,
                                                        SymbolEnv env,
                                                        BSymbol encSymbol) {
+        BLangBlockStmt temp = new BLangBlockStmt();
+        if (funSymbol == null || endpoint.configurationExpr == null
+                || endpoint.configurationExpr.getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+            // Start or Stop should be called only
+            //  1: If start function is present.
+            //  2: If endpoint in initialized
+            return temp;
+        }
         final DiagnosticPos pos = endpoint.pos;
         final String epName = endpoint.name.value;
-        BLangBlockStmt temp = new BLangBlockStmt();
-        final BStructSymbol.BAttachedFunction startFunction = ((BStructSymbol) endpoint.symbol.type.tsymbol)
-                .attachedFuncs.stream().filter(f -> f.funcName.value.equals(functionName.value))
-                .findAny().get();
 
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.symbol.type);
         final Name name = names.fromIdNode(endpoint.name);
@@ -249,7 +246,7 @@ public class EndpointDesugar {
                 SymTag.VARIABLE);
         List<BLangVariable> args = Lists.of(epVariable);
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
-        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, startFunction.symbol, args, symResolver);
+        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, funSymbol, args, symResolver);
         return temp;
     }
 
@@ -261,11 +258,6 @@ public class EndpointDesugar {
         final DiagnosticPos pos = service.pos;
         final String epName = endpoint.name.value;
         BLangBlockStmt temp = new BLangBlockStmt();
-
-        final BStructSymbol.BAttachedFunction startFunction = ((BStructSymbol) endpoint.type.tsymbol)
-                .attachedFuncs.stream()
-                .filter(f -> f.funcName.value.equals(Names.EP_SPI_REGISTER.value))
-                .findAny().get();
 
         final BLangVariable epVariable = ASTBuilderUtil.createVariable(pos, epName, endpoint.type);
         final Name name = endpoint.name;
@@ -284,7 +276,7 @@ public class EndpointDesugar {
 
         List<BLangVariable> args = Lists.of(epVariable, serviceTypeDef.var);
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
-        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, startFunction.symbol, args, symResolver);
+        expressionStmt.expr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.registerFunction, args, symResolver);
         return temp;
     }
 

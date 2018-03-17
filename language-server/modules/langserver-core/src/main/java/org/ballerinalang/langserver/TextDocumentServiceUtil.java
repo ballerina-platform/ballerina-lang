@@ -19,8 +19,8 @@ package org.ballerinalang.langserver;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.completions.BallerinaCustomErrorStrategy;
 import org.ballerinalang.langserver.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.repository.PackageRepository;
@@ -36,12 +36,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 
 /**
@@ -51,6 +51,13 @@ public class TextDocumentServiceUtil {
 
     private static final String PACKAGE_REGEX = "package\\s+([a-zA_Z_][\\.\\w]*);";
 
+    /**
+     * Get the source root for the given package.
+     *
+     * @param filePath current file's path
+     * @param pkgName  package that the file belongs to
+     * @return {@link String} program directory path
+     */
     public static String getSourceRoot(Path filePath, String pkgName) {
         if (filePath == null || filePath.getParent() == null) {
             return null;
@@ -60,27 +67,24 @@ public class TextDocumentServiceUtil {
             return null;
         }
         List<String> pathParts = Arrays.asList(parentPath.toString().split(Pattern.quote(File.separator)));
-
-        List<String> pkgParts = "".equals(pkgName) ?
-                new ArrayList<>() : Arrays.asList(pkgName.split(Pattern.quote(".")));
-        Collections.reverse(pkgParts);
-        boolean foundProgramDir = true;
-        for (int i = 1; i <= pkgParts.size(); i++) {
-            if (!pathParts.get(pathParts.size() - i).equals(pkgParts.get(i - 1))) {
-                foundProgramDir = false;
-                break;
+        // TODO: change this to find .ballerina meta folder when project structure is available.
+        int pkgNameIndex = pathParts.size();
+        if (!pkgName.isEmpty()) {
+            for (int i = pathParts.size() - 1; i >= 0; i--) {
+                if (pathParts.get(i).equals(pkgName)) {
+                    pkgNameIndex = i;
+                    break;
+                }
             }
         }
-        if (!foundProgramDir) {
-            return null;
-        }
 
-        List<String> programDirParts = pathParts.subList(0, pathParts.size() - pkgParts.size());
+        List<String> programDirParts = pathParts.subList(0, pkgNameIndex);
         return String.join(File.separator, programDirParts);
     }
 
     /**
      * Get the package from file content.
+     *
      * @param fileContent - content of the file
      * @return - package declaration
      */
@@ -97,27 +101,36 @@ public class TextDocumentServiceUtil {
 
     /**
      * Prepare the compiler context.
-     * @param packageRepository             Package Repository
-     * @param sourceRoot                    Source Root
-     * @return  {@link CompilerContext}     Compiler context
+     *
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @return {@link CompilerContext}     Compiler context
      */
-    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot) {
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository, String sourceRoot,
+                                                         boolean preserveWhitespace) {
         org.wso2.ballerinalang.compiler.util.CompilerContext context = new CompilerContext();
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(SOURCE_ROOT, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_ANALYZE.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         return context;
     }
 
     /**
      * Get the BLangPackage for a given program.
-     * @param context               Language Server Context
-     * @param docManager            Document manager
+     *
+     * @param context             Language Server Context
+     * @param docManager          Document manager
+     * @param preserveWhitespace  Enable preserve whitespace
+     * @param customErrorStrategy custom error strategy class
+     * @param compileFullProject  compile full project from the source root
      * @return {@link BLangPackage} BLang Package
      */
-    public static BLangPackage getBLangPackage(LanguageServerContext context,
-                                               WorkspaceDocumentManager docManager) {
+    public static List<BLangPackage> getBLangPackage(LanguageServerContext context, WorkspaceDocumentManager docManager,
+                                                     boolean preserveWhitespace, Class customErrorStrategy,
+                                                     boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String fileContent = docManager.getFileContent(Paths.get(URI.create(uri)));
         Path filePath = CommonUtil.getPath(uri);
@@ -130,25 +143,59 @@ public class TextDocumentServiceUtil {
         String pkgName = TextDocumentServiceUtil.getPackageFromContent(fileContent);
         String sourceRoot = TextDocumentServiceUtil.getSourceRoot(filePath, pkgName);
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
-        CompilerContext compilerContext = TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot);
+        List<BLangPackage> packages = new ArrayList<>();
+        if (compileFullProject) {
+            if (sourceRoot != null && !sourceRoot.isEmpty()) {
+                File projectDir = new File(sourceRoot);
+                File[] files = projectDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot,
+                                preserveWhitespace, customErrorStrategy);
+                        compiler.compile(file.getName());
+                        packages.add((BLangPackage) compiler.getAST());
+                    }
+                }
+            }
+        } else {
+            Compiler compiler = getCompiler(context, fileName, packageRepository, sourceRoot, preserveWhitespace,
+                    customErrorStrategy);
+            if ("".equals(pkgName)) {
+                compiler.compile(fileName);
+            } else {
+                compiler.compile(pkgName);
+            }
 
+            packages.add((BLangPackage) compiler.getAST());
+        }
+        return packages;
+    }
+
+    /**
+     * Get compiler for the given context and file.
+     *
+     * @param context             Language server context
+     * @param fileName            File name which is currently open
+     * @param packageRepository   package repository
+     * @param sourceRoot          root path of the source
+     * @param preserveWhitespace  enable/disable preserve white space in compiler
+     * @param customErrorStrategy custom error strategy class
+     * @return {@link Compiler} ballerina compiler
+     */
+    private static Compiler getCompiler(LanguageServerContext context, String fileName,
+                                        PackageRepository packageRepository, String sourceRoot,
+                                        boolean preserveWhitespace, Class customErrorStrategy) {
+        CompilerContext compilerContext =
+                TextDocumentServiceUtil.prepareCompilerContext(packageRepository, sourceRoot,
+                        preserveWhitespace);
         context.put(DocumentServiceKeys.FILE_NAME_KEY, fileName);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-
+        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new TextDocumentServiceContext());
         List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         compilerContext.put(DiagnosticListener.class, diagnosticListener);
-        BallerinaCustomErrorStrategy customErrorStrategy = new BallerinaCustomErrorStrategy(context);
-        compilerContext.put(DefaultErrorStrategy.class, customErrorStrategy);
-
-        Compiler compiler = Compiler.getInstance(compilerContext);
-        if ("".equals(pkgName)) {
-            compiler.compile(fileName);
-        } else {
-            compiler.compile(pkgName);
-        }
-        BLangPackage bLangPackage = (BLangPackage) compiler.getAST();
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
-        return bLangPackage;
+        compilerContext.put(DefaultErrorStrategy.class,
+                CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        return Compiler.getInstance(compilerContext);
     }
 }

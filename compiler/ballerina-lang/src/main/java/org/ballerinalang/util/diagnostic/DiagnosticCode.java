@@ -37,10 +37,10 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
-    UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
-
+    UNDEFINED_PARAMETER("undefined.parameter"),
+    
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
@@ -67,10 +67,20 @@ public enum DiagnosticCode {
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
 
-    // Service, endpoint, & connectors related errors codes
+    // Service, endpoint related errors codes
+    SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
+    SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
+    SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
     ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
     ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
+    ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
+
+    ENDPOINT_NOT_SUPPORT_INTERACTIONS("endpoint.not.support.interactions"),
+    ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
+    INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    UNDEFINED_ACTION("undefined.action"),
 
     // Transformer related error codes
     UNDEFINED_TRANSFORMER("undefined.transformer"),
@@ -108,15 +118,15 @@ public enum DiagnosticCode {
     ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
     STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
+    INVALID_REST_ARGS("invalid.rest.args"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
-    INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
-    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
+    DUPLICATE_NAMED_ARGS("duplicate.named.args"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -146,6 +156,8 @@ public enum DiagnosticCode {
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    OPERATOR_NOT_SUPPORTED("operator.not.supported"),
+    OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
