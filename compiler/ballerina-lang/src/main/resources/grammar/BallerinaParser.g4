@@ -254,6 +254,7 @@ statement
     :   variableDefinitionStatement
     |   assignmentStatement
     |   ifElseStatement
+    |   matchStatement
     |   foreachStatement
     |   whileStatement
     |   nextStatement
@@ -318,6 +319,15 @@ elseIfClause
 
 elseClause
     :   ELSE LEFT_BRACE statement*RIGHT_BRACE
+    ;
+
+matchStatement
+    :   MATCH  expression  LEFT_BRACE patternClause+ RIGHT_BRACE
+    ;
+
+patternClause
+    :   typeName EQUAL_GT statement
+    |   typeName Identifier EQUAL_GT statement
     ;
 
 foreachStatement

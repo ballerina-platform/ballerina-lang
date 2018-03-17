@@ -144,6 +144,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -170,9 +172,11 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -281,6 +285,8 @@ public class BLangPackageBuilder {
 
     private Set<Whitespace> endpointKeywordWs;
 
+    private Deque<BLangMatch> matchStmtStack;
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -294,7 +300,8 @@ public class BLangPackageBuilder {
 
     private BLangDiagnosticLog dlog;
 
-    private static final String PIPE = "|";
+    private static final String IDENTIFIER_LITERAL_PREFIX = "^\"";
+    private static final String IDENTIFIER_LITERAL_SUFFIX = "\"";
 
     public BLangPackageBuilder(CompilerContext context, CompilationUnitNode compUnit) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -465,8 +472,8 @@ public class BLangPackageBuilder {
             return node;
         }
 
-        if (value.startsWith(PIPE) && value.endsWith(PIPE)) {
-            node.setValue(value.substring(1, value.length() - 1));
+        if (value.startsWith(IDENTIFIER_LITERAL_PREFIX) && value.endsWith(IDENTIFIER_LITERAL_SUFFIX)) {
+            node.setValue(value.substring(2, value.length() - 1));
             node.setLiteral(true);
         } else {
             node.setValue(value);
@@ -1568,6 +1575,47 @@ public class BLangPackageBuilder {
         IfNode ifNode = ifElseStatementStack.pop();
         ifNode.addWS(ws);
         addStmtToCurrentBlock(ifNode);
+    }
+
+    public void createMatchNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        if (this.matchStmtStack == null) {
+            this.matchStmtStack = new ArrayDeque<>();
+        }
+
+        BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
+        matchStmt.pos = pos;
+        matchStmt.addWS(ws);
+        matchStmt.patternClauses = new ArrayList<>();
+
+        this.matchStmtStack.addFirst(matchStmt);
+    }
+
+    public void completeMatchNode(Set<Whitespace> ws) {
+        BLangMatch matchStmt = this.matchStmtStack.removeFirst();
+        matchStmt.addWS(ws);
+        matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
+        addStmtToCurrentBlock(matchStmt);
+    }
+
+    public void startMatchStmtPattern() {
+        startBlock();
+    }
+
+    public void addMatchStmtPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+        BLangMatchStmtPatternClause patternClause =
+                (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
+        patternClause.pos = pos;
+        patternClause.addWS(ws);
+
+        // Create a variable node
+        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        var.setName(this.createIdentifier(identifier));
+        var.setTypeNode(this.typeNodeStack.pop());
+        patternClause.variable = var;
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
+        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
     public void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend) {

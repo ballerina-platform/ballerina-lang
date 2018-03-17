@@ -181,7 +181,7 @@ public class Types {
      * @param target type.
      * @return true if source type is assignable to the target type.
      */
-    private boolean isAssignable(BType source, BType target) {
+    public boolean isAssignable(BType source, BType target) {
         if (isSameType(source, target)) {
             return true;
         }
@@ -756,6 +756,8 @@ public class Types {
 
         @Override
         public BSymbol visit(BUnionType t, BType s) {
+
+            // TODO handle union type to
             return symTable.notFoundSymbol;
         }
 

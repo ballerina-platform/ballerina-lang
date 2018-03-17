@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -76,6 +77,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -492,6 +495,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (ifNode.elseStmt != null) {
             analyzeStmt(ifNode.elseStmt, env);
         }
+    }
+
+    public void visit(BLangMatch matchNode) {
+        List<BType> exprTypes = typeChecker.checkExpr(matchNode.expr, env, new ArrayList<>());
+        if (exprTypes.size() > 1) {
+            dlog.error(matchNode.expr.pos, DiagnosticCode.MULTI_VAL_EXPR_IN_SINGLE_VAL_CONTEXT);
+            return;
+        } else if (exprTypes.size() == 0) {
+            dlog.error(matchNode.expr.pos, DiagnosticCode.INVALID_EXPR_IN_MATCH_STMT);
+            return;
+        } else if (exprTypes.get(0).tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) exprTypes.get(0);
+            exprTypes = new ArrayList<>(unionType.memberTypes);
+        }
+
+        //  visit patterns
+        matchNode.patternClauses.forEach(patternClause -> patternClause.accept(this));
+        matchNode.exprTypes = exprTypes;
+    }
+
+    public void visit(BLangMatchStmtPatternClause patternClause) {
+        // If the variable is not equal to '_', then define the variable in the block scope
+        if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);
+            symbolEnter.defineNode(patternClause.variable, blockEnv);
+            analyzeStmt(patternClause.body, blockEnv);
+            return;
+        }
+
+        symbolEnter.defineNode(patternClause.variable, this.env);
+        analyzeStmt(patternClause.body, this.env);
     }
 
     public void visit(BLangForeach foreach) {
@@ -992,5 +1026,4 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
-
 }

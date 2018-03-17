@@ -96,6 +96,8 @@ public enum NodeKind {
     FOREACH,
     FORK_JOIN,
     IF,
+    MATCH,
+    MATCH_PATTERN_CLAUSE,
     REPLY,
     RETURN,
     THROW,

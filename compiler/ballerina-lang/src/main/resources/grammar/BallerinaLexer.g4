@@ -72,6 +72,7 @@ TYPE_TYPE       : 'type' ;
 VAR         : 'var' ;
 NEW         : 'new' ;
 IF          : 'if' ;
+MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
@@ -143,7 +144,9 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
-PIPE        : '#' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
+
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -451,11 +454,11 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -465,6 +468,7 @@ IdentifierLiteralEscapeSequence
     | '\\\\' [btnfr]
     | UnicodeEscape
     ;
+
 
 // XML lexer rules
 

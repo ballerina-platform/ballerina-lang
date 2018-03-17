@@ -996,6 +996,39 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterMatchStatement(BallerinaParser.MatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createMatchNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitMatchStatement(BallerinaParser.MatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.completeMatchNode(getWS(ctx));
+    }
+
+    @Override
+    public void enterPatternClause(BallerinaParser.PatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startMatchStmtPattern();
+    }
+
+    @Override
+    public void exitPatternClause(BallerinaParser.PatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addMatchStmtPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+    }
+
+    @Override
     public void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
         if (ctx.exception != null) {
             return;

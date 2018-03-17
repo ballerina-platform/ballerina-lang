@@ -494,7 +494,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(varNode.name);
-        if (varName == Names.EMPTY) {
+        if (varName == Names.EMPTY || varName == Names.IGNORE) {
             // This is a variable created for a return type
             // e.g. function foo() (int);
             return;

@@ -101,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -489,6 +490,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             ifNode.elseStmt.accept(this);
         }
         nonOverridingAnalysis = false;
+    }
+
+    public void visit(BLangMatch matchStmt) {
+        // TODO
     }
 
     public void visit(BLangForeach foreach) {
