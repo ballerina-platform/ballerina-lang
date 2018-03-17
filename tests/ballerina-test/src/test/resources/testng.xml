@@ -36,7 +36,9 @@ under the License.
                 <exclude name="org.ballerinalang.test.statements.transaction.*"/>
                 <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
             </package>
-            <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.types.*">
+                <exclude name="org.ballerinalang.test.types.table.*"/>
+            </package>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
