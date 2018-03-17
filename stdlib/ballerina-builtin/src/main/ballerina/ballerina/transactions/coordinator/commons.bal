@@ -211,7 +211,7 @@ function protocolCompatible (string coordinationType,
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest (string msg) returns (http:OutResponse res) {
+function respondToBadRequest (string msg) returns (http:Response res) {
     log:printError(msg);
     res = {statusCode:400};
     RequestError err = {errorMessage:msg};
@@ -336,6 +336,21 @@ function localParticipantProtocolFn (string transactionId,
     return;
 }
 
+function getInitiatorClientEP(string registerAtURL) returns (InitiatorClientEP) {
+    var initiatorEP, cacheErr = (InitiatorClientEP)httpClientCache.get(registerAtURL);
+    if (cacheErr != null) {
+        throw cacheErr; // We can't continue due to a programmer error
+    }
+    if (initiatorEP == null) {
+        initiatorEP = {};
+        InitiatorClientConfig config = {registerAtURL: registerAtURL,
+                                           endpointTimeout: 120000, retryConfig:{count:5, interval:5000}};
+        initiatorEP.init (config);
+        httpClientCache.put(registerAtURL, initiatorEP);
+    }
+    return initiatorEP;
+}
+
 documentation {
     Registers a participant with the initiator's coordinator. This function will be called by the participant
 
@@ -348,9 +363,9 @@ documentation {
 function registerParticipantWithRemoteInitiator (string transactionId,
                                                  int transactionBlockId,
                                                  string registerAtURL) returns (TransactionContext txnCtx, error err) {
-    endpoint<InitiatorClient> initiatorEP {
+    endpoint<InitiatorClientEP> initiatorEP {
     }
-
+    initiatorEP = getInitiatorClientEP(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
@@ -358,17 +373,8 @@ function registerParticipantWithRemoteInitiator (string transactionId,
         log:printError("Already registered with initiator for transaction:" + participatedTxnId);
         return;
     }
-    var client, cacheErr = (InitiatorClient)httpClientCache.get(registerAtURL);
-    if (cacheErr != null) {
-        throw cacheErr; // We can't continue due to a programmer error
-    }
-    if (client == null) {
-        client = create InitiatorClient(registerAtURL);
-        httpClientCache.put(registerAtURL, client);
-    }
-    bind client with initiatorEP;
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
-    var regRes, e = initiatorEP.register(transactionId, transactionBlockId);
+    var regRes, e = initiatorEP -> register(transactionId, transactionBlockId);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);

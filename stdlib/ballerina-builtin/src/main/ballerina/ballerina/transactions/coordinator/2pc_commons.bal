@@ -229,33 +229,41 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
     return;
 }
 
+function getParticipant2pcClientEP(string participantURL) returns(Participant2pcClientEP) {
+    var participantEP, cacheErr = (Participant2pcClientEP)httpClientCache.get(protocolUrl);
+    if (cacheErr != null) {
+        throw cacheErr; // We can't continue due to a programmer error
+    }
+    if (participantEP == null) {
+        Participant2pcClientConfig config = {participantURL: participantURL,
+                                                endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
+        participantEP = {};
+        participantEP.init(config);
+        httpClientCache.put(protocolUrl, client);
+    }
+    return participantEP;
+}
+
 function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
                                    Participant participant, string protocolUrl) returns (boolean successful) {
-    endpoint<Participant2pcClient> participantEP {
+    endpoint<Participant2pcClientEP> participantEP {
     }
+    participantEP = getParticipant2pcClientEP(protocolUrl);
+    
     string transactionId = txn.transactionId;
     // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
     // to prepare a participant
     successful = true;
     string participantId = participant.participantId;
-    var client, cacheErr = (Participant2pcClient)httpClientCache.get(protocolUrl);
-    if (cacheErr != null) {
-        throw cacheErr; // We can't continue due to a programmer error
-    }
-    if (client == null) {
-        client = create Participant2pcClient(protocolUrl);
-        httpClientCache.put(protocolUrl, client);
-    }
-    bind client with participantEP;
 
     log:printInfo("Preparing remote participant: " + participantId);
     // If a participant voted NO or failed then abort
-    var status, err = participantEP.prepare(transactionId);
+    var status, err = participantEP -> prepare(transactionId);
     if (status == "aborted") {
         log:printInfo("Remote participant: " + participantId + " aborted.");
         // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
         // participant
-        txn.participants.remove(participantId);
+        _ = txn.participants.remove(participantId);
         successful = false;
     } else if (status == "committed") {
         log:printInfo("Remote participant: " + participantId + " committed");
@@ -263,14 +271,23 @@ function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
         // report a mixed-outcome to the initiator
         txn.possibleMixedOutcome = true;
         // Don't send notify to this participant because it is has already committed. We can forget about this participant.
-        txn.participants.remove(participantId);
+        boolean participantRemoved = txn.participants.remove(participantId);
+        if(!participantRemoved) {
+            log:printError("Could not remove committed participant: " + participantId + " from transaction: " + transactionId);
+        }
     } else if (status == "read-only") {
         log:printInfo("Remote participant: " + participantId + " read-only");
         // Don't send notify to this participant because it is read-only. We can forget about this participant.
-        txn.participants.remove(participantId);
+        boolean participantRemoved = txn.participants.remove(participantId);
+        if(!participantRemoved) {
+            log:printError("Could not remove read-only participant: " + participantId + " from transaction: " + transactionId);
+        }
     } else if (err != null) {
         log:printErrorCause("Remote participant: " + participantId + " failed", err);
-        txn.participants.remove(participantId);
+        boolean participantRemoved = txn.participants.remove(participantId);
+        if(!participantRemoved) {
+            log:printError("Could not remove failed participant: " + participantId + " from transaction: " + transactionId);
+        }
         successful = false;
     } else if (status == "prepared") {
         log:printInfo("Remote participant: " + participantId + " prepared");
@@ -311,7 +328,7 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns (boolean
 
 function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
                                   Participant participant, string message) returns (string status, error err) {
-    endpoint<Participant2pcClient> participantEP {
+    endpoint<Participant2pcClientEP> participantEP {
     }
 
     string participantId = participant.participantId;
@@ -320,9 +337,8 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
 
     foreach protocol in participant.participantProtocols {
         string protoURL = protocol.url;
-        Participant2pcClient participant2pcClient = create Participant2pcClient(protoURL);
-        bind participant2pcClient with participantEP;
-        var notificationStatus, participantErr, communicationErr = participantEP.notify(transactionId, message);
+        participantEP = getParticipant2pcClientEP(protoURL);
+        var notificationStatus, participantErr, communicationErr = participantEP -> notify(transactionId, message);
         status = notificationStatus;
         if (communicationErr != null) {
             if (message != "abort") {
@@ -399,8 +415,6 @@ documentation {
 }
 function abortLocalParticipantTransaction (string transactionId, int transactionBlockId) returns (string message,
                                                                                                   error err) {
-    endpoint<Initiator2pcClient> initiatorEP {
-    }
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     boolean successful = abortResourceManagers(transactionId, transactionBlockId);
     if (!successful) {
@@ -413,17 +427,6 @@ function abortLocalParticipantTransaction (string transactionId, int transaction
         log:printError(msg);
         err = {message:msg};
     } else {
-        //string protocolUrl = txn.coordinatorProtocols[0].url;
-        //var client, cacheErr = (Initiator2pcClient)httpClientCache.get(protocolUrl);
-        //if (cacheErr != null) {
-        //    throw cacheErr; // We can't continue due to a programmer error
-        //}
-        //if (client == null) {
-        //    client = create Initiator2pcClient(protocolUrl);
-        //    httpClientCache.put(protocolUrl, client);
-        //}
-        //bind client with initiatorEP;
-        //message, err = initiatorEP.abortTransaction(transactionId, transactionBlockId);
         if (err == null) {
             txn.state = TransactionState.ABORTED;
             log:printInfo("Local participant aborted transaction: " + participatedTxnId);
@@ -528,7 +531,7 @@ function abortTransaction (string transactionId, int transactionBlockId) returns
             }
             string participantId = getParticipantId(transactionBlockId);
             // do not remove the transaction since we may get a msg from the initiator
-            txn.participants.remove(participantId);
+            _ = txn.participants.remove(participantId);
             msg, err = abortInitiatorTransaction(transactionId, transactionBlockId);
             if (err == null) {
                 txn.state = TransactionState.ABORTED;

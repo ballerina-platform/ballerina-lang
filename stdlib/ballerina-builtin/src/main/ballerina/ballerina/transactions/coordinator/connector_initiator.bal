@@ -47,12 +47,19 @@ struct InitiatorClientEP {
 
 struct InitiatorClientConfig {
     string registerAtURL;
+    int endpointTimeout;
+    struct {
+        int count;
+        int interval;
+    } retryConfig;
 }
 
 function <InitiatorClientEP ep> init(string name, InitiatorClientConfig conf){
     ep.conf = conf;
     ep.client = {};
-    ep.client.init("httpClient" , {serviceUri : conf.coordinatorProtocolAt});
+    ep.client.init("httpClient" , 
+    {serviceUri : conf.registerAtURL, endpointTimeout:conf.endpointTimeout,
+     retryConfig:{count:conf.retryConfig.count, interval:conf.retryConfig.interval}});
 }
 
 function <InitiatorClientEP ep> start(){
@@ -67,18 +74,11 @@ function <InitiatorClientEP ep> register(type serviceName){
     ep.client.register(serviceName);
 }
 
-function <InitiatorClientEP ep> getConnector() (InitiatorClient) {
+function <InitiatorClientEP ep> getConnector() returns (InitiatorClient) {
     return new InitiatorClient(ep);
 }
 
 connector InitiatorClient (InitiatorClientEP initiatorEP) {
-
-// connector InitiatorClient (string registerAtURL) {
-//     endpoint<http:Client> initiatorEP {
-//         serviceUri: registerAtURL,
-//         retryConfig:{count:5, interval:5000},
-//         endpointTimeout:180000
-//     }
 
     action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
                                                                             error err) {

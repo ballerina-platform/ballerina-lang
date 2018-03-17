@@ -18,12 +18,45 @@ package ballerina.transactions.coordinator;
 
 import ballerina.net.http;
 
-connector Participant2pcClient (string participantURL) {
-    endpoint<http:HttpClient> participantEP {
-        serviceUri: participantURL,
-        retryConfig:{count:5, interval:5000},
-        endpointTimeout:180000
-    }
+struct Participant2pcClientEP {
+    InitiatorClientConfig conf;
+    http:Client client;
+}
+
+struct Participant2pcClientConfig {
+    string participantURL;
+    int endpointTimeout;
+    struct {
+        int count;
+        int interval;
+    } retryConfig;
+}
+
+function <Participant2pcClientEP ep> init(string name, Participant2pcClientConfig conf){
+    ep.conf = conf;
+    ep.client = {};
+    ep.client.init("httpClient" , 
+    {serviceUri : conf.participantURL, endpointTimeout:conf.endpointTimeout,
+     retryConfig:{count:conf.retryConfig.count, interval:conf.retryConfig.interval}});
+}
+
+function <Participant2pcClientEP ep> start(){
+    ep.client.start();
+}
+
+function <Participant2pcClientEP ep> stop(){
+    ep.client.stop();
+}
+
+function <Participant2pcClientEP ep> register(type serviceName){
+    ep.client.register(serviceName);
+}
+
+function <Participant2pcClientEP ep> getConnector() returns (Participant2pcClient) {
+    return new Participant2pcClient(ep);
+}
+
+connector Participant2pcClient (Participant2pcClientEP participantEP) {
 
     action prepare (string transactionId) returns (string status, error err) {
         http:Request req = {};

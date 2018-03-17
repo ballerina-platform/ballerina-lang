@@ -17,18 +17,21 @@
 import ballerina.io;
 import ballerina.net.http;
 
-@http:configuration {
+endpoint<http:Service> participant1EP {
     port:8889
+}
+
+@http:configuration {
+    endpoints: [participant1EP]
 }
 service<http> participant1 {
 
     @http:resourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:Request req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:8890/participant2", {});
-        }
+    resource member (http:ServerConnector conn, http:Request req) {
+        endpoint<http:HttpClient> endPoint {}
+        endPoint = new http:HttpClient("http://localhost:8890/participant2", {});
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         http:Response clientResponse2;
