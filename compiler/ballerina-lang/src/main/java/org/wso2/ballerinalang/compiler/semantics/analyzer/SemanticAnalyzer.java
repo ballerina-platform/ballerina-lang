@@ -720,12 +720,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkRetryStmtValidity(transactionNode.retryCount);
         }
 
-        if (transactionNode.committedFunction != null) {
-            typeChecker.checkExpr(transactionNode.committedFunction, env, Lists.of(symTable.noType));
+        if (transactionNode.onCommitFunction != null) {
+            typeChecker.checkExpr(transactionNode.onCommitFunction, env, Lists.of(symTable.noType));
         }
 
-        if (transactionNode.abortedFunction != null) {
-            typeChecker.checkExpr(transactionNode.abortedFunction, env, Lists.of(symTable.noType));
+        if (transactionNode.onAbortFunction != null) {
+            typeChecker.checkExpr(transactionNode.onAbortFunction, env, Lists.of(symTable.noType));
         }
     }
 

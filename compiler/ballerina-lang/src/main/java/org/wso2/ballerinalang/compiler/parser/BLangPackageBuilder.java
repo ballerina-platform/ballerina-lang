@@ -1569,12 +1569,12 @@ public class BLangPackageBuilder {
 
     public void addCommittedBlock() {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.committedFunction = (BLangExpression) exprNodeStack.pop();
+        transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
     }
 
     public void addAbortedBlock() {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.abortedFunction = (BLangExpression) exprNodeStack.pop();
+        transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
     }
 
     public void startIfElseNode(DiagnosticPos pos) {

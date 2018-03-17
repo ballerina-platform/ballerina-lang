@@ -1264,25 +1264,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCommittedStatement(BallerinaParser.CommittedStatementContext ctx) { }
+	@Override public void enterOncommitStatement(BallerinaParser.OncommitStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCommittedStatement(BallerinaParser.CommittedStatementContext ctx) { }
+	@Override public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAbortedStatement(BallerinaParser.AbortedStatementContext ctx) { }
+	@Override public void enterOnabortStatement(BallerinaParser.OnabortStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAbortedStatement(BallerinaParser.AbortedStatementContext ctx) { }
+	@Override public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

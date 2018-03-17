@@ -28,7 +28,7 @@ function testTransactionStmtCommitWithCommitHandler () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with committed(commitFunction){
+        transaction with oncommit(commitFunction){
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
@@ -46,7 +46,7 @@ function testTransactionAbortStmtWithAbortHandler () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with aborted(abortFunction){
+        transaction with onabort(abortFunction){
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -89,7 +89,7 @@ function testTransactionAbortStmtWithCommitHandler () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with committed(commitFunction){
+        transaction with oncommit(commitFunction){
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -110,7 +110,7 @@ function testTransactionAbortStmtWithAllHandlers () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), committed(commitFunction), aborted(abortFunction){
+        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {
@@ -131,7 +131,7 @@ function testTransactionCommitStmtWithAllHandlers () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), committed(commitFunction), aborted(abortFunction){
+        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
@@ -149,7 +149,7 @@ function testTransactionThrowWithAllHandlers () (string) {
     a = "";
     a = a +  "start";
     try {
-        transaction with retries(4), committed(commitFunction), aborted(abortFunction){
+        transaction with retries(4), oncommit(commitFunction), onabort(abortFunction){
             a = a + " inTrx";
             int i = 0;
             if (i == 0) {

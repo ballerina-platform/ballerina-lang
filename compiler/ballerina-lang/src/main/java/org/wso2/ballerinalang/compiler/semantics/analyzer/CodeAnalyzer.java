@@ -308,8 +308,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(transactionNode.retryCount);
-        analyzeExpr(transactionNode.committedFunction);
-        analyzeExpr(transactionNode.abortedFunction);
+        analyzeExpr(transactionNode.onCommitFunction);
+        analyzeExpr(transactionNode.onAbortFunction);
     }
 
     @Override

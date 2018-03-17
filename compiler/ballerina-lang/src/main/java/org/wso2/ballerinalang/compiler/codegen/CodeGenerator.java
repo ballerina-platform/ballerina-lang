@@ -2639,15 +2639,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.committedFunction != null) {
+        if (transactionNode.onCommitFunction != null) {
             committedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.committedFunction).symbol);
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onCommitFunction).symbol);
         }
 
         Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.abortedFunction != null) {
+        if (transactionNode.onAbortFunction != null) {
             abortedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.abortedFunction).symbol);
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
         }
 
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);

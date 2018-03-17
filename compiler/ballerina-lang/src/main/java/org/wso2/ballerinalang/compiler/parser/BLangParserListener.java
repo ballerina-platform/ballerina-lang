@@ -1509,7 +1509,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitCommittedStatement(BallerinaParser.CommittedStatementContext ctx) {
+    public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1520,7 +1520,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitAbortedStatement(BallerinaParser.AbortedStatementContext ctx) {
+    public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
