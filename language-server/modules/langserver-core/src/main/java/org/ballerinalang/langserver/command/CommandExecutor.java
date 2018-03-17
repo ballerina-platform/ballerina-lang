@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,11 +47,8 @@ import java.util.stream.Collectors;
  * @since v0.964.0
  */
 public class CommandExecutor {
-    
     private static final String ARG_KEY = "argumentK";
-    
     private static final String ARG_VALUE = "argumentV";
-    
     private static final String RUNTIME_PKG_ALIAS = ".runtime";
 
     /**
@@ -69,7 +67,6 @@ public class CommandExecutor {
             default:
                 // Do Nothing
                 break;
-                    
         }
     }
 
@@ -100,8 +97,9 @@ public class CommandExecutor {
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
                     context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
-                    LSCustomErrorStrategy.class);
-            
+                    LSCustomErrorStrategy.class, false).get(0);
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                    bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
             DiagnosticPos pos;
 
@@ -109,7 +107,7 @@ public class CommandExecutor {
             List<BLangImportPackage> imports = bLangPackage.getImports().stream()
                     .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS))
                     .collect(Collectors.toList());
-            
+
             if (!imports.isEmpty()) {
                 BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
                 pos = lastImport.getPosition();
@@ -118,12 +116,12 @@ public class CommandExecutor {
             } else {
                 pos = null;
             }
-            
+
             int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
             int endLine = pos == null ? 0 : pos.getEndLine() - 1;
-            
+
             String remainingTextToReplace;
-            
+
             if (endCol != -1) {
                 int contentLengthToReplaceStart = fileContent.substring(0,
                         fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
@@ -131,7 +129,7 @@ public class CommandExecutor {
             } else {
                 remainingTextToReplace = fileContent;
             }
-            
+
             String editText = (pos != null ? "\r\n" : "") + "import " + pkgName + ";"
                     + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r") ? "" : "\r\n")
                     + remainingTextToReplace;
@@ -165,7 +163,8 @@ public class CommandExecutor {
         }
 
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false,
+                LSCustomErrorStrategy.class, false).get(0);
 
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
@@ -180,6 +179,20 @@ public class CommandExecutor {
             case UtilSymbolKeys.TRANSFORMER_KEYWORD_KEY:
                 documentationContent = CommandUtil.getTransformerDocumentation(bLangPackage, line);
                 break;
+            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
+                CommandUtil.DocAttachmentInfo attachInfo = CommandUtil.getResourceDocumentation(bLangPackage, line);
+                if (attachInfo != null) {
+                    documentationContent = attachInfo.getDocAttachment();
+                    line = attachInfo.getReplaceStartFrom();
+                }
+                break;
+            case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
+                CommandUtil.DocAttachmentInfo serviceInfo = CommandUtil.getServiceDocumentation(bLangPackage, line);
+                if (serviceInfo != null) {
+                    documentationContent = serviceInfo.getDocAttachment();
+                    line = serviceInfo.getReplaceStartFrom();
+                }
+                break;
             default:
                 break;
         }
@@ -189,8 +202,8 @@ public class CommandExecutor {
                     .getFileContent(Paths.get(URI.create(documentUri)));
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int replaceEndCol = contentComponents[line - 1].length();
-            String replaceText = fileContent.substring(0, fileContent.indexOf(contentComponents[line]))
-                    + documentationContent;
+            String replaceText = String.join(System.lineSeparator(),
+                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line))) + documentationContent;
             Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
 
             applySingleTextEdit(replaceText, range, textDocumentIdentifier,

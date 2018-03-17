@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.DocumentServiceKeys;
 import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.langserver.TextDocumentServiceUtil;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
@@ -42,18 +43,20 @@ public class TextDocumentFormatUtil {
 
     /**
      * Get the AST for the current text document's content.
-     * @param params                Document Formatting parameters
-     * @param documentManager       Workspace document manager instance
-     * @param context               Document formatting context
+     *
+     * @param params          Document Formatting parameters
+     * @param documentManager Workspace document manager instance
+     * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      */
     public static JsonObject getAST(DocumentFormattingParams params, WorkspaceDocumentManager documentManager,
-                              TextDocumentServiceContext context) {
+                                    TextDocumentServiceContext context) {
         String documentUri = params.getTextDocument().getUri();
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class);
+                true, LSCustomErrorStrategy.class, false).get(0);
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -62,7 +65,7 @@ public class TextDocumentFormatUtil {
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
-        
+
         BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream().
                 filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElseGet(null);
         JsonElement modelElement = CommonUtil.generateJSON(compilationUnit, new HashMap<>());

@@ -47,7 +47,7 @@ public class WorkspacePackageRepositoryTest {
     public void setup() {
         documentManager = new WorkspaceDocumentManagerImpl();
         sourceRoot = Paths.get("src/test/resources/workspace").toAbsolutePath().toString();
-        pkg = "org/pkg1";
+        pkg = "org.pkg1";
         packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
     }
 
@@ -61,7 +61,7 @@ public class WorkspacePackageRepositoryTest {
                 "Name of the function should be equal to sayHello.");
 
         // open the file in document manager and set content without the function
-        final Path filePath = Paths.get(sourceRoot, "org", "pkg1", "file1.bal");
+        final Path filePath = Paths.get(sourceRoot, "org.pkg1", "file1.bal");
         documentManager.openFile(filePath, "package org.pkg1;");
         compiler = Compiler.getInstance(prepareCompilerContext());
         compiler.compile(pkg);

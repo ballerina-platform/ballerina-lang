@@ -57,7 +57,7 @@ public class TableLiteralTest {
         resultHelper = BCompileUtil.compile("test-src/types/table/table-test-helper.bal");
     }
 
-    @Test
+    @Test(enabled = false) //Issue #5106
     public void testEmptyTableCreate() {
         BValue[] returns = BRunUtil.invoke(result, "testEmptyTableCreate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
@@ -327,7 +327,7 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testTableAddInvalid");
     }
 
-    @Test(priority = 3)
+    @Test(priority = 3, enabled = false) //Issue #5106
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);

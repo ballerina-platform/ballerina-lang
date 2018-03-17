@@ -64,4 +64,12 @@ public connector ServerConnector (){
     action redirect(Response response, RedirectCode code, string[] locations) (HttpConnectorError) {
         return conn.redirect(response, code, locations);
     }
+    @Description { value:"Sends a upgrade request with custom headers" }
+    @Param {value:"headers: a map of custom headers for handshake."}
+    native action upgradeToWebSocket(map headers);
+
+    @Description { value:"Cancels the handshake" }
+    @Param {value:"statusCode: Status code for closing the connection"}
+    @Param {value:"reason: Reason for closing the connection"}
+    native action cancelUpgradeToWebSocket(int status, string reason);
 }
