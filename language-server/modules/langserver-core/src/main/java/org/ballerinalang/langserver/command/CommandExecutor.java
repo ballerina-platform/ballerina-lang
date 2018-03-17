@@ -214,7 +214,7 @@ public class CommandExecutor {
         }
 
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
 
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                 .getFileContent(Paths.get(URI.create(documentUri)));
