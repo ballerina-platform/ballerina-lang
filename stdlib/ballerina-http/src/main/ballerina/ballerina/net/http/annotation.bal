@@ -11,7 +11,7 @@ package ballerina.net.http;
 @Field {value:"cors: The CORS configurations for the service"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfig {
-    Endpoint[] endpoints;
+    ServiceEndpoint[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
@@ -51,7 +51,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public struct WebSocketServiceConfig {
-    Endpoint[] endpoints;
+    ServiceEndpoint[] endpoints;
     WebSocketEndpoint[] webSocketEndpoints;
     string basePath;
     string[] subProtocols;
