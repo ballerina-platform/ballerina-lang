@@ -38,7 +38,7 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_INDEX;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getClient",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
                 structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
