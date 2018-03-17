@@ -263,7 +263,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
 
-        funcNode.endpoints.forEach(e -> analyzeDef(e, funcEnv));
+        funcNode.endpoints.forEach(e -> {
+            symbolEnter.defineNode(e, funcEnv);
+            analyzeDef(e, funcEnv);
+        });
         analyzeStmt(funcNode.body, funcEnv);
 
         this.processWorkers(funcNode, funcEnv);
@@ -676,7 +679,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
         serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
-        serviceNode.endpoints.forEach(e -> this.analyzeDef(e, serviceEnv));
+        serviceNode.endpoints.forEach(e -> {
+            symbolEnter.defineNode(e, serviceEnv);
+            analyzeDef(e, serviceEnv);
+        });
         this.analyzeDef(serviceNode.initFunction, serviceEnv);
         serviceNode.resources.forEach(r -> this.analyzeDef(r, serviceEnv));
     }
@@ -733,7 +739,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         defineResourceEndpoint(resourceNode, resourceEnv);
         resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
-        resourceNode.endpoints.forEach(e -> analyzeDef(e, resourceEnv));
+        resourceNode.endpoints.forEach(e -> {
+            symbolEnter.defineNode(e, resourceEnv);
+            analyzeDef(e, resourceEnv);
+        });
         analyzeStmt(resourceNode.body, resourceEnv);
         this.processWorkers(resourceNode, resourceEnv);
     }
