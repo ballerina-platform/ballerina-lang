@@ -40,7 +40,8 @@ public class TypeTags {
     public static final int STREAMLET = SERVICE + 1;
     public static final int ENUM = STREAMLET + 1;
     public static final int ARRAY = ENUM + 1;
-    public static final int NULL = ARRAY + 1;
+    public static final int UNION = ARRAY + 1;
+    public static final int NULL = UNION + 1;
     public static final int PACKAGE = NULL + 1;
     public static final int INVOKABLE = PACKAGE + 1;
     public static final int NONE = INVOKABLE + 1;

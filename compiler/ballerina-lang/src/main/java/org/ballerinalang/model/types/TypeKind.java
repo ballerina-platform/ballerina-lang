@@ -66,6 +66,7 @@ public enum TypeKind {
     FUNCTION("function"),
     ANNOTATION("annotation"),
     ARRAY("[]"),
+    UNION("|"),
     VOID(""),
     NULL("null"),
     NONE(""),
