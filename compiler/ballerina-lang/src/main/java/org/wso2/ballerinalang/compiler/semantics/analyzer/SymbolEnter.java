@@ -510,12 +510,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         // assign the type to var type node
         if (varNode.type == null) {
-            BType varType = symResolver.resolveTypeNode(varNode.typeNode, env);
-            varNode.type = varType;
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
 
         Name varName = names.fromIdNode(varNode.name);
-        if (varName == Names.EMPTY) {
+        if (varName == Names.EMPTY || varName == Names.IGNORE) {
             // This is a variable created for a return type
             // e.g. function foo() (int);
             return;

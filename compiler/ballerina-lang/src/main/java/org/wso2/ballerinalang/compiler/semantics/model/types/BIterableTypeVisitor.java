@@ -97,6 +97,10 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return visit((BType) type, op);
     }
 
+    @Override
+    public List<BType> visit(BFutureType type, Operation op) {
+        return visit((BType) type, op);
+    }
 
     /* Util functions */
 

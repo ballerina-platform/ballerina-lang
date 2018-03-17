@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
@@ -564,7 +565,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitTypeName(BallerinaParser.TypeNameContext ctx) {
+    public void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx),
+                (ctx.getChildCount() - 1) / 2);
+    }
+
+    @Override
+    public void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addUnionType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -572,11 +591,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.referenceTypeName() != null || ctx.valueTypeName() != null) {
             return;
         }
-        if (ctx.typeName() != null) {
-            // This ia an array Type.
-            this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
-            return;
-        }
+
         // This is 'any' type
         this.pkgBuilder.addValueType(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
     }
@@ -590,7 +605,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.builtInReferenceTypeName() != null || ctx.valueTypeName() != null) {
             return;
         }
-        if (ctx.typeName() != null) {
+        if (ctx.simpleTypeName() != null) {
             // This is an array Type.
             this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
             return;
@@ -647,6 +662,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String typeName = ctx.getChild(0).getText();
         if (ctx.nameReference() != null) {
             this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
+        } else if (ctx.typeName() != null && typeName.equals(TypeKind.FUTURE.typeName())) { 
+            // for the moment, only future is supported, this should later support map as well 
+            this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);
         }
@@ -951,6 +969,39 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterMatchStatement(BallerinaParser.MatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createMatchNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitMatchStatement(BallerinaParser.MatchStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.completeMatchNode(getWS(ctx));
+    }
+
+    @Override
+    public void enterMatchPatternClause(BallerinaParser.MatchPatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startMatchStmtPattern();
+    }
+
+    @Override
+    public void exitMatchPatternClause(BallerinaParser.MatchPatternClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addMatchStmtPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+    }
+
+    @Override
     public void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1246,7 +1297,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocationArgList() != null;
-        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable, ctx.ASYNC() != null);
     }
 
     @Override
@@ -2458,6 +2509,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String contentText = ctx.deprecatedText() != null ? ctx.deprecatedText().getText() : "";
         this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override public void exitAwaitExpression(BallerinaParser.AwaitExpressionContext ctx) { 
+        this.pkgBuilder.markLastExpressionAsAwait();
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
