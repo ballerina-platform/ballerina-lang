@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
@@ -61,19 +62,15 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     private StreamObserver<Message> requestSender = null;
     private Descriptors.Descriptor requestType = null;
     
-    public DefaultStreamObserver(Context context, String serviceName) throws
+    public DefaultStreamObserver(Context context, Service callbackService) throws
             GrpcClientException {
-        // TODO: 3/10/18 Fix
-//        BallerinaGrpcServerConnector grpcServerConnector = (BallerinaGrpcServerConnector) ConnectorUtils.
-//                getBallerinaServerConnector(context, MessageConstants.PROTOCOL_PACKAGE_GRPC);
-/*        Service listenerService = null;
-        if (listenerService == null) {
+        if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
         }
 
-        for (Resource resource : listenerService.getResources()) {
+        for (Resource resource : callbackService.getResources()) {
             resourceMap.put(resource.getName(), resource);
-        }*/
+        }
     }
     
     public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
@@ -94,14 +91,14 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         return requestType;
     }
     
-    private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors
+/*    private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors
             .Descriptor inputType) {
-        BStruct connection = ConnectorUtils.createStruct(resource,
+        BStruct connection = BLangConnectorSPIUtil.createBStruct(MessageUtils.getProgramFile(resource),
                 MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_CONNECTION);
         connection.addNativeData(MessageConstants.RESPONDER, requestSender);
         connection.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, inputType);
         return connection;
-    }
+    }*/
     
     @Override
     public void onNext(Message value) {
@@ -113,10 +110,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(requestSender, resource, requestType);
+/*        signatureParams[0] = getConnectionParameter(requestSender, resource, requestType);*/
         BValue requestParam = getRequestParameter(resource, value);
         if (requestParam != null) {
-            signatureParams[1] = requestParam;
+            signatureParams[0] = requestParam;
         }
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(resource, callback, null, signatureParams);
@@ -132,16 +129,16 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(requestSender, onError, requestType);
-        if (paramDetails.size() != 2) {
-            String message = "Error in onError resource definition. It must have two input params, but have "
+/*        signatureParams[0] = getConnectionParameter(requestSender, onError, requestType);*/
+        if (paramDetails.size() != 1) {
+            String message = "Error in onError resource definition. It must have only error params, but have "
                     + paramDetails.size();
             LOG.error(message);
             throw new RuntimeException(message);
         }
         BType errorType = paramDetails.get(1).getVarType();
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
-        signatureParams[1] = errorStruct;
+        signatureParams[0] = errorStruct;
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(onError, callback, null, signatureParams);
     }
@@ -156,20 +153,20 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);
+/*        signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);*/
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
         Executor.submit(onCompleted, callback, null, signatureParams);
     }
     
     private BValue getRequestParameter(Resource resource, Message requestMessage) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
+        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 1) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
         
-        if (resource.getParamDetails().size() == 2) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
+        if (resource.getParamDetails().size() == 1) {
+            BType requestType = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_INDEX)
                     .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX).getVarName();
+            String requestName = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_INDEX).getVarName();
             return generateRequestStruct(requestMessage, requestName, requestType, resource);
         } else {
             return null;

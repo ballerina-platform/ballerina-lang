@@ -21,6 +21,7 @@ package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,6 +44,8 @@ public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues();
+        BStruct clientEndpoint = (BStruct) context.getRefArgument(0);
+        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData("client");
+        context.setReturnValues(clientConnection);
     }
 }

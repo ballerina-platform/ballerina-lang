@@ -52,6 +52,7 @@ public class MessageConstants {
     
     // Response Message index
     public static final int REQUEST_MESSAGE_INDEX = 1;
+    public static final int CALLBACK_MESSAGE_INDEX = 0;
     
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
     

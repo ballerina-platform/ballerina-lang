@@ -19,8 +19,13 @@ package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -87,15 +92,17 @@ public class NonBlockingExecute extends AbstractExecute {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            String listenerService = context.getStringArgument(1);
+            BTypeValue serviceType = (BTypeValue) context.getRefArgument(2);
+            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
+                    (serviceType));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, listenerService),
+                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, callbackService),
                             methodName);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
-                            listenerService), methodName);
+                            callbackService), methodName);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -110,5 +117,12 @@ public class NonBlockingExecute extends AbstractExecute {
         }
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
                 "type not supported");
+    }
+
+    private Value getTypeField(BTypeValue refField) {
+        if (refField == null) {
+            return null;
+        }
+        return ValueImpl.createValue(refField);
     }
 }

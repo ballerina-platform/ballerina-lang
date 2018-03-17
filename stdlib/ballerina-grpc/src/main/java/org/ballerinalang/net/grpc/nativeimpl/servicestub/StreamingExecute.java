@@ -20,8 +20,13 @@ package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 import io.grpc.MethodDescriptor;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,6 +38,7 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
 
 /**
@@ -84,10 +90,12 @@ public class StreamingExecute extends AbstractExecute {
         }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            String listenerService = context.getStringArgument(1);
+            BTypeValue serviceType = (BTypeValue) context.getRefArgument(1);
+            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
+                    (serviceType));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, listenerService);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, callbackService);
                 StreamObserver<Message> requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeClientStreaming
@@ -106,10 +114,19 @@ public class StreamingExecute extends AbstractExecute {
                 connStruct.addNativeData(MessageConstants.RESPONDER, requestSender);
                 connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                context.setReturnValues(connStruct);
+                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
+                clientEndpoint.addNativeData("client", connStruct);
+                context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
             }
         }
+    }
+
+    private Value getTypeField(BTypeValue refField) {
+        if (refField == null) {
+            return null;
+        }
+        return ValueImpl.createValue(refField);
     }
 }
