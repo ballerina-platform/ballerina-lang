@@ -65,11 +65,13 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
 public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
-    string uri = config.serviceUri;
-    if (uri.hasSuffix("/")) {
-        int lastIndex = uri.length() - 1;
-        uri = uri.subString(0, lastIndex);
-        config.serviceUri = uri;
+    foreach target in config.targets {
+        string uri = target.uri;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+            target.uri = uri;
+        }
     }
     ep.config = config;
     ep.initEndpoint();
