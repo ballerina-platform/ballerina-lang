@@ -2638,6 +2638,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
+        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.committedFunction != null) {
+            committedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.committedFunction).symbol);
+        }
+
+        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.abortedFunction != null) {
+            abortedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.abortedFunction).symbol);
+        }
+
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
@@ -2645,7 +2657,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex);
+        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
+                abortedFuncRegIndex);
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;

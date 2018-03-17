@@ -719,6 +719,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
             checkRetryStmtValidity(transactionNode.retryCount);
         }
+
+        if (transactionNode.committedFunction != null) {
+            typeChecker.checkExpr(transactionNode.committedFunction, env, Lists.of(symTable.noType));
+        }
+
+        if (transactionNode.abortedFunction != null) {
+            typeChecker.checkExpr(transactionNode.abortedFunction, env, Lists.of(symTable.noType));
+        }
     }
 
     @Override

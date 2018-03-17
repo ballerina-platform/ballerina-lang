@@ -31,16 +31,22 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public BLangBlockStmt transactionBody;
     public BLangBlockStmt failedBody;
     public BLangExpression retryCount;
+    public BLangExpression committedFunction;
+    public BLangExpression abortedFunction;
 
     public BLangTransaction() {
     }
 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt failedBody,
-                            BLangExpression retryCount) {
+                            BLangExpression retryCount,
+                            BLangExpression committedFunction,
+                            BLangExpression abortedFunction) {
         this.transactionBody = transactionBody;
         this.failedBody = failedBody;
         this.retryCount = retryCount;
+        this.committedFunction = committedFunction;
+        this.abortedFunction = abortedFunction;
     }
 
     @Override
@@ -54,8 +60,18 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public ExpressionNode getCondition() {
+    public ExpressionNode getRetryCount() {
         return retryCount;
+    }
+
+    @Override
+    public ExpressionNode getCommittedFunction() {
+        return committedFunction;
+    }
+
+    @Override
+    public ExpressionNode getAbortedFunction() {
+        return abortedFunction;
     }
 
     @Override
@@ -69,8 +85,18 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public void setRetryCount(ExpressionNode condition) {
-        this.retryCount = (BLangExpression) condition;
+    public void setRetryCount(ExpressionNode retryCount) {
+        this.retryCount = (BLangExpression) retryCount;
+    }
+
+    @Override
+    public void setCommittedFunction(ExpressionNode committedFunction) {
+        this.committedFunction = (BLangExpression) committedFunction;
+    }
+
+    @Override
+    public void setAbortedFunction(ExpressionNode abortedFunction) {
+        this.abortedFunction = (BLangExpression) abortedFunction;
     }
 
     @Override
@@ -87,6 +113,8 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
                 + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
-                + (retryCount != null ? " retry (" + retryCount + ")" : "");
+                + (retryCount != null ? " retry (" + retryCount + ")" : "")
+                + (committedFunction != null ? " committed (" + committedFunction + ")" : "")
+                + (abortedFunction != null ? " aborted (" + abortedFunction + ")" : "");
     }
 }

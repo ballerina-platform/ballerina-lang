@@ -27,12 +27,20 @@ public interface TransactionNode extends StatementNode {
 
     BlockNode getFailedBody();
 
-    ExpressionNode getCondition();
+    ExpressionNode getRetryCount();
+
+    ExpressionNode getCommittedFunction();
+
+    ExpressionNode getAbortedFunction();
 
     void setTransactionBody(BlockNode body);
 
     void setFailedBody(BlockNode body);
 
-    void setRetryCount(ExpressionNode condition);
+    void setRetryCount(ExpressionNode retryCount);
+
+    void setCommittedFunction(ExpressionNode committedFunction);
+
+    void setAbortedFunction(ExpressionNode abortedFunction);
 
 }

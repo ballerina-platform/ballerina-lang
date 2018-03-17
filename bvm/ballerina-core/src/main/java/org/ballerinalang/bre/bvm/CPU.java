@@ -432,7 +432,9 @@ public class CPU {
                 case InstructionCodes.TR_BEGIN:
                     i = operands[0];
                     j = operands[1];
-                    beginTransaction(ctx, i, j);
+                    int k = operands[2];
+                    int h = operands[3];
+                    beginTransaction(ctx, i, j, k, h);
                     break;
                 case InstructionCodes.TR_END:
                     i = operands[0];
@@ -2629,10 +2631,13 @@ public class CPU {
         sf.refRegs[i] = streamlet;
     }
 
-    private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex) {
+    private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
+            int committedFuncIndex, int abortedFuncIndex) {
+        //If global tx enabled, it is managed via transaction
+        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.workerLocal.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
@@ -2642,6 +2647,21 @@ public class CPU {
                 return;
             }
         }
+
+        //Register committed function handler if exists.
+        if (committedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
+            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry);
+            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
+        }
+
+        //Register aborted function handler if exists.
+        if (abortedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
+            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry);
+            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
+        }
+
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         boolean isInitiator = true;
         if (localTransactionInfo == null) {

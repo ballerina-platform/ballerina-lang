@@ -1411,7 +1411,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_RETRY:
-                case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
@@ -1580,6 +1579,7 @@ public class ProgramFileReader {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
+                case InstructionCodes.TR_BEGIN:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

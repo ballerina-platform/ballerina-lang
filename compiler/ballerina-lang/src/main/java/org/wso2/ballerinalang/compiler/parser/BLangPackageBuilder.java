@@ -1567,6 +1567,16 @@ public class BLangPackageBuilder {
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
     }
 
+    public void addCommittedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.committedFunction = (BLangExpression) exprNodeStack.pop();
+    }
+
+    public void addAbortedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.abortedFunction = (BLangExpression) exprNodeStack.pop();
+    }
+
     public void startIfElseNode(DiagnosticPos pos) {
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
