@@ -115,10 +115,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
-        if (sslConfig != null) {
-            return setSslConfig(sslConfig, listenerConfiguration);
-        }
-
         // Set Request validation limits.
         if (requestLimits != null) {
             setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
@@ -128,6 +124,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (httpVersion != null) {
             listenerConfiguration.setVersion(httpVersion);
         }
+
+        if (sslConfig != null) {
+            return setSslConfig(sslConfig, listenerConfiguration);
+        }
+
         return listenerConfiguration;
     }
 
