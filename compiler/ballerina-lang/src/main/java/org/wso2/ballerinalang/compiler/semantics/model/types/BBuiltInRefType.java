@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FUTURE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STREAM;
@@ -48,6 +49,7 @@ public class BBuiltInRefType extends BType implements ReferenceType {
             case STREAM:
             case STREAMLET:
             case MAP:
+            case FUTURE:
                 return TypeDescriptor.SIG_REFTYPE + getKind().typeName() + ";";
             case ANY:
                 return TypeDescriptor.SIG_ANY;
@@ -78,6 +80,8 @@ public class BBuiltInRefType extends BType implements ReferenceType {
                 return TypeKind.ANY;
             case MAP:
                 return TypeKind.MAP;
+            case FUTURE:
+                return TypeKind.FUTURE;
             default:
                 return TypeKind.OTHER;
         }

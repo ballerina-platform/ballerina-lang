@@ -20,6 +20,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -38,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeofExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -117,6 +120,18 @@ class ASTBuilderUtil {
         return ifNode;
     }
 
+    static BLangIf createIfElseStmt(DiagnosticPos pos,
+                                    BLangExpression conditionExpr,
+                                    BLangBlockStmt thenBody,
+                                    BLangStatement elseStmt) {
+        final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        ifNode.pos = pos;
+        ifNode.expr = conditionExpr;
+        ifNode.body = thenBody;
+        ifNode.elseStmt = elseStmt;
+        return ifNode;
+    }
+
     static BLangForeach createForeach(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
@@ -170,9 +185,29 @@ class ASTBuilderUtil {
     }
 
     static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos) {
-        final BLangUnaryExpr typeOfExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-        typeOfExpr.pos = pos;
-        return typeOfExpr;
+        return createUnaryExpr(pos, null, null, null, null);
+    }
+
+    static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos,
+                                          BLangExpression expr,
+                                          BType type,
+                                          OperatorKind kind,
+                                          BOperatorSymbol symbol) {
+        final BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        unaryExpr.pos = pos;
+        unaryExpr.expr = expr;
+        unaryExpr.type = type;
+        unaryExpr.operator = kind;
+        unaryExpr.opSymbol = symbol;
+        return unaryExpr;
+    }
+
+    static BLangTypeofExpr createTypeofExpr(DiagnosticPos pos, BType type, BType resolvedType) {
+        final BLangTypeofExpr typeofExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
+        typeofExpr.pos = pos;
+        typeofExpr.type = type;
+        typeofExpr.resolvedType = resolvedType;
+        return typeofExpr;
     }
 
     static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
@@ -252,21 +287,54 @@ class ASTBuilderUtil {
         return varRefs;
     }
 
-    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BVarSymbol variable) {
+    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BVarSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
-        varRef.variableName = createIdentifier(pos, variable.name.value);
-        varRef.symbol = variable;
-        varRef.type = variable.type;
+        varRef.variableName = createIdentifier(pos, varSymbol.name.value);
+        varRef.symbol = varSymbol;
+        varRef.type = varSymbol.type;
         return varRef;
     }
 
-    static BLangVariable createVariable(DiagnosticPos pos, String name, BType type) {
+    static BLangVariable createVariable(DiagnosticPos pos,
+                                        String name,
+                                        BType type,
+                                        BLangExpression expr,
+                                        BVarSymbol varSymbol) {
         final BLangVariable varNode = (BLangVariable) TreeBuilder.createVariableNode();
-        varNode.setName(createIdentifier(pos, name));
-        varNode.type = type;
         varNode.pos = pos;
+        varNode.name = createIdentifier(pos, name);
+        varNode.type = type;
+        varNode.expr = expr;
+        varNode.symbol = varSymbol;
         return varNode;
+    }
+
+    static BLangVariable createVariable(DiagnosticPos pos, String name, BType type) {
+        return createVariable(pos, name, type, null, null);
+    }
+
+    static BLangVariableDef createVariableDef(DiagnosticPos pos, BLangVariable variable) {
+        final BLangVariableDef variableDef = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.var = variable;
+        return variableDef;
+    }
+
+    static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
+                                            BLangExpression lhsExpr,
+                                            BLangExpression rhsExpr,
+                                            BType type,
+                                            OperatorKind opKind,
+                                            BOperatorSymbol symbol) {
+        final BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpr.pos = pos;
+        binaryExpr.lhsExpr = lhsExpr;
+        binaryExpr.rhsExpr = rhsExpr;
+        binaryExpr.type = type;
+        binaryExpr.opKind = opKind;
+        binaryExpr.opSymbol = symbol;
+        return binaryExpr;
     }
 
     static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {

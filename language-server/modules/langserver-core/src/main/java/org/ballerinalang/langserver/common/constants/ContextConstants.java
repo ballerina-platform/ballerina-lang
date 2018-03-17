@@ -31,4 +31,9 @@ public class ContextConstants {
     public static final String RETURN = "Return";
     public static final String FIELD = "Field";
     public static final String COMPLETION_ERROR_STRATEGY = "CompletionCustomErrorStrategy";
+    public static final String DOC_FIELD = "FIELD";
+    public static final String DOC_PARAM = "PARAM";
+    public static final String DOC_RECEIVER = "RECEIVER";
+    public static final String DOC_RETURN = "RETURN";
+    public static final String DOC_VARIABLE = "VARIABLE";
 }

@@ -75,14 +75,14 @@ public class InvalidSyntaxParserTest {
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 15);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 8, 15);
     }
 
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 10);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 3, 10);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 3, 10);
     }
 
     /**
@@ -93,7 +93,7 @@ public class InvalidSyntaxParserTest {
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', Identifier}", 8, 15);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 8, 15);
     }
 
     @Test
