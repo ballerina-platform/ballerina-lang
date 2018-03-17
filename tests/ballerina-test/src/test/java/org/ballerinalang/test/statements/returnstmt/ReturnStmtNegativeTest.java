@@ -32,7 +32,7 @@ public class ReturnStmtNegativeTest {
     public void testReturnInResource() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "return value is not expected", 7, 9);
+        BAssertUtil.validateError(result, 0, "return value is not expected", 3, 9);
     }
 
     @Test(description = "Test not enough arguments to return")

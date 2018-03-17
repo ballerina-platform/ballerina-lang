@@ -32,33 +32,6 @@ struct Person {
     string name;
 }
 
-function testConnectorNull () (TestConnector, TestConnector, int) {
-    TestConnector c1;
-    TestConnector c2 = null;
-    int a = 0;
-    if (c2 == null) {
-        a = 8;
-    }
-    return c1, c2, a;
-}
-
-// function testConnectorNotNull () (int) {
-//     TestConnector c1 = create TestConnector();
-//     int a = 1;
-//     if (c1 != null) {
-//         a = 8;
-//     }
-//     return a;
-// }
-
-connector TestConnector () {
-    string name;
-
-    action testAction () (string) {
-        return name;
-    }
-}
-
 function testArrayNull () (string[], Person[], int) {
     string[] s;
     Person[] p;
@@ -114,11 +87,6 @@ function testFunctionCallWithNull () (any) {
 function foo (xml x) (xml) {
     return x;
 }
-
-// function testActionInNullConenctor () {
-//     endpoint<TestConnector> testConnector {}
-//     string result = testConnector.testAction();
-// }
 
 function testNullLiteralComparison () (boolean) {
     return (null == null);
