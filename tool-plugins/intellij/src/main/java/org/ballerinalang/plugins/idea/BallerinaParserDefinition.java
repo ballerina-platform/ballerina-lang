@@ -37,7 +37,6 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 import org.ballerinalang.plugins.idea.grammar.BallerinaParser;
-import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
@@ -52,8 +51,6 @@ import org.ballerinalang.plugins.idea.psi.CatchClauseNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
@@ -136,7 +133,6 @@ import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ABORT;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ACTION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ALL;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ANNOTATION;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.AS;
@@ -147,7 +143,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.BooleanLiter
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CATCH;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COLON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.COMMA;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONNECTOR;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CONST;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DELETE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ELSE;
@@ -260,7 +255,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ABORT, ACTION, ALL, ANNOTATION, AS, BIND, BREAK, BY, CATCH, CONNECTOR, CONST, DELETE, ELSE,
+            ABORT, ALL, ANNOTATION, AS, BIND, BREAK, BY, CATCH, CONST, DELETE, ELSE,
             ENDPOINT, ENUM, FAILED, FINALLY, FOLLOWED, FOREACH, FOR, FORK, FROM, FUNCTION, GROUP, HAVING, IF, IMPORT,
             IN, INSERT, INTO, JOIN, LENGTHOF, LOCK, NATIVE, NEW, NEXT, ON, ORDER, PACKAGE, PARAMETER, PRIVATE, PUBLIC,
             QUERY, RESOURCE, RETRIES, RETURN, RETURNS, SELECT, SERVICE, SET, SOME, STREAMLET, STRUCT, THROW, TIMEOUT,
@@ -346,12 +341,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new VariableDefinitionNode(node);
             case BallerinaParser.RULE_parameter:
                 return new ParameterNode(node);
-            case BallerinaParser.RULE_actionDefinition:
-                return new ActionDefinitionNode(node);
-            case BallerinaParser.RULE_connectorBody:
-                return new ConnectorBodyNode(node);
-            case BallerinaParser.RULE_connectorDefinition:
-                return new ConnectorDefinitionNode(node);
             case BallerinaParser.RULE_resourceDefinition:
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_packageName:

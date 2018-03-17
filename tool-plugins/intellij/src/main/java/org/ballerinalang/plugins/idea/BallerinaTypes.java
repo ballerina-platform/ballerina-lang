@@ -24,7 +24,6 @@ import org.ballerinalang.plugins.idea.grammar.BallerinaLexer;
 
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_actionDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_annotationAttachment;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_anyIdentifierName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_attachmentPoint;
@@ -32,8 +31,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callab
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClauses;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_codeBlockBody;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorBody;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_connectorDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseIfClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumFieldList;
@@ -138,15 +135,12 @@ public class BallerinaTypes {
     public static final RuleIElementType INTEGER_LITERAL = ruleIElementTypes.get(RULE_integerLiteral);
 
     public static final RuleIElementType FUNCTION_BODY = ruleIElementTypes.get(RULE_callableUnitBody);
-    public static final RuleIElementType CONNECTOR_BODY = ruleIElementTypes.get(RULE_connectorBody);
     public static final RuleIElementType SERVICE_BODY = ruleIElementTypes.get(RULE_serviceBody);
     public static final RuleIElementType STRUCT_BODY = ruleIElementTypes.get(RULE_structBody);
 
     public static final RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(RULE_functionDefinition);
     public static final RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(RULE_serviceDefinition);
     public static final RuleIElementType RESOURCE_DEFINITION = ruleIElementTypes.get(RULE_resourceDefinition);
-    public static final RuleIElementType CONNECTOR_DEFINITION = ruleIElementTypes.get(RULE_connectorDefinition);
-    public static final RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(RULE_actionDefinition);
     public static final RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(RULE_structDefinition);
     public static final RuleIElementType PRIVATE_STRUCT_BODY = ruleIElementTypes.get(RULE_privateStructBody);
     public static final RuleIElementType FIELD_DEFINITION = ruleIElementTypes.get(RULE_fieldDefinition);
@@ -202,7 +196,6 @@ public class BallerinaTypes {
 
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
-    public static final TokenIElementType ACTION = tokenIElementTypes.get(BallerinaLexer.ACTION);
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
     public static final TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.TYPE_ANY);
     public static final TokenIElementType AS = tokenIElementTypes.get(BallerinaLexer.AS);
@@ -210,7 +203,6 @@ public class BallerinaTypes {
     public static final TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
     public static final TokenIElementType BY = tokenIElementTypes.get(BallerinaLexer.BY);
     public static final TokenIElementType CATCH = tokenIElementTypes.get(BallerinaLexer.CATCH);
-    public static final TokenIElementType CONNECTOR = tokenIElementTypes.get(BallerinaLexer.CONNECTOR);
     public static final TokenIElementType CONST = tokenIElementTypes.get(BallerinaLexer.CONST);
     public static final TokenIElementType DELETE = tokenIElementTypes.get(BallerinaLexer.DELETE);
     public static final TokenIElementType ELSE = tokenIElementTypes.get(BallerinaLexer.ELSE);

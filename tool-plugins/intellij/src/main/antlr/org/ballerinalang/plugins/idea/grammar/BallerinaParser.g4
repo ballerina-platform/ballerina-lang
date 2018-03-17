@@ -42,7 +42,6 @@ packageAlias
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   connectorDefinition
     |   structDefinition
     |   streamletDefinition
     |   enumDefinition
@@ -62,7 +61,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 callableUnitBody
@@ -79,18 +78,6 @@ lambdaFunction
     :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
-connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier (LT codeBlockParameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS LEFT_BRACE connectorBody RIGHT_BRACE
-    ;
-
-connectorBody
-    :  endpointDeclaration* variableDefinitionStatement* (annotationAttachment* documentationAttachment? deprecatedAttachment? actionDefinition)*
-    ;
-
-actionDefinition
-    :   NATIVE ACTION Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   ACTION Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
-    ;
 
 structDefinition
     :   (PUBLIC)? STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
@@ -117,7 +104,7 @@ enumFieldList
     ;
 
 enumField
-    :   Identifier
+    : Identifier
     ;
 
 globalVariableDefinition
@@ -131,8 +118,6 @@ transformerDefinition
 attachmentPoint
      : SERVICE
      | RESOURCE
-     | CONNECTOR
-     | ACTION
      | FUNCTION
      | STRUCT
      | STREAMLET
@@ -161,11 +146,16 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
     ;
 
 endpointType
     :   nameReference
+    ;
+
+endpointInitlization
+    :   recordLiteral
+    |   ASSIGN variableReference
     ;
 
 typeName
@@ -338,8 +328,7 @@ foreachStatement
     ;
 
 intRangeExpression
-    : expression RANGE expression
-    | (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
+    :   (LEFT_BRACKET|LEFT_PARENTHESIS) expression RANGE expression? (RIGHT_BRACKET|RIGHT_PARENTHESIS)
     ;
 
 whileStatement

@@ -62,9 +62,9 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
         }
     }
 
-    public void testLocalActionWithNoParam() {
-        doTest(NO_PARAMETER);
-    }
+//    public void testLocalActionWithNoParam() {
+//        doTest(NO_PARAMETER);
+//    }
 
 //    public void testLocalActionWithSingleParam() {
 //        doTest("<html><b>string a</b></html>");

@@ -673,17 +673,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConnectorInvocationInDifferentPackage() {
-        myFixture.addFileToProject("org/test/con.bal", "public connector TestConnector(){ action get(){} action post" +
-                "(){}}");
-        doTest("import org.test; function A(){ test:TestConnector.<caret> }", "get", "post");
-    }
-
-    public void testConnectorInvocationInSamePackage() {
-        doTest("function A(){ TestConnector.<caret> } connector TestConnector(){ action get(){} action post(){}}",
-                "get", "post");
-    }
-
     public void testTypesAfterRBRACE() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.add("else");
@@ -1013,16 +1002,16 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     //                '@', "TEST");
     //    }
 
-    public void testConnectorBody() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("C");
-        expectedLookups.add("action");
-        doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
+//    public void testConnectorBody() {
+//        List<String> expectedLookups = new LinkedList<>();
+//        expectedLookups.addAll(DATA_TYPES);
+//        expectedLookups.addAll(OTHER_TYPES);
+//        expectedLookups.addAll(XMLNS_TYPE);
+//        expectedLookups.addAll(REFERENCE_TYPES);
+//        expectedLookups.add("C");
+//        expectedLookups.add("action");
+//        doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+//    }
 
     //    public void testConnectorBodyAfterAnnotation() {
     //        doTest("connector C(){ @test:test{} <caret> }", "action", "C");
@@ -1050,11 +1039,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         doTest("import org.test; connector C(){ test:TEST <caret> }");
     }
 
-    public void testConnectorBodyVariableInitialization() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
-        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof",
-                "typeof", "true", "false", "null");
-    }
+//    public void testConnectorBodyVariableInitialization() {
+//        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");
+//        doTest("import org.test; connector C(){ test:TEST t = <caret> }", "create", "C", "test", "lengthof",
+//                "typeof", "true", "false", "null");
+//    }
 
     //    public void testConnectorBodyVariableInitializationCreateKeyword() {
     //        myFixture.addFileToProject("org/test/file.bal", "package org.test; public connector TEST () {}");

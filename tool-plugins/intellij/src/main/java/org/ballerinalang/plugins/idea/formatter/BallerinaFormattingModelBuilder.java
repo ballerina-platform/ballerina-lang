@@ -30,8 +30,6 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ADD;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ALL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION;
@@ -48,8 +46,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.BY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
@@ -188,7 +184,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ADD).spaceIf(true)
                 .around(SUB).spaceIf(true)
                 .before(ALL).spaceIf(false)
-                .after(ACTION).spaceIf(true)
                 .after(ALL).spaceIf(true)
                 .before(ANY).spaceIf(false)
                 .after(ANY).spaceIf(true)
@@ -199,7 +194,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FAILED).spaceIf(true)
                 .around(FINALLY).spaceIf(true)
                 .around(GROUP).spaceIf(true)
-                .after(CONNECTOR).spaceIf(true)
                 .after(CONST).spaceIf(true)
                 .around(DELETE).spaceIf(true)
                 .around(ELSE).spaceIf(true)
@@ -311,8 +305,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .withinPairInside(IDENTIFIER, LBRACE, FUNCTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, SERVICE_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, RESOURCE_DEFINITION).spaceIf(true)
-                .withinPairInside(IDENTIFIER, LPAREN, CONNECTOR_DEFINITION).spaceIf(true)
-                .withinPairInside(IDENTIFIER, LPAREN, ACTION_DEFINITION).spaceIf(true)
                 .before(INVOCATION).spaceIf(false)
                 .afterInside(IDENTIFIER, INVOCATION).spaceIf(false)
                 .around(ANY_IDENTIFIER_NAME).spaceIf(false)

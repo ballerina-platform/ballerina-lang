@@ -38,9 +38,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
-    public void testSingleLevelFieldAccessInConnector2() {
-        doFileTest();
-    }
+//    public void testSingleLevelFieldAccessInConnector2() {
+//        doFileTest();
+//    }
 
     public void testSingleLevelFieldAccessInFunction1() {
         doFileTest();
@@ -62,9 +62,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
-    public void testMultiLevelFieldAccessInConnector2() {
-        doFileTest();
-    }
+//    public void testMultiLevelFieldAccessInConnector2() {
+//        doFileTest();
+//    }
 
     public void testMultiLevelFieldAccessInFunction1() {
         doFileTest();
@@ -86,9 +86,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest(struct);
     }
 
-    public void testSingleLevelFieldInDifferentFileAccessInConnector2() throws IOException {
-        doFileTest(struct);
-    }
+//    public void testSingleLevelFieldInDifferentFileAccessInConnector2() throws IOException {
+//        doFileTest(struct);
+//    }
 
     public void testSingleLevelFieldInDifferentFileAccessInFunction1() throws IOException {
         doFileTest(struct);
@@ -110,9 +110,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest(struct, "org/test/test.bal");
     }
 
-    public void testSingleLevelFieldInDifferentPackageAccessInConnector2() throws IOException {
-        doFileTest(struct, "org/test/test.bal");
-    }
+//    public void testSingleLevelFieldInDifferentPackageAccessInConnector2() throws IOException {
+//        doFileTest(struct, "org/test/test.bal");
+//    }
 
     public void testSingleLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
         doFileTest(struct, "org/test/test.bal");
@@ -134,9 +134,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest(struct2);
     }
 
-    public void testMultiLevelFieldInDifferentFileAccessInConnector2() throws IOException {
-        doFileTest(struct2);
-    }
+//    public void testMultiLevelFieldInDifferentFileAccessInConnector2() throws IOException {
+//        doFileTest(struct2);
+//    }
 
     public void testMultiLevelFieldInDifferentFileAccessInFunction1() throws IOException {
         doFileTest(struct2);
@@ -158,9 +158,9 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
         doFileTest(struct2, "org/test/test.bal");
     }
 
-    public void testMultiLevelFieldInDifferentPackageAccessInConnector2() throws IOException {
-        doFileTest(struct2, "org/test/test.bal");
-    }
+//    public void testMultiLevelFieldInDifferentPackageAccessInConnector2() throws IOException {
+//        doFileTest(struct2, "org/test/test.bal");
+//    }
 
     public void testMultiLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
         doFileTest(struct2, "org/test/test.bal");

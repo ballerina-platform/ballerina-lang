@@ -36,9 +36,9 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         doTest();
     }
 
-    public void testService() {
-        doTest();
-    }
+//    public void testService() {
+//        doTest();
+//    }
 
     public void testStruct() {
         doTest();

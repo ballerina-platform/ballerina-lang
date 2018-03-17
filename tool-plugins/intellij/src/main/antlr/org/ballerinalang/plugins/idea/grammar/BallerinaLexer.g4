@@ -20,9 +20,7 @@ NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STREAMLET    : 'streamlet' { inSiddhi = true; } ;
-CONNECTOR   : 'connector' ;
-ACTION      : 'action' ;
+STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
@@ -31,6 +29,7 @@ CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
@@ -110,7 +109,6 @@ RETRIES     : 'retries' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
-BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
@@ -525,6 +523,7 @@ fragment
 XMLEscapedSequence
     :   '\\\\'
     |   '\\{{'
+    |   '\\}}'
     ;
 
 fragment

@@ -107,23 +107,23 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("connector  () {\n    \n}\nconnector test () {\n    \n}");
     }
 
-    public void testAction() {
-        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n}");
-        myFixture.type("act\t");
-        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n}");
-    }
+    //    public void testAction() {
+    //        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n}");
+    //        myFixture.type("act\t");
+    //        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n}");
+    //    }
 
-    public void testActionAfterAction() {
-        myFixture.configureByText("test.bal", "connector() {\n    action test () {}\n    <caret>\n}");
-        myFixture.type("act\t");
-        myFixture.checkResult("connector() {\n    action test () {}\n    action  () (){\n        \n    }\n}");
-    }
+    //    public void testActionAfterAction() {
+    //        myFixture.configureByText("test.bal", "connector() {\n    action test () {}\n    <caret>\n}");
+    //        myFixture.type("act\t");
+    //        myFixture.checkResult("connector() {\n    action test () {}\n    action  () (){\n        \n    }\n}");
+    //    }
 
-    public void testActionBeforeAction() {
-        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n    action test () {}\n}");
-        myFixture.type("act\t");
-        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n    action test () {}\n}");
-    }
+    //    public void testActionBeforeAction() {
+    //        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n    action test () {}\n}");
+    //        myFixture.type("act\t");
+    //        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n    action test () {}\n}");
+    //    }
 
     public void testStructInEmptyFile() {
         myFixture.configureByText("test.bal", "<caret>");
@@ -157,13 +157,13 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
                 "\n        }\n    }\n}");
     }
 
-    public void testWorkerInAction() {
-        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
-                "    }\n}");
-        myFixture.type("wor\t");
-        myFixture.checkResult("connector test() {\n    action test () {\n        worker  {\n            \n    " +
-                "    }\n    }\n}");
-    }
+    //    public void testWorkerInAction() {
+    //        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
+    //                "    }\n}");
+    //        myFixture.type("wor\t");
+    //        myFixture.checkResult("connector test() {\n    action test () {\n        worker  {\n            \n    " +
+    //                "    }\n    }\n}");
+    //    }
 
     public void testWorkerAfterStatement() {
         myFixture.configureByText("test.bal", "function test () {\n    int a = 10;\n    <caret>\n}");
@@ -193,13 +193,13 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
                 "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
     }
 
-    public void testForkJoinInAction() {
-        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
-                "    }\n}");
-        myFixture.type("fojo\t");
-        myFixture.checkResult("connector test() {\n    action test () {\n        " +
-                "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
-    }
+    //    public void testForkJoinInAction() {
+    //        myFixture.configureByText("test.bal", "connector test() {\n    action test () {\n        <caret>\n" +
+    //                "    }\n}");
+    //        myFixture.type("fojo\t");
+    //        myFixture.checkResult("connector test() {\n    action test () {\n        " +
+    //                "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
+    //    }
 
     public void testForkJoinAfterStatement() {
         myFixture.configureByText("test.bal", "function test () {\n    int a = 10;\n    <caret>\n}");

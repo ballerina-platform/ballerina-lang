@@ -33,13 +33,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ACTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH_CLAUSES;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CODE_BLOCK_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMENT_STATEMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_BODY;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
@@ -167,16 +164,14 @@ public class BallerinaBlock extends AbstractBlock {
 
     private static boolean isADefinitionElement(@NotNull final IElementType parentElementType) {
         if (parentElementType == FUNCTION_DEFINITION || parentElementType == SERVICE_DEFINITION
-                || parentElementType == RESOURCE_DEFINITION || parentElementType == CONNECTOR_DEFINITION
-                || parentElementType == ACTION_DEFINITION || parentElementType == STRUCT_DEFINITION) {
+                || parentElementType == RESOURCE_DEFINITION || parentElementType == STRUCT_DEFINITION) {
             return true;
         }
         return false;
     }
 
     private static boolean isInsideADefinitionElement(@NotNull final IElementType childElementType) {
-        if (childElementType == FUNCTION_BODY || childElementType == CONNECTOR_BODY
-                || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
+        if (childElementType == FUNCTION_BODY || childElementType == SERVICE_BODY || childElementType == STRUCT_BODY) {
             return true;
         }
         return false;
