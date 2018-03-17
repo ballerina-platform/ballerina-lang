@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
 import java.io.IOException;
@@ -95,7 +96,9 @@ public class URIConverter implements Converter<URI> {
                     u.toString(),
                     destDir.toString(),
                     fullPkgPath);
-            return Stream.of(destDir);
+            // TODO Simplify using ZipRepo
+            Patten pattern = new Patten(Patten.path("src"), Patten.WILDCARD_SOURCE);
+            return pattern.convertToPaths(new ZipConverter(destDir), packageID);
         } catch (Exception ignore) {
         }
         return Stream.of();

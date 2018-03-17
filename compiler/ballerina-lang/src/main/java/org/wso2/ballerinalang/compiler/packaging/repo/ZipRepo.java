@@ -7,6 +7,9 @@ import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 
 import java.nio.file.Path;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.WILDCARD_SOURCE;
+import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
+
 /**
  * Calculate path pattens within meta-inf dir of zips.
  * Used to load system org bal files.
@@ -20,9 +23,11 @@ public class ZipRepo implements Repo<Path> {
 
     @Override
     public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("repo", pkg.getOrgName().getValue(), pkg.getName().getValue(),
-                pkg.getPackageVersion().getValue()), Patten.path(pkg.getName().value + ".zip"), Patten.path("src"),
-                Patten.WILDCARD_SOURCE);
+        String orgName = pkg.getOrgName().getValue();
+        String pkgName = pkg.getName().getValue();
+        String version = pkg.getPackageVersion().getValue();
+        return new Patten(path("repo", orgName, pkgName, version),
+                path(pkgName + ".zip"), path("src"), WILDCARD_SOURCE);
     }
 
     @Override

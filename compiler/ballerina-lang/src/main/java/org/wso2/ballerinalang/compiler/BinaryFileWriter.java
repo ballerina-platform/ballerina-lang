@@ -77,7 +77,7 @@ public class BinaryFileWriter {
         // Generate balo
         ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(this.sourceDirectory.getPath());
         Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convertToPaths(projectSourceRepo
-                .getConverterInstance());
+                .getConverterInstance(), packageNode.packageID);
         String prjPath = projectSourceRepo.getConverterInstance().toString();
         ZipUtils.generateBalo(packageNode, prjPath, pathStream);
     }
