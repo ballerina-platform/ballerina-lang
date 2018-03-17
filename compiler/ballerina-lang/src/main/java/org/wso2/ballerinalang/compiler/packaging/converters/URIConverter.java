@@ -3,7 +3,9 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
+import org.wso2.ballerinalang.util.HomeRepoUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -38,8 +40,23 @@ public class URIConverter implements Converter<URI> {
             this.pullBalxLocation = uri;
         } else {
             throw new MissingResourceException("Missing balx artifact for pulling resources",
-                                               executor.getClass().toString(),
-                                               BALLERINA_PULL_BALX);
+                    executor.getClass().toString(),
+                    BALLERINA_PULL_BALX);
+        }
+    }
+
+    /**
+     * Create the dir path provided.
+     *
+     * @param dirPath destination dir path
+     */
+    public void createDirectory(Path dirPath) {
+        if (!Files.exists(dirPath)) {
+            try {
+                Files.createDirectories(dirPath);
+            } catch (IOException e) {
+                throw new RuntimeException("Error occured when creating the directory path " + dirPath);
+            }
         }
     }
 
@@ -65,19 +82,20 @@ public class URIConverter implements Converter<URI> {
     }
 
     public Stream<Path> finalize(URI u, PackageID packageID) {
+        String orgName = packageID.getOrgName().getValue();
+        String pkgName = packageID.getName().getValue();
+        String version = packageID.getPackageVersion().getValue();
+        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve("repo").resolve(orgName).resolve(pkgName)
+                .resolve(version);
+        createDirectory(destDirPath);
         try {
-            Path tmp = Files.createTempDirectory("bal-download-tmp-");
-            String pkgName =  packageID.getName().getValue();
-            String destDir = tmp.resolve(pkgName + ".zip").toString();
-            String fullPkgPath = packageID.getOrgName() + "/" + packageID.getName() + ":" + packageID.getPackageVersion();
+            Path destDir = destDirPath.resolve(pkgName + ".zip");
+            String fullPkgPath = orgName + "/" + pkgName + ":" + version;
             executor.execute(pullBalxLocation,
-                             u.toString(),
-                             destDir,
-                             fullPkgPath);
-            return Files.find(tmp, 1, (s, b) -> {
-                Path fileName = s.getFileName();
-                return fileName != null && fileName.endsWith(".zip");
-            });
+                    u.toString(),
+                    destDir.toString(),
+                    fullPkgPath);
+            return Stream.of(destDir);
         } catch (Exception ignore) {
         }
         return Stream.of();
