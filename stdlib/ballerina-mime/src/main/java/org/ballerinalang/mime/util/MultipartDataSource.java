@@ -18,10 +18,12 @@
 
 package org.ballerinalang.mime.util;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -35,10 +37,14 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
 
@@ -143,7 +149,7 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      * @param writer   Represent the outputstream writer
      * @param bodyPart Represent ballerina body part
      * @throws IOException When an error occurs while writing body part headers
-     */
+     *//*
     private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
         BMap<String, BValue> entityHeaders = HeaderUtil.getEntityHeaderMap(bodyPart);
         HeaderUtil.setContentTypeHeader(bodyPart, entityHeaders);
@@ -164,6 +170,43 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                 }
                 writer.write(headerValues.get(j));
             }
+            writer.write(CRLF);
+        }
+        // Mark the end of the headers for this body part
+        writer.write(CRLF);
+        writer.flush();
+    }*/
+
+    /**
+     * Write body part headers to output stream.
+     *
+     * @param writer   Represent the outputstream writer
+     * @param bodyPart Represent ballerina body part
+     * @throws IOException When an error occurs while writing body part headers
+     */
+    private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
+        HttpHeaders httpHeaders;
+        if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
+        } else {
+            httpHeaders = new DefaultHttpHeaders();
+            bodyPart.addNativeData(ENTITY_HEADERS, httpHeaders);
+        }
+        String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
+        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
+        if (!contentDisposition.isEmpty()) {
+            httpHeaders.set(HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
+        }
+        if (bodyPart.getStringField(CONTENT_ID_INDEX) != null) {
+            httpHeaders.set(CONTENT_ID, bodyPart.getStringField(CONTENT_ID_INDEX));
+        }
+        Iterator<Map.Entry<String, String>> iterator = httpHeaders.iteratorAsString();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            writer.write(entry.getKey());
+            writer.write(COLON);
+            writer.write(entry.getValue());
             writer.write(CRLF);
         }
         // Mark the end of the headers for this body part

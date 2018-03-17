@@ -22,8 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -64,11 +63,11 @@ public class GetHeaders extends BlockingNativeCallableUnit {
             return;
         }
         int i = 0;
-        BRefValueArray bRefValueArray = new BRefValueArray();
+        BStringArray bStringArray = new BStringArray();
         for (String headerValue : headerValueList) {
-            bRefValueArray.add(i, new BString(headerValue));
+            bStringArray.add(i, headerValue);
             i++;
         }
-        context.setReturnValues(bRefValueArray);
+        context.setReturnValues(bStringArray);
     }
 }

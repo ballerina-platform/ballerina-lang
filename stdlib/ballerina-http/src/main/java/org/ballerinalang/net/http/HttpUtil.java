@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -82,7 +83,6 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
@@ -150,7 +150,7 @@ public class HttpUtil {
         if (contentType == null) {
             contentType = OCTET_STREAM;
         }
-        HttpUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, EntityBodyHandler
                 .checkEntityBodyAvailability(entity));
@@ -593,6 +593,8 @@ public class HttpUtil {
             // TODO: refactor this logic properly.
             // return;
         }
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        outboundMsg.getHeaders().add(httpHeaders);
     }
 
     private static boolean isRequestStruct(BStruct struct) {
@@ -634,13 +636,6 @@ public class HttpUtil {
         }
     }
 
-    private static void setHeaderToEntity(BStruct struct, String key, String value) {
-        BMap<String, BValue> headerMap = struct.getRefField(ENTITY_HEADERS_INDEX) != null ?
-                (BMap) struct.getRefField(ENTITY_HEADERS_INDEX) : new BMap<>();
-        HeaderUtil.overrideEntityHeader(headerMap, key, value);
-        struct.setRefField(ENTITY_HEADERS_INDEX, headerMap);
-    }
-
     /**
      * Check the existence of entity. Set new entity of not present.
      *
@@ -664,7 +659,7 @@ public class HttpUtil {
         BStruct entity = ConnectorUtils.createAndGetStruct(context
                 , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
                 , org.ballerinalang.mime.util.Constants.ENTITY);
-        entity.setRefField(ENTITY_HEADERS_INDEX, new BMap<>());
+        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
         struct.addNativeData(MESSAGE_ENTITY, entity);
         struct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;

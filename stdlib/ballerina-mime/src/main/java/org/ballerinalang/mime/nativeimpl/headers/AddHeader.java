@@ -68,4 +68,3 @@ public class AddHeader extends BlockingNativeCallableUnit {
         context.setReturnValues();
     }
 }
-

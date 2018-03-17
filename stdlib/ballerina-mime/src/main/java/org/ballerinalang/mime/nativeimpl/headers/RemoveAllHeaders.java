@@ -37,7 +37,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
-        functionName = "getHeaders",
+        functionName = "removeAllHeaders",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         returnType = {@ReturnType(type = TypeKind.VOID)},
         isPublic = true

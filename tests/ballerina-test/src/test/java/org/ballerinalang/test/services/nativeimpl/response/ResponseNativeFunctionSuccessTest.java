@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.services.nativeimpl.response;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -28,7 +29,6 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -50,7 +50,7 @@ import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS_INDEX;
+import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
@@ -92,8 +92,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertEquals(map.get(headerName).get(0), headerValue);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(headerName), headerValue);
     }
 
     @Test(description = "Test addHeader function within a service")
@@ -364,10 +364,9 @@ public class ResponseNativeFunctionSuccessTest {
         String headerValue = "100-continue";
         BString key = new BString(expect);
 
-        BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(expect, new BStringArray(new String[]{headerValue}));
-        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
-        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add(expect, headerValue);
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
 
         BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
@@ -375,8 +374,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get("100-continue"));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get("100-continue"));
     }
 
     @Test(description = "Test RemoveHeader function within a service")
@@ -399,10 +398,11 @@ public class ResponseNativeFunctionSuccessTest {
         String expect = "Expect";
         String range = "Range";
 
-        BMap<String, BStringArray> headersMap = new BMap<>();
-        headersMap.put(expect, new BStringArray(new String[]{"100-continue"}));
-        headersMap.put(range, new BStringArray(new String[]{"bytes=500-999"}));
-        entity.setRefField(ENTITY_HEADERS_INDEX, headersMap);
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add(expect, "100-continue");
+        httpHeaders.add(expect, "bytes=500-999");
+        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
+
         outResponse.addNativeData(MESSAGE_ENTITY, entity);
         BValue[] inputArg = {outResponse};
 
@@ -411,9 +411,9 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertNull(map.get(expect));
-        Assert.assertNull(map.get(range));
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertNull(returnHeaders.get(expect));
+        Assert.assertNull(returnHeaders.get(range));
     }
 
     @Test(description = "Test RemoveAllHeaders function within a service")
@@ -449,8 +449,8 @@ public class ResponseNativeFunctionSuccessTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
         BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
-        BMap<String, BStringArray> map = (BMap<String, BStringArray>) entityStruct.getRefField(ENTITY_HEADERS_INDEX);
-        Assert.assertEquals(map.get(range).get(0), rangeValue);
+        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(returnHeaders.get(range), rangeValue);
     }
 
     @Test

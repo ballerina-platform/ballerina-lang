@@ -282,13 +282,7 @@ public const string CONTENT_TYPE = "content-type";
 @Param {value:"headerName: Represent header name"}
 @Return {value:"Return header value associated with the given header name. If multiple header values are present,
 then the first value will be returned"}
-public function <Entity entity> getHeader (string headerName) (string) {
-    if (entity.headers == null) {
-        return null;
-    }
-    var headerValue, _ = (string[])entity.headers[headerName];
-    return headerValue == null ? null : headerValue[0];
-}
+public native function <Entity entity> getHeader (string headerName) (string);
 
 @Description {value:"Get all the header values associated with the given header name"}
 @Param {value:"entity: Represent a MIME entity"}
@@ -317,71 +311,3 @@ public native function <Entity entity> removeHeader (string headerName);
 @Description {value:"Remove all headers associated with the entity"}
 @Param {value:"entity: Represent a MIME entity"}
 public native function <Entity entity> removeAllHeaders ();
-
-//@Description {value:"Get all the header values associated with the given header name"}
-//@Param {value:"entity: Represent a MIME entity"}
-//@Param {value:"headerName: Represent the header name"}
-//@Return {value:"Return all the header values associated with the given header name as a string of arrays"}
-//public function <Entity entity> getHeaders (string headerName) (string[]) {
-//    if (entity.headers == null) {
-//        return null;
-//    }
-//    var headerValue, _ = (string[]) entity.headers[headerName];
-//    return headerValue;
-//}
-
-//@Description {value:"Get all the headers"}
-//@Param {value:"entity: Represent a MIME entity"}
-//@Return {value:"Return all the headers in the entity"}
-//public function <Entity entity> getAllHeader () (map){
-//    if (entity.headers == null) {
-//        return null;
-//    }
-//    return entity.headers;
-//}
-
-//@Description {value:"Add the given header value against the given header"}
-//@Param {value:"entity: Represent a MIME entity"}
-//@Param {value:"headerName: Represent the header name"}
-//@Param {value:"headerValue: Represent the header value to be added"}
-//public function <Entity entity> addHeader (string headerName, string headerValue){
-//    if (entity.headers == null) {
-//        entity.headers = {};
-//    }
-//    var existingValues = entity.headers[headerName];
-//    if (existingValues == null) {
-//        entity.setHeader(headerName, headerValue);
-//    } else {
-//        var valueArray, _ = (string[]) existingValues;
-//        valueArray[lengthof valueArray] = headerValue;
-//        entity.headers[headerName] = valueArray;
-//    }
-//}
-
-//@Description {value:"Set the given header value against the given header. If a header already exist, its value will be
-//replaced with the given header value"}
-//@Param {value:"entity: Represent a MIME entity"}
-//@Param {value:"headerName: Represent the header name"}
-//@Param {value:"headerValue: Represent the header value"}
-//public function <Entity entity> setHeader (string headerName, string headerValue) {
-//    if (entity.headers == null) {
-//        entity.headers = {};
-//    }
-//    string[] valueArray = [headerValue];
-//    entity.headers[headerName] = valueArray;
-//}
-
-//@Description {value:"Remove the given header from the entity"}
-//@Param {value:"entity: Represent a MIME entity"}
-//@Param {value:"headerName: Represent the header name"}
-//public function <Entity entity> removeHeader (string headerName) {
-//    if (entity.headers != null) {
-//        _ = entity.headers.remove(headerName);
-//    }
-//}
-//
-//@Description {value:"Remove all headers associated with the entity"}
-//@Param {value:"entity: Represent a MIME entity"}
-//public function <Entity entity> removeAllHeaders () {
-//    entity.headers = {};
-//}

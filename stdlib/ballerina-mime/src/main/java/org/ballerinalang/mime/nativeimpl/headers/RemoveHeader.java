@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -39,7 +38,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  */
 @BallerinaFunction(
         packageName = "ballerina.mime",
-        functionName = "getHeaders",
+        functionName = "removeHeader",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.VOID)},
