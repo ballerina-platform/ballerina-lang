@@ -54,7 +54,7 @@ public class ZipConverter extends PathConverter {
             FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
         } catch (IOException e) {
-            throw new RuntimeException("Error occured when creating the file system " + uri.getPath(), e.getCause());
+            throw new RuntimeException("Error occured when creating the file system " + uri.getPath(), e);
         }
     }
 }
