@@ -45,7 +45,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
                 structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
                         structPackage = "ballerina.net.http")
         },
