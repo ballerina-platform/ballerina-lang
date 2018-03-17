@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -220,6 +221,13 @@ public class Types {
             if (source.tag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable(source, target);
             }
+        }
+        
+        if (target.tag == TypeTags.FUTURE && source.tag == TypeTags.FUTURE) {
+            if (((BFutureType) target).constraint.tag == TypeTags.NONE) {
+                return true;
+            }
+            return isAssignable(((BFutureType) source).constraint, ((BFutureType) target).constraint);
         }
 
         if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
@@ -790,6 +798,12 @@ public class Types {
             // TODO Implement. Not needed for now.
             throw new AssertionError();
         }
+
+        @Override
+        public BSymbol visit(BFutureType t, BType s) {
+            // TODO FUTUREX
+            return null;
+        }
     };
 
     private BTypeVisitor<BType, BSymbol> conversionVisitor = new BTypeVisitor<BType, BSymbol>() {
@@ -886,6 +900,12 @@ public class Types {
         public BSymbol visit(BErrorType t, BType s) {
             return symTable.notFoundSymbol;
         }
+
+        @Override
+        public BSymbol visit(BFutureType t, BType s) {
+            // TODO FUTUREX
+            return null;
+        }
     };
 
     private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
@@ -908,6 +928,11 @@ public class Types {
         @Override
         public Boolean visit(BMapType t, BType s) {
             return t == s;
+        }
+        
+        @Override
+        public Boolean visit(BFutureType t, BType s) {
+            return s.tag == TypeTags.FUTURE && t.constraint.tag == ((BFutureType) s).constraint.tag;
         }
 
         @Override
