@@ -11,6 +11,28 @@ struct ResultCount {
     int COUNTVAL;
 }
 
+struct Employee {
+    int id;
+    string name;
+    float salary;
+}
+
+struct EmployeeCompatible {
+    int id;
+    string name;
+    float salary;
+}
+
+struct EmployeeSalary {
+    int id;
+    float salary;
+}
+
+struct EmployeeSalaryCompatible {
+    int id;
+    float salary;
+}
+
 int idValue = -1;
 int ageValue = -1;
 float salValue = -1;
@@ -304,7 +326,70 @@ function testCloseConnectionPool () returns (int) {
     return count;
 }
 
-function isBellow35(Person p) returns (boolean) {
+function testSelect() (table) {
+
+    table<Employee> dt =  createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaInput() (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaOutput() (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
+    return salaryTable;
+}
+
+function testSelectCompatibleLambdaInputOutput() (table) {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
+    return salaryTable;
+}
+
+function getEmployeeSalary(Employee e) (EmployeeSalary) {
+    EmployeeSalary s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) (EmployeeSalary) {
+    EmployeeSalary s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleOutput(Employee e) (EmployeeSalaryCompatible ) {
+    EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) (EmployeeSalaryCompatible) {
+    EmployeeSalaryCompatible s = {id: e.id, salary: e.salary};
+    return s;
+}
+
+function createTable() (table<Employee>) {
+    table<Employee> dt = {};
+
+    Employee e1 = {id:1, name:"A", salary:100};
+    Employee e2 = {id:2, name:"B", salary:200};
+    Employee e3 = {id:3, name:"C", salary:300};
+
+    dt.add(e1);
+    dt.add(e2);
+    dt.add(e3);
+
+    return dt;
+}
+
+function isBellow35(Person p) (boolean) {
     return p.age < 35;
 }
 
