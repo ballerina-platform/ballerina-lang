@@ -332,7 +332,7 @@ public class HoverUtil {
     }
 
     /**
-     * Get documentation content
+     * Get documentation content.
      *
      * @param docAnnotation list of doc annotation
      * @return {@link Hover} hover object.
