@@ -46,8 +46,8 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 
 /**
