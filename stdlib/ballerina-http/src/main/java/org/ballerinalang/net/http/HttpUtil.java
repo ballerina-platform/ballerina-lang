@@ -500,8 +500,10 @@ public class HttpUtil {
                 (String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
-                resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+        if (resourceArgValues != null) {
+            inboundRequestStruct.setStringField(HttpConstants.REQUEST_EXTRA_PATH_INFO_INDEX,
+                                                resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO));
+        }
     }
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {

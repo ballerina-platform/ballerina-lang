@@ -52,6 +52,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public struct WebSocketServiceConfig {
     Service[] endpoints;
+    WebSocketService[] webSocketEndpoints;
     string basePath;
     string[] subProtocols;
     int idleTimeoutInSeconds;

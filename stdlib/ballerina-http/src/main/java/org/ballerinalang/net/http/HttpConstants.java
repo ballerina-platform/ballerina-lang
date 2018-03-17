@@ -315,4 +315,6 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "pasword";
+
+    public static final String HTTP_SERVICE_TYPE = "Service";
 }
