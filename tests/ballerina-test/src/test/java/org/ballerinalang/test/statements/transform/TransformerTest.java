@@ -270,7 +270,7 @@ public class TransformerTest {
                 "expressions inside transformer block", 100, 33);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTransformerNegative() {
         int i = 0;
         CompileResult resNegative =
