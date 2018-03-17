@@ -8,6 +8,7 @@ lexer grammar BallerinaLexer;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
     boolean inSiddhiTimeScaleQuery = false;
+    boolean inSiddhiOutputRateLimit = false;
 }
 
 // Reserved words
@@ -38,7 +39,7 @@ VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
 
-FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  } ;
+FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
 SELECT      : {inTableSqlQuery}? 'select' { inTableSqlQuery = false; } ;
 GROUP       : 'group' ;
@@ -60,10 +61,10 @@ CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
 WITHIN      : 'within' ;
-LAST        : {inSiddhi}? 'last' { inSiddhi = false; } ;
-FIRST       : {inSiddhi}? 'first' { inSiddhi = false; } ;
+LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
+FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
 SNAPSHOT    : 'snapshot' ;
-OUTPUT      : {inSiddhi}? 'output' { inSiddhi = false; inSiddhiTimeScaleQuery = true; } ;
+OUTPUT      : {inSiddhiOutputRateLimit}? 'output' { inSiddhiTimeScaleQuery = true; } ;
 INNER       : 'inner' ;
 OUTER       : 'outer' ;
 RIGHT       : 'right' ;

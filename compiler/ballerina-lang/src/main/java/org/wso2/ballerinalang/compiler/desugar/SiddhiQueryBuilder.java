@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -86,6 +88,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     private StringBuilder binaryExpr;
     private StringBuilder setExpr;
     private StringBuilder orderByClause;
+    private StringBuilder outputRateLimitClause;
     private StringBuilder whereClause;
     private StringBuilder windowClause;
     private StringBuilder joinStreamingInputClause;
@@ -289,6 +292,24 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangOutputRateLimit outputRateLimit) {
+        outputRateLimitClause = new StringBuilder("output ");
+        if (outputRateLimit.isSnapshot()) {
+            outputRateLimitClause.append(" ").append("snapshot").append(" ").append("every");
+            outputRateLimitClause.append(" ").append(outputRateLimit.getRateLimitValue());
+            outputRateLimitClause.append(" ").append(outputRateLimit.getTimeScale());
+        } else {
+            outputRateLimitClause.append(" ").append(outputRateLimit.getOutputRateType()).append(" ").append("every");
+            outputRateLimitClause.append(" ").append(outputRateLimit.getRateLimitValue());
+            if (outputRateLimit.getTimeScale() != null) {
+                outputRateLimitClause.append(" ").append(outputRateLimit.getTimeScale());
+            } else {
+                outputRateLimitClause.append(" ").append("events");
+            }
+        }
+    }
+
     private void createSiddhiSelectExpressionClause(BLangSelectClause select) {
         List<? extends SelectExpressionNode> selectExprList = select.getSelectExpressions();
         selectExprClause = new StringBuilder();
@@ -387,6 +408,12 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         if (orderByNode != null) {
             ((BLangOrderBy) orderByNode).accept(this);
             siddhiQuery.append(" ").append(orderByClause);
+        }
+
+        OutputRateLimitNode outputRateLimitNode = streamingQueryStatement.getOutputRateLimitNode();
+        if (outputRateLimitNode != null) {
+            ((BLangOutputRateLimit) outputRateLimitNode).accept(this);
+            siddhiQuery.append(" ").append(outputRateLimitClause);
         }
 
         StreamActionNode streamActionNode = streamingQueryStatement.getStreamingAction();

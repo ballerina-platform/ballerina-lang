@@ -52,6 +52,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.OutputRateLimitNode;
 import org.ballerinalang.model.tree.clauses.PatternClause;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingInputNode;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
@@ -305,6 +307,8 @@ public class BLangPackageBuilder {
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
 
     private Stack<StreamletNode> streamletNodeStack = new Stack<>();
+
+    private Stack<OutputRateLimitNode> outputRateLimitStack = new Stack<>();
 
     private Stack<WithinClause> withinClauseStack = new Stack<>();
 
@@ -2445,6 +2449,10 @@ public class BLangPackageBuilder {
             streamingQueryStatementNode.setOrderByClause(orderByClauseStack.pop());
         }
 
+        if (!outputRateLimitStack.empty()) {
+            streamingQueryStatementNode.setOutputRateLimitNode(outputRateLimitStack.pop());
+        }
+
         streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
     }
 
@@ -2484,9 +2492,30 @@ public class BLangPackageBuilder {
             }
         }
 
-        while (!queryStatementNodeStack.isEmpty()) {
+        while (!queryStatementNodeStack.empty()) {
             blocknode.addStatement(queryStatementNodeStack.pop());
         }
+    }
+
+    public void startOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        OutputRateLimitNode outputRateLimit = TreeBuilder.createOutputRateLimitNode();
+        ((BLangOutputRateLimit) outputRateLimit).pos = pos;
+        outputRateLimit.addWS(ws);
+        this.outputRateLimitStack.push(outputRateLimit);
+    }
+
+    public void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
+                                       boolean isEventBasedOutputRateLimit, boolean isFirst, boolean isLast,
+                                       boolean isAll, String timeScale, String rateLimitValue) {
+        OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
+        ((BLangOutputRateLimit) outputRateLimit).pos = pos;
+        outputRateLimit.addWS(ws);
+
+        outputRateLimit.setSnapshot(isSnapshotOutputRateLimit);
+        outputRateLimit.setEventBasedRateLimit(isEventBasedOutputRateLimit);
+        outputRateLimit.setOutputRateType(isFirst, isLast, isAll);
+        outputRateLimit.setTimeScale(timeScale);
+        outputRateLimit.setRateLimitValue(rateLimitValue);
     }
 
     public void startWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {

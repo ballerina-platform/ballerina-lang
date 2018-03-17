@@ -775,8 +775,8 @@ joinStreamingInput
     ;
 
 outputRateLimit
-    : OUTPUT outputRateType? EVERY ( integerLiteral timeScale | integerLiteral EVENTS )
-    | OUTPUT SNAPSHOT EVERY integerLiteral timeScale
+    : OUTPUT (ALL | LAST | FIRST) EVERY ( DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS )
+    | OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
     ;
 
 patternStreamingInput
@@ -814,12 +814,6 @@ joinType
     | FULL OUTER JOIN
     | OUTER JOIN
     | INNER? JOIN
-    ;
-
-outputRateType
-    : ALL
-    | LAST
-    | FIRST
     ;
 
 timeScale

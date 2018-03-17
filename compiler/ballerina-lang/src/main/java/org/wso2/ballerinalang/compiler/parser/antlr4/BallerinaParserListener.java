@@ -1986,16 +1986,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinType(BallerinaParser.JoinTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRateType}.
-	 * @param ctx the parse tree
-	 */
-	void enterOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRateType}.
-	 * @param ctx the parse tree
-	 */
-	void exitOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#timeScale}.
 	 * @param ctx the parse tree
 	 */

@@ -2308,18 +2308,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOutputRateType(BallerinaParser.OutputRateTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOutputRateType(BallerinaParser.OutputRateTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTimeScale(BallerinaParser.TimeScaleContext ctx) { }
 	/**
 	 * {@inheritDoc}

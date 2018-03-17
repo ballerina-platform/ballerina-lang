@@ -247,6 +247,7 @@ public class BallerinaLexer extends Lexer {
 	    boolean inTableSqlQuery = false;
 	    boolean inSiddhiInsertQuery = false;
 	    boolean inSiddhiTimeScaleQuery = false;
+	    boolean inSiddhiOutputRateLimit = false;
 
 
 	public BallerinaLexer(CharStream input) {
@@ -356,7 +357,7 @@ public class BallerinaLexer extends Lexer {
 	private void FROM_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 1:
-			 inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true;  
+			 inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; 
 			break;
 		}
 	}
@@ -398,21 +399,21 @@ public class BallerinaLexer extends Lexer {
 	private void LAST_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 7:
-			 inSiddhi = false; 
+			 inSiddhiOutputRateLimit = false; 
 			break;
 		}
 	}
 	private void FIRST_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 8:
-			 inSiddhi = false; 
+			 inSiddhiOutputRateLimit = false; 
 			break;
 		}
 	}
 	private void OUTPUT_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 9:
-			 inSiddhi = false; inSiddhiTimeScaleQuery = true; 
+			 inSiddhiTimeScaleQuery = true; 
 			break;
 		}
 	}
@@ -590,21 +591,21 @@ public class BallerinaLexer extends Lexer {
 	private boolean LAST_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 5:
-			return inSiddhi;
+			return inSiddhiOutputRateLimit;
 		}
 		return true;
 	}
 	private boolean FIRST_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 6:
-			return inSiddhi;
+			return inSiddhiOutputRateLimit;
 		}
 		return true;
 	}
 	private boolean OUTPUT_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 7:
-			return inSiddhi;
+			return inSiddhiOutputRateLimit;
 		}
 		return true;
 	}
