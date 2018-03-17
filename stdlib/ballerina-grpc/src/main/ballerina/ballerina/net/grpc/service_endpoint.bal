@@ -62,3 +62,10 @@ public native function <Service ep> stop ();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 public native function <Service ep> getClient () returns (ClientResponder);
+
+public struct Endpoint {
+}
+
+function <Endpoint s> getEndpoint() returns (Service) {
+    return null;
+}

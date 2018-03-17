@@ -33,13 +33,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "getConnector",
+        functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
                              structPackage = "ballerina.net.grpc"),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
-public class GetConnector extends BlockingNativeCallableUnit {
+public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

@@ -2,7 +2,15 @@ package ballerina.net.grpc;
 
 @Description {value:"gRPC Service Stub for outbound gRPC requests"}
 public struct ServiceStub {
+    Client client;
 }
+
+@Description {value:"init native function for initialize the Stub."}
+@Param {value: "Service Stub type. possible values: blocking, nonblocking"}
+@Param {value: "Proto descriptor key. Key of proto descriptor"}
+@Param {value: "Proto descriptor map. descriptor map with all dependent descriptors"}
+public native function<ServiceStub ep> initStub (any clientEndpoint, string stubType, string descriptorKey, map
+                                                                                                      descriptorMap);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
@@ -12,12 +20,14 @@ public native function<ServiceStub ep>  blockingExecute (string methodID, any pa
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, string listenerService) (ConnectorError);
+public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, type listenerService)
+(ConnectorError);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  streamingExecute (string methodID, string listenerService) (ClientConnection , ConnectorError);
+public native function<ServiceStub ep>  streamingExecute (string methodID, type listenerService) (ClientConnection ,
+                                                                                               ConnectorError);
 
 
 @Description {value:"Represents the gRPC client connector connection"}
@@ -44,3 +54,5 @@ public native function <ClientConnection conn> complete () (ConnectorError);
 @Param {value:"res: The inbound response message"}
 @Return {value:"Error occured during HTTP server connector forward"}
 public native function <ClientConnection conn> error (ClientError clientError) (ConnectorError);
+
+

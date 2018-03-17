@@ -4,8 +4,6 @@ package ballerina.net.grpc;
 @Field {value:"epName: connector endpoint identifier"}
 @Field {value:"config: gRPC client endpoint configuration"}
 public struct Client {
-    // TODO : Make all field Read-Only
-    string epName;
     ClientEndpointConfiguration config;
 }
 
@@ -16,7 +14,6 @@ public struct Client {
 public struct ClientEndpointConfiguration {
     string host;
     int port;
-    type stub;
     SSL ssl;
 }
 
@@ -50,8 +47,7 @@ public struct SSL {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
-    ep.epName = epName;
+public function <Client ep> init (ClientEndpointConfiguration config) {
     ep.config = config;
     ep.initEndpoint();
 }
@@ -68,15 +64,17 @@ public native function <Client ep> register (type serviceType);
 @Return { value:"Error occured during registration" }
 public native function <Client ep> start ();
 
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-@Return { value:"Error occured during registration" }
-public native function <Client ep> getConnector() returns (ServiceStub stub);
-
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public native function <Client ep> stop();
 
 @Description { value:"Returns the client sub that servicestub code uses"}
 @Return { value:"client sub that servicestub code uses" }
-public native function <Client ep> getStub() returns (any clientSub);
+public native function <Client ep> getClient() returns (ClientConnection);
+
+public struct Listener {
+}
+
+public function <Listener s> getEndpoint() returns (Client) {
+    return null;
+}

@@ -15,22 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
+package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.ClientConnectorFactory;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -42,36 +40,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.CHANNEL_KEY;
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_CONNECTOR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_ENDPOINT_INDEX;
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_STUB;
-import static org.ballerinalang.net.grpc.EndpointConstants.GRPC_PACKAGE_PATH;
+import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB_INDEX;
 
 /**
- * Get the ID of the connection.
- *
- * @since 0.966
+ * {@code InitStub} is the InitStub function implementation of the gRPC Client.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.grpc",
-        functionName = "getStub",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
+        functionName = "initStub",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
                 structPackage = "ballerina.net.grpc"),
-        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
+        args = {
+                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = "ballerina.net.grpc",
+                        structType = "Client"),
+                @Argument(name = "stubType", type = TypeKind.STRING),
+                @Argument(name = "descriptorKey", type = TypeKind.STRING),
+                @Argument(name = "descriptorMap", type = TypeKind.MAP)
+        },
         isPublic = true
 )
-public class GetStub extends BlockingNativeCallableUnit {
+public class InitStub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct clientEndPoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_INDEX);
-        BConnector clientConnector = BLangConnectorSPIUtil.createBConnector(context.getProgramFile(), GRPC_PACKAGE_PATH,
-                CLIENT_CONNECTOR);
-
-        BStruct clientStub = (BStruct) clientEndPoint.getNativeData(CLIENT_STUB);
-        ManagedChannel channel = (ManagedChannel) clientEndPoint.getNativeData(CHANNEL_KEY);
-        String subtype = clientStub.getStringField(0);
-        String descriptorKey = clientStub.getStringField(1);
-        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) clientStub.getRefField(0);
+        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_INDEX);
+        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_INDEX);
+        ManagedChannel channel = (ManagedChannel) clientEndpoint.getNativeData(CHANNEL_KEY);
+        String subtype = context.getStringArgument(0);
+        String descriptorKey = context.getStringArgument(1);
+        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(2);
 
         if (subtype == null || descriptorKey == null || descriptorMap == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
@@ -109,21 +108,22 @@ public class GetStub extends BlockingNativeCallableUnit {
 
             if ("blocking".equalsIgnoreCase(subtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
-                clientConnector.setNativeData("stub", grpcBlockingStub);
+                serviceStub.addNativeData(SERVICE_STUB, grpcBlockingStub);
             } else if ("non-blocking".equalsIgnoreCase(subtype)) {
                 GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
-                clientConnector.setNativeData("stub", nonBlockingStub);
+                serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
                                 "invalid connector type"))));
                 return;
             }
-            clientStub.addNativeData(CLIENT_CONNECTOR, clientConnector);
+            serviceStub.addNativeData(CLIENT_END_POINT, clientEndpoint);
         } catch (RuntimeException | GrpcClientException e) {
             context.setError(MessageUtils.getConnectorError(context, e));
         }
     }
+
 
     private static byte[] hexStringToByteArray(String s) {
         int len = s.length();

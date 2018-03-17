@@ -25,10 +25,3 @@ public native function<ClientResponder ep> errorResponse(ServerError serverError
 @Description {value:"Get connection ID which is unique to the connection"}
 @Return {value:"Connection ID"}
 public native function<ClientResponder ep> getID() (string);
-
-public struct Endpoint {
-}
-
-function <Endpoint s> getEndpoint() returns (Service) {
-    return null;
-}

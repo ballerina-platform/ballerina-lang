@@ -20,19 +20,14 @@ package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,7 +41,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_STUB;
 import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
 
 
@@ -89,11 +83,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                         .sslContext(sslContext).build();
             }
             clientEndpoint.addNativeData(EndpointConstants.CHANNEL_KEY, channel);
-            BStruct clientStub = generateClientStub(context, endpointConfig);
+/*            BStruct clientStub = generateClientStub(context, endpointConfig);
             if (clientStub != null) {
-                clientEndpoint.addNativeData(CLIENT_STUB, clientStub);
+                clientEndpoint.addNativeData(SERVICE_STUB, clientStub);
                 context.setReturnValues();
-            }
+            }*/
         } catch (Throwable throwable) {
             BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
             context.setError(errorStruct);
@@ -114,7 +108,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
     }
     
-    private BStruct generateClientStub(Context context, Struct endpointConfig) {
+/*    private BStruct generateClientStub(Context context, Struct endpointConfig) {
         Value stubValue = endpointConfig.getTypeField("stub");
         if (stubValue == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
@@ -139,5 +133,5 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
         return BLangConnectorSPIUtil.createBStruct(context, stubType.getPackagePath(), stubType
                 .getName());
-    }
+    }*/
 }

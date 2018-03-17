@@ -21,7 +21,7 @@ import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,6 +32,8 @@ import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
+
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -57,14 +59,14 @@ public class BlockingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
-        if (bConnector == null) {
-            notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
+        BStruct serviceStub = (BStruct) context.getRefArgument(0);
+        if (serviceStub == null) {
+            notifyErrorReply(context, "Error while getting connector. gRPC service stub " +
                     "is not initialized properly");
             return;
         }
 
-        Object connectionStub = bConnector.getNativeData("stub");
+        Object connectionStub = serviceStub.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client " +
                     "connector is not initialized properly");
