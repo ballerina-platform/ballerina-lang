@@ -6,8 +6,9 @@ function testHandleHttpAuthzFailure () (boolean) {
     authz:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
-    string[] basicAutheaderValue = ["Basic aXNoYXJhOmFiYw=="];
-    mime:Entity requestEntity = {headers:{"Authorization": basicAutheaderValue}};
+    string basicAutheaderValue = "Basic aXNoYXJhOmFiYw==";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest, "scope2", "/sayHello");
 }
@@ -16,8 +17,9 @@ function testHandleAuthz () (boolean) {
     authz:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
-    string[] basicAutheaderValue = ["Basic aXN1cnU6eHh4"];
-    mime:Entity requestEntity = {headers:{"Authorization": basicAutheaderValue}};
+    string basicAutheaderValue = "Basic aXN1cnU6eHh4";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest, "scope2", "/sayHello");
 }

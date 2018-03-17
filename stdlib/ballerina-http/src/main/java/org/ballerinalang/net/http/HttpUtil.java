@@ -594,7 +594,9 @@ public class HttpUtil {
             // return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-        outboundMsg.getHeaders().add(httpHeaders);
+        if (httpHeaders != null) {
+            transportHeaders.add(httpHeaders);
+        }
     }
 
     private static boolean isRequestStruct(BStruct struct) {

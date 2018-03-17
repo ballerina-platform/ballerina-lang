@@ -64,6 +64,7 @@ public class SetHeader extends BlockingNativeCallableUnit {
 
         } else {
             httpHeaders = new DefaultHttpHeaders();
+            entityStruct.addNativeData(ENTITY_HEADERS, httpHeaders);
         }
         httpHeaders.set(headerName, headerValue);
         context.setReturnValues();
