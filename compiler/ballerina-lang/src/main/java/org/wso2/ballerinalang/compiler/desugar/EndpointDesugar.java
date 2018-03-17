@@ -239,7 +239,7 @@ public class EndpointDesugar {
         epConfigNewStmt.var.expr = endpoint.configurationExpr;
         ASTBuilderUtil.defineVariable(epConfigNewStmt.var, varEncSymbol, names);
         List<BLangVariable> args = Lists.of(epConfigNewStmt.var);
-        if (endpoint.symbol.initFunction.params.size() == 1) {
+        if (endpoint.symbol.initFunction.params.size() == 2) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);
         }
