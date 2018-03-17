@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_CON_CONNECTION_INDEX;
 
 /**
@@ -169,7 +169,7 @@ public class HttpDispatcher {
         //TODO Think of keeping struct type globally rather than creating for each request
         BConnector serverConnector = BLangConnectorSPIUtil.createBConnector(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, SERVER_CONNECTOR);
+                PROTOCOL_PACKAGE_HTTP, ENDPOINT);
 
         BStruct connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
