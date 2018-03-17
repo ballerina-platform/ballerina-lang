@@ -159,11 +159,17 @@ endpointInitlization
     ;
 
 typeName
+    :   simpleTypeName                              # simpleTypeNameTemp
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
+    |   typeName (PIPE typeName)+                   # unionTypeName
+    ;
+
+// Temporary production rule name
+simpleTypeName
     :   TYPE_ANY
     |   TYPE_TYPE
     |   valueTypeName
     |   referenceTypeName
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
 builtInTypeName
@@ -233,6 +239,7 @@ statement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
+    |   matchStatement
     |   foreachStatement
     |   whileStatement
     |   nextStatement
@@ -321,6 +328,15 @@ elseIfClause
 
 elseClause
     :   RIGHT_BRACE ELSE LEFT_BRACE codeBlockBody
+    ;
+
+matchStatement
+    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+    ;
+
+matchPatternClause
+    :   typeName EQUAL_GT statement
+    |   typeName Identifier EQUAL_GT statement
     ;
 
 foreachStatement
