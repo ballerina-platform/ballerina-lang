@@ -41,7 +41,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
         functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),
-        returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class GetClient extends BlockingNativeCallableUnit {
