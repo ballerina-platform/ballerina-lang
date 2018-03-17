@@ -76,7 +76,7 @@ class ZipUtils {
             zipOut.putNextEntry(new ZipEntry(filePath));
             Files.copy(srcFilePath, zipOut);
         } catch (IOException e) {
-            throw new BLangCompilerException("Error occurred when writing the " + filePath + " to the zip file");
+            throw new BLangCompilerException("Error occurred when generating the balo " + filePath);
         }
     }
 
@@ -96,8 +96,8 @@ class ZipUtils {
             try {
                 Files.createDirectories(destPath);
             } catch (IOException e) {
-                throw new BLangCompilerException("Error when occured when creating directories in " +
-                        "./ballerina/repos/ to save the compressed file");
+                throw new BLangCompilerException("Error occurred when creating directories in " +
+                        "./ballerina/repo/ to save the generated balo");
             }
         }
         String fileName = packageID.getName() + ".zip";
