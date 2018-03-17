@@ -1,5 +1,6 @@
 package org.ballerinalang.test.packaging;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -43,7 +44,7 @@ public class PattenTest {
             }
 
             @Override
-            public Stream<Path> finalize(I i) {
+            public Stream<Path> finalize(I i, PackageID packageID) {
                 throw new UnsupportedOperationException();
             }
         };

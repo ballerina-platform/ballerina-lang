@@ -1,29 +1,17 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
-package org.wso2.ballerinalang.compiler.parser.antlr4;
-
-import org.antlr.v4.runtime.FailedPredicateException;
-import org.antlr.v4.runtime.NoViableAltException;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.RuntimeMetaData;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.Vocabulary;
-import org.antlr.v4.runtime.VocabularyImpl;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+// Generated from /home/natasha/Documents/github_repos/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.7
+package grammar;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.5.3", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -62,11 +50,10 @@ public class BallerinaParser extends Parser {
 		DoubleBackTickInlineCodeEnd=153, DoubleBackTickInlineCode=154, SingleBackTickInlineCodeEnd=155, 
 		SingleBackTickInlineCode=156, DeprecatedTemplateEnd=157, SBDeprecatedInlineCodeStart=158, 
 		DBDeprecatedInlineCodeStart=159, TBDeprecatedInlineCodeStart=160, DeprecatedTemplateText=161, 
-		StringTemplateLiteralEnd=162, StringTemplateExpressionStart=163, StringTemplateText=164, 
-		Semvar=165;
+		StringTemplateLiteralEnd=162, StringTemplateExpressionStart=163, StringTemplateText=164;
 	public static final int
-		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_importDeclaration = 2, 
-		RULE_packageName = 3, RULE_version = 4, RULE_orgName = 5, RULE_definition = 6, 
+		RULE_compilationUnit = 0, RULE_packageDeclaration = 1, RULE_packageName = 2, 
+		RULE_version = 3, RULE_importDeclaration = 4, RULE_orgName = 5, RULE_definition = 6, 
 		RULE_serviceDefinition = 7, RULE_serviceBody = 8, RULE_resourceDefinition = 9, 
 		RULE_callableUnitBody = 10, RULE_functionDefinition = 11, RULE_lambdaFunction = 12, 
 		RULE_callableUnitSignature = 13, RULE_connectorDefinition = 14, RULE_connectorBody = 15, 
@@ -114,28 +101,27 @@ public class BallerinaParser extends Parser {
 		RULE_documentationTemplateInlineCode = 135, RULE_singleBackTickDocInlineCode = 136, 
 		RULE_doubleBackTickDocInlineCode = 137, RULE_tripleBackTickDocInlineCode = 138;
 	public static final String[] ruleNames = {
-		"compilationUnit", "packageDeclaration", "importDeclaration", "packageName", 
-		"version", "orgName", "definition", "serviceDefinition", "serviceBody", 
-		"resourceDefinition", "callableUnitBody", "functionDefinition", "lambdaFunction", 
-		"callableUnitSignature", "connectorDefinition", "connectorBody", "actionDefinition", 
-		"structDefinition", "structBody", "privateStructBody", "annotationDefinition", 
-		"enumDefinition", "enumerator", "globalVariableDefinition", "transformerDefinition", 
-		"attachmentPoint", "annotationBody", "constantDefinition", "workerDeclaration", 
-		"workerDefinition", "typeName", "builtInTypeName", "referenceTypeName", 
-		"userDefineTypeName", "anonStructTypeName", "valueTypeName", "builtInReferenceTypeName", 
-		"functionTypeName", "xmlNamespaceName", "xmlLocalName", "annotationAttachment", 
-		"annotationAttributeList", "annotationAttribute", "annotationAttributeValue", 
-		"annotationAttributeArray", "statement", "variableDefinitionStatement", 
-		"recordLiteral", "recordKeyValue", "recordKey", "arrayLiteral", "connectorInit", 
-		"endpointDeclaration", "endpointDefinition", "assignmentStatement", "bindStatement", 
-		"variableReferenceList", "ifElseStatement", "ifClause", "elseIfClause", 
-		"elseClause", "foreachStatement", "intRangeExpression", "whileStatement", 
-		"nextStatement", "breakStatement", "forkJoinStatement", "joinClause", 
-		"joinConditions", "timeoutClause", "tryCatchStatement", "catchClauses", 
-		"catchClause", "finallyClause", "throwStatement", "returnStatement", "workerInteractionStatement", 
-		"triggerWorker", "workerReply", "variableReference", "field", "index", 
-		"xmlAttrib", "functionInvocation", "invocation", "expressionList", "expressionStmt", 
-		"transactionStatement", "transactionClause", "transactionPropertyInitStatement", 
+		"compilationUnit", "packageDeclaration", "packageName", "version", "importDeclaration", 
+		"orgName", "definition", "serviceDefinition", "serviceBody", "resourceDefinition", 
+		"callableUnitBody", "functionDefinition", "lambdaFunction", "callableUnitSignature", 
+		"connectorDefinition", "connectorBody", "actionDefinition", "structDefinition", 
+		"structBody", "privateStructBody", "annotationDefinition", "enumDefinition", 
+		"enumerator", "globalVariableDefinition", "transformerDefinition", "attachmentPoint", 
+		"annotationBody", "constantDefinition", "workerDeclaration", "workerDefinition", 
+		"typeName", "builtInTypeName", "referenceTypeName", "userDefineTypeName", 
+		"anonStructTypeName", "valueTypeName", "builtInReferenceTypeName", "functionTypeName", 
+		"xmlNamespaceName", "xmlLocalName", "annotationAttachment", "annotationAttributeList", 
+		"annotationAttribute", "annotationAttributeValue", "annotationAttributeArray", 
+		"statement", "variableDefinitionStatement", "recordLiteral", "recordKeyValue", 
+		"recordKey", "arrayLiteral", "connectorInit", "endpointDeclaration", "endpointDefinition", 
+		"assignmentStatement", "bindStatement", "variableReferenceList", "ifElseStatement", 
+		"ifClause", "elseIfClause", "elseClause", "foreachStatement", "intRangeExpression", 
+		"whileStatement", "nextStatement", "breakStatement", "forkJoinStatement", 
+		"joinClause", "joinConditions", "timeoutClause", "tryCatchStatement", 
+		"catchClauses", "catchClause", "finallyClause", "throwStatement", "returnStatement", 
+		"workerInteractionStatement", "triggerWorker", "workerReply", "variableReference", 
+		"field", "index", "xmlAttrib", "functionInvocation", "invocation", "expressionList", 
+		"expressionStmt", "transactionStatement", "transactionClause", "transactionPropertyInitStatement", 
 		"transactionPropertyInitStatementList", "lockStatement", "failedClause", 
 		"abortStatement", "retriesStatement", "namespaceDeclarationStatement", 
 		"namespaceDeclaration", "expression", "nameReference", "returnParameters", 
@@ -203,7 +189,7 @@ public class BallerinaParser extends Parser {
 		"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "DeprecatedTemplateEnd", 
 		"SBDeprecatedInlineCodeStart", "DBDeprecatedInlineCodeStart", "TBDeprecatedInlineCodeStart", 
 		"DeprecatedTemplateText", "StringTemplateLiteralEnd", "StringTemplateExpressionStart", 
-		"StringTemplateText", "Semvar"
+		"StringTemplateText"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -307,6 +293,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCompilationUnit(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCompilationUnit(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CompilationUnitContext compilationUnit() throws RecognitionException {
@@ -317,6 +308,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(279);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PACKAGE) {
 				{
@@ -331,6 +323,7 @@ public class BallerinaParser extends Parser {
 			while (_la==IMPORT || _la==XMLNS) {
 				{
 				setState(283);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case IMPORT:
 					{
@@ -373,6 +366,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(295);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DocumentationTemplateStart) {
 					{
@@ -382,6 +376,7 @@ public class BallerinaParser extends Parser {
 				}
 
 				setState(298);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DeprecatedTemplateStart) {
 					{
@@ -431,6 +426,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPackageDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitPackageDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PackageDeclarationContext packageDeclaration() throws RecognitionException {
@@ -458,93 +458,6 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ImportDeclarationContext extends ParserRuleContext {
-		public TerminalNode IMPORT() { return getToken(BallerinaParser.IMPORT, 0); }
-		public PackageNameContext packageName() {
-			return getRuleContext(PackageNameContext.class,0);
-		}
-		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
-		public OrgNameContext orgName() {
-			return getRuleContext(OrgNameContext.class,0);
-		}
-		public TerminalNode DIV() { return getToken(BallerinaParser.DIV, 0); }
-		public VersionContext version() {
-			return getRuleContext(VersionContext.class,0);
-		}
-		public TerminalNode AS() { return getToken(BallerinaParser.AS, 0); }
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public ImportDeclarationContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_importDeclaration; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterImportDeclaration(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitImportDeclaration(this);
-		}
-	}
-
-	public final ImportDeclarationContext importDeclaration() throws RecognitionException {
-		ImportDeclarationContext _localctx = new ImportDeclarationContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_importDeclaration);
-		int _la;
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(312);
-			match(IMPORT);
-			setState(316);
-			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
-			case 1:
-				{
-				setState(313);
-				orgName();
-				setState(314);
-				match(DIV);
-				}
-				break;
-			}
-			setState(318);
-			packageName();
-			setState(320);
-			_la = _input.LA(1);
-			if (_la==VERSION) {
-				{
-				setState(319);
-				version();
-				}
-			}
-
-			setState(324);
-			_la = _input.LA(1);
-			if (_la==AS) {
-				{
-				setState(322);
-				match(AS);
-				setState(323);
-				match(Identifier);
-				}
-			}
-
-			setState(326);
-			match(SEMICOLON);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
 	public static class PackageNameContext extends ParserRuleContext {
 		public List<TerminalNode> Identifier() { return getTokens(BallerinaParser.Identifier); }
 		public TerminalNode Identifier(int i) {
@@ -553,6 +466,9 @@ public class BallerinaParser extends Parser {
 		public List<TerminalNode> DOT() { return getTokens(BallerinaParser.DOT); }
 		public TerminalNode DOT(int i) {
 			return getToken(BallerinaParser.DOT, i);
+		}
+		public VersionContext version() {
+			return getRuleContext(VersionContext.class,0);
 		}
 		public PackageNameContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -566,33 +482,48 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPackageName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitPackageName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PackageNameContext packageName() throws RecognitionException {
 		PackageNameContext _localctx = new PackageNameContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_packageName);
+		enterRule(_localctx, 4, RULE_packageName);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(328);
+			setState(312);
 			match(Identifier);
-			setState(333);
+			setState(317);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(329);
+				setState(313);
 				match(DOT);
-				setState(330);
+				setState(314);
 				match(Identifier);
 				}
 				}
-				setState(335);
+				setState(319);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
+			setState(321);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==VERSION) {
+				{
+				setState(320);
+				version();
+				}
+			}
+
 			}
 		}
 		catch (RecognitionException re) {
@@ -608,7 +539,7 @@ public class BallerinaParser extends Parser {
 
 	public static class VersionContext extends ParserRuleContext {
 		public TerminalNode VERSION() { return getToken(BallerinaParser.VERSION, 0); }
-		public TerminalNode Semvar() { return getToken(BallerinaParser.Semvar, 0); }
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public VersionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -621,18 +552,106 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVersion(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitVersion(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final VersionContext version() throws RecognitionException {
 		VersionContext _localctx = new VersionContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_version);
+		enterRule(_localctx, 6, RULE_version);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(336);
+			{
+			setState(323);
 			match(VERSION);
+			setState(324);
+			match(Identifier);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class ImportDeclarationContext extends ParserRuleContext {
+		public TerminalNode IMPORT() { return getToken(BallerinaParser.IMPORT, 0); }
+		public PackageNameContext packageName() {
+			return getRuleContext(PackageNameContext.class,0);
+		}
+		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
+		public OrgNameContext orgName() {
+			return getRuleContext(OrgNameContext.class,0);
+		}
+		public TerminalNode DIV() { return getToken(BallerinaParser.DIV, 0); }
+		public TerminalNode AS() { return getToken(BallerinaParser.AS, 0); }
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
+		public ImportDeclarationContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_importDeclaration; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterImportDeclaration(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitImportDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitImportDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final ImportDeclarationContext importDeclaration() throws RecognitionException {
+		ImportDeclarationContext _localctx = new ImportDeclarationContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_importDeclaration);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(326);
+			match(IMPORT);
+			setState(330);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
+			case 1:
+				{
+				setState(327);
+				orgName();
+				setState(328);
+				match(DIV);
+				}
+				break;
+			}
+			setState(332);
+			packageName();
+			setState(335);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			if (_la==AS) {
+				{
+				setState(333);
+				match(AS);
+				setState(334);
+				match(Identifier);
+				}
+			}
+
 			setState(337);
-			match(Semvar);
+			match(SEMICOLON);
 			}
 		}
 		catch (RecognitionException re) {
@@ -659,6 +678,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitOrgName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitOrgName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -722,6 +746,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDefinition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDefinition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -831,6 +860,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitServiceDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitServiceDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ServiceDefinitionContext serviceDefinition() throws RecognitionException {
@@ -898,6 +932,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitServiceBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitServiceBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1002,6 +1041,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitResourceDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitResourceDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ResourceDefinitionContext resourceDefinition() throws RecognitionException {
@@ -1026,6 +1070,7 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 			}
 			setState(388);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DocumentationTemplateStart) {
 				{
@@ -1035,6 +1080,7 @@ public class BallerinaParser extends Parser {
 			}
 
 			setState(391);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DeprecatedTemplateStart) {
 				{
@@ -1100,6 +1146,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCallableUnitBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCallableUnitBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1226,6 +1277,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFunctionDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFunctionDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionDefinitionContext functionDefinition() throws RecognitionException {
@@ -1240,6 +1296,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(431);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==PUBLIC) {
 					{
@@ -1253,6 +1310,7 @@ public class BallerinaParser extends Parser {
 				setState(434);
 				match(FUNCTION);
 				setState(439);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LT) {
 					{
@@ -1275,6 +1333,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(445);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==PUBLIC) {
 					{
@@ -1286,6 +1345,7 @@ public class BallerinaParser extends Parser {
 				setState(447);
 				match(FUNCTION);
 				setState(452);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LT) {
 					{
@@ -1342,6 +1402,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitLambdaFunction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitLambdaFunction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LambdaFunctionContext lambdaFunction() throws RecognitionException {
@@ -1356,6 +1421,7 @@ public class BallerinaParser extends Parser {
 			setState(460);
 			match(LEFT_PARENTHESIS);
 			setState(462);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STRUCT) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE))) != 0) || _la==AT || _la==Identifier) {
 				{
@@ -1367,6 +1433,7 @@ public class BallerinaParser extends Parser {
 			setState(464);
 			match(RIGHT_PARENTHESIS);
 			setState(466);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==RETURNS || _la==LEFT_PARENTHESIS) {
 				{
@@ -1412,6 +1479,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCallableUnitSignature(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCallableUnitSignature(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CallableUnitSignatureContext callableUnitSignature() throws RecognitionException {
@@ -1426,6 +1498,7 @@ public class BallerinaParser extends Parser {
 			setState(471);
 			match(LEFT_PARENTHESIS);
 			setState(473);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STRUCT) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE))) != 0) || _la==AT || _la==Identifier) {
 				{
@@ -1437,6 +1510,7 @@ public class BallerinaParser extends Parser {
 			setState(475);
 			match(RIGHT_PARENTHESIS);
 			setState(477);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==RETURNS || _la==LEFT_PARENTHESIS) {
 				{
@@ -1482,6 +1556,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConnectorDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConnectorDefinitionContext connectorDefinition() throws RecognitionException {
@@ -1492,6 +1571,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(480);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -1507,6 +1587,7 @@ public class BallerinaParser extends Parser {
 			setState(484);
 			match(LEFT_PARENTHESIS);
 			setState(486);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STRUCT) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE))) != 0) || _la==AT || _la==Identifier) {
 				{
@@ -1564,6 +1645,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConnectorBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1667,6 +1753,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitActionDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitActionDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ActionDefinitionContext actionDefinition() throws RecognitionException {
@@ -1695,6 +1786,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(519);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DocumentationTemplateStart) {
 					{
@@ -1704,6 +1796,7 @@ public class BallerinaParser extends Parser {
 				}
 
 				setState(522);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DeprecatedTemplateStart) {
 					{
@@ -1740,6 +1833,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(536);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DocumentationTemplateStart) {
 					{
@@ -1749,6 +1843,7 @@ public class BallerinaParser extends Parser {
 				}
 
 				setState(539);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==DeprecatedTemplateStart) {
 					{
@@ -1797,6 +1892,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStructDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStructDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StructDefinitionContext structDefinition() throws RecognitionException {
@@ -1807,6 +1907,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(548);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -1858,6 +1959,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStructBody(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStructBody(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StructBodyContext structBody() throws RecognitionException {
@@ -1884,6 +1990,7 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 			}
 			setState(562);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PRIVATE) {
 				{
@@ -1927,6 +2034,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitPrivateStructBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitPrivateStructBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1998,6 +2110,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationDefinitionContext annotationDefinition() throws RecognitionException {
@@ -2008,6 +2125,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(575);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -2021,6 +2139,7 @@ public class BallerinaParser extends Parser {
 			setState(578);
 			match(Identifier);
 			setState(588);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ATTACH) {
 				{
@@ -2090,6 +2209,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEnumDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEnumDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EnumDefinitionContext enumDefinition() throws RecognitionException {
@@ -2100,6 +2224,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(593);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -2161,6 +2286,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEnumerator(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEnumerator(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EnumeratorContext enumerator() throws RecognitionException {
@@ -2207,6 +2337,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitGlobalVariableDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitGlobalVariableDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final GlobalVariableDefinitionContext globalVariableDefinition() throws RecognitionException {
@@ -2217,6 +2352,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(611);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -2230,6 +2366,7 @@ public class BallerinaParser extends Parser {
 			setState(614);
 			match(Identifier);
 			setState(617);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ASSIGN) {
 				{
@@ -2284,6 +2421,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransformerDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransformerDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransformerDefinitionContext transformerDefinition() throws RecognitionException {
@@ -2294,6 +2436,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(622);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -2311,6 +2454,7 @@ public class BallerinaParser extends Parser {
 			setState(627);
 			match(GT);
 			setState(634);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==Identifier) {
 				{
@@ -2319,6 +2463,7 @@ public class BallerinaParser extends Parser {
 				setState(629);
 				match(LEFT_PARENTHESIS);
 				setState(631);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STRUCT) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << TYPE_ANY) | (1L << TYPE_TYPE))) != 0) || _la==AT || _la==Identifier) {
 					{
@@ -2369,6 +2514,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitParameterAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitParameterAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ServiceAttachPointContext extends AttachmentPointContext {
 		public TerminalNode SERVICE() { return getToken(BallerinaParser.SERVICE, 0); }
@@ -2384,6 +2534,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitServiceAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitServiceAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ActionAttachPointContext extends AttachmentPointContext {
 		public TerminalNode ACTION() { return getToken(BallerinaParser.ACTION, 0); }
@@ -2395,6 +2550,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitActionAttachPoint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitActionAttachPoint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ConnectorAttachPointContext extends AttachmentPointContext {
@@ -2408,6 +2568,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConnectorAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FunctionAttachPointContext extends AttachmentPointContext {
 		public TerminalNode FUNCTION() { return getToken(BallerinaParser.FUNCTION, 0); }
@@ -2419,6 +2584,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFunctionAttachPoint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFunctionAttachPoint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ConstAttachPointContext extends AttachmentPointContext {
@@ -2432,6 +2602,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConstAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConstAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class EnumAttachPointContext extends AttachmentPointContext {
 		public TerminalNode ENUM() { return getToken(BallerinaParser.ENUM, 0); }
@@ -2443,6 +2618,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEnumAttachPoint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEnumAttachPoint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AnnotationAttachPointContext extends AttachmentPointContext {
@@ -2456,6 +2636,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class StructAttachPointContext extends AttachmentPointContext {
 		public TerminalNode STRUCT() { return getToken(BallerinaParser.STRUCT, 0); }
@@ -2467,6 +2652,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStructAttachPoint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStructAttachPoint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TransformerAttachPointContext extends AttachmentPointContext {
@@ -2480,6 +2670,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransformerAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransformerAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ResourceAttachPointContext extends AttachmentPointContext {
 		public TerminalNode RESOURCE() { return getToken(BallerinaParser.RESOURCE, 0); }
@@ -2492,6 +2687,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitResourceAttachPoint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitResourceAttachPoint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AttachmentPointContext attachmentPoint() throws RecognitionException {
@@ -2500,6 +2700,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(656);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SERVICE:
 				_localctx = new ServiceAttachPointContext(_localctx);
@@ -2508,12 +2709,14 @@ public class BallerinaParser extends Parser {
 				setState(638);
 				match(SERVICE);
 				setState(644);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==LT) {
 					{
 					setState(639);
 					match(LT);
 					setState(641);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==Identifier) {
 						{
@@ -2645,6 +2848,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationBody(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationBody(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationBodyContext annotationBody() throws RecognitionException {
@@ -2709,6 +2917,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConstantDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConstantDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConstantDefinitionContext constantDefinition() throws RecognitionException {
@@ -2719,6 +2932,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(668);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
 				{
@@ -2775,6 +2989,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitWorkerDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitWorkerDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2833,6 +3052,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitWorkerDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitWorkerDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WorkerDefinitionContext workerDefinition() throws RecognitionException {
@@ -2890,6 +3114,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TypeNameContext typeName() throws RecognitionException {
@@ -2908,6 +3137,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(695);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TYPE_ANY:
 				{
@@ -3034,6 +3264,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBuiltInTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBuiltInTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BuiltInTypeNameContext builtInTypeName() throws RecognitionException {
@@ -3136,6 +3371,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitReferenceTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitReferenceTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReferenceTypeNameContext referenceTypeName() throws RecognitionException {
@@ -3143,6 +3383,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 64, RULE_referenceTypeName);
 		try {
 			setState(725);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case FUNCTION:
 			case TYPE_MAP:
@@ -3200,6 +3441,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitUserDefineTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitUserDefineTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UserDefineTypeNameContext userDefineTypeName() throws RecognitionException {
@@ -3239,6 +3485,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnonStructTypeName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnonStructTypeName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3283,6 +3534,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitValueTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitValueTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ValueTypeNameContext valueTypeName() throws RecognitionException {
@@ -3296,7 +3552,10 @@ public class BallerinaParser extends Parser {
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB))) != 0)) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -3348,6 +3607,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBuiltInReferenceTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBuiltInReferenceTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BuiltInReferenceTypeNameContext builtInReferenceTypeName() throws RecognitionException {
@@ -3356,6 +3620,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(769);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TYPE_MAP:
 				enterOuterAlt(_localctx, 1);
@@ -3391,6 +3656,7 @@ public class BallerinaParser extends Parser {
 					setState(742);
 					match(LT);
 					setState(747);
+					_errHandler.sync(this);
 					_la = _input.LA(1);
 					if (_la==LEFT_BRACE) {
 						{
@@ -3501,6 +3767,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFunctionTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFunctionTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionTypeNameContext functionTypeName() throws RecognitionException {
@@ -3568,6 +3839,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlNamespaceName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlNamespaceName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlNamespaceNameContext xmlNamespaceName() throws RecognitionException {
@@ -3604,6 +3880,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlLocalName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlLocalName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3650,6 +3931,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttachment(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttachment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationAttachmentContext annotationAttachment() throws RecognitionException {
@@ -3666,6 +3952,7 @@ public class BallerinaParser extends Parser {
 			setState(787);
 			match(LEFT_BRACE);
 			setState(789);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==Identifier) {
 				{
@@ -3711,6 +3998,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttributeList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttributeList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3770,6 +4062,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttribute(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttribute(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationAttributeContext annotationAttribute() throws RecognitionException {
@@ -3822,6 +4119,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttributeValue(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttributeValue(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationAttributeValueContext annotationAttributeValue() throws RecognitionException {
@@ -3829,6 +4131,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 86, RULE_annotationAttributeValue);
 		try {
 			setState(809);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SUB:
 			case IntegerLiteral:
@@ -3903,6 +4206,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnnotationAttributeArray(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnnotationAttributeArray(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationAttributeArrayContext annotationAttributeArray() throws RecognitionException {
@@ -3915,6 +4223,7 @@ public class BallerinaParser extends Parser {
 			setState(811);
 			match(LEFT_BRACKET);
 			setState(820);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 74)) & ~0x3f) == 0 && ((1L << (_la - 74)) & ((1L << (LEFT_BRACKET - 74)) | (1L << (SUB - 74)) | (1L << (AT - 74)) | (1L << (IntegerLiteral - 74)) | (1L << (FloatingPointLiteral - 74)) | (1L << (BooleanLiteral - 74)) | (1L << (QuotedStringLiteral - 74)) | (1L << (NullLiteral - 74)) | (1L << (Identifier - 74)))) != 0)) {
 				{
@@ -4020,6 +4329,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4191,6 +4505,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVariableDefinitionStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitVariableDefinitionStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final VariableDefinitionStatementContext variableDefinitionStatement() throws RecognitionException {
@@ -4205,6 +4524,7 @@ public class BallerinaParser extends Parser {
 			setState(845);
 			match(Identifier);
 			setState(848);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ASSIGN) {
 				{
@@ -4255,6 +4575,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitRecordLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RecordLiteralContext recordLiteral() throws RecognitionException {
@@ -4267,6 +4592,7 @@ public class BallerinaParser extends Parser {
 			setState(852);
 			match(LEFT_BRACE);
 			setState(861);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 79)) & ~0x3f) == 0 && ((1L << (_la - 79)) & ((1L << (SUB - 79)) | (1L << (IntegerLiteral - 79)) | (1L << (FloatingPointLiteral - 79)) | (1L << (BooleanLiteral - 79)) | (1L << (QuotedStringLiteral - 79)) | (1L << (NullLiteral - 79)) | (1L << (Identifier - 79)))) != 0)) {
 				{
@@ -4326,6 +4652,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordKeyValue(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitRecordKeyValue(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RecordKeyValueContext recordKeyValue() throws RecognitionException {
@@ -4370,6 +4701,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitRecordKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RecordKeyContext recordKey() throws RecognitionException {
@@ -4377,6 +4713,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 98, RULE_recordKey);
 		try {
 			setState(871);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Identifier:
 				enterOuterAlt(_localctx, 1);
@@ -4430,6 +4767,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitArrayLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitArrayLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ArrayLiteralContext arrayLiteral() throws RecognitionException {
@@ -4442,6 +4784,7 @@ public class BallerinaParser extends Parser {
 			setState(873);
 			match(LEFT_BRACKET);
 			setState(875);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << CREATE) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (UNTAINT - 65)) | (1L << (LEFT_BRACE - 65)) | (1L << (LEFT_PARENTHESIS - 65)) | (1L << (LEFT_BRACKET - 65)) | (1L << (ADD - 65)) | (1L << (SUB - 65)) | (1L << (NOT - 65)) | (1L << (LT - 65)) | (1L << (IntegerLiteral - 65)) | (1L << (FloatingPointLiteral - 65)) | (1L << (BooleanLiteral - 65)) | (1L << (QuotedStringLiteral - 65)) | (1L << (NullLiteral - 65)) | (1L << (Identifier - 65)) | (1L << (XMLLiteralStart - 65)) | (1L << (StringTemplateLiteralStart - 65)))) != 0)) {
 				{
@@ -4487,6 +4830,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorInit(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConnectorInit(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConnectorInitContext connectorInit() throws RecognitionException {
@@ -4503,6 +4851,7 @@ public class BallerinaParser extends Parser {
 			setState(881);
 			match(LEFT_PARENTHESIS);
 			setState(883);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << CREATE) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (UNTAINT - 65)) | (1L << (LEFT_BRACE - 65)) | (1L << (LEFT_PARENTHESIS - 65)) | (1L << (LEFT_BRACKET - 65)) | (1L << (ADD - 65)) | (1L << (SUB - 65)) | (1L << (NOT - 65)) | (1L << (LT - 65)) | (1L << (IntegerLiteral - 65)) | (1L << (FloatingPointLiteral - 65)) | (1L << (BooleanLiteral - 65)) | (1L << (QuotedStringLiteral - 65)) | (1L << (NullLiteral - 65)) | (1L << (Identifier - 65)) | (1L << (XMLLiteralStart - 65)) | (1L << (StringTemplateLiteralStart - 65)))) != 0)) {
 				{
@@ -4551,6 +4900,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEndpointDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEndpointDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EndpointDeclarationContext endpointDeclaration() throws RecognitionException {
@@ -4565,10 +4919,12 @@ public class BallerinaParser extends Parser {
 			setState(888);
 			match(LEFT_BRACE);
 			setState(895);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==CREATE || _la==Identifier) {
 				{
 				setState(891);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case Identifier:
 					{
@@ -4625,6 +4981,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEndpointDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEndpointDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EndpointDefinitionContext endpointDefinition() throws RecognitionException {
@@ -4680,6 +5041,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAssignmentStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAssignmentStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AssignmentStatementContext assignmentStatement() throws RecognitionException {
@@ -4690,6 +5056,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(907);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==VAR) {
 				{
@@ -4738,6 +5105,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBindStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBindStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4792,6 +5164,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVariableReferenceList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitVariableReferenceList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4858,6 +5235,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitIfElseStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitIfElseStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IfElseStatementContext ifElseStatement() throws RecognitionException {
@@ -4887,6 +5269,7 @@ public class BallerinaParser extends Parser {
 				_alt = getInterpreter().adaptivePredict(_input,94,_ctx);
 			}
 			setState(936);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ELSE) {
 				{
@@ -4934,6 +5317,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitIfClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitIfClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5011,6 +5399,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitElseIfClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitElseIfClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ElseIfClauseContext elseIfClause() throws RecognitionException {
@@ -5082,6 +5475,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitElseClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitElseClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5159,6 +5557,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitForeachStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitForeachStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ForeachStatementContext foreachStatement() throws RecognitionException {
@@ -5171,6 +5574,7 @@ public class BallerinaParser extends Parser {
 			setState(975);
 			match(FOREACH);
 			setState(977);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LEFT_PARENTHESIS) {
 				{
@@ -5200,6 +5604,7 @@ public class BallerinaParser extends Parser {
 				break;
 			}
 			setState(986);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==RIGHT_PARENTHESIS) {
 				{
@@ -5263,6 +5668,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitIntRangeExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitIntRangeExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IntRangeExpressionContext intRangeExpression() throws RecognitionException {
@@ -5291,7 +5701,10 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==LEFT_PARENTHESIS || _la==LEFT_BRACKET) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(1002);
@@ -5304,7 +5717,10 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(_la==RIGHT_PARENTHESIS || _la==RIGHT_BRACKET) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				}
@@ -5348,6 +5764,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitWhileStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitWhileStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5412,6 +5833,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNextStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitNextStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NextStatementContext nextStatement() throws RecognitionException {
@@ -5451,6 +5877,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBreakStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBreakStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5505,6 +5936,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitForkJoinStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitForkJoinStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ForkJoinStatementContext forkJoinStatement() throws RecognitionException {
@@ -5535,6 +5971,7 @@ public class BallerinaParser extends Parser {
 			setState(1036);
 			match(RIGHT_BRACE);
 			setState(1038);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==JOIN) {
 				{
@@ -5544,6 +5981,7 @@ public class BallerinaParser extends Parser {
 			}
 
 			setState(1041);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==TIMEOUT) {
 				{
@@ -5601,6 +6039,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitJoinClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitJoinClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5696,6 +6139,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAllJoinCondition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAllJoinCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AnyJoinConditionContext extends JoinConditionsContext {
 		public TerminalNode SOME() { return getToken(BallerinaParser.SOME, 0); }
@@ -5717,6 +6165,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnyJoinCondition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnyJoinCondition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final JoinConditionsContext joinConditions() throws RecognitionException {
@@ -5725,6 +6178,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1086);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SOME:
 				_localctx = new AnyJoinConditionContext(_localctx);
@@ -5735,6 +6189,7 @@ public class BallerinaParser extends Parser {
 				setState(1064);
 				match(IntegerLiteral);
 				setState(1073);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==Identifier) {
 					{
@@ -5768,6 +6223,7 @@ public class BallerinaParser extends Parser {
 				setState(1075);
 				match(ALL);
 				setState(1084);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==Identifier) {
 					{
@@ -5845,6 +6301,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTimeoutClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTimeoutClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5927,6 +6388,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTryCatchStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTryCatchStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TryCatchStatementContext tryCatchStatement() throws RecognitionException {
@@ -5993,6 +6459,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCatchClauses(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCatchClauses(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CatchClausesContext catchClauses() throws RecognitionException {
@@ -6001,6 +6472,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1125);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CATCH:
 				enterOuterAlt(_localctx, 1);
@@ -6020,6 +6492,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				} while ( _la==CATCH );
 				setState(1122);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==FINALLY) {
 					{
@@ -6079,6 +6552,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCatchClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCatchClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6152,6 +6630,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFinallyClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFinallyClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FinallyClauseContext finallyClause() throws RecognitionException {
@@ -6212,6 +6695,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitThrowStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitThrowStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ThrowStatementContext throwStatement() throws RecognitionException {
@@ -6257,6 +6745,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitReturnStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitReturnStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReturnStatementContext returnStatement() throws RecognitionException {
@@ -6269,6 +6762,7 @@ public class BallerinaParser extends Parser {
 			setState(1155);
 			match(RETURN);
 			setState(1157);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << CREATE) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (UNTAINT - 65)) | (1L << (LEFT_BRACE - 65)) | (1L << (LEFT_PARENTHESIS - 65)) | (1L << (LEFT_BRACKET - 65)) | (1L << (ADD - 65)) | (1L << (SUB - 65)) | (1L << (NOT - 65)) | (1L << (LT - 65)) | (1L << (IntegerLiteral - 65)) | (1L << (FloatingPointLiteral - 65)) | (1L << (BooleanLiteral - 65)) | (1L << (QuotedStringLiteral - 65)) | (1L << (NullLiteral - 65)) | (1L << (Identifier - 65)) | (1L << (XMLLiteralStart - 65)) | (1L << (StringTemplateLiteralStart - 65)))) != 0)) {
 				{
@@ -6310,6 +6804,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitWorkerInteractionStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitWorkerInteractionStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6374,6 +6873,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInvokeWorker(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitInvokeWorker(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class InvokeForkContext extends TriggerWorkerContext {
 		public ExpressionListContext expressionList() {
@@ -6390,6 +6894,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInvokeFork(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitInvokeFork(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6460,6 +6969,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitWorkerReply(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitWorkerReply(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WorkerReplyContext workerReply() throws RecognitionException {
@@ -6516,6 +7030,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlAttribVariableReference(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlAttribVariableReference(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleVariableReferenceContext extends VariableReferenceContext {
 		public NameReferenceContext nameReference() {
@@ -6529,6 +7048,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSimpleVariableReference(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitSimpleVariableReference(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class InvocationReferenceContext extends VariableReferenceContext {
@@ -6547,6 +7071,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInvocationReference(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitInvocationReference(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FunctionInvocationReferenceContext extends VariableReferenceContext {
 		public FunctionInvocationContext functionInvocation() {
@@ -6560,6 +7089,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFunctionInvocationReference(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFunctionInvocationReference(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class FieldVariableReferenceContext extends VariableReferenceContext {
@@ -6578,6 +7112,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFieldVariableReference(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFieldVariableReference(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class MapArrayVariableReferenceContext extends VariableReferenceContext {
 		public VariableReferenceContext variableReference() {
@@ -6594,6 +7133,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitMapArrayVariableReference(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitMapArrayVariableReference(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6722,6 +7266,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitField(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitField(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FieldContext field() throws RecognitionException {
@@ -6764,6 +7313,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitIndex(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitIndex(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6810,6 +7364,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlAttrib(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlAttrib(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6869,6 +7428,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFunctionInvocation(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFunctionInvocation(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionInvocationContext functionInvocation() throws RecognitionException {
@@ -6883,6 +7447,7 @@ public class BallerinaParser extends Parser {
 			setState(1215);
 			match(LEFT_PARENTHESIS);
 			setState(1217);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << CREATE) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (UNTAINT - 65)) | (1L << (LEFT_BRACE - 65)) | (1L << (LEFT_PARENTHESIS - 65)) | (1L << (LEFT_BRACKET - 65)) | (1L << (ADD - 65)) | (1L << (SUB - 65)) | (1L << (NOT - 65)) | (1L << (LT - 65)) | (1L << (IntegerLiteral - 65)) | (1L << (FloatingPointLiteral - 65)) | (1L << (BooleanLiteral - 65)) | (1L << (QuotedStringLiteral - 65)) | (1L << (NullLiteral - 65)) | (1L << (Identifier - 65)) | (1L << (XMLLiteralStart - 65)) | (1L << (StringTemplateLiteralStart - 65)))) != 0)) {
 				{
@@ -6928,6 +7493,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitInvocation(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitInvocation(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final InvocationContext invocation() throws RecognitionException {
@@ -6944,6 +7514,7 @@ public class BallerinaParser extends Parser {
 			setState(1223);
 			match(LEFT_PARENTHESIS);
 			setState(1225);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP) | (1L << TYPE_JSON) | (1L << TYPE_XML) | (1L << TYPE_TABLE) | (1L << CREATE) | (1L << LENGTHOF) | (1L << TYPEOF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (UNTAINT - 65)) | (1L << (LEFT_BRACE - 65)) | (1L << (LEFT_PARENTHESIS - 65)) | (1L << (LEFT_BRACKET - 65)) | (1L << (ADD - 65)) | (1L << (SUB - 65)) | (1L << (NOT - 65)) | (1L << (LT - 65)) | (1L << (IntegerLiteral - 65)) | (1L << (FloatingPointLiteral - 65)) | (1L << (BooleanLiteral - 65)) | (1L << (QuotedStringLiteral - 65)) | (1L << (NullLiteral - 65)) | (1L << (Identifier - 65)) | (1L << (XMLLiteralStart - 65)) | (1L << (StringTemplateLiteralStart - 65)))) != 0)) {
 				{
@@ -6989,6 +7560,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitExpressionList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitExpressionList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7047,6 +7623,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitExpressionStmt(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitExpressionStmt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExpressionStmtContext expressionStmt() throws RecognitionException {
@@ -7091,6 +7672,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransactionStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransactionStatementContext transactionStatement() throws RecognitionException {
@@ -7103,6 +7689,7 @@ public class BallerinaParser extends Parser {
 			setState(1240);
 			transactionClause();
 			setState(1242);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==FAILED) {
 				{
@@ -7150,6 +7737,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransactionClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransactionClauseContext transactionClause() throws RecognitionException {
@@ -7162,6 +7754,7 @@ public class BallerinaParser extends Parser {
 			setState(1244);
 			match(TRANSACTION);
 			setState(1247);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==WITH) {
 				{
@@ -7219,6 +7812,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransactionPropertyInitStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransactionPropertyInitStatementContext transactionPropertyInitStatement() throws RecognitionException {
@@ -7264,6 +7862,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTransactionPropertyInitStatementList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTransactionPropertyInitStatementList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7326,6 +7929,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitLockStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitLockStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7391,6 +7999,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFailedClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFailedClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FailedClauseContext failedClause() throws RecognitionException {
@@ -7448,6 +8061,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAbortStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAbortStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AbortStatementContext abortStatement() throws RecognitionException {
@@ -7491,6 +8109,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRetriesStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitRetriesStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7537,6 +8160,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNamespaceDeclarationStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitNamespaceDeclarationStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NamespaceDeclarationStatementContext namespaceDeclarationStatement() throws RecognitionException {
@@ -7578,6 +8206,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNamespaceDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitNamespaceDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NamespaceDeclarationContext namespaceDeclaration() throws RecognitionException {
@@ -7592,6 +8225,7 @@ public class BallerinaParser extends Parser {
 			setState(1299);
 			match(QuotedStringLiteral);
 			setState(1302);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==AS) {
 				{
@@ -7641,6 +8275,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitConnectorInitExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitConnectorInitExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryDivMulModExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -7661,6 +8300,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryDivMulModExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryDivMulModExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryOrExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -7679,6 +8323,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryOrExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryOrExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class XmlLiteralExpressionContext extends ExpressionContext {
 		public XmlLiteralContext xmlLiteral() {
@@ -7692,6 +8341,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlLiteralExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlLiteralExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ValueTypeTypeExpressionContext extends ExpressionContext {
@@ -7709,6 +8363,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitValueTypeTypeExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitValueTypeTypeExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleLiteralExpressionContext extends ExpressionContext {
 		public SimpleLiteralContext simpleLiteral() {
@@ -7722,6 +8381,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSimpleLiteralExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitSimpleLiteralExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class StringTemplateLiteralExpressionContext extends ExpressionContext {
@@ -7737,6 +8401,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStringTemplateLiteralExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStringTemplateLiteralExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class LambdaFunctionExpressionContext extends ExpressionContext {
 		public LambdaFunctionContext lambdaFunction() {
@@ -7750,6 +8419,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitLambdaFunctionExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitLambdaFunctionExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryEqualExpressionContext extends ExpressionContext {
@@ -7770,6 +8444,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryEqualExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryEqualExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RecordLiteralExpressionContext extends ExpressionContext {
 		public RecordLiteralContext recordLiteral() {
@@ -7783,6 +8462,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordLiteralExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitRecordLiteralExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ArrayLiteralExpressionContext extends ExpressionContext {
@@ -7798,6 +8482,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitArrayLiteralExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitArrayLiteralExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TypeAccessExpressionContext extends ExpressionContext {
 		public TerminalNode TYPEOF() { return getToken(BallerinaParser.TYPEOF, 0); }
@@ -7812,6 +8501,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeAccessExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTypeAccessExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BracedExpressionContext extends ExpressionContext {
@@ -7829,6 +8523,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBracedExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBracedExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class VariableReferenceExpressionContext extends ExpressionContext {
 		public VariableReferenceContext variableReference() {
@@ -7842,6 +8541,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitVariableReferenceExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitVariableReferenceExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TypeCastingExpressionContext extends ExpressionContext {
@@ -7862,6 +8566,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeCastingExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTypeCastingExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryAndExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -7879,6 +8588,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryAndExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryAndExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryAddSubExpressionContext extends ExpressionContext {
@@ -7898,6 +8612,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryAddSubExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryAddSubExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TypeConversionExpressionContext extends ExpressionContext {
@@ -7922,6 +8641,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTypeConversionExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTypeConversionExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryCompareExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -7943,6 +8667,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryCompareExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryCompareExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BuiltInReferenceTypeTypeExpressionContext extends ExpressionContext {
 		public BuiltInReferenceTypeNameContext builtInReferenceTypeName() {
@@ -7958,6 +8687,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBuiltInReferenceTypeTypeExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBuiltInReferenceTypeTypeExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class UnaryExpressionContext extends ExpressionContext {
@@ -7979,6 +8713,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitUnaryExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitUnaryExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TernaryExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -7998,6 +8737,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTernaryExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTernaryExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryPowExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -8015,6 +8759,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitBinaryPowExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitBinaryPowExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -8161,6 +8910,7 @@ public class BallerinaParser extends Parser {
 				setState(1329);
 				typeName(0);
 				setState(1332);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
@@ -8197,7 +8947,10 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 				if ( !(((((_la - 59)) & ~0x3f) == 0 && ((1L << (_la - 59)) & ((1L << (LENGTHOF - 59)) | (1L << (TYPEOF - 59)) | (1L << (UNTAINT - 59)) | (1L << (ADD - 59)) | (1L << (SUB - 59)) | (1L << (NOT - 59)))) != 0)) ) {
 				_errHandler.recoverInline(this);
-				} else {
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
 					consume();
 				}
 				setState(1340);
@@ -8252,7 +9005,10 @@ public class BallerinaParser extends Parser {
 						_la = _input.LA(1);
 						if ( !(((((_la - 80)) & ~0x3f) == 0 && ((1L << (_la - 80)) & ((1L << (MUL - 80)) | (1L << (DIV - 80)) | (1L << (MOD - 80)))) != 0)) ) {
 						_errHandler.recoverInline(this);
-						} else {
+						}
+						else {
+							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+							_errHandler.reportMatch(this);
 							consume();
 						}
 						setState(1352);
@@ -8269,7 +9025,10 @@ public class BallerinaParser extends Parser {
 						_la = _input.LA(1);
 						if ( !(_la==ADD || _la==SUB) ) {
 						_errHandler.recoverInline(this);
-						} else {
+						}
+						else {
+							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+							_errHandler.reportMatch(this);
 							consume();
 						}
 						setState(1355);
@@ -8286,7 +9045,10 @@ public class BallerinaParser extends Parser {
 						_la = _input.LA(1);
 						if ( !(((((_la - 87)) & ~0x3f) == 0 && ((1L << (_la - 87)) & ((1L << (GT - 87)) | (1L << (LT - 87)) | (1L << (GT_EQUAL - 87)) | (1L << (LT_EQUAL - 87)))) != 0)) ) {
 						_errHandler.recoverInline(this);
-						} else {
+						}
+						else {
+							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+							_errHandler.reportMatch(this);
 							consume();
 						}
 						setState(1358);
@@ -8303,7 +9065,10 @@ public class BallerinaParser extends Parser {
 						_la = _input.LA(1);
 						if ( !(_la==EQUAL || _la==NOT_EQUAL) ) {
 						_errHandler.recoverInline(this);
-						} else {
+						}
+						else {
+							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+							_errHandler.reportMatch(this);
 							consume();
 						}
 						setState(1361);
@@ -8388,6 +9153,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitNameReference(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitNameReference(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NameReferenceContext nameReference() throws RecognitionException {
@@ -8445,6 +9215,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitReturnParameters(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitReturnParameters(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReturnParametersContext returnParameters() throws RecognitionException {
@@ -8455,6 +9230,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1386);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==RETURNS) {
 				{
@@ -8519,6 +9295,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitParameterTypeNameList(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitParameterTypeNameList(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParameterTypeNameListContext parameterTypeNameList() throws RecognitionException {
@@ -8581,6 +9362,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitParameterTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitParameterTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParameterTypeNameContext parameterTypeName() throws RecognitionException {
@@ -8641,6 +9427,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitParameterList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitParameterList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -8705,6 +9496,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitParameter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitParameter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParameterContext parameter() throws RecognitionException {
@@ -8767,6 +9563,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFieldDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitFieldDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FieldDefinitionContext fieldDefinition() throws RecognitionException {
@@ -8781,6 +9582,7 @@ public class BallerinaParser extends Parser {
 			setState(1429);
 			match(Identifier);
 			setState(1432);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==ASSIGN) {
 				{
@@ -8825,6 +9627,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSimpleLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitSimpleLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SimpleLiteralContext simpleLiteral() throws RecognitionException {
@@ -8839,6 +9646,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1437);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SUB) {
 					{
@@ -8855,6 +9663,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(1441);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==SUB) {
 					{
@@ -8919,6 +9728,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlLiteralContext xmlLiteral() throws RecognitionException {
@@ -8972,6 +9786,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlItem(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlItem(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlItemContext xmlItem() throws RecognitionException {
@@ -8979,6 +9798,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 214, RULE_xmlItem);
 		try {
 			setState(1458);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case XML_TAG_OPEN:
 				enterOuterAlt(_localctx, 1);
@@ -9072,6 +9892,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitContent(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitContent(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ContentContext content() throws RecognitionException {
@@ -9082,6 +9907,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1461);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==XMLTemplateText || _la==XMLText) {
 				{
@@ -9097,6 +9923,7 @@ public class BallerinaParser extends Parser {
 				{
 				{
 				setState(1467);
+				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case XML_TAG_OPEN:
 					{
@@ -9126,6 +9953,7 @@ public class BallerinaParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				setState(1470);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==XMLTemplateText || _la==XMLText) {
 					{
@@ -9181,6 +10009,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitComment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitComment(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9251,6 +10084,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitElement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitElement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ElementContext element() throws RecognitionException {
@@ -9315,6 +10153,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStartTag(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStartTag(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StartTagContext startTag() throws RecognitionException {
@@ -9375,6 +10218,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitCloseTag(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitCloseTag(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CloseTagContext closeTag() throws RecognitionException {
@@ -9425,6 +10273,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitEmptyTag(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitEmptyTag(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9497,6 +10350,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitProcIns(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitProcIns(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ProcInsContext procIns() throws RecognitionException {
@@ -9561,6 +10419,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAttribute(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAttribute(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AttributeContext attribute() throws RecognitionException {
@@ -9616,6 +10479,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitText(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitText(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TextContext text() throws RecognitionException {
@@ -9624,6 +10492,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1548);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case XMLTemplateText:
 				enterOuterAlt(_localctx, 1);
@@ -9647,6 +10516,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				} while ( _la==XMLTemplateText );
 				setState(1545);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==XMLText) {
 					{
@@ -9698,6 +10568,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlQuotedString(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlQuotedString(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlQuotedStringContext xmlQuotedString() throws RecognitionException {
@@ -9705,6 +10580,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 234, RULE_xmlQuotedString);
 		try {
 			setState(1552);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SINGLE_QUOTE:
 				enterOuterAlt(_localctx, 1);
@@ -9765,6 +10641,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlSingleQuotedString(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlSingleQuotedString(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlSingleQuotedStringContext xmlSingleQuotedString() throws RecognitionException {
@@ -9795,6 +10676,7 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 			}
 			setState(1565);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==XMLSingleQuotedString) {
 				{
@@ -9848,6 +10730,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlDoubleQuotedString(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlDoubleQuotedString(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlDoubleQuotedStringContext xmlDoubleQuotedString() throws RecognitionException {
@@ -9878,6 +10765,7 @@ public class BallerinaParser extends Parser {
 				_la = _input.LA(1);
 			}
 			setState(1580);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==XMLDoubleQuotedString) {
 				{
@@ -9924,6 +10812,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitXmlQualifiedName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitXmlQualifiedName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XmlQualifiedNameContext xmlQualifiedName() throws RecognitionException {
@@ -9931,6 +10824,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 240, RULE_xmlQualifiedName);
 		try {
 			setState(1593);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case XMLQName:
 				enterOuterAlt(_localctx, 1);
@@ -9995,6 +10889,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStringTemplateLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStringTemplateLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StringTemplateLiteralContext stringTemplateLiteral() throws RecognitionException {
@@ -10007,6 +10906,7 @@ public class BallerinaParser extends Parser {
 			setState(1595);
 			match(StringTemplateLiteralStart);
 			setState(1597);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==StringTemplateExpressionStart || _la==StringTemplateText) {
 				{
@@ -10058,6 +10958,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitStringTemplateContent(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitStringTemplateContent(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StringTemplateContentContext stringTemplateContent() throws RecognitionException {
@@ -10066,6 +10971,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1613);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case StringTemplateExpressionStart:
 				enterOuterAlt(_localctx, 1);
@@ -10089,6 +10995,7 @@ public class BallerinaParser extends Parser {
 					_la = _input.LA(1);
 				} while ( _la==StringTemplateExpressionStart );
 				setState(1610);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==StringTemplateText) {
 					{
@@ -10138,6 +11045,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitAnyIdentifierName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitAnyIdentifierName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnyIdentifierNameContext anyIdentifierName() throws RecognitionException {
@@ -10145,6 +11057,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 246, RULE_anyIdentifierName);
 		try {
 			setState(1617);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Identifier:
 				enterOuterAlt(_localctx, 1);
@@ -10191,6 +11104,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitReservedWord(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitReservedWord(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReservedWordContext reservedWord() throws RecognitionException {
@@ -10204,7 +11122,10 @@ public class BallerinaParser extends Parser {
 			_la = _input.LA(1);
 			if ( !(_la==TYPE_MAP || _la==FOREACH) ) {
 			_errHandler.recoverInline(this);
-			} else {
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
 				consume();
 			}
 			}
@@ -10238,6 +11159,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDeprecatedAttachment(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDeprecatedAttachment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeprecatedAttachmentContext deprecatedAttachment() throws RecognitionException {
@@ -10250,6 +11176,7 @@ public class BallerinaParser extends Parser {
 			setState(1621);
 			match(DeprecatedTemplateStart);
 			setState(1623);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 158)) & ~0x3f) == 0 && ((1L << (_la - 158)) & ((1L << (SBDeprecatedInlineCodeStart - 158)) | (1L << (DBDeprecatedInlineCodeStart - 158)) | (1L << (TBDeprecatedInlineCodeStart - 158)) | (1L << (DeprecatedTemplateText - 158)))) != 0)) {
 				{
@@ -10296,6 +11223,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDeprecatedText(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDeprecatedText(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeprecatedTextContext deprecatedText() throws RecognitionException {
@@ -10304,6 +11236,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1643);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SBDeprecatedInlineCodeStart:
 			case DBDeprecatedInlineCodeStart:
@@ -10318,6 +11251,7 @@ public class BallerinaParser extends Parser {
 				while (((((_la - 158)) & ~0x3f) == 0 && ((1L << (_la - 158)) & ((1L << (SBDeprecatedInlineCodeStart - 158)) | (1L << (DBDeprecatedInlineCodeStart - 158)) | (1L << (TBDeprecatedInlineCodeStart - 158)) | (1L << (DeprecatedTemplateText - 158)))) != 0)) {
 					{
 					setState(1630);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case DeprecatedTemplateText:
 						{
@@ -10354,6 +11288,7 @@ public class BallerinaParser extends Parser {
 				while (((((_la - 158)) & ~0x3f) == 0 && ((1L << (_la - 158)) & ((1L << (SBDeprecatedInlineCodeStart - 158)) | (1L << (DBDeprecatedInlineCodeStart - 158)) | (1L << (TBDeprecatedInlineCodeStart - 158)) | (1L << (DeprecatedTemplateText - 158)))) != 0)) {
 					{
 					setState(1638);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case DeprecatedTemplateText:
 						{
@@ -10416,6 +11351,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDeprecatedTemplateInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDeprecatedTemplateInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeprecatedTemplateInlineCodeContext deprecatedTemplateInlineCode() throws RecognitionException {
@@ -10423,6 +11363,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 254, RULE_deprecatedTemplateInlineCode);
 		try {
 			setState(1648);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SBDeprecatedInlineCodeStart:
 				enterOuterAlt(_localctx, 1);
@@ -10476,6 +11417,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSingleBackTickDeprecatedInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitSingleBackTickDeprecatedInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SingleBackTickDeprecatedInlineCodeContext singleBackTickDeprecatedInlineCode() throws RecognitionException {
@@ -10488,6 +11434,7 @@ public class BallerinaParser extends Parser {
 			setState(1650);
 			match(SBDeprecatedInlineCodeStart);
 			setState(1652);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==SingleBackTickInlineCode) {
 				{
@@ -10527,6 +11474,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDoubleBackTickDeprecatedInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDoubleBackTickDeprecatedInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DoubleBackTickDeprecatedInlineCodeContext doubleBackTickDeprecatedInlineCode() throws RecognitionException {
@@ -10539,6 +11491,7 @@ public class BallerinaParser extends Parser {
 			setState(1656);
 			match(DBDeprecatedInlineCodeStart);
 			setState(1658);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DoubleBackTickInlineCode) {
 				{
@@ -10578,6 +11531,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTripleBackTickDeprecatedInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTripleBackTickDeprecatedInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TripleBackTickDeprecatedInlineCodeContext tripleBackTickDeprecatedInlineCode() throws RecognitionException {
@@ -10590,6 +11548,7 @@ public class BallerinaParser extends Parser {
 			setState(1662);
 			match(TBDeprecatedInlineCodeStart);
 			setState(1664);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==TripleBackTickInlineCode) {
 				{
@@ -10631,6 +11590,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDocumentationAttachment(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDocumentationAttachment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DocumentationAttachmentContext documentationAttachment() throws RecognitionException {
@@ -10643,6 +11607,7 @@ public class BallerinaParser extends Parser {
 			setState(1668);
 			match(DocumentationTemplateStart);
 			setState(1670);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 146)) & ~0x3f) == 0 && ((1L << (_la - 146)) & ((1L << (DocumentationTemplateAttributeStart - 146)) | (1L << (SBDocInlineCodeStart - 146)) | (1L << (DBDocInlineCodeStart - 146)) | (1L << (TBDocInlineCodeStart - 146)) | (1L << (DocumentationTemplateText - 146)))) != 0)) {
 				{
@@ -10688,6 +11653,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDocumentationTemplateContent(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDocumentationTemplateContent(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DocumentationTemplateContentContext documentationTemplateContent() throws RecognitionException {
@@ -10702,6 +11672,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1675);
+				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (((((_la - 147)) & ~0x3f) == 0 && ((1L << (_la - 147)) & ((1L << (SBDocInlineCodeStart - 147)) | (1L << (DBDocInlineCodeStart - 147)) | (1L << (TBDocInlineCodeStart - 147)) | (1L << (DocumentationTemplateText - 147)))) != 0)) {
 					{
@@ -10765,6 +11736,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDocumentationTemplateAttributeDescription(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDocumentationTemplateAttributeDescription(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DocumentationTemplateAttributeDescriptionContext documentationTemplateAttributeDescription() throws RecognitionException {
@@ -10781,6 +11757,7 @@ public class BallerinaParser extends Parser {
 			setState(1687);
 			match(DocumentationTemplateAttributeEnd);
 			setState(1689);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (((((_la - 147)) & ~0x3f) == 0 && ((1L << (_la - 147)) & ((1L << (SBDocInlineCodeStart - 147)) | (1L << (DBDocInlineCodeStart - 147)) | (1L << (TBDocInlineCodeStart - 147)) | (1L << (DocumentationTemplateText - 147)))) != 0)) {
 				{
@@ -10825,6 +11802,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDocText(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDocText(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DocTextContext docText() throws RecognitionException {
@@ -10833,6 +11815,7 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			setState(1707);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SBDocInlineCodeStart:
 			case DBDocInlineCodeStart:
@@ -10847,6 +11830,7 @@ public class BallerinaParser extends Parser {
 				while (((((_la - 147)) & ~0x3f) == 0 && ((1L << (_la - 147)) & ((1L << (SBDocInlineCodeStart - 147)) | (1L << (DBDocInlineCodeStart - 147)) | (1L << (TBDocInlineCodeStart - 147)) | (1L << (DocumentationTemplateText - 147)))) != 0)) {
 					{
 					setState(1694);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case DocumentationTemplateText:
 						{
@@ -10883,6 +11867,7 @@ public class BallerinaParser extends Parser {
 				while (((((_la - 147)) & ~0x3f) == 0 && ((1L << (_la - 147)) & ((1L << (SBDocInlineCodeStart - 147)) | (1L << (DBDocInlineCodeStart - 147)) | (1L << (TBDocInlineCodeStart - 147)) | (1L << (DocumentationTemplateText - 147)))) != 0)) {
 					{
 					setState(1702);
+					_errHandler.sync(this);
 					switch (_input.LA(1)) {
 					case DocumentationTemplateText:
 						{
@@ -10945,6 +11930,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDocumentationTemplateInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDocumentationTemplateInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DocumentationTemplateInlineCodeContext documentationTemplateInlineCode() throws RecognitionException {
@@ -10952,6 +11942,7 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 270, RULE_documentationTemplateInlineCode);
 		try {
 			setState(1712);
+			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case SBDocInlineCodeStart:
 				enterOuterAlt(_localctx, 1);
@@ -11005,6 +11996,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitSingleBackTickDocInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitSingleBackTickDocInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SingleBackTickDocInlineCodeContext singleBackTickDocInlineCode() throws RecognitionException {
@@ -11017,6 +12013,7 @@ public class BallerinaParser extends Parser {
 			setState(1714);
 			match(SBDocInlineCodeStart);
 			setState(1716);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==SingleBackTickInlineCode) {
 				{
@@ -11056,6 +12053,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitDoubleBackTickDocInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitDoubleBackTickDocInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DoubleBackTickDocInlineCodeContext doubleBackTickDocInlineCode() throws RecognitionException {
@@ -11068,6 +12070,7 @@ public class BallerinaParser extends Parser {
 			setState(1720);
 			match(DBDocInlineCodeStart);
 			setState(1722);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==DoubleBackTickInlineCode) {
 				{
@@ -11107,6 +12110,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitTripleBackTickDocInlineCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaParserVisitor ) return ((BallerinaParserVisitor<? extends T>)visitor).visitTripleBackTickDocInlineCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TripleBackTickDocInlineCodeContext tripleBackTickDocInlineCode() throws RecognitionException {
@@ -11119,6 +12127,7 @@ public class BallerinaParser extends Parser {
 			setState(1726);
 			match(TBDocInlineCodeStart);
 			setState(1728);
+			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==TripleBackTickInlineCode) {
 				{
@@ -11196,7 +12205,7 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u00a7\u06c7\4\2\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u00a6\u06c7\4\2\t"+
 		"\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -11215,9 +12224,9 @@ public class BallerinaParser extends Parser {
 		"\4\u008a\t\u008a\4\u008b\t\u008b\4\u008c\t\u008c\3\2\5\2\u011a\n\2\3\2"+
 		"\3\2\7\2\u011e\n\2\f\2\16\2\u0121\13\2\3\2\7\2\u0124\n\2\f\2\16\2\u0127"+
 		"\13\2\3\2\5\2\u012a\n\2\3\2\5\2\u012d\n\2\3\2\7\2\u0130\n\2\f\2\16\2\u0133"+
-		"\13\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4\5\4\u013f\n\4\3\4\3\4\5"+
-		"\4\u0143\n\4\3\4\3\4\5\4\u0147\n\4\3\4\3\4\3\5\3\5\3\5\7\5\u014e\n\5\f"+
-		"\5\16\5\u0151\13\5\3\6\3\6\3\6\3\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b"+
+		"\13\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3\4\3\4\7\4\u013e\n\4\f\4\16\4\u0141"+
+		"\13\4\3\4\5\4\u0144\n\4\3\5\3\5\3\5\3\6\3\6\3\6\3\6\5\6\u014d\n\6\3\6"+
+		"\3\6\3\6\5\6\u0152\n\6\3\6\3\6\3\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b"+
 		"\3\b\5\b\u0161\n\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\n\3\n\7\n\u016d\n"+
 		"\n\f\n\16\n\u0170\13\n\3\n\7\n\u0173\n\n\f\n\16\n\u0176\13\n\3\n\7\n\u0179"+
 		"\n\n\f\n\16\n\u017c\13\n\3\n\3\n\3\13\7\13\u0181\n\13\f\13\16\13\u0184"+
@@ -11328,13 +12337,13 @@ public class BallerinaParser extends Parser {
 		"\u00e2\u00e4\u00e6\u00e8\u00ea\u00ec\u00ee\u00f0\u00f2\u00f4\u00f6\u00f8"+
 		"\u00fa\u00fc\u00fe\u0100\u0102\u0104\u0106\u0108\u010a\u010c\u010e\u0110"+
 		"\u0112\u0114\u0116\2\13\3\2\33\37\4\2JJLL\4\2KKMM\6\2=>CCPQVV\4\2RSUU"+
-		"\3\2PQ\3\2Y\\\3\2WX\4\2  ++\u0751\2\u0119\3\2\2\2\4\u0136\3\2\2\2\6\u013a"+
-		"\3\2\2\2\b\u014a\3\2\2\2\n\u0152\3\2\2\2\f\u0155\3\2\2\2\16\u0160\3\2"+
-		"\2\2\20\u0162\3\2\2\2\22\u016a\3\2\2\2\24\u0182\3\2\2\2\26\u01ae\3\2\2"+
-		"\2\30\u01cb\3\2\2\2\32\u01cd\3\2\2\2\34\u01d8\3\2\2\2\36\u01e2\3\2\2\2"+
-		" \u01ed\3\2\2\2\"\u0223\3\2\2\2$\u0226\3\2\2\2&\u022c\3\2\2\2(\u0238\3"+
-		"\2\2\2*\u0241\3\2\2\2,\u0253\3\2\2\2.\u0262\3\2\2\2\60\u0265\3\2\2\2\62"+
-		"\u0270\3\2\2\2\64\u0292\3\2\2\2\66\u0294\3\2\2\28\u029e\3\2\2\2:\u02a7"+
+		"\3\2PQ\3\2Y\\\3\2WX\4\2  ++\2\u0751\2\u0119\3\2\2\2\4\u0136\3\2\2\2\6"+
+		"\u013a\3\2\2\2\b\u0145\3\2\2\2\n\u0148\3\2\2\2\f\u0155\3\2\2\2\16\u0160"+
+		"\3\2\2\2\20\u0162\3\2\2\2\22\u016a\3\2\2\2\24\u0182\3\2\2\2\26\u01ae\3"+
+		"\2\2\2\30\u01cb\3\2\2\2\32\u01cd\3\2\2\2\34\u01d8\3\2\2\2\36\u01e2\3\2"+
+		"\2\2 \u01ed\3\2\2\2\"\u0223\3\2\2\2$\u0226\3\2\2\2&\u022c\3\2\2\2(\u0238"+
+		"\3\2\2\2*\u0241\3\2\2\2,\u0253\3\2\2\2.\u0262\3\2\2\2\60\u0265\3\2\2\2"+
+		"\62\u0270\3\2\2\2\64\u0292\3\2\2\2\66\u0294\3\2\2\28\u029e\3\2\2\2:\u02a7"+
 		"\3\2\2\2<\u02b1\3\2\2\2>\u02b9\3\2\2\2@\u02d2\3\2\2\2B\u02d7\3\2\2\2D"+
 		"\u02d9\3\2\2\2F\u02db\3\2\2\2H\u02de\3\2\2\2J\u0303\3\2\2\2L\u0305\3\2"+
 		"\2\2N\u030f\3\2\2\2P\u0311\3\2\2\2R\u0313\3\2\2\2T\u031b\3\2\2\2V\u0323"+
@@ -11365,7 +12374,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u010a\u0695\3\2\2\2\u010c\u0697\3\2\2\2\u010e\u06ad\3\2\2\2\u0110"+
 		"\u06b2\3\2\2\2\u0112\u06b4\3\2\2\2\u0114\u06ba\3\2\2\2\u0116\u06c0\3\2"+
 		"\2\2\u0118\u011a\5\4\3\2\u0119\u0118\3\2\2\2\u0119\u011a\3\2\2\2\u011a"+
-		"\u011f\3\2\2\2\u011b\u011e\5\6\4\2\u011c\u011e\5\u00c2b\2\u011d\u011b"+
+		"\u011f\3\2\2\2\u011b\u011e\5\n\6\2\u011c\u011e\5\u00c2b\2\u011d\u011b"+
 		"\3\2\2\2\u011d\u011c\3\2\2\2\u011e\u0121\3\2\2\2\u011f\u011d\3\2\2\2\u011f"+
 		"\u0120\3\2\2\2\u0120\u0131\3\2\2\2\u0121\u011f\3\2\2\2\u0122\u0124\5R"+
 		"*\2\u0123\u0122\3\2\2\2\u0124\u0127\3\2\2\2\u0125\u0123\3\2\2\2\u0125"+
@@ -11375,105 +12384,104 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u012e\u0130\5\16\b\2\u012f\u0125\3\2\2\2\u0130\u0133\3\2\2\2"+
 		"\u0131\u012f\3\2\2\2\u0131\u0132\3\2\2\2\u0132\u0134\3\2\2\2\u0133\u0131"+
 		"\3\2\2\2\u0134\u0135\7\2\2\3\u0135\3\3\2\2\2\u0136\u0137\7\3\2\2\u0137"+
-		"\u0138\5\b\5\2\u0138\u0139\7D\2\2\u0139\5\3\2\2\2\u013a\u013e\7\4\2\2"+
-		"\u013b\u013c\5\f\7\2\u013c\u013d\7S\2\2\u013d\u013f\3\2\2\2\u013e\u013b"+
-		"\3\2\2\2\u013e\u013f\3\2\2\2\u013f\u0140\3\2\2\2\u0140\u0142\5\b\5\2\u0141"+
-		"\u0143\5\n\6\2\u0142\u0141\3\2\2\2\u0142\u0143\3\2\2\2\u0143\u0146\3\2"+
-		"\2\2\u0144\u0145\7\5\2\2\u0145\u0147\7i\2\2\u0146\u0144\3\2\2\2\u0146"+
-		"\u0147\3\2\2\2\u0147\u0148\3\2\2\2\u0148\u0149\7D\2\2\u0149\7\3\2\2\2"+
-		"\u014a\u014f\7i\2\2\u014b\u014c\7F\2\2\u014c\u014e\7i\2\2\u014d\u014b"+
-		"\3\2\2\2\u014e\u0151\3\2\2\2\u014f\u014d\3\2\2\2\u014f\u0150\3\2\2\2\u0150"+
-		"\t\3\2\2\2\u0151\u014f\3\2\2\2\u0152\u0153\7\30\2\2\u0153\u0154\7\u00a7"+
-		"\2\2\u0154\13\3\2\2\2\u0155\u0156\7i\2\2\u0156\r\3\2\2\2\u0157\u0161\5"+
-		"\20\t\2\u0158\u0161\5\30\r\2\u0159\u0161\5\36\20\2\u015a\u0161\5$\23\2"+
-		"\u015b\u0161\5,\27\2\u015c\u0161\58\35\2\u015d\u0161\5*\26\2\u015e\u0161"+
-		"\5\60\31\2\u015f\u0161\5\62\32\2\u0160\u0157\3\2\2\2\u0160\u0158\3\2\2"+
-		"\2\u0160\u0159\3\2\2\2\u0160\u015a\3\2\2\2\u0160\u015b\3\2\2\2\u0160\u015c"+
-		"\3\2\2\2\u0160\u015d\3\2\2\2\u0160\u015e\3\2\2\2\u0160\u015f\3\2\2\2\u0161"+
-		"\17\3\2\2\2\u0162\u0163\7\t\2\2\u0163\u0164\7Z\2\2\u0164\u0165\7i\2\2"+
-		"\u0165\u0166\7Y\2\2\u0166\u0167\3\2\2\2\u0167\u0168\7i\2\2\u0168\u0169"+
-		"\5\22\n\2\u0169\21\3\2\2\2\u016a\u016e\7H\2\2\u016b\u016d\5j\66\2\u016c"+
-		"\u016b\3\2\2\2\u016d\u0170\3\2\2\2\u016e\u016c\3\2\2\2\u016e\u016f\3\2"+
-		"\2\2\u016f\u0174\3\2\2\2\u0170\u016e\3\2\2\2\u0171\u0173\5^\60\2\u0172"+
-		"\u0171\3\2\2\2\u0173\u0176\3\2\2\2\u0174\u0172\3\2\2\2\u0174\u0175\3\2"+
-		"\2\2\u0175\u017a\3\2\2\2\u0176\u0174\3\2\2\2\u0177\u0179\5\24\13\2\u0178"+
-		"\u0177\3\2\2\2\u0179\u017c\3\2\2\2\u017a\u0178\3\2\2\2\u017a\u017b\3\2"+
-		"\2\2\u017b\u017d\3\2\2\2\u017c\u017a\3\2\2\2\u017d\u017e\7I\2\2\u017e"+
-		"\23\3\2\2\2\u017f\u0181\5R*\2\u0180\u017f\3\2\2\2\u0181\u0184\3\2\2\2"+
-		"\u0182\u0180\3\2\2\2\u0182\u0183\3\2\2\2\u0183\u0186\3\2\2\2\u0184\u0182"+
-		"\3\2\2\2\u0185\u0187\5\u0108\u0085\2\u0186\u0185\3\2\2\2\u0186\u0187\3"+
-		"\2\2\2\u0187\u0189\3\2\2\2\u0188\u018a\5\u00fc\177\2\u0189\u0188\3\2\2"+
-		"\2\u0189\u018a\3\2\2\2\u018a\u018b\3\2\2\2\u018b\u018c\7\n\2\2\u018c\u018d"+
-		"\7i\2\2\u018d\u018e\7J\2\2\u018e\u018f\5\u00ceh\2\u018f\u0190\7K\2\2\u0190"+
-		"\u0191\5\26\f\2\u0191\25\3\2\2\2\u0192\u0196\7H\2\2\u0193\u0195\5j\66"+
-		"\2\u0194\u0193\3\2\2\2\u0195\u0198\3\2\2\2\u0196\u0194\3\2\2\2\u0196\u0197"+
-		"\3\2\2\2\u0197\u019c\3\2\2\2\u0198\u0196\3\2\2\2\u0199\u019b\5\\/\2\u019a"+
-		"\u0199\3\2\2\2\u019b\u019e\3\2\2\2\u019c\u019a\3\2\2\2\u019c\u019d\3\2"+
-		"\2\2\u019d\u019f\3\2\2\2\u019e\u019c\3\2\2\2\u019f\u01af\7I\2\2\u01a0"+
-		"\u01a4\7H\2\2\u01a1\u01a3\5j\66\2\u01a2\u01a1\3\2\2\2\u01a3\u01a6\3\2"+
-		"\2\2\u01a4\u01a2\3\2\2\2\u01a4\u01a5\3\2\2\2\u01a5\u01a8\3\2\2\2\u01a6"+
-		"\u01a4\3\2\2\2\u01a7\u01a9\5:\36\2\u01a8\u01a7\3\2\2\2\u01a9\u01aa\3\2"+
-		"\2\2\u01aa\u01a8\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab\u01ac\3\2\2\2\u01ac"+
-		"\u01ad\7I\2\2\u01ad\u01af\3\2\2\2\u01ae\u0192\3\2\2\2\u01ae\u01a0\3\2"+
-		"\2\2\u01af\27\3\2\2\2\u01b0\u01b2\7\6\2\2\u01b1\u01b0\3\2\2\2\u01b1\u01b2"+
-		"\3\2\2\2\u01b2\u01b3\3\2\2\2\u01b3\u01b4\7\b\2\2\u01b4\u01b9\7\13\2\2"+
-		"\u01b5\u01b6\7Z\2\2\u01b6\u01b7\5\u00d0i\2\u01b7\u01b8\7Y\2\2\u01b8\u01ba"+
-		"\3\2\2\2\u01b9\u01b5\3\2\2\2\u01b9\u01ba\3\2\2\2\u01ba\u01bb\3\2\2\2\u01bb"+
-		"\u01bc\5\34\17\2\u01bc\u01bd\7D\2\2\u01bd\u01cc\3\2\2\2\u01be\u01c0\7"+
-		"\6\2\2\u01bf\u01be\3\2\2\2\u01bf\u01c0\3\2\2\2\u01c0\u01c1\3\2\2\2\u01c1"+
-		"\u01c6\7\13\2\2\u01c2\u01c3\7Z\2\2\u01c3\u01c4\5\u00d0i\2\u01c4\u01c5"+
-		"\7Y\2\2\u01c5\u01c7\3\2\2\2\u01c6\u01c2\3\2\2\2\u01c6\u01c7\3\2\2\2\u01c7"+
-		"\u01c8\3\2\2\2\u01c8\u01c9\5\34\17\2\u01c9\u01ca\5\26\f\2\u01ca\u01cc"+
-		"\3\2\2\2\u01cb\u01b1\3\2\2\2\u01cb\u01bf\3\2\2\2\u01cc\31\3\2\2\2\u01cd"+
-		"\u01ce\7\13\2\2\u01ce\u01d0\7J\2\2\u01cf\u01d1\5\u00ceh\2\u01d0\u01cf"+
-		"\3\2\2\2\u01d0\u01d1\3\2\2\2\u01d1\u01d2\3\2\2\2\u01d2\u01d4\7K\2\2\u01d3"+
-		"\u01d5\5\u00c8e\2\u01d4\u01d3\3\2\2\2\u01d4\u01d5\3\2\2\2\u01d5\u01d6"+
-		"\3\2\2\2\u01d6\u01d7\5\26\f\2\u01d7\33\3\2\2\2\u01d8\u01d9\7i\2\2\u01d9"+
-		"\u01db\7J\2\2\u01da\u01dc\5\u00ceh\2\u01db\u01da\3\2\2\2\u01db\u01dc\3"+
-		"\2\2\2\u01dc\u01dd\3\2\2\2\u01dd\u01df\7K\2\2\u01de\u01e0\5\u00c8e\2\u01df"+
-		"\u01de\3\2\2\2\u01df\u01e0\3\2\2\2\u01e0\35\3\2\2\2\u01e1\u01e3\7\6\2"+
-		"\2\u01e2\u01e1\3\2\2\2\u01e2\u01e3\3\2\2\2\u01e3\u01e4\3\2\2\2\u01e4\u01e5"+
-		"\7\f\2\2\u01e5\u01e6\7i\2\2\u01e6\u01e8\7J\2\2\u01e7\u01e9\5\u00ceh\2"+
-		"\u01e8\u01e7\3\2\2\2\u01e8\u01e9\3\2\2\2\u01e9\u01ea\3\2\2\2\u01ea\u01eb"+
-		"\7K\2\2\u01eb\u01ec\5 \21\2\u01ec\37\3\2\2\2\u01ed\u01f1\7H\2\2\u01ee"+
-		"\u01f0\5j\66\2\u01ef\u01ee\3\2\2\2\u01f0\u01f3\3\2\2\2\u01f1\u01ef\3\2"+
-		"\2\2\u01f1\u01f2\3\2\2\2\u01f2\u01f7\3\2\2\2\u01f3\u01f1\3\2\2\2\u01f4"+
-		"\u01f6\5^\60\2\u01f5\u01f4\3\2\2\2\u01f6\u01f9\3\2\2\2\u01f7\u01f5\3\2"+
-		"\2\2\u01f7\u01f8\3\2\2\2\u01f8\u01fd\3\2\2\2\u01f9\u01f7\3\2\2\2\u01fa"+
-		"\u01fc\5\"\22\2\u01fb\u01fa\3\2\2\2\u01fc\u01ff\3\2\2\2\u01fd\u01fb\3"+
-		"\2\2\2\u01fd\u01fe\3\2\2\2\u01fe\u0200\3\2\2\2\u01ff\u01fd\3\2\2\2\u0200"+
-		"\u0201\7I\2\2\u0201!\3\2\2\2\u0202\u0204\5R*\2\u0203\u0202\3\2\2\2\u0204"+
-		"\u0207\3\2\2\2\u0205\u0203\3\2\2\2\u0205\u0206\3\2\2\2\u0206\u0209\3\2"+
-		"\2\2\u0207\u0205\3\2\2\2\u0208\u020a\5\u0108\u0085\2\u0209\u0208\3\2\2"+
-		"\2\u0209\u020a\3\2\2\2\u020a\u020c\3\2\2\2\u020b\u020d\5\u00fc\177\2\u020c"+
-		"\u020b\3\2\2\2\u020c\u020d\3\2\2\2\u020d\u020e\3\2\2\2\u020e\u020f\7\b"+
-		"\2\2\u020f\u0210\7\r\2\2\u0210\u0211\5\34\17\2\u0211\u0212\7D\2\2\u0212"+
-		"\u0224\3\2\2\2\u0213\u0215\5R*\2\u0214\u0213\3\2\2\2\u0215\u0218\3\2\2"+
-		"\2\u0216\u0214\3\2\2\2\u0216\u0217\3\2\2\2\u0217\u021a\3\2\2\2\u0218\u0216"+
-		"\3\2\2\2\u0219\u021b\5\u0108\u0085\2\u021a\u0219\3\2\2\2\u021a\u021b\3"+
-		"\2\2\2\u021b\u021d\3\2\2\2\u021c\u021e\5\u00fc\177\2\u021d\u021c\3\2\2"+
-		"\2\u021d\u021e\3\2\2\2\u021e\u021f\3\2\2\2\u021f\u0220\7\r\2\2\u0220\u0221"+
-		"\5\34\17\2\u0221\u0222\5\26\f\2\u0222\u0224\3\2\2\2\u0223\u0205\3\2\2"+
-		"\2\u0223\u0216\3\2\2\2\u0224#\3\2\2\2\u0225\u0227\7\6\2\2\u0226\u0225"+
-		"\3\2\2\2\u0226\u0227\3\2\2\2\u0227\u0228\3\2\2\2\u0228\u0229\7\16\2\2"+
-		"\u0229\u022a\7i\2\2\u022a\u022b\5&\24\2\u022b%\3\2\2\2\u022c\u0230\7H"+
-		"\2\2\u022d\u022f\5\u00d2j\2\u022e\u022d\3\2\2\2\u022f\u0232\3\2\2\2\u0230"+
-		"\u022e\3\2\2\2\u0230\u0231\3\2\2\2\u0231\u0234\3\2\2\2\u0232\u0230\3\2"+
-		"\2\2\u0233\u0235\5(\25\2\u0234\u0233\3\2\2\2\u0234\u0235\3\2\2\2\u0235"+
-		"\u0236\3\2\2\2\u0236\u0237\7I\2\2\u0237\'\3\2\2\2\u0238\u0239\7\7\2\2"+
-		"\u0239\u023d\7E\2\2\u023a\u023c\5\u00d2j\2\u023b\u023a\3\2\2\2\u023c\u023f"+
-		"\3\2\2\2\u023d\u023b\3\2\2\2\u023d\u023e\3\2\2\2\u023e)\3\2\2\2\u023f"+
-		"\u023d\3\2\2\2\u0240\u0242\7\6\2\2\u0241\u0240\3\2\2\2\u0241\u0242\3\2"+
-		"\2\2\u0242\u0243\3\2\2\2\u0243\u0244\7\17\2\2\u0244\u024e\7i\2\2\u0245"+
-		"\u0246\7(\2\2\u0246\u024b\5\64\33\2\u0247\u0248\7G\2\2\u0248\u024a\5\64"+
-		"\33\2\u0249\u0247\3\2\2\2\u024a\u024d\3\2\2\2\u024b\u0249\3\2\2\2\u024b"+
-		"\u024c\3\2\2\2\u024c\u024f\3\2\2\2\u024d\u024b\3\2\2\2\u024e\u0245\3\2"+
-		"\2\2\u024e\u024f\3\2\2\2\u024f\u0250\3\2\2\2\u0250\u0251\5\66\34\2\u0251"+
-		"+\3\2\2\2\u0252\u0254\7\6\2\2\u0253\u0252\3\2\2\2\u0253\u0254\3\2\2\2"+
-		"\u0254\u0255\3\2\2\2\u0255\u0256\7\20\2\2\u0256\u0257\7i\2\2\u0257\u0258"+
-		"\7H\2\2\u0258\u025d\5.\30\2\u0259\u025a\7G\2\2\u025a\u025c\5.\30\2\u025b"+
-		"\u0259\3\2\2\2\u025c\u025f\3\2\2\2\u025d\u025b\3\2\2\2\u025d\u025e\3\2"+
-		"\2\2\u025e\u0260\3\2\2\2\u025f\u025d\3\2\2\2\u0260\u0261\7I\2\2\u0261"+
+		"\u0138\5\6\4\2\u0138\u0139\7D\2\2\u0139\5\3\2\2\2\u013a\u013f\7i\2\2\u013b"+
+		"\u013c\7F\2\2\u013c\u013e\7i\2\2\u013d\u013b\3\2\2\2\u013e\u0141\3\2\2"+
+		"\2\u013f\u013d\3\2\2\2\u013f\u0140\3\2\2\2\u0140\u0143\3\2\2\2\u0141\u013f"+
+		"\3\2\2\2\u0142\u0144\5\b\5\2\u0143\u0142\3\2\2\2\u0143\u0144\3\2\2\2\u0144"+
+		"\7\3\2\2\2\u0145\u0146\7\30\2\2\u0146\u0147\7i\2\2\u0147\t\3\2\2\2\u0148"+
+		"\u014c\7\4\2\2\u0149\u014a\5\f\7\2\u014a\u014b\7S\2\2\u014b\u014d\3\2"+
+		"\2\2\u014c\u0149\3\2\2\2\u014c\u014d\3\2\2\2\u014d\u014e\3\2\2\2\u014e"+
+		"\u0151\5\6\4\2\u014f\u0150\7\5\2\2\u0150\u0152\7i\2\2\u0151\u014f\3\2"+
+		"\2\2\u0151\u0152\3\2\2\2\u0152\u0153\3\2\2\2\u0153\u0154\7D\2\2\u0154"+
+		"\13\3\2\2\2\u0155\u0156\7i\2\2\u0156\r\3\2\2\2\u0157\u0161\5\20\t\2\u0158"+
+		"\u0161\5\30\r\2\u0159\u0161\5\36\20\2\u015a\u0161\5$\23\2\u015b\u0161"+
+		"\5,\27\2\u015c\u0161\58\35\2\u015d\u0161\5*\26\2\u015e\u0161\5\60\31\2"+
+		"\u015f\u0161\5\62\32\2\u0160\u0157\3\2\2\2\u0160\u0158\3\2\2\2\u0160\u0159"+
+		"\3\2\2\2\u0160\u015a\3\2\2\2\u0160\u015b\3\2\2\2\u0160\u015c\3\2\2\2\u0160"+
+		"\u015d\3\2\2\2\u0160\u015e\3\2\2\2\u0160\u015f\3\2\2\2\u0161\17\3\2\2"+
+		"\2\u0162\u0163\7\t\2\2\u0163\u0164\7Z\2\2\u0164\u0165\7i\2\2\u0165\u0166"+
+		"\7Y\2\2\u0166\u0167\3\2\2\2\u0167\u0168\7i\2\2\u0168\u0169\5\22\n\2\u0169"+
+		"\21\3\2\2\2\u016a\u016e\7H\2\2\u016b\u016d\5j\66\2\u016c\u016b\3\2\2\2"+
+		"\u016d\u0170\3\2\2\2\u016e\u016c\3\2\2\2\u016e\u016f\3\2\2\2\u016f\u0174"+
+		"\3\2\2\2\u0170\u016e\3\2\2\2\u0171\u0173\5^\60\2\u0172\u0171\3\2\2\2\u0173"+
+		"\u0176\3\2\2\2\u0174\u0172\3\2\2\2\u0174\u0175\3\2\2\2\u0175\u017a\3\2"+
+		"\2\2\u0176\u0174\3\2\2\2\u0177\u0179\5\24\13\2\u0178\u0177\3\2\2\2\u0179"+
+		"\u017c\3\2\2\2\u017a\u0178\3\2\2\2\u017a\u017b\3\2\2\2\u017b\u017d\3\2"+
+		"\2\2\u017c\u017a\3\2\2\2\u017d\u017e\7I\2\2\u017e\23\3\2\2\2\u017f\u0181"+
+		"\5R*\2\u0180\u017f\3\2\2\2\u0181\u0184\3\2\2\2\u0182\u0180\3\2\2\2\u0182"+
+		"\u0183\3\2\2\2\u0183\u0186\3\2\2\2\u0184\u0182\3\2\2\2\u0185\u0187\5\u0108"+
+		"\u0085\2\u0186\u0185\3\2\2\2\u0186\u0187\3\2\2\2\u0187\u0189\3\2\2\2\u0188"+
+		"\u018a\5\u00fc\177\2\u0189\u0188\3\2\2\2\u0189\u018a\3\2\2\2\u018a\u018b"+
+		"\3\2\2\2\u018b\u018c\7\n\2\2\u018c\u018d\7i\2\2\u018d\u018e\7J\2\2\u018e"+
+		"\u018f\5\u00ceh\2\u018f\u0190\7K\2\2\u0190\u0191\5\26\f\2\u0191\25\3\2"+
+		"\2\2\u0192\u0196\7H\2\2\u0193\u0195\5j\66\2\u0194\u0193\3\2\2\2\u0195"+
+		"\u0198\3\2\2\2\u0196\u0194\3\2\2\2\u0196\u0197\3\2\2\2\u0197\u019c\3\2"+
+		"\2\2\u0198\u0196\3\2\2\2\u0199\u019b\5\\/\2\u019a\u0199\3\2\2\2\u019b"+
+		"\u019e\3\2\2\2\u019c\u019a\3\2\2\2\u019c\u019d\3\2\2\2\u019d\u019f\3\2"+
+		"\2\2\u019e\u019c\3\2\2\2\u019f\u01af\7I\2\2\u01a0\u01a4\7H\2\2\u01a1\u01a3"+
+		"\5j\66\2\u01a2\u01a1\3\2\2\2\u01a3\u01a6\3\2\2\2\u01a4\u01a2\3\2\2\2\u01a4"+
+		"\u01a5\3\2\2\2\u01a5\u01a8\3\2\2\2\u01a6\u01a4\3\2\2\2\u01a7\u01a9\5:"+
+		"\36\2\u01a8\u01a7\3\2\2\2\u01a9\u01aa\3\2\2\2\u01aa\u01a8\3\2\2\2\u01aa"+
+		"\u01ab\3\2\2\2\u01ab\u01ac\3\2\2\2\u01ac\u01ad\7I\2\2\u01ad\u01af\3\2"+
+		"\2\2\u01ae\u0192\3\2\2\2\u01ae\u01a0\3\2\2\2\u01af\27\3\2\2\2\u01b0\u01b2"+
+		"\7\6\2\2\u01b1\u01b0\3\2\2\2\u01b1\u01b2\3\2\2\2\u01b2\u01b3\3\2\2\2\u01b3"+
+		"\u01b4\7\b\2\2\u01b4\u01b9\7\13\2\2\u01b5\u01b6\7Z\2\2\u01b6\u01b7\5\u00d0"+
+		"i\2\u01b7\u01b8\7Y\2\2\u01b8\u01ba\3\2\2\2\u01b9\u01b5\3\2\2\2\u01b9\u01ba"+
+		"\3\2\2\2\u01ba\u01bb\3\2\2\2\u01bb\u01bc\5\34\17\2\u01bc\u01bd\7D\2\2"+
+		"\u01bd\u01cc\3\2\2\2\u01be\u01c0\7\6\2\2\u01bf\u01be\3\2\2\2\u01bf\u01c0"+
+		"\3\2\2\2\u01c0\u01c1\3\2\2\2\u01c1\u01c6\7\13\2\2\u01c2\u01c3\7Z\2\2\u01c3"+
+		"\u01c4\5\u00d0i\2\u01c4\u01c5\7Y\2\2\u01c5\u01c7\3\2\2\2\u01c6\u01c2\3"+
+		"\2\2\2\u01c6\u01c7\3\2\2\2\u01c7\u01c8\3\2\2\2\u01c8\u01c9\5\34\17\2\u01c9"+
+		"\u01ca\5\26\f\2\u01ca\u01cc\3\2\2\2\u01cb\u01b1\3\2\2\2\u01cb\u01bf\3"+
+		"\2\2\2\u01cc\31\3\2\2\2\u01cd\u01ce\7\13\2\2\u01ce\u01d0\7J\2\2\u01cf"+
+		"\u01d1\5\u00ceh\2\u01d0\u01cf\3\2\2\2\u01d0\u01d1\3\2\2\2\u01d1\u01d2"+
+		"\3\2\2\2\u01d2\u01d4\7K\2\2\u01d3\u01d5\5\u00c8e\2\u01d4\u01d3\3\2\2\2"+
+		"\u01d4\u01d5\3\2\2\2\u01d5\u01d6\3\2\2\2\u01d6\u01d7\5\26\f\2\u01d7\33"+
+		"\3\2\2\2\u01d8\u01d9\7i\2\2\u01d9\u01db\7J\2\2\u01da\u01dc\5\u00ceh\2"+
+		"\u01db\u01da\3\2\2\2\u01db\u01dc\3\2\2\2\u01dc\u01dd\3\2\2\2\u01dd\u01df"+
+		"\7K\2\2\u01de\u01e0\5\u00c8e\2\u01df\u01de\3\2\2\2\u01df\u01e0\3\2\2\2"+
+		"\u01e0\35\3\2\2\2\u01e1\u01e3\7\6\2\2\u01e2\u01e1\3\2\2\2\u01e2\u01e3"+
+		"\3\2\2\2\u01e3\u01e4\3\2\2\2\u01e4\u01e5\7\f\2\2\u01e5\u01e6\7i\2\2\u01e6"+
+		"\u01e8\7J\2\2\u01e7\u01e9\5\u00ceh\2\u01e8\u01e7\3\2\2\2\u01e8\u01e9\3"+
+		"\2\2\2\u01e9\u01ea\3\2\2\2\u01ea\u01eb\7K\2\2\u01eb\u01ec\5 \21\2\u01ec"+
+		"\37\3\2\2\2\u01ed\u01f1\7H\2\2\u01ee\u01f0\5j\66\2\u01ef\u01ee\3\2\2\2"+
+		"\u01f0\u01f3\3\2\2\2\u01f1\u01ef\3\2\2\2\u01f1\u01f2\3\2\2\2\u01f2\u01f7"+
+		"\3\2\2\2\u01f3\u01f1\3\2\2\2\u01f4\u01f6\5^\60\2\u01f5\u01f4\3\2\2\2\u01f6"+
+		"\u01f9\3\2\2\2\u01f7\u01f5\3\2\2\2\u01f7\u01f8\3\2\2\2\u01f8\u01fd\3\2"+
+		"\2\2\u01f9\u01f7\3\2\2\2\u01fa\u01fc\5\"\22\2\u01fb\u01fa\3\2\2\2\u01fc"+
+		"\u01ff\3\2\2\2\u01fd\u01fb\3\2\2\2\u01fd\u01fe\3\2\2\2\u01fe\u0200\3\2"+
+		"\2\2\u01ff\u01fd\3\2\2\2\u0200\u0201\7I\2\2\u0201!\3\2\2\2\u0202\u0204"+
+		"\5R*\2\u0203\u0202\3\2\2\2\u0204\u0207\3\2\2\2\u0205\u0203\3\2\2\2\u0205"+
+		"\u0206\3\2\2\2\u0206\u0209\3\2\2\2\u0207\u0205\3\2\2\2\u0208\u020a\5\u0108"+
+		"\u0085\2\u0209\u0208\3\2\2\2\u0209\u020a\3\2\2\2\u020a\u020c\3\2\2\2\u020b"+
+		"\u020d\5\u00fc\177\2\u020c\u020b\3\2\2\2\u020c\u020d\3\2\2\2\u020d\u020e"+
+		"\3\2\2\2\u020e\u020f\7\b\2\2\u020f\u0210\7\r\2\2\u0210\u0211\5\34\17\2"+
+		"\u0211\u0212\7D\2\2\u0212\u0224\3\2\2\2\u0213\u0215\5R*\2\u0214\u0213"+
+		"\3\2\2\2\u0215\u0218\3\2\2\2\u0216\u0214\3\2\2\2\u0216\u0217\3\2\2\2\u0217"+
+		"\u021a\3\2\2\2\u0218\u0216\3\2\2\2\u0219\u021b\5\u0108\u0085\2\u021a\u0219"+
+		"\3\2\2\2\u021a\u021b\3\2\2\2\u021b\u021d\3\2\2\2\u021c\u021e\5\u00fc\177"+
+		"\2\u021d\u021c\3\2\2\2\u021d\u021e\3\2\2\2\u021e\u021f\3\2\2\2\u021f\u0220"+
+		"\7\r\2\2\u0220\u0221\5\34\17\2\u0221\u0222\5\26\f\2\u0222\u0224\3\2\2"+
+		"\2\u0223\u0205\3\2\2\2\u0223\u0216\3\2\2\2\u0224#\3\2\2\2\u0225\u0227"+
+		"\7\6\2\2\u0226\u0225\3\2\2\2\u0226\u0227\3\2\2\2\u0227\u0228\3\2\2\2\u0228"+
+		"\u0229\7\16\2\2\u0229\u022a\7i\2\2\u022a\u022b\5&\24\2\u022b%\3\2\2\2"+
+		"\u022c\u0230\7H\2\2\u022d\u022f\5\u00d2j\2\u022e\u022d\3\2\2\2\u022f\u0232"+
+		"\3\2\2\2\u0230\u022e\3\2\2\2\u0230\u0231\3\2\2\2\u0231\u0234\3\2\2\2\u0232"+
+		"\u0230\3\2\2\2\u0233\u0235\5(\25\2\u0234\u0233\3\2\2\2\u0234\u0235\3\2"+
+		"\2\2\u0235\u0236\3\2\2\2\u0236\u0237\7I\2\2\u0237\'\3\2\2\2\u0238\u0239"+
+		"\7\7\2\2\u0239\u023d\7E\2\2\u023a\u023c\5\u00d2j\2\u023b\u023a\3\2\2\2"+
+		"\u023c\u023f\3\2\2\2\u023d\u023b\3\2\2\2\u023d\u023e\3\2\2\2\u023e)\3"+
+		"\2\2\2\u023f\u023d\3\2\2\2\u0240\u0242\7\6\2\2\u0241\u0240\3\2\2\2\u0241"+
+		"\u0242\3\2\2\2\u0242\u0243\3\2\2\2\u0243\u0244\7\17\2\2\u0244\u024e\7"+
+		"i\2\2\u0245\u0246\7(\2\2\u0246\u024b\5\64\33\2\u0247\u0248\7G\2\2\u0248"+
+		"\u024a\5\64\33\2\u0249\u0247\3\2\2\2\u024a\u024d\3\2\2\2\u024b\u0249\3"+
+		"\2\2\2\u024b\u024c\3\2\2\2\u024c\u024f\3\2\2\2\u024d\u024b\3\2\2\2\u024e"+
+		"\u0245\3\2\2\2\u024e\u024f\3\2\2\2\u024f\u0250\3\2\2\2\u0250\u0251\5\66"+
+		"\34\2\u0251+\3\2\2\2\u0252\u0254\7\6\2\2\u0253\u0252\3\2\2\2\u0253\u0254"+
+		"\3\2\2\2\u0254\u0255\3\2\2\2\u0255\u0256\7\20\2\2\u0256\u0257\7i\2\2\u0257"+
+		"\u0258\7H\2\2\u0258\u025d\5.\30\2\u0259\u025a\7G\2\2\u025a\u025c\5.\30"+
+		"\2\u025b\u0259\3\2\2\2\u025c\u025f\3\2\2\2\u025d\u025b\3\2\2\2\u025d\u025e"+
+		"\3\2\2\2\u025e\u0260\3\2\2\2\u025f\u025d\3\2\2\2\u0260\u0261\7I\2\2\u0261"+
 		"-\3\2\2\2\u0262\u0263\7i\2\2\u0263/\3\2\2\2\u0264\u0266\7\6\2\2\u0265"+
 		"\u0264\3\2\2\2\u0265\u0266\3\2\2\2\u0266\u0267\3\2\2\2\u0267\u0268\5>"+
 		" \2\u0268\u026b\7i\2\2\u0269\u026a\7O\2\2\u026a\u026c\5\u00c4c\2\u026b"+
@@ -11855,8 +12863,8 @@ public class BallerinaParser extends Parser {
 		"\2\2\2\u06bd\u06be\3\2\2\2\u06be\u06bf\7\u009b\2\2\u06bf\u0115\3\2\2\2"+
 		"\u06c0\u06c2\7\u0097\2\2\u06c1\u06c3\7\u009a\2\2\u06c2\u06c1\3\2\2\2\u06c2"+
 		"\u06c3\3\2\2\2\u06c3\u06c4\3\2\2\2\u06c4\u06c5\7\u0099\2\2\u06c5\u0117"+
-		"\3\2\2\2\u00cd\u0119\u011d\u011f\u0125\u0129\u012c\u0131\u013e\u0142\u0146"+
-		"\u014f\u0160\u016e\u0174\u017a\u0182\u0186\u0189\u0196\u019c\u01a4\u01aa"+
+		"\3\2\2\2\u00cd\u0119\u011d\u011f\u0125\u0129\u012c\u0131\u013f\u0143\u014c"+
+		"\u0151\u0160\u016e\u0174\u017a\u0182\u0186\u0189\u0196\u019c\u01a4\u01aa"+
 		"\u01ae\u01b1\u01b9\u01bf\u01c6\u01cb\u01d0\u01d4\u01db\u01df\u01e2\u01e8"+
 		"\u01f1\u01f7\u01fd\u0205\u0209\u020c\u0216\u021a\u021d\u0223\u0226\u0230"+
 		"\u0234\u023d\u0241\u024b\u024e\u0253\u025d\u0265\u026b\u0270\u0279\u027c"+

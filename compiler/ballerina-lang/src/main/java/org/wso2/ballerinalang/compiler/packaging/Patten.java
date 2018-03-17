@@ -1,6 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.StringConverter;
 
@@ -61,8 +62,8 @@ public class Patten {
     }
 
     @SuppressWarnings("unchecked")
-    public Stream<Path> convertToPaths(Converter converter) {
-        return convert(converter).flatMap(converter::finalize);
+    public Stream<Path> convertToPaths(Converter converter, PackageID pkg) {
+        return convert(converter).flatMap(t -> converter.finalize(t, pkg));
     }
 
     public String toString() {

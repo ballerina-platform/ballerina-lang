@@ -1,5 +1,5 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
-package org.wso2.ballerinalang.compiler.parser.antlr4;
+// Generated from /home/natasha/Documents/github_repos/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.7
+package grammar;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -28,16 +28,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#importDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#importDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#packageName}.
 	 * @param ctx the parse tree
 	 */
@@ -57,6 +47,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVersion(BallerinaParser.VersionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#orgName}.
 	 * @param ctx the parse tree

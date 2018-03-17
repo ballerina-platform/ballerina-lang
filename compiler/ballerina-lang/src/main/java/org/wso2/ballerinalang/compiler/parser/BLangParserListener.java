@@ -121,7 +121,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgNameComps = new ArrayList<>();
         ctx.Identifier().forEach(e -> pkgNameComps.add(e.getText()));
-        this.pkgVersion = ctx.version() != null ? ctx.version().Identifier().getText() : null;
+        this.pkgVersion = null;
     }
 
     /**
@@ -135,12 +135,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
         BallerinaParser.OrgNameContext orgNameContext = ctx.orgName();
+        String version = "";
+        if (ctx.version() != null && ctx.version().Semvar() != null) {
+            version = ctx.version().Semvar().getText();
+        }
         if (orgNameContext == null) {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                    null, this.pkgNameComps, this.pkgVersion, alias);
+                    null, this.pkgNameComps,version, alias);
         } else {
             this.pkgBuilder.addImportPackageDeclaration(getCurrentPos(ctx), getWS(ctx),
-                    orgNameContext.getText(), this.pkgNameComps, this.pkgVersion, alias);
+                    orgNameContext.getText(), this.pkgNameComps, version, alias);
         }
     }
 

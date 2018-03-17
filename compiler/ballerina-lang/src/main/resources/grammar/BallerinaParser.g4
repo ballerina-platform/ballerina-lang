@@ -19,16 +19,16 @@ packageDeclaration
     :   PACKAGE packageName SEMICOLON
     ;
 
+importDeclaration
+    :   IMPORT (orgName DIV)?  packageName version? (AS Identifier)? SEMICOLON
+    ;
+
 packageName
-    :   Identifier (DOT Identifier)* version?
+    :   Identifier (DOT Identifier)*
     ;
 
 version
-    : (VERSION Identifier)
-    ;
-
-importDeclaration
-    :   IMPORT (orgName DIV)?  packageName (AS Identifier)? SEMICOLON
+    : VERSION Semvar
     ;
 
 orgName

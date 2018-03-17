@@ -36,12 +36,12 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<Path> paths = patten.convertToPaths(converter)
+                List<Path> paths = patten.convertToPaths(converter, pkg)
                                          .filter(path -> Files.isRegularFile(path))
                                          .collect(Collectors.toList());
-                out.println("\t looking in " + repo + " for patten\n\t\t" +
-                                    patten + " and found \n\t\t\t" +
-                                    paths);
+                out.println("\t looking in " + repo + "\n\t\t for patten " +
+                                    patten + "\n\t\t\t and found " +
+                                    (paths.isEmpty() ? "noting" : paths));
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
                 }
