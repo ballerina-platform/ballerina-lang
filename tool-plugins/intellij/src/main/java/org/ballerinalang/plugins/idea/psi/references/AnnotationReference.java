@@ -117,6 +117,9 @@ public class AnnotationReference extends BallerinaElementReference {
         List<IdentifierPSINode> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage,
                 includePrivate, true);
         for (IdentifierPSINode annotation : annotations) {
+            if (annotation == null) {
+                continue;
+            }
             String text = annotation.getText();
             if (text.equals(identifier.getText())) {
                 return annotation;

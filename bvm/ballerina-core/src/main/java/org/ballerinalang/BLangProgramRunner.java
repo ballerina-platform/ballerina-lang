@@ -95,7 +95,7 @@ public class BLangProgramRunner {
     }
 
     private static void initializeDistributeTransactionStatus(ProgramFile programFile) {
-        boolean distributedTxEnabled = false;
+        boolean distributedTxEnabled = false; //TODO:Default will be true. Read from new VMOptions
         String distributedTxEnabledProp = System.getProperty(Constants.DISTRIBUTED_TRANSACTION_ENABLED);
         if (distributedTxEnabledProp != null && !distributedTxEnabledProp.isEmpty()) {
             distributedTxEnabled = true;
