@@ -7,16 +7,20 @@ package ballerina.net.http;
 @Field {value:"endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"lifetime: The life time of the service"}
 @Field {value:"basePath: Service base path"}
-@Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
+@Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfig {
     Service[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
-    boolean compressionEnabled;
+    Compression compression;
     CorsConfig cors;
     WebSocketUpgradeConfig webSocketUpgrade;
+}
+
+public function <HttpServiceConfig config> HttpServiceConfig() {
+    config.compression = Compression.AUTO;
 }
 
 @Description {value:"Configurations for CORS support"}
@@ -46,8 +50,9 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public struct WebSocketServiceConfig {
+public struct WebSocketServiceConfiguration {
     Service[] endpoints;
+    WebSocketService[] webSocketEndpoints;
     string basePath;
     string[] subProtocols;
     int idleTimeoutInSeconds;
@@ -66,10 +71,10 @@ public enum HttpServiceLifeTime {
 }
 
 @Description {value:"Configurations annotation for an HTTP service"}
-public annotation <service> serviceConfig HttpServiceConfig;
+public annotation <service> serviceConfig HttpServiceConfiguration;
 
 @Description {value:"Configurations annotation for a WebSocket service"}
-public annotation <service> webSocketServiceConfig WebSocketServiceConfig;
+public annotation <service> webSocketServiceConfig WebSocketServiceConfiguration;
 
 
 ////////////////////////////
@@ -81,7 +86,12 @@ public annotation <service> webSocketServiceConfig WebSocketServiceConfig;
 @Field {value:"body: Inbound request entity body name which declared in signature"}
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
-@Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
+@Field {value:"allowOrigins: The array of origins with which the response is shared by the resource"}
+@Field {value:"allowCredentials: Specifies whether credentials are required to access the resource"}
+@Field {value:"allowMethods: The array of allowed methods by the resource"}
+@Field {value:"allowHeaders: The array of allowed headers by the resource"}
+@Field {value:"maxAge: The duration to cache the preflight from client side"}
+@Field {value:"exposeHeaders: The array of allowed headers which are exposed to the client"}
 public struct ResourceConfig {
     string[] methods;
     string path;

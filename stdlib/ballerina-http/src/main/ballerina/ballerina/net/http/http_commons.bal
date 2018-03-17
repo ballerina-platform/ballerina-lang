@@ -4,6 +4,10 @@ public enum Chunking {
     AUTO, ALWAYS, NEVER
 }
 
+public enum Compression {
+    AUTO, ALWAYS, NEVER
+}
+
 public enum TransferEncoding {
     CHUNKING
 }
