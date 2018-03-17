@@ -75,12 +75,6 @@ public interface InstructionCodes {
     int JSONLOAD = 47;
     int ENUMERATORLOAD = 48;
 
-    int ISTORE = 49;
-    int FSTORE = 50;
-    int SSTORE = 51;
-    int BSTORE = 52;
-    int LSTORE = 53;
-    int RSTORE = 54;
     int IASTORE = 55;
     int FASTORE = 56;
     int SASTORE = 57;

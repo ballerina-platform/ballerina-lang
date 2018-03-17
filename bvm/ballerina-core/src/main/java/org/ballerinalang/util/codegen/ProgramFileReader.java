@@ -1391,12 +1391,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
-                case InstructionCodes.ISTORE:
-                case InstructionCodes.FSTORE:
-                case InstructionCodes.SSTORE:
-                case InstructionCodes.BSTORE:
-                case InstructionCodes.LSTORE:
-                case InstructionCodes.RSTORE:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:

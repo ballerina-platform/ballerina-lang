@@ -288,12 +288,6 @@ public class CPU {
                     execLoadOpcodes(ctx, sf, opcode, operands);
                     break;
 
-                case InstructionCodes.ISTORE:
-                case InstructionCodes.FSTORE:
-                case InstructionCodes.SSTORE:
-                case InstructionCodes.BSTORE:
-                case InstructionCodes.LSTORE:
-                case InstructionCodes.RSTORE:
                 case InstructionCodes.IASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
@@ -1191,36 +1185,6 @@ public class CPU {
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
-            case InstructionCodes.ISTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.longRegs[lvIndex] = sf.longRegs[i];
-                break;
-            case InstructionCodes.FSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.doubleRegs[lvIndex] = sf.doubleRegs[i];
-                break;
-            case InstructionCodes.SSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.stringRegs[lvIndex] = sf.stringRegs[i];
-                break;
-            case InstructionCodes.BSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.intRegs[lvIndex] = sf.intRegs[i];
-                break;
-            case InstructionCodes.LSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.byteRegs[lvIndex] = sf.byteRegs[i];
-                break;
-            case InstructionCodes.RSTORE:
-                i = operands[0];
-                lvIndex = operands[1];
-                sf.refRegs[lvIndex] = sf.refRegs[i];
-                break;
             case InstructionCodes.IASTORE:
                 i = operands[0];
                 j = operands[1];
