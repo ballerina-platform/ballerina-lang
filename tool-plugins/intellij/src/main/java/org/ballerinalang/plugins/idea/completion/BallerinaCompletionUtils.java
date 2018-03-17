@@ -597,6 +597,9 @@ public class BallerinaCompletionUtils {
                                                                             insertHandler) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (IdentifierPSINode connector : connectors) {
+            if (connector == null) {
+                continue;
+            }
             LookupElement lookupElement = createConnectorLookupElement(connector, insertHandler);
             lookupElements.add(lookupElement);
         }

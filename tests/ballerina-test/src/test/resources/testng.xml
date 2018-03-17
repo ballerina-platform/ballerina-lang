@@ -34,9 +34,10 @@ under the License.
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transaction.*"/>
-                <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
             </package>
-            <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.types.*">
+                <exclude name="org.ballerinalang.test.types.table.*"/>
+            </package>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
@@ -69,7 +70,7 @@ under the License.
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.auth.*"/>
+            <!--<package name="org.ballerinalang.test.auth.*"/>-->
         </packages>
     </test>
 </suite>
