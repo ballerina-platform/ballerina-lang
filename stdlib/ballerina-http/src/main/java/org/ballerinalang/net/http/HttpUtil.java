@@ -70,7 +70,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -505,10 +504,6 @@ public class HttpUtil {
 
     public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage cMsg) {
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, cMsg);
-        connection.setStringField(HttpConstants.CONNECTION_HOST_INDEX,
-                ((InetSocketAddress) cMsg.getProperty(HttpConstants.LOCAL_ADDRESS)).getHostName());
-        connection.setIntField(HttpConstants.CONNECTION_PORT_INDEX,
-                (Integer) cMsg.getProperty(HttpConstants.LISTENER_PORT));
     }
 
     /**
