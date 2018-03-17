@@ -450,6 +450,23 @@ public class BLangPackageBuilder {
 
         addType(constrainedType);
     }
+    
+    public void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
+        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(typeName);
+        refType.pos = pos;
+        refType.addWS(refTypeWS);
+
+        BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
+        constrainedType.type = refType;
+        constrainedType.constraint = (BLangType) this.typeNodeStack.pop();
+        constrainedType.pos = pos;
+        constrainedType.addWS(ws);
+
+        addType(constrainedType);
+    }
 
     public void addEndpointType(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
@@ -828,7 +845,8 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
+    public void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
+            boolean async) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
@@ -842,6 +860,7 @@ public class BLangPackageBuilder {
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        invocationNode.async = async;
         addExpressionNode(invocationNode);
     }
 
@@ -2615,6 +2634,10 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(streamletNode);
+    }
+    
+    public void markLastExpressionAsAwait() {
+        ((BLangExpression) this.exprNodeStack.peek()).await = true;
     }
 
 }
