@@ -50,6 +50,7 @@ public enum TypeKind {
 
     TYPE("type"),
     TABLE("table"),
+    STREAM("stream"),
     JSON("json"),
     XML("xml"),
     ANY("any"),
@@ -59,6 +60,7 @@ public enum TypeKind {
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
+    STREAMLET("streamlet"),
     ENDPOINT("endpoint"),
     FUNCTION("function"),
     ANNOTATION("annotation"),

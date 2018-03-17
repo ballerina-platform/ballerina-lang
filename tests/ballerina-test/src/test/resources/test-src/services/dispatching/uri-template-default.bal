@@ -6,8 +6,10 @@ endpoint<mock:NonListeningService> testEP {
 }
 
 @http:serviceConfig {
-    allowCredentials : true,
-    endpoints:[testEP]
+    endpoints:[testEP],
+    cors: {
+        allowCredentials: true
+    }
 }
 service<http:Service> serviceName {
 

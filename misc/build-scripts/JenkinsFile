@@ -2,7 +2,7 @@
 String BUILD = "Build", RELEASE = "Release", CLEANRELEASE = "Clean Release";
 String YES = "Yes", NO = "No";
 String MASTER = "master";
-String ECS_NODE = "ECS_COMPONENT_SLAVE_TEST";
+String ECS_NODE = "BALLERINA_ECS";
 
 String yesNoString = "${NO}\n${YES}";
 
@@ -30,7 +30,7 @@ String CHOICE_PARAM_DEF_CLASS = "ChoiceParameterDefinition";
 if (isRelease) {
     releaseParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
-            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the release', name: 'node-label'],
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the release', name: 'node-label'],
 
             [$class: TEXT_PARAM_DEF_CLASS, defaultValue: MASTER, description: 'Provide the branch perform the release', name: 'branch-name'],
 
@@ -49,7 +49,7 @@ if (isRelease) {
     branchName = releaseParamInput['branch-name'];
 
     ballerinaVersion = releaseParamInput['ballerina-release-version'];
-    ballerinaReleaseTag = "v" + ballerinaParentVersion;
+    ballerinaReleaseTag = "v" + ballerinaVersion;
     ballerinaDevVersion = releaseParamInput['ballerina-next-development-version'];
     ballerinaSkipTests = releaseParamInput['skip-ballerina-tests'];
 }
@@ -57,7 +57,7 @@ if (isRelease) {
 if (isBuild) {
     buildParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
-            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the build', name: 'node-label'],
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the build', name: 'node-label'],
 
             [$class: TEXT_PARAM_DEF_CLASS, defaultValue: MASTER, description: 'Provide the branch perform the build', name: 'branch-name'],
 
@@ -73,7 +73,7 @@ if (isBuild) {
 if (isCleanRelease) {
     cleanReleaseParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
-            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to perform the release', name: 'node-label'],
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the release', name: 'node-label'],
 
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Release Version to clean', name: 'ballerina-release-version']
     ]);
@@ -85,7 +85,6 @@ if (isCleanRelease) {
 }
 
 node("${nodeLabel}") {
-    def tagMap = [];
     String user = env.GIT_USER;
     String gitCredentialsID = env.GIT_CREDENTIALS_ID;
     String gitEmail = env.GIT_EMAIL;
@@ -96,7 +95,6 @@ node("${nodeLabel}") {
         stage('Building ballerina') {
             cloneRepository(ballerinaRepository, branchName, user, gitCredentialsID, gitEmail);
             if (isRelease) {
-                tagMap.add([ballerinaRepository, ballerinaReleaseTag, ballerinaVersion]);
                 release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
             } else if (isBuild) {
                 build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
@@ -108,25 +106,23 @@ node("${nodeLabel}") {
         if (isBuild || isRelease) {
             // Archive the runtime distribution
             stage("Archiving Runtime distribution") {
-                archiveArtifacts artifacts: 'distribution/zip/ballerina/target/ballerina-*.zip'
+                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina/target/ballerina-*.zip'
             }
 
             // Archive the tools distribution
             stage("Archiving Tools distribution") {
-                archiveArtifacts artifacts: 'distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
+                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
             }
 
             // Archive the vscode distribution
             stage("Archiving vscode distribution") {
-                archiveArtifacts artifacts: 'tool-plugins/vscode/target/ballerina-vscode-plugin-*.vsix'
+                archiveArtifacts artifacts: 'ballerina/tool-plugins/vscode/target/ballerina-vscode-plugin-*.vsix'
             }
         }
     } catch (Exception e) {
         println("An exception has occurred in during the build process");
         if (isRelease && YES.equals(allowCleanUpAfterReleaseFailure)) {
-            for (entry in tagMap) {
-                cleanupRepositoryAfterFailure(entry[0].toString(), user, entry[1].toString(), entry[2].toString(), gitCredentialsID)
-            }
+            cleanupRepositoryAfterFailure(ballerinaRepository, user, ballerinaReleaseTag, ballerinaVersion, gitCredentialsID)
         }
         throw e;
     }
@@ -166,25 +162,6 @@ def cloneRepository(String repositoryName, String branchName, String user, Strin
 }
 
 /**
- * This method pushes current branch to the remote repository.
- *
- * @param repositoryName The repository directory
- * @param credentials GIT credentials ID to be used, in Jenkins credentials
- * @param user The git user
- */
-def pushCurrentBranch(String repositoryName, String credentials, String user) {
-    dir(repositoryName) {
-        withCredentials(
-                [[$class          : 'UsernamePasswordMultiBinding',
-                  credentialsId   : credentials,
-                  usernameVariable: 'GIT_USERNAME',
-                  passwordVariable: 'GIT_PASSWORD']]) {
-            sh("git push origin HEAD");
-        }
-    }
-}
-
-/**
  * This method perform release prepare,perform on a given repository. Deployment is skipped therefore artifacts will be
  * installed only in local m2 repository.
  *
@@ -203,10 +180,10 @@ def release(String settingsXml, String repositoryDir, String releaseVersion, Str
             withEnv(["JAVA_HOME=${tool env.JDK}", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${tool env.JDK}/bin:${tool env.MAVEN_TOOL}/bin"]) {
                 if ("Yes".equals(skipTests)) {
                     sh 'mvn --version'
-                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true -DskipTests=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-DskipTests=true" -P wso2-release -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
                 } else {
                     sh 'mvn --version'
-                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -P wso2-release -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
                 }
             }
         }

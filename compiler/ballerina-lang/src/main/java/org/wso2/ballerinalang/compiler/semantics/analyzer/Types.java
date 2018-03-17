@@ -36,6 +36,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -191,6 +193,14 @@ public class Types {
         }
 
         if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.STREAMLET && source.tag == TypeTags.STREAMLET) {
             return true;
         }
 
@@ -354,6 +364,11 @@ public class Types {
                 return false;
             }
         }
+        return true;
+    }
+
+    public boolean checkStremletEquivalency(BType actualType, BType expType) {
+        //TODO temporary fix.
         return true;
     }
 
@@ -730,10 +745,26 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BStreamType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
             if (s == symTable.anyType) {
                 return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
             } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            }
+
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
+        public BSymbol visit(BStreamletType t, BType s) {
+            if (s == symTable.anyType) {
+                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2M);
+            } else if (s.tag == TypeTags.STREAMLET && checkStremletEquivalency(s, t)) {
                 return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
             }
 
@@ -834,7 +865,17 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BStreamType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BConnectorType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
+        public BSymbol visit(BStreamletType t, BType s) {
             return symTable.notFoundSymbol;
         }
 
@@ -917,7 +958,17 @@ public class Types {
         }
 
         @Override
+        public Boolean visit(BStreamType t, BType s) {
+            return t == s;
+        }
+
+        @Override
         public Boolean visit(BConnectorType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BStreamletType t, BType s) {
             return t == s;
         }
 

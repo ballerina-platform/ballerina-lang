@@ -151,6 +151,8 @@ public enum DiagnosticCode {
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    OPERATOR_NOT_SUPPORTED("operator.not.supported"),
+    OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),

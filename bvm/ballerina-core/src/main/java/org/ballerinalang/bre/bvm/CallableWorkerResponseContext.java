@@ -37,11 +37,11 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected boolean fulfilled;
 
     protected Map<String, BStruct> workerErrors;
-    
+        
     protected int haltCount;
 
-    public CallableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
-        super(workerCount, checkResponse);
+    public CallableWorkerResponseContext(BType[] responseTypes, int workerCount) {
+        super(workerCount);
         this.responseTypes = responseTypes;
     }
     
@@ -81,9 +81,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     }
     
     protected WorkerExecutionContext propagateErrorToTarget() {
-        this.notifyResponseChecker();
-        return this.onFinalizedError(BLangVMErrors.createCallFailedException(
-                this.targetCtx, this.getWorkerErrors()));
+        BStruct error = BLangVMErrors.createCallFailedException(this.targetCtx, this.getWorkerErrors());
+        this.doFailCallbackNotify(error);
+        return this.onFinalizedError(this.targetCtx, error);
     }
 
     @Override
@@ -150,9 +150,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return null;
     }
     
-    protected WorkerExecutionContext onFinalizedError(BStruct error) {
-        this.modifyDebugCommands(this.targetCtx, this.currentSignal.getSourceContext());
-        WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(this.targetCtx, error);
+    protected WorkerExecutionContext onFinalizedError(WorkerExecutionContext targetCtx, BStruct error) {
+        this.modifyDebugCommands(targetCtx, this.currentSignal.getSourceContext());
+        WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(targetCtx, error);
         return runInCallerCtx;
     }
     
@@ -177,7 +177,6 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return runInCallerCtx;
     }
 
-    @Override
     public WorkerExecutionContext onFulfillment(boolean runInCaller) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.targetCtx != null) {
@@ -188,7 +187,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
                 runInCallerCtx = BLangScheduler.resume(this.targetCtx, runInCaller);
             }
         }
-        this.notifyResponseChecker();
+        this.doSuccessCallbackNotify();
         return runInCallerCtx;
     }
     

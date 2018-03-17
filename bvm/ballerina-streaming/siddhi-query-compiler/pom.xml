@@ -30,7 +30,7 @@
     <packaging>jar</packaging>
 
     <artifactId>siddhi-query-compiler</artifactId>
-    <name>Ballerina Streaming - Siddhi Query Compiler</name>
+    <name>Ballerina - Streaming - Siddhi Query Compiler</name>
 
     <dependencies>
         <dependency>

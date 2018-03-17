@@ -36,9 +36,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ADD;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ALL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTACHMENT;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_LIST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_ATTRIBUTE_VALUE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.ANNOTATION_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ANY_IDENTIFIER_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.AS;
@@ -54,7 +51,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_DEFINITION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.CONNECTOR_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CREATE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
@@ -99,11 +95,11 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.LT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.NEW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE_NAME;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PUBLIC;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.QUERY;
@@ -111,7 +107,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.QUESTION_MARK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RBRACE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECEIVEARROW;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_LITERAL;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETRIES;
@@ -126,7 +121,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SERVICE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SET;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SIMPLE_EXPRESSION;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.SOURCE_NOTATION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STREAMLET;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.STRUCT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SUB;
@@ -228,6 +222,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(IN).spaceIf(true)
                 .around(JOIN).spaceIf(true)
                 .after(NATIVE).spaceIf(true)
+                .after(NEW).spaceIf(true)
                 .around(ON).spaceIf(true)
                 .around(ORDER).spaceIf(true)
                 .after(PACKAGE).spaceIf(true)
@@ -237,7 +232,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(RESOURCE).spaceIf(true)
                 .around(SELECT).spaceIf(true)
                 .around(SET).spaceIf(true)
-                .between(SERVICE, SOURCE_NOTATION).spaceIf(false)
+                .between(SERVICE, LT).spaceIf(false)
                 .between(SERVICE, IDENTIFIER).spaceIf(true)
                 .after(STREAMLET).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
@@ -306,23 +301,17 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
                 .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
                 .between(VARIABLE_REFERENCE, LPAREN).spaceIf(false)
-                .after(ANNOTATION_REFERENCE).spaceIf(true)
                 .after(FUNCTION_REFERENCE).spaceIf(false)
-                .after(CONNECTOR_REFERENCE).spaceIf(false)
-                .around(ANNOTATION_ATTRIBUTE_LIST).spaceIf(false)
-                .around(ANNOTATION_ATTRIBUTE_VALUE).spaceIf(false)
                 .around(NAME_REFERENCE).spaceIf(false)
                 .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(IDENTIFIER, LBRACE).spaceIf(true)
                 .between(ATTACHMENT_POINT, LBRACE).spaceIf(true)
-                .around(RECORD_LITERAL).spaceIf(false)
                 .around(RECORD_KEY_VALUE).spaceIf(false)
                 .between(XML, LT).spaceIf(false)
                 .around(XML_NAMESPACE_NAME).spaceIf(false)
                 .around(EXPRESSION_LIST).spaceIf(false)
                 .aroundInside(INTEGER_LITERAL, JOIN_CONDITIONS).spaceIf(true)
-                .aroundInside(PACKAGE_NAME, SOURCE_NOTATION).spaceIf(false)
-                .between(SOURCE_NOTATION, IDENTIFIER).spaceIf(true)
+                .between(LT, IDENTIFIER).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, FUNCTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, SERVICE_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, RESOURCE_DEFINITION).spaceIf(true)
@@ -332,8 +321,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .afterInside(IDENTIFIER, INVOCATION).spaceIf(false)
                 .around(ANY_IDENTIFIER_NAME).spaceIf(false)
                 .after(BIND).spaceIf(true)
-                .between(LT, CONNECTOR_REFERENCE).spaceIf(false)
-                .between(CONNECTOR_REFERENCE, GT).spaceIf(false)
                 .after(ENDPOINT).spaceIf(false)
                 .between(GT, IDENTIFIER).spaceIf(true)
                 .after(TRANSFORMER).spaceIf(true)
