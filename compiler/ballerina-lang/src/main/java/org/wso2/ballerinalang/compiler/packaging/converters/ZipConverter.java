@@ -1,5 +1,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -54,7 +56,7 @@ public class ZipConverter extends PathConverter {
             FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
         } catch (IOException e) {
-            throw new RuntimeException("Error occured when creating the file system " + uri.getPath(), e);
+            throw new BLangCompilerException("Error loading balo " + uri.getPath(), e);
         }
     }
 }
