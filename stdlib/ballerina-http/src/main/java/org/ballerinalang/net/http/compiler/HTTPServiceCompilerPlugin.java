@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -58,9 +59,10 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-        resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getServiceTypeStruct().getTypeName().getValue())) {
+            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+            resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        }
     }
 
     @Override

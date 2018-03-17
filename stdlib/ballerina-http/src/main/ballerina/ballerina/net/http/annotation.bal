@@ -7,16 +7,20 @@ package ballerina.net.http;
 @Field {value:"endpoints: An array of endpoints the service would be attached to"}
 @Field {value:"lifetime: The life time of the service"}
 @Field {value:"basePath: Service base path"}
-@Field {value:"compressionEnabled: The status of compressionEnabled {default value : true (enabled)}"}
+@Field {value:"compression: The status of compression {default value : AUTO}"}
 @Field {value:"cors: The CORS configurations for the service"}
 @Field {value:"webSocket: Annotation to define HTTP to WebSocket upgrade"}
 public struct HttpServiceConfig {
     Service[] endpoints;
     HttpServiceLifeTime lifetime;
     string basePath;
-    boolean compressionEnabled;
+    Compression compression;
     CorsConfig cors;
     WebSocketUpgradeConfig webSocketUpgrade;
+}
+
+public function <HttpServiceConfig config> HttpServiceConfig() {
+    config.compression = Compression.AUTO;
 }
 
 @Description {value:"Configurations for CORS support"}
@@ -48,6 +52,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
 public struct WebSocketServiceConfig {
     Service[] endpoints;
+    WebSocketService[] webSocketEndpoints;
     string basePath;
     string[] subProtocols;
     int idleTimeoutInSeconds;

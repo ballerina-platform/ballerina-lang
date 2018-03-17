@@ -203,7 +203,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean constrained = ctx.serviceEndpointAttachments() != null;
+        boolean constrained = ctx.nameReference() != null;
         this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), constrained);
     }
 
