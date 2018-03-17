@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -44,6 +45,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.B_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_URI;
 
 /**
@@ -107,15 +111,17 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                     .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
             senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
         }
-
-
-        HttpClientConnector httpClientConnector =
-                httpConnectorFactory.createHttpClientConnector(properties, senderConfiguration);
-        clientEndpoint.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
-
-//        ClientConnectorFuture ballerinaFuture = new ClientConnectorFuture();
-//        ballerinaFuture.notifySuccess();
-
+        HttpClientConnector httpClientConnector = httpConnectorFactory
+                .createHttpClientConnector(properties, senderConfiguration);
+        BStruct ballerinaClientConnector;
+        if (clientEndpoint.getNativeData(B_CONNECTOR) != null) {
+            ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(B_CONNECTOR);
+        } else {
+            ballerinaClientConnector = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
+                    CLIENT_CONNECTOR, url, clientEndpointConfig);
+            clientEndpoint.addNativeData(HttpConstants.B_CONNECTOR, ballerinaClientConnector);
+        }
+        ballerinaClientConnector.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
         context.setReturnValues();
     }
 

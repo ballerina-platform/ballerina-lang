@@ -81,7 +81,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
 
         // Extract Argument values
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String path = context.getStringArgument(0);
         BStruct requestStruct  = ((BStruct) context.getRefArgument(1));
         HTTPCarbonMessage requestMsg = HttpUtil
@@ -96,7 +96,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    protected void prepareOutboundRequest(Context context, BConnector connector, String path,
+    protected void prepareOutboundRequest(Context context, BStruct connector, String path,
                                           HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
         if (context.isInTransaction()) {
@@ -185,7 +185,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return port;
     }
 
-    private void validateParams(BConnector connector) {
+    private void validateParams(BStruct connector) {
         if (connector == null || connector.getStringField(0) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
@@ -238,7 +238,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @throws Exception When an error occurs while sending the outbound request via client connector
      */
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) throws Exception {
-        BConnector bConnector = (BConnector) dataContext.context.getRefArgument(0);
+        BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
@@ -333,7 +333,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     }
 
     private RetryConfig getRetryConfiguration(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         BStruct options = (BStruct) bConnector.getRefField(HttpConstants.OPTIONS_STRUCT_INDEX);
         if (options == null) {
             return new RetryConfig();
