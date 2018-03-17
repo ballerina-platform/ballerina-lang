@@ -19,14 +19,13 @@ hs_err_pid*
 # generated files
 target
 /gen
-/docs/grammar/BallerinaLexer.tokens
+/compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.tokens
+/tool-plugins/intellij/src/main/antlr/org/ballerinalang/plugins/idea/grammar/BallerinaLexer.tokens
 
 # mac
 .DS_Store
 
-.idea
 .classpath
 .project
 .settings
 .vscode
-
