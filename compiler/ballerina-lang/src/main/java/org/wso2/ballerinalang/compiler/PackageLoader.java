@@ -29,10 +29,10 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import org.wso2.ballerinalang.compiler.packaging.repo.ZipRepo;
 import org.wso2.ballerinalang.compiler.parser.Parser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -109,9 +109,9 @@ public class PackageLoader {
         RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
 
         Repo homeCacheRepo = new CacheRepo(balHomeDir);
-        Repo homeRepo = new ObjRepo(balHomeDir);
+        Repo homeRepo = new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir);
-        Repo projectRepo = new ObjRepo(projectHiddenDir);
+        Repo projectRepo = new ZipRepo(projectHiddenDir); //new ObjRepo(projectHiddenDir);
         Repo projectSource = new ProjectSourceRepo(sourceRoot);
         Repo programingSource = new ProgramingSourceRepo(sourceRoot);
 

@@ -5,27 +5,24 @@ import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
- * Calculate path pattens within meta-inf dir of jars (or exploded jars).
+ * Calculate path pattens within meta-inf dir of zips.
  * Used to load system org bal files.
  */
-public class JarRepo implements Repo<Path> {
+public class ZipRepo implements Repo<Path> {
     private final ZipConverter converter;
 
-    public JarRepo(URI jarLocation) {
-        this.converter = new ZipConverter(Paths.get(jarLocation));
+    public ZipRepo(Path pathToHiddenDir) {
+        this.converter = new ZipConverter(pathToHiddenDir);
     }
 
     @Override
     public Patten calculate(PackageID pkg) {
-        return new Patten(Patten.path("META-INF"),
-                          Patten.WILDCARD_DIR,
-                          Patten.path(pkg.getName().value.replace('.', '/')), //TODO: remove replacement
-                          Patten.WILDCARD_SOURCE);
+        return new Patten(Patten.path("repo", pkg.getOrgName().getValue(), pkg.getName().getValue(),
+                pkg.getPackageVersion().getValue()), Patten.path(pkg.getName().value + ".zip"), Patten.path("src"),
+                Patten.WILDCARD_SOURCE);
     }
 
     @Override
@@ -35,7 +32,7 @@ public class JarRepo implements Repo<Path> {
 
     @Override
     public String toString() {
-        return "{t:'JarRepo', c:'" + converter + "'}";
+        return "{t:'ZipRepo', c:'" + converter + "'}";
     }
 
 }

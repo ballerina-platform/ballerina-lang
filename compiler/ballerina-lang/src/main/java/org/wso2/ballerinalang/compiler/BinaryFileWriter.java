@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -29,6 +30,8 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -70,6 +73,13 @@ public class BinaryFileWriter {
     public void writeExecutableBinary(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_EXEC_FILE_SUFFIX);
         writeExecutableBinary(packageNode, fileName);
+
+        // Generate balo
+        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(this.sourceDirectory.getPath());
+        Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convertToPaths(projectSourceRepo
+                .getConverterInstance());
+        String prjPath = projectSourceRepo.getConverterInstance().toString();
+        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
