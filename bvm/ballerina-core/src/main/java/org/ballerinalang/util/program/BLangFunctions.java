@@ -47,6 +47,8 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
@@ -61,7 +63,8 @@ import java.util.concurrent.Semaphore;
  * @since 0.8.0
  */
 public class BLangFunctions {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(BLangFunctions.class);
     private static final String JOIN_TYPE_SOME = "some";
 
     private BLangFunctions() { }
@@ -245,8 +248,10 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
+            log.error(e.getMessage(), e);
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
+            log.error(e.getMessage(), e);
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
         }
     }

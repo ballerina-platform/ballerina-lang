@@ -77,11 +77,8 @@ public function <Client ep> init (ClientEndpointConfiguration config) {
         config.serviceUri = uri;
     }
     ep.config = config;
-    //conn = new ClientConnector(uri, config);
     ep.initEndpoint();
 }
-
-//ClientConnector conn;
 
 public native function<Client ep> initEndpoint ();
 

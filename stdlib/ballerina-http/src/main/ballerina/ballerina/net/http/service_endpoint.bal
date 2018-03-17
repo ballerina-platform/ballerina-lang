@@ -5,7 +5,7 @@ package ballerina.net.http;
 /////////////////////////////
 public struct Endpoint {
     // TODO : Make all field Read-Only
-    string epName;
+    Connection conn;
     ServiceEndpointConfiguration config;
 }
 
@@ -103,7 +103,7 @@ public native function <Endpoint ep> start ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Endpoint ep> getClient () returns (Connection repConn);
+public native function <Endpoint ep> getClient () returns (Connection);
 
 @Description { value:"Stops the registered service"}
 public native function <Endpoint ep> stop ();
@@ -146,7 +146,7 @@ public function <WebSocketEndpoint ep> start () {
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> getClient () returns (Connection repConn) {
+public function <WebSocketEndpoint ep> getClient () returns (Connection) {
     return ep.httpEndpoint.getClient();
 }
 
