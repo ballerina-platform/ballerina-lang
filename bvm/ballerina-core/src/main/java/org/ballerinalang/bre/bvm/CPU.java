@@ -2712,7 +2712,7 @@ public class CPU {
                         notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                     } else {
                         TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                     }
                 }
             } else if (status == TransactionStatus.ABORTED.value()) {
@@ -2722,7 +2722,7 @@ public class CPU {
                         notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
                     } else {
                         TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
                     }
                 }
             } else if (status == TransactionStatus.SUCCESS.value()) {

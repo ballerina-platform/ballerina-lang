@@ -165,7 +165,7 @@ public class TransactionResourceManager {
      * @param transactionId the global transaction id.
      * @param transactionBlockId the block id of the transaction.
      */
-    public boolean notifyAbort(String transactionId, int transactionBlockId) {
+    public boolean notifyAbort(String transactionId, int transactionBlockId, boolean isRetryAttempt) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -187,7 +187,11 @@ public class TransactionResourceManager {
                 }
             }
         }
-        invokeAbortedFunction(transactionBlockId);
+        //For the retry  attempt failures the aborted function should not be invoked. It should invoked only when the
+        //whole transaction aborts after all the retry attempts.
+        if (!isRetryAttempt) {
+            invokeAbortedFunction(transactionBlockId);
+        }
         removeContextsFromRegistry(combinedId);
         return abortSuccess;
     }
@@ -243,7 +247,7 @@ public class TransactionResourceManager {
 
     void rollbackTransaction(String transactionId, int transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(transactionId, transactionBlockId);
+        notifyAbort(transactionId, transactionBlockId, true);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId) {
