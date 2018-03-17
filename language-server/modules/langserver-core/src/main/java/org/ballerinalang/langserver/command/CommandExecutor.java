@@ -22,6 +22,8 @@ import org.ballerinalang.langserver.WorkspaceServiceContext;
 import org.ballerinalang.langserver.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
@@ -31,12 +33,21 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +77,9 @@ public class CommandExecutor {
                 break;
             case CommandConstants.CMD_ADD_DOCUMENTATION:
                 executeAddDocumentation(context);
+                break;
+            case CommandConstants.CMD_ADD_ALL_DOC:
+                executeAddAllDocumentation(context);
                 break;
             default:
                 // Do Nothing
@@ -150,7 +164,6 @@ public class CommandExecutor {
     private static void executeAddDocumentation(WorkspaceServiceContext context) {
         String topLevelNodeType = "";
         String documentUri = "";
-        String documentationContent = null;
         int line = 0;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
@@ -168,49 +181,183 @@ public class CommandExecutor {
         BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
 
+        CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
+                bLangPackage, line);
+
+        if (docAttachmentInfo != null) {
+            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
+                    .getFileContent(Paths.get(URI.create(documentUri)));
+            String[] contentComponents = fileContent.split(System.lineSeparator());
+            int replaceEndCol = contentComponents[line - 1].length();
+            String replaceText = String.join(System.lineSeparator(),
+                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)))
+                    + System.lineSeparator() + docAttachmentInfo.getDocAttachment();
+            Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
+
+            applySingleTextEdit(replaceText, range, textDocumentIdentifier,
+                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+        }
+    }
+
+    /**
+     * Generate workspace edit for generating doc comments for all top level nodes and resources.
+     * @param context   Workspace Service Context
+     */
+    private static void executeAddAllDocumentation(WorkspaceServiceContext context) {
+        String documentUri = "";
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+                textDocumentIdentifier.setUri(documentUri);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+            }
+        }
+
+        BLangPackage bLangPackage = TextDocumentServiceUtil.getBLangPackage(context,
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class);
+
+        String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
+                .getFileContent(Paths.get(URI.create(documentUri)));
+        String[] contentComponents = fileContent.split(System.lineSeparator());
+        List<TextEdit> textEdits = new ArrayList<>();
+        bLangPackage.topLevelNodes.forEach(topLevelNode -> {
+            CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
+            if (docAttachmentInfo != null) {
+                textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
+            }
+            if (topLevelNode instanceof BLangService) {
+                ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
+                    CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
+                    if (resourceInfo != null) {
+                        textEdits.add(getTextEdit(resourceInfo, contentComponents));
+                    }
+                });
+            }
+        });
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
+        applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
+                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+    }
+
+    /**
+     * Get TextEdit from doc attachment info.
+     * @param attachmentInfo        Doc attachment info
+     * @param contentComponents     file content component
+     * @return {@link TextEdit}     Text edit for attachment info
+     */
+    private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo, String[] contentComponents) {
+        int replaceFrom = attachmentInfo.getReplaceStartFrom();
+        int replaceEndCol = contentComponents[attachmentInfo.getReplaceStartFrom()].length();
+        Range range = new Range(new Position(replaceFrom, 0), new Position(replaceFrom, replaceEndCol));
+        String replaceText = attachmentInfo.getDocAttachment()
+                + System.lineSeparator() + contentComponents[replaceFrom];
+        return new TextEdit(range, replaceText);
+    }
+
+    /**
+     * Get Document edit for node at a given position.
+     * @param topLevelNodeType      top level node type
+     * @param bLangPackage          BLang package
+     * @param line                  position to be compared with
+     * @return                      Document attachment info
+     */
+    private static CommandUtil.DocAttachmentInfo getDocumentEditForNodeByPosition(String topLevelNodeType,
+                                                                           BLangPackage bLangPackage, int line) {
+        CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
-                documentationContent = CommandUtil.getFunctionDocumentation(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.STRUCT_KEYWORD_KEY:
-                documentationContent = CommandUtil.getStructDocumentation(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getStructDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.ENUM_KEYWORD_KEY:
-                documentationContent = CommandUtil.getEnumDocumentation(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getEnumDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.TRANSFORMER_KEYWORD_KEY:
-                documentationContent = CommandUtil.getTransformerDocumentation(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getTransformerDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
-                CommandUtil.DocAttachmentInfo attachInfo = CommandUtil.getResourceDocumentation(bLangPackage, line);
-                if (attachInfo != null) {
-                    documentationContent = attachInfo.getDocAttachment();
-                    line = attachInfo.getReplaceStartFrom();
-                }
+                docAttachmentInfo = CommandUtil.getResourceDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
-                CommandUtil.DocAttachmentInfo serviceInfo = CommandUtil.getServiceDocumentation(bLangPackage, line);
-                if (serviceInfo != null) {
-                    documentationContent = serviceInfo.getDocAttachment();
-                    line = serviceInfo.getReplaceStartFrom();
+                docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPackage, line);
+                break;
+            default:
+                break;
+        }
+
+        return docAttachmentInfo;
+    }
+
+    /**
+     * Get the document edit attachment info for a given particular node.
+     * @param node      Node given
+     * @return          Doc Attachment Info
+     */
+    private static CommandUtil.DocAttachmentInfo getDocumentEditForNode(Node node) {
+        CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
+        int replaceFrom;
+        switch (node.getKind()) {
+            case FUNCTION:
+                if (((BLangFunction) node).docAttachments.isEmpty()) {
+                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
+                }
+                break;
+            case STRUCT:
+                if (((BLangStruct) node).docAttachments.isEmpty()) {
+                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangStruct) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil.getStructNodeDocumentation((BLangStruct) node, replaceFrom);
+                }
+                break;
+            case ENUM:
+                if (((BLangEnum) node).docAttachments.isEmpty()) {
+                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEnum) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil.getEnumNodeDocumentation((BLangEnum) node, replaceFrom);
+                }
+                break;
+            case TRANSFORMER:
+                if (((BLangTransformer) node).docAttachments.isEmpty()) {
+                    replaceFrom =
+                            CommonUtil.toZeroBasedPosition(((BLangTransformer) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil.getTransformerNodeDocumentation((BLangTransformer) node,
+                            replaceFrom);
+                }
+                break;
+            case RESOURCE:
+                if (((BLangResource) node).docAttachments.isEmpty()) {
+                    BLangResource bLangResource = (BLangResource) node;
+                    replaceFrom =
+                            getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
+                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource, replaceFrom);
+                }
+                break;
+            case SERVICE:
+                if (((BLangService) node).docAttachments.isEmpty()) {
+                    BLangService bLangService = (BLangService) node;
+                    replaceFrom = getReplaceFromForServiceOrResource(bLangService,
+                            bLangService.getAnnotationAttachments());
+                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService, replaceFrom);
                 }
                 break;
             default:
                 break;
         }
 
-        if (documentationContent != null) {
-            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
-                    .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-            int replaceEndCol = contentComponents[line - 1].length();
-            String replaceText = String.join(System.lineSeparator(),
-                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line))) + documentationContent;
-            Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
+        return docAttachmentInfo;
+    }
 
-            applySingleTextEdit(replaceText, range, textDocumentIdentifier,
-                    context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+    private static int getReplaceFromForServiceOrResource(BLangNode bLangNode,
+                                                          List<BLangAnnotationAttachment> annotationAttachments) {
+        if (!annotationAttachments.isEmpty()) {
+            return CommonUtil.toZeroBasedPosition(annotationAttachments.get(annotationAttachments.size() - 1)
+                    .getPosition()).getEndLine() + 1;
         }
+
+        return CommonUtil.toZeroBasedPosition(bLangNode.getPosition()).getStartLine();
     }
 
     private static void applySingleTextEdit(String editText, Range range, VersionedTextDocumentIdentifier identifier,
@@ -222,6 +369,13 @@ public class CommandExecutor {
                 Collections.singletonList(textEdit));
         workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
         applyWorkspaceEditParams.setEdit(workspaceEdit);
+        client.applyEdit(applyWorkspaceEditParams);
+    }
+
+    private static void applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
+        WorkspaceEdit workspaceEdit = new WorkspaceEdit();
+        workspaceEdit.setDocumentChanges(textDocumentEdits);
+        ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams(workspaceEdit);
         client.applyEdit(applyWorkspaceEditParams);
     }
 }
