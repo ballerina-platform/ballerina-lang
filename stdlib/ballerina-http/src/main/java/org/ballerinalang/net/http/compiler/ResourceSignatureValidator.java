@@ -5,9 +5,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT;
 
 /**
  * A utility class for validating an HTTP resource signature at compile time.
