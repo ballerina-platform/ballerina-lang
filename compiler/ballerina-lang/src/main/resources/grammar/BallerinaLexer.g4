@@ -88,6 +88,7 @@ TYPE_FUTURE     : 'future' ;
 VAR         : 'var' ;
 NEW         : 'new' ;
 IF          : 'if' ;
+MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
@@ -163,6 +164,9 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
+
 
 // Compound Assignment operators.
 
@@ -470,11 +474,11 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -484,6 +488,7 @@ IdentifierLiteralEscapeSequence
     | '\\\\' [btnfr]
     | UnicodeEscape
     ;
+
 
 // XML lexer rules
 

@@ -1873,6 +1873,9 @@ public class CPU {
                 } else if (bRefType.getType() == BTypes.typeFloat) {
                     sf.refRegs[k] = null;
                     sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
+                } else if (bRefType.getType() == BTypes.typeInt) {
+                    sf.refRegs[k] = null;
+                    sf.doubleRegs[j] = ((BInteger) bRefType).floatValue();
                 } else {
                     sf.doubleRegs[j] = 0;
                     handleTypeCastError(ctx, sf, k, bRefType.getType(), BTypes.typeFloat);
