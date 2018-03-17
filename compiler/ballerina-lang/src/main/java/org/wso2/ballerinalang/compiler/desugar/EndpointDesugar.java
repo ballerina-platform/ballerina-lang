@@ -247,7 +247,9 @@ public class EndpointDesugar {
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.symbol.initFunction, args,
                 symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (endpoint.symbol.initFunction.params.size() != 2) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
@@ -278,7 +280,9 @@ public class EndpointDesugar {
         }
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, funSymbol, args, symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (funSymbol.params.size() != 1) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
@@ -315,7 +319,9 @@ public class EndpointDesugar {
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.registerFunction, args,
                 symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (endpoint.registerFunction.params.size() != 2) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
