@@ -1038,15 +1038,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitLockStatement(BallerinaParser.LockStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * Enter a parse tree produced by {@link BallerinaParser#onretryClause}.
 	 * @param ctx the parse tree
 	 */
-	void enterFailedClause(BallerinaParser.FailedClauseContext ctx);
+	void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * Exit a parse tree produced by {@link BallerinaParser#onretryClause}.
 	 * @param ctx the parse tree
 	 */
-	void exitFailedClause(BallerinaParser.FailedClauseContext ctx);
+	void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree

@@ -31,7 +31,7 @@ public class BallerinaParser extends Parser {
 		TYPE_ANY=71, TYPE_TYPE=72, TYPE_FUTURE=73, VAR=74, NEW=75, IF=76, ELSE=77, 
 		FOREACH=78, WHILE=79, NEXT=80, BREAK=81, FORK=82, JOIN=83, SOME=84, ALL=85, 
 		TIMEOUT=86, TRY=87, CATCH=88, FINALLY=89, THROW=90, RETURN=91, TRANSACTION=92, 
-		ABORT=93, FAILED=94, RETRIES=95, LENGTHOF=96, TYPEOF=97, WITH=98, BIND=99, 
+		ABORT=93, ONRETRY=94, RETRIES=95, LENGTHOF=96, TYPEOF=97, WITH=98, BIND=99, 
 		IN=100, LOCK=101, UNTAINT=102, ASYNC=103, AWAIT=104, SEMICOLON=105, COLON=106, 
 		DOT=107, COMMA=108, LEFT_BRACE=109, RIGHT_BRACE=110, LEFT_PARENTHESIS=111, 
 		RIGHT_PARENTHESIS=112, LEFT_BRACKET=113, RIGHT_BRACKET=114, QUESTION_MARK=115, 
@@ -92,7 +92,7 @@ public class BallerinaParser extends Parser {
 		RULE_actionInvocation = 86, RULE_expressionList = 87, RULE_expressionStmt = 88, 
 		RULE_transactionStatement = 89, RULE_transactionClause = 90, RULE_transactionPropertyInitStatement = 91, 
 		RULE_transactionPropertyInitStatementList = 92, RULE_lockStatement = 93, 
-		RULE_failedClause = 94, RULE_abortStatement = 95, RULE_retriesStatement = 96, 
+		RULE_onretryClause = 94, RULE_abortStatement = 95, RULE_retriesStatement = 96, 
 		RULE_committedStatement = 97, RULE_abortedStatement = 98, RULE_namespaceDeclarationStatement = 99, 
 		RULE_namespaceDeclaration = 100, RULE_expression = 101, RULE_nameReference = 102, 
 		RULE_returnParameters = 103, RULE_parameterTypeNameList = 104, RULE_parameterTypeName = 105, 
@@ -144,7 +144,7 @@ public class BallerinaParser extends Parser {
 		"field", "index", "xmlAttrib", "functionInvocation", "invocation", "invocationArgList", 
 		"invocationArg", "actionInvocation", "expressionList", "expressionStmt", 
 		"transactionStatement", "transactionClause", "transactionPropertyInitStatement", 
-		"transactionPropertyInitStatementList", "lockStatement", "failedClause", 
+		"transactionPropertyInitStatementList", "lockStatement", "onretryClause", 
 		"abortStatement", "retriesStatement", "committedStatement", "abortedStatement", 
 		"namespaceDeclarationStatement", "namespaceDeclaration", "expression", 
 		"nameReference", "returnParameters", "parameterTypeNameList", "parameterTypeName", 
@@ -184,7 +184,7 @@ public class BallerinaParser extends Parser {
 		"'var'", "'new'", "'if'", "'else'", "'foreach'", "'while'", "'next'", 
 		"'break'", "'fork'", "'join'", "'some'", "'all'", "'timeout'", "'try'", 
 		"'catch'", "'finally'", "'throw'", "'return'", "'transaction'", "'abort'", 
-		"'failed'", "'retries'", "'lengthof'", "'typeof'", "'with'", "'bind'", 
+		"'onretry'", "'retries'", "'lengthof'", "'typeof'", "'with'", "'bind'", 
 		"'in'", "'lock'", "'untaint'", "'async'", "'await'", "';'", "':'", "'.'", 
 		"','", "'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'='", "'+'", 
 		"'-'", "'*'", "'/'", "'^'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", 
@@ -209,7 +209,7 @@ public class BallerinaParser extends Parser {
 		"TYPE_AGGREGATION", "TYPE_ANY", "TYPE_TYPE", "TYPE_FUTURE", "VAR", "NEW", 
 		"IF", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", 
 		"ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", 
-		"ABORT", "FAILED", "RETRIES", "LENGTHOF", "TYPEOF", "WITH", "BIND", "IN", 
+		"ABORT", "ONRETRY", "RETRIES", "LENGTHOF", "TYPEOF", "WITH", "BIND", "IN", 
 		"LOCK", "UNTAINT", "ASYNC", "AWAIT", "SEMICOLON", "COLON", "DOT", "COMMA", 
 		"LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
 		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", 
@@ -7113,8 +7113,8 @@ public class BallerinaParser extends Parser {
 		public TransactionClauseContext transactionClause() {
 			return getRuleContext(TransactionClauseContext.class,0);
 		}
-		public FailedClauseContext failedClause() {
-			return getRuleContext(FailedClauseContext.class,0);
+		public OnretryClauseContext onretryClause() {
+			return getRuleContext(OnretryClauseContext.class,0);
 		}
 		public TransactionStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -7141,10 +7141,10 @@ public class BallerinaParser extends Parser {
 			transactionClause();
 			setState(1324);
 			_la = _input.LA(1);
-			if (_la==FAILED) {
+			if (_la==ONRETRY) {
 				{
 				setState(1323);
-				failedClause();
+				onretryClause();
 				}
 			}
 
@@ -7433,8 +7433,8 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FailedClauseContext extends ParserRuleContext {
-		public TerminalNode FAILED() { return getToken(BallerinaParser.FAILED, 0); }
+	public static class OnretryClauseContext extends ParserRuleContext {
+		public TerminalNode ONRETRY() { return getToken(BallerinaParser.ONRETRY, 0); }
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
 		public List<StatementContext> statement() {
@@ -7443,29 +7443,29 @@ public class BallerinaParser extends Parser {
 		public StatementContext statement(int i) {
 			return getRuleContext(StatementContext.class,i);
 		}
-		public FailedClauseContext(ParserRuleContext parent, int invokingState) {
+		public OnretryClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_failedClause; }
+		@Override public int getRuleIndex() { return RULE_onretryClause; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterFailedClause(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterOnretryClause(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFailedClause(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitOnretryClause(this);
 		}
 	}
 
-	public final FailedClauseContext failedClause() throws RecognitionException {
-		FailedClauseContext _localctx = new FailedClauseContext(_ctx, getState());
-		enterRule(_localctx, 188, RULE_failedClause);
+	public final OnretryClauseContext onretryClause() throws RecognitionException {
+		OnretryClauseContext _localctx = new OnretryClauseContext(_ctx, getState());
+		enterRule(_localctx, 188, RULE_onretryClause);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(1363);
-			match(FAILED);
+			match(ONRETRY);
 			setState(1364);
 			match(LEFT_BRACE);
 			setState(1368);

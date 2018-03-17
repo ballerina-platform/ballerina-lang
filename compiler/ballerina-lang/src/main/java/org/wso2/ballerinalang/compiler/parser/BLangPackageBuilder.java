@@ -1523,16 +1523,16 @@ public class BLangPackageBuilder {
         transactionNode.getTransactionBody().addWS(ws);
     }
 
-    public void startFailedBlock() {
+    public void startOnretryBlock() {
         startBlock();
     }
 
-    public void addFailedBlock(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addOnretryBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        failedBlock.pos = pos;
+        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        onretryBlock.pos = pos;
         transactionNode.addWS(ws);
-        transactionNode.setFailedBody(failedBlock);
+        transactionNode.setOnRetryBody(onretryBlock);
     }
 
     public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {

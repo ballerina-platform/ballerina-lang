@@ -2679,8 +2679,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
-        if (transactionNode.failedBody != null) {
-            this.genNode(transactionNode.failedBody, this.env);
+        if (transactionNode.onRetryBody != null) {
+            this.genNode(transactionNode.onRetryBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);

@@ -301,8 +301,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
         this.resetLastStatement();
-        if (transactionNode.failedBody != null) {
-            transactionNode.failedBody.accept(this);
+        if (transactionNode.onRetryBody != null) {
+            transactionNode.onRetryBody.accept(this);
             this.resetStatementReturns();
             this.resetLastStatement();
         }

@@ -459,7 +459,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause failedClause?
+    :   transactionClause onretryClause?
     ;
 
 transactionClause
@@ -480,8 +480,8 @@ lockStatement
     : LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-failedClause
-    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
+onretryClause
+    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortStatement
     :   ABORT SEMICOLON

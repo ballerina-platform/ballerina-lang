@@ -14,7 +14,7 @@ function testTransactionStmtWithNoHandlers () (string) {
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -32,7 +32,7 @@ function testTransactionStmtCommitWithCommitHandler () (string) {
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -53,7 +53,7 @@ function testTransactionAbortStmtWithAbortHandler () (string) {
                 abort;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -74,7 +74,7 @@ function testTransactionAbortStmtWithNoAbortHandler () (string) {
                 abort;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -96,7 +96,7 @@ function testTransactionAbortStmtWithCommitHandler () (string) {
                 abort;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -117,7 +117,7 @@ function testTransactionAbortStmtWithAllHandlers () (string) {
                 abort;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -135,7 +135,7 @@ function testTransactionCommitStmtWithAllHandlers () (string) {
             a = a + " inTrx";
             int i = 0;
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -157,7 +157,7 @@ function testTransactionThrowWithAllHandlers () (string) {
                 throw err;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {

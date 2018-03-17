@@ -191,7 +191,7 @@ function testXAransactonRetry () (int count1, int count2) {
                         values (4, 'John', 1000, 'UK')", null);
             }
             _ = testDB2 -> update("insert into Salary (id, value ) values (4, 1000)", null);
-        } failed {
+        } onretry {
             i = i + 1;
         }
     } catch (error e) {

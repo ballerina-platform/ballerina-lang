@@ -541,8 +541,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
         nonOverridingAnalysis = true;
-        if (transactionNode.failedBody != null) {
-            transactionNode.failedBody.accept(this);
+        if (transactionNode.onRetryBody != null) {
+            transactionNode.onRetryBody.accept(this);
         }
         nonOverridingAnalysis = false;
     }

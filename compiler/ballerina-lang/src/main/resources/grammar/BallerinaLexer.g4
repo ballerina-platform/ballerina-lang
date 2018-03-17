@@ -107,7 +107,7 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAILED      : 'failed' ;
+ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;

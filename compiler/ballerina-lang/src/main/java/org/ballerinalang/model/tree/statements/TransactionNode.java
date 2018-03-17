@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 public interface TransactionNode extends StatementNode {
     BlockNode getTransactionBody();
 
-    BlockNode getFailedBody();
+    BlockNode getOnRetryBody();
 
     ExpressionNode getRetryCount();
 
@@ -35,7 +35,7 @@ public interface TransactionNode extends StatementNode {
 
     void setTransactionBody(BlockNode body);
 
-    void setFailedBody(BlockNode body);
+    void setOnRetryBody(BlockNode body);
 
     void setRetryCount(ExpressionNode retryCount);
 

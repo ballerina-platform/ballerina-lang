@@ -1462,24 +1462,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+    public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startFailedBlock();
+        this.pkgBuilder.startOnretryBlock();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+    public void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addFailedBlock(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addOnretryBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

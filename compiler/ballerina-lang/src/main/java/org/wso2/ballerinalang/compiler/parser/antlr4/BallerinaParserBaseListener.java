@@ -1228,13 +1228,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+	@Override public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) { }
+	@Override public void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

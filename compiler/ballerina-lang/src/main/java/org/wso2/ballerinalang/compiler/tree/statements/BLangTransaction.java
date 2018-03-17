@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
-    public BLangBlockStmt failedBody;
+    public BLangBlockStmt onRetryBody;
     public BLangExpression retryCount;
     public BLangExpression committedFunction;
     public BLangExpression abortedFunction;
@@ -38,12 +38,12 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     public BLangTransaction(BLangBlockStmt transactionBody,
-                            BLangBlockStmt failedBody,
+                            BLangBlockStmt onRetryBody,
                             BLangExpression retryCount,
                             BLangExpression committedFunction,
                             BLangExpression abortedFunction) {
         this.transactionBody = transactionBody;
-        this.failedBody = failedBody;
+        this.onRetryBody = onRetryBody;
         this.retryCount = retryCount;
         this.committedFunction = committedFunction;
         this.abortedFunction = abortedFunction;
@@ -55,8 +55,8 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public BLangBlockStmt getFailedBody() {
-        return failedBody;
+    public BLangBlockStmt getOnRetryBody() {
+        return onRetryBody;
     }
 
     @Override
@@ -80,8 +80,8 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public void setFailedBody(BlockNode body) {
-        this.failedBody = (BLangBlockStmt) body;
+    public void setOnRetryBody(BlockNode body) {
+        this.onRetryBody = (BLangBlockStmt) body;
     }
 
     @Override
@@ -112,7 +112,7 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
-                + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
+                + (onRetryBody != null ? " failed {" + String.valueOf(onRetryBody) + "}" : "")
                 + (retryCount != null ? " retry (" + retryCount + ")" : "")
                 + (committedFunction != null ? " committed (" + committedFunction + ")" : "")
                 + (abortedFunction != null ? " aborted (" + abortedFunction + ")" : "");
