@@ -2,13 +2,14 @@ package ballerina.net.http;
 
 @Description { value:"HTTP client connector for outbound HTTP requests"}
 public struct ClientConnector {
+    //These properties are populated from the init call to the client connector as these were needed later stage
+    //for retry and other few places.
     string serviceUri;
-    ClientEndpointConfiguration connectorOptions;
+    ClientEndpointConfiguration config;
 }
 
-public function <ClientConnector conn> ClientConnector(string serviceUri, ClientEndpointConfiguration connectorOptions) {
-    conn.serviceUri = serviceUri;
-    conn.connectorOptions = connectorOptions;
+public function <ClientConnector conn> ClientConnector() {
+
 }
 
 @Description {value:"The POST action implementation of the HTTP Connector."}
