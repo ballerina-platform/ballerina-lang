@@ -39,7 +39,7 @@ import org.ballerinalang.net.http.WebSocketService;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Endpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true

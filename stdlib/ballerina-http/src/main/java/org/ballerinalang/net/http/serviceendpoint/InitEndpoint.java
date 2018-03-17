@@ -51,7 +51,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Endpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
