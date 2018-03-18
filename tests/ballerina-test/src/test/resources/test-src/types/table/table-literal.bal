@@ -58,7 +58,7 @@ function testEmptyTableCreate () (int count1, int count2) {
 }
 
 function checkTableCount(string tablePrefix) (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.H2_MEM,
         host: "",
         port: 0,
@@ -66,8 +66,7 @@ function checkTableCount(string tablePrefix) (int count) {
         username: "sa",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:Type.VARCHAR};
     sql:Parameter[] parameters = [p1];
