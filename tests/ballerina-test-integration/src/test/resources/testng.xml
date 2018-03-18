@@ -30,6 +30,11 @@
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
             <package name="org.ballerinalang.test.transaction"/>
         </packages>
+
+        <classes>
+            <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
+        </classes>
     </test>
 
     <!--<test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">-->

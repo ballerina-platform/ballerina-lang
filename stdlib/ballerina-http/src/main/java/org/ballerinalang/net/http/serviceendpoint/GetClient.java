@@ -19,16 +19,12 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the ID of the connection.
@@ -38,29 +34,18 @@ import org.ballerinalang.net.http.WebSocketService;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "register",
+        functionName = "getClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class Register extends AbstractHttpNativeFunction {
+public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        Struct connectorEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-
-        // TODO: Check if this is valid.
-        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getHttpServicesRegistry(connectorEndpoint).registerService(service);
-        }
-
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
-        }
-
-        context.setReturnValues();
+        BStruct endpoint = (BStruct) context.getRefArgument(0);
+        BStruct connection = (BStruct) endpoint.getRefField(0);
+        context.setReturnValues(connection);
     }
 }

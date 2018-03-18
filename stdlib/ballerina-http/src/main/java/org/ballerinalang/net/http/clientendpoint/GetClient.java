@@ -16,34 +16,39 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.serviceendpoint;
+package org.ballerinalang.net.http.clientendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.net.http.HttpConstants.B_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_INDEX;
 
 /**
- * Get the ID of the connection.
+ * Get the client endpoint.
  *
  * @since 0.966
  */
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
-                             structPackage = "ballerina.net.http"),
+        functionName = "getClient",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
+                structPackage = "ballerina.net.http"),
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class Stop extends AbstractHttpNativeFunction {
+public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        getServerConnector(serverEndpoint).stop();
-        context.setReturnValues();
+        BStruct clientEndPoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_INDEX);
+        BStruct clientConnector = (BStruct) clientEndPoint.getNativeData(B_CONNECTOR);
+        context.setReturnValues(clientConnector);
     }
 }

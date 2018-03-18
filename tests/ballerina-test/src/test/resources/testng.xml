@@ -35,7 +35,6 @@ under the License.
             </package>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
-
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
             </package>

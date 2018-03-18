@@ -74,7 +74,7 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           HttpConstants.SERVER_CONNECTOR);
+                           HttpConstants.SERVICE_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            HttpConstants.REQUEST);
     }
@@ -83,14 +83,14 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                           WebSocketConstants.WEBSOCKET_ENDPOINT);
     }
 
     private static void validateOnTextMessageResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            WebSocketConstants.STRUCT_WEBSOCKET_TEXT_FRAME);
     }
@@ -100,7 +100,7 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            WebSocketConstants.STRUCT_WEBSOCKET_BINARY_FRAME);
 
@@ -110,7 +110,7 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            WebSocketConstants.STRUCT_WEBSOCKET_PING_FRAME);
 
@@ -120,7 +120,7 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            WebSocketConstants.STRUCT_WEBSOCKET_PONG_FRAME);
 
@@ -130,14 +130,14 @@ public class WebSocketServiceValidator {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 1, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
     }
 
     private static void validateOnCloseResource(String serviceName, Resource resource, boolean isClientService) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource.getName(), isClientService);
         validateStructType(resource.getName(), paramDetails.get(0), HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                           WebSocketConstants.WEBSOCKET_CONNECTOR);
+                WebSocketConstants.WEBSOCKET_ENDPOINT);
         validateStructType(resource.getName(), paramDetails.get(1), HttpConstants.PROTOCOL_PACKAGE_HTTP,
                            WebSocketConstants.STRUCT_WEBSOCKET_CLOSE_FRAME);
     }
