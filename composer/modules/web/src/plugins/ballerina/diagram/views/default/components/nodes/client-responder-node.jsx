@@ -49,12 +49,12 @@ class ClientResponderNode extends React.Component {
     render() {
         const model = this.props.model;
 
-        return (
+        return (/*
             <ClientResponderDecorator
                 model={model}
                 viewState={model.viewState}
                 editorOptions={this.editorOptions}
-            />);
+        />*/null);
     }
 }
 
