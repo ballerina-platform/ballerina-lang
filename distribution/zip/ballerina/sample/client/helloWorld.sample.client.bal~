@@ -1,36 +1,57 @@
 package client;
-import ballerina.io;
 import ballerina.net.grpc;
+import ballerina.io;
 
-public struct helloWorldBlockingClient {
+int total = 0;
+
+public struct helloWorldClient {
     grpc:Client client;
-    helloWorldBlockingStub stub;
+    helloWorldStub stub;
 }
 
-
-public function <helloWorldBlockingClient ep> init(grpc:ClientEndpointConfiguration config) {
+public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration config) {
     // initialize client endpoint.
     grpc:Client client = {};
     client.init(config);
     ep.client = client;
     // initialize service stub.
-    helloWorldBlockingStub stub = {};
+    helloWorldStub stub = {};
     stub.initSub(client);
     ep.stub = stub;
 }
 
-public function <helloWorldBlockingClient ep> getClient() returns (helloWorldBlockingStub) {
+public function <helloWorldClient ep> getClient() returns (helloWorldStub) {
     return ep.stub;
 }
 
-function main (string[] args) {
-    endpoint helloWorldBlockingClient ep { host:"localhost", port:9090};
+endpoint helloWorldClient ep { host:"localhost", port:9090};
 
-    var res, err = ep -> hello("WSO2");
+function main (string[] args) {
+    error err = ep -> lotsOfReplies("Sam", typeof ServerMessageListener);
+
     if (err != null) {
-        io:println("Error from Connector: " + err.message);
-    } else {
-        io:println("Client Got Responce : ");
-        io:println(res);
+        io:println("Error occured while sending event " + err.message);
+    }
+
+    while (total == 0) {}
+    io:println("Client got response successfully.");
+}
+
+service<grpc:Listener> ServerMessageListener {
+
+    onMessage (string message) {
+        io:println("Responce received from server: " + message);
+    }
+
+    onError (grpc:ServerError err) {
+        if (err != null) {
+            io:println("Error reported from server: " + err.message);
+        }
+    }
+
+    onComplete () {
+        total = 1;
+        io:println("Server Complete Sending Responses.");
     }
 }
+
