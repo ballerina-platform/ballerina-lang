@@ -202,7 +202,7 @@ public class HttpResource {
             throw new BallerinaException("resourceConfig annotation not allowed for WebSubSubscriber resource");
         }
 
-        httpResource.setPath(HttpConstants.DEFAULT_SUB_PATH);
+        httpResource.setPath("/");
         httpResource.prepareAndValidateSignatureParams();
         return httpResource;
     }
