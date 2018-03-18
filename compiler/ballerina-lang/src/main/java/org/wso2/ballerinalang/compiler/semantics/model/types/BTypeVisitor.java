@@ -54,6 +54,8 @@ public interface BTypeVisitor<T, R> {
     R visit(BUnionType t, T s);
 
     R visit(BErrorType t, T s);
+    
+    R visit(BFutureType t, T s);
 
     default R visit(BTupleCollectionType t, T s) {
         throw new AssertionError();

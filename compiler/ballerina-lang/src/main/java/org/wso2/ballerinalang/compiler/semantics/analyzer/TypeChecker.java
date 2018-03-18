@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -1154,7 +1156,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
-        return invocableSymbol.type.getReturnTypes();
+        
+        if (iExpr.async) {
+            return Arrays.asList(this.generateFutureType(invocableSymbol));
+        } else {
+            return invocableSymbol.type.getReturnTypes();
+        }
+    }
+    
+    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
+        List<BType> retTypes = invocableSymbol.type.getReturnTypes();
+        if (retTypes.isEmpty()) {
+            return new BFutureType(TypeTags.FUTURE, this.symTable.anyType, null);
+        } else {
+            return new BFutureType(TypeTags.FUTURE, retTypes.get(0), null);
+        }
     }
 
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<? extends Type> reqiredParamTypes) {

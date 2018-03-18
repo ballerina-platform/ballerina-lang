@@ -39,4 +39,6 @@ public interface InvocationNode extends VariableReferenceNode {
     boolean isIterableOperation();
 
     boolean isActionInvocation();
+    
+    boolean isAsync();
 }
