@@ -39,6 +39,8 @@ import javax.net.ssl.SSLContext;
 
 /**
  * Util class for generating certificates.
+ *
+ * @since 1.0.0
  */
 public class SSLHandlerUtils {
     private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----";

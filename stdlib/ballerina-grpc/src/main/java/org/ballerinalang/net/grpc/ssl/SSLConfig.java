@@ -25,8 +25,9 @@ import java.io.File;
 
 /**
  * A class that encapsulates SSLContext configuration.
+ *
+ * @since 1.0.0
  */
-
 public class SSLConfig {
     
     private static final Logger LOG = LoggerFactory.getLogger(SSLConfig.class);

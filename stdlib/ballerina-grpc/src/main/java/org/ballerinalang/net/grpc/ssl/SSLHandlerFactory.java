@@ -55,6 +55,8 @@ import static org.ballerinalang.net.grpc.ssl.SSLHandlerUtils.writeFile;
 
 /**
  * A class that encapsulates SSL Certificate Information.
+ *
+ * @since 1.0.0
  */
 public class SSLHandlerFactory {
     private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
