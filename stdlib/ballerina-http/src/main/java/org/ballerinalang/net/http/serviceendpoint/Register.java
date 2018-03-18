@@ -57,7 +57,7 @@ public class Register extends AbstractHttpNativeFunction {
             getHttpServicesRegistry(connectorEndpoint).registerService(service);
         }
 
-        if (WebSocketConstants.WEBSOCKET_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             getWebSocketServicesRegistry(connectorEndpoint).registerService(new WebSocketService(service));
         }
 

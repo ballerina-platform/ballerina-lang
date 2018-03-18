@@ -33,7 +33,9 @@ public struct WebSocketClientEndpointConfig {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WebSocketClient ep> init (){
+public function <WebSocketClient ep> init (WebSocketClientEndpointConfig config){
+    ep.config = config;
+    ep.initEndpoint();
 }
 
 public native function<WebSocketClient ep> initEndpoint ();

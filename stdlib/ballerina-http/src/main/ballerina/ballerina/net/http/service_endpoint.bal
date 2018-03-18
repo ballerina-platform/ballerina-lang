@@ -115,6 +115,8 @@ public struct WebSocketEndpoint{
     string epName;
     ServiceEndpointConfiguration config;
     ServiceEndpoint httpEndpoint;
+    //TODO remove below client
+    WebSocketClient wsClient;
 }
 
 public function <WebSocketEndpoint ep> WebSocketService() {
@@ -146,8 +148,9 @@ public function <WebSocketEndpoint ep> start () {
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> getClient () returns (Connection) {
-    return ep.httpEndpoint.getClient();
+//TODO make this native
+public function <WebSocketEndpoint ep> getClient () returns (WebSocketConnector) {
+    return ep.wsClient.getClient();
 }
 
 @Description { value:"Stops the registered service"}
