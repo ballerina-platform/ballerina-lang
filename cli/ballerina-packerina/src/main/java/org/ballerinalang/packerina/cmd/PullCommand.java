@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -22,83 +22,75 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.packerina.NetworkUtils;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
- * This class represents the "ballerina build" command.
+ * This class represents the "ballerina pull" command.
  *
- * @since 0.90
+ * @since 0.964
  */
-@Parameters(commandNames = "build", commandDescription = "compile Ballerina program")
-public class BuildCommand implements BLauncherCmd {
-    private static final String USER_DIR = "user.dir";
+@Parameters(commandNames = "pull", commandDescription = " downloads the package source and binaries from a " +
+        "remote repository,")
+public class PullCommand implements BLauncherCmd {
+    private static final String BALLERINA_CENTRAL_REPO_URL = "http://staging.central.ballerina.io:9090/";
     private static PrintStream outStream = System.err;
-
     private JCommander parentCmdParser;
-
-    @Parameter(names = {"-o"}, description = "write output to the given file")
-    private String outputFileName;
-
     @Parameter(arity = 1)
     private List<String> argList;
 
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+    private String javaDebugPort;
+
+    @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
+    @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "pull");
             outStream.println(commandUsageInfo);
             return;
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program given");
+            throw LauncherUtils.createUsageException("no package given");
         }
 
         if (argList.size() > 1) {
             throw LauncherUtils.createUsageException("too many arguments");
         }
 
-        // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        Path packagePath = Paths.get(argList.get(0));
-
-        Path targetPath = null;
-        if (outputFileName != null && !outputFileName.isEmpty()) {
-            targetPath = Paths.get(outputFileName);
+        // Enable remote debugging
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        BuilderUtils.compileAndWrite(sourceRootPath, packagePath, targetPath);
+        String resourceName = argList.get(0);
+        NetworkUtils.pullPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
+
     }
 
     @Override
     public String getName() {
-        return "build";
+        return "pull";
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina sources and writes the output to a file. \n");
-        out.append("\n");
-        out.append("By default, output filename is the last part of packagename \n");
-        out.append("or the filename (minus the extension) with the extension \".balx\". \n");
-        out.append("\n");
-        out.append("If the output file is specified with the -o flag, the output \n");
-        out.append("will be written to that file. \n");
+        out.append("download packages to the user repository \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build <balfile | packagename> [-o output] \n");
+        out.append("  ballerina pull <package-name> \n");
     }
 
     @Override
