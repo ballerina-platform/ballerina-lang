@@ -21,7 +21,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.net.grpc.builder.BallerinaFile;
+import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
@@ -134,15 +134,15 @@ public class GrpcCmd implements BLauncherCmd {
         msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
         //Path balPath = Paths.get(balOutPath);
         try {
-            BallerinaFile ballerinaFile;
+            BallerinaFileBuilder ballerinaFileBuilder;
             // By this user can generate stub at different location
             if (balOutPath == null) {
-                ballerinaFile = new BallerinaFile(dependant);
+                ballerinaFileBuilder = new BallerinaFileBuilder(dependant);
             } else {
-                ballerinaFile = new BallerinaFile(dependant, balOutPath);
+                ballerinaFileBuilder = new BallerinaFileBuilder(dependant, balOutPath);
             }
-            ballerinaFile.setRootDescriptor(root);
-            ballerinaFile.build();
+            ballerinaFileBuilder.setRootDescriptor(root);
+            ballerinaFileBuilder.build();
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
             msg.append("Error generating ballerina file.").append(NEW_LINE_CHARACTER);

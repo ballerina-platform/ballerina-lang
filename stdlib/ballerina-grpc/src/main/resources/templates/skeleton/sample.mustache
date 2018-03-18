@@ -1,0 +1,35 @@
+package {{packageName}};
+import ballerina.io;
+
+function main (string[] args) {
+{{#nonBlockingEndpoint}}
+     endpoint<{{connectorId}}Stub> {{connectorId}}SampleClient {
+            create {{connectorId}}Stub("0.0.0.0", 9090);
+        }
+{{/nonBlockingEndpoint}}
+{{#blockingEndpoint}}
+    endpoint<{{connectorId}}BlockingStub> {{connectorId}}SampleBlockingClient {
+        create {{connectorId}}BlockingStub("0.0.0.0", 9090);
+    }
+{{/blockingEndpoint}}
+}
+
+{{#messageListener}}
+service<grpc:Listener> {{connectorId}}MessageListener {
+
+    onMessage (string message) {
+        io:println("Responce received from server: " + message);
+    }
+
+    onError (grpc:ServerError err) {
+        if (err != null) {
+            io:println("Error reported from server: " + err.message);
+        }
+    }
+
+    onComplete () {
+        io:println("Server Complete Sending Responses.");
+    }
+}
+
+{{/messageListener}}

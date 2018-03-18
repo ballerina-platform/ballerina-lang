@@ -17,23 +17,34 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.GRPC_NATIVE_PACKAGE;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
-
 /**
- * Building the package name of ballerina file.
+ * Bean object.
  */
-public class PackageBuilder { //package is mandatory
-    private String packageName;
+public class Attribute {
+    private String name;
+    private String type;
     
-    public PackageBuilder(String packageName) {
-        this.packageName = packageName;
+    public Attribute(String name, String type) {
+        this.name = name;
+        this.type = type;
     }
     
-    public String build() {
-        String str = "package %s;" + NEW_LINE_CHARACTER +
-                "import " + GRPC_NATIVE_PACKAGE + ";" + NEW_LINE_CHARACTER +
-                NEW_LINE_CHARACTER;
-        return String.format(str, packageName);
+    public Attribute() {
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getType() {
+        return type;
+    }
+    
+    public void setType(String type) {
+        this.type = type;
     }
 }
