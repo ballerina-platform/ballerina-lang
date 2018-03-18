@@ -1,8 +1,10 @@
 package client;
-import ballerina.net.grpc;
-import ballerina.io;
 
+import ballerina.io;
+import ballerina.log;
 int total = 0;
+
+endpoint helloWorldClient ep { host:"localhost", port:9090};
 
 public struct helloWorldClient {
     grpc:Client client;
@@ -16,7 +18,7 @@ public function <helloWorldClient ep> init(grpc:ClientEndpointConfiguration conf
     ep.client = client;
     // initialize service stub.
     helloWorldStub stub = {};
-    stub.initSub(client);
+    stub.initStub(client);
     ep.stub = stub;
 }
 
@@ -24,22 +26,36 @@ public function <helloWorldClient ep> getClient() returns (helloWorldStub) {
     return ep.stub;
 }
 
-endpoint helloWorldClient ep { host:"localhost", port:9090};
-
 function main (string[] args) {
-    error err = ep -> lotsOfReplies("Sam", typeof ServerMessageListener);
-
+    var conn, err = ep -> LotsOfGreetings(typeof ServerMessageListener);
     if (err != null) {
-        io:println("Error occured while sending event " + err.message);
+        io:println(err);
+	return;
+    }
+    grpc:Client ep1 = conn;
+    log:printInfo("Initialized connection sucessfully.");
+
+    string[] greets = ["Hi", "Hey", "GM"];
+    var name = "John";
+    foreach greet in greets {
+        log:printInfo("send greeting: " + greet + " " + name);
+        grpc:ConnectorError connErr = ep1.getClient().send(greet + " " + name);
+        if (connErr != null) {
+           io:println("Error at LotsOfGreetings : " + connErr.message);
+        }
     }
 
+    _ = ep1.getClient().complete();
+
     while (total == 0) {}
-    io:println("Client got response successfully.");
+
+    io:println("completed successfully");
 }
 
 service<grpc:Listener> ServerMessageListener {
 
     onMessage (string message) {
+        total = 1;
         io:println("Responce received from server: " + message);
     }
 
@@ -54,4 +70,3 @@ service<grpc:Listener> ServerMessageListener {
         io:println("Server Complete Sending Responses.");
     }
 }
-

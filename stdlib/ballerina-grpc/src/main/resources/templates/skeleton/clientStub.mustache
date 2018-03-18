@@ -38,7 +38,7 @@ function <{{connectorId}}Stub stub> {{operationId}} ({{inputDataType}} req, type
     return null;
 }
 {{/nonBlockingFunctions}}
-{{#streamFunctions}}
+{{#streamingFunctions}}
 function <{{connectorId}}Stub stub> {{operationId}} (type listener) (grpc:Client, error)  {
     var res, err1 = stub.serviceStub.streamingExecute("{{methodId}}", listener);
     if (err1 != null && err1.message != null) {
@@ -52,7 +52,7 @@ function <{{connectorId}}Stub stub> {{operationId}} (type listener) (grpc:Client
     }
         return response,null;
 }
-{{/streamFunctions}}
+{{/streamingFunctions}}
 {{#client}}
 {{#stubObjects}}
 public struct {{connectorId}}{{stubTypeName}}Client {
