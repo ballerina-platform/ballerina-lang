@@ -2482,18 +2482,9 @@ public class BLangPackageBuilder {
         ((BLangBlockStmt) blocknode).pos = pos;
         blocknode.addWS(ws);
 
-        Stack<StatementNode> queryStatementNodeStack = new Stack<>();
+        Collections.reverse(queryStatementStack);
         while (!queryStatementStack.empty()) {
-            StatementNode statementNode = queryStatementStack.pop();
-            if (statementNode instanceof BLangQueryStatement) {
-                queryStatementNodeStack.add(statementNode);
-            } else {
-                blocknode.addStatement(statementNode);
-            }
-        }
-
-        while (!queryStatementNodeStack.empty()) {
-            blocknode.addStatement(queryStatementNodeStack.pop());
+            blocknode.addStatement(queryStatementStack.pop());
         }
     }
 
