@@ -30,19 +30,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+
 /**
  * Native function to send server error the caller.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "errorResponse",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
+        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = CLIENT_ERROR,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )

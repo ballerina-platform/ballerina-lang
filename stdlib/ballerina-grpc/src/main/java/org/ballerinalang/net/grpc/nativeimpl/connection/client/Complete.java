@@ -28,17 +28,19 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+
 /**
  * Native function to inform the server, client finished sending messages.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )

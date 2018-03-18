@@ -32,10 +32,12 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+
 /**
  * Native function to respond the server.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         args = {@Argument(name = "response", type = TypeKind.STRING)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
                 structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )

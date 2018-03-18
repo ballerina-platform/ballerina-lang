@@ -68,6 +68,7 @@ public class MessageConstants {
     // Names of error structs registered in gRPC package.
     public static final String CONNECTOR_ERROR = "ConnectorError";
     public static final String SERVER_ERROR = "ServerError";
+    public static final String CLIENT_ERROR = "ClientError";
 
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
 
