@@ -77,9 +77,9 @@ class ZipUtils {
 
         URI zipFileURI = URI.create("jar:file:" + Paths.get(outFileName).toUri().getPath());
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
-            addFileToArchive(filesToBeArchived, zipFS);
+            addFileToArchive(filesToBeArchived, zipFS, outFileName);
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating the balo" + e.getMessage());
+            throw new BLangCompilerException("error creating artifact" + outFileName);
         }
     }
 
@@ -88,8 +88,9 @@ class ZipUtils {
      *
      * @param filesToBeArchived files to be archived
      * @param zipFS             Zip file system
+     * @param outFileName       output archive name
      */
-    private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS) {
+    private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, String outFileName) {
         String srcDir = "src";
         filesToBeArchived.forEach((path) -> {
             Path root = zipFS.getPath(srcDir);
@@ -97,7 +98,7 @@ class ZipUtils {
             try {
                 copyFileToArchive(new FileInputStream(path.toString()), dest);
             } catch (IOException e) {
-                throw new BLangCompilerException("error generating the balo " + e.getMessage());
+                throw new BLangCompilerException("error generating artifact " + outFileName);
             }
         });
     }
@@ -107,16 +108,13 @@ class ZipUtils {
      *
      * @param srcInputStream inputstream of the file to be copied
      * @param destPath       output path
+     * @throws IOException i/o exception thrown
      */
-    private static void copyFileToArchive(InputStream srcInputStream, Path destPath) {
+    private static void copyFileToArchive(InputStream srcInputStream, Path destPath) throws IOException {
         Path parent = destPath.getParent();
-        try {
-            if (Files.notExists(parent)) {
-                Files.createDirectories(parent);
-            }
-            Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error generating the balo " + e.getMessage());
+        if (Files.notExists(parent)) {
+            Files.createDirectories(parent);
         }
+        Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 }
