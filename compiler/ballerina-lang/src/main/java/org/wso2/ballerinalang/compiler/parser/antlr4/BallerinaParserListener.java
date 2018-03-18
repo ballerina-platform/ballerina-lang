@@ -1094,15 +1094,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitLockStatement(BallerinaParser.LockStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * Enter a parse tree produced by {@link BallerinaParser#onretryClause}.
 	 * @param ctx the parse tree
 	 */
-	void enterFailedClause(BallerinaParser.FailedClauseContext ctx);
+	void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failedClause}.
+	 * Exit a parse tree produced by {@link BallerinaParser#onretryClause}.
 	 * @param ctx the parse tree
 	 */
-	void exitFailedClause(BallerinaParser.FailedClauseContext ctx);
+	void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree
@@ -1123,6 +1123,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRetriesStatement(BallerinaParser.RetriesStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#oncommitStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterOncommitStatement(BallerinaParser.OncommitStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#oncommitStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#onabortStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnabortStatement(BallerinaParser.OnabortStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#onabortStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
 	 * @param ctx the parse tree

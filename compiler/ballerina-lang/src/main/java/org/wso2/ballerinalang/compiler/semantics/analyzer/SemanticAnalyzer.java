@@ -746,12 +746,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         analyzeStmt(transactionNode.transactionBody, env);
-        if (transactionNode.failedBody != null) {
-            analyzeStmt(transactionNode.failedBody, env);
+        if (transactionNode.onRetryBody != null) {
+            analyzeStmt(transactionNode.onRetryBody, env);
         }
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, Lists.of(symTable.intType));
             checkRetryStmtValidity(transactionNode.retryCount);
+        }
+
+        if (transactionNode.onCommitFunction != null) {
+            typeChecker.checkExpr(transactionNode.onCommitFunction, env, Lists.of(symTable.noType));
+        }
+
+        if (transactionNode.onAbortFunction != null) {
+            typeChecker.checkExpr(transactionNode.onAbortFunction, env, Lists.of(symTable.noType));
         }
     }
 

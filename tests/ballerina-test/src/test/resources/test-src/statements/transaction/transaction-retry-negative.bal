@@ -2,7 +2,7 @@ function testTransaction (int i) (string) {
     string a = "start";
     transaction with retries(-4) {
         a = a + " inTrx";
-    } failed {
+    } onretry {
         a = a + " inFailed";
     }
     a = a + " end";
@@ -15,7 +15,7 @@ function testTransactionStmtVariableRetry () (string) {
     string a = "start";
     transaction with retries(retryCount) {
         a = a + " inTrx";
-    } failed {
+    } onretry {
         a = a + " inFailed";
     }
     a = a + " end";
@@ -30,7 +30,7 @@ function testTransactionRetry2 (int i) (string) {
     string a = "start";
     transaction with retries(4.5) {
         a = a + " inTrx";
-    } failed {
+    } onretry {
         a = a + " inFailed";
     }
     a = a + " end";

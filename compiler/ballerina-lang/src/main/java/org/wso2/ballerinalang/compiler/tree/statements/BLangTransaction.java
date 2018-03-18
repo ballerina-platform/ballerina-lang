@@ -29,18 +29,24 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
-    public BLangBlockStmt failedBody;
+    public BLangBlockStmt onRetryBody;
     public BLangExpression retryCount;
+    public BLangExpression onCommitFunction;
+    public BLangExpression onAbortFunction;
 
     public BLangTransaction() {
     }
 
     public BLangTransaction(BLangBlockStmt transactionBody,
-                            BLangBlockStmt failedBody,
-                            BLangExpression retryCount) {
+                            BLangBlockStmt onRetryBody,
+                            BLangExpression retryCount,
+                            BLangExpression onCommitFunction,
+                            BLangExpression abortedFunction) {
         this.transactionBody = transactionBody;
-        this.failedBody = failedBody;
+        this.onRetryBody = onRetryBody;
         this.retryCount = retryCount;
+        this.onCommitFunction = onCommitFunction;
+        this.onAbortFunction = abortedFunction;
     }
 
     @Override
@@ -49,13 +55,23 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public BLangBlockStmt getFailedBody() {
-        return failedBody;
+    public BLangBlockStmt getOnRetryBody() {
+        return onRetryBody;
     }
 
     @Override
-    public ExpressionNode getCondition() {
+    public ExpressionNode getRetryCount() {
         return retryCount;
+    }
+
+    @Override
+    public ExpressionNode getOnCommitFunction() {
+        return onCommitFunction;
+    }
+
+    @Override
+    public ExpressionNode getOnAbortFunction() {
+        return onAbortFunction;
     }
 
     @Override
@@ -64,13 +80,23 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public void setFailedBody(BlockNode body) {
-        this.failedBody = (BLangBlockStmt) body;
+    public void setOnRetryBody(BlockNode body) {
+        this.onRetryBody = (BLangBlockStmt) body;
     }
 
     @Override
-    public void setRetryCount(ExpressionNode condition) {
-        this.retryCount = (BLangExpression) condition;
+    public void setRetryCount(ExpressionNode retryCount) {
+        this.retryCount = (BLangExpression) retryCount;
+    }
+
+    @Override
+    public void setOnCommitFunction(ExpressionNode committedFunction) {
+        this.onCommitFunction = (BLangExpression) committedFunction;
+    }
+
+    @Override
+    public void setOnAbortFunction(ExpressionNode abortedFunction) {
+        this.onAbortFunction = (BLangExpression) abortedFunction;
     }
 
     @Override
@@ -86,7 +112,9 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     @Override
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
-                + (failedBody != null ? " failed {" + String.valueOf(failedBody) + "}" : "")
-                + (retryCount != null ? " retry (" + retryCount + ")" : "");
+                + (onRetryBody != null ? " failed {" + String.valueOf(onRetryBody) + "}" : "")
+                + (retryCount != null ? " retry (" + retryCount + ")" : "")
+                + (onCommitFunction != null ? " committed (" + onCommitFunction + ")" : "")
+                + (onAbortFunction != null ? " aborted (" + onAbortFunction + ")" : "");
     }
 }

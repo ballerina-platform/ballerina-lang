@@ -216,9 +216,9 @@ public class SignatureTreeVisitor extends NodeVisitor {
         this.acceptNode(transactionNode.transactionBody, symbolEnv);
         this.blockOwnerStack.pop();
 
-        if (transactionNode.failedBody != null) {
+        if (transactionNode.onRetryBody != null) {
             this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.failedBody, symbolEnv);
+            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
             this.blockOwnerStack.pop();
         }
     }
