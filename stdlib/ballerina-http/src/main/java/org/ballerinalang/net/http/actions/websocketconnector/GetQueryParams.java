@@ -20,7 +20,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketUtil;
@@ -29,18 +30,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "getQueryParams",
-        connectorName = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        functionName = "getQueryParams",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR)
+                @Argument(name = "wsConnector", type = TypeKind.STRUCT)
         },
         returnType = {
                 @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)
-        },
-        connectorArgs = {
-                @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
 public class GetQueryParams extends BlockingNativeCallableUnit {

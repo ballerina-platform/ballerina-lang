@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-struct WebsocketService {
+public struct WebSocketService {
 }
 
-function <WebsocketService s> getEndpoint () returns (ServiceEndpoint) {
+function <WebSocketService s> getEndpoint () returns (WebSocketEndpoint ) {
     return null;
 }
