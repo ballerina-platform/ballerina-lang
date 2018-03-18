@@ -1,12 +1,10 @@
 package org.wso2.ballerinalang.compiler.packaging;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
-//import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,12 +34,11 @@ public class RepoHierarchy {
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
                 Converter converter = repo.getConverterInstance();
-                List<Path> paths = patten.convertToPaths(converter)
-                                         .filter(path -> Files.isRegularFile(path))
-                                         .collect(Collectors.toList());
+                List<PackageSourceEntry> paths = patten.convertToSources(converter, pkg)
+                                                       .collect(Collectors.toList());
 //                out.println("\t looking in " + repo + " for patten\n\t\t" +
 //                                    patten + " and found \n\t\t\t" +
-//                                    paths);
+//                                    sources);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);
                 }

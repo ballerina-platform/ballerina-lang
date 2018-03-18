@@ -1,10 +1,12 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import java.nio.file.Path;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
+
 import java.util.stream.Stream;
 
 /**
- * Provide functions need to covert a patten to steam of by paths, by downloading them as url .
+ * Provide functions need to covert a patten to steam of by sources, by downloading them as url .
  */
 public class URIConverter implements Converter<StringBuilder> {
 
@@ -28,7 +30,8 @@ public class URIConverter implements Converter<StringBuilder> {
         return new StringBuilder();
     }
 
-    public Stream<Path> finalize(StringBuilder stringBuilder) {
+    @Override
+    public Stream<PackageSourceEntry> finalize(StringBuilder stringBuilder, PackageID id) {
         return null;
     }
 

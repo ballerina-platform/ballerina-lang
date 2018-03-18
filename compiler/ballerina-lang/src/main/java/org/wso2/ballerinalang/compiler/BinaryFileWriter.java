@@ -18,7 +18,10 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.repository.PackageSourceEntry;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -76,10 +79,13 @@ public class BinaryFileWriter {
 
         // Generate balo
         ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(this.sourceDirectory.getPath());
-        Stream<Path> pathStream = projectSourceRepo.calculate(packageNode.packageID).convertToPaths(projectSourceRepo
-                .getConverterInstance());
-        String prjPath = projectSourceRepo.getConverterInstance().toString();
-        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
+        PackageID id = packageNode.packageID;
+        Converter<Path> converter = projectSourceRepo.getConverterInstance();
+        Stream<PackageSourceEntry> pathStream = projectSourceRepo.calculate(id)
+                                                                 .convertToSources(converter, id);
+        String prjPath = converter.toString();
+        //TODO: add balo creation back
+//        ZipUtils.generateBalo(packageNode, prjPath, pathStream);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {

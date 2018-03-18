@@ -24,7 +24,7 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-import org.wso2.ballerinalang.compiler.packaging.PathListPackageSource;
+import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
@@ -141,7 +141,7 @@ public class PackageLoader {
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
-        return new PathListPackageSource(pkgId, resolution.paths, resolution.resolvedBy);
+        return new GenericPackageSource(pkgId, resolution.sources, resolution.resolvedBy);
     }
 
     public BLangPackage loadPackage(PackageID pkgId) {
