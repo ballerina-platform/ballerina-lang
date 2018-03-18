@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Resource validator for WebSub Subscriber Services.
  *
- * @since 0.965
+ * @since 0.965.0
  */
 class WebSubSubscriberServiceValidator {
 
@@ -35,39 +35,11 @@ class WebSubSubscriberServiceValidator {
     }
 
     private static void validateResources(List<HttpResource> resources) {
-        if (resources.size() > 2) {
-            //TODO: Revisit to check if this could be relaxed
-            throw new BallerinaException(String.format("Invalid number of resources (>2) specified. "
-                                                               + "Allowed Resources [%s, %s]",
-                                                       WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT,
-                                                       WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION));
-        } else if (resources.size() == 2) {
-            if (!resources.get(0).getPath().equals(resources.get(1).getPath())) {
-                throw new BallerinaException("Invalid paths specified for resources: "
-                                                     + "paths are required to be the same.");
-            }
-        }
-
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
                 case WebSubSubscriberConstants.RESOURCE_NAME_VERIFY_INTENT:
-                    if (resource.getMethods() == null || resource.getMethods().size() != 1
-                            || !HttpConstants.HTTP_METHOD_GET.equalsIgnoreCase(resource.getMethods().get(0))) {
-                        throw new BallerinaException(String.format("Invalid method(s) for resource %s. Allowed "
-                                                                   + "method [%s]",
-                                                                   resourceName,
-                                                                   HttpConstants.HTTP_METHOD_GET));
-                    }
-                    break;
                 case WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION:
-                    if (resource.getMethods() == null || resource.getMethods().size() != 1
-                            || !HttpConstants.HTTP_METHOD_POST.equalsIgnoreCase(resource.getMethods().get(0))) {
-                        throw new BallerinaException(String.format("Invalid method(s) for resource %s. Allowed "
-                                                                           + "method [%s]",
-                                                                   resourceName,
-                                                                   HttpConstants.HTTP_METHOD_POST));
-                    }
                     break;
                 default:
                     throw new BallerinaException(String.format("Invalid resource name %s for WebSubSubscriberService. "

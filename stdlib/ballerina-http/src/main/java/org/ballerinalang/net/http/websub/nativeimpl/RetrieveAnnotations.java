@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 
 /**
@@ -51,7 +52,7 @@ public class RetrieveAnnotations extends BlockingNativeCallableUnit {
                                   ((ResourceInfo) context.getParentWorkerExecutionContext().parent.callableUnitInfo)
                                           .getServiceInfo().getType())
                     .getAnnotationList(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                       HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
+                                       WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)
                     .get(0).getValue().getVMValue();
         }
         context.setReturnValues(annotationStruct);

@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -64,7 +65,7 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                     || annotation.getAnnotationName().getValue().equals(
                             WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)
                     || annotation.getAnnotationName().getValue().equals(
-                            HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)) {
+                            WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }

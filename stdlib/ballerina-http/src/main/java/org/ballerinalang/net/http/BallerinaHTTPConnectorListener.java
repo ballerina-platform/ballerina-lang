@@ -70,7 +70,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
-    private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                             HttpResource httpResource) {
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
@@ -85,7 +85,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
+    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);

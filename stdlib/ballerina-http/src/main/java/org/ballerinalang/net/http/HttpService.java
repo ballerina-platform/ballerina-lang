@@ -199,7 +199,13 @@ public class HttpService {
         return httpService;
     }
 
-    public static HttpService buildWebSubSubscriberHttpService(Service service) {
+    /**
+     * Builds the HTTP service representation of the service.
+     *
+     * @param service   the service for which the HTTP representation is built
+     * @return  the built HttpService representation
+     */
+    static HttpService buildWebSubSubscriberHttpService(Service service) {
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
 
@@ -216,13 +222,7 @@ public class HttpService {
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
-            HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-            try {
-                httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-                                                   new HttpResourceElementFactory());
-            } catch (URITemplateException | UnsupportedEncodingException e) {
-                throw new BallerinaConnectorException(e.getMessage());
-            }
+            HttpResource httpResource = HttpResource.buildWebSubHttpResource(resource, httpService);
             resources.add(httpResource);
         }
         httpService.setResources(resources);
@@ -236,7 +236,7 @@ public class HttpService {
     }
 
     private static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service) {
-        return getServiceConfigAnnotation(service, HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     }
 
     private static Annotation getServiceConfigAnnotation(Service service, String annotationName) {

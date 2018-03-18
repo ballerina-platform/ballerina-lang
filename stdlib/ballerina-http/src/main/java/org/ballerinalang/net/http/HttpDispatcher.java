@@ -60,7 +60,7 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    private static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
+    protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
 
@@ -122,7 +122,7 @@ public class HttpDispatcher {
         return interfaceId;
     }
 
-    private static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
+    protected static void handleError(HTTPCarbonMessage cMsg, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace

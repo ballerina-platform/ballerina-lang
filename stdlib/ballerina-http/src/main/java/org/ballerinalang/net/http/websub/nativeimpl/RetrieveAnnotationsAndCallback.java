@@ -52,14 +52,14 @@ public class RetrieveAnnotationsAndCallback extends AbstractHttpNativeFunction {
         Struct webSubSubscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = webSubSubscriberServiceEndpoint.getStructField("serviceEndpoint");
 
-        HttpService httpService = ((HttpService) getHttpServicesRegistry(serviceEndpoint).getServicesInfoByInterface()
+        HttpService httpService = ((HttpService) getWebSubServicesRegistry(serviceEndpoint).getServicesInfoByInterface()
                 .values().toArray()[0]);
 
         BMap<String, BString> subscriptionDetails = new BMap<>();
 
         Struct annotationStruct =
                 httpService.getBalService().getAnnotationList(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                          HttpConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG).get(0).getValue();
+                              WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG).get(0).getValue();
         subscriptionDetails.put(WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
                                     new BString(Boolean.toString(annotationStruct.getBooleanField(
                                             WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP))));

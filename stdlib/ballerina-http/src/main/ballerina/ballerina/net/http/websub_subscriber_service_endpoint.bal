@@ -29,9 +29,12 @@ public function <WebSubSubscriberService ep> register (type serviceType) {
 
 @Description { value:"Starts the registered service" }
 public function <WebSubSubscriberService ep> start () {
-    ep.serviceEndpoint.start();
+    ep.serviceEndpoint.start();//not needed?
+    ep.startWebSubSubscriberEndpoint();
     ep.sendSubscriptionRequest();
 }
+
+native function <WebSubSubscriberService ep> startWebSubSubscriberEndpoint();
 
 @Description { value:"Sends a subscription request to the specified hub if specified to subscribe on startup" }
 function <WebSubSubscriberService ep> sendSubscriptionRequest () {

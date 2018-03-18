@@ -17,10 +17,6 @@ endpoint<http:WebSubSubscriberService> websubEP {
 }
 service<http:WebSubSubscriberService> websubSubscriber {
 
-    @http:resourceConfig {
-        methods:["GET"],
-        path:"/subscriber"
-    }
     resource onVerifyIntent (http:ServerConnector conn, http:Request request) {
         http:Response response = {};
         response = http:buildSubscriptionVerificationResponse(request);
@@ -28,10 +24,6 @@ service<http:WebSubSubscriberService> websubSubscriber {
         _ = conn -> respond(response);
     }
 
-    @http:resourceConfig {
-        methods:["POST"],
-        path:"/subscriber"
-    }
     resource onNotification (http:ServerConnector conn, http:Request request) {
         http:Response response = { statusCode:202 };
         _ = conn -> respond(response);

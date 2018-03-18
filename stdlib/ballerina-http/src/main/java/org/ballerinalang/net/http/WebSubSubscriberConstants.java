@@ -21,12 +21,17 @@ package org.ballerinalang.net.http;
 /**
  * Constants for WebSubSubscriber Services.
  *
- * @since 0.965
+ * @since 0.965.0
  */
 public class WebSubSubscriberConstants {
 
-    static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
-    static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
+    public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
+    public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSubSubscriberService";
+    public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "webSubSubscriberServiceConfig";
+
+
+    public static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";
+    public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
     public static final String ANN_WEBSUB_ATTR_HUB = "hub";

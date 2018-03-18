@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSubSubscriberConstants;
 
 /**
  * Get the ID of the connection.
@@ -55,8 +56,9 @@ public class Register extends AbstractHttpNativeFunction {
         // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
         if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
             getHttpServicesRegistry(connectorEndpoint).registerService(service);
-        } else if (HttpConstants.WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            getHttpServicesRegistry(connectorEndpoint).registerWebSubSubscriberService(service);
+        } else if (WebSubSubscriberConstants.WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME.equals(
+                service.getEndpointName())) {
+            getWebSubServicesRegistry(connectorEndpoint).registerWebSubSubscriberService(service);
         }
 
         if (WebSocketConstants.WEBSOCKET_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {

@@ -34,6 +34,8 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.WebSubSubscriberConstants;
+import org.ballerinalang.net.http.websub.WebSubServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -75,8 +77,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             //Adding service registries to native data
             WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
             HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
+            WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry();
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
+            serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
