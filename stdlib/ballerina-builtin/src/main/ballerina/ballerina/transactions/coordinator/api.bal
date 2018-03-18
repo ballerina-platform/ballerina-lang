@@ -86,7 +86,7 @@ function endTransaction (string transactionId, int transactionBlockId) returns (
     // an initiator or just a local participant
     if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         var txn, _ = (TwoPhaseCommitTransaction)initiatedTransactions.get(transactionId);
-        if (txn.state != TransactionState.ABORTED) {
+        if (txn.state == TransactionState.ABORTED) {
             msg, err = abortTransaction(transactionId, transactionBlockId);
         } else {
             msg, err = commitTransaction(transactionId, transactionBlockId);
