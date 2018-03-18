@@ -81,7 +81,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         String resourceName = argList.get(0);
-        String orgName = "", packageName = "", version = "";
+        String orgName, packageName = "", version = "";
 
         // Get org-name
         int orgNameIndex = resourceName.indexOf("/");

@@ -6,12 +6,14 @@ import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.util.HomeRepoUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.MissingResourceException;
 import java.util.stream.Stream;
 
@@ -85,10 +87,10 @@ public class URIConverter implements Converter<URI> {
     public Stream<Path> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
-        String version = packageID.getPackageVersion().getValue();
-        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve("repo").resolve(orgName).resolve(pkgName)
-                .resolve(version);
-        createDirectory(destDirPath);
+        File.separator
+//        String version = packageID.getPackageVersion().getValue();
+        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo",orgName,pkgName);
+        createDirectory()destDirPath);
         try {
             Path destDir = destDirPath.resolve(pkgName + ".zip");
             String fullPkgPath = orgName + "/" + pkgName + ":" + version;
