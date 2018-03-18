@@ -35,7 +35,7 @@ public class CustomErrorStrategyFactory {
     public static LSCustomErrorStrategy getCustomErrorStrategy(Class customErrorStrategyClass,
                                                                LanguageServerContext context) {
         LSCustomErrorStrategy lsCustomErrorStrategy;
-        switch (customErrorStrategyClass.getName()) {
+        switch (customErrorStrategyClass.getSimpleName()) {
             case ContextConstants.COMPLETION_ERROR_STRATEGY:
                 lsCustomErrorStrategy = new CompletionCustomErrorStrategy(context);
                 break;

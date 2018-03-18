@@ -30,11 +30,12 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -163,7 +164,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        String variableName = tokenStream.get(delimiterIndex - 1).getText();
+        String variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
         SymbolInfo variable = this.getVariableByName(variableName, symbols);
         String builtinPkgName = symbolTable.builtInPackageSymbol.name.getValue();
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
@@ -177,9 +178,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
 
-        if (bType.tsymbol instanceof BConnectorSymbol
-                && !UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())) {
-            return actionFunctionList;
+        if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
+            BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
+                    .getClientFunction.type;
+            if (!UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenStream.get(delimiterIndex).getText())
+                    || !(getClientFuncType instanceof BInvokableType)) {
+                return actionFunctionList;
+            }
+
+            BType boundType = ((BInvokableType) getClientFuncType).retTypes.get(0);
+            packageID = boundType.tsymbol.pkgID.toString();
+            bTypeValue = boundType.toString();
         } else if (bType instanceof BArrayType) {
             packageID = ((BArrayType) bType).eType.tsymbol.pkgID.toString();
             bTypeValue = bType.toString();
@@ -293,16 +302,17 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @return                  {@link Map} Scope entries map
      */
     private Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, TextDocumentServiceContext completionCtx) {
-        SymbolInfo filteredSymbolInfo = completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
-                        && symbolInfo.getScopeEntry().symbol.getType() != null 
-                        && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
-                .findFirst()
-                .orElse(null);
-
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
-        returnMap.put(filteredSymbolInfo.getScopeEntry().symbol.getName(), filteredSymbolInfo.getScopeEntry());
+        completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                .forEach(symbolInfo -> {
+                    if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
+                            && symbolInfo.getScopeEntry().symbol.getType() != null
+                            && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
+                            || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                        returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
+                    }
+                });
+
         return returnMap;
     }
     
