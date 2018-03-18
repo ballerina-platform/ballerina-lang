@@ -90,7 +90,6 @@ public class URIConverter implements Converter<URI> {
         Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
         createDirectory(destDirPath);
         try {
-            // Path destDir = destDirPath.resolve(pkgName + ".zip");
             String fullPkgPath = orgName + "/" + pkgName;
             executor.execute(pullBalxLocation,
                     u.toString(),
@@ -98,7 +97,8 @@ public class URIConverter implements Converter<URI> {
                     fullPkgPath,
                     File.separator);
             // TODO Simplify using ZipRepo
-            Patten pattern = new Patten(Patten.WILDCARD_DIR, Patten.path(pkgName + "zip"),
+            Patten pattern = new Patten(Patten.WILDCARD_DIR,
+                    Patten.path(pkgName + ".zip"),
                     Patten.path("src"), Patten.WILDCARD_SOURCE);
             return pattern.convertToPaths(new ZipConverter(destDirPath), packageID);
         } catch (Exception ignore) {

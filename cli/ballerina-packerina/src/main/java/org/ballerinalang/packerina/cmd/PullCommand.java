@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.PrintStream;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,10 +110,7 @@ public class PullCommand implements BLauncherCmd {
         Patten patten = remoteRepo.calculate(packageID);
         if (patten != Patten.NULL) {
             Converter converter = remoteRepo.getConverterInstance();
-            List<Path> paths = patten.convertToPaths(converter, packageID).collect(Collectors.toList());
-            /*outStream.println("\t looking in " + remoteRepo + "\n\t\t for patten " +
-                    patten + "\n\t\t\t and found " +
-                    (paths.isEmpty() ? "noting" : paths));*/
+            patten.convertToPaths(converter, packageID).collect(Collectors.toList());
 
         } else {
             outStream.println("couldn't find package " + patten);
