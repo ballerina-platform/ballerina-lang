@@ -20,10 +20,10 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -40,12 +40,13 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "execute",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+        functionName = "execute",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
@@ -55,11 +56,6 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
                 @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
         }
 )
 public class Execute extends AbstractHTTPAction {
@@ -79,7 +75,7 @@ public class Execute extends AbstractHTTPAction {
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String httpVerb = context.getStringArgument(0);
         String path = context.getStringArgument(1);
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
@@ -95,7 +91,7 @@ public class Execute extends AbstractHTTPAction {
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
         if (outboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null) {
             outboundRequestMsg.setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(),
-                                         ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+                    ENCODING_DEFLATE + ", " + ENCODING_GZIP);
         }
         return outboundRequestMsg;
     }

@@ -183,4 +183,5 @@ public final class Constants {
     public static final String CLIENT_CONNECTOR = "ClientConnector";
     public static final String SQL_PACKAGE_PATH = "ballerina.data.sql";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String B_CONNECTOR = "BConnector";
 }

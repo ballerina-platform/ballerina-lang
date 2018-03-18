@@ -109,7 +109,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1212,39 +1211,40 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkActionInvocationExpr(BLangInvocation iExpr, BType conType) {
         List<BType> actualTypes = getListWithErrorTypes(expTypes.size());
-        if (conType == symTable.errType
-                || !(conType.tag == TypeTags.STRUCT || conType.tag == TypeTags.CONNECTOR)) {
+        if (conType == symTable.errType || conType.tag != TypeTags.STRUCT || iExpr.expr.symbol.tag != SymTag.ENDPOINT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultTypes = actualTypes;
             return;
         }
 
-        BSymbol conSymbol;
-        if (iExpr.expr.getKind() == NodeKind.INVOCATION) {
-            final BInvokableSymbol invokableSymbol = (BInvokableSymbol) ((BLangInvocation) iExpr.expr).symbol;
-            conSymbol = ((BInvokableType) invokableSymbol.type).retTypes.get(0).tsymbol;
-        } else {
-            conSymbol = iExpr.expr.symbol;
-            if (conSymbol.tag == SymTag.ENDPOINT) {
-                conSymbol = ((BEndpointVarSymbol) conSymbol).attachedConnector;
-            } else if (conSymbol.tag == SymTag.VARIABLE) {
-                conSymbol = conSymbol.type.tsymbol;
-            }
+        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+        if (!epSymbol.interactable) {
+            dlog.error(iExpr.pos, DiagnosticCode.ENDPOINT_NOT_SUPPORT_INTERACTIONS, epSymbol.name);
+            resultTypes = actualTypes;
+            return;
         }
+
+        BSymbol conSymbol = epSymbol.clientSymbol;
         if (conSymbol == null
                 || conSymbol == symTable.notFoundSymbol
                 || conSymbol == symTable.errSymbol
-                || conSymbol.tag != SymTag.CONNECTOR) {
+                || conSymbol.tag != SymTag.STRUCT) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultTypes = actualTypes;
             return;
         }
 
+
+
         Name actionName = names.fromIdNode(iExpr.name);
-        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, conSymbol.type.tsymbol.scope,
-                env, actionName, SymTag.ACTION);
+
+        Name uniqueFuncName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(conSymbol.name.value, actionName.value));
+        BPackageSymbol packageSymbol = (BPackageSymbol) conSymbol.owner;
+        BSymbol actionSym = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
+                uniqueFuncName, SymTag.FUNCTION);
         if (actionSym == symTable.errSymbol || actionSym == symTable.notFoundSymbol) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, conSymbol.type);
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.name, conSymbol.type);
             resultTypes = actualTypes;
             return;
         }

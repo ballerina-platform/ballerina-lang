@@ -19,10 +19,11 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
 
@@ -32,26 +33,24 @@ import java.util.Map;
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "getUpgradeHeader",
-        connectorName = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        functionName = "getUpgradeHeader",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "key", type = TypeKind.STRING)
         },
         returnType = {
                 @ReturnType(type = TypeKind.STRING)
-        },
-        connectorArgs = {
-                @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
 public class GetUpgradeHeader extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BConnector wsConnection = (BConnector) context.getRefArgument(0);
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         String key = context.getStringArgument(0).toLowerCase(Locale.ENGLISH);
         Map<String, String> upgradeHeaders =
                 (Map<String, String>) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS);

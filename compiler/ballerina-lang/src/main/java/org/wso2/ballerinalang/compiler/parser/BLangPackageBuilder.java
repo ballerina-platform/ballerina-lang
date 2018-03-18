@@ -902,7 +902,14 @@ public class BLangPackageBuilder {
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
-        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = nameReference.pos;
+        varRef.addWS(nameReference.ws);
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
+        invocationExpr.expr = varRef;
         exprNodeStack.push(invocationExpr);
     }
 
@@ -1583,35 +1590,36 @@ public class BLangPackageBuilder {
         transactionNode.getTransactionBody().addWS(ws);
     }
 
-    public void startFailedBlock() {
+    public void startOnretryBlock() {
         startBlock();
     }
 
-    public void addFailedBlock(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addOnretryBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        failedBlock.pos = pos;
+        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        onretryBlock.pos = pos;
         transactionNode.addWS(ws);
-        transactionNode.setFailedBody(failedBlock);
+        transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        // TODO This is a temporary workaround to flag coordinator service start
-        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-        if (value != null) {
-            return;
-        }
+        if (distributedTransactionEnabled) {
+            // TODO This is a temporary workaround to flag coordinator service start
+            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+            if (value != null) {
+                return;
+            }
 
-        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.ANON_ORG.value,
-                nameComps, Names.DEFAULT_VERSION.value,
-                Names.DOT.value + nameComps.get(nameComps.size() - 1));
+            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+            addImportPackageDeclaration(pos, null, Names.ANON_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        }
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1624,6 +1632,16 @@ public class BLangPackageBuilder {
     public void addRetryCountExpression() {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
+    }
+
+    public void addCommittedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
+    }
+
+    public void addAbortedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
     }
 
     public void startIfElseNode(DiagnosticPos pos) {
@@ -1761,12 +1779,27 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName) {
+    public void addServiceEndpointAttachments(int size) {
+        ServiceNode serviceNode = serviceNodeStack.peek();
+        for (int i = 0; i < size; i++) {
+            BLangNameReference nameReference = nameReferenceStack.pop();
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = nameReference.pos;
+            varRef.addWS(nameReference.ws);
+            varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+            varRef.variableName = (BLangIdentifier) nameReference.name;
+            serviceNode.bindToEndpoint(varRef);
+        }
+    }
+
+    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, boolean constrained) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));
-        final BLangNameReference epName = nameReferenceStack.pop();
-        serviceNode.setEndpointType(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
-                (BLangIdentifier) epName.name));
+        if (constrained) {
+            final BLangNameReference epName = nameReferenceStack.pop();
+            serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
+                    (BLangIdentifier) epName.name));
+        }
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
@@ -1779,25 +1812,45 @@ public class BLangPackageBuilder {
         startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
-    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws,
-                               String resourceName, int annotCount, boolean docExists, boolean isDeprecated) {
+    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
+                               boolean docExists, boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
-        attachAnnotations(resourceNode, annotCount);
         if (docExists) {
             attachDocumentations(resourceNode);
         }
         if (isDeprecated) {
             attachDeprecatedNode(resourceNode);
         }
-        varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-            resourceNode.addParameter(variableNode);
-        });
+        if (hasParameters) {
+            varListStack.pop().forEach(variableNode -> {
+                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
+                resourceNode.addParameter(variableNode);
+            });
+        }
         serviceNodeStack.peek().addResource(resourceNode);
+    }
+
+    public void addResourceAnnotation(int annotCount) {
+        BLangResource resourceNode = (BLangResource) invokableNodeStack.peek();
+        attachAnnotations(resourceNode, annotCount);
+    }
+
+    public void addEndpointVariable(DiagnosticPos pos, Set<Whitespace> ws, String endpointName) {
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        // endpointName has to be redefine at semantic analyze phase. So appending $ to make it work.
+        IdentifierNode name = this.createIdentifier("$" + endpointName);
+        var.setName(name);
+        var.addWS(ws);
+        // Type will be calculated at SymEnter phase.
+        if (varListStack.empty()) {
+            varListStack.push(new ArrayList<>());
+        }
+        varListStack.peek().add(0, var);
     }
 
     public void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {

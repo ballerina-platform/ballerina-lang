@@ -7,7 +7,7 @@ package ballerina.net.http;
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
 @Field {value:"config: The configurations associated with the endpoint"}
-public struct Client {
+public struct ClientEndpoint {
     string epName;
     ClientEndpointConfiguration config;
 }
@@ -18,17 +18,15 @@ public enum Algorithm {
     FAIL_OVER
 }
 
+@Description {value:"Represents the configurations applied to a particular service."}
+@Field {value:"uri: Target service url"}
+@Field {value:"ssl: SSL/TLS related options"}
 public struct TargetService {
-    string url;
-    //CircuitBreakerConfig cb;
-    //SslConfig ssl;
-    //ChunkingConfig chunk;
-    //Filter[] rf;
+    string uri;
+    SSL ssl;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
-@Field {value:"serviceUri: Target service url"}
-@Field {value:"port: Port number of the remote service"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
@@ -36,13 +34,11 @@ public struct TargetService {
 @Field {value:"httpVersion: The HTTP version understood by the client"}
 @Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
-@Field {value:"ssl: SSL/TLS related options"}
 @Field {value:"retryConfig: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
+@Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 public struct ClientEndpointConfiguration {
-    string serviceUri;
-    int port;
     int endpointTimeout = 60000;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
@@ -50,7 +46,6 @@ public struct ClientEndpointConfiguration {
     string httpVersion;
     string forwarded = "disable";
     FollowRedirects followRedirects;
-    SSL ssl;
     Retry retryConfig;
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
@@ -69,35 +64,36 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param { value:"ep: The endpoint to be initialized" }
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
-    string uri = config.serviceUri;
-    if (uri.hasSuffix("/")) {
-        int lastIndex = uri.length() - 1;
-        uri = uri.subString(0, lastIndex);
-        config.serviceUri = uri;
+public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
+    foreach target in config.targets {
+        string uri = target.uri;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+            target.uri = uri;
+        }
     }
-    ep.epName = epName;
     ep.config = config;
     ep.initEndpoint();
 }
 
-public native function<Client ep> initEndpoint ();
+public native function<ClientEndpoint ep> initEndpoint ();
 
-public function <Client ep> register (type serviceType) {
+public function <ClientEndpoint ep> register (type serviceType) {
 
 }
 
-public function <Client ep> start () {
+public function <ClientEndpoint ep> start () {
 
 }
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Client ep> getConnector () returns (ClientConnector repConn);
+public native function <ClientEndpoint ep> getClient () (ClientConnector);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <Client ep> stop () {
+public function <ClientEndpoint ep> stop () {
 
 }
 

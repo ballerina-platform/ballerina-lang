@@ -67,7 +67,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (service == null) {
             throw new BallerinaConnectorException("Cannot find client service: " + clientServiceType);
         }
-        if (WebSocketConstants.WEBSOCKET_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
+        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
             WebSocketService wsService = new WebSocketService(service);
             WebSocketServiceValidator.validateServiceEndpoint(wsService);
             WsClientConnectorConfig clientConnectorConfig = new WsClientConnectorConfig(remoteUrl);

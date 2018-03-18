@@ -26,7 +26,7 @@ sql:ConnectionProperties properties6 = {dataSourceClassName:"org.hsqldb.jdbc.JDB
                                           datasourceProperties:propertiesMap3};
 
 function testConnectionPoolProperties1 () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "",
         port: 0,
@@ -34,8 +34,8 @@ function testConnectionPoolProperties1 () (string firstName) {
         username: "SA",
         password: "",
         options: properties
-    }
-    var testDB = testDBEP.getConnector();
+    };
+
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -45,11 +45,10 @@ function testConnectionPoolProperties1 () (string firstName) {
 }
 
 function testConnectionPoolProperties2 () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         username: "SA",
         options: properties
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -59,13 +58,12 @@ function testConnectionPoolProperties2 () (string firstName) {
 }
 
 function testConnectionPoolProperties3 () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA"
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -76,15 +74,14 @@ function testConnectionPoolProperties3 () (string firstName) {
 
 
 function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: null
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -94,19 +91,20 @@ function testConnectorWithDefaultPropertiesForListedDB () (string firstName) {
 }
 
 function testConnectorWithWorkers () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: null
-    }
+    };
+
     worker w1 {
         int x = 0;
         json y;
         error e;
-        var testDB = testDBEP.getConnector();
+
 	    table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
 	    var j, _ = <json>dt;
 	    firstName = j.toString();
@@ -120,11 +118,10 @@ function testConnectorWithWorkers () (string firstName) {
 
 
 function testConnectorWithDirectUrl () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         username: "SA",
         options: Properties2
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -134,12 +131,11 @@ function testConnectorWithDirectUrl () (string firstName) {
 }
 
 function testConnectorWithDataSourceClass () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.GENERIC,
         username: "SA",
         options: properties3
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -149,15 +145,14 @@ function testConnectorWithDataSourceClass () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassAndProps () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: properties4
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -167,15 +162,14 @@ function testConnectorWithDataSourceClassAndProps () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
         options: properties5
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
@@ -185,15 +179,14 @@ function testConnectorWithDataSourceClassWithoutURL () (string firstName) {
 }
 
 function testConnectorWithDataSourceClassURLPriority () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         name: "INVALID_DB_NAME",
         username: "SA",
         password: "",
         options: properties6
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     var j, _ = <json>dt;
