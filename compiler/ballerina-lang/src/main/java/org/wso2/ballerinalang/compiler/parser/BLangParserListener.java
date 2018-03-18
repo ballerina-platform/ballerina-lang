@@ -59,7 +59,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
         String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTION_ENABLED);
-        if (distributedTxEnabledProp != null && !distributedTxEnabledProp.isEmpty()) {
+        if (distributedTxEnabledProp != null) {
             distributedTransactionEnabled = true;
         }
     }

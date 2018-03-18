@@ -102,5 +102,30 @@ public class TransactionHandlerTest {
                 "start inTrx inFailed inTrx inFailed inTrx inFailed inTrx inAboftFunction inFailed trxErr end");
     }
 
+    @Test
+    public void testTransactionCommitAfterFailureWithAllHandlers() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionCommitAfterFailureWithAllHandlers");
 
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start inTrx inFailed inTrx inFailed inTrx endTrx incommitFunction end");
+    }
+
+    @Test
+    public void testMultipleTransactionsWithAllHandlers() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionsWithAllHandlers");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start inFirstTrx endFirstTrx incommitFunction inSecondTrx endSecondTrx incommitFunctionSecond end");
+    }
+
+    @Test
+    public void testMultipleTransactionsFailedWithAllHandlers() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionsFailedWithAllHandlers");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "start inFirstTrx beforeRetry-First trxErr inSecondTrx inAboftFunctionSecond end");
+    }
 }

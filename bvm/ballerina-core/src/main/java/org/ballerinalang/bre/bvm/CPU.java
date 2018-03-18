@@ -2636,7 +2636,8 @@ public class CPU {
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
             int committedFuncIndex, int abortedFuncIndex) {
-        //If global tx enabled, it is managed via transaction
+        //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
+        //any interaction with the transaction coordinator.
         boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
 
         //Transaction is attempted three times by default to improve resiliency
@@ -2668,9 +2669,9 @@ public class CPU {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         boolean isInitiator = true;
         if (localTransactionInfo == null) {
-            String globalTransactionId = "";
-            String protocol = "";
-            String url = "";
+            String globalTransactionId;
+            String protocol = null;
+            String url = null;
             if (isGlobalTransactionEnabled) {
                 BValue[] returns = notifyTransactionBegin(ctx, null, null, transactionBlockId,
                         TransactionConstants.DEFAULT_COORDINATION_TYPE, isInitiator);
