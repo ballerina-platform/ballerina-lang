@@ -239,7 +239,7 @@ public class EndpointDesugar {
         epConfigNewStmt.var.expr = endpoint.configurationExpr;
         ASTBuilderUtil.defineVariable(epConfigNewStmt.var, varEncSymbol, names);
         List<BLangVariable> args = Lists.of(epConfigNewStmt.var);
-        if (endpoint.symbol.initFunction.params.size() == 2) {
+        if (endpoint.symbol.initFunction != null && endpoint.symbol.initFunction.params.size() == 2) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);
         }
@@ -247,7 +247,7 @@ public class EndpointDesugar {
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.symbol.initFunction, args,
                 symResolver);
-        if (endpoint.symbol.initFunction.params.size() != 2) {
+        if (endpoint.symbol.initFunction != null && endpoint.symbol.initFunction.params.size() != 2) {
             iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
         }
         expressionStmt.expr = iExpr;
@@ -312,14 +312,14 @@ public class EndpointDesugar {
         typeOfExpr.type = symTable.typeType;
 
         List<BLangVariable> args = Lists.of(serviceTypeDef.var);
-        if (endpoint.registerFunction.params.size() == 2) {
+        if (endpoint.registerFunction != null && endpoint.registerFunction.params.size() == 2) {
             // Endpoint is already desugared. Fix this correctly.
             args.add(0, epVariable);
         }
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.registerFunction, args,
                 symResolver);
-        if (endpoint.registerFunction.params.size() != 2) {
+        if (endpoint.registerFunction != null && endpoint.registerFunction.params.size() != 2) {
             iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
         }
         expressionStmt.expr = iExpr;
