@@ -264,7 +264,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists, isDeprecated, hasParameters);
+                ctx.Identifier().getText(), docExists, isDeprecated, hasParameters);
+    }
+
+    @Override
+    public void enterResourceParameterList(BallerinaParser.ResourceParameterListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        final BallerinaParser.ResourceDefinitionContext parent = (BallerinaParser.ResourceDefinitionContext) ctx.parent;
+        this.pkgBuilder.addResourceAnnotation(parent.annotationAttachment().size());
     }
 
     @Override
