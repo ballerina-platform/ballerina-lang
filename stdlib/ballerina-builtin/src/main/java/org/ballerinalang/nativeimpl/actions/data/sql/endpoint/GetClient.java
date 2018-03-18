@@ -20,9 +20,7 @@ package org.ballerinalang.nativeimpl.actions.data.sql.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,23 +34,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 
 @BallerinaFunction(packageName = "ballerina.data.sql",
-                   functionName = "getConnector",
+                   functionName = "getClient",
                    receiver = @Receiver(type = TypeKind.STRUCT,
                                         structType = "Client",
                                         structPackage = "ballerina.data.sql"),
-                   returnType = { @ReturnType(type = TypeKind.CONNECTOR) },
+                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
                    isPublic = true)
-public class GetConnector extends BlockingNativeCallableUnit {
+public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BStruct clientEndPoint = (BStruct) context.getRefArgument(0);
-        BStruct clientEndpointConfig = (BStruct) clientEndPoint.getRefField(0);
-        BConnector clientConnector = BLangConnectorSPIUtil
-                .createBConnector(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CLIENT_CONNECTOR,
-                        clientEndpointConfig.getStringField(0));
-        clientConnector
-                .setNativeData(Constants.CLIENT_CONNECTOR, clientEndPoint.getNativeData(Constants.CLIENT_CONNECTOR));
+        BStruct clientConnector = (BStruct) clientEndPoint.getNativeData(Constants.B_CONNECTOR);
         context.setReturnValues(clientConnector);
     }
 }

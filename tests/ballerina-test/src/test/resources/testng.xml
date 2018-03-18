@@ -38,7 +38,6 @@ under the License.
                 <exclude name="org.ballerinalang.test.statements.transaction.*"/>
             </package>
             <package name="org.ballerinalang.test.types.*">
-                <exclude name="org.ballerinalang.test.types.table.*"/>
                 <exclude name="org.ballerinalang.test.types.service.*"/>
             </package>
             <package name="org.ballerinalang.test.functions.*"/>
