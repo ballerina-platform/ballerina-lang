@@ -200,9 +200,11 @@ endpointType
     ;
 
 typeName
-    :   simpleTypeName                              # simpleTypeNameTemp
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
-    |   typeName (PIPE typeName)+                   # unionTypeName
+    :   simpleTypeName                                  # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+          # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                       # unionTypeNameLabel
+    |   typeName QUESTION_MARK                          # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS     # groupTypeNameLabel
     ;
 
 // Temporary production rule name
@@ -279,6 +281,7 @@ statement
     |   assignmentStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
+    |   safeAssignmentStatement
     |   ifElseStatement
     |   matchStatement
     |   foreachStatement
@@ -299,7 +302,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -324,7 +327,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -345,6 +348,10 @@ postIncrementStatement
 postArithmeticOperator
     :   INCREMENT
     |   DECREMENT
+    ;
+
+safeAssignmentStatement
+    :   variableReference SAFE_ASSIGNMENT expression SEMICOLON
     ;
 
 variableReferenceList

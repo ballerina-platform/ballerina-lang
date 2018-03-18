@@ -622,7 +622,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) {
+    public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -631,12 +631,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) {
+    public void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addUnionType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.markTypeNodeAsNullable(getWS(ctx));
+    }
+
+    @Override
+    public void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.markTypeNodeAsGrouped(getWS(ctx));
     }
 
     @Override

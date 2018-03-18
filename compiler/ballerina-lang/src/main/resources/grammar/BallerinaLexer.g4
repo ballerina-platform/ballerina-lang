@@ -175,6 +175,10 @@ COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
 
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
+
 // Post Arithmetic operators.
 
 INCREMENT      : '++' ;

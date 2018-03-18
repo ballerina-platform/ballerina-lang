@@ -20,7 +20,26 @@ package org.ballerinalang.model.tree.types;
 import org.ballerinalang.model.tree.Node;
 
 /**
+ * {@code TypeNode} represents a type node in the Ballerina AST.
+ *
  * @since 0.94
  */
 public interface TypeNode extends Node {
+
+    /**
+     * Returns whether this {@code TypeNode} is a nullable type.
+     * <p>
+     * e.g. T?
+     *
+     * @return whether this {@code TypeNode} is a nullable type.
+     */
+    boolean isNullable();
+
+    /**
+     * Returns whether this {@code TypeNode} is a grouped type.
+     * e.g. (T)
+     *
+     * @return whether this {@code TypeNode} is a grouped type.
+     */
+    boolean isGrouped();
 }

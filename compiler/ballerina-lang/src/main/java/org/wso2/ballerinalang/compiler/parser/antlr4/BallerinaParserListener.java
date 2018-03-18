@@ -208,6 +208,86 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectBody(BallerinaParser.ObjectBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectBody(BallerinaParser.ObjectBodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#publicObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void enterPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#publicObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#privateObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#privateObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectInitializerParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectInitializerParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectFunctions}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectFunctions(BallerinaParser.ObjectFunctionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectFunctions}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectFunctions(BallerinaParser.ObjectFunctionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#identiferList}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentiferList(BallerinaParser.IdentiferListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#identiferList}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentiferList(BallerinaParser.IdentiferListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
 	 */
@@ -328,41 +408,65 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEndpointType(BallerinaParser.EndpointTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code arrayTypeName}
+	 * Enter a parse tree produced by the {@code unionTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void enterArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx);
+	void enterUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code arrayTypeName}
+	 * Exit a parse tree produced by the {@code unionTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx);
+	void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code simpleTypeNameTemp}
+	 * Enter a parse tree produced by the {@code simpleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void enterSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx);
+	void enterSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code simpleTypeNameTemp}
+	 * Exit a parse tree produced by the {@code simpleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void exitSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx);
+	void exitSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code unionTypeName}
+	 * Enter a parse tree produced by the {@code nullableTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void enterUnionTypeName(BallerinaParser.UnionTypeNameContext ctx);
+	void enterNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code unionTypeName}
+	 * Exit a parse tree produced by the {@code nullableTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
-	void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx);
+	void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code arrayTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code groupTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeName}.
 	 * @param ctx the parse tree
@@ -593,6 +697,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#safeAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#safeAssignmentStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#variableReferenceList}.
 	 * @param ctx the parse tree

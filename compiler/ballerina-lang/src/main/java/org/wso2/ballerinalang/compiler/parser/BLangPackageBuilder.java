@@ -398,6 +398,18 @@ public class BLangPackageBuilder {
         addType(arrayTypeNode);
     }
 
+    public void markTypeNodeAsNullable(Set<Whitespace> ws) {
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        typeNode.addWS(ws);
+        typeNode.nullable = true;
+    }
+
+    public void markTypeNodeAsGrouped(Set<Whitespace> ws) {
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        typeNode.addWS(ws);
+        typeNode.grouped = true;
+    }
+
     public void addUserDefineType(Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,

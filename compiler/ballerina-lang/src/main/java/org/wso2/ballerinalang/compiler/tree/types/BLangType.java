@@ -21,8 +21,22 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 /**
+ * {@code BLangType} is the abstract implementation of the {@link TypeNode}
+ * which represents a type node in the Ballerina AST.
+ *
  * @since 0.94
  */
 public abstract class BLangType extends BLangNode implements TypeNode {
+    public boolean nullable;
+    public boolean grouped;
 
+    @Override
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    @Override
+    public boolean isGrouped() {
+        return grouped;
+    }
 }
