@@ -30,17 +30,19 @@ import java.io.PrintStream;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
+import static org.ballerinalang.net.grpc.MessageConstants.GRPC_SERVER;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * Native function to respond the caller.
+ * Native function to start gRPC server instance.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
@@ -53,7 +55,7 @@ public class Start extends AbstractGrpcNativeFunction {
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             Server server = GrpcServicesBuilder.start(serverBuilder);
-            serviceEndpoint.addNativeData("server", server);
+            serviceEndpoint.addNativeData(GRPC_SERVER, server);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(server)));
             console.println("ballerina: started gRPC server connector on port " + server.getPort());
             GrpcServicesBuilder.blockUntilShutdown(server);

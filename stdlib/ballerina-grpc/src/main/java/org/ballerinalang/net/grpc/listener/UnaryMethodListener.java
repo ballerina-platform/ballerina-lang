@@ -31,19 +31,24 @@ import java.util.List;
 
 /**
  * This is Unary Method Implementation for gRPC Service Call.
+ *
+ * @since 1.0.0
  */
 public class UnaryMethodListener extends MethodListener implements UnaryMethod<Message, Message> {
 
+    public Resource resource;
+
     public UnaryMethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
-        super(methodDescriptor, resource);
+        super(methodDescriptor);
+        this.resource = resource;
     }
 
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(responseObserver);
-        BValue requestParam = getRequestParameter(request);
+        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        BValue requestParam = getRequestParameter(resource, request);
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }

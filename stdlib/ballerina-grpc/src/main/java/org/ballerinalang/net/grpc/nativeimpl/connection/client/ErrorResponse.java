@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
+package org.ballerinalang.net.grpc.nativeimpl.connection.client;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -36,31 +36,27 @@ import org.ballerinalang.net.grpc.MessageUtils;
  * @since 0.96.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "errorResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
-                structPackage = "ballerina.net.grpc"),
-        args = {
-                @Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
-                        structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc")
-        },
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
+        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
+                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
-public class Error extends BlockingNativeCallableUnit {
+public class ErrorResponse extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(0);
+        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getResponder(endpointClient);
+            StreamObserver responseObserver = MessageUtils.getResponseObserver(connectionStruct);
             if (responseObserver == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +

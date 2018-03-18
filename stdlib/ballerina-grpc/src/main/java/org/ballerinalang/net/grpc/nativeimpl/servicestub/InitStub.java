@@ -39,22 +39,30 @@ import org.ballerinalang.net.grpc.stubs.ProtoFileDefinition;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.CHANNEL_KEY;
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.BLOCKING_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_KEY_STRING_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.DESCRIPTOR_MAP_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.NON_BLOCKING_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.STUB_TYPE_STRING_INDEX;
 
 /**
- * {@code InitStub} is the InitStub function implementation of the gRPC Client.
+ * {@code InitStub} is the InitStub function implementation of the gRPC service stub.
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initStub",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
-                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = "ballerina.net.grpc",
+                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = PROTOCOL_PACKAGE_GRPC,
                         structType = "Client"),
                 @Argument(name = "stubType", type = TypeKind.STRING),
                 @Argument(name = "descriptorKey", type = TypeKind.STRING),
@@ -65,14 +73,14 @@ import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB_INDEX;
 public class InitStub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_INDEX);
-        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_INDEX);
+        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
+        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
         ManagedChannel channel = (ManagedChannel) clientEndpoint.getNativeData(CHANNEL_KEY);
-        String subtype = context.getStringArgument(0);
-        String descriptorKey = context.getStringArgument(1);
-        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(2);
+        String stubtype = context.getStringArgument(STUB_TYPE_STRING_INDEX);
+        String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
+        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
 
-        if (subtype == null || descriptorKey == null || descriptorMap == null) {
+        if (stubtype == null || descriptorKey == null || descriptorMap == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
                             "message descriptor keys not exist. Please check the generated sub file"))));
@@ -103,13 +111,12 @@ public class InitStub extends BlockingNativeCallableUnit {
             }
             ProtoFileDefinition protoFileDefinition = new ProtoFileDefinition(depDescriptorData);
             protoFileDefinition.setRootDescriptorData(descriptorValue);
-
             ClientConnectorFactory clientConnectorFactory = new ClientConnectorFactory(protoFileDefinition);
 
-            if ("blocking".equalsIgnoreCase(subtype)) {
+            if (BLOCKING_TYPE.equalsIgnoreCase(stubtype)) {
                 GrpcBlockingStub grpcBlockingStub = clientConnectorFactory.newBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, grpcBlockingStub);
-            } else if ("non-blocking".equalsIgnoreCase(subtype)) {
+            } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubtype)) {
                 GrpcNonBlockingStub nonBlockingStub = clientConnectorFactory.newNonBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {

@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.proto.definition;
 /**
  * Enumeration for different message kinds in proto definition.
  *
- * @since 0.964.1
+ * @since 1.0.0
  */
 public enum MessageKind {
     

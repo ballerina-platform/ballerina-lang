@@ -46,58 +46,72 @@ import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
  * Abstract Method listener.
- * This provide method for all method listener child classes.
+ * This provide method for all method listeners.
+ *
+ * @since 1.0.0
  */
 public abstract class MethodListener {
     
     private Descriptors.MethodDescriptor methodDescriptor;
-    public Resource resource;
-    
-    public MethodListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
-        this.methodDescriptor = methodDescriptor;
-        this.resource = resource;
-    }
-    
-    BValue getConnectionParameter(StreamObserver<Message> responseObserver) {
-        ProgramFile programFile = getProgramFile(resource);
-        BStruct endpointClient = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
-        endpointClient.setIntField(0, responseObserver.hashCode());
-        endpointClient.addNativeData(MessageConstants.RESPONDER, responseObserver);
-        endpointClient.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
 
+    public MethodListener(Descriptors.MethodDescriptor methodDescriptor) {
+        this.methodDescriptor = methodDescriptor;
+    }
+
+    /**
+     * Returns endpoint instance which is used to respond to the client.
+     *
+     * @param responseObserver client responder instance.
+     * @return instance of endpoint type.
+     */
+    BValue getConnectionParameter(Resource resource, StreamObserver<Message> responseObserver) {
+        ProgramFile programFile = getProgramFile(resource);
+        // generate client responder struct on request message with response observer and response msg type.
+        BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
+                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_RESPONDER);
+        clientEndpoint.setIntField(0, responseObserver.hashCode());
+        clientEndpoint.addNativeData(MessageConstants.RESPONSE_OBSERVER, responseObserver);
+        clientEndpoint.addNativeData(MessageConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
+
+        // create endpoint type instance on request.
         BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT);
-        endpoint.setRefField(0, endpointClient);
+                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.SERVICE_ENDPOINT_TYPE);
+        endpoint.setRefField(0, clientEndpoint);
         return endpoint;
     }
-    
-    BValue getRequestParameter(Message requestMessage) {
+
+    /**
+     * Returns BValue object corresponding to the protobuf request message.
+     *
+     * @param requestMessage protobuf request message.
+     * @return b7a message.
+     */
+    BValue getRequestParameter(Resource resource, Message requestMessage) {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
         
         if (resource.getParamDetails().size() == 2) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX)
+            BType requestType = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_INDEX).getVarName();
-            
-            return generateRequestStruct(requestMessage, requestName, requestType);
+            String requestName = resource.getParamDetails().get(MessageConstants.REQUEST_MESSAGE_PARAM_INDEX)
+                    .getVarName();
+            return generateRequestStruct(requestMessage, getProgramFile(resource), requestName, requestType);
         } else {
             return null;
         }
     }
 
     /**
-     * Checks whether method has response message.
+     * Checks whether service method has a response message.
      *
      * @return true if method response is empty, false otherwise
      */
     boolean isEmptyResponse() {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
-    
-    private BValue generateRequestStruct(Message request, String fieldName, BType structType) {
+
+    private BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType structType) {
         BValue bValue = null;
         int stringIndex = 0;
         int intIndex = 0;
@@ -106,7 +120,7 @@ public abstract class MethodListener {
         int refIndex = 0;
         
         if (structType instanceof BStructType) {
-            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), structType
+            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(programFile, structType
                     .getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
@@ -115,7 +129,7 @@ public abstract class MethodListener {
                     if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(bType.getName())) {
                         Message message = (Message) request.getFields().get(structFieldName);
                         requestStruct.setRefField(refIndex++, (BRefType) generateRequestStruct(message,
-                                structFieldName, structField.getFieldType()));
+                                programFile, structFieldName, structField.getFieldType()));
                     }
                 } else {
                     if (request.getFields().containsKey(structFieldName)) {

@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * User Defined Message Definition Builder.
+ *
  * @since 1.0.0
  */
 public class UserDefinedMessage extends Message {

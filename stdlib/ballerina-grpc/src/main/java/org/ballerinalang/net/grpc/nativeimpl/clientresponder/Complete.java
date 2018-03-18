@@ -31,19 +31,24 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
  * Native function to inform the caller, server finished sending messages.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc")
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC)
         },
         isPublic = true
 )
@@ -52,8 +57,8 @@ public class Complete extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(0);
-        StreamObserver responseObserver = MessageUtils.getResponder(endpointClient);
+        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         if (responseObserver == null) {

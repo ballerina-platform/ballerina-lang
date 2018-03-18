@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by daneshk on 1/20/18.
+ * Protobuf definition related constants.
+ * @since 1.0.0
  */
 public class ServiceProtoConstants {
     // Protocol syntax used for the gRPC service definition
@@ -49,7 +50,6 @@ public class ServiceProtoConstants {
     public static final String ANN_SERVICE_CONFIG = "serviceConfig";
     public static final String ANN_MESSAGE_LISTENER = "messageListener";
 
-    public static final String SERVICE_CONFIG_PORT = "port";
     public static final String SERVICE_CONFIG_RPC_ENDPOINT = "rpcEndpoint";
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";

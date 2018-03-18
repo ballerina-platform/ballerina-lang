@@ -21,6 +21,8 @@ import org.ballerinalang.net.grpc.ssl.SSLConfig;
 
 /**
  * Endpoint configuration of gRPC Service.
+ *
+ * @since 1.0.0
  */
 public class EndpointConfiguration {
     private String host = "0.0.0.0";

@@ -32,38 +32,45 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "streamingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPE)
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc"),
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC),
         },
         isPublic = true
 )
 public class StreamingExecute extends AbstractExecute {
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(0);
+        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
@@ -95,7 +102,7 @@ public class StreamingExecute extends AbstractExecute {
                     (serviceType));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(context, callbackService);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(callbackService);
                 StreamObserver<Message> requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = grpcNonBlockingStub.executeClientStreaming
@@ -109,13 +116,12 @@ public class StreamingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                     return;
                 }
-                responseObserver.registerRequestSender(requestSender, methodDescriptor.getInputType());
-                BStruct connStruct = createStruct(context, "ClientConnection");
-                connStruct.addNativeData(MessageConstants.RESPONDER, requestSender);
-                connStruct.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, methodDescriptor
+                BStruct connStruct = createStruct(context, CLIENT_CONNECTION);
+                connStruct.addNativeData(REQUEST_SENDER, requestSender);
+                connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
-                clientEndpoint.addNativeData("client", connStruct);
+                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_ENDPOINT_TYPE);
+                clientEndpoint.addNativeData(CLIENT_CONNECTION, connStruct);
                 context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());

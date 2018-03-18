@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import com.google.protobuf.Descriptors;
 import io.grpc.stub.StreamObserver;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
@@ -55,14 +53,14 @@ import static org.ballerinalang.net.grpc.MessageConstants.STRING;
 
 /**
  * This is Stream Observer Implementation for gRPC Client Call.
+ *
+ * @since 1.0.0
  */
 public class DefaultStreamObserver implements StreamObserver<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, Resource> resourceMap = new HashMap<>();
-    private StreamObserver<Message> requestSender = null;
-    private Descriptors.Descriptor requestType = null;
-    
-    public DefaultStreamObserver(Context context, Service callbackService) throws
+
+    public DefaultStreamObserver(Service callbackService) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
@@ -72,33 +70,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
             resourceMap.put(resource.getName(), resource);
         }
     }
-    
-    public void registerRequestSender(StreamObserver<Message> requestSender, Descriptors.Descriptor requestType)
-            throws GrpcClientException {
-        if (requestType == null && requestSender == null) {
-            throw new GrpcClientException("Error while building the connection. request type and request sender " +
-                    "does not exist");
-        }
-        this.requestSender = requestSender;
-        this.requestType = requestType;
-    }
-    
-    public StreamObserver<Message> getRequestSender() {
-        return requestSender;
-    }
-    
-    public Descriptors.Descriptor getRequestType() {
-        return requestType;
-    }
-    
-/*    private BValue getConnectionParameter(StreamObserver<Message> requestSender, Resource resource, Descriptors
-            .Descriptor inputType) {
-        BStruct connection = BLangConnectorSPIUtil.createBStruct(MessageUtils.getProgramFile(resource),
-                MessageConstants.PROTOCOL_PACKAGE_GRPC, MessageConstants.CLIENT_CONNECTION);
-        connection.addNativeData(MessageConstants.RESPONDER, requestSender);
-        connection.addNativeData(MessageConstants.REQUEST_MESSAGE_DEFINITION, inputType);
-        return connection;
-    }*/
     
     @Override
     public void onNext(Message value) {
@@ -110,12 +81,11 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-/*        signatureParams[0] = getConnectionParameter(requestSender, resource, requestType);*/
         BValue requestParam = getRequestParameter(resource, value);
         if (requestParam != null) {
             signatureParams[0] = requestParam;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(resource, callback, null, signatureParams);
     }
     
@@ -129,7 +99,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-/*        signatureParams[0] = getConnectionParameter(requestSender, onError, requestType);*/
         if (paramDetails.size() != 1) {
             String message = "Error in onError resource definition. It must have only error params, but have "
                     + paramDetails.size();
@@ -139,7 +108,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BType errorType = paramDetails.get(1).getVarType();
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[0] = errorStruct;
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onError, callback, null, signatureParams);
     }
     
@@ -153,8 +122,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-/*        signatureParams[0] = getConnectionParameter(requestSender, onCompleted, requestType);*/
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(requestSender);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onCompleted, callback, null, signatureParams);
     }
     
@@ -164,9 +132,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         
         if (resource.getParamDetails().size() == 1) {
-            BType requestType = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_INDEX)
+            BType requestType = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_PARAM_INDEX)
                     .getVarType();
-            String requestName = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_INDEX).getVarName();
+            String requestName = resource.getParamDetails().get(MessageConstants.CALLBACK_MESSAGE_PARAM_INDEX)
+                    .getVarName();
             return generateRequestStruct(requestMessage, requestName, requestType, resource);
         } else {
             return null;
@@ -182,8 +151,8 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         int refIndex = 0;
         
         if (structType instanceof BStructType) {
-            BStruct requestStruct = ConnectorUtils.createStruct(resource, structType.getPackagePath(), structType
-                    .getName());
+            BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(MessageUtils.getProgramFile(resource),
+                    structType.getPackagePath(), structType.getName());
             for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
                 String structFieldName = structField.getFieldName();
                 if (structField.getFieldType() instanceof BRefType) {

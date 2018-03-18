@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Wrapper Message Definition Builder.
+ *
  * @since 1.0.0
  */
 public class WrapperMessage extends Message {

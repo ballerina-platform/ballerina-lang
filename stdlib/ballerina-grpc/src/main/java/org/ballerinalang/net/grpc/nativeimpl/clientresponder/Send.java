@@ -34,22 +34,28 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
+
 /**
  * Native function to respond the caller.
  *
  * @since 0.96.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "send",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
-                @Argument(name = "response", type = TypeKind.ANY)
+                @Argument(name = "res", type = TypeKind.ANY)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc")
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC)
         },
         isPublic = true
 )
@@ -58,10 +64,10 @@ public class Send extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(0);
-        BValue responseValue = context.getRefArgument(1);
-        StreamObserver<Message> responseObserver = MessageUtils.getResponder(endpointClient);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(MessageConstants
+        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
+        StreamObserver<Message> responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(MessageConstants
                 .RESPONSE_MESSAGE_DEFINITION);
         
         if (responseObserver == null) {
@@ -70,6 +76,7 @@ public class Send extends BlockingNativeCallableUnit {
                     "response sender doesnot exist"))));
         } else {
             try {
+                // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
                     Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
                     responseObserver.onNext(responseMessage);

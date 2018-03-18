@@ -22,6 +22,8 @@ import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 /**
  * Method Definition Builder.
+ *
+ * @since 1.0.0
  */
 public class Method {
     private DescriptorProtos.MethodDescriptorProto methodDescriptor;

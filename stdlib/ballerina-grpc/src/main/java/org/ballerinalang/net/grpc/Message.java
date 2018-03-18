@@ -29,6 +29,8 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Generic Proto3 Message.
+ *
+ * @since 1.0.0
  */
 public class Message extends GeneratedMessageV3 {
     private static final long serialVersionUID = 0L;
@@ -535,8 +537,6 @@ public class Message extends GeneratedMessageV3 {
         private final String messageName;
 
         protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
-/*            return new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                    getDescriptor(), new String[] {"Name",});*/
             throw new UnsupportedOperationException("Operation is not supported");
         }
 

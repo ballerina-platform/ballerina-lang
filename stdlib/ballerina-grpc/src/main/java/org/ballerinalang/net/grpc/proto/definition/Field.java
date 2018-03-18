@@ -25,6 +25,8 @@ import java.util.Map;
 
 /**
  * Field definition builder.
+ *
+ * @since 1.0.0
  */
 public class Field {
     private DescriptorProtos.FieldDescriptorProto fieldDescriptorProto;

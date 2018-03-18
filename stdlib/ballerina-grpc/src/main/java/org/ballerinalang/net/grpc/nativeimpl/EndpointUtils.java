@@ -32,9 +32,11 @@ import static org.wso2.carbon.launcher.utils.Utils.getSystemVariableValue;
 
 /**
  * Endpoint Configuration generation Util.
+ *
+ * @since 1.0.0
  */
 public class EndpointUtils {
-    public static final Pattern VAR_PATTERN = Pattern.compile("\\$\\{([^}]*)}");
+    private static final Pattern VAR_PATTERN = Pattern.compile("\\$\\{([^}]*)}");
     
     /**
      * Generate server endpoint object from service endpoint configuration struct.

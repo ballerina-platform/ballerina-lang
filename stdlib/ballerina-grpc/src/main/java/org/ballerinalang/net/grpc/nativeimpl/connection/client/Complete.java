@@ -48,7 +48,7 @@ public class Complete extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        StreamObserver requestSender = MessageUtils.getResponder(connectionStruct);
+        StreamObserver requestSender = MessageUtils.getResponseObserver(connectionStruct);
         if (requestSender == null) {
             return;
         }

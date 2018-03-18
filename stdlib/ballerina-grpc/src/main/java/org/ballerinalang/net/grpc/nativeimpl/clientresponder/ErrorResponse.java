@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.connection.client;
+package org.ballerinalang.net.grpc.nativeimpl.clientresponder;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -27,36 +27,46 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
+
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.RESPONSE_MESSAGE_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVER_ERROR;
 
 /**
  * Native function to send server error the caller.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = MessageConstants.PROTOCOL_PACKAGE_GRPC,
-        functionName = "error",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = MessageConstants.CLIENT_CONNECTION,
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "serverError", type = TypeKind.STRUCT, structType = "ServerError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                structPackage = MessageConstants.PROTOCOL_PACKAGE_GRPC),
+        packageName = PROTOCOL_PACKAGE_GRPC,
+        functionName = "errorResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
+        args = {
+                @Argument(name = "serverError", type = TypeKind.STRUCT, structType = SERVER_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC)
+        },
         isPublic = true
 )
-public class Error extends BlockingNativeCallableUnit {
+public class ErrorResponse extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
-        BValue responseValue = context.getRefArgument(1);
+        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
         if (responseValue instanceof BStruct) {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getResponder(connectionStruct);
+            StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
             if (responseObserver == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +

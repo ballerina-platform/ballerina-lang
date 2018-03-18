@@ -24,15 +24,20 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
  * Native action to get the unique id of the connection.
  *
+ * @since 1.0.0
  **/
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getID",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         returnType = {
                 @ReturnType(type = TypeKind.STRING)
         },
@@ -42,7 +47,7 @@ public class GetID extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(0);
+        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         context.setReturnValues(new BInteger(endpointClient.getIntField(0)));
     }
 }

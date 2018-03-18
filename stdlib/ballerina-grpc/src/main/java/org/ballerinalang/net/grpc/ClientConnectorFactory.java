@@ -31,9 +31,10 @@ import java.util.Map;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 
-
 /**
  * This is Factory class for gRPC client connector.
+ *
+ * @since 1.0.0
  */
 public final class ClientConnectorFactory {
     private String serviceFullName;

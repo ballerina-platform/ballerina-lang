@@ -16,7 +16,6 @@
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.TypeKind;
@@ -27,23 +26,22 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.util.List;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * Native function to respond the caller.
+ * Native function to register service to service endpoint.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )
@@ -60,21 +58,5 @@ public class Register extends AbstractGrpcNativeFunction {
         } catch (GrpcServerException e) {
             context.setError(MessageUtils.getConnectorError(context, e));
         }
-    }
-    
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, "serviceConfig");
-        
-        if (annotationList == null) {
-            return null;
-        }
-        
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-        
-        return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 }

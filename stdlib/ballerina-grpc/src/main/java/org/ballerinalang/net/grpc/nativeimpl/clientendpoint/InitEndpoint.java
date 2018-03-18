@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import io.grpc.ManagedChannel;
@@ -41,22 +40,24 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CHANNEL_KEY;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.DEFAULT_HOSTNAME;
 import static org.ballerinalang.net.grpc.MessageConstants.MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 
 
 /**
- * Get the ID of the connection.
+ * Native function for initializing gRPC client endpoint.
  *
- * @since 0.966
+ * @since 1.0.0
  */
-
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
-                structPackage = "ballerina.net.grpc"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -65,7 +66,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            // Creating server connector
+            // Creating client endpoint with channel as native data.
             Struct endpointConfig = clientEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(endpointConfig);
             ManagedChannel channel;
@@ -77,17 +78,13 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 SslContext sslContext = new SSLHandlerFactory(configuration.getSslConfig())
                         .createHttp2TLSContextForClient();
                 channel = NettyChannelBuilder
-                        .forAddress(generateSocketAddress(configuration.getPort(), configuration.getHost()))
+                        .forAddress(generateSocketAddress(configuration.getHost(), configuration.getPort()))
                         .flowControlWindow(65 * 1024)
                         .maxInboundMessageSize(MAX_MESSAGE_SIZE)
                         .sslContext(sslContext).build();
             }
-            clientEndpoint.addNativeData(EndpointConstants.CHANNEL_KEY, channel);
-/*            BStruct clientStub = generateClientStub(context, endpointConfig);
-            if (clientStub != null) {
-                clientEndpoint.addNativeData(SERVICE_STUB, clientStub);
-                context.setReturnValues();
-            }*/
+            clientEndpoint.addNativeData(CHANNEL_KEY, channel);
+
         } catch (Throwable throwable) {
             BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
             context.setError(errorStruct);
@@ -98,40 +95,13 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     /**
      * Creates a new {@link InetSocketAddress} on localhost that overrides the host with.
      */
-    private static InetSocketAddress generateSocketAddress(int port, String host) {
+    private static InetSocketAddress generateSocketAddress(String host, int port) {
         try {
-            InetAddress inetAddress = InetAddress.getByName("localhost");
+            InetAddress inetAddress = InetAddress.getByName(DEFAULT_HOSTNAME);
             inetAddress = InetAddress.getByAddress(host, inetAddress.getAddress());
             return new InetSocketAddress(inetAddress, port);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
-    
-/*    private BStruct generateClientStub(Context context, Struct endpointConfig) {
-        Value stubValue = endpointConfig.getTypeField("stub");
-        if (stubValue == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "client stub type not specified."))));
-            return null;
-        }
-        
-        if (!(stubValue.getVMValue() instanceof BTypeValue)) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "client stub type not a Ballerina Type."))));
-            return null;
-        }
-        
-        BType stubType = ((BTypeValue) stubValue.getVMValue()).value();
-        if (stubType == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "client stub type is null."))));
-            return null;
-        }
-        return BLangConnectorSPIUtil.createBStruct(context, stubType.getPackagePath(), stubType
-                .getName());
-    }*/
 }

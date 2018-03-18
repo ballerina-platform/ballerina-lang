@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.EndpointConstants;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
 import org.ballerinalang.net.grpc.config.EndpointConfiguration;
 import org.ballerinalang.net.grpc.nativeimpl.EndpointUtils;
@@ -32,18 +33,23 @@ import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_BUILDER;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
+
 /**
- * Native function to InitEndpoint connector.
+ * Native function for initializing gRPC server endpoint.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
-                structPackage = "ballerina.net.grpc"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration",
+                        structPackage = PROTOCOL_PACKAGE_GRPC)},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -52,7 +58,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            Struct serviceEndpointConfig = serviceEndpoint.getStructField("config");
+            Struct serviceEndpointConfig = serviceEndpoint.getStructField(EndpointConstants.ENDPOINT_CONFIG);
             EndpointConfiguration configuration = EndpointUtils.getEndpointConfiguration(serviceEndpointConfig);
             io.grpc.ServerBuilder serverBuilder;
             if (configuration.getSslConfig() != null) {
@@ -62,24 +68,23 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             } else {
                 serverBuilder = GrpcServicesBuilder.initService(configuration, null);
             }
-            serviceEndpoint.addNativeData("serviceBuilder", serverBuilder);
+            serviceEndpoint.addNativeData(SERVICE_BUILDER, serverBuilder);
             context.setReturnValues();
         } catch (Throwable throwable) {
-            BStruct err = getHttpConnectorError(context, throwable);
+            BStruct err = getConnectorError(context, throwable);
             context.setError(err);
         }
     }
     
-    private static BStruct getHttpConnectorError(Context context, Throwable throwable) {
-        PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo("ballerina.net.grpc");
-        StructInfo errorStructInfo = httpPackageInfo.getStructInfo("ConnectorError");
-        BStruct httpConnectorError = new BStruct(errorStructInfo.getType());
+    private static BStruct getConnectorError(Context context, Throwable throwable) {
+        PackageInfo grpcPackageInfo = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_GRPC);
+        StructInfo errorStructInfo = grpcPackageInfo.getStructInfo(CONNECTOR_ERROR);
+        BStruct grpcConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
-            httpConnectorError.setStringField(0, "Service Initialization error.");
+            grpcConnectorError.setStringField(0, "Service Initialization error.");
         } else {
-            httpConnectorError.setStringField(0, throwable.getMessage());
+            grpcConnectorError.setStringField(0, throwable.getMessage());
         }
-        return httpConnectorError;
+        return grpcConnectorError;
     }
 }

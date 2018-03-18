@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -28,8 +29,8 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.MessageConstants.ANN_MESSAGE_LISTENER;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_MESSAGE_LISTENER;
 
 /**
  * This class validates annotations attached to Ballerina service and resource nodes.
@@ -58,7 +59,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
         try {
             File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-            ServiceConfig serviceConfig = ServiceProtoUtils.getServiceConfiguration(serviceNode);
+            ServiceConfiguration serviceConfig = ServiceProtoUtils.getServiceConfiguration(serviceNode);
             ServiceProtoUtils.writeServiceFiles(fileDefinition, serviceNode.getName().getValue(), serviceConfig
                     .isGenerateClientConnector());
         } catch (GrpcServerException e) {
