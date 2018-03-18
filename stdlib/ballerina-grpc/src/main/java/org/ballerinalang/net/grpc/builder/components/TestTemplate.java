@@ -19,38 +19,38 @@ package org.ballerinalang.net.grpc.builder.components;
 
 import java.io.IOException;
 
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SKELETON_DIR;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SKELETON_DIR;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
 
 /**
- * .
+ * Bean object.
  */
 public class TestTemplate {
     
     public static void main(String[] args) throws IOException {
-        ClientStubBal context = new ClientStubBal("client","HelloWorld");
-        String[] types = {"string", "int"};
-        String[] names = {"name", "age"};
-        context.addStruct("Ann", names, types);
-        context.addStruct("Marry", names, types);
-        context.addBlockingFunction("hello", "string", "int",
-                "hello/hello");
-        context.addNonBlockingFunction("hello", "string", "hello/hello");
-        
-        context.addStubObjectsGetter(null);
-        context.addStubObjectsGetter("Blocking");
-        
-        context.addStub("Blocking","blocking");
-        context.addStub(null,"non-blocking");
-        context.addStubObjects("Blocking","blocking");
-        context.addStubObjects(null,null);
-        Descriptor descriptor = new Descriptor("aaa","fsffdgdgd",",");
-        context.addDescriptor(descriptor);
-        Descriptor descriptor2 = new Descriptor("bbb","fsffdgdgd","");
-        context.addDescriptor(descriptor2);
-        context.setRootDescriptorKey("aaa");
-        writeBallerina(context, DEFAULT_SKELETON_DIR,
-                SKELETON_TEMPLATE_NAME, "/home/yasara/Desktop/testTemplate.bal");
+//        ClientStubBal context = new ClientStubBal("client", "HelloWorld");
+//        String[] types = {"string", "int"};
+//        String[] names = {"name", "age"};
+//        context.addStruct("Ann", names, types);
+//        context.addStruct("Marry", names, types);
+//        context.addBlockingFunction("hello", "string", "int",
+//                "hello/hello");
+//        context.addNonBlockingFunction("hello", "string", "hello/hello");
+//
+//        context.addStubObjectsGetter(null);
+//        context.addStubObjectsGetter("Blocking");
+//
+//        context.addStub("Blocking", "blocking");
+//        context.addStub(null, "non-blocking");
+//        context.addStubObjects("Blocking", "blocking");
+//        context.addStubObjects(null, null);
+//        Descriptor descriptor = new Descriptor("aaa", "fsffdgdgd", ",");
+//        context.addDescriptor(descriptor);
+//        Descriptor descriptor2 = new Descriptor("bbb", "fsffdgdgd", "");
+//        context.addDescriptor(descriptor2);
+//        context.setRootDescriptorKey("aaa");
+//        writeBallerina(context, DEFAULT_SKELETON_DIR,
+//                SKELETON_TEMPLATE_NAME, "/home/yasara/Desktop/testTemplate.bal");
     }
 }

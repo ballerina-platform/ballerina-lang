@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * .
+ * Bean object.
  */
 public class ClientStubBal {
     private String packageName;
@@ -44,25 +44,27 @@ public class ClientStubBal {
     
     public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
         BlockingFunction blockingFunctionsObj = new BlockingFunction
-                ("Blocking",connectorId,operationId, inputDataType, outputDataType, methodId);
+                ("Blocking", connectorId, operationId, inputDataType, outputDataType, methodId);
         blockingFunctions.add(blockingFunctionsObj);
     }
+    
     public void addStubObjectsGetter(String stubTypeName) {
-        StubObjectsGetter stubObjectsGetterObj = new StubObjectsGetter(connectorId,stubTypeName);
+        StubObjectsGetter stubObjectsGetterObj = new StubObjectsGetter(connectorId, stubTypeName);
         stubObjectsGetter.add(stubObjectsGetterObj);
     }
     
     public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
         NonBlockingFunction nonBlockingFunctionsObj = new NonBlockingFunction(
-                null,connectorId, operationId, inputDataType, methodId);
+                null, connectorId, operationId, inputDataType, methodId);
         nonBlockingFunctions.add(nonBlockingFunctionsObj);
     }
     
     public void addStreamingFunction(String operationId, String inputDataType, String methodId) {
-        StreamingFunction streamingFunctionsObj = new StreamingFunction("NonBlocking",connectorId,
+        StreamingFunction streamingFunctionsObj = new StreamingFunction("NonBlocking", connectorId,
                 operationId, inputDataType, methodId);
         streamingFunctions.add(streamingFunctionsObj);
     }
+    
     public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr) {
         Struct structObj = new Struct(structId);
         for (int i = 0; i < attributesNameArr.length; i++) {
@@ -70,13 +72,14 @@ public class ClientStubBal {
         }
         struct.add(structObj);
     }
+    
     public void addStub(String stubTypeName, String stubType) {
-        Stub stub = new Stub(connectorId,stubTypeName, stubType);
+        Stub stub = new Stub(connectorId, stubTypeName, stubType);
         stubs.add(stub);
     }
     
     public void addStubObjects(String stubTypeName, String stubType) {
-        StubObject stubObject = new StubObject(connectorId,stubTypeName,stubType);
+        StubObject stubObject = new StubObject(connectorId, stubTypeName, stubType);
         client.addStubObjects(stubObject);
     }
     
@@ -167,6 +170,7 @@ public class ClientStubBal {
     public boolean isFunctionsStremingNotEmpty() {
         return (!nonBlockingFunctions.isEmpty() || !streamingFunctions.isEmpty());
     }
+    
     public boolean isFunctionsUnaryNotEmpty() {
         return (!blockingFunctions.isEmpty());
     }

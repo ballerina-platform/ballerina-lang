@@ -18,17 +18,17 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * .
+ * Bean object.
  */
 public class Descriptor {
     private String descriptorKey;
     private String descriptorData;
-    private String EOE;
+    private String eoe;
     
-    public Descriptor(String descriptorKey, String descriptorData, String EOE) {
+    public Descriptor(String descriptorKey, String descriptorData, String eoe) {
         this.descriptorKey = descriptorKey;
         this.descriptorData = descriptorData;
-        this.EOE = EOE;
+        this.eoe = eoe;
     }
     
     public String getDescriptorKey() {
@@ -48,10 +48,10 @@ public class Descriptor {
     }
     
     public String getEOE() {
-        return EOE;
+        return eoe;
     }
     
-    public void setEOE(String EOE) {
-        this.EOE = EOE;
+    public void setEOE(String eoe) {
+        this.eoe = eoe;
     }
 }

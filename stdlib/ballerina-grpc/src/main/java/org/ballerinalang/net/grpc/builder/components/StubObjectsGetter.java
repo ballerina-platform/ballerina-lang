@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+/**
+ * Bean object.
+ */
 public class StubObjectsGetter {
-    private  String connectorId;
-    private  String stubTypeName;
+    private String connectorId;
+    private String stubTypeName;
     
     public StubObjectsGetter(String connectorId, String stubTypeName) {
         this.connectorId = connectorId;

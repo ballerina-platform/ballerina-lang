@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * .
+ * Bean object.
  */
 public class MessageListener {
     private String connectorId;

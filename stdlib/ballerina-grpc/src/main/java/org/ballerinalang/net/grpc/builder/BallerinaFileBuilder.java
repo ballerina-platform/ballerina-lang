@@ -87,7 +87,7 @@ public class BallerinaFileBuilder {
             String methodID;
             String packageName = "".equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
                     fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
-            ClientStubBal clientStubBal = new ClientStubBal(packageName,fileDescriptorSet
+            ClientStubBal clientStubBal = new ClientStubBal(packageName, fileDescriptorSet
                     .getService(SERVICE_INDEX).getName());
             DescriptorBuilder descriptorBuilder;
             String protoPackage = fileDescriptorSet.getPackage();
@@ -119,7 +119,7 @@ public class BallerinaFileBuilder {
                 new ActionBuilder(methodName, reqMessageName, resMessageName
                         , methodID, methodType, clientStubBal).build();
             }
-
+            
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];

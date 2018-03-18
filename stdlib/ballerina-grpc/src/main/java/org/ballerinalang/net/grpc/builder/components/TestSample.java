@@ -19,18 +19,18 @@ package org.ballerinalang.net.grpc.builder.components;
 
 import java.io.IOException;
 
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
+//import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
 
 /**
- * .
+ * Bean object.
  */
 public class TestSample {
     public static void main(String[] args) throws IOException {
-        SampleClient context = new SampleClient(true, true, "hello",
-                "client");
-        writeBallerina(context, DEFAULT_SAMPLE_DIR,
-                SAMPLE_TEMPLATE_NAME, "/home/yasara/Desktop/testTemplate2.bal");
+//        SampleClient context = new SampleClient(true, true, "hello",
+//                "client");
+//        writeBallerina(context, DEFAULT_SAMPLE_DIR,
+//                SAMPLE_TEMPLATE_NAME, "/home/yasara/Desktop/testTemplate2.bal");
     }
 }

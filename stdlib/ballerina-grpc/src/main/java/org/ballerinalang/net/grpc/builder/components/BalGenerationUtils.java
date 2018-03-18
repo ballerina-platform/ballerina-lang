@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * .
+ * Bean object.
  */
 public class BalGenerationUtils {
     public static final String TEMPLATES_SUFFIX = ".mustache";

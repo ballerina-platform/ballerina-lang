@@ -20,6 +20,9 @@ package org.ballerinalang.net.grpc.builder.components;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bean object.
+ */
 public class Client {
     private String connectorId;
     private List<StubObject> stubObjects = new ArrayList<>();
@@ -28,7 +31,7 @@ public class Client {
         this.connectorId = connectorId;
     }
     
-    public  void addStubObjects(StubObject stubObject){
+    public void addStubObjects(StubObject stubObject) {
         stubObjects.add(stubObject);
     }
     

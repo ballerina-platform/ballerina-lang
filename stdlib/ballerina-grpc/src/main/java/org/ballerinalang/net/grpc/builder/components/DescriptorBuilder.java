@@ -50,7 +50,7 @@ public class DescriptorBuilder {
         DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                 .parseFrom(targetStream);
         BMap<String, BString> descriptorMap = new BMap<String, BString>();
-        if(!"".equals(fileDescriptorSet.getPackage())) {
+        if (!"".equals(fileDescriptorSet.getPackage())) {
             descriptorMap.put(fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
                     , new BString(bytesToHex(rootDescriptor)));
         } else {
@@ -61,8 +61,8 @@ public class DescriptorBuilder {
                 targetStream = new ByteArrayInputStream(str);
                 fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                         .parseFrom(targetStream);
-                descriptorMap.put( fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() ,
-                        new BString( bytesToHex(str)));
+                descriptorMap.put(fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName(),
+                        new BString(bytesToHex(str)));
             }
         }
         int i = 0;
@@ -83,8 +83,6 @@ public class DescriptorBuilder {
     
     /**
      * Following method build root descriptor key which is packageName+service proto name.
-     *
-     * @return .
      */
     public void buildKey() {
         clientStubBal.setRootDescriptorKey(key);
