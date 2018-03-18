@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -664,7 +665,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
         Operand mapVarRegIndex = calcAndGetExprRegIndex(mapLiteral);
-        emit(InstructionCodes.NEWMAP, mapVarRegIndex);
+        Operand typeCPIndex = getTypeCPIndex(mapLiteral.type);
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex, typeCPIndex);
 
         // Handle Map init stuff
         for (BLangRecordKeyValue keyValue : mapLiteral.keyValuePairs) {
@@ -674,7 +676,16 @@ public class CodeGenerator extends BLangNodeVisitor {
             BLangExpression valueExpr = keyValue.valueExpr;
             genNode(valueExpr, this.env);
 
-            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            BMapType mapType = (BMapType) mapLiteral.type;
+
+            int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, valueExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.regIndex, refRegMapValue);
+            }
         }
     }
 
@@ -827,10 +838,26 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(mapKeyAccessExpr.indexExpr, this.env);
         Operand keyRegIndex = mapKeyAccessExpr.indexExpr.regIndex;
 
+        BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
-            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
+            int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, mapKeyAccessExpr.regIndex, refRegMapValue, getRegIndex(TypeTags.STRUCT));
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
+            }
         } else {
-            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
+            int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr));
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue);
+                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr),
+                        getRegIndex(TypeTags.STRUCT));
+            }
         }
 
         this.varAssignment = variableStore;
@@ -3227,6 +3254,56 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);
+    }
+
+    private int getValueToRefTypeCastOpcode(int typeTag) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT:
+                opcode = InstructionCodes.I2ANY;
+                break;
+            case TypeTags.FLOAT:
+                opcode = InstructionCodes.F2ANY;
+                break;
+            case TypeTags.STRING:
+                opcode = InstructionCodes.S2ANY;
+                break;
+            case TypeTags.BOOLEAN:
+                opcode = InstructionCodes.B2ANY;
+                break;
+            case TypeTags.BLOB:
+                opcode = InstructionCodes.L2ANY;
+                break;
+            default:
+                opcode = InstructionCodes.NOP;
+                break;
+        }
+        return opcode;
+    }
+
+    private int getRefToValueTypeCastOpcode(int typeTag) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.INT:
+                opcode = InstructionCodes.ANY2I;
+                break;
+            case TypeTags.FLOAT:
+                opcode = InstructionCodes.ANY2F;
+                break;
+            case TypeTags.STRING:
+                opcode = InstructionCodes.ANY2S;
+                break;
+            case TypeTags.BOOLEAN:
+                opcode = InstructionCodes.ANY2B;
+                break;
+            case TypeTags.BLOB:
+                opcode = InstructionCodes.ANY2L;
+                break;
+            default:
+                opcode = InstructionCodes.NOP;
+                break;
+        }
+        return opcode;
     }
 
 }

@@ -485,7 +485,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.FLOAT:
             case TypeTags.BLOB:
             case TypeTags.XML:
-            case TypeTags.MAP:
                 checkFunctionInvocationExpr(iExpr, iExpr.expr.type);
                 break;
             case TypeTags.JSON:
@@ -506,6 +505,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
+                break;
+            case TypeTags.MAP:
+                // allow map function for both constrained / un constrained maps
+                checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
             default:
                 // TODO Handle this condition
@@ -1376,8 +1379,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.errType;
         }
 
-        // TODO constrained map
-        return symTable.anyType;
+        return ((BMapType) recordType).constraint;
     }
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {

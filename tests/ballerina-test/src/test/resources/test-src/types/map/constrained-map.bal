@@ -175,11 +175,11 @@ function testConstrainedMapValueTypeCast() (string) {
     return val;
 }
 
-function testConstrainedMapValueTypeCastNegative() (TypeCastError) {
+function testConstrainedMapValueTypeCastNegative() (error) {
     map<string> testMap = {name:"kevin"};
     map m = getGenericMap(testMap);
     map<int> castMap;
-    TypeCastError er;
+    error er;
     _, er = (map<int>) m;
     return er;
 }
@@ -199,13 +199,13 @@ function testConstrainedMapRefTypeCast() (string, int) {
     return p.name, p.age;
 }
 
-function testConstrainedMapRefTypeCastNegative() (TypeCastError) {
+function testConstrainedMapRefTypeCastNegative() (error) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     map m = getGenericMap(testMap);
     map<int> castMap;
-    TypeCastError er;
+    error er;
     _, er = (map<int>) m;
     return er;
 }
@@ -334,29 +334,29 @@ function updateStructMap(map m) (map) {
     return m;
 }
 
-function testStructNotEquivalentRuntimeCast() (TypeCastError) {
+function testStructNotEquivalentRuntimeCast() (error) {
     map<Employee> testMap = {};
     Employee jack = {name:"Jack", age:25};
     testMap["item"] = jack;
     map m = getGenericMap(testMap);
-    TypeCastError err;
+    error err;
     _, err = (map<Person>) m;
     return err;
 }
 
-function testAnyMapToValueTypeRuntimeCast() (TypeCastError) {
+function testAnyMapToValueTypeRuntimeCast() (error) {
     map testMap = {};
     testMap["item"] = 5;
-    TypeCastError err;
+    error err;
     _, err = (map<int>) testMap;
     return err;
 }
 
-function testAnyMapToRefTypeRuntimeCast() (TypeCastError) {
+function testAnyMapToRefTypeRuntimeCast() (error) {
     map testMap = {};
     Employee jack = {name:"Jack", age:25};
     testMap["item"] = jack;
-    TypeCastError err;
+    error err;
     _, err = (map<Employee>) testMap;
     return err;
 }
@@ -375,11 +375,11 @@ function testMapToStructConversion() (int, int) {
     return k.index, k.age;
 }
 
-function testMapToStructConversionNegative() (TypeConversionError) {
+function testMapToStructConversionNegative() (error) {
     map<string> testMap = {};
     testMap["index"] = "100";
     testMap["age"] = "63";
-    TypeConversionError err;
+    error err;
     _,err = <Student>testMap;
     return err;
 }
@@ -476,7 +476,7 @@ struct PersonComplexTwo {
     boolean alive;
 }
 
-function testJsonToStructConversionStructWithConstrainedMapNegative() (TypeConversionError) {
+function testJsonToStructConversionStructWithConstrainedMapNegative() (error) {
     json j = { name:"Child",
                age:25,
                parent:{
@@ -497,7 +497,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative() (TypeConve
                score: 5.67,
                alive:true
              };
-    TypeConversionError err;
+    error err;
     _,err = <PersonComplexTwo> j;
     return err;
 }

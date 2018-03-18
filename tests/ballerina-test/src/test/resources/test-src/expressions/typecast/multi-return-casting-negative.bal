@@ -1,5 +1,5 @@
 struct Error {
-    string errorMsg;
+    string msg;
 }
 
 struct A {
