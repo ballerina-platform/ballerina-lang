@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -45,7 +46,6 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
-    private static final String DISTRIBUTED_TRANSACTION_ENABLED = "distributed.transactions";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -58,10 +58,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
-        String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTION_ENABLED);
-        if (distributedTxEnabledProp != null) {
-            distributedTransactionEnabled = true;
-        }
+        this.distributedTransactionEnabled = CompilerUtils.isDistributedTransactionsEnabled();
     }
 
     @Override

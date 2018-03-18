@@ -22,13 +22,13 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 /**
  * This class contains utilities to execute Ballerina main and service programs.
@@ -51,14 +51,16 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        initializeDistributeTransactionStatus(programFile);
+        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
+        if (distributedTxEnabled) {
+            deployTransactionCoordinatorServices(programFile);
+        }
 
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
-
-        deployTransactionCoordinatorServices(programFile);
     }
 
     private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
@@ -81,7 +83,8 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        initializeDistributeTransactionStatus(programFile);
+        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
 
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
@@ -92,15 +95,6 @@ public class BLangProgramRunner {
             }
             BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
         }
-    }
-
-    private static void initializeDistributeTransactionStatus(ProgramFile programFile) {
-        boolean distributedTxEnabled = false; //TODO:Default will be true. Read from new VMOptions
-        String distributedTxEnabledProp = System.getProperty(Constants.DISTRIBUTED_TRANSACTION_ENABLED);
-        if (distributedTxEnabledProp != null) {
-            distributedTxEnabled = Boolean.valueOf(distributedTxEnabledProp);;
-        }
-        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
     }
 
     private static BValue[] extractMainArgs(String[] args) {
