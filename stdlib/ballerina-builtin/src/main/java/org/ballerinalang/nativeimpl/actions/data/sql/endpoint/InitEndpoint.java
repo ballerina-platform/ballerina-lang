@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
@@ -63,7 +64,18 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(options, database, host, port, username, password, name);
 
-        clientEndpoint.addNativeData(Constants.CLIENT_CONNECTOR, datasource);
+
+        BStruct ballerinaClientConnector;
+        if (clientEndpoint.getNativeData(Constants.B_CONNECTOR) != null) {
+            ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(Constants.B_CONNECTOR);
+        } else {
+            ballerinaClientConnector = BLangConnectorSPIUtil
+                    .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CLIENT_CONNECTOR,
+                            database, host, port, name, username, password, options, clientEndpointConfig);
+            clientEndpoint.addNativeData(Constants.B_CONNECTOR, ballerinaClientConnector);
+        }
+
+        ballerinaClientConnector.addNativeData(Constants.CLIENT_CONNECTOR, datasource);
         context.setReturnValues();
     }
 }

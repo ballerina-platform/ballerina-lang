@@ -39,7 +39,7 @@ import java.util.Set;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "upgradeToWebSocket",
-        connectorName = HttpConstants.SERVER_CONNECTOR,
+        connectorName = HttpConstants.SERVICE_ENDPOINT,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "headers", type = TypeKind.MAP)

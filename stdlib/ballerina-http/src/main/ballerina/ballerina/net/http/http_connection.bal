@@ -5,12 +5,7 @@ public const string CONTENT_LENGTH = "content-length";
 
 const string HEADER_KEY_LOCATION = "Location";
 
-@Description {value:"Represents the HTTP server connector connection"}
-@Field {value:"remoteHost: The server host name"}
-@Field {value:"port: The server port"}
 public struct Connection {
-    string remoteHost;
-    int port;
 }
 
 //////////////////////////////

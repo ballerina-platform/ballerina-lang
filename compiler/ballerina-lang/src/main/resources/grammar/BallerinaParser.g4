@@ -38,7 +38,6 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   connectorDefinition
     |   structDefinition
     |   streamletDefinition
     |   enumDefinition
@@ -50,7 +49,11 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE LT nameReference GT Identifier serviceBody
+    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
+    ;
+
+serviceEndpointAttachments
+    :   BIND nameReference (COMMA nameReference)*
     ;
 
 serviceBody
@@ -58,7 +61,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+resourceParameterList
+    :   ENDPOINT Identifier (COMMA parameterList)?
+    |   parameterList
     ;
 
 callableUnitBody
@@ -78,19 +86,6 @@ lambdaFunction
 
 callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
-    ;
-
-connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
-    ;
-
-connectorBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
-    ;
-
-actionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* documentationAttachment? deprecatedAttachment? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -128,8 +123,6 @@ transformerDefinition
 attachmentPoint
      : SERVICE
      | RESOURCE
-     | CONNECTOR
-     | ACTION
      | FUNCTION
      | STRUCT
      | STREAMLET
@@ -158,11 +151,16 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
     ;
 
 endpointType
     :   nameReference
+    ;
+
+endpointInitlization
+    :   recordLiteral
+    |   ASSIGN variableReference
     ;
 
 typeName
@@ -464,7 +462,7 @@ invocationArg
     ;
 
 actionInvocation
-    : variableReference RARROW functionInvocation
+    : nameReference RARROW functionInvocation
     ;
 
 expressionList

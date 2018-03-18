@@ -890,7 +890,14 @@ public class BLangPackageBuilder {
         invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
-        invocationExpr.expr = (BLangVariableReference) exprNodeStack.pop();
+
+        BLangNameReference nameReference = nameReferenceStack.pop();
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        varRef.pos = nameReference.pos;
+        varRef.addWS(nameReference.ws);
+        varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+        varRef.variableName = (BLangIdentifier) nameReference.name;
+        invocationExpr.expr = varRef;
         exprNodeStack.push(invocationExpr);
     }
 
@@ -1760,12 +1767,27 @@ public class BLangPackageBuilder {
                 .forEach(varDef -> serviceNode.addVariable((VariableDefinitionNode) varDef));
     }
 
-    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName) {
+    public void addServiceEndpointAttachments(int size) {
+        ServiceNode serviceNode = serviceNodeStack.peek();
+        for (int i = 0; i < size; i++) {
+            BLangNameReference nameReference = nameReferenceStack.pop();
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = nameReference.pos;
+            varRef.addWS(nameReference.ws);
+            varRef.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+            varRef.variableName = (BLangIdentifier) nameReference.name;
+            serviceNode.bindToEndpoint(varRef);
+        }
+    }
+
+    public void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, boolean constrained) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.setName(createIdentifier(serviceName));
-        final BLangNameReference epName = nameReferenceStack.pop();
-        serviceNode.setEndpointType(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
-                (BLangIdentifier) epName.name));
+        if (constrained) {
+            final BLangNameReference epName = nameReferenceStack.pop();
+            serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
+                    (BLangIdentifier) epName.name));
+        }
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         this.compUnit.addTopLevelNode(serviceNode);
@@ -1778,25 +1800,45 @@ public class BLangPackageBuilder {
         startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
-    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws,
-                               String resourceName, int annotCount, boolean docExists, boolean isDeprecated) {
+    public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
+                               boolean docExists, boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
-        attachAnnotations(resourceNode, annotCount);
         if (docExists) {
             attachDocumentations(resourceNode);
         }
         if (isDeprecated) {
             attachDeprecatedNode(resourceNode);
         }
-        varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.PARAM;
-            resourceNode.addParameter(variableNode);
-        });
+        if (hasParameters) {
+            varListStack.pop().forEach(variableNode -> {
+                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
+                resourceNode.addParameter(variableNode);
+            });
+        }
         serviceNodeStack.peek().addResource(resourceNode);
+    }
+
+    public void addResourceAnnotation(int annotCount) {
+        BLangResource resourceNode = (BLangResource) invokableNodeStack.peek();
+        attachAnnotations(resourceNode, annotCount);
+    }
+
+    public void addEndpointVariable(DiagnosticPos pos, Set<Whitespace> ws, String endpointName) {
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        // endpointName has to be redefine at semantic analyze phase. So appending $ to make it work.
+        IdentifierNode name = this.createIdentifier("$" + endpointName);
+        var.setName(name);
+        var.addWS(ws);
+        // Type will be calculated at SymEnter phase.
+        if (varListStack.empty()) {
+            varListStack.push(new ArrayList<>());
+        }
+        varListStack.peek().add(0, var);
     }
 
     public void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {

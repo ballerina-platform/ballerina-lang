@@ -35,7 +35,9 @@ under the License.
             </package>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*"/>
-            <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.types.*">
+                <exclude name="org.ballerinalang.test.types.service.*"/>
+            </package>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
@@ -44,13 +46,14 @@ under the License.
             <!-- <package name="org.ballerinalang.test.connectors.*"/> -->
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-            <package name="org.ballerinalang.test.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.test.services.session"/>
-            <package name="org.ballerinalang.test.services.basics"/>
-            <package name="org.ballerinalang.test.services.cors"/>
-            <package name="org.ballerinalang.test.services.configuration"/>
-            <package name="org.ballerinalang.test.services.dispatching"/>
-            <package name="org.ballerinalang.test.mime"/>
+            <package name="org.ballerinalang.test.endpoint.*"/>
+            <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
+            <!--<package name="org.ballerinalang.test.services.session"/>-->
+            <!--<package name="org.ballerinalang.test.services.basics"/>-->
+            <!--<package name="org.ballerinalang.test.services.cors"/>-->
+            <!--<package name="org.ballerinalang.test.services.configuration"/>-->
+            <!--<package name="org.ballerinalang.test.services.dispatching"/>-->
+            <!--<package name="org.ballerinalang.test.mime"/>-->
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>
@@ -68,7 +71,7 @@ under the License.
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.auth.*"/>
+            <!--<package name="org.ballerinalang.test.auth.*"/>-->
         </packages>
     </test>
 </suite>

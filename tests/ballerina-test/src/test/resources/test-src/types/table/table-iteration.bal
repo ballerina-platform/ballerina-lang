@@ -17,7 +17,7 @@ float salValue = -1;
 string nameValue = "";
 
 function testForEachInTableWithStmt () (int id, int age, float salary, string name) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -25,10 +25,8 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 
-    var testDB = testDBEP.getConnector();
-	
     table<Person> dt = testDB -> select("SELECT * from Person where id = 1", null, typeof Person);
     foreach x in dt {
         id = x.id;
@@ -41,7 +39,7 @@ function testForEachInTableWithStmt () (int id, int age, float salary, string na
 }
 
 function testForEachInTable () (int id, int age, float salary, string name) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -49,9 +47,7 @@ function testForEachInTable () (int id, int age, float salary, string name) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB-> select("SELECT * from Person where id = 1", null, typeof Person);
     dt.foreach (function (Person p) {
@@ -70,7 +66,7 @@ function testForEachInTable () (int id, int age, float salary, string name) {
 }
 
 function testCountInTable () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -78,9 +74,8 @@ function testCountInTable () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 
-    var testDB = testDBEP.getConnector();
     table<Person> dt = testDB -> select("SELECT * from Person where id < 10", null, typeof Person);
     count = dt.count();
     testDB -> close();
@@ -88,7 +83,7 @@ function testCountInTable () (int count) {
 }
 
 function testFilterTable () (int count, int id1, int id2) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -96,9 +91,7 @@ function testFilterTable () (int count, int id1, int id2) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
     Person[] personBelow35 = dt.filter(isBellow35);
@@ -110,7 +103,7 @@ function testFilterTable () (int count, int id1, int id2) {
 }
 
 function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -118,9 +111,7 @@ function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
     Person[] personBelow35 = dt.filter(function (Person p) (boolean) {
@@ -134,7 +125,7 @@ function testFilterWithAnnonymousFuncOnTable () (int count, int id1, int id2) {
 }
 
 function testFilterTableWithCount () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -142,9 +133,7 @@ function testFilterTableWithCount () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person", null, typeof Person);
     count = dt.filter(isBellow35).count();
@@ -153,7 +142,7 @@ function testFilterTableWithCount () (int count) {
 }
 
 function testMapTable () (string[] names) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -161,9 +150,7 @@ function testMapTable () (string[] names) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     names = dt.map(getName);
@@ -172,7 +159,7 @@ function testMapTable () (string[] names) {
 }
 
 function testMapWithFilterTable () (string[] names) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -180,9 +167,7 @@ function testMapWithFilterTable () (string[] names) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     names = dt.map(getName).filter(isGeraterThan4String);
@@ -191,7 +176,7 @@ function testMapWithFilterTable () (string[] names) {
 }
 
 function testFilterWithMapTable () (string[] names) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -199,9 +184,7 @@ function testFilterWithMapTable () (string[] names) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     names = dt.filter(isGeraterThan4).map(getName);
@@ -210,7 +193,7 @@ function testFilterWithMapTable () (string[] names) {
 }
 
 function testFilterWithMapAndCountTable () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -218,9 +201,7 @@ function testFilterWithMapAndCountTable () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     count = dt.filter(isGeraterThan4).map(getName).count();
@@ -229,7 +210,7 @@ function testFilterWithMapAndCountTable () (int count) {
 }
 
 function testAverageWithTable () (float avgSal) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -237,9 +218,7 @@ function testAverageWithTable () (float avgSal) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).average();
@@ -248,7 +227,7 @@ function testAverageWithTable () (float avgSal) {
 }
 
 function testMinWithTable () (float avgSal) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -256,9 +235,7 @@ function testMinWithTable () (float avgSal) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).min();
@@ -267,7 +244,7 @@ function testMinWithTable () (float avgSal) {
 }
 
 function testMaxWithTable () (float avgSal) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -275,9 +252,7 @@ function testMaxWithTable () (float avgSal) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).max();
@@ -286,7 +261,7 @@ function testMaxWithTable () (float avgSal) {
 }
 
 function testSumWithTable () (float avgSal) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -294,10 +269,8 @@ function testSumWithTable () (float avgSal) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 
-    var testDB = testDBEP.getConnector();
-	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
     avgSal = dt.map(getSalary).sum();
     testDB -> close();
@@ -305,7 +278,7 @@ function testSumWithTable () (float avgSal) {
 }
 
 function testCloseConnectionPool () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -313,9 +286,7 @@ function testCloseConnectionPool () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 	
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
                               typeof ResultCount);
