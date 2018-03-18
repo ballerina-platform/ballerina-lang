@@ -16,7 +16,7 @@
 
 package ballerina.data.sql;
 
-@Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
+@Description {value:"Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
@@ -29,7 +29,7 @@ public struct Parameter {
 	type structType;
 }
 
-@Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
+@Description {value:"ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
 @Field {value:"url: Platform independent DB access URL"}
 @Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
 @Field {value:"connectionTestQuery: Query that will be executed to validate that the connection to the database is still alive"}
@@ -75,8 +75,8 @@ public struct ConnectionProperties {
 	map datasourceProperties;
 }
 
-@Description { value:"Initialize the ConnectionProperties with default values"}
-public function<ConnectionProperties c> ConnectionProperties () {
+@Description {value:"Initialize the ConnectionProperties with default values"}
+public function <ConnectionProperties c> ConnectionProperties () {
 	c.datasourceProperties = {};
 }
 
@@ -152,7 +152,7 @@ public enum Type {
 	BOOLEAN,
 	TINYINT,
 	SMALLINT,
-	INTEGER ,
+	INTEGER,
 	BIGINT,
 	NUMERIC,
 	DECIMAL,
@@ -179,7 +179,7 @@ public enum Type {
 @Field {value:"OUT: OUT parameters are used to get values from stored procedures"}
 @Field {value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
 public enum Direction {
-    IN,
+	IN,
 	OUT,
 	INOUT
 }
@@ -212,17 +212,17 @@ public struct ClientConnector {
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set(s) for the given query"}
 public native function <ClientConnector client> call (@sensitive string sqlQuery, Parameter[] parameters,
-type structType) (@tainted table[]);
+													  type structType) (@tainted table[]);
 
 @Description {value:"The select action implementation for SQL connector to select data from tables."}
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set for the given query"}
 public native function <ClientConnector client> select (@sensitive string sqlQuery, Parameter[] parameters,
-type structType) (@tainted table);
+														type structType) (@tainted table);
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
-public  native function <ClientConnector client> close ();
+public native function <ClientConnector client> close ();
 
 @Description {value:"The update action implementation for SQL connector to update data and schema of the database."}
 @Param {value:"sqlQuery: SQL query to execute"}
@@ -235,7 +235,7 @@ public native function <ClientConnector client> update (@sensitive string sqlQue
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Array of update counts"}
 public native function <ClientConnector client> batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters)
-	(int[]);
+(int[]);
 
 @Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
 generated keys during the update action."}
@@ -245,7 +245,7 @@ generated keys during the update action."}
 @Return {value:"Updated row count during the query exectuion"}
 @Return {value:"Array of auto generated key values during the query execution"}
 public native function <ClientConnector client> updateWithGeneratedKeys (@sensitive string sqlQuery,
-Parameter[] parameters, string[] keyColumns) (int, string[]);
+													Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 ///////////////////////////////
 // SQL Client Endpoint
@@ -266,7 +266,7 @@ public struct ClientEndpointConfiguration {
 	ConnectionProperties options;
 }
 
-public function<ClientEndpointConfiguration c> ClientEndpointConfiguration () {
+public function <ClientEndpointConfiguration c> ClientEndpointConfiguration () {
 	c.database = DB.GENERIC;
 	c.options = {};
 }
@@ -280,7 +280,7 @@ public function <Client ep> init (ClientEndpointConfiguration config) {
 }
 
 @Description {value:"Initialize the endpoint"}
-public native function<Client ep> initEndpoint();
+public native function <Client ep> initEndpoint ();
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
