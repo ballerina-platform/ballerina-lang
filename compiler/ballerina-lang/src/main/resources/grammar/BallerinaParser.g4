@@ -167,6 +167,7 @@ typeName
     :   simpleTypeName                              # simpleTypeNameTemp
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
     |   typeName (PIPE typeName)+                   # unionTypeName
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       #tupleTypeName
     ;
 
 // Temporary production rule name
@@ -241,6 +242,7 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   tupleDestructuringStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
@@ -289,6 +291,11 @@ typeInitExpr
 
 assignmentStatement
     :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    ;
+
+tupleDestructuringStatement
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -537,7 +544,7 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
+    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -572,7 +579,8 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
+    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
     ;
 
 defaultableParameter

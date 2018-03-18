@@ -72,7 +72,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitParameter(BallerinaParser.ParameterContext ctx) {
+    public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -848,7 +848,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isVarDeclaration = false;
-        if (ctx.getChild(0).getText().equals("var")) {
+        if (ctx.VAR() != null) {
             isVarDeclaration = true;
         }
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
