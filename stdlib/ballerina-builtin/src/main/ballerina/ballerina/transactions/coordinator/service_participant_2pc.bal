@@ -19,14 +19,13 @@ package ballerina.transactions.coordinator;
 import ballerina.log;
 import ballerina.net.http;
 
-@http:configuration {
-    basePath:participant2pcCoordinatorBasePath,
-    endpoints:[coordinatorServerEP]
+@http:serviceConfig {
+    basePath:participant2pcCoordinatorBasePath
 }
 documentation {
     Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
 }
-service<http> Participant2pcService {
+service<http:Service> Participant2pcService bind coordinatorServerEP{
 
     @http:resourceConfig {
         methods:["POST"],
@@ -41,7 +40,7 @@ service<http> Participant2pcService {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource prepare (http:Connection conn, http:Request req, string transactionBlockId) {
+    prepare (endpoint conn, http:Request req, string transactionBlockId) {
         http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
@@ -52,8 +51,8 @@ service<http> Participant2pcService {
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
             var connErr = conn -> respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response to Bad Request for prepare request failed", (error)connError);
+            if (connErr != null) {
+                log:printErrorCause("Sending response to Bad Request for prepare request failed", (error)connErr);
             }
         } else {
             var prepareReq, _ = <PrepareRequest>payload;
@@ -93,9 +92,9 @@ service<http> Participant2pcService {
             var j, _ = <json>prepareRes;
             res.setJsonPayload(j);
             var connErr = conn -> respond(res);
-            if (connError != null) {
+            if (connErr != null) {
                 log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
-                                    " failed", (error)connError);
+                                    " failed", (error)connErr);
             }
         }
     }
@@ -113,7 +112,7 @@ service<http> Participant2pcService {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource notify (http:Connection conn, http:Request req, string transactionBlockId) {
+    notify (endpoint conn, http:Request req, string transactionBlockId) {
         http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
@@ -123,8 +122,8 @@ service<http> Participant2pcService {
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
             var connErr = conn -> respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response to Bad Request for notify request failed", (error)connError);
+            if (connErr != null) {
+                log:printErrorCause("Sending response to Bad Request for notify request failed", (error)connErr);
             }
         } else {
             var notifyReq, _ = <NotifyRequest>payload;
@@ -175,9 +174,9 @@ service<http> Participant2pcService {
             var j, _ = <json>notifyRes;
             res.setJsonPayload(j);
             var connErr = conn -> respond(res);
-            if (connError != null) {
+            if (connErr != null) {
                 log:printErrorCause("Sending response for notify request for transaction " + transactionId +
-                                    " failed", (error)connError);
+                                    " failed", (error)connErr);
             }
         }
     }

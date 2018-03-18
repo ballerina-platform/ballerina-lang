@@ -40,11 +40,6 @@ function getParticipantPort () returns (int port) {
     return;
 }
 
-struct InitiatorClientEP {
-    InitiatorClientConfig conf;
-    http:Client client;
-}
-
 struct InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
@@ -54,67 +49,63 @@ struct InitiatorClientConfig {
     } retryConfig;
 }
 
-function <InitiatorClientEP ep> init(string name, InitiatorClientConfig conf){
-    ep.conf = conf;
-    ep.client = {};
-    ep.client.init("httpClient" , 
-    {serviceUri : conf.registerAtURL, endpointTimeout:conf.endpointTimeout,
-     retryConfig:{count:conf.retryConfig.count, interval:conf.retryConfig.interval}});
+struct InitiatorClientEP {
+    http:ClientEndpoint httpClient;
 }
 
-function <InitiatorClientEP ep> start(){
-    ep.client.start();
+function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
+    endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
+                                            endpointTimeout:conf.endpointTimeout,
+                                            retryConfig:{count:conf.retryConfig.count,
+                                                            interval:conf.retryConfig.interval}};
+    ep.httpClient = httpEP;
 }
 
-function <InitiatorClientEP ep> stop(){
-    ep.client.stop();
+function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
+    return {clientEP: ep};
 }
 
-function <InitiatorClientEP ep> register(type serviceName){
-    ep.client.register(serviceName);
+struct InitiatorClient {
+    InitiatorClientEP clientEP;
 }
 
-function <InitiatorClientEP ep> getConnector() returns (InitiatorClient) {
-    return new InitiatorClient(ep);
-}
-
-connector InitiatorClient (InitiatorClientEP initiatorEP) {
-
-    action register (string transactionId, int transactionBlockId) returns (RegistrationResponse registrationRes,
+function<InitiatorClient client> register (string transactionId,
+                                           int transactionBlockId) returns (RegistrationResponse registrationRes,
                                                                             error err) {
-        string participantId = getParticipantId(transactionBlockId);
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
+    endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
+    string participantId = getParticipantId(transactionBlockId);
+    RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
-        //TODO: set the proper protocol
-        string protocol = "durable";
-        Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
-        regReq.participantProtocols = protocols;
+    //TODO: set the proper protocol
+    string protocol = "durable";
+    Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
+    regReq.participantProtocols = protocols;
 
-        json j = <json, regRequestToJson()>regReq;
-        http:Request req = {};
-        req.setJsonPayload(j);
-        var res, e = initiatorEP -> post("", req);
-        if (e == null) {
-            int statusCode = res.statusCode;
-            var payload, payloadError = res.getJsonPayload();
-            if (payloadError == null) {
-                if (statusCode == 200) {
-                    registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
-                } else {
-                    if (payload == null) {
-                        var stringPayload, _ = res.getStringPayload();
-                        err = {message:stringPayload};
-                    } else {
-                        var errMsg, _ = (string)payload.errorMessage;
-                        err = {message:errMsg};
-                    }
-                }
+    json j = <json, regRequestToJson()>regReq;
+    http:Request req = {};
+    req.setJsonPayload(j);
+    var res, e = httpClient -> post("", req);
+    if (e == null) {
+        int statusCode = res.statusCode;
+        var payload, payloadError = res.getJsonPayload();
+        if (payloadError == null) {
+            if (statusCode == 200) {
+                registrationRes = <RegistrationResponse, jsonToRegResponse()>(payload);
             } else {
-                err = (error)payloadError;
+                if (payload == null) {
+                    var stringPayload, _ = res.getStringPayload();
+                    err = {message:stringPayload};
+                } else {
+                    var errMsg, _ = (string)payload.errorMessage;
+                    err = {message:errMsg};
+                }
             }
         } else {
-            err = (error)e;
+            err = (error)payloadError;
         }
-        return;
+    } else {
+        err = (error)e;
     }
+    return;
 }
+

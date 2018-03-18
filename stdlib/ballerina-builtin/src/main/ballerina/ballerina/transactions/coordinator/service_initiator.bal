@@ -36,14 +36,13 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
-@http:configuration {
-    basePath:initiatorCoordinatorBasePath,
-    endpoints:[coordinatorServerEP]
+@http:serviceConfig {
+    basePath:initiatorCoordinatorBasePath
 }
 documentation {
     Service on the initiator which is independent from the coordination type and handles registration of remote participants.
 }
-service<http> InitiatorService {
+service<http:Service> InitiatorService bind coordinatorServerEP {
 
     @http:resourceConfig {
         methods:["POST"],
@@ -77,7 +76,7 @@ service<http> InitiatorService {
 
         Micro-Transaction-Unknown
     }
-    resource register (http:ServerConnector conn, http:Request req, string transactionBlockId) {
+    register (endpoint conn, http:Request req, string transactionBlockId) {
 
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
         var payload, payloadError = req.getJsonPayload();
@@ -88,8 +87,8 @@ service<http> InitiatorService {
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
             var connErr = conn -> respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response to Bad Request for register request failed", (error)connError);
+            if (connErr != null) {
+                log:printErrorCause("Sending response to Bad Request for register request failed", (error)connErr);
             }
         } else {
             RegistrationRequest regReq = <RegistrationRequest, jsonToRegRequest()>(payload);
@@ -100,24 +99,24 @@ service<http> InitiatorService {
             if (txn == null) {
                 res = respondToBadRequest("Transaction-Unknown. Invalid TID:" + txnId);
                 var connErr = conn -> respond(res);
-                if (connError != null) {
+                if (connErr != null) {
                     log:printErrorCause("Sending response for register request with null transaction ID failed",
-                                        (error)connError);
+                                        (error)connErr);
                 }
             } else if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
                 res = respondToBadRequest("Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
                 var connErr = conn -> respond(res);
-                if (connError != null) {
+                if (connErr != null) {
                     log:printErrorCause("Sending response for register request by already registered participant
-                                         for transaction " + txnId + " failed", (error)connError);
+                                         for transaction " + txnId + " failed", (error)connErr);
                 }
             } else if (!protocolCompatible(txn.coordinationType,
                                            regReq.participantProtocols)) { // Invalid-Protocol
                 res = respondToBadRequest("Invalid-Protocol. TID:" + txnId + ",participant ID:" + participantId);
                 var connErr = conn -> respond(res);
-                if (connError != null) {
+                if (connErr != null) {
                     log:printErrorCause("Sending response for register request by participant with invalid protocol
-                                         for transaction " + txnId + " failed", (error)connError);
+                                         for transaction " + txnId + " failed", (error)connErr);
                 }
             } else {
                 Participant participant = {participantId:participantId,
@@ -141,9 +140,9 @@ service<http> InitiatorService {
                 res = {statusCode:200};
                 res.setJsonPayload(resPayload);
                 var connErr = conn -> respond(res);
-                if (connError != null) {
+                if (connErr != null) {
                     log:printErrorCause("Sending response for register request for transaction " + txnId +
-                                        " failed", (error)connError);
+                                        " failed", (error)connErr);
                 } else {
                     log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                 }

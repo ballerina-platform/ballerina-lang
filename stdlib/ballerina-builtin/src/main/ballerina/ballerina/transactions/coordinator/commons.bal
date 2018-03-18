@@ -62,7 +62,10 @@ function <Cache c> put (string key, any value) {
 
 function <Cache c> remove (string key) {
     //io:println("Remove:" + key); //TODO remove this
-    c.content.remove(key);
+    boolean removed = c.content.remove(key);
+    if(!removed) {
+        log:printError("Remove from cache failed for key:" + key);
+    }
     //io:println(lengthof c.content); //TODO remove this
 }
 
@@ -363,8 +366,7 @@ documentation {
 function registerParticipantWithRemoteInitiator (string transactionId,
                                                  int transactionBlockId,
                                                  string registerAtURL) returns (TransactionContext txnCtx, error err) {
-    endpoint<InitiatorClientEP> initiatorEP {
-    }
+    endpoint InitiatorClientEP initiatorEP;
     initiatorEP = getInitiatorClientEP(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 

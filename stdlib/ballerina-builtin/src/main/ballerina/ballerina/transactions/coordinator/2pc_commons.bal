@@ -230,24 +230,23 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
 }
 
 function getParticipant2pcClientEP(string participantURL) returns(Participant2pcClientEP) {
-    var participantEP, cacheErr = (Participant2pcClientEP)httpClientCache.get(protocolUrl);
+    var participantEP, cacheErr = (Participant2pcClientEP)httpClientCache.get(participantURL);
     if (cacheErr != null) {
         throw cacheErr; // We can't continue due to a programmer error
     }
     if (participantEP == null) {
+        participantEP = {};
         Participant2pcClientConfig config = {participantURL: participantURL,
                                                 endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
-        participantEP = {};
         participantEP.init(config);
-        httpClientCache.put(protocolUrl, client);
+        httpClientCache.put(participantURL, participantEP);
     }
     return participantEP;
 }
 
 function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
                                    Participant participant, string protocolUrl) returns (boolean successful) {
-    endpoint<Participant2pcClientEP> participantEP {
-    }
+    endpoint Participant2pcClientEP participantEP;
     participantEP = getParticipant2pcClientEP(protocolUrl);
     
     string transactionId = txn.transactionId;
@@ -328,8 +327,7 @@ function notify (TwoPhaseCommitTransaction txn, string message) returns (boolean
 
 function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
                                   Participant participant, string message) returns (string status, error err) {
-    endpoint<Participant2pcClientEP> participantEP {
-    }
+    endpoint Participant2pcClientEP participantEP;
 
     string participantId = participant.participantId;
     string transactionId = txn.transactionId;

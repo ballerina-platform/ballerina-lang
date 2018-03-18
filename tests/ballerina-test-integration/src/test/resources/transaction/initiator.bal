@@ -17,29 +17,30 @@
 import ballerina.net.http;
 import ballerina.io;
 
-endpoint<http:Service> initiatorEP {
+endpoint http:ServiceEndpoint initiatorEP {
     port:8888
-}
+};
 
-@http:configuration {
-    basePath:"/",
-    endpoints: [initiatorEP]
+endpoint http:ClientEndpoint ep {
+    targets: [{uri: "http://localhost:8889/participant1"}]
+};
+
+@http:serviceConfig {
+    basePath:"/"
 }
-service<http> InitiatorService {
+service<http:Service> InitiatorService bind initiatorEP {
 
     @http:resourceConfig {
         path:"/"
     }
-    resource member (http:ServerConnector conn, http:Request req) {
-        endpoint<http:HttpClient> endPoint {}
-        endPoint = new http:HttpClient("http://localhost:8889/participant1", {});
+    member (endpoint conn, http:Request req) {
         http:Request newReq = {};
         http:Response clientResponse1;
         transaction {
-            clientResponse1, _ = endPoint -> get("/", newReq);
+            clientResponse1, _ = ep -> get("/", newReq);
         } failed {
             io:println("Intiator failed");
         }
-        _ = conn.forward(clientResponse1);
+        _ = conn -> forward(clientResponse1);
     }
 }
