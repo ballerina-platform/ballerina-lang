@@ -24,6 +24,7 @@ STREAMLET    : 'streamlet' { inSiddhi = true; } ;
 CONNECTOR   : 'connector' ;
 ACTION      : 'action' ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -122,6 +123,7 @@ AWAIT       : 'await' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
