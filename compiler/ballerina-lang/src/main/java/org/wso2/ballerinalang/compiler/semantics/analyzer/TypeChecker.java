@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -102,10 +103,10 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -615,20 +616,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 exprType = checkExpr(unaryExpr.expr, env).get(0);
             }
             if (exprType != symTable.errType) {
-                List<BType> paramTypes = Lists.of(exprType);
-                List<BType> retTypes = Lists.of(symTable.typeType);
-                BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
-                if (!types.isValueType(exprType)) {
-                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPEOF);
-                    unaryExpr.opSymbol = symbol;
-                    actualType = symbol.type.getReturnTypes().get(0);
-                } else {
-                    BOperatorSymbol symbol = new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
-                            symTable.rootPkgSymbol.pkgID, opType, symTable.rootPkgSymbol, InstructionCodes.TYPELOAD);
-                    unaryExpr.opSymbol = symbol;
-                    actualType = symbol.type.getReturnTypes().get(0);
-                }
+                unaryExpr.opSymbol = Symbols.createTypeofOperatorSymbol(exprType, types, symTable, names);
+                actualType = unaryExpr.opSymbol.type.getReturnTypes().get(0);
             }
         } else {
             exprType = checkExpr(unaryExpr.expr, env).get(0);
@@ -1167,7 +1156,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         checkNamedArgs(iExpr.namedArgs, invocableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invocableSymbol.restParam);
-        return invocableSymbol.type.getReturnTypes();
+        
+        if (iExpr.async) {
+            return Arrays.asList(this.generateFutureType(invocableSymbol));
+        } else {
+            return invocableSymbol.type.getReturnTypes();
+        }
+    }
+    
+    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
+        List<BType> retTypes = invocableSymbol.type.getReturnTypes();
+        if (retTypes.isEmpty()) {
+            return new BFutureType(TypeTags.FUTURE, this.symTable.anyType, null);
+        } else {
+            return new BFutureType(TypeTags.FUTURE, retTypes.get(0), null);
+        }
     }
 
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<? extends Type> reqiredParamTypes) {

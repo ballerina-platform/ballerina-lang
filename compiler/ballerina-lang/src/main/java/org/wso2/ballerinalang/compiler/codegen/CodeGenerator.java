@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -506,6 +507,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(varDefNode.var, this.env);
     }
 
+    @Override
+    public void visit(BLangMatch matchStmt) {
+        // TODO
+    }
+
     public void visit(BLangReturn returnNode) {
         visitReturnStatementsExprs(returnNode);
         emit(InstructionCodes.RET);
@@ -688,11 +694,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[4];
+            Operand[] operands = new Operand[5];
             operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(1);
-            operands[2] = structRegIndex;
-            operands[3] = getOperand(0);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            operands[4] = getOperand(0);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -1028,13 +1035,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         int initFuncNameIndex = addUTF8CPEntry(currentPkgInfo, initFunc.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, initFuncNameIndex);
         Operand initFuncRefCPIndex = getOperand(currentPkgInfo.addCPEntry(funcRefCPEntry));
-        Operand[] operands = new Operand[]{initFuncRefCPIndex, getOperand(1), connectorRegIndex, getOperand(0)};
+        Operand[] operands = new Operand[] { initFuncRefCPIndex, getOperand(false), getOperand(1), 
+                connectorRegIndex, getOperand(0) };
         emit(InstructionCodes.CALL, operands);
 
         int actionNameCPIndex = addUTF8CPEntry(currentPkgInfo, "<init>");
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgRefCPIndex, actionNameCPIndex);
         Operand actionRefCPIndex = getOperand(currentPkgInfo.addCPEntry(actionRefCPEntry));
-        operands = new Operand[]{actionRefCPIndex, getOperand(1), connectorRegIndex, getOperand(0)};
+        operands = new Operand[] { actionRefCPIndex, getOperand(false), getOperand(1), connectorRegIndex, 
+                getOperand(0) };
         emit(InstructionCodes.ACALL, operands);
     }
 
@@ -1292,6 +1301,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private Operand getOperand(int value) {
         return new Operand(value);
+    }
+    
+    private Operand getOperand(boolean value) {
+        return new Operand(value ? 1 : 0);
     }
 
     private RegIndex getLVIndex(int typeTag) {
@@ -1582,8 +1595,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         int i = 0;
         int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
         int nRetRegs = iExpr.types.size();
-        Operand[] operands = new Operand[nArgRegs + nRetRegs + 3];
+        Operand[] operands = new Operand[nArgRegs + nRetRegs + 4];
         operands[i++] = getOperand(funcRefCPIndex);
+        operands[i++] = getOperand(iExpr.async);
         operands[i++] = getOperand(nArgRegs);
 
         // Write required arguments

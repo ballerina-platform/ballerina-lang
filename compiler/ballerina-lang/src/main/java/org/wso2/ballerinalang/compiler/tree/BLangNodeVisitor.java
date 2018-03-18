@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
@@ -116,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
@@ -287,6 +289,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangIf ifNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMatch matchNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
         throw new AssertionError();
     }
 
@@ -545,6 +555,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangUnionTypeNode unionTypeNode) {
         throw new AssertionError();
     }
 

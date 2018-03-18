@@ -40,7 +40,8 @@ public class TypeTags {
     public static final int STREAMLET = SERVICE + 1;
     public static final int ENUM = STREAMLET + 1;
     public static final int ARRAY = ENUM + 1;
-    public static final int NULL = ARRAY + 1;
+    public static final int UNION = ARRAY + 1;
+    public static final int NULL = UNION + 1;
     public static final int PACKAGE = NULL + 1;
     public static final int INVOKABLE = PACKAGE + 1;
     public static final int NONE = INVOKABLE + 1;
@@ -51,6 +52,7 @@ public class TypeTags {
     public static final int ERROR = XML_ATTRIBUTES + 1;
     public static final int ITERATOR = ERROR + 1;
     public static final int TUPLE_COLLECTION = ITERATOR + 1;
+    public static final int FUTURE = TUPLE_COLLECTION + 1;
 
     private TypeTags() {
     }
