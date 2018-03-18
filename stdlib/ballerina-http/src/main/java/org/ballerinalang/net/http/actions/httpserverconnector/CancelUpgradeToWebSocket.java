@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 @BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "cancelUpgradeToWebSocket",
-        connectorName = HttpConstants.SERVER_CONNECTOR,
+        connectorName = HttpConstants.SERVICE_ENDPOINT,
         args = {
                 @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "status", type = TypeKind.INT),

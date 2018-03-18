@@ -473,7 +473,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause failedClause?
+    :   transactionClause onretryClause?
     ;
 
 transactionClause
@@ -482,6 +482,8 @@ transactionClause
 
 transactionPropertyInitStatement
     : retriesStatement
+    | oncommitStatement
+    | onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -492,8 +494,8 @@ lockStatement
     : LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-failedClause
-    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
+onretryClause
+    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortStatement
     :   ABORT SEMICOLON
@@ -501,6 +503,14 @@ abortStatement
 
 retriesStatement
     :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+oncommitStatement
+    :   ONCOMMIT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+onabortStatement
+    :   ONABORT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

@@ -546,9 +546,9 @@ public class TreeVisitor extends BLangNodeVisitor {
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
 
-        if (transactionNode.failedBody != null) {
+        if (transactionNode.onRetryBody != null) {
             this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.failedBody, symbolEnv);
+            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
             this.blockOwnerStack.pop();
         }
     }

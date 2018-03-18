@@ -1578,35 +1578,36 @@ public class BLangPackageBuilder {
         transactionNode.getTransactionBody().addWS(ws);
     }
 
-    public void startFailedBlock() {
+    public void startOnretryBlock() {
         startBlock();
     }
 
-    public void addFailedBlock(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void addOnretryBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt failedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        failedBlock.pos = pos;
+        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        onretryBlock.pos = pos;
         transactionNode.addWS(ws);
-        transactionNode.setFailedBody(failedBlock);
+        transactionNode.setOnRetryBody(onretryBlock);
     }
 
-    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws, boolean distributedTransactionEnabled) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
         transaction.addWS(ws);
         addStmtToCurrentBlock(transaction);
 
-        // TODO This is a temporary workaround to flag coordinator service start
-        String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
-        if (value != null) {
-            return;
-        }
+        if (distributedTransactionEnabled) {
+            // TODO This is a temporary workaround to flag coordinator service start
+            String value = compilerOptions.get(CompilerOptionName.TRANSACTION_EXISTS);
+            if (value != null) {
+                return;
+            }
 
-        compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
-        List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.ANON_ORG.value,
-                nameComps, Names.DEFAULT_VERSION.value,
-                Names.DOT.value + nameComps.get(nameComps.size() - 1));
+            compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
+            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
+            addImportPackageDeclaration(pos, null, Names.ANON_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+                    Names.DOT.value + nameComps.get(nameComps.size() - 1));
+        }
     }
 
     public void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1619,6 +1620,16 @@ public class BLangPackageBuilder {
     public void addRetryCountExpression() {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
+    }
+
+    public void addCommittedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
+    }
+
+    public void addAbortedBlock() {
+        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
+        transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
     }
 
     public void startIfElseNode(DiagnosticPos pos) {
