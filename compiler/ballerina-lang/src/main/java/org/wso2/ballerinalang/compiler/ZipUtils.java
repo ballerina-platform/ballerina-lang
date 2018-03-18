@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * Zip Utils needed to zip the packages.
  */
 class ZipUtils {
-
+    private static final String SRC_DIR = "src";
     /**
      * Generates the balo/zip of the package.
      *
@@ -91,11 +91,9 @@ class ZipUtils {
      * @param outFileName       output archive name
      */
     private static void addFileToArchive(Stream<Path> filesToBeArchived, FileSystem zipFS, String outFileName) {
-        String srcDir = "src";
         filesToBeArchived.forEach((path) -> {
-            Path root = zipFS.getPath(srcDir);
-            Path dest = root.resolve( path.getFileName());
-//            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
+            Path root = zipFS.getPath(SRC_DIR);
+            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
             try {
                 copyFileToArchive(new FileInputStream(path.toString()), dest);
             } catch (IOException e) {
