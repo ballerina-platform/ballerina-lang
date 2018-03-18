@@ -87,20 +87,20 @@ public class URIConverter implements Converter<URI> {
     public Stream<Path> finalize(URI u, PackageID packageID) {
         String orgName = packageID.getOrgName().getValue();
         String pkgName = packageID.getName().getValue();
-        File.separator
-//        String version = packageID.getPackageVersion().getValue();
-        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo",orgName,pkgName);
-        createDirectory()destDirPath);
+        Path destDirPath = HomeRepoUtils.createAndGetHomeReposPath().resolve(Paths.get("repo", orgName, pkgName));
+        createDirectory(destDirPath);
         try {
-            Path destDir = destDirPath.resolve(pkgName + ".zip");
-            String fullPkgPath = orgName + "/" + pkgName + ":" + version;
+            // Path destDir = destDirPath.resolve(pkgName + ".zip");
+            String fullPkgPath = orgName + "/" + pkgName;
             executor.execute(pullBalxLocation,
                     u.toString(),
-                    destDir.toString(),
-                    fullPkgPath);
+                    destDirPath.toString(),
+                    fullPkgPath,
+                    File.separator);
             // TODO Simplify using ZipRepo
-            Patten pattern = new Patten(Patten.path("src"), Patten.WILDCARD_SOURCE);
-            return pattern.convertToPaths(new ZipConverter(destDir), packageID);
+            Patten pattern = new Patten(Patten.WILDCARD_DIR, Patten.path(pkgName + "zip"),
+                    Patten.path("src"), Patten.WILDCARD_SOURCE);
+            return pattern.convertToPaths(new ZipConverter(destDirPath), packageID);
         } catch (Exception ignore) {
         }
         return Stream.of();

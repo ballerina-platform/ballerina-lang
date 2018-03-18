@@ -81,7 +81,9 @@ public class PullCommand implements BLauncherCmd {
         }
 
         String resourceName = argList.get(0);
-        String orgName, packageName = "", version = "";
+        String orgName;
+        String packageName;
+        String version;
 
         // Get org-name
         int orgNameIndex = resourceName.indexOf("/");
@@ -91,12 +93,12 @@ public class PullCommand implements BLauncherCmd {
             throw LauncherUtils.createUsageException("no package-name provided");
         }
 
-        // Get package name and version if provided
+        // Get package name
         int packageNameIndex = resourceName.indexOf(":");
-        if (packageNameIndex != -1) { // Package version is provided
+        if (packageNameIndex != -1) { // version is provided
             packageName = resourceName.substring(orgNameIndex + 1, packageNameIndex);
             version = resourceName.substring(packageNameIndex + 1, resourceName.length());
-        } else { // version will be the latest
+        } else {
             packageName = resourceName.substring(orgNameIndex + 1, resourceName.length());
             version = "*";
         }
