@@ -1,0 +1,291 @@
+#!groovy
+String BUILD = "Build", RELEASE = "Release", CLEANRELEASE = "Clean Release";
+String YES = "Yes", NO = "No";
+String MASTER = "master";
+String ECS_NODE = "BALLERINA_ECS";
+
+String yesNoString = "${NO}\n${YES}";
+
+String buildInputParams = "${BUILD}\n${RELEASE}\n${CLEANRELEASE}";
+def expectedAction = input(
+        id: 'userInput', message: 'Please choose Build Or Release option', parameters: [
+        [$class: 'ChoiceParameterDefinition', defaultValue: BUILD, choices: buildInputParams, description: 'Build Or Release', name: 'build-or-release']
+]);
+
+boolean isRelease = RELEASE.equals(expectedAction);
+boolean isBuild = BUILD.equals(expectedAction);
+boolean isCleanRelease = CLEANRELEASE.equals(expectedAction);
+
+String ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests;
+String releaseVersionToClean, releaseTagToClean;
+String allowCleanUpAfterReleaseFailure = NO;
+String nodeLabel = ECS_NODE;
+String branchName = MASTER;
+
+def releaseParamInput, buildParamInput, cleanReleaseParamInput;
+
+String TEXT_PARAM_DEF_CLASS = "StringParameterDefinition";
+String CHOICE_PARAM_DEF_CLASS = "ChoiceParameterDefinition";
+
+if (isRelease) {
+    releaseParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the release', name: 'node-label'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: MASTER, description: 'Provide the branch perform the release', name: 'branch-name'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Delete newly created tags/branches after failure', name: 'clean-up-after-failure'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Version', name: 'ballerina-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Next Development Version', name: 'ballerina-next-development-version'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, name: 'skip-ballerina-tests']
+    ]);
+
+    allowCleanUpAfterReleaseFailure = releaseParamInput['clean-up-after-failure'];
+
+    nodeLabel = releaseParamInput['node-label'];
+
+    branchName = releaseParamInput['branch-name'];
+
+    ballerinaVersion = releaseParamInput['ballerina-release-version'];
+    ballerinaReleaseTag = "v" + ballerinaVersion;
+    ballerinaDevVersion = releaseParamInput['ballerina-next-development-version'];
+    ballerinaSkipTests = releaseParamInput['skip-ballerina-tests'];
+}
+
+if (isBuild) {
+    buildParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the build', name: 'node-label'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: MASTER, description: 'Provide the branch perform the build', name: 'branch-name'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests']
+    ]);
+
+    nodeLabel = buildParamInput['node-label'];
+    branchName = buildParamInput['branch-name'];
+    enableFailFast = buildParamInput['fail-fast'];
+    ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
+}
+
+if (isCleanRelease) {
+    cleanReleaseParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, defaultValue: ECS_NODE, description: 'Provide the node label to perform the release', name: 'node-label'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Release Version to clean', name: 'ballerina-release-version']
+    ]);
+
+    nodeLabel = cleanReleaseParamInput['node-label'];
+
+    releaseVersionToClean = cleanReleaseParamInput['ballerina-release-version'];
+    releaseTagToClean = "v" + releaseVersionToClean;
+}
+
+node("${nodeLabel}") {
+    String user = env.GIT_USER;
+    String gitCredentialsID = env.GIT_CREDENTIALS_ID;
+    String gitEmail = env.GIT_EMAIL;
+    String settingsXMLID = env.SETTINGS_XML_ID;
+    String ballerinaRepository = "ballerina";
+
+    try {
+        stage('Building ballerina') {
+            cloneRepository(ballerinaRepository, branchName, user, gitCredentialsID, gitEmail);
+            if (isRelease) {
+                release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
+            } else if (isBuild) {
+                build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
+            } else if (isCleanRelease) {
+                cleanRelease(ballerinaRepository, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+            }
+        }
+
+        if (isBuild || isRelease) {
+            // Archive the runtime distribution
+            stage("Archiving Runtime distribution") {
+                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina/target/ballerina-*.zip'
+            }
+
+            // Archive the tools distribution
+            stage("Archiving Tools distribution") {
+                archiveArtifacts artifacts: 'ballerina/distribution/zip/ballerina-tools/target/ballerina-tools-*.zip'
+            }
+
+            // Archive the vscode distribution
+            stage("Archiving vscode distribution") {
+                archiveArtifacts artifacts: 'ballerina/tool-plugins/vscode/target/ballerina-vscode-plugin-*.vsix'
+            }
+        }
+    } catch (Exception e) {
+        println("An exception has occurred in during the build process");
+        if (isRelease && YES.equals(allowCleanUpAfterReleaseFailure)) {
+            cleanupRepositoryAfterFailure(ballerinaRepository, user, ballerinaReleaseTag, ballerinaVersion, gitCredentialsID)
+        }
+        throw e;
+    }
+}
+
+/**
+ * This method clones a given repository from github.
+ *
+ * @param repositoryName The repository directory
+ * @param branchName branch which will be used
+ * @param user The git user
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ * @param gitEmail Email of the git user
+ */
+def cloneRepository(String repositoryName, String branchName, String user, String credentials, String gitEmail) {
+    withCredentials(
+            [[$class          : 'UsernamePasswordMultiBinding',
+              credentialsId   : credentials,
+              usernameVariable: 'GIT_USERNAME',
+              passwordVariable: 'GIT_PASSWORD']]) {
+
+        checkout([
+                $class                           : 'GitSCM',
+                branches                         : [[name: "*/${branchName}"]],
+                doGenerateSubmoduleConfigurations: false,
+                extensions                       : [[$class: 'LocalBranch', localBranch: "${branchName}"],
+                                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: repositoryName]],
+                submoduleCfg                     : [],
+                userRemoteConfigs                :
+                        [[credentialsId: credentials,
+                          url          : "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${user}/${repositoryName}.git"]]]);
+
+        dir(repositoryName) {
+            setupGitUser(credentials, gitEmail);
+        }
+    }
+}
+
+/**
+ * This method perform release prepare,perform on a given repository. Deployment is skipped therefore artifacts will be
+ * installed only in local m2 repository.
+ *
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param releaseVersion The release version
+ * @param releaseTag The release tag
+ * @param nextDevVersion The version for the next development iteration
+ * @param skipTests Whether to skip tests when releasing
+ */
+def release(String settingsXml, String repositoryDir, String releaseVersion, String releaseTag, String nextDevVersion, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            sh("git checkout -b release-" + releaseVersion);
+            withEnv(["JAVA_HOME=${tool env.JDK}", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${tool env.JDK}/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-DskipTests=true" -P wso2-release -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -P wso2-release -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method builds the provided repository.
+ *
+ * @param settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param skipTests Whether to skip tests or not, when building
+ */
+def build(String settingsXml, String repositoryDir, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            withEnv(["JAVA_HOME=${tool env.JDK}", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${tool env.JDK}/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install -DskipTests=true'
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method deletes any tags/branches created for the release.
+ *
+ * @param repositoryName The repository directory
+ * @param user The git user
+ * @param releaseTag The release tag to be deleted
+ * @param releaseVersion The release version
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ */
+def cleanupRepositoryAfterFailure(String repositoryName, String user, String releaseTag, String releaseVersion, String credentials) {
+    println("Cleaning up ${repositoryName} repository.");
+    dir(repositoryName) {
+        withCredentials(
+                [[$class          : 'UsernamePasswordMultiBinding',
+                  credentialsId   : credentials,
+                  usernameVariable: 'GIT_USERNAME',
+                  passwordVariable: 'GIT_PASSWORD']]) {
+            println("Deleting tag ${releaseTag} of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin ${releaseTag}",
+                    returnStatus: true
+            );
+            println("Deleting local tag ${releaseTag}");
+            sh(
+                    script: "git tag --delete ${releaseTag}",
+                    returnStatus: true
+            );
+
+            println("Deleting release branch of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin release-${releaseVersion}",
+                    returnStatus: true
+            );
+            println("Deleting local release branch release-${releaseVersion}");
+            sh(
+                    script: "git branch -D release-${releaseVersion}",
+                    returnStatus: true
+            );
+        }
+    }
+}
+
+/**
+ * Cleanup an already created release branch and tag for a given release version.
+ *
+ * @param repositoryName Repository to clean
+ * @param user The git user
+ * @param releaseTagToClean The release tag to clean
+ * @param releaseVersionToClean The release version to clean
+ * @param gitCredentialsID Git credentials Id to use to delete
+ */
+def cleanRelease(String repositoryName, String user, String releaseTagToClean, String releaseVersionToClean, String gitCredentialsID) {
+    try {
+        cleanupRepositoryAfterFailure(repositoryName, user, releaseTagToClean, releaseVersionToClean, gitCredentialsID)
+    } catch (Exception e) {
+        println("Could not clean " + repositoryName + " release, error - " + e.getMessage());
+    }
+}
+
+/**
+ * Set git user for current repository. This user will be used for commit, push .etc for the current repository
+ *
+ * @param gitCredentialsID The credentials Id to use
+ * @param gitEmail Email of the git user
+ */
+def setupGitUser(String gitCredentialsID, String gitEmail) {
+    withCredentials(
+            [[$class          : 'UsernamePasswordMultiBinding',
+              credentialsId   : gitCredentialsID,
+              usernameVariable: 'GIT_USERNAME',
+              passwordVariable: 'GIT_PASSWORD']]) {
+        sh("git config user.name ${GIT_USERNAME}");
+        sh("git config user.email ${gitEmail}");
+    }
+}

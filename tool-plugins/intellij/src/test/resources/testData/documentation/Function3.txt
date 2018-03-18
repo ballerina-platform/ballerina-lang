@@ -1,0 +1,1 @@
+<b>com.test<br><br>function getGreetingMessage(string name, string greeting)(string)</b><br><DL><DT>Generates a greeting</DT></DL><DL><DT><b>Parameters:</b></DT><DD>name - name of the person</DD><DD>greeting - greeting</DD></DL><DL><DT><b>Returns:</b></DT><DD>complete greeting message</DD></DL>

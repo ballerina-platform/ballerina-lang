@@ -1,0 +1,14 @@
+.debug-buttons{
+    background : #252525;
+    margin      :0;
+    .ui.button.debug-button{
+        background      : #252525;
+        text-align      : left;
+        color : #f1f1f1!important;
+        background  : #252525; 
+        &:hover{
+            color       : #f1f1f1!important;
+            background  : #444!important;
+        }
+    }
+}

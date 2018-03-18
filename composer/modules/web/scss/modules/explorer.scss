@@ -1,0 +1,11 @@
+.workspace-explorer {
+    .open-folder-btn-wrapper {
+        text-align: center;
+        cursor: pointer;
+        .open-folder-button {
+            i {
+                margin-right: 8px;
+            }
+        }
+    }
+}

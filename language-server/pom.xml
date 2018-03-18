@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-parent</artifactId>
+        <version>0.964.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>language-server</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Ballerina - Language Server - Parent</name>
+    <url>http://ballerinalang.org</url>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.lsp4j</groupId>
+                <artifactId>org.eclipse.lsp4j</artifactId>
+                <version>${lsp4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.lsp4j</groupId>
+                <artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
+                <version>${lsp4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${apache.commons.io.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <maven.findbugsplugin.version>3.0.3</maven.findbugsplugin.version>
+        <lsp4j.version>0.3.0</lsp4j.version>
+        <apache.commons.io.version>2.6</apache.commons.io.version>
+    </properties>
+    <modules>
+        <module>modules/langserver-core</module>
+        <module>modules/launchers</module>
+    </modules>
+</project>

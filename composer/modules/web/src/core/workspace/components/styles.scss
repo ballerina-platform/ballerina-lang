@@ -1,0 +1,77 @@
+.explorer-item {
+    .root {
+        padding: 5px;
+        cursor: pointer;
+        line-height: 24px;
+        vertical-align: middle;
+        color: rgb(199, 199, 199);
+        font-family: "lucida grande", tahoma, verdana, arial, sans-serif;
+        font-size: 14px;
+        .arrow, .fw, .root-label {
+            margin-left: 5px;
+        }
+        .arrow {
+            display: inline-block;
+            transition: all 0.1s;
+            &::after {
+                content: '\25BE',
+            }
+            &.collapsed {
+                transform: rotate(-90deg);
+            }
+        }
+        .root-label {
+            padding-left: 0;
+            color: rgb(199, 199, 199);
+        }
+        &:hover {
+            .root-actions {
+                .action {
+                    opacity: 0.6;
+                }
+            }
+        }
+        .root-actions {
+            float: right;
+            margin-right: 5px;
+            font-size: 12px;
+            &:hover {
+                .action {
+                    opacity: 0.6;
+                }
+            }
+            .action {
+                opacity: 0;
+                margin-right: 10px;
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
+        &:hover {
+            background: #444;
+        }
+        &.active {
+            background: #444;
+            color: #fff !important;
+            .root-actions {
+                .action {
+                    opacity: 0.6;
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
+            & span{
+                font-weight: 400;
+                color: #fff !important;
+            }
+        }
+    }
+    .file-tree {
+        margin-left: 10px;
+        &.collapsed {
+            display: none;
+        }
+    }
+}

@@ -1,0 +1,1 @@
+$ curl -v -F key1=value1 -F upload=/home/User/Downloads/samplefile.txt http://localhost:9090/multiparts/receivableParts

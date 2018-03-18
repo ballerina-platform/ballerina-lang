@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="docerina-theme/libs/bootstrap-3.0.0/css/bootstrap.min.css">
+
+    <!-- Roboto font CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/roboto.css">
+
+    <!-- Nanoscroller CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/nanoscroller.css">
+
+    <!-- custom CSS -->
+    <link rel="stylesheet" href="docerina-theme/css/main.css">
+
+    <!-- Jquery JS -->
+    <script src="docerina-theme/js/jquery.min.js"></script>
+
+    <!-- Nanoscroller JS -->
+    <script src="docerina-theme/js/jquery.nanoscroller.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.nano').nanoScroller();
+        });
+    </script>
+
+    <title>Ballerina API Documentation</title>
+</head>
+<body>
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Main -->
+		<div id="main">
+			<div class="inner">
+
+                <div id="header" class="navbar navbar-fixed-top">
+                    <div class="container-full">
+                        <a href="index.html"><strong>Ballerina</strong> API Documentation</a>
+                    </div>
+                </div>
+
+				<!-- Banner -->
+				<section>
+                    <div id="index-content" class="nano">
+                        <div class="nano-content">
+						    <h2>Ballerina Packages</h2>
+                            <ul>
+                                {{#each this}}
+                                <li>
+                                    <a href="{{href}}.html">
+                                        {{#if caption.isPackageName}}
+                                            {{caption.prefix}}<span class="bold">{{caption.suffix}}</span>
+                                        {{/if}}
+                                        {{#if caption.isStaticCaption}}
+                                            <span class="bold">{{caption.value}}</span>
+                                        {{/if}}
+                                    </a>
+                                </li>
+                                {{/each}}
+                            </ul>
+					    </div>
+                    </div>
+				</section>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
