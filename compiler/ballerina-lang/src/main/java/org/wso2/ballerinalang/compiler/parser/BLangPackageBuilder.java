@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -917,6 +918,16 @@ public class BLangPackageBuilder {
         indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
         indexBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(indexBasedAccess);
+    }
+
+    public void createBracedOrTupleExpression(DiagnosticPos pos, Set<Whitespace> ws, int numberOfExpressions) {
+        final BLangBracedOrTupleExpr expr = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
+        expr.pos = pos;
+        expr.addWS(ws);
+        for (int i = 0; i < numberOfExpressions; i++) {
+            expr.expressions.add(0, (BLangExpression) exprNodeStack.pop());
+        }
+        addExpressionNode(expr);
     }
 
     public void createBinaryExpr(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
