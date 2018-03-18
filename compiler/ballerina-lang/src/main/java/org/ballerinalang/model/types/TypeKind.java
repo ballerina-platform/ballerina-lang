@@ -55,6 +55,7 @@ public enum TypeKind {
     XML("xml"),
     ANY("any"),
     MAP("map"),
+    FUTURE("future"),
     PACKAGE("package"),
     STRUCT("struct"),
     ENUM("enum"),
