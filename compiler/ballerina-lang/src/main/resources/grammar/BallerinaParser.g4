@@ -259,6 +259,7 @@ statement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
+    |   failStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   streamingQueryStatement
@@ -501,6 +502,10 @@ onretryClause
     ;
 abortStatement
     :   ABORT SEMICOLON
+    ;
+
+failStatement
+    :   FAIL SEMICOLON
     ;
 
 retriesStatement
