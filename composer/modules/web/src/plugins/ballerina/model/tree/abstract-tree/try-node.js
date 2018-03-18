@@ -48,6 +48,7 @@ class AbstractTryNode extends StatementNode {
     }
 
 
+
     setCatchBlocks(newValue, silent, title) {
         const oldValue = this.catchBlocks;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -191,6 +192,7 @@ class AbstractTryNode extends StatementNode {
     getFinallyBody() {
         return this.finallyBody;
     }
+
 
 
 }

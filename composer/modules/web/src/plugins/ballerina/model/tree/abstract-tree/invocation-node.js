@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractInvocationNode extends ExpressionNode {
+class AbstractInvocationNode extends Node {
 
 
     setPackageAlias(newValue, silent, title) {
@@ -48,6 +48,7 @@ class AbstractInvocationNode extends ExpressionNode {
     }
 
 
+
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractInvocationNode extends ExpressionNode {
     getExpression() {
         return this.expression;
     }
+
 
 
     setArgumentExpressions(newValue, silent, title) {
@@ -216,6 +218,31 @@ class AbstractInvocationNode extends ExpressionNode {
 
     getName() {
         return this.name;
+    }
+
+
+
+
+    isAsync() {
+        return this.async;
+    }
+
+    setAsync(newValue, silent, title) {
+        const oldValue = this.async;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.async = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'async',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
     }
 
 

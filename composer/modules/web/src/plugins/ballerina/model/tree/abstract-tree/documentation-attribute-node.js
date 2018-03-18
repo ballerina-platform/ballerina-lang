@@ -46,6 +46,7 @@ class AbstractDocumentationAttributeNode extends ExpressionNode {
     }
 
 
+
     setDocumentationField(newValue, silent, title) {
         const oldValue = this.documentationField;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,6 +71,7 @@ class AbstractDocumentationAttributeNode extends ExpressionNode {
     getDocumentationField() {
         return this.documentationField;
     }
+
 
 
 }

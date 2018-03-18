@@ -79,7 +79,6 @@ public class ModelGenerator {
         // Set alias for the classes
         /*
         alias.put("ConnectorInitExprNode", "ConnectorInitNode");
-
         alias.put("XmlCommentLiteralNode", "XMLCommentLiteralNode");
         alias.put("XmlElementLiteralNode", "XMLElementLiteralNode");
         alias.put("XmlPiLiteralNode", "XMLProcessingInstructionLiteralNode");
@@ -116,6 +115,29 @@ public class ModelGenerator {
         alias.put("VariableDefNode", "VariableDefinitionNode");
         alias.put("BuiltInRefTypeNode", "BuiltInReferenceTypeNode");
         alias.put("EndpointTypeNode", "UserDefinedTypeNode");
+
+
+        alias.put("StreamletInitExprNode", "");
+        // alias.put("ActionInvocationNode", ""); not used
+        alias.put("RestArgsExprNode", "");
+        alias.put("NamedArgsExprNode", "");
+        alias.put("XmlElementLiteralNode", "");
+        alias.put("XmlCommentLiteralNode", "");
+        alias.put("TableQueryExpressionNode", "");
+        alias.put("MatchPatternClauseNode", "MatchStatementPatternNode");
+        alias.put("TransformNode", "");
+        alias.put("StreamNode", "");
+        alias.put("UnionTypeNodeNode", "UnionTypeNode");
+        alias.put("StreamingInputNode", "");
+        alias.put("JoinStreamingInputNode", "");
+        alias.put("TableQueryNode", "");
+        alias.put("SetAssignmentClauseNode", "");
+        alias.put("SetNode", "");
+        alias.put("StreamingQueryNode", "");
+        alias.put("QueryNode", "");
+        alias.put("StreamingQueryDeclarationNode", "");
+        alias.put("WithinNode", "");
+        alias.put("PatternClauseNode", "");
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 

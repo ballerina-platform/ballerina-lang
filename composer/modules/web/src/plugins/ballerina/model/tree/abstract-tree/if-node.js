@@ -48,6 +48,7 @@ class AbstractIfNode extends StatementNode {
     }
 
 
+
     setCondition(newValue, silent, title) {
         const oldValue = this.condition;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractIfNode extends StatementNode {
     }
 
 
+
     setElseStatement(newValue, silent, title) {
         const oldValue = this.elseStatement;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractIfNode extends StatementNode {
     getElseStatement() {
         return this.elseStatement;
     }
+
 
 
 }

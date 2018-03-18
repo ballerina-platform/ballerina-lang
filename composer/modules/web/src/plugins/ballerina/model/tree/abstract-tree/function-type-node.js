@@ -260,6 +260,7 @@ class AbstractFunctionTypeNode extends Node {
     }
 
 
+
     isReturnKeywordExists() {
         return this.returnKeywordExists;
     }

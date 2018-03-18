@@ -48,6 +48,7 @@ class AbstractPackageDeclarationNode extends Node {
     }
 
 
+
     setPackageName(newValue, silent, title) {
         const oldValue = this.packageName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

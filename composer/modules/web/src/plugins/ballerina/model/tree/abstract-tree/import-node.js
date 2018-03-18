@@ -48,6 +48,7 @@ class AbstractImportNode extends Node {
     }
 
 
+
     setOrgName(newValue, silent, title) {
         const oldValue = this.orgName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractImportNode extends Node {
     }
 
 
+
     setAlias(newValue, silent, title) {
         const oldValue = this.alias;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractImportNode extends Node {
     getAlias() {
         return this.alias;
     }
+
 
 
     setPackageName(newValue, silent, title) {

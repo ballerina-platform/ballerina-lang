@@ -48,6 +48,7 @@ class AbstractAssignmentNode extends StatementNode {
     }
 
 
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -165,6 +166,7 @@ class AbstractAssignmentNode extends StatementNode {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
+
 
 
     isDeclaredWithVar() {

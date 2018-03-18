@@ -48,6 +48,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
     }
 
 
+
     setKey(newValue, silent, title) {
         const oldValue = this.key;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
     getKey() {
         return this.key;
     }
+
 
 
 }

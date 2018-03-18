@@ -43,6 +43,7 @@ import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
 import XmlnsNode from './tree/xmlns-node';
 import TransformerNode from './tree/transformer-node';
+import StreamletNode from './tree/streamlet-node';
 import DocumentationAttributeNode from './tree/documentation-attribute-node';
 import AnnotationAttachmentAttributeNode from './tree/annotation-attachment-attribute-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
@@ -69,8 +70,11 @@ import XmlAttributeAccessExprNode from './tree/xml-attribute-access-expr-node';
 import XmlQuotedStringNode from './tree/xml-quoted-string-node';
 import XmlTextLiteralNode from './tree/xml-text-literal-node';
 import XmlPiLiteralNode from './tree/xml-pi-literal-node';
+import SelectExpressionNode from './tree/select-expression-node';
 import AbortNode from './tree/abort-node';
 import AssignmentNode from './tree/assignment-node';
+import CompoundAssignmentNode from './tree/compound-assignment-node';
+import PostIncrementNode from './tree/post-increment-node';
 import BindNode from './tree/bind-node';
 import BlockNode from './tree/block-node';
 import BreakNode from './tree/break-node';
@@ -79,6 +83,8 @@ import ExpressionStatementNode from './tree/expression-statement-node';
 import ForeachNode from './tree/foreach-node';
 import ForkJoinNode from './tree/fork-join-node';
 import IfNode from './tree/if-node';
+import MatchNode from './tree/match-node';
+import MatchPatternClauseNode from './tree/match-pattern-clause-node';
 import ReplyNode from './tree/reply-node';
 import ReturnNode from './tree/return-node';
 import ThrowNode from './tree/throw-node';
@@ -90,13 +96,23 @@ import LockNode from './tree/lock-node';
 import WorkerReceiveNode from './tree/worker-receive-node';
 import WorkerSendNode from './tree/worker-send-node';
 import ArrayTypeNode from './tree/array-type-node';
+import UnionTypeNodeNode from './tree/union-type-node-node';
 import BuiltInRefTypeNode from './tree/built-in-ref-type-node';
 import ConstrainedTypeNode from './tree/constrained-type-node';
 import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
 import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
-import VariableReferenceNode from './tree/variable-reference-node';
+import OrderByNode from './tree/order-by-node';
+import GroupByNode from './tree/group-by-node';
+import HavingNode from './tree/having-node';
+import SelectClauseNode from './tree/select-clause-node';
+import WhereNode from './tree/where-node';
+import FunctionClauseNode from './tree/function-clause-node';
+import WindowClauseNode from './tree/window-clause-node';
+import StreamActionNode from './tree/stream-action-node';
+import PatternStreamingEdgeInputNode from './tree/pattern-streaming-edge-input-node';
+import PatternStreamingInputNode from './tree/pattern-streaming-input-node';
 
 class NodeFactory {
 
@@ -107,9 +123,14 @@ class NodeFactory {
         node.returnParameters = [];
         node.body = new BlockNode();
         node.workers = [];
+        node.endpointNodes = [];
+        node.defaultableParameters = [];
+        node.restParameters = new VariableNode();
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -118,9 +139,12 @@ class NodeFactory {
     createAnnotation(json = {}) {
         json.kind = 'Annotation';
         let node = new AnnotationNode();
+        node.typeNode = new TypeNode();
         node.name = new IdentifierNode();
         node.attributes = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -131,6 +155,7 @@ class NodeFactory {
         let node = new AnnotationAttachmentNode();
         node.packageAlias = new IdentifierNode();
         node.annotationName = new IdentifierNode();
+        node.expression = new ExpressionNode();
         node.attributes = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -140,6 +165,7 @@ class NodeFactory {
     createAnnotationAttribute(json = {}) {
         json.kind = 'AnnotationAttribute';
         let node = new AnnotationAttributeNode();
+        node.typeNode = new TypeNode();
         node.initialExpression = new ExpressionNode();
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
@@ -170,14 +196,16 @@ class NodeFactory {
     createConnector(json = {}) {
         json.kind = 'Connector';
         let node = new ConnectorNode();
-        node.filteredParameter = new VariableNode();
-        node.variableDefs = [];
         node.initFunction = new FunctionNode();
+        node.endpointNodes = [];
+        node.variableDefs = [];
         node.initAction = new ActionNode();
         node.name = new IdentifierNode();
         node.actions = [];
         node.parameters = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -215,9 +243,11 @@ class NodeFactory {
     createEnum(json = {}) {
         json.kind = 'Enum';
         let node = new EnumNode();
-        node.enumFields = [];
+        node.enumerators = [];
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -229,6 +259,8 @@ class NodeFactory {
         node.enumerators = [];
         node.name = new IdentifierNode();
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -241,9 +273,14 @@ class NodeFactory {
         node.returnParameters = [];
         node.body = new BlockNode();
         node.workers = [];
+        node.endpointNodes = [];
+        node.defaultableParameters = [];
+        node.restParameters = new VariableNode();
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -261,6 +298,7 @@ class NodeFactory {
         json.kind = 'Import';
         let node = new ImportNode();
         node.packageVersion = new IdentifierNode();
+        node.orgName = new IdentifierNode();
         node.alias = new IdentifierNode();
         node.packageName = [];
         node = Object.assign(node, json);
@@ -271,17 +309,20 @@ class NodeFactory {
     createPackage(json = {}) {
         json.kind = 'Package';
         let node = new PackageNode();
-        node.compilationUnits = [];
+        node.globalVariables = [];
         node.imports = [];
+        node.compilationUnits = [];
         node.packageDeclaration = new PackageDeclarationNode();
         node.namespaceDeclarations = [];
-        node.globalVariables = [];
+        node.globalEndpoints = [];
         node.services = [];
         node.connectors = [];
+        node.streamlets = [];
         node.functions = [];
         node.structs = [];
-        node.annotations = [];
+        node.enums = [];
         node.transformers = [];
+        node.annotations = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -313,9 +354,14 @@ class NodeFactory {
         node.returnParameters = [];
         node.body = new BlockNode();
         node.workers = [];
+        node.endpointNodes = [];
+        node.defaultableParameters = [];
+        node.restParameters = new VariableNode();
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -325,11 +371,15 @@ class NodeFactory {
         json.kind = 'Service';
         let node = new ServiceNode();
         node.initFunction = new FunctionNode();
-        node.protocolPackageIdentifier = new IdentifierNode();
+        node.endpointNodes = [];
         node.variables = [];
+        node.serviceTypeStruct = new EndpointTypeNode();
+        node.boundEndpoints = [];
         node.name = new IdentifierNode();
         node.resources = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -341,6 +391,8 @@ class NodeFactory {
         node.name = new IdentifierNode();
         node.fields = [];
         node.annotationAttachments = [];
+        node.documentationAttachments = [];
+        node.deprecatedAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -367,6 +419,8 @@ class NodeFactory {
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
+        node.defaultableParameters = [];
+        node.restParameters = new VariableNode();
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
@@ -395,11 +449,27 @@ class NodeFactory {
         node.body = new BlockNode();
         node.workers = [];
         node.endpointNodes = [];
+        node.defaultableParameters = [];
+        node.restParameters = new VariableNode();
         node.name = new IdentifierNode();
         node.parameters = [];
         node.annotationAttachments = [];
         node.documentationAttachments = [];
         node.deprecatedAttachments = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createStreamlet(json = {}) {
+        json.kind = 'Streamlet';
+        let node = new StreamletNode();
+        node.initFunction = new FunctionNode();
+        node.body = new BlockNode();
+        node.globalVariables = [];
+        node.name = new IdentifierNode();
+        node.parameters = [];
+        node.annotationAttachments = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -417,6 +487,7 @@ class NodeFactory {
     createAnnotationAttachmentAttribute(json = {}) {
         json.kind = 'AnnotationAttachmentAttribute';
         let node = new AnnotationAttachmentAttributeNode();
+        node.name = new IdentifierNode();
         node.value = this.createAnnotationAttachmentAttributeValue();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -427,7 +498,7 @@ class NodeFactory {
         json.kind = 'AnnotationAttachmentAttributeValue';
         let node = new AnnotationAttachmentAttributeValueNode();
         node.valueArray = [];
-        node.value = new LiteralNode();
+        node.value = new Node();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -485,8 +556,8 @@ class NodeFactory {
     createIntRangeExpr(json = {}) {
         json.kind = 'IntRangeExpr';
         let node = new IntRangeExprNode();
-        node.startExpression = new ExpressionNode();
         node.endExpression = new ExpressionNode();
+        node.startExpression = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -629,7 +700,6 @@ class NodeFactory {
         return node;
     }
 
-
     createXmlQuotedString(json = {}) {
         json.kind = 'XmlQuotedString';
         let node = new XmlQuotedStringNode();
@@ -658,6 +728,15 @@ class NodeFactory {
         return node;
     }
 
+    createSelectExpression(json = {}) {
+        json.kind = 'SelectExpression';
+        let node = new SelectExpressionNode();
+        node.expression = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
     createAbort(json = {}) {
         json.kind = 'Abort';
         let node = new AbortNode();
@@ -669,8 +748,27 @@ class NodeFactory {
     createAssignment(json = {}) {
         json.kind = 'Assignment';
         let node = new AssignmentNode();
-        node.variables = [];
         node.expression = new ExpressionNode();
+        node.variables = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createCompoundAssignment(json = {}) {
+        json.kind = 'CompoundAssignment';
+        let node = new CompoundAssignmentNode();
+        node.expression = new ExpressionNode();
+        node.variable = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createPostIncrement(json = {}) {
+        json.kind = 'PostIncrement';
+        let node = new PostIncrementNode();
+        node.variable = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -679,8 +777,8 @@ class NodeFactory {
     createBind(json = {}) {
         json.kind = 'Bind';
         let node = new BindNode();
-        node.variable = new ExpressionNode();
         node.expression = new ExpressionNode();
+        node.variable = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -723,8 +821,8 @@ class NodeFactory {
     createForeach(json = {}) {
         json.kind = 'Foreach';
         let node = new ForeachNode();
-        node.variables = [];
         node.body = new BlockNode();
+        node.variables = [];
         node.collection = new ExpressionNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -735,8 +833,8 @@ class NodeFactory {
         json.kind = 'ForkJoin';
         let node = new ForkJoinNode();
         node.workers = [];
-        node.joinBody = new BlockNode();
         node.joinedWorkerIdentifiers = [];
+        node.joinBody = new BlockNode();
         node.timeOutExpression = new ExpressionNode();
         node.timeOutVariable = new VariableNode();
         node.timeoutBody = new BlockNode();
@@ -752,6 +850,26 @@ class NodeFactory {
         node.body = new BlockNode();
         node.condition = new ExpressionNode();
         node.elseStatement = new StatementNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createMatch(json = {}) {
+        json.kind = 'Match';
+        let node = new MatchNode();
+        node.expression = new ExpressionNode();
+        node.patternClauses = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createMatchPatternClause(json = {}) {
+        json.kind = 'MatchPatternClause';
+        let node = new MatchPatternClauseNode();
+        node.variableNode = new VariableNode();
+        node.statement = new StatementNode();
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -857,7 +975,16 @@ class NodeFactory {
     createArrayType(json = {}) {
         json.kind = 'ArrayType';
         let node = new ArrayTypeNode();
-        node.elementType = new ValueTypeNode();
+        node.elementType = new TypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createUnionTypeNode(json = {}) {
+        json.kind = 'UnionTypeNode';
+        let node = new UnionTypeNodeNode();
+        node.memberTypeNodes = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;
@@ -914,6 +1041,101 @@ class NodeFactory {
     createValueType(json = {}) {
         json.kind = 'ValueType';
         let node = new ValueTypeNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createOrderBy(json = {}) {
+        json.kind = 'OrderBy';
+        let node = new OrderByNode();
+        node.variables = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createGroupBy(json = {}) {
+        json.kind = 'GroupBy';
+        let node = new GroupByNode();
+        node.variables = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createHaving(json = {}) {
+        json.kind = 'Having';
+        let node = new HavingNode();
+        node.expression = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createSelectClause(json = {}) {
+        json.kind = 'SelectClause';
+        let node = new SelectClauseNode();
+        node.selectExpressions = [];
+        node.groupBy = new GroupByNode();
+        node.having = new HavingNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createWhere(json = {}) {
+        json.kind = 'Where';
+        let node = new WhereNode();
+        node.expression = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createFunctionClause(json = {}) {
+        json.kind = 'FunctionClause';
+        let node = new FunctionClauseNode();
+        node.functionInvocation = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createWindowClause(json = {}) {
+        json.kind = 'WindowClause';
+        let node = new WindowClauseNode();
+        node.functionInvocation = new ExpressionNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createStreamAction(json = {}) {
+        json.kind = 'StreamAction';
+        let node = new StreamActionNode();
+        node.expression = new ExpressionNode();
+        node.setClause = [];
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createPatternStreamingEdgeInput(json = {}) {
+        json.kind = 'PatternStreamingEdgeInput';
+        let node = new PatternStreamingEdgeInputNode();
+        node.expression = new ExpressionNode();
+        node.whereClause = new WhereNode();
+        node = Object.assign(node, json);
+        // Set any aditional default properties below.
+        return node;
+    }
+
+    createPatternStreamingInput(json = {}) {
+        json.kind = 'PatternStreamingInput';
+        let node = new PatternStreamingInputNode();
+        node.patternStreamingInput = new PatternStreamingInputNode();
+        node.patternStreamingEdgeInputs = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
         return node;

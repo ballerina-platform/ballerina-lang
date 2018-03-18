@@ -48,6 +48,7 @@ class AbstractAnnotationNode extends Node {
     }
 
 
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractAnnotationNode extends Node {
     getName() {
         return this.name;
     }
+
 
 
     setAttributes(newValue, silent, title) {
@@ -215,6 +217,7 @@ class AbstractAnnotationNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
