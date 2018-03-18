@@ -21,6 +21,7 @@ import React from 'react';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
+import { Loader, Dimmer } from 'semantic-ui-react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
@@ -75,7 +76,8 @@ class BallerinaFileEditor extends React.Component {
             model: undefined,
             activeView: this.fetchState('activeView', SPLIT_VIEW),
             splitSize: this.fetchState('splitSize', (this.props.width / 2)),
-            zoomLevel: this.fetchState('zoomLevel', 1),
+            diagramMode: this.fetchState('diagramMode', 'action'),
+            diagramFitToWidth: this.fetchState('diagramFitToWidth', true),
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -151,7 +153,8 @@ class BallerinaFileEditor extends React.Component {
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
-        this.setZoom = this.setZoom.bind(this);
+        this.handleDiagramModeChange = this.handleDiagramModeChange.bind(this);
+        this.handleFitToWidthChange = this.handleFitToWidthChange.bind(this);
     }
 
     /**
@@ -225,17 +228,6 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
-     * Change the diagram zoom level.
-     *
-     * @param {any} newState
-     * @memberof BallerinaFileEditor
-     */
-    setZoom(newState) {
-        this.setState({ zoomLevel: newState });
-        this.persistState();
-    }
-
-    /**
      * @description Get package name from astRoot
      * @returns string - Package name
      */
@@ -280,6 +272,28 @@ class BallerinaFileEditor extends React.Component {
      */
     getFile() {
         return this.props.file;
+    }
+
+    /**
+     * Change the diagram mode.
+     *
+     * @param {any} newState
+     * @memberof BallerinaFileEditor
+     */
+    handleDiagramModeChange(mode) {
+        this.setState({ diagramMode: mode });
+        this.persistState();
+    }
+
+    /**
+     * Change the diagram fitto width.
+     *
+     * @param {any} newState
+     * @memberof BallerinaFileEditor
+     */
+    handleFitToWidthChange(state) {
+        this.setState({ diagramFitToWidth: state });
+        this.persistState();
     }
 
     handleSplitChange(size) {
@@ -564,7 +578,8 @@ class BallerinaFileEditor extends React.Component {
         appContext.pref.put(this.props.file.id, {
             activeView: this.state.activeView,
             splitSize: this.state.splitSize,
-            zoomLevel: this.state.zoomLevel,
+            diagramFitToWidth: this.state.diagramFitToWidth,
+            diagramMode: this.state.diagramMode,
         });
     }
 
@@ -657,11 +672,9 @@ class BallerinaFileEditor extends React.Component {
                     transitionLeaveTimeout={300}
                 >
                     {showLoadingOverlay &&
-                        <div className='bal-file-editor-loading-container'>
-                            <div id='parse-pending-loader'>
-                                Loading
-                            </div>
-                        </div>
+                        <Dimmer active inverted>
+                            <Loader size='large'>Loading</Loader>
+                        </Dimmer>
                     }
                 </CSSTransitionGroup>
                 <DesignView

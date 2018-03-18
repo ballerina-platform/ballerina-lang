@@ -194,7 +194,14 @@ class DesignView extends React.Component {
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
-                        <DiagramMenu width={this.props.width} model={this.props.model} />
+                        <DiagramMenu 
+                            width={this.props.width}
+                            model={this.props.model}
+                            onFitToWidthChange={()=>{}}
+                            onModeChange={()=>{}}
+                            fitToWidth={true}
+                            mode={mode}
+                        />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
@@ -213,20 +220,6 @@ class DesignView extends React.Component {
                             </div>
                         </div>
                     </Scrollbars>
-                    <div className={'bottom-right-controls-container zoom-controls'}>
-                        <ViewButton
-                            label='Zoom In'
-                            icon='add'
-                            onClick={this.zoomIn}
-                            active={!(this.props.zoomLevel === (zoomLevels.length - 1))}
-                        />
-                        <ViewButton
-                            label='Zoom Out'
-                            icon='minus'
-                            onClick={this.zoomOut}
-                            active={!(this.props.zoomLevel === 0)}
-                        />
-                    </div>
                     {shouldShowTransform &&
                         <TransformerExpanded
                             model={activeTransformModel}
