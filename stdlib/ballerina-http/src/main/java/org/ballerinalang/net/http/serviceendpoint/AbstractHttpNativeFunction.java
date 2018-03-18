@@ -9,6 +9,8 @@ import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.net.http.websub.WebSubServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
+import java.util.LinkedHashSet;
+
 /**
  * Includes common functions to all the actions.
  *
@@ -31,6 +33,16 @@ public abstract class AbstractHttpNativeFunction extends BlockingNativeCallableU
 
     protected ServerConnector getServerConnector(Struct serviceEndpoint) {
         return (ServerConnector) serviceEndpoint.getNativeData(HttpConstants.HTTP_SERVER_CONNECTOR);
+    }
+
+    /**
+     * Returns the filters from the service endpoint.
+     *
+     * @param serviceEndpoint service endpoint struct
+     * @return Ordered set of filters
+     */
+    protected LinkedHashSet<FilterHolder> getFilters(Struct serviceEndpoint) {
+        return (LinkedHashSet<FilterHolder>) serviceEndpoint.getNativeData(HttpConstants.FILTERS);
     }
 
 }

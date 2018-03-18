@@ -20,6 +20,9 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
  *
@@ -27,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BTypeSymbol {
 
-    public BType endpointType;
+    public List<BEndpointVarSymbol> boundEndpoints = new ArrayList<>();
 
     public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner);

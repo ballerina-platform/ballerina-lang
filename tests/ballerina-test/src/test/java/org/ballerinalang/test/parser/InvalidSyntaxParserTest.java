@@ -33,7 +33,7 @@ public class InvalidSyntaxParserTest {
      * Test missing expected syntax.
      */
 
-    @Test
+    @Test(enabled = false)
     public void testParseSemicolonMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/semicolon-missing-service-negative.bal");
         BAssertUtil.validateError(result, 0, "missing token ';' before 'return'", 10, 7);
@@ -49,7 +49,7 @@ public class InvalidSyntaxParserTest {
      * Test invalid identifier. i.e: {@link org.antlr.v4.runtime.NoViableAltException}
      */
 
-    @Test
+    @Test(enabled = false)
     public void testParseIdentifierMissingSerivce() {
         CompileResult result = BCompileUtil.compile("test-src/parser/identifier-missing-service-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token ';'", 10, 10);
@@ -71,7 +71,7 @@ public class InvalidSyntaxParserTest {
      * Test unwanted token.
      */
 
-    @Test
+    @Test(enabled = false)
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting Identifier", 6, 12);
@@ -89,7 +89,7 @@ public class InvalidSyntaxParserTest {
      * Test mismatched input. i.e. {@link org.antlr.v4.runtime.InputMismatchException}
      */
 
-    @Test
+    @Test(enabled = false)
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 6, 18);
@@ -102,7 +102,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testResourceWithReply() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
         BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);

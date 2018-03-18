@@ -17,27 +17,30 @@
 import ballerina.io;
 import ballerina.net.http;
 
-@http:configuration {
+endpoint http:ServiceEndpoint participant1EP {
     port:8889
+};
+
+@http:serviceConfig {
 }
-service<http> participant1 {
+service<http:Service> participant1 bind participant1EP {
 
     @http:resourceConfig {
         path:"/"
     }
-    resource member (http:Connection conn, http:Request req) {
-        endpoint<http:HttpClient> endPoint {
-            create http:HttpClient("http://localhost:8890/participant2", {});
-        }
+    member (endpoint conn, http:Request req) {
+        endpoint http:ClientEndpoint ep {
+            targets: [{uri: "http://localhost:8890/participant2"}]
+        };
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         http:Response clientResponse2;
         transaction {
-            var clientResponse1, _ = endPoint.forward("/task1", req);
-            clientResponse2, _ = endPoint.get("/task2", newReq);
-        } failed {
+            var clientResponse1, _ = ep -> forward("/task1", req);
+            clientResponse2, _ = ep -> get("/task2", newReq);
+        } onretry {
             io:println("Participant1 failed");
         }
-        _ = conn.forward(clientResponse2);
+        _ = conn -> forward(clientResponse2);
     }
 }
