@@ -496,7 +496,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
-        resourceNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
         if (!resourceNode.getParameters().isEmpty()
                 && resourceNode.getParameters().get(0) != null
                 && resourceNode.getParameters().get(0).typeNode == null) {

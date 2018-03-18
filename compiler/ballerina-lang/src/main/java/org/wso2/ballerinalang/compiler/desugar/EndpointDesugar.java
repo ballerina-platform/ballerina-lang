@@ -48,7 +48,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -239,11 +239,17 @@ public class EndpointDesugar {
         epConfigNewStmt.var.expr = endpoint.configurationExpr;
         ASTBuilderUtil.defineVariable(epConfigNewStmt.var, varEncSymbol, names);
         List<BLangVariable> args = Lists.of(epConfigNewStmt.var);
+        if (endpoint.symbol.initFunction.params.size() == 2) {
+            // Endpoint is already desugared. Fix this correctly.
+            args.add(0, epVariable);
+        }
         // epName.init(ep_nameConf);
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.symbol.initFunction, args,
                 symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (endpoint.symbol.initFunction.params.size() != 2) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
@@ -267,10 +273,16 @@ public class EndpointDesugar {
         final Name name = names.fromIdNode(endpoint.name);
         epVariable.symbol = (BVarSymbol) symResolver.lookupMemberSymbol(pos, encSymbol.scope, env, name,
                 SymTag.VARIABLE);
-        List<BLangVariable> args = Collections.emptyList();
+        List<BLangVariable> args = new ArrayList<>();
+        if (funSymbol.params.size() == 1) {
+            // Endpoint is already desugared. Fix this correctly.
+            args.add(0, epVariable);
+        }
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, funSymbol, args, symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (funSymbol.params.size() != 1) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
@@ -300,10 +312,16 @@ public class EndpointDesugar {
         typeOfExpr.type = symTable.typeType;
 
         List<BLangVariable> args = Lists.of(serviceTypeDef.var);
+        if (endpoint.registerFunction.params.size() == 2) {
+            // Endpoint is already desugared. Fix this correctly.
+            args.add(0, epVariable);
+        }
         final BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, temp);
         final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(pos, endpoint.registerFunction, args,
                 symResolver);
-        iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        if (endpoint.registerFunction.params.size() != 2) {
+            iExpr.expr = ASTBuilderUtil.createVariableRef(epVariable.pos, epVariable.symbol);
+        }
         expressionStmt.expr = iExpr;
         return temp;
     }
