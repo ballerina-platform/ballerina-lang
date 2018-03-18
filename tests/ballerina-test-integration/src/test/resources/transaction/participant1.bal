@@ -20,9 +20,6 @@ import ballerina.net.http;
 endpoint http:ServiceEndpoint participant1EP {
     port:8889
 };
-endpoint http:ClientEndpoint ep {
-    targets: [{uri: "http://localhost:8890/participant2"}]
-};
 
 @http:serviceConfig {
 }
@@ -32,6 +29,9 @@ service<http:Service> participant1 bind participant1EP {
         path:"/"
     }
     member (endpoint conn, http:Request req) {
+        endpoint http:ClientEndpoint ep {
+            targets: [{uri: "http://localhost:8890/participant2"}]
+        };
         http:Request newReq = {};
         newReq.setHeader("participant-id", req.getHeader("X-XID"));
         http:Response clientResponse2;

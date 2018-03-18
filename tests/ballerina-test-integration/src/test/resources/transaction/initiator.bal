@@ -21,10 +21,6 @@ endpoint http:ServiceEndpoint initiatorEP {
     port:8888
 };
 
-endpoint http:ClientEndpoint ep {
-    targets: [{uri: "http://localhost:8889/participant1"}]
-};
-
 @http:serviceConfig {
     basePath:"/"
 }
@@ -34,6 +30,9 @@ service<http:Service> InitiatorService bind initiatorEP {
         path:"/"
     }
     member (endpoint conn, http:Request req) {
+        endpoint http:ClientEndpoint ep {
+            targets: [{uri: "http://localhost:8889/participant1"}]
+        };
         http:Request newReq = {};
         http:Response clientResponse1;
         transaction {
