@@ -168,18 +168,23 @@ public class BLangFunctions {
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
     }
+    
+    private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes, 
+            int generalWorkersCount) {
+        if (generalWorkersCount == 1) {
+            return new CallableWorkerResponseContext(retParamTypes, generalWorkersCount);
+        } else {
+            return new SyncCallableWorkerResponseContext(retParamTypes, generalWorkersCount);
+        }
+    }
 
     public static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
         int generalWorkersCount = workerSet.generalWorkers.length;
-        CallableWorkerResponseContext respCtx;
-        WaitForResponseCallback respCallback = null;;
-        if (generalWorkersCount == 1) {
-            respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), generalWorkersCount);
-        } else {
-            respCtx = new SyncCallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), generalWorkersCount);
-        }
+        CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
+                generalWorkersCount);
+        WaitForResponseCallback respCallback = null;
         if (waitForResponse) {
             respCallback = new WaitForResponseCallback();
             respCtx.registerResponseCallback(respCallback);
