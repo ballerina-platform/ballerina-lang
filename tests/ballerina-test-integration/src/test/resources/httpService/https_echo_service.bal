@@ -1,68 +1,65 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoDummyEP {
+endpoint http:ServiceEndpoint echoDummyEP {
     port:9090
-}
+};
 
-endpoint<http:Service> echoHttpEP {
+endpoint http:ServiceEndpoint echoHttpEP {
     port: 9094
-}
+};
 
-endpoint<http:Service> echoEP {
+endpoint http:ServiceEndpoint echoEP {
     port:9095,
     ssl:{
         keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
         keyStorePassword:"ballerina",
         certPassword:"ballerina"
     }
-}
+};
 
 @http:serviceConfig {
-    basePath:"/echo",
-    endpoints: [echoEP]
+    basePath:"/echo"
 }
 
-service<http:Service> echo {
+service<http:Service> echo bind echoEP {
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
+    echo (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
 @http:serviceConfig  {
-    basePath:"/echoOne",
-    endpoints: [echoHttpEP, echoEP]
+    basePath:"/echoOne"
 }
-service<http:Service> echoOne {
+service<http:Service> echoOne bind echoEP, echoHttpEP {
     @http:resourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:ServerConnector conn, http:Request req) {
+    echoAbc (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
 @http:serviceConfig {
-    basePath:"/echoDummy",
-    endpoints: [echoDummyEP]
+    basePath:"/echoDummy"
 }
-service<http:Service> echoDummy {
+service<http:Service> echoDummy bind echoDummyEP {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:ServerConnector conn, http:Request req) {
+    echoDummy (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }

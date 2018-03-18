@@ -34,9 +34,7 @@ under the License.
                 <exclude name="org.ballerinalang.test.expressions.identifierliteral.*"/>
             </package>
             <package name="org.ballerinalang.test.documentation.*"/>
-            <package name="org.ballerinalang.test.statements.*">
-                <exclude name="org.ballerinalang.test.statements.transaction.*"/>
-            </package>
+            <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*">
                 <exclude name="org.ballerinalang.test.types.service.*"/>
             </package>

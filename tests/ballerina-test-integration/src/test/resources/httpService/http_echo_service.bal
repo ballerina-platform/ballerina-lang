@@ -1,68 +1,65 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoEP1 {
+endpoint http:ServiceEndpoint echoEP1 {
     port:9094
-}
+};
 
-endpoint<http:Service> echoEP2 {
+endpoint http:ServiceEndpoint echoEP2 {
     port:9090
-}
+};
 
 @http:serviceConfig {
-    basePath:"/echo",
-    endpoints: [echoEP1]
+    basePath:"/echo"
 }
-service<http:Service> echo {
+service<http:Service> echo bind echoEP1 {
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
+    echo (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
 @http:serviceConfig {
-    basePath:"/echoOne",
-    endpoints: [echoEP1]
+    basePath:"/echoOne"
 }
-service<http:Service> echoOne {
+service<http:Service> echoOne bind echoEP1 {
     @http:resourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:ServerConnector conn, http:Request req) {
+    echoAbc (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
 @http:serviceConfig {
-    basePath:"/echoDummy",
-    endpoints: [echoEP2]
+    basePath:"/echoDummy"
 }
-service<http:Service> echoDummy {
+service<http:Service> echoDummy bind echoEP2 {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:ServerConnector conn, http:Request req) {
+    echoDummy (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 
     @http:resourceConfig {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
-    resource echoOptions (http:ServerConnector conn, http:Request req) {
+    echoOptions (endpoint outboundEP, http:Request req) {
         http:Response res = {};
         res.setStringPayload("hello Options");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
