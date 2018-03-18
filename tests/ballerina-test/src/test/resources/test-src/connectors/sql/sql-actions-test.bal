@@ -41,7 +41,7 @@ struct ResultDates {
 }
 
 function testInsertTableData () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -49,17 +49,16 @@ function testInsertTableData () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+     };
 
-    var testDB = testDBEP.getConnector();
     int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
+                                         values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
     testDB -> close();
     return insertCount;
 }
 
 function testCreateTable () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -67,8 +66,7 @@ function testCreateTable () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int returnValue = testDB -> update("CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))",
                               null);
@@ -77,7 +75,7 @@ function testCreateTable () (int) {
 }
 
 function testUpdateTableData () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -85,8 +83,7 @@ function testUpdateTableData () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter[] parameters = [];
     int updateCount = testDB -> update("Update Customers set country = 'UK' where registrationID = 1", parameters);
@@ -95,7 +92,7 @@ function testUpdateTableData () (int) {
 }
 
 function testGeneratedKeyOnInsert () (string) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -103,8 +100,7 @@ function testGeneratedKeyOnInsert () (string) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int insertCount;
     string[] generatedID;
@@ -116,7 +112,7 @@ function testGeneratedKeyOnInsert () (string) {
 }
 
 function testGeneratedKeyWithColumn () (string) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -124,8 +120,7 @@ function testGeneratedKeyWithColumn () (string) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int insertCount;
     string[] generatedID;
@@ -139,7 +134,7 @@ function testGeneratedKeyWithColumn () (string) {
 }
 
 function testSelectData () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -147,8 +142,7 @@ function testSelectData () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null,
                              typeof ResultCustomers);
@@ -161,7 +155,7 @@ function testSelectData () (string firstName) {
 }
 
 function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -169,8 +163,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  int_type, long_type, float_type, double_type from DataTypeTable
         where row_id = 1", null, typeof ResultDataType);
@@ -186,7 +179,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
 }
 
 function testCallProcedure () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
                      host: "./target/tempdb/",
         port: 0,
@@ -194,8 +187,7 @@ function testCallProcedure () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     _ = testDB -> call("{call InsertPersonData(100,'James')}", null, null);
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 100", null,
@@ -209,7 +201,7 @@ function testCallProcedure () (string firstName) {
 }
 
 function testCallProcedureWithResultSet () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -217,9 +209,7 @@ function testCallProcedureWithResultSet () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
-
+    };
 
     table[] dtArray = testDB -> call("{call SelectPersonData()}", null, typeof ResultCustomers);
     while (dtArray[0].hasNext()) {
@@ -231,7 +221,7 @@ function testCallProcedureWithResultSet () (string firstName) {
 }
 
 function testCallProcedureWithMultipleResultSets () (string firstName1, string firstName2) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -239,9 +229,7 @@ function testCallProcedureWithMultipleResultSets () (string firstName1, string f
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-
-    var testDB = testDBEP.getConnector();
+    };
 
     table[] dtArray = testDB -> call("{call SelectPersonDataMultiple()}", null, typeof ResultCustomers);
     while (dtArray[0].hasNext()) {
@@ -258,11 +246,8 @@ function testCallProcedureWithMultipleResultSets () (string firstName1, string f
     return;
 }
 
-
-
-
 function testQueryParameters () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -270,8 +255,7 @@ function testQueryParameters () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:1};
     sql:Parameter[] parameters = [para1];
@@ -286,7 +270,7 @@ function testQueryParameters () (string firstName) {
 }
 
 function testInsertTableDataWithParameters () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -294,8 +278,7 @@ function testInsertTableDataWithParameters () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Anne", direction:sql:Direction.IN};
     sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:"James", direction:sql:Direction.IN};
@@ -311,7 +294,7 @@ function testInsertTableDataWithParameters () (int) {
 }
 
 function testArrayofQueryParameters () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -319,8 +302,7 @@ function testArrayofQueryParameters () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int[] intDataArray = [1, 4343];
     string[] stringDataArray = ["A", "B"];
@@ -344,7 +326,7 @@ function testArrayofQueryParameters () (string firstName) {
 }
 
 function testBoolArrayofQueryParameters () (int value) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -352,8 +334,7 @@ function testBoolArrayofQueryParameters () (int value) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     boolean accepted1 = false;
     boolean accepted2 = false;
@@ -387,7 +368,7 @@ function testBoolArrayofQueryParameters () (int value) {
 
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
     map boolean_arr, map float_arr) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -395,8 +376,7 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int[] intArray = [1];
     int[] longArray = [1503383034226, 1503383034224, 1503383034225];
@@ -433,7 +413,7 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
 }
 
 function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -441,8 +421,7 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"1"};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
@@ -473,7 +452,7 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 }
 
 function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
                  host: "./target/tempdb/",
         port: 0,
@@ -481,8 +460,7 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"2"};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
@@ -510,7 +488,7 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 }
 
 function testINParameters () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -518,8 +496,7 @@ function testINParameters () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:3};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:1};
@@ -547,7 +524,7 @@ function testINParameters () (int) {
 }
 
 function testNullINParameterValues () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -555,8 +532,7 @@ function testNullINParameterValues () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:4};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER};
@@ -584,7 +560,7 @@ function testNullINParameterValues () (int) {
 }
 
 function testNullINParameters () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -592,8 +568,7 @@ function testNullINParameters () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:10};
 
@@ -607,7 +582,7 @@ function testNullINParameters () (int) {
 }
 
 function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -615,8 +590,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:5};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, value:10, direction:sql:Direction.INOUT};
@@ -644,7 +618,7 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 }
 
 function testNullINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -652,8 +626,7 @@ function testNullINOutParameters () (any, any, any, any, any, any, any, any, any
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter paraID = {sqlType:sql:Type.INTEGER, value:"6"};
     sql:Parameter paraInt = {sqlType:sql:Type.INTEGER, direction:sql:Direction.INOUT};
@@ -681,7 +654,7 @@ function testNullINOutParameters () (any, any, any, any, any, any, any, any, any
 }
 
 function testEmptySQLType () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -689,8 +662,7 @@ function testEmptySQLType () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {value:"Anne"};
     sql:Parameter[] parameters = [para1];
@@ -700,7 +672,7 @@ function testEmptySQLType () (int) {
 }
 
 function testArrayOutParameters () (any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -708,8 +680,7 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     string firstName;
     sql:Parameter para1 = {sqlType:sql:Type.ARRAY, direction:sql:Direction.OUT};
@@ -725,7 +696,7 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
 }
 
 function testArrayInOutParameters () (any, any, any, any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -733,8 +704,7 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:3};
     sql:Parameter para2 = {sqlType:sql:Type.INTEGER, direction:sql:Direction.OUT};
@@ -752,7 +722,7 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 }
 
 function testBatchUpdate () (int[]) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -760,8 +730,7 @@ function testBatchUpdate () (int[]) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     //Batch 1
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:"Alex"};
@@ -788,7 +757,7 @@ function testBatchUpdate () (int[]) {
 }
 
 function testBatchUpdateWithFailure () (int[] updateCount, int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -796,8 +765,7 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     //Batch 1
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:111};
@@ -816,7 +784,6 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
     para4 = {sqlType:sql:Type.DOUBLE, value:3400.5};
     para5 = {sqlType:sql:Type.VARCHAR, value:"Colombo"};
     sql:Parameter[] parameters2 = [para0, para1, para2, para3, para4, para5];
-
 
     //Batch 3
     para0 = {sqlType:sql:Type.INTEGER, value:222};
@@ -851,7 +818,7 @@ function testBatchUpdateWithFailure () (int[] updateCount, int count) {
 }
 
 function testBatchUpdateWithNullParam () (int[]) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -859,8 +826,7 @@ function testBatchUpdateWithNullParam () (int[]) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int[] updateCount;
     updateCount = testDB -> batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -870,7 +836,7 @@ function testBatchUpdateWithNullParam () (int[]) {
 }
 
 function testDateTimeInParameters () (int[]) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -878,8 +844,7 @@ function testDateTimeInParameters () (int[]) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     string stmt = "Insert into DateTimeTypes(row_id,date_type,time_type,datetime_type,timestamp_type) values (?,?,?,?,?)";
     int[] returnValues = [];
@@ -903,7 +868,6 @@ function testDateTimeInParameters () (int[]) {
     int insertCount2 = testDB -> update(stmt, parameters);
     returnValues[1] = insertCount2;
 
-
     time:Time timeNow = time:currentTime();
     para1 = {sqlType:sql:Type.INTEGER, value:300};
     para2 = {sqlType:sql:Type.DATE, value:timeNow};
@@ -920,7 +884,7 @@ function testDateTimeInParameters () (int[]) {
 }
 
 function testDateTimeNullInValues () (string data) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -928,8 +892,7 @@ function testDateTimeNullInValues () (string data) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para0 = {sqlType:sql:Type.INTEGER, value:33};
     sql:Parameter para1 = {sqlType:sql:Type.DATE, value:null};
@@ -952,7 +915,7 @@ function testDateTimeNullInValues () (string data) {
 
 
 function testDateTimeNullOutValues () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -960,8 +923,7 @@ function testDateTimeNullOutValues () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:123};
     sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null};
@@ -989,7 +951,7 @@ function testDateTimeNullOutValues () (int count) {
 }
 
 function testDateTimeNullInOutValues () (any, any, any, any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -997,8 +959,7 @@ function testDateTimeNullInOutValues () (any, any, any, any) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:124};
     sql:Parameter para2 = {sqlType:sql:Type.DATE, value:null, direction:sql:Direction.INOUT};
@@ -1014,7 +975,7 @@ function testDateTimeNullInOutValues () (any, any, any, any) {
 }
 
 function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1022,8 +983,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.INTEGER, value:10};
     sql:Parameter para2 = {sqlType:sql:Type.DATE, value:date};
@@ -1051,7 +1011,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
 }
 
 function testStructOutParameters () (any) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1059,8 +1019,7 @@ function testStructOutParameters () (any) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     sql:Parameter para1 = {sqlType:sql:Type.STRUCT, direction:sql:Direction.OUT};
     sql:Parameter[] parameters = [para1];
@@ -1070,7 +1029,7 @@ function testStructOutParameters () (any) {
 }
 
 function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1078,8 +1037,7 @@ function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT * from DataTypeTable where row_id = 1", null, null);
     var x, _ = <xml>dt;
@@ -1102,7 +1060,7 @@ function testComplexTypeRetrieval () (string s1, string s2, string s3, string s4
 }
 
 function testCloseConnectionPool () (int count) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -1110,8 +1068,8 @@ function testCloseConnectionPool () (int count) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
+
 
     table dt = testDB -> select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", null,
     typeof ResultCount);

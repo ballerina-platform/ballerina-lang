@@ -19,12 +19,13 @@ package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
@@ -32,23 +33,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
  *
  * @since 0.8.0
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.data.sql",
-        actionName = "update",
-        connectorName = Constants.CONNECTOR_NAME,
-        args = {@Argument(name = "c", type = TypeKind.CONNECTOR),
-                @Argument(name = "sqlQuery", type = TypeKind.STRING),
+        functionName = "update",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
+        args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.INT) },
-        connectorArgs = {
-                @Argument(name = "options", type = TypeKind.MAP)
-        })
+        returnType = { @ReturnType(type = TypeKind.INT) })
 public class Update extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        BConnector bConnector = (BConnector) context.getRefArgument(0);
+        BStruct bConnector = (BStruct) context.getRefArgument(0);
         String query = context.getStringArgument(0);
         BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
