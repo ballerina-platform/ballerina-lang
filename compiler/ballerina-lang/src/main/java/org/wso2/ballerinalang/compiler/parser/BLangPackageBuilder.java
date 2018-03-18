@@ -1790,13 +1790,12 @@ public class BLangPackageBuilder {
     }
 
     public void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
-                               int annotCount, boolean docExists, boolean isDeprecated, boolean hasParameters) {
+                               boolean docExists, boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
         resourceNode.setName(createIdentifier(resourceName));
-        attachAnnotations(resourceNode, annotCount);
         if (docExists) {
             attachDocumentations(resourceNode);
         }
@@ -1810,6 +1809,11 @@ public class BLangPackageBuilder {
             });
         }
         serviceNodeStack.peek().addResource(resourceNode);
+    }
+
+    public void addResourceAnnotation(int annotCount) {
+        BLangResource resourceNode = (BLangResource) invokableNodeStack.peek();
+        attachAnnotations(resourceNode, annotCount);
     }
 
     public void addEndpointVariable(DiagnosticPos pos, Set<Whitespace> ws, String endpointName) {
