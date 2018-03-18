@@ -1,4 +1,4 @@
-import ballerina.net.http;
+
 
 struct Person {
     string name;

@@ -254,8 +254,8 @@ public class DefinitionTreeVisitor extends NodeVisitor {
             this.acceptNode(transactionNode.transactionBody);
         }
 
-        if (transactionNode.failedBody != null) {
-            this.acceptNode(transactionNode.failedBody);
+        if (transactionNode.onRetryBody != null) {
+            this.acceptNode(transactionNode.onRetryBody);
         }
     }
 
