@@ -27,31 +27,31 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
  * Class that responsible of generating global constants at .bal stub
  */
-public class ConstantBuilder {
+public class DescriptorBuilder {
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
     private String key;
+    private ClientStubBal clientStubBal;
     
-    public ConstantBuilder(List<byte[]> dependentDescriptors, String key) {
+    public DescriptorBuilder(List<byte[]> dependentDescriptors, String key, ClientStubBal clientStubBal) {
         this.dependentDescriptors = dependentDescriptors;
         this.key = key;
+        this.clientStubBal = clientStubBal;
     }
     
-    public String buildMap() throws IOException {
-        
+    public void buildMap() throws IOException {
         InputStream targetStream = new ByteArrayInputStream(rootDescriptor);
         DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                 .parseFrom(targetStream);
         BMap<String, BString> descriptorMap = new BMap<String, BString>();
         descriptorMap.put("\"" + fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
-                        + "\"", new BString("\"" + bytesToHex(rootDescriptor) + "\""));
+                + "\"", new BString("\"" + bytesToHex(rootDescriptor) + "\""));
         
         for (byte[] str : dependentDescriptors) {
             if (str.length > 0) {
@@ -62,22 +62,20 @@ public class ConstantBuilder {
                         new BString("\"" + bytesToHex(str) + "\""));
             }
         }
-        return generateAttributeNameType(descriptorMap);
-    }
-    
-    /**
-     * Following method generate the attributeType attributeName; format of struct.
-     *
-     * @param bMap attribute type and name map.
-     * @return formated string of attribute type and name.
-     */
-    private String generateAttributeNameType(BMap bMap) {
-        
-        StringBuilder payload = new StringBuilder();
-        for (Object key : bMap.keySet()) {
-            payload.append(NEW_LINE_CHARACTER).append(key).append(":").append(bMap.get(key)).append(",");
+        int i = 0;
+        for (Object key : descriptorMap.keySet()) {
+            Descriptor descriptor;
+            if (i != descriptorMap.keySet().size() - 1) {
+                descriptor = new Descriptor((String) key, descriptorMap.get((String) key)
+                        .stringValue(), ",");
+            } else {
+                descriptor = new Descriptor((String) key, descriptorMap.get((String) key)
+                        .stringValue(), null);
+            }
+            clientStubBal.addDescriptor(descriptor);
+            i++;
         }
-        return payload.substring(0, payload.length() - 1);
+        
     }
     
     /**
@@ -85,9 +83,8 @@ public class ConstantBuilder {
      *
      * @return .
      */
-    public String buildKey() {
-        return String.format(NEW_LINE_CHARACTER +
-                "const string descriptorKey = \"%s\";" + NEW_LINE_CHARACTER, key);
+    public void buildKey() {
+        clientStubBal.setRootDescriptorKey(key);
     }
     
     public void setRootDescriptor(byte[] rootDescriptor) {

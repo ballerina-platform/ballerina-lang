@@ -27,12 +27,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageConstants.BOLB;
-import static org.ballerinalang.net.grpc.MessageConstants.BOOLEAN;
-import static org.ballerinalang.net.grpc.MessageConstants.FLOAT;
-import static org.ballerinalang.net.grpc.MessageConstants.INT;
-import static org.ballerinalang.net.grpc.MessageConstants.STRING;
-
 /**
  * Util functions which are use when generating . bal stub
  */
@@ -65,46 +59,25 @@ public class BalGenerationUtils {
         switch (protoType) {
             case "DoubleValue":
             case "FloatValue": {
-                return FLOAT;
+                return "float";
             }
             case "Int32Value":
             case "Int64Value":
             case "UInt64Value":
             case "UInt32Value": {
-                return INT;
+                return "int";
             }
             case "BoolValue": {
-                return BOOLEAN;
+                return "boolean";
             }
             case "StringValue": {
-                return STRING;
+                return "string";
             }
             case "BytesValue": {
-                return BOLB;
+                return "blob";
             }
             default: { // to handle structs
                 return protoType;
-            }
-        }
-    }
-    
-    /**
-     * This function returns the ballerina data type which is mapped to  protobuff data type.
-     *
-     * @param protoType .proto data type
-     * @return Ballerina data type.
-     */
-    public static boolean isStructType(String protoType) {
-        switch (protoType) {
-            case FLOAT:
-            case INT:
-            case BOOLEAN:
-            case STRING:
-            case BOLB: {
-                return false;
-            }
-            default: { // to handle structs
-                return true;
             }
         }
     }
@@ -148,23 +121,25 @@ public class BalGenerationUtils {
     public static String getTypeName(int num) {
         switch (num) {
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                return FLOAT;
+                return "float";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                return FLOAT;
+                return "float";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE:
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                return INT;
+                return "int";
+            }
+            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                return "struct";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                return BOOLEAN;
+                return "boolean";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                return STRING;
+                return "string";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                 return "struct";

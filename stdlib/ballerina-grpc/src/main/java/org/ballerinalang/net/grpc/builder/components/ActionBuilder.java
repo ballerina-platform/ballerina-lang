@@ -22,13 +22,6 @@ import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.BLOCKING_STUB_KEY;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.EMPTY_STRING;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.NON_BLOCKING_STUB_KEY;
-
 /**
  * This class is responsible for generating ballerina actions.
  */
@@ -39,36 +32,34 @@ public class ActionBuilder {
     private String resMessageName;
     private String methodID;
     private MethodType methodType;
-    private Map<String, String> actionListMap = new HashMap<>();
+    private Connector blockingConnector;
+    private Connector nonBlockingConnector;
     
     public ActionBuilder(String methodName, String reqMessageName, String resMessageName, String methodID,
-                         MethodType methodType) {
+                         MethodType methodType, Connector blockingConnector, Connector nonBlockingConnector) {
+        this.blockingConnector = blockingConnector;
+        this.nonBlockingConnector = nonBlockingConnector;
         this.methodName = methodName;
         this.reqMessageName = reqMessageName;
         this.resMessageName = resMessageName;
         this.methodID = methodID;
         this.methodType = methodType;
-        this.actionListMap.put(BLOCKING_STUB_KEY, EMPTY_STRING);
-        this.actionListMap.put(NON_BLOCKING_STUB_KEY, EMPTY_STRING);
     }
     
     public void build() {
         switch (methodType) {
             case UNARY: {
-                this.actionListMap.put(BLOCKING_STUB_KEY,
-                        new BlockingActionBuilder(methodName, reqMessageName, resMessageName, methodID).build());
-                this.actionListMap.put(NON_BLOCKING_STUB_KEY, new NonBlockingActionBuilder(methodName, reqMessageName,
-                        resMessageName, methodID).build());
+                blockingConnector.addBlockingAction(methodName, reqMessageName, resMessageName, methodID);
+                nonBlockingConnector.addNonBlockingAction(methodName, reqMessageName, methodID);
                 break;
             }
             case SERVER_STREAMING: {
-                this.actionListMap.put(NON_BLOCKING_STUB_KEY, new NonBlockingActionBuilder(methodName, reqMessageName,
-                        resMessageName, methodID).build());
+                nonBlockingConnector.addNonBlockingAction(methodName, reqMessageName, methodID);
                 break;
             }
             case CLIENT_STREAMING:
             case BIDI_STREAMING: {
-                this.actionListMap.put(NON_BLOCKING_STUB_KEY, new StreamingActionBuilder(methodName, methodID).build());
+                nonBlockingConnector.addStreamingAction(methodName, reqMessageName, methodID);
                 break;
             }
             default: {
@@ -77,11 +68,4 @@ public class ActionBuilder {
         }
     }
     
-    public String getBlockingAction() {
-        return actionListMap.get(BLOCKING_STUB_KEY);
-    }
-    
-    public String getNonBlockingAction() {
-        return actionListMap.get(NON_BLOCKING_STUB_KEY);
-    }
 }

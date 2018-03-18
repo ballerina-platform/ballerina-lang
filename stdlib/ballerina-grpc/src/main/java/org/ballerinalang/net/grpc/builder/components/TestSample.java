@@ -17,23 +17,20 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.GRPC_NATIVE_PACKAGE;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.NEW_LINE_CHARACTER;
+import java.io.IOException;
+
+import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
+import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
+import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
 
 /**
- * Building the package name of ballerina file.
+ * .
  */
-public class PackageBuilder { //package is mandatory
-    private String packageName;
-    
-    public PackageBuilder(String packageName) {
-        this.packageName = packageName;
-    }
-    
-    public String build() {
-        String str = "package %s;" + NEW_LINE_CHARACTER +
-                "import " + GRPC_NATIVE_PACKAGE + ";" + NEW_LINE_CHARACTER +
-                NEW_LINE_CHARACTER;
-        return String.format(str, packageName);
+public class TestSample {
+    public static void main(String[] args) throws IOException {
+        SampleClient context = new SampleClient(true, true, "hello",
+                "client");
+        writeBallerina(context, DEFAULT_SAMPLE_DIR,
+                SAMPLE_TEMPLATE_NAME, "/home/yasara/Desktop/testTemplate2.bal");
     }
 }
