@@ -1,4 +1,4 @@
-package lang.annotations.doc;
+package lang.annotations.doc1;
 
 @Description{value:"Self annotating an annotation",
                  paramValue:@Param{value:"some parameter value"},

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocTag;
@@ -67,7 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
@@ -88,10 +86,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.NodeUtils;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -113,16 +109,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private PackageLoader pkgLoader;
-    private SymbolTable symTable;
-    private Names names;
-    private SymbolResolver symResolver;
-    private BLangDiagnosticLog dlog;
+    private final PackageLoader pkgLoader;
+    private final SymbolTable symTable;
+    private final Names names;
+    private final SymbolResolver symResolver;
+    private final BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
-    private BLangPackageDeclaration currentPkgDecl = null;
-
-    private final boolean skipPkgValidation;
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -144,22 +137,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BLangPackage rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         rootPkgNode.symbol = symTable.rootPkgSymbol;
-
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        this.skipPkgValidation = Boolean.parseBoolean(options.get(CompilerOptionName.SKIP_PACKAGE_VALIDATION));
-    }
-
-    public void definePackage(BLangPackage pkgNode, PackageID pkgId) {
-        populatePackageNode(pkgNode, pkgId);
-        defineNode(pkgNode, null);
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
-        populatePackageNode(pkgNode, pkgNode.packageID);
+        populatePackageNode(pkgNode);
         defineNode(pkgNode, null);
         return pkgNode;
-//        symTable.pkgSymbolMap.put(pkgId, pkgNode.symbol);
-//        return pkgNode.symbol;
     }
 
     public void defineNode(BLangNode node, SymbolEnv env) {
@@ -306,7 +289,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // This import package is not defined.
         if (pkgNode.symbol == null) {
             // Define import package now.
-            definePackage(pkgNode, pkgId);
+            definePackage(pkgNode);
             populateInitFunctionInvocation(importPkgNode, pkgNode.symbol);
         }
 
@@ -545,14 +528,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     // Private methods
 
     private BPackageSymbol createPackageSymbol(BLangPackage pkgNode) {
-        BPackageSymbol pSymbol;
-        if (pkgNode.pkgDecl == null) {
-            pSymbol = new BPackageSymbol(PackageID.DEFAULT, symTable.rootPkgSymbol);
-        } else {
-            PackageID pkgID = NodeUtils.getPackageID(names,
-                    pkgNode.pkgDecl.orgName, pkgNode.pkgDecl.pkgNameComps, pkgNode.pkgDecl.version);
-            pSymbol = new BPackageSymbol(pkgID, symTable.rootPkgSymbol);
-        }
+        BPackageSymbol pSymbol = new BPackageSymbol(pkgNode.packageID, symTable.rootPkgSymbol);
         pkgNode.symbol = pSymbol;
         if (pSymbol.name.value.startsWith(Names.BUILTIN_PACKAGE.value)) {
             pSymbol.scope = symTable.rootScope;
@@ -568,9 +544,9 @@ public class SymbolEnter extends BLangNodeVisitor {
      *
      * @param pkgNode current package node
      */
-    private void populatePackageNode(BLangPackage pkgNode, PackageID pkgId) {
+    private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
-        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit, pkgId));
+        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
     }
 
     /**
@@ -579,10 +555,8 @@ public class SymbolEnter extends BLangNodeVisitor {
      * @param pkgNode  current package node
      * @param compUnit current compilation unit
      */
-    private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit, PackageID pkgId) {
-        // TODO If the pkgID is null, then assign an unnamed package/default package.
+    private void populateCompilationUnit(BLangPackage pkgNode, BLangCompilationUnit compUnit) {
         compUnit.getTopLevelNodes().forEach(node -> addTopLevelNode(pkgNode, node));
-        validatePackageDecl(pkgId, pkgNode, compUnit);
     }
 
     private void addTopLevelNode(BLangPackage pkgNode, TopLevelNode node) {
@@ -598,10 +572,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         switch (kind) {
-            case PACKAGE_DECLARATION:
-                // TODO verify the rules..
-                currentPkgDecl = (BLangPackageDeclaration) node;
-                break;
             case IMPORT:
                 // TODO Verify the rules..
                 // TODO Check whether the same package alias (if any) has been used for the same import
@@ -1027,46 +997,5 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
             defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
         });
-    }
-
-    /**
-     * Validate the package declaration of the current compilation unit. Updates the package declaration
-     * of the package node only if the current package declaration is a valid one.
-     *
-     * @param pkgId    Current package ID
-     * @param pkgNode  Current package node
-     * @param compUnit Current compilation unit
-     */
-    private void validatePackageDecl(PackageID pkgId, BLangPackage pkgNode, BLangCompilationUnit compUnit) {
-        if (isValidPackageDecl(currentPkgDecl, pkgId)) {
-            pkgNode.pkgDecl = currentPkgDecl;
-            currentPkgDecl = null;
-            return;
-        }
-
-        if (currentPkgDecl == null) {
-            dlog.error(compUnit.pos, DiagnosticCode.MISSING_PACKAGE_DECLARATION, pkgId.name.value);
-        } else if (pkgId == PackageID.DEFAULT) {
-            dlog.error(currentPkgDecl.pos, DiagnosticCode.UNEXPECTED_PACKAGE_DECLARATION,
-                    currentPkgDecl.getPackageNameStr());
-        } else {
-            dlog.error(currentPkgDecl.pos, DiagnosticCode.INVALID_PACKAGE_DECLARATION, pkgId.name.value,
-                    currentPkgDecl.getPackageNameStr());
-        }
-
-        currentPkgDecl = null;
-    }
-
-    private boolean isValidPackageDecl(BLangPackageDeclaration pkgDecl, PackageID pkgId) {
-        if (skipPkgValidation) {
-            return true;
-        }
-
-        if (pkgDecl == null) {
-//            return pkgId == PackageID.DEFAULT;
-            return true;
-        }
-
-        return pkgId.name.value.equals(pkgDecl.getPackageNameStr());
     }
 }

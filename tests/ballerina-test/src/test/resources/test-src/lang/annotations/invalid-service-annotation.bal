@@ -1,4 +1,4 @@
-import lang.annotations.doc;
+import lang.annotations.doc1 as doc;
 import ballerina.net.http;
 
 @doc:Description{value:1234}

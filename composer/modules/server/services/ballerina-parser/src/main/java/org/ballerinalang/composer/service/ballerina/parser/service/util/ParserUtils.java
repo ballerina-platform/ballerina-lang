@@ -79,7 +79,6 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_PACKAGE_VALIDATION;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
@@ -137,7 +136,6 @@ public class ParserUtils {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
-        options.put(SKIP_PACKAGE_VALIDATION, Boolean.TRUE.toString());
 
         return getBallerinaFile(fileName, context);
     }
@@ -753,7 +751,7 @@ public class ParserUtils {
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
         BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadEntryPackage(Names.BUILTIN_PACKAGE.value))));
+                pkgLoader.loadAndDefinePackage(Names.BUILTIN_PACKAGE.value))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

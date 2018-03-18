@@ -38,8 +38,8 @@ public class PackageID {
     public Name name;
     public Name version = Names.DEFAULT_VERSION;
 
-    public boolean isUnnamed;
-    public Name sourceFileName;
+    public boolean isUnnamed = false;
+    public Name sourceFileName = null;
 
     public List<Name> nameComps;
 
@@ -72,7 +72,8 @@ public class PackageID {
      */
     public PackageID(String sourceFileName) {
         this.orgName = Names.ANON_ORG;
-        this.name = new Name(Names.DOT + sourceFileName);
+//        this.name = new Name(Names.DOT + sourceFileName);
+        this.name = Names.DEFAULT_PACKAGE;
         this.nameComps = new ArrayList<Name>(1) {{
             add(name);
         }};
@@ -119,7 +120,7 @@ public class PackageID {
 
     @Override
     public String toString() {
-        if (version == Names.DEFAULT_VERSION) {
+        if (version == Names.DEFAULT_VERSION || version == Names.EMPTY) {
             return this.name.value;
         }
 

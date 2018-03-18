@@ -48,7 +48,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc annotation.")
     public void testDocAnnotation() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/annotation.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
@@ -69,7 +69,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc constant.")
     public void testDocConstant() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/constant.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/constant.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
@@ -84,7 +84,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc annotation enum.")
     public void testDocEnum() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/enum.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/enum.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangEnum) packageNode.getEnums().get(0)).docAttachments;
@@ -102,7 +102,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc struct.")
     public void testDocStruct() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/struct.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/struct.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
@@ -123,7 +123,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc function.")
     public void testDocFunction() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/function.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangFunction) packageNode.getFunctions().get(0)).docAttachments;
@@ -158,7 +158,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc negative cases.")
     public void testDocumentationNegative() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/negative.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 18);
         BAssertUtil.validateWarning(compileResult, 0,
                 "already documented attribute 'a'", 5, 1);
@@ -200,7 +200,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc transformer.")
     public void testDocTransformer() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/transformer.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/transformer.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
@@ -223,7 +223,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc service.")
     public void testDocService() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/service.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/service.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangService service = (BLangService) packageNode.getServices().get(0);
@@ -255,7 +255,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc connector.")
     public void testDocConnector() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/connector.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
@@ -293,7 +293,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc connector/function.")
     public void testDocConnectorFunction() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector_function.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/connector_function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
@@ -359,7 +359,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc inline code.")
     public void testInlineCode() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/doc_inline.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangVariable connector = (BLangVariable) packageNode.getGlobalVariables().get(0);
@@ -377,7 +377,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc inline code with triple backtics.")
     public void testInlineCodeEnclosedTripleBackTicks() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/doc_inline_triple.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/doc_inline_triple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
@@ -395,7 +395,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc multiple.")
     public void testMultiple() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/multiple.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/multiple.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
 
@@ -472,8 +472,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc deprecated function use.")
     public void testDeprecatedFunctionUse() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
-                "documentation/deprecate_function_use.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecate_function_use.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 1);
         BAssertUtil.validateWarning(compileResult, 0,
                 "usage of deprecated function 'randomNumber'", 10, 12);
@@ -481,7 +480,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc deprecated.")
     public void testDeprecated() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/deprecated.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecated.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         List<BLangDeprecatedNode> dNodes = ((BLangFunction) packageNode.getFunctions().get(0)).deprecatedAttachments;
@@ -543,8 +542,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc deprecated Transformer.")
     public void testDeprecatedTransformer() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
-                "documentation/deprecated_transformer.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecated_transformer.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         List<BLangDeprecatedNode> dNodes = ((BLangTransformer) packageNode
@@ -632,7 +630,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc nested inline.")
     public void testNestedInline() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/nested_inline.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/nested_inline.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
@@ -651,8 +649,7 @@ public class DocumentationTest {
 
     @Test(description = "Test doc nested inline inside deprecated tag.")
     public void testNestedInlineDeprecated() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src",
-                "documentation/nested_inline_deprecated.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/nested_inline_deprecated.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
         BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);

@@ -45,7 +45,7 @@ public class StringTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "types/string/string-test.bal");
+        result = BCompileUtil.compile("test-src/types/string/string-test.bal");
     }
 
     @Test

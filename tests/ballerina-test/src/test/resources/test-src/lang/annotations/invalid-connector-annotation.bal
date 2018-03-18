@@ -1,4 +1,4 @@
-import lang.annotations.doc;
+import lang.annotations.doc1 as doc;
 
 @doc:Description{value:123}
 connector TestConnector (string url) {

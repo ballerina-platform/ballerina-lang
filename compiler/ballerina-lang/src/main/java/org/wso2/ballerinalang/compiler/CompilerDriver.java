@@ -110,11 +110,11 @@ public class CompilerDriver {
         }
 
         pkgNode = codeAnalyze(pkgNode);
-        /*if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
-            return pkgNode;
-        }
-
-        pkgNode = taintAnalyze(pkgNode);*/
+//        if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
+//            return pkgNode;
+//        }
+//
+//        pkgNode = taintAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
             return pkgNode;
         }
@@ -163,8 +163,13 @@ public class CompilerDriver {
     }
 
     private boolean stopCompilation(BLangPackage pkgNode, CompilerPhase nextPhase) {
-        return (compilerPhase.compareTo(nextPhase) < 0 || nextPhase == CompilerPhase.TAINT_ANALYZE ||
-                nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR)
+        if (compilerPhase.compareTo(nextPhase) < 0) {
+            return true;
+        }
+
+        return (nextPhase == CompilerPhase.TAINT_ANALYZE ||
+                nextPhase == CompilerPhase.COMPILER_PLUGIN ||
+                nextPhase == CompilerPhase.DESUGAR)
                 && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }
 

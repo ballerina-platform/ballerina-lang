@@ -1,4 +1,4 @@
-import lang.annotations.doc;
+import lang.annotations.doc1 as doc;
 
 @doc:Description{paramValue:@doc:Param{},
                  queryParamValue2:[@doc:QueryParam{}],
