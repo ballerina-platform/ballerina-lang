@@ -41,7 +41,7 @@ struct ResultDates {
 }
 
 function testInsertTableData () (int) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDBEP {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -49,12 +49,11 @@ function testInsertTableData () (int) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+        };
 
-    var testDB = testDBEP.getConnector();
-    int insertCount = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
-    testDB -> close();
+    int insertCount = testDBEP-> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                         values ('James', 'Clerk', 2, 5000.75, 'USA')", null);
+    testDBEP -> close();
     return insertCount;
 }
 
