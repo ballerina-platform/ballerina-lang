@@ -221,36 +221,6 @@ public function <WebSubHub ballerinaWebSubHub> shutdownBallerinaHub () (boolean)
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////
 ///////////////////////////////////////////////////////////////////
-endpoint<Client> hubClientEp {
-    serviceUri:"http://localhost:8080"
-}
-
-@Description {value:"Function to publish an update to a remote hub"}
-@Param {value:"webSubHub: The WebSubHub struct representing the hub the publisher requires updates to be published to"}
-@Param {value:"topic: The topic for which the update occurred"}
-@Param {value:"payload: The update payload"}
-public function <WebSubHub webSubHub> publishUpdateToRemoteHub (string topic, json payload) (WebSubError) {
-    WebSubError webSubError;
-    string hub = webSubHub.hubUrl;
-    hubClientEp.init("hubClientEp", {serviceUri:hub});
-    hubClientEp.start();
-    var hubClient = hubClientEp.getConnector();
-
-    Response response;
-    HttpConnectorError err;
-    Request request = {};
-
-    string queryParams = HUB_MODE + "=" + MODE_PUBLISH
-                         + "&" + HUB_TOPIC + "=" + topic;
-    request.setJsonPayload(payload);
-    response, err = hubClient -> post("?" + queryParams, request);
-    if (err != null) {
-        webSubError = { errorMessage:"Notification failed for hub [" + hub +"] for topic [" + topic + "]",
-                          connectorError:err };
-    }
-    return webSubError;
-}
-
 @Description {value:"Function to add link headers to a response to allow WebSub discovery"}
 @Param {value:"response: The response being sent"}
 @Param {value:"hubs: The hubs the publisher advertises as the hubs that it publishes updates to"}
