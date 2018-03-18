@@ -54,6 +54,7 @@ class TransformerExpanded extends React.Component {
         super(props, context);
         this.state = {
             // vertices changes must re-render. Hence added as a state.
+            name: props.model.getName().getValue(),
             iterableOperationMenu: {},
             vertices: [],
             typedSource: '',
@@ -102,6 +103,7 @@ class TransformerExpanded extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onConnectionsScroll = this.onConnectionsScroll.bind(this);
         this.onConnectPointMouseEnter = this.onConnectPointMouseEnter.bind(this);
+        this.onNameChange = this.onNameChange.bind(this);
     }
 
     componentDidMount() {
@@ -458,6 +460,11 @@ class TransformerExpanded extends React.Component {
 
     onTargetInputEnter() {
         this.addTarget(this.state.typedTarget);
+    }
+
+    onNameChange(event) {
+        this.setState({ name: event.target.value });
+        this.props.model.name.setValue(event.target.value);
     }
 
 
@@ -1285,7 +1292,7 @@ class TransformerExpanded extends React.Component {
                     <i onClick={this.onClose} className='fw fw-left close-transform' />
                     <p className='transform-header-text '>
                         <i className='transform-header-icon fw fw-type-converter' />
-                        <b>{this.props.model.getSignature()}</b>
+                        <b>Transformer</b>
                     </p>
                 </div>
                 <div
@@ -1325,6 +1332,15 @@ class TransformerExpanded extends React.Component {
                                 />
                             </div>
                             <div className='middle-content-frame' />
+                            <div className='transform-name-container'>
+                                <input
+                                    type='text'
+                                    className='transform-name-text'
+                                    value={this.state.name}
+                                    placeholder='name'
+                                    onChange={this.onNameChange}
+                                />
+                            </div>
                             <Scrollbars
                                 style={{ height: 'calc(100% - 50px)' }}
                                 ref={(scroll) => { this.vscroll = scroll; }}
