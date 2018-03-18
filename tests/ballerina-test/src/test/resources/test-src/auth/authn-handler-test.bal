@@ -1,9 +1,9 @@
-import ballerina.auth.basic;
+import ballerina.net.http.authadaptor;
 import ballerina.net.http;
 import ballerina.mime;
 
 function testCanHandleHttpBasicAuthWithoutHeader () (boolean) {
-    basic:HttpBasicAuthnHandler handler = {};
+    authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "123Basic xxxxxx";
@@ -14,7 +14,7 @@ function testCanHandleHttpBasicAuthWithoutHeader () (boolean) {
 }
 
 function testCanHandleHttpBasicAuth () (boolean) {
-    basic:HttpBasicAuthnHandler handler = {};
+    authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic xxxxxx";
@@ -25,7 +25,7 @@ function testCanHandleHttpBasicAuth () (boolean) {
 }
 
 function testHandleHttpBasicAuthFailure () (boolean) {
-    basic:HttpBasicAuthnHandler handler = {};
+    authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic YW1pbGE6cHFy";
@@ -36,7 +36,7 @@ function testHandleHttpBasicAuthFailure () (boolean) {
 }
 
 function testHandleHttpBasicAuth () (boolean) {
-    basic:HttpBasicAuthnHandler handler = {};
+    authadaptor:HttpBasicAuthnHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
@@ -44,4 +44,26 @@ function testHandleHttpBasicAuth () (boolean) {
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest);
+}
+
+function testExtractInvalidBasicAuthHeaderValue () (string, error) {
+    // create dummy request
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string basicAutheaderValue = ".Basic FSADFfgfsagas423gfdGSdfa";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    inRequest.setEntity(requestEntity);
+    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+}
+
+function testExtractBasicAuthHeaderValue () (string, error) {
+    // create dummy request
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string basicAutheaderValue = "Basic aXN1cnU6eHh4";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    inRequest.setEntity(requestEntity);
+    return authadaptor:extractBasicAuthHeaderValue(inRequest);
 }
