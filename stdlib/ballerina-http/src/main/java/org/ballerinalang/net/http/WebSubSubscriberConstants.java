@@ -26,7 +26,8 @@ package org.ballerinalang.net.http;
 public class WebSubSubscriberConstants {
 
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
-    public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSubSubscriberService";
+    public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME =
+                                                        "ballerina.net.http:WebSubSubscriberServiceEndpoint";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "webSubSubscriberServiceConfig";
 
 

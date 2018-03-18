@@ -42,18 +42,14 @@ import java.util.concurrent.Executors;
 public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
-    private static final String DIRECT_BALLERINA_HUB_PAYLOAD = "WebSub Notification Received: {\"action\":\"publish\","
-            + "\"mode\":\"ballerina-hub\"}";
-    private static final String REMOTE_URL_HUB_PAYLOAD = "WebSub Notification Received: {\"action\":\"publish\","
-            + "\"mode\":\"remote-hub\"}";
+    private static final String CONTENT_DELIVERY_SUBSCRIBER_LOG =
+            "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"ballerina-hub\"}";
 
     private LogLeecher intentVerificationLogLeecher;
-    private LogLeecher directHubLogLeecher;
-    private LogLeecher urlHubLogLeecher;
+    private LogLeecher contentDeliveryLogLeecher;
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
-
 
     @BeforeClass
     public void setUp() throws BallerinaTestException, InterruptedException {
@@ -61,8 +57,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
                         + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath()};
 
         intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
-        directHubLogLeecher = new LogLeecher(DIRECT_BALLERINA_HUB_PAYLOAD);
-        urlHubLogLeecher = new LogLeecher(REMOTE_URL_HUB_PAYLOAD);
+        contentDeliveryLogLeecher = new LogLeecher(CONTENT_DELIVERY_SUBSCRIBER_LOG);
 
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
 
@@ -82,8 +77,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
                         + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(directHubLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(urlHubLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(contentDeliveryLogLeecher);
         ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal);
 
         //Allow for subscription and publishing
@@ -97,12 +91,7 @@ public class WebSubIntegrationTestCase extends IntegrationTestCase {
 
     @Test
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        directHubLogLeecher.waitForText(10000);
-    }
-
-    @Test
-    public void testContentReceiptForUrlHubNotification() throws BallerinaTestException {
-        urlHubLogLeecher.waitForText(10000);
+        contentDeliveryLogLeecher.waitForText(10000);
     }
 
     @AfterClass

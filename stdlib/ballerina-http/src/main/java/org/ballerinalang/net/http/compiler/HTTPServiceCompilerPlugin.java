@@ -41,7 +41,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
                 @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketEndpoint"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSubSubscriberService")
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http",
+                        name = "WebSubSubscriberServiceEndpoint")
         }
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {

@@ -74,7 +74,7 @@ public struct WebSocketServiceConfig {
 @Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
 public struct WebSubSubscriberServiceConfiguration {
-    WebSubSubscriberService[] endpoints;
+    WebSubSubscriberServiceEndpoint[] endpoints;
     boolean subscribeOnStartUp;
     string basePath;
     string hub;

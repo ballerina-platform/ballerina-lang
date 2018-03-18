@@ -46,12 +46,12 @@ import java.util.logging.LogManager;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "startWebSubSubscriberEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberService",
+        functionName = "startWebSubSubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberServiceEndpoint",
                 structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class StartWebSubSubscriberEndpoint extends AbstractHttpNativeFunction {
+public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {

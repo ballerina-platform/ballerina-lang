@@ -41,7 +41,7 @@ import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "retrieveAnnotationsAndCallback",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberService",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberServiceEndpoint",
                 structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.MAP)}
 )

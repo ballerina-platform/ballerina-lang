@@ -9,34 +9,33 @@ import ballerina.security.crypto;
 import ballerina.time;
 import ballerina.util;
 
-endpoint<http:Service> hubServiceEP {
+endpoint http:ServiceEndpoint hubServiceEP {
     host:hubHost,
     port:hubPort
-}
+};
 
 PendingRequests pendingRequests = {};
 
 @http:serviceConfig {
-    basePath:BASE_PATH,
-    endpoints:[hubServiceEP]
+    basePath:BASE_PATH
 }
-service<http:Service> hubService {
+service<http:Service> hubService bind hubServiceEP {
 
     @http:resourceConfig {
         methods:["GET"],
         path:HUB_PATH
     }
-    resource status (http:ServerConnector conn, http:Request request) {
+    status (endpoint client, http:Request request) {
         http:Response response = { statusCode:202 };
         response.setStringPayload("Up and Running!");
-        _ = conn -> respond(response);
+        _ = client -> respond(response);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:HUB_PATH
     }
-    resource hub (http:ServerConnector conn, http:Request request) {
+    hub (endpoint client, http:Request request) {
         http:Response response;
         map params;
         mime:EntityError entityError;
@@ -54,7 +53,7 @@ service<http:Service> hubService {
                 } else {
                     response = { statusCode:202 };
                 }
-                _ = conn -> respond(response);
+                _ = client -> respond(response);
             } else {
                 params = request.getQueryParams();
                 mode, _ = (string) params[http:HUB_MODE];
@@ -64,16 +63,16 @@ service<http:Service> hubService {
                     payload, entityError = request.getJsonPayload(); //TODO: allow others
                     if (entityError != null) {
                         response = { statusCode:400 };
-                        _ = conn -> respond(response);
+                        _ = client -> respond(response);
                     } else {
                         response = { statusCode:202 };
-                        _ = conn -> respond(response);
+                        _ = client -> respond(response);
                         publishToInternalHub(topic, payload);
                         log:printInfo("Event notification done for Topic [" + topic + "]");
                     }
                 } else {
                     response = { statusCode:400 };
-                    _ = conn -> respond(response);
+                    _ = client -> respond(response);
                 }
             }
 
@@ -83,7 +82,7 @@ service<http:Service> hubService {
             }
         } else {
             response = { statusCode:400 };
-            _ = conn -> respond(response);
+            _ = client -> respond(response);
         }
     }
 }
@@ -120,10 +119,9 @@ function validateSubscriptionChangeRequest(map params) (boolean, string) {
 @Param {value:"callback: The callback URL of the new subscription/unsubscription request"}
 @Param {value:"params: Parameters specified in the new subscription/unsubscription request"}
 function verifyIntent(string callback, map params) {
-    endpoint<http:Client> callbackEp
-    callbackEp.init("callbackEp", {serviceUri:callback});
-    callbackEp.start();
-    var callbackEpClient = callbackEp.getConnector();
+    endpoint http:ClientEndpoint callbackEp {
+        targets:[{ uri:callback }]
+    };
 
     var mode, _ = (string) params[http:HUB_MODE];
     var topic, _ = (string) params[http:HUB_TOPIC];
@@ -146,7 +144,7 @@ function verifyIntent(string callback, map params) {
                          + "&" + http:HUB_CHALLENGE + "=" + challenge
                          + "&" + http:HUB_LEASE_SECONDS + "=" + leaseSeconds;
 
-    response, err = callbackEpClient -> get("?" + queryParams, request);
+    response, err = callbackEp -> get("?" + queryParams, request);
 
     string payload;
     mime:EntityError entityError;
@@ -182,12 +180,16 @@ function verifyIntent(string callback, map params) {
 @Param {value:"mode: Whether the subscription change is for unsubscription/unsubscription"}
 @Param {value:"subscriptionDetails: The details of the subscription changing"}
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
-    endpoint<sql:Client> subscriptionDbEp
-    subscriptionDbEp.init("subscriptionDbEp", {database: sql:DB.MYSQL, host: hubDatabaseHost, port: hubDatabasePort,
-                                                  name: hubDatabaseName, username: hubDatabaseUsername,
-                                                  password: hubDatabasePassword, options: {maximumPoolSize:5}});
-    subscriptionDbEp.start();
-    var subscriptionDbEpClient = subscriptionDbEp.getConnector();
+    endpoint sql:Client subscriptionDbEp {
+        database: sql:DB.MYSQL,
+        host: hubDatabaseHost,
+        port: hubDatabasePort,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        options: {maximumPoolSize:5}
+    };
+
     sql:Parameter para1 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.topic};
     sql:Parameter para2 = {sqlType:sql:Type.VARCHAR, value:subscriptionDetails.callback};
     sql:Parameter[] sqlParams;
@@ -196,15 +198,15 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
         sql:Parameter para4 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.leaseSeconds};
         sql:Parameter para5 = {sqlType:sql:Type.BIGINT, value:subscriptionDetails.createdAt};
         sqlParams = [para1, para2, para3, para4, para5, para3, para4, para5];
-        _ = subscriptionDbEpClient -> update("INSERT INTO subscriptions"
+        _ = subscriptionDbEp -> update("INSERT INTO subscriptions"
                                              + " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON"
                                              + "DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
                                              sqlParams);
     } else {
         sqlParams = [para1, para2];
-        _ = subscriptionDbEpClient -> update("DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
+        _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE topic=? AND callback=?", sqlParams);
     }
-    subscriptionDbEpClient -> close();
+    subscriptionDbEp -> close();
 }
 
 @Description {value:"Function to initiate set up activities on startup/restart"}
@@ -216,19 +218,22 @@ function setupOnStartup() {
 
 @Description {value:"Function to add subscriptions to the broker on startup, if persistence is enabled"}
 function addSubscriptionsOnStartup() {
-    endpoint<sql:Client> subscriptionDbEp
-    subscriptionDbEp.init("subscriptionDbEp", {database: sql:DB.MYSQL, host: hubDatabaseHost, port: hubDatabasePort,
-                                                  name: hubDatabaseName, username: hubDatabaseUsername,
-                                                  password: hubDatabasePassword, options: {maximumPoolSize:5}});
-    subscriptionDbEp.start();
-    var subscriptionDbEpClient = subscriptionDbEp.getConnector();
+    endpoint sql:Client subscriptionDbEp {
+        database: sql:DB.MYSQL,
+        host: hubDatabaseHost,
+        port: hubDatabasePort,
+        name: hubDatabaseName,
+        username: hubDatabaseUsername,
+        password: hubDatabasePassword,
+        options: {maximumPoolSize:5}
+    };
 
     int time = time:currentTime().time;
     sql:Parameter para1 = {sqlType:sql:Type.BIGINT, value:time};
     sql:Parameter[] sqlParams = [para1];
-    _ = subscriptionDbEpClient -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
+    _ = subscriptionDbEp -> update("DELETE FROM subscriptions WHERE ? - lease_seconds > created_at", sqlParams);
     sqlParams = [];
-    table dt = subscriptionDbEpClient -> select("SELECT topic, callback, secret, lease_seconds, created_at"
+    table dt = subscriptionDbEp -> select("SELECT topic, callback, secret, lease_seconds, created_at"
                                                 + " FROM subscriptions", sqlParams, typeof SubscriptionDetails);
     while (dt.hasNext()) {
         var subscription, _ = (SubscriptionDetails) dt.getNext();
@@ -238,7 +243,7 @@ function addSubscriptionsOnStartup() {
                                                       createdAt:subscription.createdAt};
         addSubscription(subscriptionDetails);
     }
-    subscriptionDbEpClient -> close();
+    subscriptionDbEp -> close();
 }
 
 @Description {value:"Function to distribute content to a subscriber on notification from publishers."}
@@ -246,11 +251,10 @@ function addSubscriptionsOnStartup() {
 @Param {value:"subscriptionDetails: The subscription details for the particular subscriber"}
 @Param {value:"payload: The update payload to be delivered to the subscribers"}
 public function distributeContent(string callback, SubscriptionDetails subscriptionDetails, json payload) {
-    endpoint<http:Client> callbackEp
-    callbackEp.init("callbackEp", {serviceUri:callback});
-    callbackEp.start();
-    var callbackEpClient = callbackEp.getConnector();
-
+    endpoint http:ClientEndpoint callbackEp {
+        targets:[{ uri:callback }]
+    };
+                   
     http:Request request = {};
     http:Response response = {};
     http:HttpConnectorError err = {};
@@ -285,7 +289,7 @@ public function distributeContent(string callback, SubscriptionDetails subscript
 
         request.setHeader(http:X_HUB_UUID, util:uuid());
         request.setHeader(http:X_HUB_TOPIC, subscriptionDetails.topic);
-        response, err = callbackEpClient -> post("/", request);
+        response, err = callbackEp -> post("/", request);
         if (err != null) {
             log:printError("Error delievering content to: " + callback);
         }
