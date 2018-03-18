@@ -94,7 +94,8 @@ class ZipUtils {
         String srcDir = "src";
         filesToBeArchived.forEach((path) -> {
             Path root = zipFS.getPath(srcDir);
-            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
+            Path dest = root.resolve( path.getFileName());
+//            Path dest = zipFS.getPath(root.toString(), path.getFileName().toString());
             try {
                 copyFileToArchive(new FileInputStream(path.toString()), dest);
             } catch (IOException e) {
@@ -112,9 +113,11 @@ class ZipUtils {
      */
     private static void copyFileToArchive(InputStream srcInputStream, Path destPath) throws IOException {
         Path parent = destPath.getParent();
-        if (Files.notExists(parent)) {
-            Files.createDirectories(parent);
+        if (parent != null) {
+            if (Files.notExists(parent)) {
+                Files.createDirectories(parent);
+            }
+            Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
         }
-        Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 }
