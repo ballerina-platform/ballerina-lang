@@ -32,6 +32,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 
 /**
  * Native function to send server error the caller.
@@ -59,13 +60,13 @@ public class ErrorResponse extends BlockingNativeCallableUnit {
             BStruct responseStruct = (BStruct) responseValue;
             int statusCode = Integer.parseInt(String.valueOf(responseStruct.getIntField(0)));
             String errorMsg = responseStruct.getStringField(0);
-            StreamObserver responseObserver = MessageUtils.getResponseObserver(connectionStruct);
-            if (responseObserver == null) {
+            StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
+            if (requestSender == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                         .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
                                 " observer not found."))));
             } else {
-                responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
+                requestSender.onError(new StatusRuntimeException(Status.fromCodeValue(statusCode).withDescription
                         (errorMsg)));
             }
         }

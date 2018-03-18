@@ -16,6 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.connection.client;
 
 import com.google.protobuf.Descriptors;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_SENDER;
 
 /**
  * Native function to respond the server.
@@ -56,19 +59,22 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct connectionStruct = (BStruct) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver requestSender = MessageUtils.getResponseObserver(connectionStruct);
+        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            return;
-        }
-        Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
-                .REQUEST_MESSAGE_DEFINITION);
-        
-        try {
-            Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
-            requestSender.onNext(requestMessage);
-        } catch (Throwable e) {
-            LOG.error("Error while sending client response.", e);
-            context.setError(MessageUtils.getConnectorError(context, e));
+            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "response sender doesnot exist"))));
+        } else {
+            Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(MessageConstants
+                    .REQUEST_MESSAGE_DEFINITION);
+
+            try {
+                Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
+                requestSender.onNext(requestMessage);
+            } catch (Throwable e) {
+                LOG.error("Error while sending client response.", e);
+                context.setError(MessageUtils.getConnectorError(context, e));
+            }
         }
     }
 }

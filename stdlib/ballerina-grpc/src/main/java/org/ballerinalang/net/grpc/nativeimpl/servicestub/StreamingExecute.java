@@ -37,8 +37,8 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
-import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
 import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageConstants.REQUEST_MESSAGE_DEFINITION;
@@ -120,7 +120,7 @@ public class StreamingExecute extends AbstractExecute {
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_ENDPOINT_TYPE);
+                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
                 clientEndpoint.addNativeData(CLIENT_CONNECTION, connStruct);
                 context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {
