@@ -1,7 +1,7 @@
 import ballerina.data.sql;
 
 function testSelectData () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -9,8 +9,7 @@ function testSelectData () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     try {
         table dt = testDB -> select("SELECT Name from Customers where registrationID = 1", null, null);
@@ -24,7 +23,7 @@ function testSelectData () (string firstName) {
 
 
 function testGeneratedKeyOnInsert () (string) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -32,8 +31,7 @@ function testGeneratedKeyOnInsert () (string) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     string id = "";
     try {
@@ -51,7 +49,7 @@ function testGeneratedKeyOnInsert () (string) {
 
 
 function testCallProcedure () (string firstName) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -59,8 +57,7 @@ function testCallProcedure () (string firstName) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     try {
         _ = testDB -> call("{call InsertPersonDataInfo(100,'James')}", null, null);
@@ -74,7 +71,7 @@ function testCallProcedure () (string firstName) {
 }
 
 function testBatchUpdate () (int[]) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -82,8 +79,7 @@ function testBatchUpdate () (int[]) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     int[] updateCount;
     try {
@@ -113,7 +109,7 @@ function testBatchUpdate () (int[]) {
 }
 
 function testInvalidArrayofQueryParameters () (string value) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.HSQLDB_FILE,
         host: "./target/tempdb/",
         port: 0,
@@ -121,8 +117,7 @@ function testInvalidArrayofQueryParameters () (string value) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     try {
         xml x1 = xml `<book>The Lost World</book>`;
