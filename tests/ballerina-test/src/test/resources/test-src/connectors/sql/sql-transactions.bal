@@ -21,7 +21,7 @@ function testLocalTransacton () (int returnVal, int count) {
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -53,7 +53,7 @@ function testTransactonRollback () (int returnVal, int count) {
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
             _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
@@ -93,7 +93,7 @@ function testTransactonAbort () (int returnVal, int count) {
             abort;
         }
         returnVal = 0;
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -129,7 +129,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                 error err = {message:"error"};
                 throw err;
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error err) {
@@ -171,7 +171,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         } catch (error err) {
             catchValue = -1;
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -202,7 +202,7 @@ function testTransactonCommitted () (int returnVal, int count) {
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -234,7 +234,7 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal1 = 0;
     }
 
@@ -243,7 +243,7 @@ function testTwoTransactons () (int returnVal1, int returnVal2, int count) {
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
         _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')", null);
-    } failed {
+    } onretry {
         returnVal2 = 0;
     }
     //check whether update action is performed
@@ -305,7 +305,7 @@ function testLocalTransactionFailed () (string, int) {
                         values ('James', 'Clerk', 111, 5000.75, 'USA')", null);
             _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')", null);
-        } failed {
+        } onretry {
             a = a + " inFld";
         }
     } catch (error e) {
@@ -348,7 +348,7 @@ function testLocalTransactonSuccessWithFailed () (string, int) {
                 _ = testDB -> update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                             values ('Anne', 'Clerk', 222, 5000.75, 'USA')", null);
             }
-        } failed {
+        } onretry {
             a = a + " inFld";
             i = i + 1;
         }
@@ -430,7 +430,7 @@ function testNestedTwoLevelTransactonSuccess () (int returnVal, int count) {
             _ = testDB -> update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')", null);
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -467,7 +467,7 @@ function testNestedThreeLevelTransactonSuccess () (int returnVal, int count) {
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')", null);
             }
         }
-    } failed {
+    } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
@@ -505,7 +505,7 @@ function testNestedThreeLevelTransactonFailed () (int returnVal, int count) {
                                 values ('James', 'Clerk', 555, 5000.75, 'USA')", null);
                 }
             }
-        } failed {
+        } onretry {
             returnVal = -1;
         }
     } catch (error e) {
@@ -556,12 +556,12 @@ function testNestedThreeLevelTransactonFailedWithRetrySuccess () (int returnVal,
                          _ = testDB -> update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 666, 5000.75, 'USA')", null);
                     }
-                } failed {
+                } onretry {
                     a = a + " txL3_Failed";
                     index = index + 1;
                 }
             }
-        } failed {
+        } onretry {
             a = a + " txL1_Falied";
             returnVal = -1;
         }

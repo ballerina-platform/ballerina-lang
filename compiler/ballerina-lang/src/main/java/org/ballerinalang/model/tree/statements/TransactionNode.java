@@ -20,19 +20,29 @@ package org.ballerinalang.model.tree.statements;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
+ * {@code TransactionNode} represents the transaction statement in Ballerina.
+ *
  * @since 0.94
  */
 public interface TransactionNode extends StatementNode {
     BlockNode getTransactionBody();
 
-    BlockNode getFailedBody();
+    BlockNode getOnRetryBody();
 
-    ExpressionNode getCondition();
+    ExpressionNode getRetryCount();
+
+    ExpressionNode getOnCommitFunction();
+
+    ExpressionNode getOnAbortFunction();
 
     void setTransactionBody(BlockNode body);
 
-    void setFailedBody(BlockNode body);
+    void setOnRetryBody(BlockNode body);
 
-    void setRetryCount(ExpressionNode condition);
+    void setRetryCount(ExpressionNode retryCount);
+
+    void setOnCommitFunction(ExpressionNode onCommitFunction);
+
+    void setOnAbortFunction(ExpressionNode onAbortFunction);
 
 }

@@ -28,7 +28,7 @@ function testTransactionStmt (int i) (string) {
                 a = a + err.message;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -137,11 +137,11 @@ function testNestedTransactionWithFailed (int i) (string) {
                     a = a + err.message;
                 }
                 a = a + " endInnerTrx";
-            } failed {
+            } onretry {
                 a = a + " innerFailed";
             }
             a = a + " endOuterTrx";
-        } failed {
+        } onretry {
             a = a + " outerFailed";
         }
         a = a + " ";
@@ -174,7 +174,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries (int i) (string) {
                 a = a + err.message;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -198,7 +198,7 @@ function testTransactionStmtWithRetryOff (int i) (string) {
                 a = a + err.message;
             }
             a = a + " endTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -215,7 +215,7 @@ function testTransactionStmtWithConstRetryFailed () (string) {
             a = a + " inTrx";
             error err = {message:" err"};
             throw err;
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -232,7 +232,7 @@ function testTransactionStmtWithConstRetryFailed2 () (string) {
             a = a + " inTrx";
             error err = {message:" err"};
             throw err;
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -247,7 +247,7 @@ function testTransactionStmtWithConstRetrySuccess () (string) {
     try {
         transaction with retries(RETRYCOUNT) {
             a = a + " inTrx";
-        } failed {
+        } onretry {
             a = a + " inFailed";
         }
     } catch (error err) {
@@ -262,13 +262,13 @@ function testMultipleTransactionStmtSuccess () (string) {
     try {
         transaction {
             a = a + " inFirstTrxBlock";
-        } failed {
+        } onretry {
             a = a + " inFirstTrxFailed";
         }
         a = a + " inFirstTrxEnd";
         transaction {
             a = a + " inSecTrxBlock";
-        } failed {
+        } onretry {
             a = a + " inSecTrxFailed";
         }
         a = a + " inFSecTrxEnd";
@@ -286,7 +286,7 @@ function testMultipleTransactionStmtFailed1 () (string) {
             a = a + " inFirstTrxBlock";
             error err = {message:" err"};
             throw err;
-        } failed {
+        } onretry {
             a = a + " inFirstTrxFld";
         }
         a = a + " inFirstTrxEnd";
@@ -308,7 +308,7 @@ function testMultipleTransactionStmtFailed2 () (string) {
             a = a + " inFirstTrxBlock";
             error err = {message:" err"};
             throw err;
-        } failed {
+        } onretry {
             a = a + " inFirstTrxFld";
         }
         a = a + " inFirstTrxEnd";

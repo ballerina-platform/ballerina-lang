@@ -2651,6 +2651,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
+        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.onCommitFunction != null) {
+            committedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onCommitFunction).symbol);
+        }
+
+        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.onAbortFunction != null) {
+            abortedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
+        }
+
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
@@ -2658,7 +2670,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex);
+        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
+                abortedFuncRegIndex);
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
@@ -2679,8 +2692,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
-        if (transactionNode.failedBody != null) {
-            this.genNode(transactionNode.failedBody, this.env);
+        if (transactionNode.onRetryBody != null) {
+            this.genNode(transactionNode.onRetryBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
