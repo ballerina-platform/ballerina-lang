@@ -30,12 +30,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
+import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.http.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.http.websub.WebSubServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import java.util.HashSet;
 import java.util.logging.LogManager;
 
 /**
@@ -65,7 +67,9 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         }
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = getWebSubServicesRegistry(serviceEndpoint);
-        serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry));
+        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
+        serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
+                                                                                             filterHolder));
         // TODO: set startup server port binder. Do we really need it with new design?
         ConnectorStartupSynchronizer startupSynchronizer = new ConnectorStartupSynchronizer(1);
         serverConnectorFuture.setPortBindingEventListener(
