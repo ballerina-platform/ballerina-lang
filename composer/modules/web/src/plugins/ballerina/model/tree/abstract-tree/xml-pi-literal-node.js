@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractXmlPiLiteralNode extends Node {
+class AbstractXmlPiLiteralNode extends ExpressionNode {
 
 
     setDataTextFragments(newValue, silent, title) {

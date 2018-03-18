@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractXmlTextLiteralNode extends Node {
+class AbstractXmlTextLiteralNode extends ExpressionNode {
 
 
     setTextFragments(newValue, silent, title) {
