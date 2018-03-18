@@ -70,6 +70,11 @@ public class CommandUtil {
                 new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart)));
     }
 
+    /**
+     * Get the command for generate all documentation.
+     * @param docUri            Document Uri
+     * @return {@link Command}  All Document Generation command
+     */
     public static Command getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         return new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC,
