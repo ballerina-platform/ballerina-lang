@@ -22,7 +22,6 @@ import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientStubBal;
-import org.ballerinalang.net.grpc.builder.components.Connector;
 import org.ballerinalang.net.grpc.builder.components.DescriptorBuilder;
 import org.ballerinalang.net.grpc.builder.components.SampleClient;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
@@ -57,18 +56,18 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTyp
 /**
  * Class is responsible of generating the ballerina stub which is mapping proto definition.
  */
-public class BallerinaFile {
+public class BallerinaFileBuilder {
     
-    public static final Logger LOG = LoggerFactory.getLogger(BallerinaFile.class);
+    public static final Logger LOG = LoggerFactory.getLogger(BallerinaFileBuilder.class);
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
     private String balOutPath;
     
-    public BallerinaFile(List<byte[]> dependentDescriptors) {
+    public BallerinaFileBuilder(List<byte[]> dependentDescriptors) {
         this.dependentDescriptors = dependentDescriptors;
     }
     
-    public BallerinaFile(List<byte[]> dependentDescriptors, String balOutPath) {
+    public BallerinaFileBuilder(List<byte[]> dependentDescriptors, String balOutPath) {
         this.dependentDescriptors = dependentDescriptors;
         this.balOutPath = balOutPath;
     }
@@ -88,7 +87,8 @@ public class BallerinaFile {
             String methodID;
             String packageName = "".equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
                     fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
-            ClientStubBal clientStubBal = new ClientStubBal(packageName);
+            ClientStubBal clientStubBal = new ClientStubBal(packageName,fileDescriptorSet
+                    .getService(SERVICE_INDEX).getName());
             DescriptorBuilder descriptorBuilder;
             String protoPackage = fileDescriptorSet.getPackage();
             if ("".equals(protoPackage)) {
@@ -101,8 +101,6 @@ public class BallerinaFile {
             descriptorBuilder.setRootDescriptor(rootDescriptor);
             descriptorBuilder.buildMap();
             descriptorBuilder.buildKey();
-            Connector blockingConnector = new Connector(fileDescriptorSet.getName(), "blocking");
-            Connector nonBlockingConnector = new Connector(fileDescriptorSet.getName(), "non-blocking");
             for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                 MethodDescriptor.MethodType methodType = MessageUtils.getMethodType(methodDescriptorProto);
                 String[] outputTypes = methodDescriptorProto.getOutputType().split(PACKAGE_SEPARATOR_REGEX);
@@ -119,16 +117,9 @@ public class BallerinaFile {
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
                 new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID, methodType, blockingConnector, nonBlockingConnector).build();
+                        , methodID, methodType, clientStubBal).build();
             }
-            
-            if (blockingConnector.isActionsNotEmpty()) {
-                clientStubBal.addConnector(blockingConnector);
-            }
-            if (nonBlockingConnector.isActionsNotEmpty()) {
-                clientStubBal.addConnector(nonBlockingConnector);
-            }
-            
+
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 String[] attributesNameArr = new String[descriptorProto.getFieldCount()];
                 String[] attributesTypeArr = new String[descriptorProto.getFieldCount()];
@@ -145,16 +136,15 @@ public class BallerinaFile {
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
             }
             
-            SampleClient sampleClient = new SampleClient(nonBlockingConnector.isActionsNotEmpty(), blockingConnector
-                    .isActionsNotEmpty(), fileDescriptorSet
-                    .getService(SERVICE_INDEX).getName(), packageName);
+            SampleClient sampleClient = new SampleClient(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
+                    .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
                 String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName());
                 writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
                         SKELETON_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
                 writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + STUB_FILE_PRIFIX);
+                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PRIFIX);
             } else {
                 String path = this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
                         .getService(SERVICE_INDEX).getName();

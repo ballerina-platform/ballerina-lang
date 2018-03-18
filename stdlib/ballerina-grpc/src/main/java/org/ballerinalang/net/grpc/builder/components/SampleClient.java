@@ -36,6 +36,7 @@ public class SampleClient {
         }
         if (isBlockingEP) {
             blockingEndpoint.add(new BlockingEndPoint(serviceName));
+        } else {
             messageListener.add(new MessageListener(serviceName));
         }
     }

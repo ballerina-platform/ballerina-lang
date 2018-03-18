@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.net.grpc.MessageConstants;
-import org.ballerinalang.net.grpc.builder.BallerinaFile;
+import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
 import org.ballerinalang.net.grpc.proto.definition.Field;
@@ -488,9 +488,9 @@ public class ServiceProtoUtils {
                 dependentDescriptorsList.add(com.google.protobuf.WrappersProto.getDescriptor
                         ().toProto().toByteArray());
                 //Path path = Paths.get("");
-                BallerinaFile ballerinaFile = new BallerinaFile(dependentDescriptorsList);
-                ballerinaFile.setRootDescriptor(fileDescriptor);
-                ballerinaFile.build();
+                BallerinaFileBuilder ballerinaFileBuilder = new BallerinaFileBuilder(dependentDescriptorsList);
+                ballerinaFileBuilder.setRootDescriptor(fileDescriptor);
+                ballerinaFileBuilder.build();
             }
         } catch (IOException e) {
             throw new GrpcServerException("Error while writing file descriptor to file.", e);

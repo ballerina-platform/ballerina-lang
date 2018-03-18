@@ -50,16 +50,19 @@ public class DescriptorBuilder {
         DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                 .parseFrom(targetStream);
         BMap<String, BString> descriptorMap = new BMap<String, BString>();
-        descriptorMap.put("\"" + fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
-                + "\"", new BString("\"" + bytesToHex(rootDescriptor) + "\""));
-        
+        if(!"".equals(fileDescriptorSet.getPackage())) {
+            descriptorMap.put(fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName()
+                    , new BString(bytesToHex(rootDescriptor)));
+        } else {
+            descriptorMap.put(fileDescriptorSet.getName(), new BString(bytesToHex(rootDescriptor)));
+        }
         for (byte[] str : dependentDescriptors) {
             if (str.length > 0) {
                 targetStream = new ByteArrayInputStream(str);
                 fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                         .parseFrom(targetStream);
-                descriptorMap.put("\"" + fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() + "\"",
-                        new BString("\"" + bytesToHex(str) + "\""));
+                descriptorMap.put( fileDescriptorSet.getPackage() + "." + fileDescriptorSet.getName() ,
+                        new BString( bytesToHex(str)));
             }
         }
         int i = 0;

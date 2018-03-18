@@ -38,7 +38,7 @@ public class BalGenerationUtils {
     public static final String DEFAULT_TEMPLATE_DIR = File.separator + "templates";
     public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "skeleton";
     public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "skeleton";
-    public static final String SKELETON_TEMPLATE_NAME = "skeleton";
+    public static final String SKELETON_TEMPLATE_NAME = "clientStub";
     public static final String SAMPLE_TEMPLATE_NAME = "sample";
     
     /**

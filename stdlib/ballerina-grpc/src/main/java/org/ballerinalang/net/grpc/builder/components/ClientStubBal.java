@@ -26,14 +26,43 @@ import java.util.List;
 public class ClientStubBal {
     private String packageName;
     private String rootDescriptorKey;
-    private List<Connector> connectors = new ArrayList<>();
     private List<Struct> struct = new ArrayList<>();
+    private List<Stub> stubs = new ArrayList<>();
     private List<Descriptor> descriptors = new ArrayList<>();
+    private List<BlockingFunction> blockingFunctions = new ArrayList<>();
+    private List<NonBlockingFunction> nonBlockingFunctions = new ArrayList<>();
+    private List<StreamingFunction> streamingFunctions = new ArrayList<>();
+    private List<StubObjectsGetter> stubObjectsGetter = new ArrayList<>();
+    private Client client;
+    private String connectorId;
     
-    public ClientStubBal(String packageName) {
+    public ClientStubBal(String packageName, String connectorId) {
         this.packageName = packageName;
+        this.connectorId = connectorId;
+        this.client = new Client(connectorId);
     }
     
+    public void addBlockingFunction(String operationId, String inputDataType, String outputDataType, String methodId) {
+        BlockingFunction blockingFunctionsObj = new BlockingFunction
+                ("Blocking",connectorId,operationId, inputDataType, outputDataType, methodId);
+        blockingFunctions.add(blockingFunctionsObj);
+    }
+    public void addStubObjectsGetter(String stubTypeName) {
+        StubObjectsGetter stubObjectsGetterObj = new StubObjectsGetter(connectorId,stubTypeName);
+        stubObjectsGetter.add(stubObjectsGetterObj);
+    }
+    
+    public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
+        NonBlockingFunction nonBlockingFunctionsObj = new NonBlockingFunction(
+                null,connectorId, operationId, inputDataType, methodId);
+        nonBlockingFunctions.add(nonBlockingFunctionsObj);
+    }
+    
+    public void addStreamingFunction(String operationId, String inputDataType, String methodId) {
+        StreamingFunction streamingFunctionsObj = new StreamingFunction("NonBlocking",connectorId,
+                operationId, inputDataType, methodId);
+        streamingFunctions.add(streamingFunctionsObj);
+    }
     public void addStruct(String structId, String[] attributesNameArr, String[] attributesTypeArr) {
         Struct structObj = new Struct(structId);
         for (int i = 0; i < attributesNameArr.length; i++) {
@@ -41,13 +70,18 @@ public class ClientStubBal {
         }
         struct.add(structObj);
     }
+    public void addStub(String stubTypeName, String stubType) {
+        Stub stub = new Stub(connectorId,stubTypeName, stubType);
+        stubs.add(stub);
+    }
+    
+    public void addStubObjects(String stubTypeName, String stubType) {
+        StubObject stubObject = new StubObject(connectorId,stubTypeName,stubType);
+        client.addStubObjects(stubObject);
+    }
     
     public void addDescriptor(Descriptor descriptor) {
         descriptors.add(descriptor);
-    }
-    
-    public void addConnector(Connector connector) {
-        connectors.add(connector);
     }
     
     public List<Struct> getStructs() {
@@ -64,14 +98,6 @@ public class ClientStubBal {
     
     public void setPackageName(String packageName) {
         this.packageName = packageName;
-    }
-    
-    public List<Connector> getConnectors() {
-        return connectors;
-    }
-    
-    public void setConnectors(List<Connector> connectors) {
-        this.connectors = connectors;
     }
     
     public String getRootDescriptorKey() {
@@ -97,4 +123,53 @@ public class ClientStubBal {
     public void setDescriptors(List<Descriptor> descriptors) {
         this.descriptors = descriptors;
     }
+    
+    public List<Stub> getStubs() {
+        return stubs;
+    }
+    
+    public void setStubs(List<Stub> stubs) {
+        this.stubs = stubs;
+    }
+    
+    public List getBlockingFunction() {
+        return blockingFunctions;
+    }
+    
+    public void setBlockingFunction(List<BlockingFunction> blockingFunctions) {
+        this.blockingFunctions = blockingFunctions;
+    }
+    
+    public List getNonBlockingFunction() {
+        return nonBlockingFunctions;
+    }
+    
+    public void setNonBlockingFunction(List<NonBlockingFunction> nonBlockingFunctions) {
+        this.nonBlockingFunctions = nonBlockingFunctions;
+    }
+    
+    public List getStreamingFunction() {
+        return streamingFunctions;
+    }
+    
+    public void setStreamingFunction(List<StreamingFunction> streamingFunctions) {
+        this.streamingFunctions = streamingFunctions;
+    }
+    
+    public List<StubObjectsGetter> getStubObjectsGetter() {
+        return stubObjectsGetter;
+    }
+    
+    public void setStubObjectsGetter(List<StubObjectsGetter> stubObjectsGetter) {
+        this.stubObjectsGetter = stubObjectsGetter;
+    }
+    
+    public boolean isFunctionsStremingNotEmpty() {
+        return (!nonBlockingFunctions.isEmpty() || !streamingFunctions.isEmpty());
+    }
+    public boolean isFunctionsUnaryNotEmpty() {
+        return (!blockingFunctions.isEmpty());
+    }
+    
+    
 }

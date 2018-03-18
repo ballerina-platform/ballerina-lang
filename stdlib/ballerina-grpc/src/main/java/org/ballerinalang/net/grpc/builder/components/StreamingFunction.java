@@ -20,18 +20,23 @@ package org.ballerinalang.net.grpc.builder.components;
 /**
  * .
  */
-public class NonBlockingAction {
+public class StreamingFunction {
+    private String stubTypeName;
+    private String connectorId;
     private String operationId;
     private String inputDataType;
     private String methodId;
     
-    public NonBlockingAction(String operationId, String inputDataType, String methodId) {
+    public StreamingFunction(String stubTypeName, String connectorId,
+                             String operationId, String inputDataType, String methodId) {
         this.operationId = operationId;
         this.inputDataType = inputDataType;
         this.methodId = methodId;
+        this.stubTypeName = stubTypeName;
+        this.connectorId = connectorId;
     }
     
-    public NonBlockingAction() {
+    public StreamingFunction() {
     }
     
     public String getOperationId() {
@@ -56,5 +61,21 @@ public class NonBlockingAction {
     
     public void setMethodId(String methodId) {
         this.methodId = methodId;
+    }
+    
+    public String getStubTypeName() {
+        return stubTypeName;
+    }
+    
+    public void setStubTypeName(String stubTypeName) {
+        this.stubTypeName = stubTypeName;
+    }
+    
+    public String getConnectorId() {
+        return connectorId;
+    }
+    
+    public void setConnectorId(String connectorId) {
+        this.connectorId = connectorId;
     }
 }

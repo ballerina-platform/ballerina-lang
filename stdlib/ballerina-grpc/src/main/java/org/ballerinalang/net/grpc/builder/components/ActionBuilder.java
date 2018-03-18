@@ -32,13 +32,11 @@ public class ActionBuilder {
     private String resMessageName;
     private String methodID;
     private MethodType methodType;
-    private Connector blockingConnector;
-    private Connector nonBlockingConnector;
+    private ClientStubBal clientStubBal;
     
     public ActionBuilder(String methodName, String reqMessageName, String resMessageName, String methodID,
-                         MethodType methodType, Connector blockingConnector, Connector nonBlockingConnector) {
-        this.blockingConnector = blockingConnector;
-        this.nonBlockingConnector = nonBlockingConnector;
+                         MethodType methodType, ClientStubBal clientStubBal) {
+        this.clientStubBal= clientStubBal;
         this.methodName = methodName;
         this.reqMessageName = reqMessageName;
         this.resMessageName = resMessageName;
@@ -49,17 +47,29 @@ public class ActionBuilder {
     public void build() {
         switch (methodType) {
             case UNARY: {
-                blockingConnector.addBlockingAction(methodName, reqMessageName, resMessageName, methodID);
-                nonBlockingConnector.addNonBlockingAction(methodName, reqMessageName, methodID);
+                clientStubBal.addBlockingFunction(methodName,reqMessageName, resMessageName, methodID);
+                clientStubBal.addStubObjectsGetter("Blocking");
+                clientStubBal.addStub("Blocking","blocking");
+                clientStubBal.addStubObjects("Blocking","blocking");
+                clientStubBal.addNonBlockingFunction(methodName, reqMessageName, methodID);
+                clientStubBal.addStubObjectsGetter(null);
+                clientStubBal.addStub(null,"non-blocking");
+                clientStubBal.addStubObjects(null,null);
                 break;
             }
             case SERVER_STREAMING: {
-                nonBlockingConnector.addNonBlockingAction(methodName, reqMessageName, methodID);
+                clientStubBal.addNonBlockingFunction(methodName, reqMessageName, methodID);
+                clientStubBal.addStubObjectsGetter(null);
+                clientStubBal.addStub(null,"non-blocking");
+                clientStubBal.addStubObjects(null,null);
                 break;
             }
             case CLIENT_STREAMING:
             case BIDI_STREAMING: {
-                nonBlockingConnector.addStreamingAction(methodName, reqMessageName, methodID);
+                clientStubBal.addStreamingFunction(methodName,reqMessageName, methodID);
+                clientStubBal.addStubObjectsGetter(null);
+                clientStubBal.addStubObjects(null,null);
+                clientStubBal.addStub(null,"non-blocking");
                 break;
             }
             default: {
