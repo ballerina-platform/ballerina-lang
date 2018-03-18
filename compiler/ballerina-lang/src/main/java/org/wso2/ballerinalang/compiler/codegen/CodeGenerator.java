@@ -397,7 +397,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
         currentPkgInfo = packageInfo;
-        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                    currentPkgID.bvmAlias());
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // Insert the package reference to the constant pool of the current package
@@ -1454,7 +1455,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             int typeDescCPIndex = currentPkgInfo.addCPEntry(typeDescCPEntry);
 
 
-            String constPkg = simpleVarRef.symbol.pkgID.getName().getValue();
+            String constPkg = simpleVarRef.symbol.pkgID.bvmAlias();
             UTF8CPEntry constPkgCPEntry = new UTF8CPEntry(constPkg);
             int constPkgCPIndex = currentPkgInfo.addCPEntry(constPkgCPEntry);
 
@@ -2001,7 +2002,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Create service info
         PackageID protocolPkgId = ((BTypeSymbol) serviceNode.symbol).protocolPkgId;
         if (protocolPkgId != null) {
-            String protocolPkg = protocolPkgId.getName().value;
+            String protocolPkg = protocolPkgId.bvmAlias();
             int protocolPkgCPIndex = addUTF8CPEntry(currentPkgInfo, protocolPkg);
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
                     serviceNode.symbol.flags, protocolPkgCPIndex);
@@ -2125,7 +2126,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
-        int nameCPIndex = addUTF8CPEntry(pool, pkgID.name.value);
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.bvmAlias());
         int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);

@@ -146,7 +146,7 @@ public class PackageLoader {
 
     public BLangPackage loadPackage(PackageID pkgId) {
         BLangPackage packageNode = loadPackage(pkgId, null);
-        addImportPkg(packageNode, Names.RUNTIME_PACKAGE.value);
+        addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
         return packageNode;
     }
 
@@ -163,9 +163,9 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadAndDefinePackage(String sourcePkg) {
+    public BLangPackage loadAndDefinePackage(String orgName, String pkgName) {
         // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(sourcePkg);
+        PackageID pkgId = getPackageID(orgName, pkgName);
         return loadAndDefinePackage(pkgId);
     }
 
@@ -203,7 +203,7 @@ public class PackageLoader {
 
     // Private methods
 
-    private void addImportPkg(BLangPackage bLangPackage, String sourcePkgName) {
+    private void addImportPkg(BLangPackage bLangPackage, String orgName, String sourcePkgName, String version) {
         List<Name> nameComps = getPackageNameComps(sourcePkgName);
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(comp -> {
@@ -213,9 +213,9 @@ public class PackageLoader {
         });
 
         BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        orgNameNode.setValue(Names.ANON_ORG.value);
+        orgNameNode.setValue(orgName);
         BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        versionNode.setValue(Names.DEFAULT_VERSION.value);
+        versionNode.setValue(version);
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = bLangPackage.pos;
         importDcl.pkgNameComps = pkgNameComps;
@@ -227,10 +227,11 @@ public class PackageLoader {
         bLangPackage.imports.add(importDcl);
     }
 
-    private PackageID getPackageID(String sourcePkg) {
+    private PackageID getPackageID(String org, String sourcePkg) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
-        return new PackageID(Names.ANON_ORG, pkgNameComps, Names.DEFAULT_VERSION);
+        Name orgName = new Name(org);
+        return new PackageID(orgName, pkgNameComps, Names.DEFAULT_VERSION);
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {

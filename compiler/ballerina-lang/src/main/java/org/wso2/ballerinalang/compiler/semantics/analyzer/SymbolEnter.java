@@ -260,7 +260,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
-        if (importPkgNode.orgName.value == null) {
+        if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()) {
             // means it's in 'import <pkg-name>' style
             orgName = Names.ANON_ORG;
         } else {
@@ -880,7 +880,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void createPackageInitFunction(BLangPackage pkgNode) {
-        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.getName().getValue());
+        BLangFunction initFunction = createInitFunction(pkgNode.pos, pkgNode.symbol.pkgID.bvmAlias());
         pkgNode.initFunction = initFunction;
     }
 

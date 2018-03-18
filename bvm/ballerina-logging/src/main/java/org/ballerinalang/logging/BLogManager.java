@@ -60,7 +60,7 @@ public class BLogManager extends LogManager {
     private static final String SP_LOG_CONFIG_FILE = "java.util.logging.config.file";
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
-    private BLogLevel ballerinaUserLogLevel;
+    private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO;
     private Logger httpTraceLogger;
     private Logger httpAccessLogger;
 

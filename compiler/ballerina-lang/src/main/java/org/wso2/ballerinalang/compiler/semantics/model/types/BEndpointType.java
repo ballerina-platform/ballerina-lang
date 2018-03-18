@@ -46,6 +46,6 @@ public class BEndpointType extends BType implements ConstrainedType {
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_CONNECTOR + constraint.tsymbol.pkgID.name + ":" + constraint.tsymbol.name + ";";
+        return TypeDescriptor.SIG_CONNECTOR + constraint.tsymbol.pkgID.bvmAlias() + ":" + constraint.tsymbol.name + ";";
     }
 }
