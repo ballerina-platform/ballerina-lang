@@ -38,7 +38,7 @@ service<http:Service> participant1 bind participant1EP {
         transaction {
             var clientResponse1, _ = ep -> forward("/task1", req);
             clientResponse2, _ = ep -> get("/task2", newReq);
-        } failed {
+        } onretry {
             io:println("Participant1 failed");
         }
         _ = conn -> forward(clientResponse2);

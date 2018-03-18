@@ -37,7 +37,7 @@ service<http:Service> InitiatorService bind initiatorEP {
         http:Response clientResponse1;
         transaction {
             clientResponse1, _ = ep -> get("/", newReq);
-        } failed {
+        } onretry {
             io:println("Intiator failed");
         }
         _ = conn -> forward(clientResponse1);
