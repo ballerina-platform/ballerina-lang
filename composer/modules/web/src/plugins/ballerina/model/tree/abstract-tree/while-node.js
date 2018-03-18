@@ -48,6 +48,7 @@ class AbstractWhileNode extends StatementNode {
     }
 
 
+
     setCondition(newValue, silent, title) {
         const oldValue = this.condition;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractWhileNode extends StatementNode {
     getCondition() {
         return this.condition;
     }
+
 
 
 }

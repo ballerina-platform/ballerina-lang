@@ -48,6 +48,7 @@ class AbstractForeachNode extends StatementNode {
     }
 
 
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -191,6 +192,7 @@ class AbstractForeachNode extends StatementNode {
     getCollection() {
         return this.collection;
     }
+
 
 
 }

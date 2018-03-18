@@ -22,6 +22,33 @@ import Node from '../node';
 class AbstractConnectorNode extends Node {
 
 
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
     setEndpointNodes(newValue, silent, title) {
         const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -260,32 +287,6 @@ class AbstractConnectorNode extends Node {
     }
 
 
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
-
     setInitAction(newValue, silent, title) {
         const oldValue = this.initAction;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -312,6 +313,7 @@ class AbstractConnectorNode extends Node {
     }
 
 
+
     setName(newValue, silent, title) {
         const oldValue = this.name;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -336,6 +338,7 @@ class AbstractConnectorNode extends Node {
     getName() {
         return this.name;
     }
+
 
 
     setActions(newValue, silent, title) {
@@ -598,6 +601,7 @@ class AbstractConnectorNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {

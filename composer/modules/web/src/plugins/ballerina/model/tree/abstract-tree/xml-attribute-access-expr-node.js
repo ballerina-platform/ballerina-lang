@@ -48,6 +48,7 @@ class AbstractXmlAttributeAccessExprNode extends Node {
     }
 
 
+
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractXmlAttributeAccessExprNode extends Node {
     getExpression() {
         return this.expression;
     }
+
 
 
 }

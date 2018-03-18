@@ -48,6 +48,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
     }
 
 
+
     setLocalname(newValue, silent, title) {
         const oldValue = this.localname;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
     }
 
 
+
     setNamespaceUri(newValue, silent, title) {
         const oldValue = this.namespaceUri;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -96,6 +98,7 @@ class AbstractXmlQnameNode extends ExpressionNode {
     getNamespaceUri() {
         return this.namespaceUri;
     }
+
 
 
 }

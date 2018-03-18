@@ -46,6 +46,7 @@ class AbstractDeprecatedNode extends Node {
     }
 
 
+
 }
 
 export default AbstractDeprecatedNode;

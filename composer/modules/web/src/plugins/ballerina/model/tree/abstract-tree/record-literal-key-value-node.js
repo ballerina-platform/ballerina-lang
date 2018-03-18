@@ -17,9 +17,9 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractRecordLiteralKeyValueNode extends Node {
+class AbstractRecordLiteralKeyValueNode extends ExpressionNode {
 
 
     setValue(newValue, silent, title) {
@@ -48,6 +48,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
     }
 
 
+
     setKey(newValue, silent, title) {
         const oldValue = this.key;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractRecordLiteralKeyValueNode extends Node {
     getKey() {
         return this.key;
     }
+
 
 
 }

@@ -48,6 +48,7 @@ class AbstractUnaryExprNode extends ExpressionNode {
     }
 
 
+
     setOperatorKind(newValue, silent, title) {
         const oldValue = this.operatorKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -70,6 +71,7 @@ class AbstractUnaryExprNode extends ExpressionNode {
     getOperatorKind() {
         return this.operatorKind;
     }
+
 
 
 }

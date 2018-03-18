@@ -48,6 +48,7 @@ class AbstractAnnotationAttachmentNode extends Node {
     }
 
 
+
     setAnnotationName(newValue, silent, title) {
         const oldValue = this.annotationName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractAnnotationAttachmentNode extends Node {
     }
 
 
+
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractAnnotationAttachmentNode extends Node {
     getExpression() {
         return this.expression;
     }
+
 
 
     setAttributes(newValue, silent, title) {
