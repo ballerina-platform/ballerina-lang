@@ -29,6 +29,7 @@ struct Participant2pcClientConfig {
 
 struct Participant2pcClientEP {
     http:ClientEndpoint httpClient;
+    Participant2pcClientConfig conf;
 }
 
 function <Participant2pcClientEP ep> init(Participant2pcClientConfig conf){
@@ -37,6 +38,7 @@ function <Participant2pcClientEP ep> init(Participant2pcClientConfig conf){
                                             retryConfig:{count:conf.retryConfig.count,
                                                             interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
+    ep.conf = conf;
 }
 
 function <Participant2pcClientEP ep> getClient() returns (Participant2pcClient) {
@@ -66,8 +68,8 @@ function<Participant2pcClient client> prepare (string transactionId) returns (st
                 } else if (statusCode == 404 && msg == "Transaction-Unknown") {
                     err = {message:msg};
                 } else {
-                    //err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " + participantURL}; //TODO: Fix
-                    err = {message:"Prepare failed. Transaction: " + transactionId};
+                    err = {message:"Prepare failed. Transaction: " + transactionId + ", Participant: " +
+                                   client.clientEP.conf.participantURL};
                 }
             } else {
                 err = (error)transformErr;
@@ -108,8 +110,8 @@ function<Participant2pcClient client> notify (string transactionId, string messa
                            (statusCode == 500 && msg == "Failed-EOT")) {
                     participantErr = {message:msg};
                 } else {
-                    //participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " + participantURL}; //TODO fix
-                    participantErr = {message:"Notify failed. Transaction: " + transactionId};
+                    participantErr = {message:"Notify failed. Transaction: " + transactionId + ", Participant: " +
+                                                                               client.clientEP.conf.participantURL};
                 }
             } else {
                 communicationErr = (error)transformErr;
