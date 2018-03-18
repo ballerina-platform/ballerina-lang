@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -70,14 +71,14 @@ public class EndpointSPIAnalyzer {
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
-    public void resolveEndpointSymbol(DiagnosticPos pos, BEndpointVarSymbol endpointVarSymbol) {
-        if (endpointVarSymbol == null) {
-            dlog.error(pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, "");
+    public void resolveEndpointSymbol(BLangEndpoint endpoint) {
+        if (endpoint.symbol == null) {
+            dlog.error(endpoint.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, "");
             return;
         }
-        if (isValidEndpointType(pos, endpointVarSymbol.type)) {
+        if (isValidEndpointType(endpoint.pos, endpoint.symbol.type)) {
             // Update endpoint variable symbol
-            populateEndpointSymbol((BStructSymbol) endpointVarSymbol.type.tsymbol, endpointVarSymbol);
+            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
         }
     }
 
