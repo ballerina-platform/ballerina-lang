@@ -25,7 +25,7 @@ public class WebSocketConstants {
 
     public static final String TO = "TO";
 
-    public static final String WEBSOCKET_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSocketService";
+    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina.net.http:WebSocketEndpoint";
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "webSocketServiceConfig";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
@@ -58,6 +58,7 @@ public class WebSocketConstants {
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
+    public static final String WEBSOCKET_ENDPOINT = "WebSocketEndpoint";
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";

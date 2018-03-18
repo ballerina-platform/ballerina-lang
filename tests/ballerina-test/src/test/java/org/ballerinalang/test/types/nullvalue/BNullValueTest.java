@@ -72,14 +72,6 @@ public class BNullValueTest {
         Assert.assertEquals(vals[2], new BInteger(7));
     }
 
-    @Test(description = "Test null value of a connector")
-    public void testConnectorNull() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testConnectorNull", new BValue[]{});
-        Assert.assertEquals(vals[0], null);
-        Assert.assertEquals(vals[1], null);
-        Assert.assertEquals(vals[2], new BInteger(8));
-    }
-
     @Test(description = "Test null value of a connector", enabled = false)
     public void testConnectorNotNull() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testConnectorNotNull", new BValue[] {});

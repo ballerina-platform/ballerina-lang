@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -228,15 +227,16 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
+        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
+        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
+        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.streamlets = rewrite(pkgNode.streamlets, env);
         pkgNode.services = rewrite(pkgNode.services, env);
-        pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
         annotationDesugar.rewritePackageAnnotations(pkgNode);
-        pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
-        endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -343,7 +343,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpoint) {
-        endpointDesugar.rewriteEndpoint(endpoint, env);
         result = endpoint;
     }
 
@@ -1323,18 +1322,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
-        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
-            // Convert to endpoint.getConnector(). iExpr has to be a VarRef.
-            final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
-            final BStructSymbol.BAttachedFunction getConnectorFunction = ((BStructSymbol) epSymbol.type.tsymbol)
-                    .attachedFuncs.stream()
-                    .filter(f -> f.funcName.equals(Names.EP_SPI_GET_CONNECTOR))
-                    .findAny().get();
-            final BLangInvocation invocationExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
-                    getConnectorFunction.symbol, Collections.emptyList(), symResolver);
-            invocationExpr.expr = iExpr.expr;
-            iExpr.expr = invocationExpr;
-        }
+        final BEndpointVarSymbol epSymbol = (BEndpointVarSymbol) iExpr.expr.symbol;
+        // Convert to endpoint.getClient(). iExpr has to be a VarRef.
+        final BLangInvocation getClientExpr = ASTBuilderUtil.createInvocationExpr(iExpr.expr.pos,
+                epSymbol.getClientFunction, Collections.emptyList(), symResolver);
+        getClientExpr.expr = iExpr.expr;
+        iExpr.expr = getClientExpr;
     }
 
     @SuppressWarnings("unchecked")

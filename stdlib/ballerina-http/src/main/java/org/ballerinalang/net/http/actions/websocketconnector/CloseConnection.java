@@ -19,9 +19,10 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -33,27 +34,25 @@ import javax.websocket.Session;
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "closeConnection",
-        connectorName = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        functionName = "closeConnection",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING)
-        },
-        connectorArgs = {
-                @Argument(name = "attributes", type = TypeKind.MAP)
         }
 )
 public class CloseConnection extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BConnector wsConnector = (BConnector) context.getRefArgument(0);
+        BStruct wsConnection = (BStruct) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
-        Session session = (Session) wsConnector.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
+        Session session = (Session) wsConnection.getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION);
         try {
             session.close(new CloseReason(() -> statusCode, reason));
         } catch (IOException e) {

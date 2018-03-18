@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -34,12 +35,13 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 /**
  * {@code Head} is the HEAD action implementation of the HTTP Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "head",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+        functionName = "head",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.net.http")
@@ -48,11 +50,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
                 @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.net.http")
         }
 )
 public class Head extends AbstractHTTPAction {

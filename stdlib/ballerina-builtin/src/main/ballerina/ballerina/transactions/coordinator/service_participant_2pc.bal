@@ -19,15 +19,13 @@ package ballerina.transactions.coordinator;
 import ballerina.log;
 import ballerina.net.http;
 
-@http:configuration {
-    basePath:participant2pcCoordinatorBasePath,
-    host:coordinatorHost,
-    port:coordinatorPort
+@http:serviceConfig {
+    basePath:participant2pcCoordinatorBasePath
 }
 documentation {
     Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
 }
-service<http> Participant2pcService {
+service<http:Service> Participant2pcService bind coordinatorServerEP{
 
     @http:resourceConfig {
         methods:["POST"],
@@ -42,7 +40,7 @@ service<http> Participant2pcService {
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource prepare (http:Connection conn, http:Request req, string transactionBlockId) {
+    prepare (endpoint conn, http:Request req, string transactionBlockId) {
         http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
@@ -52,9 +50,9 @@ service<http> Participant2pcService {
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
-            var connError = conn.respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response to Bad Request for prepare request failed", (error)connError);
+            var connErr = conn -> respond(res);
+            if (connErr != null) {
+                log:printErrorCause("Sending response to Bad Request for prepare request failed", (error)connErr);
             }
         } else {
             var prepareReq, _ = <PrepareRequest>payload;
@@ -67,28 +65,36 @@ service<http> Participant2pcService {
                 res = {statusCode:404};
                 prepareRes = {message:"Transaction-Unknown"};
             } else {
-                // Call prepare on the local resource manager
-                boolean prepareSuccessful = prepareResourceManagers(transactionId, txnBlockId);
-                if (prepareSuccessful) {
+                if (txn.state == TransactionState.ABORTED) {
                     res = {statusCode:200};
-                    txn.state = TransactionState.PREPARED;
-                    //PrepareResponse prepareRes = {message:"read-only"};
-                    prepareRes = {message:"prepared"};
-                    log:printInfo("Prepared transaction: " + transactionId);
-                } else {
-                    res = {statusCode:500};
                     prepareRes = {message:"aborted"};
-                    // do not remove the transaction since we may get a msg from the initiator
-                    txn.state = TransactionState.ABORTED;
-                    log:printInfo("Aborted transaction: " + transactionId);
+                    //TODO remove the transaction
+                    participatedTransactions.remove(participatedTxnId);
+                } else {
+                    // Call prepare on the local resource manager
+                    boolean prepareSuccessful = prepareResourceManagers(transactionId, txnBlockId);
+                    if (prepareSuccessful) {
+                        res = {statusCode:200};
+                        txn.state = TransactionState.PREPARED;
+                        //PrepareResponse prepareRes = {message:"read-only"};
+                        prepareRes = {message:"prepared"};
+                        log:printInfo("Prepared transaction: " + transactionId);
+                    } else {
+                        res = {statusCode:200};
+                        prepareRes = {message:"aborted"};
+                        txn.state = TransactionState.ABORTED;
+                        //TODO do not remove the transaction since we may get a msg from the initiator
+                        participatedTransactions.remove(participatedTxnId);
+                        log:printInfo("Aborted transaction: " + transactionId);
+                    }
                 }
             }
             var j, _ = <json>prepareRes;
             res.setJsonPayload(j);
-            var connError = conn.respond(res);
-            if (connError != null) {
+            var connErr = conn -> respond(res);
+            if (connErr != null) {
                 log:printErrorCause("Sending response for prepare request for transaction " + transactionId +
-                                    " failed", (error)connError);
+                                    " failed", (error)connErr);
             }
         }
     }
@@ -101,11 +107,12 @@ service<http> Participant2pcService {
         When the initiator sends "notify(commit | abort)" this resource on the participant will get called.
         This participant will in turn call "commit" or "abort" on all the resource managers registered with the
         respective transaction.
+
         P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
                                   participant as part of the participant protocol endpoint. The initiator isn't aware
                                   of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
-    resource notify (http:Connection conn, http:Request req, string transactionBlockId) {
+    notify (endpoint conn, http:Request req, string transactionBlockId) {
         http:Response res;
         var payload, payloadError = req.getJsonPayload();
         var txnBlockId, txnBlockIdConversionErr = <int>transactionBlockId;
@@ -114,9 +121,9 @@ service<http> Participant2pcService {
             RequestError err = {errorMessage:"Bad Request"};
             var resPayload, _ = <json>err;
             res.setJsonPayload(resPayload);
-            var connError = conn.respond(res);
-            if (connError != null) {
-                log:printErrorCause("Sending response to Bad Request for notify request failed", (error)connError);
+            var connErr = conn -> respond(res);
+            if (connErr != null) {
+                log:printErrorCause("Sending response to Bad Request for notify request failed", (error)connErr);
             }
         } else {
             var notifyReq, _ = <NotifyRequest>payload;
@@ -161,14 +168,15 @@ service<http> Participant2pcService {
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-                // do not remove the transaction since we may get a msg from the initiator
+                //TODO do not remove the transaction since we may get a msg from the initiator
+                participatedTransactions.remove(participatedTxnId);
             }
             var j, _ = <json>notifyRes;
             res.setJsonPayload(j);
-            var connError = conn.respond(res);
-            if (connError != null) {
+            var connErr = conn -> respond(res);
+            if (connErr != null) {
                 log:printErrorCause("Sending response for notify request for transaction " + transactionId +
-                                    " failed", (error)connError);
+                                    " failed", (error)connErr);
             }
         }
     }
