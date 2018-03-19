@@ -22,6 +22,8 @@ import java.util.Set;
 
 /**
  * This class will preserve an instance the current connection context as thread local variable.
+ *
+ * @since 1.0.0
  */
 public class MessageContext {
     public static final Context.Key<MessageContext> DATA_KEY = Context.key("MessageContext");

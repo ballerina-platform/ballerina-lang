@@ -97,6 +97,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -116,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -151,6 +154,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int workerCount;
     private SymbolEnter symbolEnter;
     private SymbolTable symTable;
+    private Types types;
     private BLangDiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
@@ -169,6 +173,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
@@ -301,13 +306,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         transactionNode.transactionBody.accept(this);
         this.transactionCount--;
         this.resetLastStatement();
-        if (transactionNode.failedBody != null) {
-            transactionNode.failedBody.accept(this);
+        if (transactionNode.onRetryBody != null) {
+            transactionNode.onRetryBody.accept(this);
             this.resetStatementReturns();
             this.resetLastStatement();
         }
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(transactionNode.retryCount);
+        analyzeExpr(transactionNode.onCommitFunction);
+        analyzeExpr(transactionNode.onAbortFunction);
     }
 
     @Override
@@ -364,6 +371,63 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
         analyzeExpr(ifStmt.expr);
+    }
+
+    @Override
+    public void visit(BLangMatch matchStmt) {
+        boolean unmatchedExprTypesAvailable = false;
+        analyzeExpr(matchStmt.expr);
+
+        // TODO Handle **any** as a expr type.. special case it..
+        // TODO Complete the exhaustive tests with any, struct and connector types
+        // TODO Handle the case where there are incompatible types. e.g. input string : pattern int and pattern string
+
+        List<BType> unmatchedExprTypes = new ArrayList<>();
+        List<BLangMatchStmtPatternClause> unmatchedPatterns = new ArrayList<>(matchStmt.patternClauses);
+        for (BType exprType : matchStmt.exprTypes) {
+            boolean assignable = false;
+            for (BLangMatchStmtPatternClause pattern : matchStmt.patternClauses) {
+                BType patternType = pattern.variable.type;
+                if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
+                    return;
+                }
+
+                assignable = this.types.isAssignable(exprType, patternType);
+                if (assignable) {
+                    unmatchedPatterns.remove(pattern);
+                    break;
+                }
+            }
+
+            if (!assignable) {
+                unmatchedExprTypes.add(exprType);
+            }
+        }
+
+        if (!unmatchedExprTypes.isEmpty()) {
+            unmatchedExprTypesAvailable = true;
+            dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
+                    unmatchedExprTypes);
+        }
+
+        if (!unmatchedPatterns.isEmpty()) {
+            unmatchedPatterns.forEach(patternClause -> {
+                dlog.error(patternClause.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+            });
+        }
+
+        // Execute the following block if there are no unmatched expression types
+        if (!unmatchedExprTypesAvailable) {
+            this.checkStatementExecutionValidity(matchStmt);
+            boolean matchStmtReturns = true;
+            for (BLangMatchStmtPatternClause patternClause : matchStmt.patternClauses) {
+                patternClause.body.accept(this);
+                matchStmtReturns = matchStmtReturns && this.statementReturns;
+                this.resetStatementReturns();
+            }
+
+            this.statementReturns = matchStmtReturns;
+        }
     }
 
     @Override

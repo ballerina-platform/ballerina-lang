@@ -38,16 +38,21 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "nonBlockingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
@@ -55,15 +60,15 @@ import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc"),
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC),
         },
         isPublic = true
 )
 public class NonBlockingExecute extends AbstractExecute {
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(0);
+        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
@@ -98,11 +103,11 @@ public class NonBlockingExecute extends AbstractExecute {
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(context, callbackService),
+                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
                             methodName);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(context,
-                            callbackService), methodName);
+                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService)
+                            , methodName);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

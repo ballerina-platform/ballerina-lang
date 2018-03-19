@@ -53,6 +53,6 @@ public native function <ClientConnection conn> complete () (ConnectorError);
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The inbound response message"}
 @Return {value:"Error occured during HTTP server connector forward"}
-public native function <ClientConnection conn> error (ClientError clientError) (ConnectorError);
+public native function <ClientConnection conn> errorResponse (ClientError clientError) (ConnectorError);
 
 

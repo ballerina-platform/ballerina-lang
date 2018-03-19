@@ -33,16 +33,21 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "blockingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceStub",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY)
@@ -50,8 +55,8 @@ import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_STUB;
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = "ConnectorError",
-                        structPackage = "ballerina.net.grpc"),
+                @ReturnType(type = TypeKind.STRUCT, structType = CONNECTOR_ERROR,
+                        structPackage = PROTOCOL_PACKAGE_GRPC),
         },
         isPublic = true
 )
@@ -59,7 +64,7 @@ public class BlockingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(0);
+        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC service stub " +
                     "is not initialized properly");

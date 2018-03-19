@@ -28,7 +28,9 @@ import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 
 /**
- * This class handles Non Blocking client connector.
+ * This class handles Blocking client connection.
+ *
+ * @since 1.0.0
  */
 public class GrpcBlockingStub extends io.grpc.stub.AbstractStub<GrpcBlockingStub> {
     private Map<String, MethodDescriptor<Message, Message>> descriptorMap;
@@ -47,6 +49,13 @@ public class GrpcBlockingStub extends io.grpc.stub.AbstractStub<GrpcBlockingStub
         return new GrpcBlockingStub(channel, callOptions);
     }
 
+    /**
+     * Executes server streaming call and blocks on the response.
+     *
+     * @param request  request message.
+     * @param methodID method name
+     * @return  response message iterator.
+     */
     public java.util.Iterator<Message> executeServerStreaming(
             Message request, String methodID) {
         MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);

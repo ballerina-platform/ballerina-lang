@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
@@ -25,17 +24,20 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-/**
- * Get the ID of the connection.
- *
- * @since 0.966
- */
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
 
+/**
+ * Native function to register service to client endpoint.
+ * Not registering any service.
+ *
+ * @since 1.0.0
+ */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
-                             structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
+                             structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
 )

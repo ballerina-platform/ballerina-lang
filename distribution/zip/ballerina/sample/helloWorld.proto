@@ -1,6 +1,0 @@
-syntax = "proto3";
-import "google/protobuf/wrappers.proto";
-service helloWorld {
-		rpc lotsOfReplies(google.protobuf.StringValue) returns (stream google.protobuf.StringValue);
-		rpc lotsOfByes(google.protobuf.StringValue) returns (stream google.protobuf.StringValue);
-}

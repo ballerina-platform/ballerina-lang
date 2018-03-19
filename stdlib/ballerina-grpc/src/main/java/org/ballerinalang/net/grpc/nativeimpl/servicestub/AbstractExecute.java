@@ -26,13 +26,17 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CONNECTOR_ERROR;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
+ *
+ * @since 1.0.0
  */
 public abstract class AbstractExecute extends BlockingNativeCallableUnit {
 
@@ -85,14 +89,14 @@ public abstract class AbstractExecute extends BlockingNativeCallableUnit {
 
     BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
-                .getPackageInfo(MessageConstants.PROTOCOL_PACKAGE_GRPC);
+                .getPackageInfo(PROTOCOL_PACKAGE_GRPC);
         StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructType structType = structInfo.getType();
         return new BStruct(structType);
     }
 
     void notifyErrorReply(Context context, String errorMessage) {
-        BStruct outboundError = createStruct(context, "ConnectorError");
+        BStruct outboundError = createStruct(context, CONNECTOR_ERROR);
         outboundError.setStringField(0, errorMessage);
         context.setError(outboundError);
     }

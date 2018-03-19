@@ -30,20 +30,25 @@ import java.util.List;
 
 /**
  * This is Server Streaming Method Implementation for gRPC Service Call.
+ *
+ * @since 1.0.0
  */
 public class ServerStreamingListener extends MethodListener implements ServerCalls.ServerStreamingMethod<Message,
         Message> {
 
+    public Resource resource;
+
     public ServerStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
-        super(methodDescriptor, resource);
+        super(methodDescriptor);
+        this.resource = resource;
     }
 
     @Override
     public void invoke(Message request, StreamObserver<Message> responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(responseObserver);
-        BValue requestParam = getRequestParameter(request);
+        signatureParams[0] = getConnectionParameter(resource, responseObserver);
+        BValue requestParam = getRequestParameter(resource, request);
         if (requestParam != null) {
             signatureParams[1] = requestParam;
         }

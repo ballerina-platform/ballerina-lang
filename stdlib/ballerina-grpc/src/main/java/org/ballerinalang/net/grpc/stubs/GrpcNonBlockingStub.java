@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
@@ -31,7 +30,9 @@ import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
 
 /**
- * This class handles Non Blocking client connector.
+ * This class handles Non Blocking client connection.
+ *
+ * @since 1.0.0
  */
 public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlockingStub> {
     private Map<String, MethodDescriptor<Message, Message>> descriptorMap;
@@ -50,6 +51,13 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
         return new GrpcNonBlockingStub(channel, callOptions);
     }
 
+    /**
+     * Executes server streaming non blocking call.
+     *
+     * @param request  request message.
+     * @param responseObserver response Observer.
+     * @param methodID method name
+     */
     public void executeServerStreaming(Message request, io.grpc.stub.StreamObserver<Message> responseObserver,
                                        String methodID) {
         MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
@@ -57,6 +65,12 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
                 getChannel().newCall(methodDescriptor, getCallOptions()), request, responseObserver);
     }
 
+    /**
+     * Executes client streaming non blocking call.
+     *
+     * @param responseObserver response Observer.
+     * @param methodID method name
+     */
     public io.grpc.stub.StreamObserver<Message> executeClientStreaming(io.grpc.stub.StreamObserver<Message>
                                                                                responseObserver, String methodID) {
         MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);
@@ -64,6 +78,13 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
                 getChannel().newCall(methodDescriptor, getCallOptions()), responseObserver);
     }
 
+    /**
+     * Executes unary non blocking call.
+     *
+     * @param request  request message.
+     * @param responseObserver response Observer.
+     * @param methodID method name
+     */
     public void executeUnary(Message request,
                              io.grpc.stub.StreamObserver<Message> responseObserver, String methodID) {
             asyncUnaryCall(
@@ -71,6 +92,12 @@ public class GrpcNonBlockingStub extends io.grpc.stub.AbstractStub<GrpcNonBlocki
                             getCallOptions()), request, responseObserver);
     }
 
+    /**
+     * Executes bidirectional streaming non blocking call.
+     *
+     * @param responseObserver response Observer.
+     * @param methodID method name
+     */
     public io.grpc.stub.StreamObserver<Message> executeBidiStreaming(io.grpc.stub.StreamObserver<Message>
                                                                                responseObserver, String methodID) {
         MethodDescriptor<Message, Message> methodDescriptor = descriptorMap.get(methodID);

@@ -36,6 +36,7 @@ public class Names {
     public static final Name TRANSACTION_PACKAGE = new Name("ballerina.transactions.coordinator");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
+    public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");

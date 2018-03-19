@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
@@ -29,27 +28,35 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
+
 /**
- * Get the ID of the connection.
+ * Get the client responder instance binds to the service endpoint.
  *
- * @since 0.966
+ * @since 1.0.0
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getClient",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
-                structPackage = "ballerina.net.grpc"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
+        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER, structPackage =
+                PROTOCOL_PACKAGE_GRPC)},
         isPublic = true
 )
 public class GetClient extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {
-        BStruct endpoint = (BStruct) context.getRefArgument(0);
-
-        BRefType clientType = endpoint.getRefField(0);
+        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
+        // Service client responder is populated in method listener. There we create new service endpoint instance
+        // and bind client responder instance.
+        BRefType clientType = serviceEndpoint.getRefField(CLIENT_RESPONDER_REF_INDEX);
         if (clientType instanceof BStruct) {
             BStruct endpointClient = (BStruct) clientType;
             context.setReturnValues(endpointClient);

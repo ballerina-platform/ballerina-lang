@@ -21,6 +21,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * Proto Message Parser.
+ *
+ * @since 1.0.0
  */
 public class MessageParser extends com.google.protobuf.AbstractParser<Message> {
 

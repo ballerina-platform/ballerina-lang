@@ -38,6 +38,8 @@ import java.util.Map;
 
 /**
  * This is Client Streaming Method Implementation for gRPC Service Call.
+ *
+ * @since 1.0.0
  */
 public class ClientStreamingListener extends MethodListener implements ServerCalls
         .ClientStreamingMethod<Message, Message> {
@@ -46,7 +48,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
     private static final Logger LOG = LoggerFactory.getLogger(ClientStreamingListener.class);
     
     public ClientStreamingListener(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource> resourceMap) {
-        super(methodDescriptor, resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE));
+        super(methodDescriptor);
         this.resourceMap = resourceMap;
     }
     
@@ -55,22 +57,23 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
         Resource onOpen = resourceMap.get(MessageConstants.ON_OPEN_RESOURCE);
         List<ParamDetail> paramDetails = onOpen.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(responseObserver);
+        signatureParams[0] = getConnectionParameter(onOpen, responseObserver);
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
         Executor.submit(onOpen, callback, null, signatureParams);
 
         return new StreamObserver<Message>() {
             @Override
             public void onNext(Message value) {
-                List<ParamDetail> paramDetails = resource.getParamDetails();
+                Resource onMessage = resourceMap.get(MessageConstants.ON_MESSAGE_RESOURCE);
+                List<ParamDetail> paramDetails = onMessage.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(responseObserver);
-                BValue requestParam = getRequestParameter(value);
+                signatureParams[0] = getConnectionParameter(onMessage, responseObserver);
+                BValue requestParam = getRequestParameter(onMessage, value);
                 if (requestParam != null) {
                     signatureParams[1] = requestParam;
                 }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(resource, callback, null, signatureParams);
+                Executor.submit(onMessage, callback, null, signatureParams);
             }
 
             @Override
@@ -83,7 +86,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 }
                 List<ParamDetail> paramDetails = onError.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(responseObserver);
+                signatureParams[0] = getConnectionParameter(onError, responseObserver);
                 if (paramDetails.size() != 2) {
                     String message = "Error in onError resource definition. It must have two input params, but have "
                             + paramDetails.size();
@@ -107,7 +110,7 @@ public class ClientStreamingListener extends MethodListener implements ServerCal
                 }
                 List<ParamDetail> paramDetails = onCompleted.getParamDetails();
                 BValue[] signatureParams = new BValue[paramDetails.size()];
-                signatureParams[0] = getConnectionParameter(responseObserver);
+                signatureParams[0] = getConnectionParameter(onCompleted, responseObserver);
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
                 Executor.submit(onCompleted, callback, null, signatureParams);
             }

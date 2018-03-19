@@ -28,6 +28,8 @@ import java.util.List;
 
 /**
  * File definition builder.
+ *
+ * @since 1.0.0
  */
 public class File {
     private DescriptorProtos.FileDescriptorProto fileDescriptorProto;

@@ -21,6 +21,8 @@ import com.google.protobuf.DescriptorProtos.DescriptorProto;
 
 /**
  * Message Definition Builder.
+ *
+ * @since 1.0.0
  */
 public abstract class Message {
     String messageName;

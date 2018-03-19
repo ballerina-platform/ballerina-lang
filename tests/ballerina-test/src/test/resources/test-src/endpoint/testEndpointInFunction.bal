@@ -1,5 +1,13 @@
 string exFlow = "";
 
+function main (string[] args) {
+    endpoint DummyEndpoint ep { conf1 : "test1"};
+    exFlow = exFlow + "<main>";
+    ep -> invoke1("t", 1);
+    var result = ep -> invoke2("t", 2);
+    exFlow = exFlow + result;
+}
+
 public struct DummyEndpoint {
     string prop1;
     int prop2;

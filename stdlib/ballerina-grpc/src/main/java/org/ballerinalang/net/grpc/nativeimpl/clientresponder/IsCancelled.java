@@ -27,16 +27,20 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
  * Native function to check whether caller has terminated the connection in between.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "isCancelled",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientResponder",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_RESPONDER,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN)
         },
@@ -45,14 +49,14 @@ import org.ballerinalang.net.grpc.MessageUtils;
 public class IsCancelled extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(0);
-        StreamObserver responseObserver = MessageUtils.getResponder(endpointClient);
-        if (responseObserver == null) {
-            return;
-        }
+        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
+
         if (responseObserver instanceof ServerCallStreamObserver) {
             ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) responseObserver;
             context.setReturnValues(new BBoolean(serverCallStreamObserver.isCancelled()));
+        } else {
+            context.setReturnValues(new BBoolean(Boolean.TRUE));
         }
     }
 }

@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.net.grpc.MessageConstants;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
+import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
 import org.ballerinalang.net.grpc.proto.definition.Field;
@@ -61,14 +62,18 @@ import java.util.List;
 
 import static org.ballerinalang.net.grpc.MessageConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.MessageConstants.ANN_RESOURCE_CONFIG;
+import static org.ballerinalang.net.grpc.MessageConstants.ON_COMPLETE_RESOURCE;
+import static org.ballerinalang.net.grpc.MessageConstants.ON_MESSAGE_RESOURCE;
 
 
 /**
- * Utility class providing proto file based of user defined Ballerina service.
+ * Utility class providing proto file based of the Ballerina service.
+ *
+ * @since 1.0.0
  */
 public class ServiceProtoUtils {
     
-    public static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
+    static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         String packageName = serviceNode.getPosition().getSource().getPackageName();
         File.Builder fileBuilder;
@@ -80,10 +85,9 @@ public class ServiceProtoUtils {
             fileBuilder = File.newBuilder(serviceNode.getName() + ServiceProtoConstants.PROTO_FILE_EXTENSION)
                     .setSyntax(ServiceProtoConstants.PROTOCOL_SYNTAX);
         }
-        ServiceConfig serviceConfig = getServiceConfiguration(serviceNode);
+        ServiceConfiguration serviceConfig = getServiceConfiguration(serviceNode);
         Service serviceDefinition;
-        if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming() || serviceConfig
-                .isServerStreaming())) {
+        if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming())) {
             serviceDefinition = getStreamingServiceDefinition(serviceNode, serviceConfig, fileBuilder);
         } else {
             serviceDefinition = getUnaryServiceDefinition(serviceNode, fileBuilder);
@@ -93,8 +97,7 @@ public class ServiceProtoUtils {
         return fileBuilder.build();
     }
     
-    static ServiceConfig getServiceConfiguration(ServiceNode serviceNode) {
-        long port = 0;
+    static ServiceConfiguration getServiceConfiguration(ServiceNode serviceNode) {
         String rpcEndpoint = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
@@ -113,10 +116,6 @@ public class ServiceProtoUtils {
                             null;
                     
                     switch (attributeName) {
-                        case ServiceProtoConstants.SERVICE_CONFIG_PORT: {
-                            port = attributeValue != null ? Integer.parseInt(attributeValue) : 0;
-                            break;
-                        }
                         case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
                             rpcEndpoint = attributeValue != null ? attributeValue : null;
                             break;
@@ -140,7 +139,7 @@ public class ServiceProtoUtils {
                 }
             }
         }
-        return new ServiceConfig(port, rpcEndpoint, clientStreaming, serverStreaming,
+        return new ServiceConfiguration(rpcEndpoint, clientStreaming, serverStreaming,
                 generateClientConnector);
     }
     
@@ -190,14 +189,14 @@ public class ServiceProtoUtils {
         return serviceBuilder.build();
     }
     
-    private static Service getStreamingServiceDefinition(ServiceNode serviceNode, ServiceConfig serviceConfig, File
-            .Builder fileBuilder) throws GrpcServerException {
+    private static Service getStreamingServiceDefinition(ServiceNode serviceNode, ServiceConfiguration serviceConfig,
+                                                         File.Builder fileBuilder) throws GrpcServerException {
         // Protobuf service definition builder.
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
         Message requestMessage = null;
         Message responseMessage = null;
         for (ResourceNode resourceNode : serviceNode.getResources()) {
-            if ("onMessage".equals(resourceNode.getName().getValue())) {
+            if (ON_MESSAGE_RESOURCE.equals(resourceNode.getName().getValue())) {
                 requestMessage = getRequestMessage(resourceNode);
                 Message respMsg = getResponseMessage(resourceNode);
                 if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
@@ -206,7 +205,7 @@ public class ServiceProtoUtils {
                 }
             }
             
-            if ("onComplete".equals(resourceNode.getName().getValue())) {
+            if (ON_COMPLETE_RESOURCE.equals(resourceNode.getName().getValue())) {
                 Message respMsg = getResponseMessage(resourceNode);
                 if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
                     responseMessage = respMsg;
@@ -294,7 +293,8 @@ public class ServiceProtoUtils {
 
         org.wso2.ballerinalang.compiler.semantics.model.types.BType requestType;
         if (resourceNode.getParameters().size() == 2) {
-            VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants.REQUEST_MESSAGE_INDEX);
+            VariableNode requestVariable = resourceNode.getParameters().get(MessageConstants
+                    .REQUEST_MESSAGE_PARAM_INDEX);
             if (requestVariable instanceof BLangVariable) {
                 requestType = ((BLangVariable) requestVariable).type;
             } else {
@@ -445,7 +445,14 @@ public class ServiceProtoUtils {
             return new BNullType();
         }
     }
-    
+
+    /**
+     * Returns file descriptor for the service.
+     * Reads file descriptor from the .desc file generated at compile time.
+     *
+     * @param service gRPC service.
+     * @return File Descriptor of the service.
+     */
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(org.ballerinalang.connector.api
                                                                                        .Service service) {
         try {
@@ -470,7 +477,7 @@ public class ServiceProtoUtils {
      * @param filename            filename
      * @throws GrpcServerException when error occur while writing content to file.
      */
-    public static void writeServiceFiles(File protoFileDefinition, String filename, boolean generateClientConnector)
+    static void writeServiceFiles(File protoFileDefinition, String filename, boolean generateClientConnector)
             throws GrpcServerException {
         try {
             // write the proto string to the file in protobuf contract directory

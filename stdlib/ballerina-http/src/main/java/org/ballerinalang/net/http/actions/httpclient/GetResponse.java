@@ -22,7 +22,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -36,12 +37,13 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 /**
  * {@code GetResponse} action can be used to fetch the response message for a previous asynchronous invocation.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "getResponse",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+        functionName = "getResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "handle", type = TypeKind.STRUCT, structType = "HttpHandle",
                         structPackage = "ballerina.net.http")
         },
@@ -49,11 +51,6 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
                 @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                        structPackage = "ballerina.net.http")
         }
 )
 public class GetResponse extends AbstractHTTPAction {

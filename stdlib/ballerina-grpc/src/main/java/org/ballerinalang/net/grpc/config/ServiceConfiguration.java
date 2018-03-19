@@ -19,6 +19,8 @@ package org.ballerinalang.net.grpc.config;
 
 /**
  * Service configuration of gRPC Service.
+ *
+ * @since 1.0.0
  */
 public class ServiceConfiguration {
 
@@ -27,6 +29,15 @@ public class ServiceConfiguration {
     private boolean serverStreaming;
     private boolean generateClientConnector;
     private boolean isListener;
+
+    public ServiceConfiguration(String rpcEndpoint, boolean clientStreaming, boolean serverStreaming, boolean
+            generateClientConnector) {
+        this.rpcEndpoint = rpcEndpoint;
+        this.clientStreaming = clientStreaming;
+        this.serverStreaming = serverStreaming;
+        this.generateClientConnector = generateClientConnector;
+
+    }
     
     public String getRpcEndpoint() {
         return rpcEndpoint;

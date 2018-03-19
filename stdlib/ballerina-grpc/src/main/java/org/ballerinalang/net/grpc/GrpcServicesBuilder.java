@@ -48,12 +48,19 @@ import java.util.Map;
 import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
 
 /**
- * This is the gRPC implementation for the {@code BallerinaServerConnector} API.
+ * This is the gRPC server implementation for registering service and start/stop server.
  *
- * @since 0.964.1
+ * @since 1.0.0
  */
 public class GrpcServicesBuilder {
-    
+
+    /**
+     * Initializes and returns gRPC server builder instance for endpoint configuration.
+     *
+     * @param serviceEndpointConfig service endpoint configuration.
+     * @param sslContext SSL context, needed for setup secured connection.
+     * @return gRPC server builder.
+     */
     public static io.grpc.ServerBuilder initService(EndpointConfiguration serviceEndpointConfig, SslContext
             sslContext) {
         io.grpc.ServerBuilder serverBuilder;
@@ -72,7 +79,14 @@ public class GrpcServicesBuilder {
         }
         return serverBuilder;
     }
-    
+
+    /**
+     * Register new service to the gRPC Server Builder.
+     *
+     * @param serverBuilder gRPC server Builder initiated when initializing service endpoint.
+     * @param service   Service to register.
+     * @throws GrpcServerException  Exception while registering the service.
+     */
     public static void registerService(io.grpc.ServerBuilder serverBuilder, Service service) throws
             GrpcServerException {
         try {
@@ -85,8 +99,12 @@ public class GrpcServicesBuilder {
     
     private static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
+        if (fileDescriptor == null) {
+            throw new GrpcServerException("Error while reading the service descriptor. Service file definition not " +
+                    "found");
+        }
 
+        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.findServiceByName(service.getName());
         return getServiceDefinition(service, serviceDescriptor);
     }
     
@@ -102,12 +120,6 @@ public class GrpcServicesBuilder {
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         
-        // In streaming service, method should be always one.
-/*        if (serviceDescriptor.getMethods().size() != 1) {
-            throw new GrpcServerException("Invalid resource count in streaming server. Resource count should be one, " +
-                    " no of resources: " + serviceDescriptor.getMethods().size());
-        }*/
-        
         for (Descriptors.MethodDescriptor methodDescriptor : serviceDescriptor.getMethods()) {
             final String methodName = serviceName + FILE_SEPARATOR + methodDescriptor.getName();
             Descriptors.Descriptor requestDescriptor = serviceDescriptor.findMethodByName(methodDescriptor.getName())
@@ -122,13 +134,11 @@ public class GrpcServicesBuilder {
             MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(Message.newBuilder
                     (responseDescriptor.getName()).build());
 
-
             MethodDescriptor.MethodType methodType;
             ServerCallHandler<Message, Message> serverCallHandler;
-
-
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
+
             for (Resource resource : service.getResources()) {
                 if (methodDescriptor.getName().equals(resource.getName())) {
                     mappedResource = resource;
@@ -166,7 +176,7 @@ public class GrpcServicesBuilder {
     }
     
     /**
-     * Start this gRPC server. This will startup all the gRPC services.
+     * Start this gRPC server. This will startup all the gRPC registered services.
      *
      * @throws GrpcServerException exception when there is an error in starting the server.
      */
@@ -191,7 +201,7 @@ public class GrpcServicesBuilder {
     }
     
     /**
-     * Shutdown grpc server.
+     * Shutdown gRPC server.
      */
     public static void stop(Server server) {
         if (server != null) {
@@ -200,7 +210,7 @@ public class GrpcServicesBuilder {
     }
     
     /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
+     * Await termination on the main thread since the gRPC library uses daemon threads.
      */
     public static void blockUntilShutdown(Server server) throws InterruptedException {
         if (server != null) {

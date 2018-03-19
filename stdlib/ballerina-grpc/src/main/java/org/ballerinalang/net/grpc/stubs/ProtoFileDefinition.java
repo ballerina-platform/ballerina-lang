@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * This class contains proto descriptors of the service.
+ *
+ * @since 1.0.0
  */
 public final class ProtoFileDefinition {
     

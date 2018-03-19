@@ -19,8 +19,8 @@ package org.ballerinalang.net.grpc.exception;
 
 /**
  * Thrown to indicate that the requested field type is not supported.
- * TODO: Remove this if we are not using.
  *
+ * @since 1.0.0
  */
 public class UnsupportedFieldTypeException extends RuntimeException {
 

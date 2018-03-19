@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Service Definition Builder.
+ *
+ * @since 1.0.0
  */
 public class Service {
     private DescriptorProtos.ServiceDescriptorProto serviceDescriptor;

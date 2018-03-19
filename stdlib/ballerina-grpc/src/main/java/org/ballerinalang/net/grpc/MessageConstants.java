@@ -27,33 +27,58 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Proto Message Constants Class.
+ *
+ * @since 1.0.0
  */
 public class MessageConstants {
-    public static final String PATH = "/home/yasara/Desktop/PR_ORG/ballerina/distribution/zip/ballerina" +
-            "/resources/security/";
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
     public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
     public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
             ASCII_STRING_MARSHALLER);
-    
-    public static final String PROTO_MESSAGE = "proto_message";
-    public static final String RESPONDER = "responder";
+
+    //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "ballerina.net.grpc";
+
+    //server side endpoint constants.
+    public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
+    public static final String GRPC_SERVER = "SERVER";
+    public static final String SERVICE_ENDPOINT_TYPE = "Service";
     public static final String CLIENT_RESPONDER = "ClientResponder";
+    public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
+    public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
+    public static final int CLIENT_RESPONDER_REF_INDEX = 0;
+    public static final int RESPONSE_MESSAGE_REF_INDEX = 1;
+
+    //client side endpoint constants
+    public static final String CLIENT_ENDPOINT_TYPE = "Client";
+    public static final String DEFAULT_HOSTNAME = "0.0.0.0";
+    public static final String CHANNEL_KEY = "channel";
+    public static final String SERVICE_STUB = "ServiceStub";
+    public static final int SERVICE_STUB_REF_INDEX = 0;
+    public static final int CLIENT_ENDPOINT_REF_INDEX = 1;
+    public static final int DESCRIPTOR_MAP_REF_INDEX = 2;
+    public static final int STUB_TYPE_STRING_INDEX = 0;
+    public static final int DESCRIPTOR_KEY_STRING_INDEX = 1;
+    public static final String BLOCKING_TYPE = "blocking";
+    public static final String NON_BLOCKING_TYPE = "non-blocking";
+    public static final String REQUEST_SENDER = "REQUEST_SENDER";
     public static final String CLIENT_CONNECTION = "ClientConnection";
-    public static final String SERVICE_ENDPOINT = "Service";
-    public static final String RESPONSE_MESSAGE_DEFINITION = "response_msg_definition";
-    public static final String REQUEST_MESSAGE_DEFINITION = "request_msg_definition";
+    public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
+
+    // Names of error structs registered in gRPC package.
     public static final String CONNECTOR_ERROR = "ConnectorError";
-    public static final String ANN_NAME_CONFIG = "serviceConfig";
-    public static final String ANN_MESSAGE_LISTENER = "messageListener";
+    public static final String SERVER_ERROR = "ServerError";
+    public static final String CLIENT_ERROR = "ClientError";
+
     public static final String ANN_RESOURCE_CONFIG = "resourceConfig";
+
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
-    
-    // Response Message index
-    public static final int REQUEST_MESSAGE_INDEX = 1;
-    public static final int CALLBACK_MESSAGE_INDEX = 0;
-    
+    // Request Message Param index in service resource.
+    public static final int REQUEST_MESSAGE_PARAM_INDEX = 1;
+
+    // Response Message Param index in callback service
+    public static final int CALLBACK_MESSAGE_PARAM_INDEX = 0;
+
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
     
     static {

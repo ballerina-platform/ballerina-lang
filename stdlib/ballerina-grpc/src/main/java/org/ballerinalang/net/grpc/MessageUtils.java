@@ -24,9 +24,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BBoolean;
@@ -43,7 +41,6 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,12 +56,13 @@ import static org.ballerinalang.net.grpc.MessageConstants.STRING;
 
 
 /**
- * Util methods to generate protobuff message.
+ * Util methods to generate protobuf message.
+ *
+ * @since 1.0.0
  */
 public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
-    private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
-    public static final String UNKNOWN_ERROR = "Unknown Error";
+    private static final String UNKNOWN_ERROR = "Unknown Error";
     
     public static BValue getHeader(Context context) {
         String headerName = context.getStringArgument(0);
@@ -92,12 +90,12 @@ public class MessageUtils {
         return headerValue;
     }
     
-    public static StreamObserver<Message> getResponder(BRefType refType) {
+    public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BConnector) {
-            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONDER);
+            observerObject = ((BConnector) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
         } else if (refType instanceof BStruct) {
-            observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONDER);
+            observerObject = ((BStruct) refType).getNativeData(MessageConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver<Message>) observerObject);
@@ -149,7 +147,7 @@ public class MessageUtils {
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
      */
-    public static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
+    static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
         int statusCode = Integer.parseInt(String.valueOf(error.getIntField(0)));
         String errorMsg = error.getStringField(0);
         LOG.error(errorMsg);
@@ -194,37 +192,14 @@ public class MessageUtils {
     static boolean isArray(Object object) {
         return object != null && object.getClass().isArray();
     }
-    
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_NAME_CONFIG);
-        
-        if (annotationList == null) {
-            return null;
-        }
-        
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-        
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-    
-    public static Annotation getMessageListenerAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, MessageConstants.ANN_MESSAGE_LISTENER);
-        
-        if (annotationList == null) {
-            return null;
-        }
-        
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-        
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-    
+
+    /**
+     * Returns protobuf message corresponding to the B7a message.
+     *
+     * @param responseValue B7a message.
+     * @param outputType protobuf message type.
+     * @return generated protobuf message.
+     */
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
         Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         int stringIndex = 0;
@@ -432,8 +407,15 @@ public class MessageUtils {
         
         return bValue;
     }
-    
-    public static BStruct createStruct(Context context, String fieldName) {
+
+    /**
+     * Returns B7a struct for the given field name.
+     *
+     * @param context context to retrieve program file.
+     * @param fieldName struct name.
+     * @return generated struct.
+     */
+    private static BStruct createStruct(Context context, String fieldName) {
         BStructType structType = context.getProgramFile().getEntryPackage().getStructInfo(fieldName).getType();
         return new BStruct(structType);
     }

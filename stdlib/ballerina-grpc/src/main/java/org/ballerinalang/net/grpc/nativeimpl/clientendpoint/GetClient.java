@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
 import org.ballerinalang.bre.Context;
@@ -26,17 +25,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_CONNECTION;
+import static org.ballerinalang.net.grpc.MessageConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+
 /**
- * Get the ID of the connection.
+ * Get the client connection instance binds to the client endpoint.
  *
- * @since 0.966
+ * @since 1.0.0
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getClient",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Client",
-                             structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
+                             structPackage = PROTOCOL_PACKAGE_GRPC),
         returnType = {@ReturnType(type = TypeKind.CONNECTOR)},
         isPublic = true
 )
@@ -45,7 +48,7 @@ public class GetClient extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct clientEndpoint = (BStruct) context.getRefArgument(0);
-        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData("client");
+        BStruct clientConnection = (BStruct) clientEndpoint.getNativeData(CLIENT_CONNECTION);
         context.setReturnValues(clientConnection);
     }
 }

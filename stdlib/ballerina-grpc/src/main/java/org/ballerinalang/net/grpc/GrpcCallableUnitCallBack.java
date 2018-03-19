@@ -22,12 +22,13 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 
 /**
- * Created by daneshk on 3/12/18.
+ * gRPC call back class registered in B7a executor.
+ *
+ * @since 1.0.0
  */
 public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    public static final String EMPTY_MSG_NAME = "empty";
-    private final StreamObserver<Message> requestSender;
+    private StreamObserver<Message> requestSender = null;
     private boolean emptyResponse;
     
     public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {
@@ -44,13 +45,17 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
     public void notifySuccess() {
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
-        if (emptyResponse) {
+        if (emptyResponse && requestSender != null) {
             requestSender.onNext(Message.newBuilder(null).build());
         }
     }
     
     @Override
     public void notifyFailure(BStruct error) {
-        MessageUtils.handleFailure(requestSender, error);
+        // request sender becomes null when calling callback service resource in client side. in that case we don't
+        // need to handle error.
+        if (requestSender != null) {
+            MessageUtils.handleFailure(requestSender, error);
+        }
     }
 }

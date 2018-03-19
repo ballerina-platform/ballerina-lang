@@ -25,17 +25,19 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcServicesBuilder.stop;
+import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * Native function to respond the caller.
+ * Native function to stop gRPC server instance.
  *
- * @since 0.96.1
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.grpc",
+        packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
-                structPackage = "ballerina.net.grpc"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_PACKAGE_GRPC),
         isPublic = true
 )
 public class Stop extends AbstractGrpcNativeFunction {
@@ -43,7 +45,7 @@ public class Stop extends AbstractGrpcNativeFunction {
     @Override
     public void execute(Context context) {
         BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
-        Server server = getService(serviceEndpoint);
+        Server server = getServerInstance(serviceEndpoint);
         stop(server);
         context.setReturnValues();
     }
