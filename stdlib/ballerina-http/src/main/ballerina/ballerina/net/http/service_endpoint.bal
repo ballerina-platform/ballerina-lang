@@ -85,7 +85,7 @@ public enum KeepAlive {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) {
+public function <ServiceEndpoint ep> init(ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
@@ -99,22 +99,22 @@ public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) 
     }
 }
 
-public native function<ServiceEndpoint ep> initEndpoint () returns (error);
+public native function<ServiceEndpoint ep> initEndpoint() returns (error);
 
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <ServiceEndpoint ep> register (type serviceType);
+public native function <ServiceEndpoint ep> register(type serviceType);
 
 @Description { value:"Starts the registered service"}
-public native function <ServiceEndpoint ep> start ();
+public native function <ServiceEndpoint ep> start();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ServiceEndpoint ep> getClient () returns (Connection);
+public native function <ServiceEndpoint ep> getClient() returns (Connection);
 
 @Description { value:"Stops the registered service"}
-public native function <ServiceEndpoint ep> stop ();
+public native function <ServiceEndpoint ep> stop();
 
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
@@ -135,7 +135,7 @@ public function <WebSocketEndpoint ep> WebSocketService() {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WebSocketEndpoint ep> init (ServiceEndpointConfiguration config) {
+public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config) {
     ep.httpEndpoint.init(config);
 }
 
@@ -143,13 +143,13 @@ public function <WebSocketEndpoint ep> init (ServiceEndpointConfiguration config
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> register (type serviceType) {
+public function <WebSocketEndpoint ep> register(type serviceType) {
     ep.httpEndpoint.register(serviceType);
 }
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> start () {
+public function <WebSocketEndpoint ep> start() {
     ep.httpEndpoint.start();
 }
 
@@ -157,12 +157,12 @@ public function <WebSocketEndpoint ep> start () {
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
 //TODO make this native
-public function <WebSocketEndpoint ep> getClient () returns (WebSocketConnector) {
+public function <WebSocketEndpoint ep> getClient() returns (WebSocketConnector) {
     return ep.wsClient.getClient();
 }
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> stop () {
+public function <WebSocketEndpoint ep> stop() {
     ep.httpEndpoint.stop();
 }
