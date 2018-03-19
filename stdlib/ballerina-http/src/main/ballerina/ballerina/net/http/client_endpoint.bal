@@ -51,7 +51,7 @@ public struct TargetService {
 @Field {value:"httpVersion: The HTTP version understood by the client"}
 @Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retryConfig: Retry related options"}
+@Field {value:"retry: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
@@ -64,7 +64,7 @@ public struct ClientEndpointConfiguration {
     string httpVersion;
     string forwarded = "disable";
     FollowRedirects followRedirects;
-    Retry retryConfig;
+    Retry retry;
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
