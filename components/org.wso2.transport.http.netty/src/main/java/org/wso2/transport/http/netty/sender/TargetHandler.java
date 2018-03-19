@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 /**
@@ -209,7 +210,13 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private void executePostUpgradeActions(ChannelHandlerContext ctx) {
         ctx.pipeline().remove(this);
         ctx.pipeline().addLast(http2ClientOutboundHandler);
-        http2ClientOutboundHandler.getHttp2ClientChannel().setUpgradedToHttp2(true);
+
+        Http2ClientChannel http2ClientChannel = http2ClientOutboundHandler.getHttp2ClientChannel();
+        http2ClientChannel.setUpgradedToHttp2(true);
+        targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+        http2ClientChannel.getInFlightMessage(Constants.HTTP2_INITIAL_STREAM_ID).setRequestWritten(true);
+        http2ClientChannel.getDataEventListeners().
+                forEach(dataEventListener -> dataEventListener.initialize(Constants.HTTP2_INITIAL_STREAM_ID, ctx));
         handoverChannelToHttp2ConnectionManager();
     }
 

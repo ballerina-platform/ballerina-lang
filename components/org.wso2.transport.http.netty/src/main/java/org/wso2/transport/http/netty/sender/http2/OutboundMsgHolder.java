@@ -44,6 +44,8 @@ public class OutboundMsgHolder {
     private Http2ClientChannel http2ClientChannel;
 
     private boolean allPromisesReceived = false;
+    private long lastReadWriteTime;
+    private boolean requestWritten;
 
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage, Http2ClientChannel http2ClientChannel) {
         this.requestCarbonMessage = httpCarbonMessage;
@@ -166,6 +168,22 @@ public class OutboundMsgHolder {
      */
     public Http2PushPromise getNextPromise() {
         return promises.poll();
+    }
+
+    public long getLastReadWriteTime() {
+        return lastReadWriteTime;
+    }
+
+    public void setLastReadWriteTime(long lastReadWriteTime) {
+        this.lastReadWriteTime = lastReadWriteTime;
+    }
+
+    public boolean isRequestWritten() {
+        return requestWritten;
+    }
+
+    public void setRequestWritten(boolean requestWritten) {
+        this.requestWritten = requestWritten;
     }
 }
 

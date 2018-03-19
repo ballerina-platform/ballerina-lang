@@ -25,6 +25,8 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Stream;
 import org.wso2.transport.http.netty.common.HttpRoute;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,6 +50,7 @@ public class Http2ClientChannel {
     // Number of active streams. Need to start from 1 to prevent someone stealing the connection from the creator
     private AtomicInteger activeStreams = new AtomicInteger(1);
     private boolean upgradedToHttp2 = false;
+    private List<Http2DataEventListener> dataEventListeners;
 
     public Http2ClientChannel(Http2ConnectionManager http2ConnectionManager, Http2Connection connection,
                               HttpRoute httpRoute, Channel channel) {
@@ -56,6 +59,7 @@ public class Http2ClientChannel {
         this.connection = connection;
         this.httpRoute = httpRoute;
         this.connection.addListener(new StreamCloseListener(this));
+        dataEventListeners = new ArrayList<>();
     }
 
     /**
@@ -195,6 +199,15 @@ public class Http2ClientChannel {
         isExhausted.set(true);
     }
 
+
+    public void addDataEventListener(Http2DataEventListener dataEventListener) {
+        dataEventListeners.add(dataEventListener);
+    }
+
+    public List<Http2DataEventListener> getDataEventListeners() {
+        return dataEventListeners;
+    }
+
     /**
      * Listener which listen to the stream closure event.
      */
@@ -209,6 +222,8 @@ public class Http2ClientChannel {
         public void onStreamClosed(Http2Stream stream) {
             // Channel is no longer exhausted, so we can return it back to the pool
             activeStreams.decrementAndGet();
+            http2ClientChannel.getDataEventListeners().
+                    forEach(dataEventListener -> dataEventListener.onStreamClose(stream.id()));
             if (isExhausted.getAndSet(false)) {
                 http2ConnectionManager.returnClientChannel(httpRoute, http2ClientChannel);
             }

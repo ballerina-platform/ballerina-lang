@@ -1,0 +1,135 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.transport.http.netty.sender.http2;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
+ */
+public class TimeoutHandler implements Http2DataEventListener {
+
+    private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
+
+
+    private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
+
+    private long idleTimeNanos;
+    private Http2ClientChannel http2ClientChannel;
+    private Map<Integer, ScheduledFuture<?>> timerTasks;
+
+    public TimeoutHandler(long idleTimeNanos, Http2ClientChannel http2ClientChannel) {
+        this.idleTimeNanos = Math.max(idleTimeNanos, MIN_TIMEOUT_NANOS);
+        this.http2ClientChannel = http2ClientChannel;
+        timerTasks = new ConcurrentHashMap<>();
+    }
+
+    public void initialize(int streamId, ChannelHandlerContext ctx) {
+        http2ClientChannel.getInFlightMessage(streamId).setLastReadWriteTime(ticksInNanos());
+        timerTasks.put(streamId,
+                       schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));
+    }
+
+    @Override
+    public void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream) {
+        http2ClientChannel.getInFlightMessage(streamId).setLastReadWriteTime(ticksInNanos());
+        if (endOfStream) {
+            onStreamClose(streamId);
+        }
+    }
+
+    @Override
+    public void onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream) {
+        OutboundMsgHolder msgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        msgHolder.setLastReadWriteTime(ticksInNanos());
+    }
+
+    public void onStreamClose(int streamId) {
+        ScheduledFuture timerTask = timerTasks.get(streamId);
+        if (timerTask != null) {
+            timerTask.cancel(false);
+            timerTasks.remove(streamId);
+        }
+    }
+
+    private class IdleTimeoutTask implements Runnable {
+
+        private ChannelHandlerContext ctx;
+        private OutboundMsgHolder msgHolder;
+        private int streamId;
+
+        public IdleTimeoutTask(ChannelHandlerContext ctx, int streamId) {
+            this.ctx = ctx;
+            this.streamId = streamId;
+            this.msgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        }
+
+        @Override
+        public void run() {
+            long nextDelay = idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
+            if (nextDelay <= 0) {
+                if (msgHolder.getResponse() != null) {
+                    handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+                } else if (msgHolder.isRequestWritten()) {
+                    msgHolder.getResponseFuture().notifyHttpListener(
+                            new EndpointTimeOutException(
+                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
+                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                } else {
+                    msgHolder.getResponseFuture().notifyHttpListener(
+                            new EndpointTimeOutException(
+                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE,
+                                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                }
+            } else {
+                // Write occurred before the timeout - set a new timeout with shorter delay.
+                timerTasks.put(streamId, schedule(ctx, this, nextDelay, TimeUnit.NANOSECONDS));
+            }
+        }
+
+        private void handleIncompleteInboundResponse(String errorMessage) {
+            LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+            msgHolder.getResponse().addHttpContent(lastHttpContent);
+            log.warn(errorMessage);
+        }
+    }
+
+    private long ticksInNanos() {
+        return System.nanoTime();
+    }
+
+    private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay, TimeUnit unit) {
+        return ctx.executor().schedule(task, delay, unit);
+    }
+}

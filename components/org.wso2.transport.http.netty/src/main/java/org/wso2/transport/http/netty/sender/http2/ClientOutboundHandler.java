@@ -129,6 +129,8 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
         void writeContent(ChannelHandlerContext ctx) {
             int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
+            http2ClientChannel.getDataEventListeners().
+                    forEach(dataEventListener -> dataEventListener.initialize(streamId, ctx));
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
@@ -183,6 +185,9 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                 release = false;
                 encoder.writeData(ctx, streamId, content, 0, endStream, ctx.newPromise());
                 encoder.flowController().writePendingBytes();
+                for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
+                    dataEventListener.onDataWrite(streamId, ctx, endStream);
+                }
                 ctx.flush();
                 if (!trailers.isEmpty()) {
                     // Write trailing headers.
@@ -212,6 +217,8 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             encoder.writeHeaders(
                     ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
+            http2ClientChannel.getDataEventListeners().
+                    forEach(dataEventListener -> dataEventListener.onDataWrite(streamId, ctx, endStream));
             ctx.flush();
         }
     }
@@ -224,6 +231,8 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
      */
     private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
         encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
+        http2ClientChannel.getDataEventListeners().
+                forEach(dataEventListener -> dataEventListener.onDataWrite(streamId, ctx, true));
         ctx.flush();
     }
 }

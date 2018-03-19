@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
 
@@ -179,6 +180,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                         connectionManager.getHttp2ConnectionManager().
                                 addHttp2ClientChannel(route, freshHttp2ClientChannel);
+                        freshHttp2ClientChannel.addDataEventListener(
+                                new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
+
                         freshHttp2ClientChannel.getChannel().eventLoop().execute(() -> {
                             freshHttp2ClientChannel.getChannel().write(outboundMsgHolder);
                         });
