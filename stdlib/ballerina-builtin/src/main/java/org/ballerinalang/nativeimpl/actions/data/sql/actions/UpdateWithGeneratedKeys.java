@@ -63,6 +63,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
         try {
             executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         } catch (Throwable e) {
+            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, null, SQLDatasourceUtils.getSQLConnectorError(context, e));
         }
     }

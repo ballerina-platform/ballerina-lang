@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -209,7 +210,12 @@ public class BCompileUtil {
         compiler.compile(packageName);
         org.wso2.ballerinalang.programfile.ProgramFile programFile = compiler.getCompiledProgram();
         if (programFile != null) {
-            comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            comResult.setProgFile(pFile);
+            if (pFile != null) {
+                boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+                pFile.setDistributedTransactionEnabled(distributedTxEnabled);
+            }
         }
 
         PackageNode pkgNode = compiler.getAST();

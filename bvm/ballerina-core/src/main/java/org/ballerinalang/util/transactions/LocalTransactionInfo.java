@@ -110,7 +110,7 @@ public class LocalTransactionInfo {
             int allowedCount = getAllowedRetryCount(transactionBlockId);
             //local retry is attempted without notifying the coordinator. If all the attempts are failed, notify
             //the coordinator with transaction abort.
-            if (currentCount == allowedCount) {
+            if (allowedCount == 0 || currentCount == allowedCount) {
                 bNotifyCoordinator = true;
             } else {
                 transactionContextStore.clear();

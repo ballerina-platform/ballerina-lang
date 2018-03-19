@@ -33,9 +33,13 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionConstants;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -1022,6 +1026,20 @@ public class SQLDatasourceUtils {
             sqlConnectorError.setStringField(0, throwable.getMessage());
         }
         return sqlConnectorError;
+    }
+
+    public static void notifyTxMarkForAbort(Context context) {
+        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            return;
+        }
+        String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
+        int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+
+        BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
+        PackageInfo packageInfo = context.getProgramFile().getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(TransactionConstants.COORDINATOR_MARK_FOR_ABORTION);
+        BLangFunctions.invokeCallable(functionInfo, args);
     }
 
     private static String getString(Calendar calendar, String type) {

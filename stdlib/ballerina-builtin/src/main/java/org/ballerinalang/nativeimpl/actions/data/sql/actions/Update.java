@@ -59,6 +59,7 @@ public class Update extends AbstractSQLAction {
         try {
             executeUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
+            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
         }
     }

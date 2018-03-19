@@ -64,6 +64,7 @@ public class BatchUpdate extends AbstractSQLAction {
         try {
             executeBatchUpdate(context, datasource, query, parameters);
         } catch (Throwable e) {
+            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
         }
     }

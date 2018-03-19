@@ -72,14 +72,14 @@ function checkTableCount(string tablePrefix) (int count) {
     sql:Parameter[] parameters = [p1];
 
     try {
-        table dt = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
+        var dt, _ = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
         parameters, typeof ResultCount);
         while (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
-        testDB -> close();
+        _ = testDB -> close();
     }
     return;
 }

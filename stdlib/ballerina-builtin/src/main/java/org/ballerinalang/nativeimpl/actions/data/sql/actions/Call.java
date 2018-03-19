@@ -61,6 +61,7 @@ public class Call extends AbstractSQLAction {
         try {
             executeProcedure(context, datasource, query, parameters, structType);
         } catch (Throwable e) {
+            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
         }
     }

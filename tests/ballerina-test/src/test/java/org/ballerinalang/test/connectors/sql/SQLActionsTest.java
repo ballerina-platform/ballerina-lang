@@ -27,9 +27,9 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -487,40 +487,46 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]");
     }
 
-    @Test(description = "Test failed select query",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute query failed: .*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed select query")
     public void testFailedSelect() {
-        BRunUtil.invoke(resultNegative, "testSelectData");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
+        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertTrue(((BStruct) returns[1]).getStringField(0).contains("execute query failed:"));
     }
 
-    @Test(description = "Test failed update with generated id action",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute update with generated keys failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
-        BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
+        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertTrue(
+                ((BStruct) returns[1]).getStringField(0).contains("execute update with generated keys failed:"));
     }
 
-    @Test(description = "Test failed call procedure",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute stored procedure failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed call procedure")
     public void testFailedCallProcedure() {
-        BRunUtil.invoke(resultNegative, "testCallProcedure");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testCallProcedure");
+        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertTrue(((BStruct) returns[1]).getStringField(0).contains("execute stored procedure failed:"));
     }
 
-    @Test(description = "Test failed batch update",
-          expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*message: execute batch update failed:.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed batch update")
     public void testFailedBatchUpdate() {
-        BRunUtil.invoke(resultNegative, "testBatchUpdate");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
+        Assert.assertEquals(returns[0], null);
+        Assert.assertTrue(((BStruct) returns[1]).getStringField(0).contains("execute batch update failed:"));
     }
 
-    @Test(description = "Test failed batch update",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: execute query failed: unsupported array type for parameter "
-                  + "index 0.*")
+    @Test(groups = "ConnectorTest",
+          description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
-        BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
+        BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
+        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertTrue(((BStruct) returns[1]).getStringField(0)
+                .contains("xecute query failed: unsupported array type for parameter index 0"));
     }
 
     @AfterSuite

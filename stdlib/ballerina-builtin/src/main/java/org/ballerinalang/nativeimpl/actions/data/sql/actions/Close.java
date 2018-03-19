@@ -50,6 +50,7 @@ public class Close extends AbstractSQLAction {
             closeConnections(datasource);
             context.setReturnValues();
         } catch (Throwable e) {
+            SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
         }
     }
