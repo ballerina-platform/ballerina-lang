@@ -5,12 +5,7 @@ public const string CONTENT_LENGTH = "content-length";
 
 const string HEADER_KEY_LOCATION = "Location";
 
-@Description {value:"Represents the HTTP server connector connection"}
-@Field {value:"remoteHost: The server host name"}
-@Field {value:"port: The server port"}
 public struct Connection {
-    string remoteHost;
-    int port;
 }
 
 //////////////////////////////
@@ -20,36 +15,36 @@ public struct Connection {
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The outbound response message"}
 @Return {value:"Error occured during HTTP server connector respond"}
-public native function <Connection conn> respond (Response res) (HttpConnectorError);
+public native function <Connection conn> respond(Response res) (HttpConnectorError);
 
 @Description {value:"Forwards inbound response to the caller"}
 @Param {value:"conn: The server connector connection"}
 @Param {value:"res: The inbound response message"}
 @Return {value:"Error occured during HTTP server connector forward"}
-public native function <Connection conn> forward (Response res) (HttpConnectorError);
+public native function <Connection conn> forward(Response res) (HttpConnectorError);
 
 @Description { value:"Sends a push promise to the caller."}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> promise (PushPromise promise) (HttpConnectorError);
+public native function <Connection conn> promise(PushPromise promise) (HttpConnectorError);
 
 @Description { value:"Sends a promised push response to the caller."}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"promise: Push promise message" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during HTTP server connector forward" }
-public native function <Connection conn> pushPromisedResponse (PushPromise promise, Response res) (HttpConnectorError);
+public native function <Connection conn> pushPromisedResponse(PushPromise promise, Response res) (HttpConnectorError);
 
 @Description {value:"Gets the Session struct for a valid session cookie from the connection. Otherwise creates a new Session struct."}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"HTTP Session struct"}
-public native function <Connection conn> createSessionIfAbsent () (Session);
+public native function <Connection conn> createSessionIfAbsent() (Session);
 
 @Description {value:"Gets the Session struct from the connection if it is present"}
 @Param {value:"conn: The server connector connection"}
 @Return {value:"The HTTP Session struct assoicated with the request"}
-public native function <Connection conn> getSession () (Session);
+public native function <Connection conn> getSession() (Session);
 
 
 /////////////////////////////////

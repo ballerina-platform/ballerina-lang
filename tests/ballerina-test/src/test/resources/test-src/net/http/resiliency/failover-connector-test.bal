@@ -23,7 +23,7 @@ http:HttpClient endPoint1 = (http:HttpClient) create MockHttpFailOverClient("htt
 http:HttpClient endPoint2 = (http:HttpClient) create MockHttpFailOverClient("http://localhost:8080",
                                                    {endpointTimeout:5000,
                                                        keepAlive:true,
-                                                       retryConfig:retryConfiguration});
+                                                       retry:retryConfiguration});
 
 http:HttpClient[] failoverGroup = [endPoint1, endPoint2];
 int[] errorCodes = [404, 502];

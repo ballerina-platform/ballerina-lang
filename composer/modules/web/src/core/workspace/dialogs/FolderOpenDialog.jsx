@@ -143,7 +143,7 @@ class FolderOpenDialog extends React.Component {
                         Open
                     </Button>
                 }
-                closeAction
+                closeDialog
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >

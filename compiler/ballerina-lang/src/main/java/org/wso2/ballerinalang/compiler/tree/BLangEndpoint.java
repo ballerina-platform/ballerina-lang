@@ -47,7 +47,7 @@ public class BLangEndpoint extends BLangNode implements EndpointNode {
     public BEndpointVarSymbol symbol;
 
     public BLangEndpoint() {
-        flagSet = EnumSet.of(Flag.ENDPOINT);
+        flagSet = EnumSet.noneOf(Flag.class);
         annAttachments = new ArrayList<>();
     }
 

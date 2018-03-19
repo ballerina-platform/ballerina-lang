@@ -22,7 +22,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -38,12 +39,13 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
  * {@code GetPromisedResponse} action can be used to get a push response message associated with a
  * previous asynchronous invocation.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "getPromisedResponse",
-        connectorName = HttpConstants.CLIENT_CONNECTOR,
+        functionName = "getPromisedResponse",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
+                structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.CONNECTOR),
                 @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
                         structPackage = "ballerina.net.http")
         },
@@ -51,11 +53,6 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
                 @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.net.http"),
                 @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
                         structPackage = "ballerina.net.http"),
-        },
-        connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeKind.STRING),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                        structPackage = "ballerina.net.http")
         }
 )
 public class GetPromisedResponse extends AbstractHTTPAction {
@@ -71,7 +68,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
