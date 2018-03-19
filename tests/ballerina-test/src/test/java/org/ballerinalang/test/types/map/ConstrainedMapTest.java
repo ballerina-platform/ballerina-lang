@@ -298,16 +298,16 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
-                    "'string', found 'int'.*")
+            expectedExceptionsMessageRegExp = ".*caused by error, message: invalid map insertion:" +
+                    " expected value of type 'string', found 'int'.*")
     public void testStringMapUpdateWithInvalidTypeNegativeCase() {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
     }
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
-                    "'string', found 'null'.*")
+            expectedExceptionsMessageRegExp = ".*caused by error, message: invalid map insertion:" +
+                    " expected value of type 'string', found 'null'.*")
     public void testStringMapUpdateWithInvalidNullTypeNegativeCase() {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidNullTypeNegativeCase");
     }
@@ -334,8 +334,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test equivalent struct constrained map update negative.",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: invalid map insertion: expected value of type " +
-                    "'Person', found 'Employee'.*")
+            expectedExceptionsMessageRegExp = ".*caused by error, message: invalid map insertion:" +
+                    " expected value of type 'Person', found 'Employee'.*")
     public void testStructEquivalentMapUpdate() {
         BRunUtil.invoke(compileResult, "testStructEquivalentMapUpdate");
     }

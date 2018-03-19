@@ -1469,15 +1469,22 @@ public class CPU {
                         // TODO improve logic for null case
                         bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                     } else {
-                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_MAP_INSERTION,
-                                mapType.getConstrainedType(), BTypes.typeNull);
+                        ctx.setError(BLangVMErrors
+                                .createError(ctx, BLangExceptionHelper
+                                        .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                                mapType.getConstrainedType(), BTypes.typeNull)));
+                        handleError(ctx);
+                        break;
                     }
                 } else if (mapType.getConstrainedType() == BTypes.typeAny ||
                         mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_MAP_INSERTION,
-                            mapType.getConstrainedType(), sf.refRegs[k].getType());
+                    ctx.setError(BLangVMErrors
+                            .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    mapType.getConstrainedType(), sf.refRegs[k].getType())));
+                    handleError(ctx);
+                    break;
                 }
                 break;
             case InstructionCodes.JSONSTORE:
