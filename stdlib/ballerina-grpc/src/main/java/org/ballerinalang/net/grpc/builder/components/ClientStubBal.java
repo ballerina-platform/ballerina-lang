@@ -79,7 +79,7 @@ public class ClientStubBal {
     }
     
     public void addStubObjects(String stubTypeName, String stubType) {
-        StubObject stubObject = new StubObject(connectorId, stubTypeName, stubType);
+        Stub stubObject = new Stub(connectorId, stubTypeName, stubType);
         client.addStubObjects(stubObject);
     }
     

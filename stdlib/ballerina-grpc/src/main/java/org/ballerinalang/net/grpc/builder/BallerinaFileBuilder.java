@@ -24,6 +24,7 @@ import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientStubBal;
 import org.ballerinalang.net.grpc.builder.components.DescriptorBuilder;
 import org.ballerinalang.net.grpc.builder.components.SampleClient;
+import org.ballerinalang.net.grpc.builder.components.StubBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +117,8 @@ public class BallerinaFileBuilder {
                 }
                 reqMessageName = getMappingBalType(typeIn);
                 resMessageName = getMappingBalType(typeOut);
-                new ActionBuilder(methodName, reqMessageName, resMessageName
-                        , methodID, methodType, clientStubBal).build();
+                ActionBuilder.build(methodName, reqMessageName, resMessageName
+                        , methodID, methodType, clientStubBal);
             }
             
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
@@ -135,7 +136,7 @@ public class BallerinaFileBuilder {
                 }
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
             }
-            
+            StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
             SampleClient sampleClient = new SampleClient(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
                     .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {

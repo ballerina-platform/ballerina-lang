@@ -25,13 +25,13 @@ import java.util.List;
  */
 public class Client {
     private String connectorId;
-    private List<StubObject> stubObjects = new ArrayList<>();
+    private List<Stub> stubObjects = new ArrayList<>();
     
     public Client(String connectorId) {
         this.connectorId = connectorId;
     }
     
-    public void addStubObjects(StubObject stubObject) {
+    public void addStubObjects(Stub stubObject) {
         stubObjects.add(stubObject);
     }
     
@@ -43,11 +43,11 @@ public class Client {
         this.connectorId = connectorId;
     }
     
-    public List<StubObject> getStubObjects() {
+    public List<Stub> getStubObjects() {
         return stubObjects;
     }
     
-    public void setStubObjects(List<StubObject> stubObjects) {
+    public void setStubObjects(List<Stub> stubObjects) {
         this.stubObjects = stubObjects;
     }
 }
