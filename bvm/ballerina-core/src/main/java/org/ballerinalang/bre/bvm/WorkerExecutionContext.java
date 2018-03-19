@@ -75,6 +75,7 @@ public class WorkerExecutionContext {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
+        setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
@@ -160,7 +161,15 @@ public class WorkerExecutionContext {
     public LocalTransactionInfo getLocalTransactionInfo() {
         return BLangVMUtils.getTransactionInfo(this);
     }
-    
+
+    public void setGlobalTransactionEnabled(boolean isGlobalTransactionEnabled) {
+        BLangVMUtils.setGlobalTransactionEnabledStatus(this, isGlobalTransactionEnabled);
+    }
+
+    public boolean getGlobalTransactionEnabled() {
+        return BLangVMUtils.getGlobalTransactionenabled(this);
+    }
+
     public boolean isRootContext() {
         return this.code == null;
     }

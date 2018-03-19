@@ -1,6 +1,6 @@
 // Year 2017
 import ballerina.io;
-import ballerina.net.http; // importing http package
+
 
 function testComments () {
     // defining start name
@@ -47,19 +47,16 @@ enum Day { // enum Day
 } // end of enum
 
 
-@http:serviceConfig {basePath:"/FooService"} // http config annotation
-service<http:Service> FooService {
+@Description {value:"/FooService"} // http config annotation
+service<DummyService> FooService {
 
-    @http:resourceConfig{ methods:["POST"], // http method post
+    @Description{ value:"POST" // http method post
                           // http resource path 
-                          path:"/fooResource/" 
+
                         }
-        resource fooResource (http:ServerConnector conn, http:Request req) {
-            http:Response res = {};
-            var xmlpayload, _ = req.getXmlPayload();
-            res.setXmlPayload(xmlpayload);
-            _ = conn -> respond(res);
-    }
+        fooResource (string s) {
+            io:println(s);
+        }
 }
 
 transformer <Person p,string s> {
@@ -68,3 +65,14 @@ transformer <Person p,string s> {
 }
 
 // end of file
+
+struct DummyEndpoint {}
+
+function <DummyEndpoint s> init (struct {} conf)  {
+}
+
+struct DummyService {}
+
+function <DummyService s> getEndpoint() returns (DummyEndpoint) {
+    return null;
+}

@@ -45,7 +45,7 @@ public class AbortResourceManagers extends BlockingNativeCallableUnit {
         String transactionId = ctx.getStringArgument(0);
         int transactionBlockId = (int) ctx.getIntArgument(0);
         boolean abortSuccessful =
-                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
         ctx.setReturnValues(new BBoolean(abortSuccessful));
     }
 }

@@ -1,8 +1,8 @@
 package ballerina.net.http;
 
-import ballerina.mime;
 import ballerina.file;
 import ballerina.io;
+import ballerina.mime;
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}

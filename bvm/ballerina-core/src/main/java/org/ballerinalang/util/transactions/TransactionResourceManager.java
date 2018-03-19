@@ -17,9 +17,13 @@
 */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +46,14 @@ public class TransactionResourceManager {
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Xid> xidRegistry;
 
+    private Map<Integer, BFunctionPointer> committedFuncRegistry;
+    private Map<Integer, BFunctionPointer> abortedFuncRegistry;
+
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
         xidRegistry = new HashMap<>();
+        committedFuncRegistry = new HashMap<>();
+        abortedFuncRegistry = new HashMap<>();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -68,6 +77,26 @@ public class TransactionResourceManager {
     public void register(String transactionId, int transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         resourceRegistry.computeIfAbsent(combinedId, resourceList -> new ArrayList<>()).add(txContext);
+    }
+
+    /**
+     * This method will register a committed function handler of a particular transaction.
+     *
+     * @param transactionBlockId the block id of the transaction.
+     * param bFunctionPointer the function pointer for the committed function.
+     */
+    public void registerCommittedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
+        committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
+    }
+
+    /**
+     * This method will register an aborted function handler of a particular transaction.
+     *
+     * @param transactionBlockId the block id of the transaction.
+     * param bFunctionPointer the function pointer for the aborted function.
+     */
+    public void registerAbortedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
+        abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
     /**
@@ -125,6 +154,7 @@ public class TransactionResourceManager {
                 }
             }
         }
+        invokeCommittedFunction(transactionBlockId);
         removeContextsFromRegistry(combinedId);
         return commitSuccess;
     }
@@ -133,8 +163,9 @@ public class TransactionResourceManager {
      * This method acts as the callback which aborts all the resources participated in the given transaction.
      *
      * @param transactionId the global transaction id.
+     * @param transactionBlockId the block id of the transaction.
      */
-    public boolean notifyAbort(String transactionId, int transactionBlockId) {
+    public boolean notifyAbort(String transactionId, int transactionBlockId, boolean isRetryAttempt) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -155,6 +186,11 @@ public class TransactionResourceManager {
                     ctx.close();
                 }
             }
+        }
+        //For the retry  attempt failures the aborted function should not be invoked. It should invoked only when the
+        //whole transaction aborts after all the retry attempts.
+        if (!isRetryAttempt) {
+            invokeAbortedFunction(transactionBlockId);
         }
         removeContextsFromRegistry(combinedId);
         return abortSuccess;
@@ -211,7 +247,7 @@ public class TransactionResourceManager {
 
     void rollbackTransaction(String transactionId, int transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
-        notifyAbort(transactionId, transactionBlockId);
+        notifyAbort(transactionId, transactionBlockId, true);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId) {
@@ -221,5 +257,21 @@ public class TransactionResourceManager {
 
     private String generateCombinedTransactionId(String transactionId, int transactionBlockId) {
         return transactionId + ":" + transactionBlockId;
+    }
+
+    private void invokeCommittedFunction (int transactionBlockId) {
+        BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
+        if (fp != null) {
+            BValue[] args = {};
+            BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
+        }
+    }
+
+    private void invokeAbortedFunction (int transactionBlockId) {
+        BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
+        if (fp != null) {
+            BValue[] args = {};
+            BLangFunctions.invokeCallable(fp.value().getFunctionInfo(), args);
+        }
     }
 }
