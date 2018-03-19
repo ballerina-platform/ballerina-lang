@@ -16,41 +16,41 @@
 import ballerina.net.http;
 import ballerina.testing;
 
-endpoint<http:Service> ep1 {
+endpoint http:ServiceEndpoint ep1 {
     port : 9090
-}
+};
 
-@http:serviceConfig {
-    basePath:"/echoService",
-    endpoints:[ep1]
+@http:ServiceConfig {
+    basePath:"/echoService"
 }
-service<http:Service> echoService {
-    resource resourceOne (http:ServerConnector conn, http:Request clientRequest) {
+service<http:Service> echoService bind ep1 {
+    resourceOne (endpoint outboundEP, http:Request clientRequest) {
         http:Response outResponse = {};
         http:Request request = {};
         var response = callNextResource();
         outResponse.setStringPayload("Hello, World!");
-        _ = conn -> respond(response);
+        _ = outboundEP -> respond(response);
     }
 
-    resource resourceTwo (http:ServerConnector conn, http:Request clientRequest) {
+    resourceTwo (endpoint outboundEP, http:Request clientRequest) {
         http:Response res = {};
         res.setStringPayload("Hello, World 2!");
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 
-    resource getFinishedSpansCount(http:ServerConnector conn, http:Request clientRequest) {
+    getFinishedSpansCount(endpoint outboundEP, http:Request clientRequest) {
         http:Response res = {};
         string returnString = testing:getFinishedSpansCount();
         res.setStringPayload(returnString);
-        _ = conn -> respond(res);
+        _ = outboundEP -> respond(res);
     }
 }
 
 function callNextResource() (http:Response) {
-    endpoint<http:Client> httpEndpoint {
-        serviceUri:"http://localhost:9090/echoService"
-    }
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets : [{uri : "http://localhost:9090/echoService"}]
+    };
+
     http:Request request = {};
     var response, _ = httpEndpoint -> get("/resourceTwo", request);
     return response;
