@@ -305,7 +305,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 add(resultType);
                 add(symTable.nullType);
             }};
-            this.resultType = new BUnionType(TypeTags.UNION, null, memberTypes, true);
+            this.resultType = new BUnionType(null, memberTypes, true);
         }
 
         typeNode.type = resultType;
@@ -469,7 +469,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                 ((BUnionType) memBType).memberTypes.stream() :
                                 Stream.of(memBType))
                 .collect(Collectors.toSet());
-        resultType = new BUnionType(TypeTags.UNION, null, memberTypes,
+        resultType = new BUnionType(null, memberTypes,
                 memberTypes.contains(symTable.nullType));
     }
 

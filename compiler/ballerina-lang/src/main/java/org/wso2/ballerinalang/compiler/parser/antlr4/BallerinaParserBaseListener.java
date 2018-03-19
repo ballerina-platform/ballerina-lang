@@ -832,18 +832,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) { }
 	/**
 	 * {@inheritDoc}

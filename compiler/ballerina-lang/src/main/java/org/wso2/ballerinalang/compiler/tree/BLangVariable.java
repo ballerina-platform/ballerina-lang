@@ -49,6 +49,7 @@ public class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
+    public boolean safeAssignment = false;
 
     public BVarSymbol symbol;
 
@@ -132,6 +133,11 @@ public class BLangVariable extends BLangNode implements VariableNode {
     @Override
     public void setInitialExpression(ExpressionNode expr) {
         this.expr = (BLangExpression) expr;
+    }
+
+    @Override
+    public boolean isSafeAssignment() {
+        return safeAssignment;
     }
 
     @Override

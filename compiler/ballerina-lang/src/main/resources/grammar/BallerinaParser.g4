@@ -147,7 +147,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 transformerDefinition
@@ -169,7 +169,7 @@ attachmentPoint
      ;
 
 constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
     ;
 
 workerDeclaration
@@ -279,7 +279,6 @@ statement
     |   assignmentStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
-    |   safeAssignmentStatement
     |   ifElseStatement
     |   matchStatement
     |   foreachStatement
@@ -346,10 +345,6 @@ postIncrementStatement
 postArithmeticOperator
     :   INCREMENT
     |   DECREMENT
-    ;
-
-safeAssignmentStatement
-    :   variableReference SAFE_ASSIGNMENT expression SEMICOLON
     ;
 
 variableReferenceList

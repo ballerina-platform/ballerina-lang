@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Set;
 import java.util.StringJoiner;
@@ -36,8 +37,8 @@ public class BUnionType extends BType implements UnionType {
 
     public Set<BType> memberTypes;
 
-    public BUnionType(int tag, BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
-        super(tag, tsymbol);
+    public BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
+        super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;
     }

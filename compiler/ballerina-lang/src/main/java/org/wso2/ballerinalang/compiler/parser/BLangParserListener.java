@@ -489,9 +489,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar);
+                ctx.Identifier().getText(), ctx.expression() != null, publicVar, safeAssignment);
     }
 
     /**
@@ -538,8 +539,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicVar);
+        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx),
+                ctx.Identifier().getText(), publicVar, safeAssignment);
     }
 
     @Override
@@ -762,8 +765,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean exprAvailable = ctx.ASSIGN() != null || ctx.SAFE_ASSIGNMENT() != null;
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.ASSIGN() != null, false);
+                ctx.Identifier().getText(), exprAvailable, false, safeAssignment);
     }
 
     @Override

@@ -36,5 +36,7 @@ public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLeve
     ExpressionNode getInitialExpression();
     
     void setInitialExpression(ExpressionNode expr);
+
+    boolean isSafeAssignment();
     
 }

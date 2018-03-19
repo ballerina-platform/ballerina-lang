@@ -698,16 +698,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPostArithmeticOperator(BallerinaParser.PostArithmeticOperatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#safeAssignmentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#safeAssignmentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitSafeAssignmentStatement(BallerinaParser.SafeAssignmentStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#variableReferenceList}.
 	 * @param ctx the parse tree
 	 */
