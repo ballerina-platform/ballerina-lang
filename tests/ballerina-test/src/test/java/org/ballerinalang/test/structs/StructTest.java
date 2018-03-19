@@ -39,7 +39,7 @@ public class StructTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
+//        compileResult = BCompileUtil.compile("test-src/structs/struct.bal");
     }
 
     @Test(description = "Test Basic struct operations")
@@ -161,4 +161,15 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"null\", adrs:null, age:25, " +
                 "family:null, parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
     }
+
+    @Test
+    public void testStructLiteral1() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-literals.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
+        System.out.println(returns[0].stringValue());
+        
+        returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
+        System.out.println(returns[0].stringValue());
+    }
+
 }

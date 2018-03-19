@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -650,6 +651,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         throw new AssertionError();
     }
 }
