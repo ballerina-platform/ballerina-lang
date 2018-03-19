@@ -40,8 +40,6 @@ import java.util.concurrent.TimeUnit;
 public class TimeoutHandler implements Http2DataEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
-
-
     private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
     private long idleTimeNanos;
@@ -54,7 +52,7 @@ public class TimeoutHandler implements Http2DataEventListener {
         timerTasks = new ConcurrentHashMap<>();
     }
 
-    public void initialize(int streamId, ChannelHandlerContext ctx) {
+    public void onStreamInit(int streamId, ChannelHandlerContext ctx) {
         http2ClientChannel.getInFlightMessage(streamId).setLastReadWriteTime(ticksInNanos());
         timerTasks.put(streamId,
                        schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));

@@ -24,7 +24,7 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface Http2DataEventListener {
 
-    void initialize(int streamId, ChannelHandlerContext ctx);
+    void onStreamInit(int streamId, ChannelHandlerContext ctx);
 
     void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
 

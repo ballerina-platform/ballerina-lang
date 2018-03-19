@@ -130,7 +130,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             int streamId = getNextStreamId();
             http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
             http2ClientChannel.getDataEventListeners().
-                    forEach(dataEventListener -> dataEventListener.initialize(streamId, ctx));
+                    forEach(dataEventListener -> dataEventListener.onStreamInit(streamId, ctx));
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
