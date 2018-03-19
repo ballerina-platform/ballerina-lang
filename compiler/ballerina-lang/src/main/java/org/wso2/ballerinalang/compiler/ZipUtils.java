@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
  */
 class ZipUtils {
     private static final String SRC_DIR = "src";
+
     /**
      * Generates the balo/zip of the package.
      *
@@ -74,8 +76,16 @@ class ZipUtils {
     private static void createArchive(Stream<Path> filesToBeArchived, String outFileName) {
         Map<String, String> zipFSEnv = new HashMap<>();
         zipFSEnv.put("create", "true");
-
-        URI zipFileURI = URI.create("jar:file:" + Paths.get(outFileName).toUri().getPath());
+        URI filepath = Paths.get(outFileName).toUri();
+        URI zipFileURI;
+        try {
+            zipFileURI = new URI("jar:" + filepath.getScheme(),
+                    filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
+                    filepath.getPath() + "!/",
+                    filepath.getQuery(), filepath.getFragment());
+        } catch (URISyntaxException ignore) {
+            throw new BLangCompilerException("error creating artifact" + outFileName);
+        }
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
             addFileToArchive(filesToBeArchived, zipFS, outFileName);
         } catch (IOException e) {

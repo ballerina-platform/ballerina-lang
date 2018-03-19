@@ -38,8 +38,6 @@ import java.util.Map;
  */
 public class ExecutorUtils {
 
-    private static boolean packageInit = false;
-
     /**
      * Run balx that lives within jars.
      *
