@@ -48,6 +48,7 @@ class AbstractEndpointNode extends Node {
     }
 
 
+
     setConfigurationExpression(newValue, silent, title) {
         const oldValue = this.configurationExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractEndpointNode extends Node {
     getConfigurationExpression() {
         return this.configurationExpression;
     }
+
 
 
     setName(newValue, silent, title) {
@@ -100,6 +102,7 @@ class AbstractEndpointNode extends Node {
     }
 
 
+
     setFlags(newValue, silent, title) {
         const oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -122,6 +125,7 @@ class AbstractEndpointNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {
