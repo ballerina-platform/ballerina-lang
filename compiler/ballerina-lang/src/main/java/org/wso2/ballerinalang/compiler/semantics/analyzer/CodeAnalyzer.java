@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -106,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -616,6 +618,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(assignNode.expr);
     }
 
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        this.checkStatementExecutionValidity(stmt);
+        analyzeExprs(stmt.varRefs);
+        analyzeExpr(stmt.expr);
+    }
+
     public void visit(BLangBind bindNode) {
         this.checkStatementExecutionValidity(bindNode);
         analyzeExpr(bindNode.varRef);
@@ -747,6 +756,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBinaryExpr binaryExpr) {
         analyzeExpr(binaryExpr.lhsExpr);
         analyzeExpr(binaryExpr.rhsExpr);
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        analyzeExprs(bracedOrTupleExpr.expressions);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {

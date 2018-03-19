@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -400,6 +402,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             }
             visitAssignment(varRefExpr, varTaintedStatus, assignNode.pos);
         }
+    }
+
+    public void visit(BLangTupleDestructure stmt) {
+        this.visit((BLangAssignment) stmt);
     }
 
     private void visitAssignment(BLangExpression varRefExpr, boolean varTaintedStatus, DiagnosticPos pos) {
@@ -709,6 +715,11 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         binaryExpr.rhsExpr.accept(this);
         boolean rhsTaintedCheckResult = getObservedTaintedStatus();
         setTaintedStatusList(lhsTaintedCheckResult || rhsTaintedCheckResult);
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {

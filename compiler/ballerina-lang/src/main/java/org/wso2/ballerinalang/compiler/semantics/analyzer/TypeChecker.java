@@ -609,7 +609,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             resultTypes = Lists.of(new BTupleType(results));
         } else {
-            // This can is a braced expression.
+            // This is a braced expression.
+            bracedOrTupleExpr.isBracedExpr = true;
             resultTypes = Lists.of(checkExpr(bracedOrTupleExpr.expressions.get(0), env, Lists.of(symTable.noType))
                     .get(0));
         }

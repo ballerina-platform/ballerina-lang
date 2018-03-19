@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 public class BLangBracedOrTupleExpr extends BLangExpression implements BracedOrTupleExpression {
 
     public List<BLangExpression> expressions = new ArrayList<>();
+    public boolean isBracedExpr = false;
 
     @Override
     public List<BLangExpression> getExpressions() {

@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -124,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -553,8 +555,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
             checkConstantAssignment(varRef);
         }
-
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            BTupleType tupleType = new BTupleType(expTypes);
+            expTypes = Lists.of(tupleType);
+        }
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        visit((BLangAssignment) stmt);
     }
 
     public void visit(BLangBind bindNode) {
@@ -1370,8 +1380,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(assignNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
         // Check RHS expressions with expected type list.
-        final List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
-
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            BTupleType tupleType = new BTupleType(expTypes);
+            expTypes = Lists.of(tupleType);
+        }
+        List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            BTupleType tupleType = (BTupleType) rhsTypes.get(0);
+            rhsTypes = tupleType.tupleTypes;
+        }
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BLangExpression varRef = assignNode.varRefs.get(i);
