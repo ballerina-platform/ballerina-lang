@@ -52,7 +52,7 @@ public class CodeGeneratorTest {
 
             if (genFile.exists()) {
                 String result = new String(Files.readAllBytes(Paths.get(genFile.getPath())));
-                Assert.assertTrue(result != null && result.contains("resource listPets"));
+                Assert.assertTrue(result != null && result.contains("listPets (endpoint outboundEp"));
             } else {
                 Assert.fail("Service was not generated");
             }

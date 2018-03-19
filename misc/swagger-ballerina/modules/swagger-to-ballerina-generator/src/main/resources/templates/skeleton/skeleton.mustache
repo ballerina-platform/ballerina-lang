@@ -4,10 +4,10 @@ import {{apiPackage}}.model;{{/apiPackage}}
 import ballerina.net.http;
 import ballerina.net.http.swagger;
 
-{{#servers}}endpoint<http:Service> ep{{@index}} {
+{{#servers}}endpoint http:ServiceEndpoint ep{{@index}} {
     host: "{{host}}",
     port: {{port}}
-}
+};
 {{/servers}}
 @swagger:serviceInfo { {{#info}}
     title: "{{title}}",
@@ -25,10 +25,9 @@ import ballerina.net.http.swagger;
     ]
 }
 @http:serviceConfig {
-    basePath: "{{servers.0.basePath}}",
-    endpoints: [{{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}}]
+    basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
-service<http:Service> {{cut info.title " "}} {
+service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
 {{#paths}}{{#value}}{{#get}}
     @swagger:resourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
@@ -51,12 +50,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/get}}{{#post}}
     @swagger:resourceInfo {
@@ -80,12 +79,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/post}}{{#put}}
     @swagger:resourceInfo {
@@ -109,12 +108,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/put}}{{#delete}}
     @swagger:resourceInfo {
@@ -138,12 +137,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/delete}}{{#options}}
     @swagger:resourceInfo {
@@ -167,12 +166,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/options}}{{#head}}
     @swagger:resourceInfo {
@@ -196,12 +195,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/head}}{{#patch}}
     @swagger:resourceInfo {
@@ -225,12 +224,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/patch}}{{#trace}}
     @swagger:resourceInfo {
@@ -254,12 +253,12 @@ service<http:Service> {{cut info.title " "}} {
         path:"{{key}}"
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource {{operationId}} (http:ServerConnector conn, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
+    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
         //stub code - fill as necessary
         http:Response resp = {};
         string payload = "Sample {{operationId}} Response";
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEp -> respond(resp);
     }
 {{/trace}}{{/value}}{{/paths}}
 }
