@@ -27,10 +27,10 @@ public class CompilerUtils {
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
 
     public static boolean isDistributedTransactionsEnabled() {
-        boolean distributedTransactionEnabled = false; //TODO:Default will be true. Read from new VMOptions
+        boolean distributedTransactionEnabled = true; //TODO:Default will be true. Read from new VMOptions
         String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);
         if (distributedTxEnabledProp != null) {
-            distributedTransactionEnabled = true;
+            distributedTransactionEnabled = Boolean.valueOf(distributedTxEnabledProp);
         }
         return distributedTransactionEnabled;
     }

@@ -167,6 +167,7 @@ class AbstractTypeInitExprNode extends ExpressionNode {
     }
 
 
+
 }
 
 export default AbstractTypeInitExprNode;

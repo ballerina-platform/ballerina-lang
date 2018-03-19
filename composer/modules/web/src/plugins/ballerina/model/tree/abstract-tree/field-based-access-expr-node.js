@@ -48,6 +48,7 @@ class AbstractFieldBasedAccessExprNode extends ExpressionNode {
     }
 
 
+
     setFieldName(newValue, silent, title) {
         const oldValue = this.fieldName;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractFieldBasedAccessExprNode extends ExpressionNode {
     getFieldName() {
         return this.fieldName;
     }
+
 
 
 }

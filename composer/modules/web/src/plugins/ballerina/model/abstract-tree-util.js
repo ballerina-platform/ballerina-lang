@@ -119,6 +119,10 @@ class AbstractTreeUtil {
         return node.kind === 'Transformer';
     }
 
+    isStreamlet(node) {
+        return node.kind === 'Streamlet';
+    }
+
     isDocumentationAttribute(node) {
         return node.kind === 'DocumentationAttribute';
     }
@@ -223,12 +227,24 @@ class AbstractTreeUtil {
         return node.kind === 'XmlPiLiteral';
     }
 
+    isSelectExpression(node) {
+        return node.kind === 'SelectExpression';
+    }
+
     isAbort(node) {
         return node.kind === 'Abort';
     }
 
     isAssignment(node) {
         return node.kind === 'Assignment';
+    }
+
+    isCompoundAssignment(node) {
+        return node.kind === 'CompoundAssignment';
+    }
+
+    isPostIncrement(node) {
+        return node.kind === 'PostIncrement';
     }
 
     isBind(node) {
@@ -261,6 +277,14 @@ class AbstractTreeUtil {
 
     isIf(node) {
         return node.kind === 'If';
+    }
+
+    isMatch(node) {
+        return node.kind === 'Match';
+    }
+
+    isMatchPatternClause(node) {
+        return node.kind === 'MatchPatternClause';
     }
 
     isReply(node) {
@@ -307,6 +331,10 @@ class AbstractTreeUtil {
         return node.kind === 'ArrayType';
     }
 
+    isUnionTypeNode(node) {
+        return node.kind === 'UnionTypeNode';
+    }
+
     isBuiltInRefType(node) {
         return node.kind === 'BuiltInRefType';
     }
@@ -329,6 +357,46 @@ class AbstractTreeUtil {
 
     isValueType(node) {
         return node.kind === 'ValueType';
+    }
+
+    isOrderBy(node) {
+        return node.kind === 'OrderBy';
+    }
+
+    isGroupBy(node) {
+        return node.kind === 'GroupBy';
+    }
+
+    isHaving(node) {
+        return node.kind === 'Having';
+    }
+
+    isSelectClause(node) {
+        return node.kind === 'SelectClause';
+    }
+
+    isWhere(node) {
+        return node.kind === 'Where';
+    }
+
+    isFunctionClause(node) {
+        return node.kind === 'FunctionClause';
+    }
+
+    isWindowClause(node) {
+        return node.kind === 'WindowClause';
+    }
+
+    isStreamAction(node) {
+        return node.kind === 'StreamAction';
+    }
+
+    isPatternStreamingEdgeInput(node) {
+        return node.kind === 'PatternStreamingEdgeInput';
+    }
+
+    isPatternStreamingInput(node) {
+        return node.kind === 'PatternStreamingInput';
     }
 
 

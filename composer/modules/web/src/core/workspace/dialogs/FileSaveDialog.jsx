@@ -194,6 +194,7 @@ class FileSaveDialog extends React.Component {
                             Save
                         </Button>
                     }
+                    closeDialog
                     onHide={this.onDialogHide}
                     error={this.state.error}
                 >
