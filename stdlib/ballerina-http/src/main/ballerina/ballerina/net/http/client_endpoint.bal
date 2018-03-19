@@ -27,32 +27,6 @@ public struct TargetService {
     SSL ssl;
 }
 
-@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
-@Field {value:"transferEncoding: The types of encoding applied to the request"}
-@Field {value:"chunking: The chunking behaviour of the request"}
-@Field {value:"httpVersion: The HTTP version understood by the client"}
-@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
-@Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retryConfig: Retry related options"}
-@Field {value:"proxy: Proxy server related options"}
-@Field {value:"connectionThrottling: Configurations for connection throttling"}
-@Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
-public struct ClientEndpointConfiguration {
-    int endpointTimeout = 60000;
-    boolean keepAlive = true;
-    TransferEncoding transferEncoding;
-    Chunking chunking;
-    string httpVersion;
-    string forwarded = "disable";
-    FollowRedirects followRedirects;
-    Retry retryConfig;
-    Proxy proxy;
-    ConnectionThrottling connectionThrottling;
-    TargetService[] targets;
-    Algorithm algorithm;
-}
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
 @Param {value:"config: The ClientEndpointConfiguration struct to be initialized"}
@@ -96,6 +70,20 @@ public function <ClientEndpoint ep> stop() {
 }
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
+
+function createLoadBalancer (ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] lbClients = [];
+    int i = 0;
+
+    foreach target in config.targets {
+        lbClients[i] = createHttpClient(config);
+        i = i + 1;
+    }
+
+    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
+    var httpClient, _ = (HttpClient)lb;
+    return httpClient;
+}
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}

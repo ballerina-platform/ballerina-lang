@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.net.http.resiliency;
-
-import ballerina.net.http;
+package ballerina.net.http;
 
 //Constants to represent Failover connector actions.
 public const string FORWARD = "forward";
@@ -33,33 +31,28 @@ enum HttpOperation {
 }
 
 // makes the actual endpoints call according to the http operation passed in.
-public function invokeEndpoint (string path, http:Request outRequest, http:Request inRequest,
-                                HttpOperation requestAction, http:HttpClient httpClient)
-(http:Response, http:HttpConnectorError) {
-
-    endpoint<http:HttpClient> endPoint {
-    }
-
-    bind httpClient with endPoint;
+public function invokeEndpoint (string path, Request outRequest, Request inRequest,
+                                                              HttpOperation requestAction, HttpClient httpClient)
+                              (Response, HttpConnectorError) {
 
     if (HttpOperation.GET == requestAction) {
-        return endPoint.get(path, outRequest);
+        return httpClient.get(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
-        return endPoint.post(path, outRequest);
+        return httpClient.post(path, outRequest);
     } else if (HttpOperation.OPTIONS == requestAction) {
-        return endPoint.options(path, outRequest);
+        return httpClient.options(path, outRequest);
     } else if (HttpOperation.PUT == requestAction) {
-        return endPoint.put(path, outRequest);
+        return httpClient.put(path, outRequest);
     } else if (HttpOperation.DELETE == requestAction) {
-        return endPoint.delete(path, outRequest);
+        return httpClient.delete(path, outRequest);
     } else if (HttpOperation.PATCH == requestAction) {
-        return endPoint.patch(path, outRequest);
+        return httpClient.patch(path, outRequest);
     } else if (HttpOperation.FORWARD == requestAction) {
-        return endPoint.forward(path, inRequest);
+        return httpClient.forward(path, inRequest);
     } else if (HttpOperation.HEAD == requestAction) {
-        return endPoint.head(path, outRequest);
+        return httpClient.head(path, outRequest);
     } else {
-        http:HttpConnectorError httpConnectorError = {};
+        HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
         httpConnectorError.message = "Unsupported connector action received.";
         return null, httpConnectorError;
