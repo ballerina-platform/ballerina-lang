@@ -37,13 +37,13 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_INDEX;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "getClient",
+        functionName = "getHttpClient",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
                 structPackage = "ballerina.net.http"),
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetClient extends BlockingNativeCallableUnit {
+public class GetHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
