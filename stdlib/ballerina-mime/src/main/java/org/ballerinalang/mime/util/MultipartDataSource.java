@@ -149,40 +149,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
      * @param writer   Represent the outputstream writer
      * @param bodyPart Represent ballerina body part
      * @throws IOException When an error occurs while writing body part headers
-     *//*
-    private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
-        BMap<String, BValue> entityHeaders = HeaderUtil.getEntityHeaderMap(bodyPart);
-        HeaderUtil.setContentTypeHeader(bodyPart, entityHeaders);
-        HeaderUtil.setContentDispositionHeader(bodyPart, entityHeaders);
-        HeaderUtil.setContentIdHeader(bodyPart, entityHeaders);
-        Set<String> keys = entityHeaders.keySet();
-        for (String key : keys) {
-            BStringArray headerValues = (BStringArray) entityHeaders.get(key);
-            writer.write(key);
-            writer.write(COLON);
-            boolean first = true;
-            for (int j = 0; j < headerValues.size(); j++) {
-                if (first) {
-                    writer.write(SPACE);
-                    first = false;
-                } else {
-                    writer.write(COMMA);
-                }
-                writer.write(headerValues.get(j));
-            }
-            writer.write(CRLF);
-        }
-        // Mark the end of the headers for this body part
-        writer.write(CRLF);
-        writer.flush();
-    }*/
-
-    /**
-     * Write body part headers to output stream.
-     *
-     * @param writer   Represent the outputstream writer
-     * @param bodyPart Represent ballerina body part
-     * @throws IOException When an error occurs while writing body part headers
      */
     private void writeBodyPartHeaders(Writer writer, BStruct bodyPart) throws IOException {
         HttpHeaders httpHeaders;
