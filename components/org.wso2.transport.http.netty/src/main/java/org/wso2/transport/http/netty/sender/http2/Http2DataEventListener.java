@@ -32,4 +32,6 @@ public interface Http2DataEventListener {
 
     void onStreamClose(int streamId);
 
+    void destroy();
+
 }

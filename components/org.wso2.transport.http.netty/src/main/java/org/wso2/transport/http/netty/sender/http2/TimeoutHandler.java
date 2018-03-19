@@ -93,6 +93,14 @@ public class TimeoutHandler implements Http2DataEventListener {
         }
     }
 
+    public void destroy() {
+        timerTasks.forEach((streamId, task) -> {
+            task.cancel(false);
+        });
+        timerTasks.clear();
+    }
+
+
     private class IdleTimeoutTask implements Runnable {
 
         private ChannelHandlerContext ctx;
