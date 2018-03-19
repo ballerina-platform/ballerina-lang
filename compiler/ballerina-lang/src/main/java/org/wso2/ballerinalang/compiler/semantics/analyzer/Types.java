@@ -630,15 +630,8 @@ public class Types {
     }
 
     private boolean isNullable(BType fieldType) {
-        if (!isValueType(fieldType)) {
-            return true;
-        }
-
-        // TODO: include blob as well, when the null support for blob is implemented
-        if (fieldType.tag == TypeTags.STRING) {
-            return true;
-        }
-
+        // All types are not nullable by default.
+        // TODO: check whether the type is nullable
         return false;
     }
 
