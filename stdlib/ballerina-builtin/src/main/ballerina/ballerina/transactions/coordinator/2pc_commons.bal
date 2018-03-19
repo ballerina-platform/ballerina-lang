@@ -26,7 +26,7 @@ enum Protocols {
     COMPLETION, DURABLE, VOLATILE
 }
 
-enum TransactionState {
+public enum TransactionState {
     ACTIVE, PREPARED, COMMITTED, ABORTED
 }
 
@@ -47,11 +47,11 @@ struct CommitResponse {
     string message;
 }
 
-struct PrepareRequest {
+public struct PrepareRequest {
     string transactionId;
 }
 
-struct PrepareResponse {
+public struct PrepareResponse {
     string message;
 }
 

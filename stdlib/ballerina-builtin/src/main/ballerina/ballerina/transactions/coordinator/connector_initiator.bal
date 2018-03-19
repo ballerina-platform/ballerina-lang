@@ -19,28 +19,7 @@ package ballerina.transactions.coordinator;
 import ballerina.config;
 import ballerina.net.http;
 
-const string participantHost = getParticipantHost();
-const int participantPort = getParticipantPort();
-
-function getParticipantHost () returns (string host) {
-    host = config:getInstanceValue("http", "participant.host");
-    if (host == "") {
-        host = "localhost";
-    }
-    return;
-}
-
-function getParticipantPort () returns (int port) {
-    var p, e = <int>config:getInstanceValue("http", "participant.port");
-    if (e != null) {
-        port = 8081;
-    } else {
-        port = p;
-    }
-    return;
-}
-
-struct InitiatorClientConfig {
+public struct InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
     struct {
@@ -49,11 +28,11 @@ struct InitiatorClientConfig {
     } retryConfig;
 }
 
-struct InitiatorClientEP {
+public struct InitiatorClientEP {
     http:ClientEndpoint httpClient;
 }
 
-function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
+public function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
                                             endpointTimeout:conf.endpointTimeout,
                                             retryConfig:{count:conf.retryConfig.count,
@@ -61,25 +40,23 @@ function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     ep.httpClient = httpEP;
 }
 
-function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
+public function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
     return {clientEP: ep};
 }
 
-struct InitiatorClient {
+public struct InitiatorClient {
     InitiatorClientEP clientEP;
 }
 
-function<InitiatorClient client> register (string transactionId,
-                                           int transactionBlockId) returns (RegistrationResponse registrationRes,
+public function<InitiatorClient client> register (string transactionId,
+                                                  int transactionBlockId,
+                                                  Protocol[] participantProtocols) returns (RegistrationResponse registrationRes,
                                                                             error err) {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
-    //TODO: set the proper protocol
-    string protocol = "durable";
-    Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
-    regReq.participantProtocols = protocols;
+    regReq.participantProtocols = participantProtocols;
 
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
@@ -108,4 +85,3 @@ function<InitiatorClient client> register (string transactionId,
     }
     return;
 }
-
