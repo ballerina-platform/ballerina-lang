@@ -53,6 +53,7 @@ public class TimeoutHandler implements Http2DataEventListener {
         timerTasks = new ConcurrentHashMap<>();
     }
 
+    @Override
     public void onStreamInit(int streamId, ChannelHandlerContext ctx) {
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
@@ -93,13 +94,11 @@ public class TimeoutHandler implements Http2DataEventListener {
         }
     }
 
+    @Override
     public void destroy() {
-        timerTasks.forEach((streamId, task) -> {
-            task.cancel(false);
-        });
+        timerTasks.forEach((streamId, task) -> task.cancel(false));
         timerTasks.clear();
     }
-
 
     private class IdleTimeoutTask implements Runnable {
 

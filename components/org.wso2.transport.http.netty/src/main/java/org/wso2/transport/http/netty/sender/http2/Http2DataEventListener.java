@@ -24,14 +24,41 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface Http2DataEventListener {
 
+    /**
+     * Gets notified for an event on a stream initialization.
+     *
+     * @param streamId the related stream id
+     * @param ctx      the channel handler context
+     */
     void onStreamInit(int streamId, ChannelHandlerContext ctx);
 
+    /**
+     * Gets notified for an event on a data read on a particular stream.
+     *
+     * @param streamId    the related stream id
+     * @param ctx         the channel handler context
+     * @param endOfStream whether stream terminate with this data read operation
+     */
     void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
 
+    /**
+     * Gets notified for an event on a data write on a particular stream.
+     *
+     * @param streamId    the related stream id
+     * @param ctx         the channel handler context
+     * @param endOfStream whether stream terminate with this data read operation
+     */
     void onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
 
+    /**
+     * Gets notified on a stream close.
+     *
+     * @param streamId the related stream id
+     */
     void onStreamClose(int streamId);
 
+    /**
+     * Destroy this {@code Http2DataEventListener}.
+     */
     void destroy();
-
 }
