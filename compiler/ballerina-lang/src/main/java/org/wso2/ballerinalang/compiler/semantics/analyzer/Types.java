@@ -153,7 +153,7 @@ public class Types {
             return actualType;
         } else if (actualType.tag == TypeTags.ERROR) {
             return actualType;
-        } else if (actualType.tag == TypeTags.NULL && isNullable(expType)) {
+        } else if (actualType.tag == TypeTags.NULL && (isNullable(expType) || expType.tag == TypeTags.JSON)) {
             return actualType;
         } else if (isAssignable(actualType, expType)) {
             return actualType;
@@ -631,9 +631,7 @@ public class Types {
     }
 
     private boolean isNullable(BType fieldType) {
-        // All types are not nullable by default.
-        // TODO: check whether the type is nullable
-        return false;
+        return fieldType.isNullable();
     }
 
     private boolean isJSONAssignableType(BType type) {
