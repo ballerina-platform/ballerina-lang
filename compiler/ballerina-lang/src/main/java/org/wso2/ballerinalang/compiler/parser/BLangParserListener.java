@@ -1056,7 +1056,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String initName = ctx.NEW().getText();
-        boolean argsAvailable = ctx.expressionList() != null;
+        boolean argsAvailable = ctx.invocationArgList() != null;
         this.pkgBuilder.addTypeInitExpression(getCurrentPos(ctx), getWS(ctx), initName, argsAvailable);
     }
 

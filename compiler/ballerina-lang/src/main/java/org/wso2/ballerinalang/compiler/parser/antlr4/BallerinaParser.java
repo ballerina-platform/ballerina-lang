@@ -5354,8 +5354,8 @@ public class BallerinaParser extends Parser {
 		}
 		public TerminalNode LEFT_PARENTHESIS() { return getToken(BallerinaParser.LEFT_PARENTHESIS, 0); }
 		public TerminalNode RIGHT_PARENTHESIS() { return getToken(BallerinaParser.RIGHT_PARENTHESIS, 0); }
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
+		public InvocationArgListContext invocationArgList() {
+			return getRuleContext(InvocationArgListContext.class,0);
 		}
 		public TypeInitExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5386,10 +5386,10 @@ public class BallerinaParser extends Parser {
 			match(LEFT_PARENTHESIS);
 			setState(1107);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STREAMLET) | (1L << FROM) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_AGGREGATION - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (NEW - 64)) | (1L << (LENGTHOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (UNTAINT - 64)) | (1L << (ASYNC - 64)) | (1L << (AWAIT - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)) | (1L << (LEFT_BRACKET - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (NOT - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (LT - 128)) | (1L << (DecimalIntegerLiteral - 128)) | (1L << (HexIntegerLiteral - 128)) | (1L << (OctalIntegerLiteral - 128)) | (1L << (BinaryIntegerLiteral - 128)) | (1L << (FloatingPointLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (QuotedStringLiteral - 128)) | (1L << (NullLiteral - 128)) | (1L << (Identifier - 128)) | (1L << (XMLLiteralStart - 128)) | (1L << (StringTemplateLiteralStart - 128)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STREAMLET) | (1L << FROM) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_AGGREGATION - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (NEW - 64)) | (1L << (LENGTHOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (UNTAINT - 64)) | (1L << (ASYNC - 64)) | (1L << (AWAIT - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)) | (1L << (LEFT_BRACKET - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (NOT - 64)))) != 0) || ((((_la - 128)) & ~0x3f) == 0 && ((1L << (_la - 128)) & ((1L << (LT - 128)) | (1L << (ELLIPSIS - 128)) | (1L << (DecimalIntegerLiteral - 128)) | (1L << (HexIntegerLiteral - 128)) | (1L << (OctalIntegerLiteral - 128)) | (1L << (BinaryIntegerLiteral - 128)) | (1L << (FloatingPointLiteral - 128)) | (1L << (BooleanLiteral - 128)) | (1L << (QuotedStringLiteral - 128)) | (1L << (NullLiteral - 128)) | (1L << (Identifier - 128)) | (1L << (XMLLiteralStart - 128)) | (1L << (StringTemplateLiteralStart - 128)))) != 0)) {
 				{
 				setState(1106);
-				expressionList();
+				invocationArgList();
 				}
 			}
 
@@ -15508,8 +15508,8 @@ public class BallerinaParser extends Parser {
 		"\u0102\u0082\2\u0449\u0447\3\2\2\2\u0449\u0448\3\2\2\2\u044a}\3\2\2\2"+
 		"\u044b\u044d\7t\2\2\u044c\u044e\5\u00d0i\2\u044d\u044c\3\2\2\2\u044d\u044e"+
 		"\3\2\2\2\u044e\u044f\3\2\2\2\u044f\u0450\7u\2\2\u0450\177\3\2\2\2\u0451"+
-		"\u0452\7K\2\2\u0452\u0453\5d\63\2\u0453\u0455\7r\2\2\u0454\u0456\5\u00d0"+
-		"i\2\u0455\u0454\3\2\2\2\u0455\u0456\3\2\2\2\u0456\u0457\3\2\2\2\u0457"+
+		"\u0452\7K\2\2\u0452\u0453\5d\63\2\u0453\u0455\7r\2\2\u0454\u0456\5\u00ca"+
+		"f\2\u0455\u0454\3\2\2\2\u0455\u0456\3\2\2\2\u0456\u0457\3\2\2\2\u0457"+
 		"\u0458\7s\2\2\u0458\u0081\3\2\2\2\u0459\u045b\7J\2\2\u045a\u0459\3\2\2"+
 		"\2\u045a\u045b\3\2\2\2\u045b\u045c\3\2\2\2\u045c\u045d\5\u008cG\2\u045d"+
 		"\u0460\7w\2\2\u045e\u0461\5\u00ecw\2\u045f\u0461\5\u00ceh\2\u0460\u045e"+

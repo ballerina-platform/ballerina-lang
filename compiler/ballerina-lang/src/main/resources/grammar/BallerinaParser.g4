@@ -345,7 +345,7 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
