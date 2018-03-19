@@ -21,7 +21,7 @@ int total = 0;
 function main (string[] args) {
 
      endpoint helloWorldClient helloWorldEp {
-            host: "0.0.0.0",
+            host: "localhost",
             port: 9090
         };
 
