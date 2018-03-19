@@ -100,9 +100,9 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         doTest();
     }
 
-    public void testTransaction() {
-        doTest();
-    }
+    //    public void testTransaction() {
+    //        doTest();
+    //    }
 
     public void testTypeName() {
         doTest();

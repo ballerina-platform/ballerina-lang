@@ -500,11 +500,13 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody failedClause? RIGHT_BRACE
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody onretryClause? RIGHT_BRACE
     ;
 
 transactionPropertyInitStatement
     : retriesStatement
+    | oncommitStatement
+    | onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -515,8 +517,8 @@ lockStatement
     : LOCK LEFT_BRACE codeBlockBody RIGHT_BRACE
     ;
 
-failedClause
-    :   RIGHT_BRACE FAILED LEFT_BRACE codeBlockBody
+onretryClause
+    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortStatement
     :   ABORT SEMICOLON
@@ -524,6 +526,14 @@ abortStatement
 
 retriesStatement
     :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+oncommitStatement
+    :   ONCOMMIT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+onabortStatement
+    :   ONABORT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

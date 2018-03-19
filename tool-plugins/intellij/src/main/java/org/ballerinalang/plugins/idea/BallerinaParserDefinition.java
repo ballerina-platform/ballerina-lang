@@ -66,7 +66,6 @@ import org.ballerinalang.plugins.idea.psi.EnumDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.EnumFieldNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FailedClauseNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForEachStatementNode;
@@ -159,7 +158,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ERRCHAR;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.EVENTS;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.EVERY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.EXPIRED;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FAILED;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FINALLY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FIRST;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.FOLLOWED;
@@ -193,6 +191,9 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.OBJECT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ON;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ONABORT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ONCOMMIT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ONRETRY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ORDER;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.OUTER;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.OUTPUT;
@@ -280,14 +281,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ALL, ANNOTATION, AS, ASYNC, AWAIT, BIND, BREAK, BY, CATCH, CONST, CURRENT, DELETE, DEPRECATED,
-            DOCUMENTATION, ELSE, ENDPOINT, ENUM, EVENTS, EVERY, EXPIRED, FAILED, FINALLY, FIRST, FOLLOWED, FOREACH,
+            DOCUMENTATION, ELSE, ENDPOINT, ENUM, EVENTS, EVERY, EXPIRED, FINALLY, FIRST, FOLLOWED, FOREACH,
             FOR, FORK, FROM, FULL, FUNCTION, GROUP, HAVING, IF, IMPORT, IN, INNER, INSERT, INTO, JOIN, LAST, LEFT,
-            LENGTHOF, LOCK, MATCH, NATIVE, NEW, NEXT, OBJECT, ON, ORDER, OUTER, OUTPUT, PACKAGE, PARAMETER, PRIVATE,
-            PUBLIC, QUERY, RESOURCE, RETRIES, RETURN, RETURNS, RIGHT, SELECT, SERVICE, SET, SNAPSHOT, SOME,
-            STREAMLET, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF,
-            TYPE_AGGREGATION, TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_FLOAT, TYPE_FUTURE, TYPE_INT, TYPE_JSON, TYPE_MAP,
-            TYPE_STREAM, TYPE_STRING, TYPE_TABLE, TYPE_TYPE, TYPE_XML, UNIDIRECTIONAL, UNTAINT, UPDATE, VERSION,
-            WHERE, WITHIN, WINDOW, WITH, BooleanLiteral, NullLiteral);
+            LENGTHOF, LOCK, MATCH, NATIVE, NEW, NEXT, OBJECT, ON, ONABORT, ONCOMMIT, ONRETRY, ORDER, OUTER, OUTPUT,
+            PACKAGE, PARAMETER, PRIVATE, PUBLIC, QUERY, RESOURCE, RETRIES, RETURN, RETURNS, RIGHT, SELECT, SERVICE,
+            SET, SNAPSHOT, SOME, STREAMLET, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, VAR, WHILE,
+            WORKER, XMLNS, TYPEOF, TYPE_AGGREGATION, TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_FLOAT, TYPE_FUTURE,
+            TYPE_INT, TYPE_JSON, TYPE_MAP, TYPE_STREAM, TYPE_STRING, TYPE_TABLE, TYPE_TYPE, TYPE_XML, UNIDIRECTIONAL,
+            UNTAINT, UPDATE, VERSION, WHERE, WITHIN, WINDOW, WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             COLON, COMMA, DOUBLE_COLON, EQUAL_GT, LARROW, QUESTION_MARK, RARROW, SEMICOLON, TILDE);
@@ -507,8 +508,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new EndpointDeclarationNode(node);
             case BallerinaParser.RULE_anonStructTypeName:
                 return new AnonStructTypeNameNode(node);
-            case BallerinaParser.RULE_failedClause:
-                return new FailedClauseNode(node);
             case BallerinaParser.RULE_userDefineTypeName:
                 return new UserDefinedTypeName(node);
             case BallerinaParser.RULE_anyIdentifierName:

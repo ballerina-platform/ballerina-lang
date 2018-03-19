@@ -36,7 +36,6 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseIf
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumFieldList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expression;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_expressionList;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_failedClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_field;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_fieldDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_finallyClause;
@@ -52,6 +51,9 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invoca
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinConditions;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onabortStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_oncommitStatement;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onretryClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterTypeNameList;
@@ -163,7 +165,9 @@ public class BallerinaTypes {
     public static final RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(RULE_timeoutClause);
     public static final RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(RULE_joinConditions);
     public static final RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(RULE_transactionStatement);
-    public static final RuleIElementType FAILED_CLAUSE = ruleIElementTypes.get(RULE_failedClause);
+    public static final RuleIElementType ON_ABORT_CLAUSE = ruleIElementTypes.get(RULE_onabortStatement);
+    public static final RuleIElementType ON_COMMIT_CLAUSE = ruleIElementTypes.get(RULE_oncommitStatement);
+    public static final RuleIElementType ON_RETRY_CLAUSE = ruleIElementTypes.get(RULE_onretryClause);
     public static final RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(RULE_xmlLocalName);
     public static final RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(RULE_nameReference);
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
@@ -207,7 +211,9 @@ public class BallerinaTypes {
     public static final TokenIElementType DELETE = tokenIElementTypes.get(BallerinaLexer.DELETE);
     public static final TokenIElementType ELSE = tokenIElementTypes.get(BallerinaLexer.ELSE);
     public static final TokenIElementType ENDPOINT = tokenIElementTypes.get(BallerinaLexer.ENDPOINT);
-    public static final TokenIElementType FAILED = tokenIElementTypes.get(BallerinaLexer.FAILED);
+    public static final TokenIElementType ONABORT = tokenIElementTypes.get(BallerinaLexer.ONABORT);
+    public static final TokenIElementType ONCOMMIT = tokenIElementTypes.get(BallerinaLexer.ONCOMMIT);
+    public static final TokenIElementType ONRETRY = tokenIElementTypes.get(BallerinaLexer.ONRETRY);
     public static final TokenIElementType FOR = tokenIElementTypes.get(BallerinaLexer.FOR);
     public static final TokenIElementType FROM = tokenIElementTypes.get(BallerinaLexer.FROM);
     public static final TokenIElementType FINALLY = tokenIElementTypes.get(BallerinaLexer.FINALLY);
@@ -229,6 +235,7 @@ public class BallerinaTypes {
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType NEW = tokenIElementTypes.get(BallerinaLexer.NEW);
+    public static final TokenIElementType OBJECT = tokenIElementTypes.get(BallerinaLexer.OBJECT);
     public static final TokenIElementType ON = tokenIElementTypes.get(BallerinaLexer.ON);
     public static final TokenIElementType ORDER = tokenIElementTypes.get(BallerinaLexer.ORDER);
     public static final TokenIElementType QUERY = tokenIElementTypes.get(BallerinaLexer.QUERY);

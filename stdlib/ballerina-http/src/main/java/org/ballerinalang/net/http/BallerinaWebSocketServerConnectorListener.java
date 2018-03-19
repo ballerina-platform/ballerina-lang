@@ -49,7 +49,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -79,7 +79,7 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
             // TODO: Resource should be able to run without any parameter.
             BConnector serverConnector = BLangConnectorSPIUtil.createBConnector(
                     WebSocketUtil.getProgramFile(wsService.getResources()[0]),
-                    PROTOCOL_PACKAGE_HTTP, SERVER_CONNECTOR);
+                    PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
             serverConnector.setNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             serverConnector.setNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
             serverConnector.setNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);

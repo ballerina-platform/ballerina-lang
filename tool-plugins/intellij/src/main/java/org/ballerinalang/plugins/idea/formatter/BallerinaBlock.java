@@ -41,7 +41,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE_IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENUM_FIELD_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FOREACH_STATEMENT;
@@ -51,6 +50,9 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PRIVATE_STRUCT_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RECORD_KEY_VALUE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
@@ -185,7 +187,8 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                 || parentElementType == CATCH_CLAUSE || parentElementType == CATCH_CLAUSES
                 || parentElementType == FINALLY_CLAUSE || parentElementType == JOIN_CLAUSE
-                || parentElementType == TIMEOUT_CLAUSE || parentElementType == FAILED_CLAUSE) {
+                || parentElementType == TIMEOUT_CLAUSE || parentElementType == ON_ABORT_CLAUSE
+                || parentElementType == ON_COMMIT_CLAUSE || parentElementType == ON_RETRY_CLAUSE) {
             return true;
         }
         return false;

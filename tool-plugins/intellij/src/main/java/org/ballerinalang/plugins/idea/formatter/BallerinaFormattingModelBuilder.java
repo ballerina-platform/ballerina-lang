@@ -53,7 +53,6 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION_LIST;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.FAILED;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FIELD;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FINALLY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.FLOATING_POINT;
@@ -90,7 +89,11 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NEW;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.OBJECT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ONABORT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ONCOMMIT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.ONRETRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
@@ -191,7 +194,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(BY).spaceIf(true)
                 .around(BREAK).spaceIf(false)
                 .around(CATCH).spaceIf(true)
-                .around(FAILED).spaceIf(true)
+                .around(ONABORT).spaceIf(true)
+                .around(ONCOMMIT).spaceIf(true)
+                .around(ONRETRY).spaceIf(true)
                 .around(FINALLY).spaceIf(true)
                 .around(GROUP).spaceIf(true)
                 .after(CONST).spaceIf(true)
@@ -214,6 +219,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(JOIN).spaceIf(true)
                 .after(NATIVE).spaceIf(true)
                 .after(NEW).spaceIf(true)
+                .around(OBJECT).spaceIf(true)
                 .around(ON).spaceIf(true)
                 .around(ORDER).spaceIf(true)
                 .after(PACKAGE).spaceIf(true)
