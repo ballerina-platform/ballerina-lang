@@ -30,6 +30,7 @@ function main (string[] args) {
         io:println("Error occured while sending event " + err.message);
     }
 
+    //to hold the programme
     while (total == 0) {}
     io:println("Client got response successfully.");
 }
@@ -49,7 +50,7 @@ service<grpc:Listener> helloWorldMessageListener {
 
     onComplete () {
         io:println("Server Complete Sending Response.");
-	total = 1;
+	    total = 1;
     }
 }
 
