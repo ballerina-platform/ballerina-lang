@@ -111,7 +111,8 @@ class ImportStructDialog extends React.Component {
                 show={this.state.showDialog}
                 title='Import struct definition'
                 titleIcon='fw fw-import'
-                actions={
+                closeDialog
+                actions={[
                     <Button
                         primary
                         onClick={this.onImportJson}
@@ -119,8 +120,7 @@ class ImportStructDialog extends React.Component {
                     >
                         Import
                     </Button>
-                }
-                closeAction
+                ]}
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
