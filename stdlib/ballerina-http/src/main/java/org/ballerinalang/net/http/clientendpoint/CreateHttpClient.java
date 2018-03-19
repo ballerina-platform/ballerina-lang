@@ -68,8 +68,8 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct clientEndpointConfigStruct = (BStruct) context.getRefArgument(0);
-        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(clientEndpointConfigStruct);
+        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
         Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
         String url = null;
@@ -114,8 +114,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-        BStruct httpClient;
-        httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
+        BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
                 HTTP_CLIENT, url, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         context.setReturnValues(httpClient);
