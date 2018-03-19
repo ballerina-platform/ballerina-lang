@@ -42,6 +42,8 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      */
     public RegIndex regIndex;
 
+    public boolean isBracedExpr;
+
     public boolean isMultiReturnExpr() {
         return false;
     }

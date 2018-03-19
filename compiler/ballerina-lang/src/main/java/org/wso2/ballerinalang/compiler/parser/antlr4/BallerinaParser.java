@@ -4080,7 +4080,7 @@ public class BallerinaParser extends Parser {
 			match(LEFT_BRACE);
 			setState(929);
 			_la = _input.LA(1);
-			if (((((_la - 116)) & ~0x3f) == 0 && ((1L << (_la - 116)) & ((1L << (SUB - 116)) | (1L << (DecimalIntegerLiteral - 116)) | (1L << (HexIntegerLiteral - 116)) | (1L << (OctalIntegerLiteral - 116)) | (1L << (BinaryIntegerLiteral - 116)) | (1L << (FloatingPointLiteral - 116)) | (1L << (BooleanLiteral - 116)) | (1L << (QuotedStringLiteral - 116)) | (1L << (NullLiteral - 116)) | (1L << (Identifier - 116)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << STREAMLET) | (1L << FROM) | (1L << TYPE_INT) | (1L << TYPE_FLOAT) | (1L << TYPE_BOOL) | (1L << TYPE_STRING) | (1L << TYPE_BLOB) | (1L << TYPE_MAP))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (TYPE_JSON - 64)) | (1L << (TYPE_XML - 64)) | (1L << (TYPE_TABLE - 64)) | (1L << (TYPE_STREAM - 64)) | (1L << (TYPE_AGGREGATION - 64)) | (1L << (TYPE_FUTURE - 64)) | (1L << (NEW - 64)) | (1L << (LENGTHOF - 64)) | (1L << (TYPEOF - 64)) | (1L << (UNTAINT - 64)) | (1L << (ASYNC - 64)) | (1L << (AWAIT - 64)) | (1L << (LEFT_BRACE - 64)) | (1L << (LEFT_PARENTHESIS - 64)) | (1L << (LEFT_BRACKET - 64)) | (1L << (ADD - 64)) | (1L << (SUB - 64)) | (1L << (NOT - 64)) | (1L << (LT - 64)))) != 0) || ((((_la - 142)) & ~0x3f) == 0 && ((1L << (_la - 142)) & ((1L << (DecimalIntegerLiteral - 142)) | (1L << (HexIntegerLiteral - 142)) | (1L << (OctalIntegerLiteral - 142)) | (1L << (BinaryIntegerLiteral - 142)) | (1L << (FloatingPointLiteral - 142)) | (1L << (BooleanLiteral - 142)) | (1L << (QuotedStringLiteral - 142)) | (1L << (NullLiteral - 142)) | (1L << (Identifier - 142)) | (1L << (XMLLiteralStart - 142)) | (1L << (StringTemplateLiteralStart - 142)))) != 0)) {
 				{
 				setState(921);
 				recordKeyValue();
@@ -4167,8 +4167,8 @@ public class BallerinaParser extends Parser {
 
 	public static class RecordKeyContext extends ParserRuleContext {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public SimpleLiteralContext simpleLiteral() {
-			return getRuleContext(SimpleLiteralContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public RecordKeyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4189,31 +4189,22 @@ public class BallerinaParser extends Parser {
 		enterRule(_localctx, 94, RULE_recordKey);
 		try {
 			setState(939);
-			switch (_input.LA(1)) {
-			case Identifier:
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,87,_ctx) ) {
+			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(937);
 				match(Identifier);
 				}
 				break;
-			case SUB:
-			case DecimalIntegerLiteral:
-			case HexIntegerLiteral:
-			case OctalIntegerLiteral:
-			case BinaryIntegerLiteral:
-			case FloatingPointLiteral:
-			case BooleanLiteral:
-			case QuotedStringLiteral:
-			case NullLiteral:
+			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(938);
-				simpleLiteral();
+				expression(0);
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -14101,7 +14092,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u03a3\u039b\3\2\2\2\u03a3\u03a4\3\2\2\2\u03a4\u03a5\3\2\2\2\u03a5"+
 		"\u03a6\7n\2\2\u03a6]\3\2\2\2\u03a7\u03a8\5`\61\2\u03a8\u03a9\7j\2\2\u03a9"+
 		"\u03aa\5\u00c8e\2\u03aa_\3\2\2\2\u03ab\u03ae\7\u0098\2\2\u03ac\u03ae\5"+
-		"\u00dep\2\u03ad\u03ab\3\2\2\2\u03ad\u03ac\3\2\2\2\u03aea\3\2\2\2\u03af"+
+		"\u00c8e\2\u03ad\u03ab\3\2\2\2\u03ad\u03ac\3\2\2\2\u03aea\3\2\2\2\u03af"+
 		"\u03b1\7q\2\2\u03b0\u03b2\5\u00b0Y\2\u03b1\u03b0\3\2\2\2\u03b1\u03b2\3"+
 		"\2\2\2\u03b2\u03b3\3\2\2\2\u03b3\u03b4\7r\2\2\u03b4c\3\2\2\2\u03b5\u03b6"+
 		"\7K\2\2\u03b6\u03b7\5H%\2\u03b7\u03b9\7o\2\2\u03b8\u03ba\5\u00b0Y\2\u03b9"+

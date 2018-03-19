@@ -271,7 +271,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
-    |   simpleLiteral
+    |   expression
     ;
 
 arrayLiteral

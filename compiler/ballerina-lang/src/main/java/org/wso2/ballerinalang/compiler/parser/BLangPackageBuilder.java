@@ -2547,4 +2547,8 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(streamletNode);
     }
 
+    public void createBracedExpr() {
+        ((BLangExpression) this.exprNodeStack.peek()).isBracedExpr = true;
+    }
+
 }

@@ -697,7 +697,7 @@ struct ComplexArrayStruct{
 }
 
 function structWithComplexArraysToJson() (json, error) {
-    ComplexArrayStruct t = {"a":[4, 6, 9], "b":[4.6, 7.5], "c":[true, true, false], "d":["apple", "orange"], "e":[{}, {}], "f":[{}, {}], "g":[{"foo":"bar"}]};
+    ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[{}, {}], f:[{}, {}], g:[{"foo":"bar"}]};
     var js, err = <json> t;
     return js, err;
 }

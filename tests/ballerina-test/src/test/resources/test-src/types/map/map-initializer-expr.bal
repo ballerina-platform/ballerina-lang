@@ -31,3 +31,13 @@ function testComplexMapInit() (map) {
             };
     return m;
 }
+
+function mapInitWithIdentifiersTest() (map) {
+    string a = "key1";
+    map animals = {a:"Lion", (a):"Cat", getKey():"Dog"};
+    return animals;
+}
+
+function getKey() (string) {
+	return "key2";
+}

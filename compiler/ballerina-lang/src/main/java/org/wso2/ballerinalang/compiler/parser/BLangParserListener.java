@@ -808,7 +808,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // If the key is a stringLiteral or stringTemplateLiteral, they are added to the model
+        // If the key is an expression, they are added to the model
         // from their respective listener methods
         if (ctx.Identifier() != null) {
             DiagnosticPos pos = getCurrentPos(ctx);
@@ -1546,6 +1546,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitBracedExpression(BallerinaParser.BracedExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBracedExpr();
     }
 
     /**
