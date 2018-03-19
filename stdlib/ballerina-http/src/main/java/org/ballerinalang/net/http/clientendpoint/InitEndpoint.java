@@ -54,7 +54,7 @@ import static org.ballerinalang.net.http.HttpConstants.URI;
 /**
  * Initialization of client endpoint.
  *
- * @since 0.966
+ * @since 0.966.0
  */
 
 @BallerinaFunction(
@@ -76,62 +76,64 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
-        String url = null;
-        for (Value targetService:targetServices) {
-            url = targetService.getStructValue().getStringField(URI);
-        }
-        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
 
-        String scheme;
-        if (url.startsWith("http://")) {
-            scheme = HttpConstants.PROTOCOL_HTTP;
-        } else if (url.startsWith("https://")) {
-            scheme = HttpConstants.PROTOCOL_HTTPS;
-        } else {
-            throw new BallerinaException("malformed URL: " + url);
-        }
+        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         Map<String, Object> properties =
                 HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
-        SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
 
-        if (connectionManager.isHTTPTraceLoggerEnabled()) {
-            senderConfiguration.setHttpTraceLogEnabled(true);
-        }
-        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+        BStruct[] targetServiceConnectors = new BStruct[targetServices.length];
+        for (int i = 0; i < targetServices.length; i++) {
+            String uri = targetServices[i].getStructValue().getStringField(URI);
 
-        populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig);
-        Struct connectionThrottling = clientEndpointConfig.getStructField(HttpConstants.
-                CONNECTION_THROTTLING_STRUCT_REFERENCE);
-        if (connectionThrottling != null) {
-            long maxActiveConnections = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
-            if (!isInteger(maxActiveConnections)) {
-                throw new BallerinaConnectorException("invalid maxActiveConnections value: "
-                        + maxActiveConnections);
+            String scheme = getHttpScheme(uri);
+
+            SenderConfiguration senderConfiguration =
+                    HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+
+            if (connectionManager.isHTTPTraceLoggerEnabled()) {
+                senderConfiguration.setHttpTraceLogEnabled(true);
             }
-            senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
 
-            long waitTime = connectionThrottling
-                    .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
-            senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
+            senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+
+            populateSenderConfigurationOptions(senderConfiguration, clientEndpointConfig,
+                                               targetServices[i].getStructValue());
+            Struct connectionThrottling = clientEndpointConfig.getStructField(
+                    HttpConstants.CONNECTION_THROTTLING_STRUCT_REFERENCE);
+            if (connectionThrottling != null) {
+                long maxActiveConnections = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS);
+                if (!isInteger(maxActiveConnections)) {
+                    throw new BallerinaConnectorException("invalid maxActiveConnections value: "
+                                                                  + maxActiveConnections);
+                }
+                senderConfiguration.getPoolConfiguration().setMaxActivePerPool((int) maxActiveConnections);
+
+                long waitTime = connectionThrottling
+                        .getIntField(HttpConstants.CONNECTION_THROTTLING_WAIT_TIME);
+                senderConfiguration.getPoolConfiguration().setMaxWaitTime(waitTime);
+            }
+
+            HttpClientConnector httpClient = httpConnectorFactory.createHttpClientConnector(properties,
+                                                                                            senderConfiguration);
+            BStruct bHttpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                                                                      HTTP_PACKAGE_PATH, CLIENT_CONNECTOR, uri,
+                                                                      clientEndpointConfig);
+            bHttpClient.addNativeData(CLIENT_CONNECTOR, httpClient);
+            targetServiceConnectors[i] = bHttpClient;
         }
-        HttpClientConnector httpClientConnector = httpConnectorFactory
-                .createHttpClientConnector(properties, senderConfiguration);
-        BStruct ballerinaClientConnector;
-        if (clientEndpoint.getNativeData(B_CONNECTOR) != null) {
-            ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(B_CONNECTOR);
-        } else {
-            ballerinaClientConnector = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                    CLIENT_CONNECTOR, url, clientEndpointConfig);
-            clientEndpoint.addNativeData(HttpConstants.B_CONNECTOR, ballerinaClientConnector);
+
+        if (targetServices.length == 0) {
+            throw new BallerinaConnectorException("target service URI not specified");
         }
-        ballerinaClientConnector.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
+
+        // TODO: change this to include other endpoints such as LB, CB
+        clientEndpoint.addNativeData(B_CONNECTOR, targetServiceConnectors[0]);
         context.setReturnValues();
     }
 
-    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
-            clientEndpointConfig) {
+    private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration,
+                                                    Struct clientEndpointConfig, Struct targetService) {
         ProxyServerConfiguration proxyServerConfiguration = null;
         boolean followRedirect = false;
         int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
@@ -141,65 +143,61 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             maxRedirectCount = (int) followRedirects.getIntField(HttpConstants.FOLLOW_REDIRECT_MAXCOUNT);
         }
 
-        Struct ssl = null;
-        Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
+        Struct ssl = targetService.getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
+        if (ssl != null) {
+            String trustStoreFile = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_FILE);
+            String trustStorePassword = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_PASSWORD);
+            String keyStoreFile = ssl.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_FILE);
+            String keyStorePassword = ssl.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_PASSWORD);
+            String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_CONFIG_SSL_ENABLED_PROTOCOLS);
+            String ciphers = ssl.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
+            String sslProtocol = ssl.getStringField(HttpConstants.SSL_CONFIG_SSL_PROTOCOL);
+            boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.SSL_CONFIG_VALIDATE_CERT_ENABLED);
+            int cacheSize = (int) ssl.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
 
-        for (Value targetService : targetServices) {
-            ssl = targetService.getStructValue().getStructField(HttpConstants.ENDPOINT_CONFIG_SSL);
-            if (ssl != null) {
-                String trustStoreFile = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_FILE);
-                String trustStorePassword = ssl.getStringField(HttpConstants.SSL_CONFIG_STRUST_STORE_PASSWORD);
-                String keyStoreFile = ssl.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_FILE);
-                String keyStorePassword = ssl.getStringField(HttpConstants.SSL_CONFIG_KEY_STORE_PASSWORD);
-                String sslEnabledProtocols = ssl.getStringField(HttpConstants.SSL_CONFIG_SSL_ENABLED_PROTOCOLS);
-                String ciphers = ssl.getStringField(HttpConstants.SSL_CONFIG_CIPHERS);
-                String sslProtocol = ssl.getStringField(HttpConstants.SSL_CONFIG_SSL_PROTOCOL);
-                boolean validateCertEnabled = ssl.getBooleanField(HttpConstants.SSL_CONFIG_VALIDATE_CERT_ENABLED);
-                int cacheSize = (int) ssl.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-                int cacheValidityPeriod = (int) ssl.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
-
-                if (validateCertEnabled) {
-                    senderConfiguration.setValidateCertEnabled(validateCertEnabled);
-                    if (cacheValidityPeriod != 0) {
-                        senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
-                    }
-                    if (cacheSize != 0) {
-                        senderConfiguration.setCacheSize(cacheSize);
-                    }
+            if (validateCertEnabled) {
+                senderConfiguration.setValidateCertEnabled(validateCertEnabled);
+                if (cacheValidityPeriod != 0) {
+                    senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
                 }
-                boolean hostNameVerificationEnabled = ssl
-                        .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
-                senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
-                if (StringUtils.isNotBlank(trustStoreFile)) {
-                    senderConfiguration.setTrustStoreFile(trustStoreFile);
-                }
-                if (StringUtils.isNotBlank(trustStorePassword)) {
-                    senderConfiguration.setTrustStorePass(trustStorePassword);
-                }
-                if (StringUtils.isNotBlank(keyStoreFile)) {
-                    senderConfiguration.setKeyStoreFile(keyStoreFile);
-                }
-                if (StringUtils.isNotBlank(keyStorePassword)) {
-                    senderConfiguration.setKeyStorePassword(keyStorePassword);
-                }
-
-                List<Parameter> clientParams = new ArrayList<>();
-                if (StringUtils.isNotBlank(sslEnabledProtocols)) {
-                    Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                    clientParams.add(clientProtocols);
-                }
-                if (StringUtils.isNotBlank(ciphers)) {
-                    Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
-                    clientParams.add(clientCiphers);
-                }
-                if (StringUtils.isNotBlank(sslProtocol)) {
-                    senderConfiguration.setSSLProtocol(sslProtocol);
-                }
-                if (!clientParams.isEmpty()) {
-                    senderConfiguration.setParameters(clientParams);
+                if (cacheSize != 0) {
+                    senderConfiguration.setCacheSize(cacheSize);
                 }
             }
+            boolean hostNameVerificationEnabled = ssl
+                    .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+            senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
+            if (StringUtils.isNotBlank(trustStoreFile)) {
+                senderConfiguration.setTrustStoreFile(trustStoreFile);
+            }
+            if (StringUtils.isNotBlank(trustStorePassword)) {
+                senderConfiguration.setTrustStorePass(trustStorePassword);
+            }
+            if (StringUtils.isNotBlank(keyStoreFile)) {
+                senderConfiguration.setKeyStoreFile(keyStoreFile);
+            }
+            if (StringUtils.isNotBlank(keyStorePassword)) {
+                senderConfiguration.setKeyStorePassword(keyStorePassword);
+            }
+
+            List<Parameter> clientParams = new ArrayList<>();
+            if (StringUtils.isNotBlank(sslEnabledProtocols)) {
+                Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                clientParams.add(clientProtocols);
+            }
+            if (StringUtils.isNotBlank(ciphers)) {
+                Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
+            if (StringUtils.isNotBlank(sslProtocol)) {
+                senderConfiguration.setSSLProtocol(sslProtocol);
+            }
+            if (!clientParams.isEmpty()) {
+                senderConfiguration.setParameters(clientParams);
+            }
         }
+//        }
         Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
             String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
@@ -249,6 +247,18 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
         String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
+    }
+
+    private String getHttpScheme(String url) {
+        String scheme;
+        if (url.startsWith("http://")) {
+            scheme = HttpConstants.PROTOCOL_HTTP;
+        } else if (url.startsWith("https://")) {
+            scheme = HttpConstants.PROTOCOL_HTTPS;
+        } else {
+            throw new BallerinaException("malformed URL: " + url);
+        }
+        return scheme;
     }
 
     private boolean isInteger(long val) {
