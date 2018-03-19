@@ -2527,6 +2527,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endStreamletNode(getCurrentPos(ctx), getWS(ctx), ctx.getParent().getChild(1).getText());
     }
 
+    @Override
+    public void enterForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startStreamletNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
+
+    }
+
     /**
      * {@inheritDoc}
      */

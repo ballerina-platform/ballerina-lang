@@ -2707,6 +2707,31 @@ public class BLangPackageBuilder {
 
         this.compUnit.addTopLevelNode(streamletNode);
     }
+
+
+    public void startForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        streamletNode.addWS(ws);
+        startBlock();
+        this.streamletNodeStack.push(streamletNode);
+    }
+
+    public void endForeverNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+        StreamletNode streamletNode = this.streamletNodeStack.peek();
+        ((BLangStreamlet) streamletNode).pos = pos;
+        streamletNode.addWS(ws);
+
+        streamletNode.setName(this.createIdentifier(identifier));
+        BlockNode blocknode = this.blockNodeStack.pop();
+        streamletNode.setBody(blocknode);
+
+        if (!this.varListStack.empty()) {
+            this.varListStack.pop().forEach(streamletNode::addParameter);
+        }
+
+        this.compUnit.addTopLevelNode(streamletNode);
+    }
     
     public void markLastExpressionAsAwait() {
         ((BLangExpression) this.exprNodeStack.peek()).await = true;

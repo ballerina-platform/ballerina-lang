@@ -258,6 +258,7 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   foreverStatement
     |   streamingQueryStatement
     ;
 
@@ -724,7 +725,7 @@ streamletDefinition
     ;
 
 streamletBody
-    :   LEFT_BRACE streamingQueryDeclaration  RIGHT_BRACE
+    :   LEFT_BRACE streamingQueryDeclaration    RIGHT_BRACE
     ;
 
 streamingQueryDeclaration
@@ -733,6 +734,10 @@ streamingQueryDeclaration
 
 queryStatement
     :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
+    ;
+
+foreverStatement
+    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
 streamingQueryStatement
@@ -778,9 +783,7 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT outputEventType? INTO variableReference
-    |   UPDATE (OR INSERT INTO)? variableReference setClause ? ON expression
-    |   DELETE variableReference ON expression
+    :   EQUAL_GT LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 setClause
