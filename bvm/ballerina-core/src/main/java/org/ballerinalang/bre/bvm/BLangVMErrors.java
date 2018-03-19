@@ -47,6 +47,7 @@ public class BLangVMErrors {
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
     public static final String STRUCT_CALL_STACK_ELEMENT = "CallStackElement";
     private static final String STRUCT_CALL_FAILED_EXCEPTION = "CallFailedException";
+    public static final String TRANSACTION_ERROR = "TransactionError";
 
     /**
      * Create error Struct from given error message.

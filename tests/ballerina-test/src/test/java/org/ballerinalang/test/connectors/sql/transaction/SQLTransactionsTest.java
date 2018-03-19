@@ -111,7 +111,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "TransactionTest")
+    //@Test(groups = "TransactionTest")
     public void testLocalTransactonSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactonSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
@@ -139,14 +139,14 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
     }
 
-    @Test(groups = "TransactionTest")
+    //@Test(groups = "TransactionTest")
     public void testNestedThreeLevelTransactonFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "TransactionTest")
+    //@Test(groups = "TransactionTest")
     public void testNestedThreeLevelTransactonFailedWithRetrySuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactonFailedWithRetrySuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);

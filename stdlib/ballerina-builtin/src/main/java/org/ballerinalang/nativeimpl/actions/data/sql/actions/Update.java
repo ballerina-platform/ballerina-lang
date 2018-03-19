@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
@@ -27,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.
@@ -61,6 +63,7 @@ public class Update extends AbstractSQLAction {
         } catch (Throwable e) {
             SQLDatasourceUtils.notifyTxMarkForAbort(context);
             context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+            throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
         }
     }
 }

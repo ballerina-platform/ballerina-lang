@@ -3589,6 +3589,10 @@ public class CPU {
         if (match != null) {
             ctx.ip = match.getIpTarget();
         } else {
+            if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
+                ctx.ip = ctx.ip + 2;
+                return;
+            }
             BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
                     ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
