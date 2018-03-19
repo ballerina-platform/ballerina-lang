@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.CONNECTOR),
@@ -61,7 +61,7 @@ public class RejectPromise extends AbstractHTTPAction {
         }
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
         context.setReturnValues(new BBoolean(true)); // TODO: Implement a listener to see the progress
         callback.notifySuccess();

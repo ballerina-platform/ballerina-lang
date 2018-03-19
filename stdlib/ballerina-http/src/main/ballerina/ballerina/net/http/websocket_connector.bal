@@ -66,4 +66,4 @@ public native function <WebSocketConnector wsConnector> closeConnection(int stat
 
 @Description {value:"Gets the query parameters from the Connection as a map"}
 @Return {value:"The map of query params" }
-public native function <WebSocketConnector ep> getQueryParams () (map);
+public native function <WebSocketConnector ep> getQueryParams() (map);
