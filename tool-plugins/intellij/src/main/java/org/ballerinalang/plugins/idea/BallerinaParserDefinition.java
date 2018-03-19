@@ -132,7 +132,6 @@ import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.XmlContentNode;
 import org.jetbrains.annotations.NotNull;
 
-import static com.sun.org.apache.xpath.internal.XPath.MATCH;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ABORT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ALL;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ANNOTATION;
@@ -151,6 +150,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.CURRENT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DELETE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DEPRECATED;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DOCUMENTATION;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.DOUBLE_COLON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ELSE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ENDPOINT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ENUM;
@@ -186,10 +186,12 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LEFT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LENGTHOF;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LINE_COMMENT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.LOCK;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.MATCH;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NATIVE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEW;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NEXT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.NullLiteral;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.OBJECT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.ORDER;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.OUTER;
@@ -280,15 +282,15 @@ public class BallerinaParserDefinition implements ParserDefinition {
             ABORT, ALL, ANNOTATION, AS, ASYNC, AWAIT, BIND, BREAK, BY, CATCH, CONST, CURRENT, DELETE, DEPRECATED,
             DOCUMENTATION, ELSE, ENDPOINT, ENUM, EVENTS, EVERY, EXPIRED, FAILED, FINALLY, FIRST, FOLLOWED, FOREACH,
             FOR, FORK, FROM, FULL, FUNCTION, GROUP, HAVING, IF, IMPORT, IN, INNER, INSERT, INTO, JOIN, LAST, LEFT,
-            LENGTHOF, LOCK, MATCH, NATIVE, NEW, NEXT, ON, ORDER, OUTER, OUTPUT, PACKAGE, PARAMETER, PRIVATE, PUBLIC,
-            QUERY, RESOURCE, RETRIES, RETURN, RETURNS, RIGHT, SELECT, SERVICE, SET, SNAPSHOT, SOME, STREAMLET, STRUCT,
-            THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF, TYPE_AGGREGATION,
-            TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_FLOAT, TYPE_FUTURE, TYPE_INT, TYPE_JSON, TYPE_MAP, TYPE_STREAM,
-            TYPE_STRING, TYPE_TABLE, TYPE_TYPE, TYPE_XML, UNIDIRECTIONAL, UNTAINT, UPDATE, VERSION, WHERE, WITHIN,
-            WINDOW, WITH, BooleanLiteral, NullLiteral);
+            LENGTHOF, LOCK, MATCH, NATIVE, NEW, NEXT, OBJECT, ON, ORDER, OUTER, OUTPUT, PACKAGE, PARAMETER, PRIVATE,
+            PUBLIC, QUERY, RESOURCE, RETRIES, RETURN, RETURNS, RIGHT, SELECT, SERVICE, SET, SNAPSHOT, SOME,
+            STREAMLET, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, VAR, WHILE, WORKER, XMLNS, TYPEOF,
+            TYPE_AGGREGATION, TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_FLOAT, TYPE_FUTURE, TYPE_INT, TYPE_JSON, TYPE_MAP,
+            TYPE_STREAM, TYPE_STRING, TYPE_TABLE, TYPE_TYPE, TYPE_XML, UNIDIRECTIONAL, UNTAINT, UPDATE, VERSION,
+            WHERE, WITHIN, WINDOW, WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            COLON, COMMA, EQUAL_GT, LARROW, QUESTION_MARK, RARROW, SEMICOLON, TILDE);
+            COLON, COMMA, DOUBLE_COLON, EQUAL_GT, LARROW, QUESTION_MARK, RARROW, SEMICOLON, TILDE);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);

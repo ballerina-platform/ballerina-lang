@@ -43,6 +43,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
+    |   objectDefinition
     |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
@@ -89,6 +90,38 @@ structBody
 
 privateStructBody
     :   PRIVATE COLON fieldDefinition*
+    ;
+
+objectDefinition
+    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+    ;
+
+objectBody
+    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
+    ;
+
+publicObjectFields
+    :   PUBLIC LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    ;
+
+privateObjectFields
+    :   PRIVATE LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    ;
+
+objectInitializer
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    ;
+
+objectInitializerParameterList
+    :   LEFT_PARENTHESIS identiferList? (COMMA formalParameterList?)? RIGHT_PARENTHESIS
+    ;
+
+objectFunctions
+    : (annotationAttachment* documentationAttachment? deprecatedAttachment? functionDefinition)+
+    ;
+
+identiferList
+    :   Identifier (COMMA Identifier)*
     ;
 
 annotationDefinition

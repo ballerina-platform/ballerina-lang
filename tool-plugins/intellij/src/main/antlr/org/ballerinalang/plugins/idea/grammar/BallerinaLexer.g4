@@ -22,6 +22,7 @@ RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
+OBJECT      : 'object' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
 PARAMETER   : 'parameter' ;
@@ -120,6 +121,7 @@ AWAIT       : 'await' ;
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
+DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
