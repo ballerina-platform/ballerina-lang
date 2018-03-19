@@ -56,6 +56,10 @@ public class GetHeader extends BlockingNativeCallableUnit {
             return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-        context.setReturnValues(new BString(httpHeaders.get(headerName)));
+        if (httpHeaders != null && httpHeaders.get(headerName) != null && !httpHeaders.get(headerName).isEmpty()) {
+            context.setReturnValues(new BString(httpHeaders.get(headerName)));
+        } else {
+            context.setReturnValues();
+        }
     }
 }
