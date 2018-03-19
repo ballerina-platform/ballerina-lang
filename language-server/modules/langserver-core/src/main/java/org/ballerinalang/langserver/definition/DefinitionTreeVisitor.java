@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -88,6 +89,11 @@ public class DefinitionTreeVisitor extends NodeVisitor {
         }
 
         if (funcNode.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
+
+            if (funcNode.receiver != null) {
+                this.acceptNode(funcNode.receiver);
+            }
+
             if (!funcNode.requiredParams.isEmpty()) {
                 funcNode.requiredParams.forEach(this::acceptNode);
             }
@@ -110,8 +116,25 @@ public class DefinitionTreeVisitor extends NodeVisitor {
     public void visit(BLangService serviceNode) {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
+
+            if (serviceNode.serviceTypeStruct != null) {
+                this.acceptNode(serviceNode.serviceTypeStruct);
+            }
+
+            if (!serviceNode.vars.isEmpty()) {
+                serviceNode.vars.forEach(this::acceptNode);
+            }
+
             if (!serviceNode.resources.isEmpty()) {
                 serviceNode.resources.forEach(this::acceptNode);
+            }
+
+            if (!serviceNode.endpoints.isEmpty()) {
+                serviceNode.endpoints.forEach(this::acceptNode);
+            }
+
+            if (!serviceNode.boundEndpoints.isEmpty()) {
+                serviceNode.boundEndpoints.forEach(this::acceptNode);
             }
 
             if (serviceNode.initFunction != null) {
@@ -332,6 +355,17 @@ public class DefinitionTreeVisitor extends NodeVisitor {
 
         if (!transformerNode.workers.isEmpty()) {
             transformerNode.workers.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 
