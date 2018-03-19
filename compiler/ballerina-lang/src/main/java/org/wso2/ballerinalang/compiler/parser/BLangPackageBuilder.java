@@ -2361,14 +2361,16 @@ public class BLangPackageBuilder {
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
         patternStreamingEdgeInputNode.addWS(ws);
 
-        if (!exprNodeStack.empty()) {
+        if (exprNodeStack.size() == 2) {
             patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
+        } else if (exprNodeStack.size() == 1) {
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
         }
 
         if (!whereClauseStack.empty()) {
             patternStreamingEdgeInputNode.setWhereClause(whereClauseStack.pop());
         }
-        patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 

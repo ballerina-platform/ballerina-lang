@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.clauses.OrderByNode;
+import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
@@ -80,6 +81,9 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
@@ -1030,7 +1034,44 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             ((BLangStreamAction) streamActionNode).accept(this);
         }
 
-        //TODO - Add pattern query
+        BLangPatternClause patternClause = (BLangPatternClause) streamingQueryStatement.getPatternClause();
+        if (patternClause != null) {
+            patternClause.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangPatternClause patternClause) {
+        BLangPatternStreamingInput patternStreamingInput = (BLangPatternStreamingInput) patternClause
+                .getPatternStreamingNode();
+        patternStreamingInput.accept(this);
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingInput patternStreamingInput) {
+        List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs = patternStreamingInput
+                .getPatternStreamingEdgeInputs();
+        for (PatternStreamingEdgeInputNode inputNode : patternStreamingEdgeInputs) {
+            BLangPatternStreamingEdgeInput streamingInput = (BLangPatternStreamingEdgeInput) inputNode;
+            streamingInput.accept(this);
+        }
+
+        BLangPatternStreamingInput nestedPatternStreamingInput = (BLangPatternStreamingInput) patternStreamingInput
+                .getPatternStreamingInput();
+        if (nestedPatternStreamingInput != null) {
+            nestedPatternStreamingInput.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
+        BLangVariableReference streamRef = (BLangVariableReference) patternStreamingEdgeInput.getStreamReference();
+        typeChecker.checkExpr(streamRef, env);
+
+        BLangWhere where = (BLangWhere) patternStreamingEdgeInput.getWhereClause();
+        if (where != null) {
+            where.accept(this);
+        }
     }
 
     public void visit(BLangStreamingInput streamingInput) {
