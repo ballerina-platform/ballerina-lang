@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
+import org.wso2.transport.http.netty.common.Constants;
 
 /**
  * A handler to check whether TLS handshake has been completed. Rest of the handlers will be added to the pipeline
@@ -47,7 +48,7 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                this.httpServerChannelInitializer.configureHTTPPipeline(serverPipeline);
+                this.httpServerChannelInitializer.configureHTTPPipeline(serverPipeline, Constants.HTTP_SCHEME);
             } else {
                 ctx.close();
             }
