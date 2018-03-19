@@ -1465,23 +1465,13 @@ public class CPU {
 
                 BMapType mapType = (BMapType) bMap.getType();
                 if (sf.refRegs[k] == null) {
-                    if (!BTypes.isValueType(mapType.getConstrainedType())) {
-                        // TODO improve logic for null case
-                        bMap.put(sf.stringRegs[j], sf.refRegs[k]);
-                    } else {
-                        ctx.setError(BLangVMErrors
-                                .createError(ctx, BLangExceptionHelper
-                                        .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                                mapType.getConstrainedType(), BTypes.typeNull)));
-                        handleError(ctx);
-                        break;
-                    }
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else if (mapType.getConstrainedType() == BTypes.typeAny ||
                         mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
                 } else {
-                    ctx.setError(BLangVMErrors
-                            .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
                                     mapType.getConstrainedType(), sf.refRegs[k].getType())));
                     handleError(ctx);
                     break;

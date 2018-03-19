@@ -304,14 +304,6 @@ public class ConstrainedMapTest {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
     }
 
-    @Test(description = "Test map constrained with string update with invalid type negative.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*caused by error, message: invalid map insertion:" +
-                    " expected value of type 'string', found 'null'.*")
-    public void testStringMapUpdateWithInvalidNullTypeNegativeCase() {
-        BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidNullTypeNegativeCase");
-    }
-
     @Test(description = "Test cast equivalent struct constrained maps in runtime time.")
     public void testStructConstrainedMapRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructConstrainedMapRuntimeCast");
