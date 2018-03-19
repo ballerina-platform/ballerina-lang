@@ -172,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -1485,6 +1486,21 @@ public class BLangPackageBuilder {
         assignmentNode.addWS(commaWsStack.pop());
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                               boolean isVarsExist, boolean varDeclaration) {
+        BLangTupleDestructure stmt = (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
+        stmt.pos = pos;
+        stmt.addWS(ws);
+        if (isVarsExist) {
+            stmt.setDeclaredWithVar(varDeclaration);
+            stmt.expr = (BLangExpression) exprNodeStack.pop();
+            List<ExpressionNode> lExprList = exprNodeListStack.pop();
+            lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
+        }
+        // TODO: handle ParamList Destructue.
+        addStmtToCurrentBlock(stmt);
     }
 
     public void startForeachStatement() {

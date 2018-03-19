@@ -109,6 +109,7 @@ public enum NodeKind {
     TRANSACTION,
     TRANSFORM,
     TRY,
+    TUPLE_DESTRUCTURE,
     VARIABLE_DEF,
     WHILE,
     LOCK,

@@ -863,6 +863,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
     }
 
+    @Override
+    public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isVarDeclaration = false;
+        boolean isVarExist = ctx.variableReferenceList() != null;
+        if (ctx.VAR() != null) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarExist, isVarDeclaration);
+    }
+
     /**
      * {@inheritDoc}
      */
