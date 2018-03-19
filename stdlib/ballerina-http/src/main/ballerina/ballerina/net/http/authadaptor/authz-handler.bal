@@ -14,22 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.authz;
+package ballerina.net.http.authadaptor;
 
 import ballerina.net.http;
 import ballerina.auth.utils;
+import ballerina.auth.authz;
 import ballerina.auth.authz.permissionstore;
 import ballerina.log;
 
 @Description {value:"Authorization cache name"}
 const string AUTHZ_CACHE = "authz_cache";
-@Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
-@Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME = "Basic";
 
 @Description {value:"AuthorizationChecker instance"}
-AuthzChecker authzChecker;
+authz:AuthzChecker authzChecker;
 
 @Description {value:"Representation of Authorization Handler"}
 @Field {value:"name: Authz handler name"}
@@ -47,7 +44,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
     // extract the header value
-    var basicAuthHeaderValue, err = utils:extractBasicAuthHeaderValue(req);
+    var basicAuthHeaderValue, err = extractBasicAuthHeaderValue(req);
     if (err != null) {
         log:printErrorCause("Error in extracting basic authentication header", err);
         return false;
@@ -61,7 +58,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
     }
     if (authzChecker == null) {
         permissionstore:FileBasedPermissionStore fileBasedPermissionstore = {};
-        authzChecker = createChecker((permissionstore:PermissionStore)fileBasedPermissionstore,
+        authzChecker = authz:createChecker((permissionstore:PermissionStore)fileBasedPermissionstore,
                                      utils:createCache(AUTHZ_CACHE));
     }
 
@@ -96,8 +93,9 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 @Return {value:"boolean: true if its possible authorize, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
-    if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
+    if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;
     }
     return false;
 }
+

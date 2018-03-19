@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
+package ballerina.net.http.authadaptor;
 
-import ballerina.net.http;
 import ballerina.log;
-import ballerina.auth.basic;
-import ballerina.auth.jwtAuth;
+import ballerina.net.http;
 
 @Description {value:"Representation of Authentication handler chain"}
 public struct AuthnHandlerChain {
@@ -31,8 +29,8 @@ public struct AuthnHandlerChain {
 public function createAuthnHandlerChain () (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = {authnHandlers:{}};
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
-    basic:HttpBasicAuthnHandler httpAuthnHandler = {};
-    jwtAuth:HttpJwtAuthnHandler jwtAuthnHandler = {};
+    HttpBasicAuthnHandler httpAuthnHandler = {};
+    HttpJwtAuthnHandler jwtAuthnHandler = {};
     // add to map
     authnHandlerChain.authnHandlers[httpAuthnHandler.name] = httpAuthnHandler;
     authnHandlerChain.authnHandlers[jwtAuthnHandler.name] = jwtAuthnHandler;
