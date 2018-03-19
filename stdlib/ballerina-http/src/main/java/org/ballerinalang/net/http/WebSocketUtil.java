@@ -34,6 +34,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceManagerWrapper;
+import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -106,8 +108,9 @@ public abstract class WebSocketUtil {
                         onOpenResource.getParamDetails();
                 BValue[] bValues = new BValue[paramDetails.size()];
                 bValues[0] = wsConnection;
+                Tracer tracer = TraceManagerWrapper.newTracer(null, false);
                 //TODO handle BallerinaConnectorException
-                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
+                Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, tracer, bValues);
             }
 
             @Override

@@ -47,10 +47,10 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.util.tracer.TraceUtil;
 import org.ballerinalang.util.tracer.TraceableUnitCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;

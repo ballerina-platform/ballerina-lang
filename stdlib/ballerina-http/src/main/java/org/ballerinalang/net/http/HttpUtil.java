@@ -92,8 +92,6 @@ import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_HOST;
 import static org.ballerinalang.util.tracer.TraceConstants.HTTP_PORT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_COMPONENT_BALLERINA;
@@ -103,6 +101,8 @@ import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_PORT;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
 /**
  * Utility class providing utility methods.

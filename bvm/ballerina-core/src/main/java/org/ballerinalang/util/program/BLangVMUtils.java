@@ -20,7 +20,6 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -423,7 +422,7 @@ public class BLangVMUtils {
         tracer.startSpan();
     }
 
-    public static void initClientConnectorTrace(WorkerExecutionContext ctx, BConnectorType type, String actionName) {
+    public static void initClientConnectorTrace(WorkerExecutionContext ctx, String connectorName, String actionName) {
         Tracer root = TraceUtil.getParentTracer(ctx);
         Tracer active = TraceManagerWrapper.newTracer(ctx, true);
         ctx.setTracer(active);
@@ -434,9 +433,7 @@ public class BLangVMUtils {
             active.setInvocationID(root.getInvocationID());
         }
 
-        if (type != null) {
-            active.setConnectorName(type.toString());
-        }
+        active.setConnectorName(connectorName);
         active.setActionName(actionName);
         active.startSpan();
     }
