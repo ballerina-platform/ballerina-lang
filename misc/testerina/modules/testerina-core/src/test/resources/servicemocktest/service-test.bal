@@ -12,12 +12,12 @@ endpoint http:ServiceEndpoint eventEP {
 string url1 = "http://0.0.0.0:9092/events";
 string url2 = "http://0.0.0.0:9090/portal";
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath: "/events"
 }
 service<http:Service> EventServiceMock bind eventEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }

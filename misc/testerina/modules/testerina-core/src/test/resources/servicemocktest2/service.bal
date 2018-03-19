@@ -7,12 +7,12 @@ endpoint http:ServiceEndpoint portalEP {
     port: 9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
       basePath: "/portal"
 }
 service<http:Service> PortalService bind portalEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"events"
     }
