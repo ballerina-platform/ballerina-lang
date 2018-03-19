@@ -26,6 +26,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.ballerinalang.services.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -218,11 +219,14 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
         private String javaDebugPort;
 
-        @Parameter(names = {"--config"}, description = "path to the Ballerina config file")
+        @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
 
-        @DynamicParameter(names = "-B", description = "collects dynamic parameters")
+        @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
+
+        @DynamicParameter(names = "-B", description = "Ballerina VM options")
+        private Map<String, String> vmOptions = new HashMap<>();
 
         public void execute() {
             if (helpFlag) {
@@ -242,6 +246,7 @@ public class Main {
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
             System.setProperty("ballerina.source.root", sourceRootPath.toString());
+            VMOptions.getInstance().addOptions(vmOptions);
 
             // Start all services, if the services flag is set.
             if (runServices) {
@@ -428,8 +433,9 @@ public class Main {
      * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
      * able to encrypt sensitive values before adding them to config files.
      *
-     * @since 0.965.0
+     * @since 0.966.0
      */
+    @Parameters(commandNames = "encrypt", commandDescription = "encrypt sensitive data")
     public static class EncryptCmd implements BLauncherCmd {
 
         @Parameter(names = "--java.debug", hidden = true)
@@ -449,9 +455,9 @@ public class Main {
             }
 
             String value;
-            if ((value = promptForInput("enter the value to encrypt: ")).trim().isEmpty()) {
+            if ((value = promptForInput("Enter value: ")).trim().isEmpty()) {
                 if (value.trim().isEmpty()) {
-                    value = promptForInput("value cannot be empty; enter the value to encrypt: ");
+                    value = promptForInput("Value cannot be empty; enter value: ");
                     if (value.trim().isEmpty()) {
                         throw LauncherUtils.createLauncherException("encryption failed: empty value.");
                     }
@@ -459,24 +465,30 @@ public class Main {
             }
 
             String secret;
-            if ((secret = promptForInput("enter a secret to be used in encrypting the value: ")).trim().isEmpty()) {
+            if ((secret = promptForInput("Enter secret: ")).trim().isEmpty()) {
                 if (secret.trim().isEmpty()) {
-                    secret = promptForInput("secret cannot be empty; enter a secret to be used in encrypting the value: ");
+                    secret = promptForInput("Secret cannot be empty; enter secret: ");
                     if (secret.trim().isEmpty()) {
                         throw LauncherUtils.createLauncherException("encryption failed: empty secret.");
                     }
                 }
             }
 
-            String secretVerifyVal = promptForInput("re-enter secret to verify: ");
+            String secretVerifyVal = promptForInput("Re-enter secret to verify: ");
 
             if (!secret.equals(secretVerifyVal)) {
-                throw LauncherUtils.createLauncherException("failed to verify secret.");
+                throw LauncherUtils.createLauncherException("secrets did not match.");
             }
 
             try {
                 AESCipherTool cipherTool = new AESCipherTool(secret);
-                outStream.println(cipherTool.encrypt(value));
+                String encryptedValue = cipherTool.encrypt(value);
+
+                outStream.println("Add the following to the runtime config:");
+                outStream.println("@encrypted:{" + encryptedValue + "}\n");
+
+                outStream.println("Or add to the runtime command line:");
+                outStream.println("-e<param>=@encrypted:{" + encryptedValue + "}");
             } catch (AESCipherToolException e) {
                 throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }
@@ -515,7 +527,7 @@ public class Main {
         }
 
         private String promptForInput(String msg) {
-            outStream.println("ballerina: " + msg);
+            outStream.println(msg);
             return new String(System.console().readPassword());
         }
     }
