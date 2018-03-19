@@ -704,7 +704,7 @@ public class Types {
             // Here condition is added for prevent explicit cast assigning map union constrained
             // to map any constrained.
             if (s.tag == TypeTags.MAP &&
-                    ((BMapType) s).constraint.tag != TypeTags.UNION) {
+                    ((BMapType) s).constraint.tag == TypeTags.UNION) {
                 return symTable.notFoundSymbol;
             }
 
