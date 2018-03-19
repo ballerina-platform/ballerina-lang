@@ -23,4 +23,4 @@ public struct WebSubSubscriberServiceConfiguration {
 }
 
 @Description {value:"WebebSubSubscriber Configuration for service"}
-public annotation <service> webSubSubscriberServiceConfig WebSubSubscriberServiceConfiguration;
+public annotation <service> WebSubSubscriberServiceConfig WebSubSubscriberServiceConfiguration;

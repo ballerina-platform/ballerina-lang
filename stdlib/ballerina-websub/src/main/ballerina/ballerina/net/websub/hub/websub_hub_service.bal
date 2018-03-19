@@ -17,12 +17,12 @@ endpoint http:ServiceEndpoint hubServiceEP {
 
 PendingRequests pendingRequests = {};
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:BASE_PATH
 }
 service<http:Service> hubService bind hubServiceEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:HUB_PATH
     }
@@ -32,7 +32,7 @@ service<http:Service> hubService bind hubServiceEP {
         _ = client -> respond(response);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:HUB_PATH
     }

@@ -7,7 +7,7 @@ endpoint websub:WebSubSubscriberServiceEndpoint websubEP {
     port:8181
 };
 
-@websub:webSubSubscriberServiceConfig {
+@websub:WebSubSubscriberServiceConfig {
     basePath:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
