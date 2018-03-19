@@ -994,7 +994,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private List<BType> getListWithErrorTypes(int count) {
+    public List<BType> getListWithErrorTypes(int count) {
         List<BType> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             list.add(symTable.errType);

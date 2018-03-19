@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -57,4 +58,11 @@ public class BTupleType extends BType implements TupleType {
         return "(" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + ")";
     }
 
+    @Override
+    public String getDesc() {
+        if (tupleTypes.size() > 1) {
+            return TypeDescriptor.SIG_ARRAY + TypeDescriptor.SIG_ANY;
+        }
+        return tupleTypes.get(0).getDesc();
+    }
 }

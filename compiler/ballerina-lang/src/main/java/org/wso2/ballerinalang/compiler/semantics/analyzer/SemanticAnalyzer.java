@@ -1381,13 +1381,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         // Check RHS expressions with expected type list.
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            BTupleType tupleType = new BTupleType(expTypes);
-            expTypes = Lists.of(tupleType);
+            expTypes = Lists.of(symTable.noType);
         }
         List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
         if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
-            BTupleType tupleType = (BTupleType) rhsTypes.get(0);
-            rhsTypes = tupleType.tupleTypes;
+            if (rhsTypes.get(0) != symTable.errType) {
+                BTupleType tupleType = (BTupleType) rhsTypes.get(0);
+                rhsTypes = tupleType.tupleTypes;
+            } else {
+                rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
+            }
         }
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
