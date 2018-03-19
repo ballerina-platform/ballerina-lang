@@ -89,7 +89,7 @@ public function <ClientEndpoint ep> start () {
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ClientEndpoint ep> getClient () (ClientConnector);
+public native function <ClientEndpoint ep> getClient () (HttpClient);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
