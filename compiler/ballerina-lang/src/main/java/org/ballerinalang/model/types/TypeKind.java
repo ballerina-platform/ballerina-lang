@@ -48,7 +48,7 @@ public enum TypeKind {
      */
     BLOB("blob"),
 
-    TYPE("type"),
+    TYPEDESC("typedesc"),
     TABLE("table"),
     STREAM("stream"),
     JSON("json"),
@@ -75,6 +75,7 @@ public enum TypeKind {
     MESSAGE("message"),
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
+    TUPLE("tuple"),
     ;
 
     private String name;

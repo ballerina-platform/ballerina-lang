@@ -75,7 +75,7 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     ep.httpClient = createHttpClient(uri, config);
 }
 
-public function <ClientEndpoint ep> register(type serviceType) {
+public function <ClientEndpoint ep> register(typedesc serviceType) {
 
 }
 

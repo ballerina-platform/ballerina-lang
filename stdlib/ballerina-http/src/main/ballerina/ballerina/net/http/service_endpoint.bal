@@ -104,7 +104,7 @@ public native function<ServiceEndpoint ep> initEndpoint() returns (error);
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <ServiceEndpoint ep> register(type serviceType);
+public native function <ServiceEndpoint ep> register(typedesc serviceType);
 
 @Description { value:"Starts the registered service"}
 public native function <ServiceEndpoint ep> start();
@@ -143,7 +143,7 @@ public function <WebSocketEndpoint ep> init(ServiceEndpointConfiguration config)
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketEndpoint ep> register(type serviceType) {
+public function <WebSocketEndpoint ep> register(typedesc serviceType) {
     ep.httpEndpoint.register(serviceType);
 }
 

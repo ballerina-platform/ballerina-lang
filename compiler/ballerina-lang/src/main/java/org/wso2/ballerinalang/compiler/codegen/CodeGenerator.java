@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
@@ -119,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -138,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -207,7 +211,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -690,6 +693,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
+        // Generate code for the struct literal default values.
+        for (BLangRecordKeyValue keyValue : structLiteral.defaultValues) {
+            BLangRecordKey key = keyValue.key;
+            Operand fieldIndex = key.fieldSymbol.varIndex;
+            genNode(keyValue.valueExpr, this.env);
+            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
+            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+        }
+
         // Invoke the struct initializer here.
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
@@ -929,6 +941,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.rhsExpr, this.env);
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
+        Operand typeCPIndex = getTypeCPIndex(symTable.anyType);
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
+            genNode(argExpr, this.env);
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = argExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
         }
     }
 
@@ -2515,7 +2548,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangExpression rhsExpr = assignNode.expr;
         if (rhsExpr.isMultiReturnExpr()) {
             ((MultiReturnExpr) rhsExpr).setRegIndexes(regIndexes);
-        } else {
+        } else if (assignNode.getKind() != NodeKind.TUPLE_DESTRUCTURE) {
             rhsExpr.regIndex = regIndexes[0];
         }
         genNode(rhsExpr, this.env);
@@ -2524,6 +2557,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Set the reg indexes generated by visiting rhs expression to lhs expression
         if (rhsExpr.isMultiReturnExpr()) {
             regIndexes = ((MultiReturnExpr) rhsExpr).getRegIndexes();
+        } else if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            regIndexes = getTupleDestructureRegIndexs((BLangTupleDestructure) assignNode);
         } else {
             regIndexes[0] = rhsExpr.regIndex;
         }
@@ -2543,6 +2578,49 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(lExpr, this.env);
             varAssignment = false;
         }
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        visit((BLangAssignment) stmt);
+    }
+
+    private RegIndex[] getTupleDestructureRegIndexs(BLangTupleDestructure stmt) {
+        RegIndex[] regIndexes = new RegIndex[stmt.varRefs.size()];
+        RegIndex tempValueStore = calcAndGetExprRegIndex(null, TypeTags.ANY);
+        for (int i = 0; i < stmt.varRefs.size(); i++) {
+            final BLangExpression varRef = stmt.varRefs.get(i);
+            Operand varRefRegIndex = stmt.expr.regIndex;
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = stmt.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+            RegIndex castExprRegIndex = calcAndGetExprRegIndex(varRef.regIndex, varRef.type.tag);
+            // Cast if required.
+            final BCastOperatorSymbol castSymbol = stmt.castOperatorSymbols.get(i);
+            if (castSymbol != null && castSymbol.opcode != InstructionCodes.NOP) {
+                emit(InstructionCodes.RALOAD, varRefRegIndex, indexLiteral.regIndex, tempValueStore);
+                int opcode = castSymbol.opcode;
+                // Figure out the reg index of the error value
+                RegIndex errorRegIndex = calcAndGetExprRegIndex(null, TypeTags.STRUCT);
+                // Figure out the reg index of the result value
+                if (opcode == InstructionCodes.ANY2T ||
+                        opcode == InstructionCodes.ANY2C ||
+                        opcode == InstructionCodes.ANY2E ||
+                        opcode == InstructionCodes.ANY2M ||
+                        opcode == InstructionCodes.CHECKCAST) {
+                    Operand typeCPIndex = getTypeCPIndex(varRef.type);
+                    emit(opcode, tempValueStore, typeCPIndex, castExprRegIndex, errorRegIndex);
+                } else {
+                    emit(opcode, tempValueStore, castExprRegIndex, errorRegIndex);
+                }
+            } else {
+                emit(InstructionCodes.RALOAD, varRefRegIndex, indexLiteral.regIndex, castExprRegIndex);
+            }
+            regIndexes[i] = castExprRegIndex;
+        }
+        return regIndexes;
     }
 
     public void visit(BLangNext nextNode) {
@@ -2902,6 +2980,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         xmlQuotedString.concatExpr.regIndex = calcAndGetExprRegIndex(xmlQuotedString);
         genNode(xmlQuotedString.concatExpr, env);
         xmlQuotedString.regIndex = xmlQuotedString.concatExpr.regIndex;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSeqLiteral) {
+        xmlSeqLiteral.regIndex = calcAndGetExprRegIndex(xmlSeqLiteral);
+        // It is assumed that the sequence is always empty.
+        emit(InstructionCodes.NEWXMLSEQ, xmlSeqLiteral.regIndex);
     }
 
     @Override

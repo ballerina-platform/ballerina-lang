@@ -72,7 +72,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitParameter(BallerinaParser.ParameterContext ctx) {
+    public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -738,9 +738,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         this.pkgBuilder.addGlobalVariable(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.expression() != null, publicVar);
+                ctx.Identifier().getText(), ctx.expression() != null, publicVar, safeAssignment);
     }
 
     /**
@@ -787,8 +788,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         boolean publicVar = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
-        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicVar);
+        this.pkgBuilder.addConstVariable(getCurrentPos(ctx), getWS(ctx),
+                ctx.Identifier().getText(), publicVar, safeAssignment);
     }
 
     @Override
@@ -826,7 +829,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) {
+    public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -835,12 +838,38 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) {
+    public void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.addUnionType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.typeName().size());
+    }
+
+    @Override
+    public void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.markTypeNodeAsNullable(getWS(ctx));
+    }
+
+    @Override
+    public void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.markTypeNodeAsGrouped(getWS(ctx));
     }
 
     @Override
@@ -993,8 +1022,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        boolean exprAvailable = ctx.ASSIGN() != null || ctx.SAFE_ASSIGNMENT() != null;
+        boolean safeAssignment = ctx.SAFE_ASSIGNMENT() != null;
         this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.ASSIGN() != null, false);
+                ctx.Identifier().getText(), exprAvailable, false, safeAssignment);
     }
 
     @Override
@@ -1098,10 +1129,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isVarDeclaration = false;
-        if (ctx.getChild(0).getText().equals("var")) {
+        if (ctx.VAR() != null) {
             isVarDeclaration = true;
         }
-        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
+        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx),
+                isVarDeclaration, ctx.SAFE_ASSIGNMENT() != null);
+    }
+
+    @Override
+    public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isVarDeclaration = false;
+        boolean isVarExist = ctx.variableReferenceList() != null;
+        if (ctx.VAR() != null) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarExist, isVarDeclaration);
     }
 
     /**
@@ -1909,6 +1955,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
+    }
+
+    @Override
+    public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createBracedOrTupleExpression(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
     }
 
     /**

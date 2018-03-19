@@ -190,4 +190,4 @@ public native function <Socket socket> closeSocket () (IOError);
 @Return {value:"table of delimited values"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
 public native function loadToTable(@sensitive string filePath, string recordSeparator, string fieldSeparator,
-                                   string encoding, boolean headerLineIncluded, type structType) (table, IOError);
+                                   string encoding, boolean headerLineIncluded, typedesc structType) (table, IOError);

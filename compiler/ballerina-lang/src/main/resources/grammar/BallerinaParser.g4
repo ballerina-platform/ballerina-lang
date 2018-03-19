@@ -174,7 +174,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 transformerDefinition
@@ -196,7 +196,7 @@ attachmentPoint
      ;
 
 constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
     ;
 
 workerDeclaration
@@ -225,22 +225,25 @@ endpointInitlization
     ;
 
 typeName
-    :   simpleTypeName                              # simpleTypeNameTemp
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
-    |   typeName (PIPE typeName)+                   # unionTypeName
+    :   simpleTypeName                                                      # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     ;
 
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
-    |   TYPE_TYPE
+    |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
     ;
 
 builtInTypeName
      :   TYPE_ANY
-     |   TYPE_TYPE
+     |   TYPE_DESC
      |   valueTypeName
      |   builtInReferenceTypeName
      |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -302,6 +305,7 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   tupleDestructuringStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
@@ -324,7 +328,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -349,7 +353,12 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    ;
+
+tupleDestructuringStatement
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -598,7 +607,7 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
+    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -633,7 +642,8 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
+    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
     ;
 
 defaultableParameter

@@ -670,7 +670,7 @@ public class IterableCodeDesugar {
      * @param ctx       current context
      */
     private void generateDefaultIfEmpty(BLangBlockStmt blockStmt, IterableContext ctx) {
-        if (ctx.resultVar.symbol.type.tag > TypeTags.TYPE) {
+        if (ctx.resultVar.symbol.type.tag > TypeTags.TYPEDESC) {
             return;
         }
         final DiagnosticPos pos = blockStmt.pos;

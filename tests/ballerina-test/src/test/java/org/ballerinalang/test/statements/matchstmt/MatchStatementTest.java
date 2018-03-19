@@ -52,6 +52,22 @@ public class MatchStatementTest {
     }
 
     @Test(description = "Test basics of match statement")
+    public void testMatchStatementBasics2() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "file open success");
+    }
+
+    @Test(description = "Test basics of match statement")
+    public void testMatchStatementBasics3() {
+        BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "file open error: file not found: /tmp/foo.txt");
+    }
+
+    @Test(description = "Test basics of match statement")
     public void testMatchStmtNegative1() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/matchstmt/match_stmt_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 4);

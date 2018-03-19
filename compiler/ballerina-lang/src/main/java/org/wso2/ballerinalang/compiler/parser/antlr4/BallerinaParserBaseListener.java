@@ -556,37 +556,73 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) { }
+	@Override public void enterUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArrayTypeName(BallerinaParser.ArrayTypeNameContext ctx) { }
+	@Override public void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx) { }
+	@Override public void enterSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSimpleTypeNameTemp(BallerinaParser.SimpleTypeNameTempContext ctx) { }
+	@Override public void exitSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) { }
+	@Override public void enterNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitUnionTypeName(BallerinaParser.UnionTypeNameContext ctx) { }
+	@Override public void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -815,6 +851,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1636,6 +1684,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1715,18 +1775,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayLiteralExpression(BallerinaParser.ArrayLiteralExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBracedExpression(BallerinaParser.BracedExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBracedExpression(BallerinaParser.BracedExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1888,13 +1936,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParameter(BallerinaParser.ParameterContext ctx) { }
+	@Override public void enterSimpleParameter(BallerinaParser.SimpleParameterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParameter(BallerinaParser.ParameterContext ctx) { }
+	@Override public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTupleParameter(BallerinaParser.TupleParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTupleParameter(BallerinaParser.TupleParameterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

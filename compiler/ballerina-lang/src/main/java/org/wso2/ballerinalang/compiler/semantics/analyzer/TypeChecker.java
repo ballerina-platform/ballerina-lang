@@ -52,7 +52,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -109,8 +112,12 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -217,20 +224,36 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
 
         int expTypeTag = expTypes.get(0).tag;
-        if (expTypeTag == TypeTags.NONE) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
-
-        } else if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
             checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
             actualType = expTypes.get(0);
 
-        } else if (expTypeTag != TypeTags.ARRAY && expTypeTag != TypeTags.ERROR) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
-
-        } else if (expTypeTag != TypeTags.ERROR) {
+        } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expTypes.get(0);
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
             actualType = new BArrayType(arrayType.eType);
+
+        } else if (expTypeTag != TypeTags.ERROR) {
+            List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
+            Set<BType> arrayLitExprTypeSet = new HashSet<>(resTypes);
+            BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+            if (uniqueExprTypes.length == 0) {
+                actualType = symTable.anyType;
+            } else if (uniqueExprTypes.length == 1) {
+                actualType = resTypes.get(0);
+            } else {
+                BType superType = uniqueExprTypes[0];
+                for (int i = 1; i < uniqueExprTypes.length; i++) {
+                    if (types.isAssignable(superType, uniqueExprTypes[i])) {
+                        superType = uniqueExprTypes[i];
+                    } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
+                        superType = symTable.anyType;
+                        break;
+                    }
+                }
+                actualType = superType;
+            }
+            actualType = new BArrayType(actualType);
         }
 
         resultTypes = types.checkTypes(arrayLiteral, Lists.of(actualType), expTypes);
@@ -245,27 +268,43 @@ public class TypeChecker extends BLangNodeVisitor {
             expTypes = Lists.of(symTable.mapType);
         }
 
-        if (expTypeTag == TypeTags.JSON ||
-                expTypeTag == TypeTags.MAP ||
-                expTypeTag == TypeTags.STRUCT ||
-                expTypeTag == TypeTags.TABLE ||
-                expTypeTag == TypeTags.NONE ||
-                expTypeTag == TypeTags.STREAM ||
-                expTypeTag == TypeTags.STREAMLET ||
-                expTypeTag == TypeTags.ANY) {
-            recordLiteral.keyValuePairs.forEach(keyValuePair ->
-                    checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
-            actualType = expTypes.get(0);
+        List<BType> matchedTypeList = getRecordCompatibleType(expTypes.get(0));
+
+        if (matchedTypeList.isEmpty()) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
+        } else if (matchedTypeList.size() > 1) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expTypes.get(0));
+        } else {
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
+            actualType = matchedTypeList.get(0);
 
             // TODO Following check can be moved the code analyzer.
             if (expTypeTag == TypeTags.STRUCT) {
                 validateStructInitalizer(recordLiteral.pos);
             }
-        } else if (expTypeTag != TypeTags.ERROR) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         }
 
         resultTypes = types.checkTypes(recordLiteral, Lists.of(actualType), expTypes);
+    }
+
+    private List<BType> getRecordCompatibleType(BType bType) {
+        Set<BType> expTypes = bType.tag == TypeTags.UNION ? ((BUnionType) bType).memberTypes : new HashSet<BType>() {
+            {
+                add(bType);
+            }
+        };
+
+        return expTypes.stream()
+                .filter(type -> type.tag == TypeTags.JSON || 
+                        type.tag == TypeTags.MAP || 
+                        type.tag == TypeTags.STRUCT ||
+                        type.tag == TypeTags.TABLE || 
+                        type.tag == TypeTags.NONE || 
+                        type.tag == TypeTags.STREAM ||
+                        type.tag == TypeTags.STREAMLET || 
+                        type.tag == TypeTags.ANY)
+                .collect(Collectors.toList());
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -611,8 +650,43 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
     }
 
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        // Handle Tuple Expression.
+        if (!expTypes.isEmpty() && expTypes.get(0).tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) this.expTypes.get(0);
+            // Fix this.
+            List<BType> expTypes = getListWithErrorTypes(bracedOrTupleExpr.expressions.size());
+            if (tupleType.tupleTypes.size() != bracedOrTupleExpr.expressions.size()) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.SYNTAX_ERROR,
+                        "tuple and expression size does not match");
+            } else {
+                expTypes = tupleType.tupleTypes;
+            }
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, Lists.of(expTypes.get(i))).get(0));
+            }
+            resultTypes = Lists.of(new BTupleType(results));
+        } else if (bracedOrTupleExpr.expressions.size() > 1) {
+            // This is a tuple.
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, Lists.of(symTable.noType)).get(0));
+            }
+            resultTypes = Lists.of(new BTupleType(results));
+        } else {
+            // This is a braced expression.
+            bracedOrTupleExpr.isBracedExpr = true;
+            final BLangExpression expr = bracedOrTupleExpr.expressions.get(0);
+            final BType actualType = checkExpr(expr, env, Lists.of(symTable.noType)).get(0);
+            types.setImplicitCastExpr(expr, actualType, expTypes.get(0));
+            resultTypes = Lists.of(actualType);
+        }
+    }
+
     public void visit(BLangTypeofExpr accessExpr) {
-        BType actualType = symTable.typeType;
+        BType actualType = symTable.typeDesc;
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         resultTypes = types.checkTypes(accessExpr, Lists.of(actualType), expTypes);
     }
@@ -989,7 +1063,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private List<BType> getListWithErrorTypes(int count) {
+    public List<BType> getListWithErrorTypes(int count) {
         List<BType> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             list.add(symTable.errType);
@@ -1640,7 +1714,7 @@ public class TypeChecker extends BLangNodeVisitor {
         typeAccessExpr.typeNode = userDefinedType;
         typeAccessExpr.resolvedType = symResolver.resolveTypeNode(userDefinedType, env);
         typeAccessExpr.pos = varRef.pos;
-        typeAccessExpr.type = symTable.typeType;
+        typeAccessExpr.type = symTable.typeDesc;
         return typeAccessExpr;
     }
 
