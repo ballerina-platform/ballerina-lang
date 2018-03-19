@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamletType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -746,6 +747,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTupleType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BStreamType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -872,6 +878,11 @@ public class Types {
         }
 
         @Override
+        public BSymbol visit(BTupleType t, BType s) {
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
         public BSymbol visit(BStreamType t, BType s) {
             return symTable.notFoundSymbol;
         }
@@ -973,6 +984,22 @@ public class Types {
         @Override
         public Boolean visit(BTableType t, BType s) {
             return t == s;
+        }
+
+        public Boolean visit(BTupleType t, BType s) {
+            if (s.tag != TypeTags.TUPLE) {
+                return false;
+            }
+            BTupleType source = (BTupleType) s;
+            if (source.tupleTypes.size() != t.tupleTypes.size()) {
+                return false;
+            }
+            for (int i = 0; i < source.tupleTypes.size(); i++) {
+                if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
