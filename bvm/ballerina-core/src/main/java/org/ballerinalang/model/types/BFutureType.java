@@ -52,10 +52,9 @@ public class BFutureType extends BType {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BFuture();
+        return null;
     }
 
     @Override
@@ -71,4 +70,5 @@ public class BFutureType extends BType {
     public int getTag() {
         return TypeTags.FUTURE_TAG;
     }
+    
 }
