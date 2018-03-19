@@ -41,7 +41,7 @@ public struct CorsConfig {
 
 public struct WebSocketUpgradeConfig {
     string upgradePath;
-    type upgradeService;
+    typedesc upgradeService;
 }
 
 

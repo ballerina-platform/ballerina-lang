@@ -302,14 +302,14 @@ public class EndpointDesugar {
                 SymTag.VARIABLE);
 
         final BLangVariableDef serviceTypeDef = ASTBuilderUtil.createVariableDefStmt(pos, temp);
-        serviceTypeDef.var = ASTBuilderUtil.createVariable(pos, service.name + "type", symTable.typeType);
+        serviceTypeDef.var = ASTBuilderUtil.createVariable(pos, service.name + "type", symTable.typeDesc);
         ASTBuilderUtil.defineVariable(serviceTypeDef.var, varEncSymbol, names);
 
         final BLangUnaryExpr typeOfExpr = ASTBuilderUtil.createUnaryExpr(pos);
         serviceTypeDef.var.expr = typeOfExpr;
         typeOfExpr.operator = OperatorKind.TYPEOF;
         typeOfExpr.expr = getTypeAccessExpression(pos, service.symbol.type);
-        typeOfExpr.type = symTable.typeType;
+        typeOfExpr.type = symTable.typeDesc;
 
         List<BLangVariable> args = Lists.of(serviceTypeDef.var);
         if (endpoint.registerFunction != null && endpoint.registerFunction.params.size() == 2) {
@@ -331,7 +331,7 @@ public class EndpointDesugar {
         BLangTypeofExpr typeAccessExpr = (BLangTypeofExpr) TreeBuilder.createTypeAccessNode();
         typeAccessExpr.pos = pos;
         typeAccessExpr.resolvedType = serviceType;
-        typeAccessExpr.type = symTable.typeType;
+        typeAccessExpr.type = symTable.typeDesc;
         return typeAccessExpr;
     }
 }
