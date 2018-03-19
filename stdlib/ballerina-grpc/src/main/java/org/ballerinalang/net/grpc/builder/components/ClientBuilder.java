@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bean object.
+ * This class is responsible for generating client components.
  */
-public class ClientStubBal {
+public class ClientBuilder {
     private String packageName;
     private String rootDescriptorKey;
     private List<Struct> struct = new ArrayList<>();
@@ -32,11 +32,11 @@ public class ClientStubBal {
     private List<BlockingFunction> blockingFunctions = new ArrayList<>();
     private List<NonBlockingFunction> nonBlockingFunctions = new ArrayList<>();
     private List<StreamingFunction> streamingFunctions = new ArrayList<>();
-    private List<StubObjectsGetter> stubObjectsGetter = new ArrayList<>();
+    private List<StubFunctionBuilder> stubFunctions = new ArrayList<>();
     private Client client;
     private String connectorId;
     
-    public ClientStubBal(String packageName, String connectorId) {
+    public ClientBuilder(String packageName, String connectorId) {
         this.packageName = packageName;
         this.connectorId = connectorId;
         this.client = new Client(connectorId);
@@ -48,9 +48,9 @@ public class ClientStubBal {
         blockingFunctions.add(blockingFunctionsObj);
     }
     
-    public void addStubObjectsGetter(String stubTypeName) {
-        StubObjectsGetter stubObjectsGetterObj = new StubObjectsGetter(connectorId, stubTypeName);
-        stubObjectsGetter.add(stubObjectsGetterObj);
+    public void addStubFunctionBuilder(String stubTypeName) {
+        StubFunctionBuilder stubFunctionsObj = new StubFunctionBuilder(connectorId, stubTypeName);
+        stubFunctions.add(stubFunctionsObj);
     }
     
     public void addNonBlockingFunction(String operationId, String inputDataType, String methodId) {
@@ -159,12 +159,12 @@ public class ClientStubBal {
         this.streamingFunctions = streamingFunctions;
     }
     
-    public List<StubObjectsGetter> getStubObjectsGetter() {
-        return stubObjectsGetter;
+    public List<StubFunctionBuilder> getStubFunctionBuilder() {
+        return stubFunctions;
     }
     
-    public void setStubObjectsGetter(List<StubObjectsGetter> stubObjectsGetter) {
-        this.stubObjectsGetter = stubObjectsGetter;
+    public void setStubFunctionBuilder(List<StubFunctionBuilder> stubFunctions) {
+        this.stubFunctions = stubFunctions;
     }
     
     public boolean isFunctionsStremingNotEmpty() {

@@ -29,7 +29,7 @@ public class ActionBuilder {
     public static final Logger LOG = LoggerFactory.getLogger(ActionBuilder.class);
     
     public static void build(String methodName, String reqMessageName, String resMessageName, String methodID,
-                             MethodType methodType, ClientStubBal clientStubBal) {
+                             MethodType methodType, ClientBuilder clientStubBal) {
         switch (methodType) {
             case UNARY: {
                 clientStubBal.addBlockingFunction(methodName, reqMessageName, resMessageName, methodID);

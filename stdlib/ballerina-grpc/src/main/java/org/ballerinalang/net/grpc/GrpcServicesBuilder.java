@@ -45,7 +45,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 
 /**
  * This is the gRPC server implementation for registering service and start/stop server.

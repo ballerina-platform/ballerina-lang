@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of non blocking function object.
  */
 public class NonBlockingFunction {
     private String stubTypeName;

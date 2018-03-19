@@ -21,10 +21,11 @@ import com.google.protobuf.DescriptorProtos;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
-import org.ballerinalang.net.grpc.builder.components.ClientStubBal;
+import org.ballerinalang.net.grpc.builder.components.ClientBuilder;
+import org.ballerinalang.net.grpc.builder.components.ClientStruct;
 import org.ballerinalang.net.grpc.builder.components.DescriptorBuilder;
-import org.ballerinalang.net.grpc.builder.components.SampleClient;
 import org.ballerinalang.net.grpc.builder.components.StubBuilder;
+import org.ballerinalang.net.grpc.builder.utils.BalGenConstants;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,20 +40,20 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.EMPTY_STRING;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.FILE_SEPARATOR;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.PACKAGE_SEPARATOR;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.PACKAGE_SEPARATOR_REGEX;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.SAMPLE_FILE_PRIFIX;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.SERVICE_INDEX;
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.STUB_FILE_PRIFIX;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.DEFAULT_SKELETON_DIR;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.components.BalGenerationUtils.writeBallerina;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STRING;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR_REGEX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PRIFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SAMPLE_DIR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.DEFAULT_SKELETON_DIR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SAMPLE_TEMPLATE_NAME;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getTypeName;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeBallerina;
 
 /**
  * Class is responsible of generating the ballerina stub which is mapping proto definition.
@@ -86,13 +87,13 @@ public class BallerinaFileBuilder {
             String reqMessageName;
             String resMessageName;
             String methodID;
-            String packageName = "".equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
+            String packageName = EMPTY_STRING.equals(fileDescriptorSet.getPackage()) ? BalGenConstants.DEFAULT_PACKAGE :
                     fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + BalGenConstants.DEFAULT_PACKAGE;
-            ClientStubBal clientStubBal = new ClientStubBal(packageName, fileDescriptorSet
+            ClientBuilder clientStubBal = new ClientBuilder(packageName, fileDescriptorSet
                     .getService(SERVICE_INDEX).getName());
             DescriptorBuilder descriptorBuilder;
             String protoPackage = fileDescriptorSet.getPackage();
-            if ("".equals(protoPackage)) {
+            if (EMPTY_STRING.equals(protoPackage)) {
                 descriptorBuilder = new DescriptorBuilder(dependentDescriptors,
                         fileDescriptorSet.getName(), clientStubBal);
             } else {
@@ -137,7 +138,7 @@ public class BallerinaFileBuilder {
                 clientStubBal.addStruct(descriptorProto.getName(), attributesNameArr, attributesTypeArr);
             }
             StubBuilder.build(clientStubBal, clientStubBal.isFunctionsUnaryNotEmpty());
-            SampleClient sampleClient = new SampleClient(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
+            ClientStruct sampleClient = new ClientStruct(clientStubBal.isFunctionsStremingNotEmpty(), clientStubBal
                     .isFunctionsUnaryNotEmpty(), fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
                 String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet

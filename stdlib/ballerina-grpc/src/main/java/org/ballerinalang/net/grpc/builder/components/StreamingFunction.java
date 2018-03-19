@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of streaming function object.
  */
 public class StreamingFunction {
     private String stubTypeName;

@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of client descriptor object.
  */
 public class Descriptor {
     private String descriptorKey;

@@ -18,13 +18,15 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of client get function object.
  */
-public class NonBlockingEndPoint {
+public class StubFunctionBuilder {
     private String connectorId;
+    private String stubTypeName;
     
-    public NonBlockingEndPoint(String connectorId) {
+    public StubFunctionBuilder(String connectorId, String stubTypeName) {
         this.connectorId = connectorId;
+        this.stubTypeName = stubTypeName;
     }
     
     public String getConnectorId() {
@@ -33,5 +35,13 @@ public class NonBlockingEndPoint {
     
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
+    }
+    
+    public String getStubTypeName() {
+        return stubTypeName;
+    }
+    
+    public void setStubTypeName(String stubTypeName) {
+        this.stubTypeName = stubTypeName;
     }
 }

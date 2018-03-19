@@ -26,16 +26,16 @@ import org.slf4j.LoggerFactory;
 public class StubBuilder {
     public static final Logger LOG = LoggerFactory.getLogger(StubBuilder.class);
     
-    public static void build(ClientStubBal clientStubBal, boolean isBlockingEP) {
+    public static void build(ClientBuilder clientStubBal, boolean isBlockingEP) {
         if (isBlockingEP) {
-            clientStubBal.addStubObjectsGetter("Blocking");
+            clientStubBal.addStubFunctionBuilder("Blocking");
             clientStubBal.addStub("Blocking", "blocking");
             clientStubBal.addStubObjects("Blocking", "blocking");
-            clientStubBal.addStubObjectsGetter(null);
+            clientStubBal.addStubFunctionBuilder(null);
             clientStubBal.addStub(null, "non-blocking");
             clientStubBal.addStubObjects(null, null);
         } else {
-            clientStubBal.addStubObjectsGetter(null);
+            clientStubBal.addStubFunctionBuilder(null);
             clientStubBal.addStub(null, "non-blocking");
             clientStubBal.addStubObjects(null, null);
         }

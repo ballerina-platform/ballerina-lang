@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bean object.
+ * Bean class of type struct object.
  */
 public class Struct {
     private String structId;

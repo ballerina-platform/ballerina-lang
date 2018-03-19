@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.protobuf;
+package org.ballerinalang.test.net.grpc;
 
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
-import org.ballerinalang.protobuf.utils.BTestUtils;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
+import org.ballerinalang.test.net.grpc.util.BTestUtils;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -37,14 +37,14 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Protobuff to bal tool test case.
+ * Protobuff to bal generation function testcase.
  */
 public class BalGenToolTest {
     private static Path resourceDir = Paths.get(
             BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
     
-    @Test(enabled = false)
-    public void testCMDForHelloWorld() throws IllegalAccessException,
+    @Test
+    public void testUnaryHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException, IOException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
@@ -59,30 +59,88 @@ public class BalGenToolTest {
         Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorld.gen.pb.bal"));
         removePackage(sourceFileRoot.toString(), destFileRoot.toString());
         CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorld.gen.pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile()
-                        .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub"),
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldClient"),
                 "Connector not found.");
-        Assert.assertEquals(compileResult.getProgFile()
-                        .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub")
-                        .getActionInfoEntries().length, 3,
-                "Invalid Number of Action");
-        List<String> actionNameList = new ArrayList<>();
-        for (ActionInfo actionInfo : compileResult.getProgFile()
-                .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub")
-                .getActionInfoEntries()) {
-            actionNameList.add(actionInfo.getName());
-        }
-        compileResult.getProgFile()
-                .getPackageInfo(".").getConnectorInfo("helloWorldBlockingStub")
-                .getActionInfoEntries()[0].getName();
-        Assert.assertEquals(actionNameList.contains("hello"), true,
-                "Action 'hello' not found");
-        Assert.assertEquals(actionNameList.contains("bye"), true,
-                "Action 'bue' not found");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldBlockingClient"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldBlockingStub"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldBlockingStub.hello"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldStub.hello"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldBlockingStub.bye"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldStub.bye"),
+                "Connector not found.");
         String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
     
+    @Test
+    public void testClientStreamingHelloWorld() throws IllegalAccessException,
+            ClassNotFoundException, InstantiationException, IOException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("protoFiles");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("protoFiles/helloWorldClientStreaming.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toString());
+        grpcCmd1.setProtoPath(protoRoot.toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.pb.bal"));
+        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldClientStreaming.gen.pb.bal"));
+        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
+        CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorldClientStreaming.gen.pb.bal");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldClientStreamingClient"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldClientStreamingStub"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldClientStreamingStub.LotsOfGreetings"),
+                "Connector not found.");
+        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+        BalFileGenerationUtils.delete(new File(protoExeName));
+    }
+    
+    @Test
+    public void testServerStreamingHelloWorld() throws IllegalAccessException,
+            ClassNotFoundException, InstantiationException, IOException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("protoFiles");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("protoFiles/helloWorldServerStreaming.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toString());
+        grpcCmd1.setProtoPath(protoRoot.toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.pb.bal"));
+        Path destFileRoot = resourceDir.resolve(Paths.get("protoFiles/helloWorldServerStreaming.gen.pb.bal"));
+        removePackage(sourceFileRoot.toString(), destFileRoot.toString());
+        CompileResult compileResult = BTestUtils.compile("protoFiles/helloWorldServerStreaming.gen.pb.bal");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldServerStreamingClient"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getStructInfo("helloWorldServerStreamingStub"),
+                "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(".")
+                        .getFunctionInfo("helloWorldServerStreamingStub.lotsOfReplies"),
+                "Connector not found.");
+        String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
+        BalFileGenerationUtils.delete(new File(protoExeName));
+    }
     private void removePackage(String sourceFile, String destinationFile) throws IOException {
         File file = new File(destinationFile);
         file.createNewFile();

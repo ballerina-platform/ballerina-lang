@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of client stub object.
  */
 public class Stub {
     private String connectorId;

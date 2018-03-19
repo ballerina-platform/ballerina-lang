@@ -21,39 +21,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bean object.
+ * Bean class of client struct object.
  */
-public class SampleClient {
+public class ClientStruct {
     private String packageName;
-    private List<NonBlockingEndPoint> nonBlockingEndpoint = new ArrayList<>();
-    private List<BlockingEndPoint> blockingEndpoint = new ArrayList<>();
+    private List<EndPoint> nonBlockingEndpoint = new ArrayList<>();
+    private List<EndPoint> blockingEndpoint = new ArrayList<>();
     private List<MessageListener> messageListener = new ArrayList<>();
     
-    public SampleClient(boolean isNonBlokingEP, boolean isBlockingEP, String serviceName, String packageName) {
+    public ClientStruct(boolean isNonBlokingEP, boolean isBlockingEP, String serviceName, String packageName) {
         this.packageName = packageName;
         if (isNonBlokingEP) {
-            nonBlockingEndpoint.add(new NonBlockingEndPoint(serviceName));
+            nonBlockingEndpoint.add(new EndPoint(serviceName));
+            messageListener.add(new MessageListener(serviceName));
         }
         if (isBlockingEP) {
-            blockingEndpoint.add(new BlockingEndPoint(serviceName));
-        } else {
-            messageListener.add(new MessageListener(serviceName));
+            blockingEndpoint.add(new EndPoint(serviceName));
         }
     }
     
-    public List<NonBlockingEndPoint> getNonBlockingEndpoint() {
+    public List<EndPoint> getNonBlockingEndpoint() {
         return nonBlockingEndpoint;
     }
     
-    public void setNonBlockingEndpoint(List<NonBlockingEndPoint> nonBlockingEndpoint) {
+    public void setNonBlockingEndpoint(List<EndPoint> nonBlockingEndpoint) {
         this.nonBlockingEndpoint = nonBlockingEndpoint;
     }
     
-    public List<BlockingEndPoint> getBlockingEndpoint() {
+    public List<EndPoint> getBlockingEndpoint() {
         return blockingEndpoint;
     }
     
-    public void setBlockingEndpoint(List<BlockingEndPoint> blockingEndpoint) {
+    public void setBlockingEndpoint(List<EndPoint> blockingEndpoint) {
         this.blockingEndpoint = blockingEndpoint;
     }
     

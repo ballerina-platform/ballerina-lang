@@ -14,34 +14,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.protobuf.utils;
+package org.ballerinalang.test.net.grpc.util;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +48,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
 /**
  * Utility methods for unit tests.
  *
- * @since 0.94
+ * @since 0.964.0
  */
 public class BTestUtils {
 
@@ -154,37 +145,7 @@ public class BTestUtils {
 
         return comResult;
     }
-
-    /**
-     * Compile and return the compiled package node.
-     *
-     * @param sourceFilePath Path to source package/file
-     * @return compiled package node
-     */
-    public static BLangPackage compileAndGetPackage(String sourceFilePath) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        CompileResult comResult = new CompileResult();
-
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
-
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packageName);
-        BLangPackage compiledPkg = (BLangPackage) compiler.getAST();
-
-        return compiledPkg;
-    }
-
+    
     /**
      * Invoke a ballerina function.
      *
@@ -249,30 +210,6 @@ public class BTestUtils {
     }
 
     /**
-     * Compile and run a ballerina file.
-     *
-     * @param sourceFilePath Path to the ballerina file.
-     */
-    public static void run(String sourceFilePath) {
-        // TODO: improve. How to get the output
-        CompileResult result = compile(sourceFilePath);
-        ProgramFile programFile = result.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
-        } else {
-            LauncherUtils.runServices(programFile);
-        }
-    }
-
-    /**
      * Assert an error.
      *
      * @param result          Result from compilation
@@ -287,48 +224,5 @@ public class BTestUtils {
         Assert.assertEquals(diag.getMessage(), expectedErrMsg, "incorrect error message:");
         Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
-    }
-
-    public static String readFileAsString(String path) {
-        InputStream is = ClassLoader.getSystemResourceAsStream(path);
-        InputStreamReader inputStreamREader = null;
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder();
-        try {
-            inputStreamREader = new InputStreamReader(is);
-            br = new BufferedReader(inputStreamREader);
-            String content = br.readLine();
-            if (content == null) {
-                return sb.toString();
-            }
-
-            sb.append(content);
-
-            while ((content = br.readLine()) != null) {
-                sb.append("\n" + content);
-            }
-        } catch (IOException ignore) {
-        } finally {
-            if (inputStreamREader != null) {
-                try {
-                    inputStreamREader.close();
-                } catch (IOException ignore) {
-                }
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return sb.toString();
-    }
-
-    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
-        PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
     }
 }

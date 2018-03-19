@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bean object.
+ * Bean class of client object.
  */
 public class Client {
     private String connectorId;

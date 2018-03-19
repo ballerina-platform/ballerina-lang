@@ -27,19 +27,19 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.builder.BalGenConstants.PACKAGE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
- * Class that responsible of generating global constants at .bal stub
+ * Class that responsible of generating global constants at .bal stub.
  */
 public class DescriptorBuilder {
     private byte[] rootDescriptor;
     private List<byte[]> dependentDescriptors;
     private String key;
-    private ClientStubBal clientStubBal;
+    private ClientBuilder clientStubBal;
     
-    public DescriptorBuilder(List<byte[]> dependentDescriptors, String key, ClientStubBal clientStubBal) {
+    public DescriptorBuilder(List<byte[]> dependentDescriptors, String key, ClientBuilder clientStubBal) {
         this.dependentDescriptors = dependentDescriptors;
         this.key = key;
         this.clientStubBal = clientStubBal;

@@ -18,15 +18,13 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean class of client endpoint object.
  */
-public class StubObjectsGetter {
+public class EndPoint {
     private String connectorId;
-    private String stubTypeName;
     
-    public StubObjectsGetter(String connectorId, String stubTypeName) {
+    public EndPoint(String connectorId) {
         this.connectorId = connectorId;
-        this.stubTypeName = stubTypeName;
     }
     
     public String getConnectorId() {
@@ -35,13 +33,5 @@ public class StubObjectsGetter {
     
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
-    }
-    
-    public String getStubTypeName() {
-        return stubTypeName;
-    }
-    
-    public void setStubTypeName(String stubTypeName) {
-        this.stubTypeName = stubTypeName;
     }
 }

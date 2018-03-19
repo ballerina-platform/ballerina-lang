@@ -1,23 +1,25 @@
-package {{packageName}};
+package client;
 import ballerina.io;
 
+int total = 0;
 function main (string[] args) {
-{{#nonBlockingEndpoint}}
-     endpoint {{connectorId}}Client {{connectorId}}Ep {
+
+     endpoint helloWorldClient helloWorldEp {
             host: "0.0.0.0",
             port: 9090
         };
-{{/nonBlockingEndpoint}}
-{{#blockingEndpoint}}
-    endpoint {{connectorId}}BlockingClient {{connectorId}}BlockingEp {
-            host: "0.0.0.0",
-            port: 9090
-        };
-{{/blockingEndpoint}}
+    error err = helloWorldEp -> lotsOfReplies("Sam", typeof helloWorldMessageListener);
+
+    if (err != null) {
+        io:println("Error occured while sending event " + err.message);
+    }
+
+    while (total == 0) {}
+    io:println("Client got response successfully.");
 }
 
-{{#messageListener}}
-service<grpc:Listener> {{connectorId}}MessageListener {
+
+service<grpc:Listener> helloWorldMessageListener {
 
     onMessage (string message) {
         io:println("Responce received from server: " + message);
@@ -30,7 +32,8 @@ service<grpc:Listener> {{connectorId}}MessageListener {
     }
 
     onComplete () {
+        total = 1;
         io:println("Server Complete Sending Responses.");
     }
 }
-{{/messageListener}}
+

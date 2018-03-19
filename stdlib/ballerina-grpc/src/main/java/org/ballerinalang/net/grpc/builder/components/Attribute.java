@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean object.
+ * Bean object class of attribute object.
  */
 public class Attribute {
     private String name;
@@ -28,10 +28,7 @@ public class Attribute {
         this.name = name;
         this.type = type;
     }
-    
-    public Attribute() {
-    }
-    
+  
     public String getName() {
         return name;
     }

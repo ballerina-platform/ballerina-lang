@@ -20,7 +20,7 @@ function <{{connectorId}}{{stubTypeName}}Stub stub> {{operationId}} ({{inputData
         error e = {message:err1.message};
         return null, e;
     }
-    var response, err2 = (string)res;
+    var response, err2 = ({{outputDataType}})res;
     if (err2 != null && err2.message != null) {
         error e = {message:err2.message};
         return null, e;
@@ -69,13 +69,11 @@ public function <{{connectorId}}{{stubTypeName}}Client ep> init(grpc:ClientEndpo
     stub.initStub(client);
     ep.stub = stub;
 }
-{{/stubObjects}}
-{{/client}}
-{{#stubObjectsGetter}}
 public function <{{connectorId}}{{stubTypeName}}Client ep> getClient() returns ({{connectorId}}{{stubTypeName}}Stub) {
     return ep.stub;
 }
-{{/stubObjectsGetter}}
+{{/stubObjects}}
+{{/client}}
 {{#struct}}
 struct {{structId}} {
 {{#attribute}}

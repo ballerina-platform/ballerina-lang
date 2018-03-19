@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.builder;
+package org.ballerinalang.net.grpc.builder.utils;
 
 /**
  * Constants that use in .bal file generation.
@@ -25,13 +25,15 @@ public class BalGenConstants {
     
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
-    static final int SERVICE_INDEX = 0;
+    public static final int SERVICE_INDEX = 0;
     
     public static final String BLOCKING_STUB_KEY = "BLOCKING";
     
     public static final String NON_BLOCKING_STUB_KEY = "NON-BLOCKING";
     
-    public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "8080";
+    public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "9090";
+    
+    public static final String DEFAULT_SAMPLE_CONNECTOR_HOST = "0.0.0.0";
     
     public static final String DEFAULT_PACKAGE = "client";
     
