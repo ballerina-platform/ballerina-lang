@@ -173,7 +173,7 @@ public class SSLHandlerFactory {
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
-        SslProvider provider = SslProvider.OPENSSL;
+        SslProvider provider = SslProvider.JDK;
 
         return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
                 .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
@@ -188,7 +188,7 @@ public class SSLHandlerFactory {
 
         // If sender configuration does not include cipher suites , default ciphers required by the HTTP/2
         // specification will be added.
-        SslProvider provider = SslProvider.OPENSSL;
+        SslProvider provider = SslProvider.JDK;
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
