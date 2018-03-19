@@ -1128,6 +1128,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         @Override
+        public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
+        }
+
+        @Override
         public void visit(BLangUnaryExpr unaryExpr) {
             unaryExpr.expr.accept(this);
         }
