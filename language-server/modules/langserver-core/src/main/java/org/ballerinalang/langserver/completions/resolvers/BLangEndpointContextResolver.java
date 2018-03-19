@@ -39,8 +39,6 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     
     private static final String INIT = "init";
     
-    private static final String CONFIG = "config";
-    
     @Override
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(TextDocumentServiceContext completionContext) {
@@ -58,10 +56,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
                 .findFirst()
                 .orElseGet(null);
 
-        BVarSymbol configSymbol = initFunction.symbol.getParameters().stream()
-                .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(CONFIG))
-                .findFirst()
-                .orElseGet(null);
+        BVarSymbol configSymbol = initFunction.symbol.getParameters().get(0);
 
         BType configSymbolType = configSymbol.getType();
         if (configSymbolType instanceof BStructType) {

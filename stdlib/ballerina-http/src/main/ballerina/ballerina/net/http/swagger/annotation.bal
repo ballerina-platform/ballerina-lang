@@ -1,7 +1,5 @@
 package ballerina.net.http.swagger;
 
-import ballerina.net.http;
-
 public annotation ServiceInfo attach service<http> {
     string title;
     string serviceVersion;

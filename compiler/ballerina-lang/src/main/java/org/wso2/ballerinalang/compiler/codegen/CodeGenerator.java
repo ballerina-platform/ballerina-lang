@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1669,7 +1668,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         CallableUnitInfo callableUnitInfo;
         if (iExpr.symbol.kind == SymbolKind.FUNCTION) {
-            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.name.value);
+            callableUnitInfo = pkgInfo.functionInfoMap.get(iExpr.symbol.name.value);
         } else if (iExpr.symbol.kind == SymbolKind.ACTION) {
             ConnectorInfo connectorInfo = pkgInfo.connectorInfoMap.get(iExpr.symbol.owner.name.value);
             callableUnitInfo = connectorInfo.actionInfoMap.get(iExpr.symbol.name.value);
@@ -2036,8 +2035,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add service name as an UTFCPEntry to the constant pool
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
-        if (((BServiceSymbol) serviceNode.symbol).endpointType != null) {
-            String endPointQName = ((BServiceSymbol) serviceNode.symbol).endpointType.tsymbol.toString();
+        if (serviceNode.endpointType != null) {
+            String endPointQName = serviceNode.endpointType.tsymbol.toString();
             int epNameCPIndex = addUTF8CPEntry(currentPkgInfo, endPointQName);
             ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
                     serviceNode.symbol.flags, epNameCPIndex);
@@ -2680,6 +2679,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
+        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.onCommitFunction != null) {
+            committedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onCommitFunction).symbol);
+        }
+
+        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        if (transactionNode.onAbortFunction != null) {
+            abortedFuncRegIndex.value = getFuncRefCPIndex(
+                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
+        }
+
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
@@ -2687,7 +2698,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         abortInstructions.push(gotoFailedTransBlockEnd);
 
         //start transaction
-        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex);
+        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
+                abortedFuncRegIndex);
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
@@ -2708,8 +2720,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
-        if (transactionNode.failedBody != null) {
-            this.genNode(transactionNode.failedBody, this.env);
+        if (transactionNode.onRetryBody != null) {
+            this.genNode(transactionNode.onRetryBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
