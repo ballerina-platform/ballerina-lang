@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -87,6 +89,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangTableLiteral;
@@ -112,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -357,7 +362,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Return if this assignment is not a safe assignment
-        varNode.expr = rewriteExpr(varNode.expr);
+        if (varNode.expr != null) {
+            varNode.expr = rewriteExpr(varNode.expr);
+        } else {
+            varNode.expr = getInitExpr(varNode.type);
+        }
         result = varNode;
 
     }
@@ -438,7 +447,7 @@ public class Desugar extends BLangNodeVisitor {
 
         result = rewrite(safeAssignmentBlock, this.env);
     }
-
+    
     @Override
     public void visit(BLangAssignment assignNode) {
         if (assignNode.expr.type.tag == TypeTags.STREAM && assignNode.varRefs.get(0) instanceof BLangSimpleVarRef) {
@@ -694,19 +703,22 @@ public class Desugar extends BLangNodeVisitor {
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
 
+        BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.STRUCT) {
-            result = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
-            result = new BLangTableLiteral(recordLiteral.type);
+            expr = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
-            result = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
+            expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
-            result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
+            expr = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
-            result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
+
+        result = rewriteExpr(expr);
     }
 
     @Override
@@ -1108,6 +1120,37 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
+        List<String> keys = new ArrayList<>();
+        structLiteral.keyValuePairs.forEach(keyVal -> {
+            keys.add(keyVal.key.fieldSymbol.name.value);
+        });
+
+        // TODO: find a better way to get the default value expressions of a struct field
+        BStructType type = (BStructType) structLiteral.type;
+        BPackageSymbol pkgSymbol = symTable.pkgSymbolMap.get(type.tsymbol.pkgID);
+        BLangPackage pkg = symTable.pkgEnvMap.get(pkgSymbol).enclPkg;
+        BLangStruct structDef = pkg.structs.stream()
+                .filter(struct -> struct.name.value.equals(type.tsymbol.name.value))
+                .findFirst()
+                .get();
+        
+        for (int fieldIndex = 0; fieldIndex < type.fields.size(); fieldIndex++) {
+            BStructField field = type.fields.get(fieldIndex);
+            if (keys.contains(field.name.value)) {
+                continue;
+            }
+
+            BLangExpression expr = getStructFieldInitExpr(field.type, structDef, fieldIndex);
+            if (expr == null) {
+                continue;
+            }
+
+            BLangRecordKeyValue recordKeyVal = new BLangRecordKeyValue();
+            recordKeyVal.key = new BLangRecordKey(null);
+            recordKeyVal.key.fieldSymbol = field.symbol;
+            recordKeyVal.valueExpr = expr;
+            structLiteral.defaultValues.add(recordKeyVal);
+        }
         result = structLiteral;
     }
 
@@ -1714,5 +1757,55 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createBinaryExpr(pos, lhsUnary, rhsTypeOfExpr, symTable.booleanType, OperatorKind.EQUAL,
                 (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
                         symTable.typeType, symTable.typeType));
+    }
+
+    private BLangExpression getInitExpr(BType type) {
+        // Don't need to create an empty init expressions if the type allows null.
+        if (type.isNullable()) {
+            return null;
+        }
+
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.BLOB:
+                // Int, float, boolean, string, blob types will get default values from VM side.
+                break;
+            case TypeTags.JSON:
+                return new BLangJSONLiteral(new ArrayList<>(), type);
+            case TypeTags.XML:
+                return new BLangXMLSequenceLiteral(type);
+            case TypeTags.TABLE:
+                return new BLangTableLiteral(type);
+            case TypeTags.STREAM:
+                return new BLangStreamLiteral(type, null);
+            case TypeTags.MAP:
+                return new BLangMapLiteral(new ArrayList<>(), type);
+            case TypeTags.STRUCT:
+                return rewriteExpr(new BLangStructLiteral(new ArrayList<>(), type));
+            case TypeTags.ARRAY:
+                BLangArrayLiteral array = new BLangArrayLiteral();
+                array.exprs = new ArrayList<>();
+                array.type = type;
+                return rewriteExpr(array);
+            default:
+                break;
+        }
+        return null;
+    }
+
+    private BLangExpression getStructFieldInitExpr(BType type, BLangStruct structNode, int fieldIndex) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.BLOB:
+                return structNode.fields.get(fieldIndex).expr;
+            default:
+                return getInitExpr(type);
+        }
     }
 }

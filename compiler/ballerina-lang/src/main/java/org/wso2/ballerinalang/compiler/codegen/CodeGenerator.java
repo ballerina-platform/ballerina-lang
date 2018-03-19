@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.MultiReturnExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -688,6 +689,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new struct.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
+
+        // Generate code for the struct literal default values.
+        for (BLangRecordKeyValue keyValue : structLiteral.defaultValues) {
+            BLangRecordKey key = keyValue.key;
+            Operand fieldIndex = key.fieldSymbol.varIndex;
+            genNode(keyValue.valueExpr, this.env);
+            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
+            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+        }
 
         // Invoke the struct initializer here.
         if (structLiteral.initializer != null) {
@@ -2874,6 +2884,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         xmlQuotedString.concatExpr.regIndex = calcAndGetExprRegIndex(xmlQuotedString);
         genNode(xmlQuotedString.concatExpr, env);
         xmlQuotedString.regIndex = xmlQuotedString.concatExpr.regIndex;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSeqLiteral) {
+        xmlSeqLiteral.regIndex = calcAndGetExprRegIndex(xmlSeqLiteral);
+        // It is assumed that the sequence is always empty.
+        emit(InstructionCodes.NEWXMLSEQ, xmlSeqLiteral.regIndex);
     }
 
     @Override
