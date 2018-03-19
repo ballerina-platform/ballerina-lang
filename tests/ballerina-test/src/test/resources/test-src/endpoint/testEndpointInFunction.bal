@@ -26,7 +26,7 @@ public function <DummyEndpoint ep> stop () {
     exFlow = exFlow + "stop:DummyEndpoint;";
 }
 
-public function <DummyEndpoint ep> register (type ser) {
+public function <DummyEndpoint ep> register (typedesc ser) {
     exFlow = exFlow + "register:DummyEndpoint;";
 }
 

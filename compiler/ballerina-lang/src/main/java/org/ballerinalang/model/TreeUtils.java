@@ -43,7 +43,7 @@ public class TreeUtils {
         stringTypeKindMap.put("any", TypeKind.ANY);
         stringTypeKindMap.put("map", TypeKind.MAP);
         stringTypeKindMap.put("future", TypeKind.FUTURE);
-        stringTypeKindMap.put("type", TypeKind.TYPE);
+        stringTypeKindMap.put("typedesc", TypeKind.TYPEDESC);
         stringTypeKindMap.put("message", TypeKind.MESSAGE);
     }
 

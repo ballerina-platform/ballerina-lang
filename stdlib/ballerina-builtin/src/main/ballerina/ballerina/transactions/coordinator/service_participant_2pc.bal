@@ -19,7 +19,7 @@ package ballerina.transactions.coordinator;
 import ballerina.log;
 import ballerina.net.http;
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:participant2pcCoordinatorBasePath
 }
 documentation {
@@ -27,7 +27,7 @@ documentation {
 }
 service<http:Service> Participant2pcService bind coordinatorServerEP{
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/prepare"
     }
@@ -99,7 +99,7 @@ service<http:Service> Participant2pcService bind coordinatorServerEP{
         }
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/notify"
     }

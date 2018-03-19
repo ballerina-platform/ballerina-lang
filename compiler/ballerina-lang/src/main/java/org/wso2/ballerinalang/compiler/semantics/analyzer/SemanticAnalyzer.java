@@ -256,17 +256,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
             this.analyzeDef(annotationAttachment, funcEnv);
         });
+
         funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
-
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol)) {
-            return;
-        }
-
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
             this.analyzeDef(funcNode.restParam, funcEnv);
+        }
+
+        // Check for native functions
+        if (Symbols.isNative(funcNode.symbol)) {
+            return;
         }
 
         funcNode.endpoints.forEach(e -> {
@@ -606,9 +606,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes = Lists.of(tupleType);
         }
 
-        // TODO Continue the validate if this is a safe assignment operator
+        if (!assignNode.safeAssignment) {
+            typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+            return;
+        }
 
-        typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        // Assume that there is only one variable reference in LHS
+        // Continue the validate if this is a safe assignment operator
+        handleSafeAssignment(assignNode.pos, assignNode.varRefs.get(0).type, assignNode.expr, this.env);
     }
 
     @Override

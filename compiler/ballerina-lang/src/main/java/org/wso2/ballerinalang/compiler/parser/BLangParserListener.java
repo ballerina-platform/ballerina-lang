@@ -882,7 +882,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.VAR() != null) {
             isVarDeclaration = true;
         }
-        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
+        this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx),
+                isVarDeclaration, ctx.SAFE_ASSIGNMENT() != null);
     }
 
     @Override

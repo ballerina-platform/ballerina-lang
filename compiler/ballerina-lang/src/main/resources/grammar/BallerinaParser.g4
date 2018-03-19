@@ -202,21 +202,21 @@ typeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     ;
 
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
-    |   TYPE_TYPE
+    |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
     ;
 
 builtInTypeName
      :   TYPE_ANY
-     |   TYPE_TYPE
+     |   TYPE_DESC
      |   valueTypeName
      |   builtInReferenceTypeName
      |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+

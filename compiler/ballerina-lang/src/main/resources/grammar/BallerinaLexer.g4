@@ -82,6 +82,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
 TYPE_TYPE       : 'type' ;
 TYPE_FUTURE     : 'future' ;
 

@@ -21,12 +21,12 @@ endpoint http:ServiceEndpoint initiatorEP {
     port:8888
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/"
 }
 service<http:Service> InitiatorService bind initiatorEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
     member (endpoint conn, http:Request req) {
