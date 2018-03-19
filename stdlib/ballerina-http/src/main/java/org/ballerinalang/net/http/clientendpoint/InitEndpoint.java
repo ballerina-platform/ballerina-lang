@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.B_CONNECTOR;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.URI;
 

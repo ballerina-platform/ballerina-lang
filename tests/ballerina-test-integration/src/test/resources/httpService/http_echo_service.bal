@@ -8,11 +8,11 @@ endpoint http:ServiceEndpoint echoEP2 {
     port:9090
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echo"
 }
 service<http:Service> echo bind echoEP1 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
@@ -23,11 +23,11 @@ service<http:Service> echo bind echoEP1 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echoOne"
 }
 service<http:Service> echoOne bind echoEP1 {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
     }
@@ -38,12 +38,12 @@ service<http:Service> echoOne bind echoEP1 {
     }
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echoDummy"
 }
 service<http:Service> echoDummy bind echoEP2 {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
@@ -53,7 +53,7 @@ service<http:Service> echoDummy bind echoEP2 {
         _ = outboundEP -> respond(res);
     }
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
