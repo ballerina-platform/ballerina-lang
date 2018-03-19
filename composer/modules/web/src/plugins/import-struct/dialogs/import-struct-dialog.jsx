@@ -109,14 +109,13 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Import struct definition'
+                title='Create Struct'
                 titleIcon='fw fw-import'
                 closeDialog
                 actions={[
                     <Button
                         primary
                         onClick={this.onImportJson}
-                        disabled={this.state.json === ''}
                     >
                         Import
                     </Button>
