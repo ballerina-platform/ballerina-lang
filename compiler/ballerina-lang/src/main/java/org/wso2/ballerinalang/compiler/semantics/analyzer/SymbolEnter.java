@@ -965,23 +965,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (initFunction == null) {
             initFunction = createInitFunction(object.pos, "", Names.OBJECT_INIT_SUFFIX);
         }
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = object.pos;
 
-        IdentifierNode name = createIdentifier(Names.SELF.getValue());
-        receiver.setName(name);
-        receiver.addWS(object.getWS());
+        //Set cached receiver to the init function
+        initFunction.receiver = object.receiver;
 
-        receiver.docTag = DocTag.RECEIVER;
-        initFunction.receiver = receiver;
         initFunction.flagSet.add(Flag.ATTACHED);
-
-        //Set receiver type
-        BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        connectorType.pos = object.pos;
-        connectorType.typeName = object.name;
-        connectorType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        receiver.setTypeNode(connectorType);
 
         //Add object level variables to the init function
         BLangFunction finalInitFunction = initFunction;

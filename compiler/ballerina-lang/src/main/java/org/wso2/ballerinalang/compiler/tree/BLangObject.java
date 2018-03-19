@@ -43,6 +43,7 @@ public class BLangObject extends BLangNode implements ObjectNode {
     public Set<Flag> flagSet;
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
+    public BLangVariable receiver;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;

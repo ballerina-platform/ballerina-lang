@@ -244,8 +244,6 @@ public class BLangPackageBuilder {
 
     private Stack<ObjectNode> objectStack = new Stack<>();
 
-    private List<FunctionNode> objectFunctionList;
-
     private Stack<EnumNode> enumStack = new Stack<>();
 
     private List<BLangEnumerator> enumeratorList = new ArrayList<>();
@@ -1240,12 +1238,11 @@ public class BLangPackageBuilder {
     }
 
     void startObjectDef() {
-        ObjectNode structNode = TreeBuilder.createObjectNode();
-        attachAnnotations(structNode);
-        attachDocumentations(structNode);
-        attachDeprecatedNode(structNode);
-        this.objectFunctionList = new ArrayList<>();
-        this.objectStack.add(structNode);
+        ObjectNode objectNode = TreeBuilder.createObjectNode();
+        attachAnnotations(objectNode);
+        attachDocumentations(objectNode);
+        attachDeprecatedNode(objectNode);
+        this.objectStack.add(objectNode);
     }
 
     void endObjectDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicStruct) {
@@ -1255,12 +1252,26 @@ public class BLangPackageBuilder {
             objectNode.flagSet.add(Flag.PUBLIC);
         }
 
+        //TODO check whether pkgName null being ok or not
         addNameReference(pos, ws, null, identifier);
         addUserDefineType(ws);
         TypeNode objectType = this.typeNodeStack.pop();
 
-        objectFunctionList.forEach(f -> f.getReceiver().setTypeNode(objectType));
+        //Create and add receiver to attached functions
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
 
+        IdentifierNode name = createIdentifier(Names.SELF.getValue());
+        receiver.setName(name);
+        receiver.addWS(ws);
+
+        receiver.docTag = DocTag.RECEIVER;
+        receiver.setTypeNode(objectType);
+
+        //Cache receiver to add to init function in symbolEnter
+        objectNode.receiver = receiver;
+
+        objectNode.functions.forEach(f -> f.setReceiver(receiver));
 
         this.compUnit.addTopLevelNode(objectNode);
     }
@@ -1331,6 +1342,8 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+
+        function.flagSet.add(Flag.ATTACHED);
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);

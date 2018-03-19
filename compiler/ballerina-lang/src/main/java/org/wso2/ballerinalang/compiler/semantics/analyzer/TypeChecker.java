@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -1073,15 +1074,23 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.lookupMemberSymbol(iExpr.pos, packageSymbol.scope, this.env,
                 uniqueFuncName, SymTag.FUNCTION);
         if (funcSymbol == symTable.notFoundSymbol) {
-            // Check, any function pointer in struct field with given name.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                    iExpr.expr.symbol.type.tsymbol);
-            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, funcName, structType);
-                resultTypes = getListWithErrorTypes(expTypes.size());
-                return;
+            // Check functions defined within the struct.
+            Name functionName = names.fromString(Symbols.getAttachedFuncSymbolName(iExpr.expr.symbol.type
+                    .tsymbol.name.value, iExpr.name.value));
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, functionName, iExpr.expr.symbol.type.tsymbol);
+            if (funcSymbol == symTable.notFoundSymbol) {
+                // Check, any function pointer in struct field with given name.
+                funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
+                        iExpr.expr.symbol.type.tsymbol);
+                if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, funcName, structType);
+                    resultTypes = getListWithErrorTypes(expTypes.size());
+                    return;
+                }
+                if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
+                    iExpr.functionPointerInvocation = true;
+                }
             }
-            iExpr.functionPointerInvocation = true;
         } else {
             // Attached function found
             // Check for the explicit initializer function invocation

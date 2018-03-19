@@ -33,6 +33,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public BLangVariable receiver;
 
+    //TODO remove this and use ATTACHED flag instead
     public boolean attachedFunction;
 
     public boolean objectInitFunction;
