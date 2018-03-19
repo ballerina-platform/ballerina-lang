@@ -55,3 +55,25 @@ function addValue (any value) {
 function endTest(){
     addValue("\n");
 }
+
+function testFunctionInvocation() returns (string) {
+    var i = ("y",5.0, "z");
+    string x = testTuples("x", i);
+    return x;
+}
+
+function testTuples (string x, (string, float, string) y) returns (string) {
+    var (i, j, k) = y;
+    return x + i + j + k;
+}
+
+function testFunctionReturnValue() returns (string) {
+    (string, float, string) x = testReturnTuples("x");
+    var (i, j, k) = x;
+    return i + j + k;
+}
+
+function testReturnTuples (string a) returns ((string, float, string)) {
+    var x = (a,5.0, "z");
+    return x;
+}

@@ -40,7 +40,7 @@ public class BasicTupleTest {
 
 
     @Test(description = "Test basics of tuple types")
-    public void testUnionTypeBasics1() {
+    public void testTupleTypeBasics() {
         BValue[] returns = BRunUtil.invoke(result, "basicTupleTest", new BValue[] {});
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), " test1 expr \n" +
@@ -49,5 +49,19 @@ public class BasicTupleTest {
                 " test4 4 \n" +
                 " test5 5 \n" +
                 " test6 {x:\"foo test6\"} \n ");
+    }
+
+    @Test(description = "Test Function invocation using tuples")
+    public void testFunctionInvocationUsingTuples() {
+        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation", new BValue[] {});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "xy5.0z");
+    }
+
+    @Test(description = "Test Function Invocation return values using tuples")
+    public void testFunctionReturnValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testFunctionReturnValue", new BValue[] {});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "x5.0z");
     }
 }
