@@ -18,7 +18,8 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.repository.PackageRepository;
+import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.IOException;
@@ -109,7 +110,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
     }
 
     @Override
-    public PackageRepository getPackageRepository() {
-        return null;
+    public Repo getPackageRepository() {
+        return new ProgramingSourceRepo(programDirPath);
     }
 }
