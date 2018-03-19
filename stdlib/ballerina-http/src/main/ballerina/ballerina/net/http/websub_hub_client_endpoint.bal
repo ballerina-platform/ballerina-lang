@@ -1,19 +1,19 @@
 package ballerina.net.http;
 
-/////////////////////////////////////////
-/// WebSub Subscriber Client Endpoint ///
-/////////////////////////////////////////
-@Description {value:"Struct representing the WebSubSubscriber Client Endpoint"}
+//////////////////////////////////////////
+/////// WebSub Hub Client Endpoint ///////
+//////////////////////////////////////////
+@Description {value:"Struct representing the WebSub Hub Client Endpoint"}
 @Field {value:"config: The configuration for the endpoint"}
 @Field {value:"httpClientEndpoint: The underlying HTTP client endpoint"}
-public struct WebSubSubscriberClientEndpoint {
-    WebSubSubscriberClientEndpointConfiguration config;
+public struct WebSubHubClientEndpoint {
+    WebSubHubClientEndpointConfiguration config;
     ClientEndpoint httpClientEndpoint;
 }
 
-@Description {value:"Struct representing the WebSubSubscriber Client Endpoint configuration"}
+@Description {value:"Struct representing the WebSub Hub Client Endpoint configuration"}
 @Field {value:"uri: The URI of the target Hub"}
-public struct WebSubSubscriberClientEndpointConfiguration {
+public struct WebSubHubClientEndpointConfiguration {
     string uri;
     //TODO: include header, topic-resource map
 }
@@ -21,7 +21,7 @@ public struct WebSubSubscriberClientEndpointConfiguration {
 @Description {value:"Gets called when the endpoint is being initialized during package init"}
 @Param {value:"ep: The endpoint to be initialized"}
 @Param {value:"config: The configuration for the endpoint"}
-public function <WebSubSubscriberClientEndpoint ep> init (WebSubSubscriberClientEndpointConfiguration config) {
+public function <WebSubHubClientEndpoint ep> init (WebSubHubClientEndpointConfiguration config) {
     endpoint ClientEndpoint httpClientEndpoint {targets:[{uri:config.uri}]};
     ep.httpClientEndpoint = httpClientEndpoint;
     ep.config = config;
@@ -29,24 +29,24 @@ public function <WebSubSubscriberClientEndpoint ep> init (WebSubSubscriberClient
 
 @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
 @Param {value:"serviceType: The service attached"}
-public function <WebSubSubscriberClientEndpoint ep> register (type serviceType) {
+public function <WebSubHubClientEndpoint ep> register (type serviceType) {
     ep.httpClientEndpoint.register(serviceType);
 }
 
 @Description {value:"Starts the registered service"}
-public function <WebSubSubscriberClientEndpoint ep> start () {
+public function <WebSubHubClientEndpoint ep> start () {
     ep.httpClientEndpoint.start();
 }
 
 @Description {value:"Returns the connector that client code uses"}
 @Return {value:"The connector that client code uses"}
-public function <WebSubSubscriberClientEndpoint ep> getClient () (WebSubSubscriberClientConnector wssClientConn) {
-    wssClientConn = { hubUri:ep.config.uri, httpClientEndpoint:ep.httpClientEndpoint };
+public function <WebSubHubClientEndpoint ep> getClient () (WebSubHubClientConnector webSubHubClientConn) {
+    webSubHubClientConn = { hubUri:ep.config.uri, httpClientEndpoint:ep.httpClientEndpoint };
     return;
 }
 
 @Description {value:"Stops the registered service"}
 @Return {value:"Error occured during registration"}
-public function <WebSubSubscriberClientEndpoint ep> stop () {
+public function <WebSubHubClientEndpoint ep> stop () {
     ep.httpClientEndpoint.stop();
 }

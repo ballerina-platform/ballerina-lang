@@ -2,8 +2,8 @@ package ballerina.net.http;
 
 import ballerina.log;
 
-@Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests"}
-public struct WebSubSubscriberClientConnector {
+@Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests to a Hub"}
+public struct WebSubHubClientConnector {
     string hubUri;
     ClientEndpoint httpClientEndpoint;
 }
@@ -12,7 +12,7 @@ public struct WebSubSubscriberClientConnector {
 @Param {value:"subscriptionRequest: The SubscriptionChangeRequest containing subscription details"}
 @Return {value:"SubscriptionChangeResponse indicating subscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the subscription request"}
-public function <WebSubSubscriberClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest)
+public function <WebSubHubClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest)
 (SubscriptionChangeResponse, WebSubError) {
     endpoint ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_SUBSCRIBE, subscriptionRequest);
@@ -26,7 +26,7 @@ public function <WebSubSubscriberClientConnector client> subscribe (Subscription
 @Param {value:"unsubscriptionRequest: The SubscriptionChangeRequest containing unsubscription details"}
 @Return {value:"SubscriptionChangeResponse indicating unsubscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the unsubscription request"}
-public function <WebSubSubscriberClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest)
+public function <WebSubHubClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest)
 (SubscriptionChangeResponse, WebSubError) {
     endpoint ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
@@ -35,6 +35,27 @@ public function <WebSubSubscriberClientConnector client> unsubscribe (Subscripti
     response, httpConnectorError = httpClientEndpoint -> post("/", builtSubscriptionRequest);
     return processHubResponse(client.hubUri, MODE_UNSUBSCRIBE, unsubscriptionRequest.topic, response,
                               httpConnectorError);
+}
+
+@Description {value:"Function to publish an update to a remote Ballerina WebSub Hub"}
+@Param {value:"topic: The topic for which the update occurred"}
+@Param {value:"payload: The update payload"}
+@Return {value:"WebSubError if an error occurred with the update"}
+public function <WebSubHubClientConnector client> publishUpdateToRemoteHub (string topic, json payload)
+(WebSubError webSubError) {
+    endpoint ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
+    Request request = {};
+    Response response;
+    HttpConnectorError httpConnectorError;
+
+    string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
+    request.setJsonPayload(payload);
+    response, httpConnectorError = httpClientEndpoint -> post("?" + queryParams, request);
+    if (httpConnectorError != null) {
+        webSubError = { errorMessage:"Notification failed for topic [" + topic + "]",
+                            connectorError:httpConnectorError };
+    }
+    return;
 }
 
 @Description {value:"Function to build the subscription request to subscribe at the hub"}

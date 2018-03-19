@@ -66,7 +66,7 @@ public function <WebSubSubscriberServiceEndpoint ep> stop () {
 @Param {value:"hub: The hub to which the subscription request is to be sent"}
 @Param {value:"subscriptionDetails: Map containing subscription details"}
 function invokeClientConnectorForSubscription (string hub, map subscriptionDetails) {
-    endpoint WebSubSubscriberClientEndpoint websubSubscriberClientEP { uri:hub };
+    endpoint WebSubHubClientEndpoint websubHubClientEP { uri:hub };
     var topic, _ = (string) subscriptionDetails["topic"];
     var callback, _ = (string) subscriptionDetails["callback"];
     if (hub == null || topic == null || callback == null) {
@@ -82,7 +82,7 @@ function invokeClientConnectorForSubscription (string hub, map subscriptionDetai
                                                               secret:secret};
     SubscriptionChangeResponse subscriptionChangeResponse;
     WebSubError webSubError;
-    subscriptionChangeResponse, webSubError = websubSubscriberClientEP -> subscribe(subscriptionChangeRequest);
+    subscriptionChangeResponse, webSubError = websubHubClientEP -> subscribe(subscriptionChangeRequest);
     if (webSubError == null) {
         log:printInfo("Subscription Request successful at Hub[" + subscriptionChangeResponse.hub +"], for Topic["
                       + subscriptionChangeResponse.topic + "]");
