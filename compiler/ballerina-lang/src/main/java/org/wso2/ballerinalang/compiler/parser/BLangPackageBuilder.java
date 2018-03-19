@@ -70,6 +70,7 @@ import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.QueryStatementNode;
@@ -160,6 +161,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -312,6 +314,8 @@ public class BLangPackageBuilder {
     private Stack<QueryStatementNode> queryStatementStack = new Stack<>();
 
     private Stack<StreamletNode> streamletNodeStack = new Stack<>();
+
+    private Stack<ForeverNode> foreverNodeStack = new Stack<>();
 
     private Stack<OutputRateLimitNode> outputRateLimitStack = new Stack<>();
 
@@ -2710,27 +2714,28 @@ public class BLangPackageBuilder {
 
 
     public void startForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        StreamletNode streamletNode = TreeBuilder.createStreamletNode();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
+        ForeverNode foreverNode = TreeBuilder.createForeverNode();
+        ((BLangForever) foreverNode).pos = pos;
+        foreverNode.addWS(ws);
         startBlock();
-        this.streamletNodeStack.push(streamletNode);
+        this.foreverNodeStack.push(foreverNode);
     }
 
-    public void endForeverNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        StreamletNode streamletNode = this.streamletNodeStack.peek();
-        ((BLangStreamlet) streamletNode).pos = pos;
-        streamletNode.addWS(ws);
-
-        streamletNode.setName(this.createIdentifier(identifier));
-        BlockNode blocknode = this.blockNodeStack.pop();
-        streamletNode.setBody(blocknode);
+    public void endForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        ForeverNode foreverNode = this.foreverNodeStack.peek();
+        ((BLangForever) foreverNode).pos = pos;
+        foreverNode.addWS(ws);
 
         if (!this.varListStack.empty()) {
-            this.varListStack.pop().forEach(streamletNode::addParameter);
+            this.varListStack.pop().forEach(foreverNode::addParameter);
         }
 
-        this.compUnit.addTopLevelNode(streamletNode);
+        Collections.reverse(streamingQueryStatementStack);
+        while (!streamingQueryStatementStack.empty()) {
+            foreverNode.addStreamingQueryStatement(streamingQueryStatementStack.pop());
+        }
+
+        addStmtToCurrentBlock(foreverNode);
     }
     
     public void markLastExpressionAsAwait() {
