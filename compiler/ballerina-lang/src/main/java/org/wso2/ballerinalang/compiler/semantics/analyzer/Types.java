@@ -233,7 +233,10 @@ public class Types {
         }
 
         if (target.tag == TypeTags.MAP && source.tag == TypeTags.MAP) {
-            if (((BMapType) target).constraint.tag == TypeTags.ANY) {
+            // Here source condition is added for prevent assigning map union constrained
+            // to map any constrained.
+            if (((BMapType) target).constraint.tag == TypeTags.ANY &&
+                    ((BMapType) source).constraint.tag != TypeTags.UNION) {
                 return true;
             }
             if (checkStructEquivalency(((BMapType) source).constraint,
@@ -698,6 +701,13 @@ public class Types {
                 return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
             }
 
+            // Here condition is added for prevent explicit cast assigning map union constrained
+            // to map any constrained.
+            if (s.tag == TypeTags.MAP &&
+                    ((BMapType) s).constraint.tag != TypeTags.UNION) {
+                return symTable.notFoundSymbol;
+            }
+
             return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
         }
 
@@ -1052,7 +1062,7 @@ public class Types {
 
         @Override
         public Boolean visit(BUnionType t, BType s) {
-            return false;
+            return t == s;
         }
 
         @Override

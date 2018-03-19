@@ -501,3 +501,46 @@ function testJsonToStructConversionStructWithConstrainedMapNegative() (error) {
     _,err = <PersonComplexTwo> j;
     return err;
 }
+
+function testConstrainedUnionRetrieveString() (string) {
+    map<string|int> testMap = {};
+    testMap["name"] = "kevin";
+    string|int s = testMap["name"];
+    match s {
+        string k => return k;
+        int l    => return "default";
+    }
+}
+
+function testConstrainedUnionRetrieveInt() (int) {
+    map<string|int> testMap = {};
+    testMap["id"] = 3;
+    string|int id = testMap["id"];
+    match id {
+        string k => return 0;
+        int l    => return l;
+    }
+}
+
+function testConstrainedMapWithIncrementOperator() (int) {
+    map<int> testMap = {};
+    testMap["count"] = 1000;
+    testMap["count"]++;
+    testMap["count"]++;
+    testMap["count"]++;
+    testMap["count"]--;
+    int i = 5;
+    int j = testMap["count"];
+    testMap["count"]++;
+    return testMap["count"];
+}
+
+function testConstrainedMapWithCompoundAssignment() (int) {
+    map<int> testMap = {};
+    testMap["count"] = 1000;
+    testMap["count"] += 25000;
+    testMap["count"] /= 1000;
+    int j = testMap["count"];
+    testMap["count"] *= 2;
+    return testMap["count"];
+}

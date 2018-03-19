@@ -462,4 +462,44 @@ public class ConstrainedMapTest {
                         "incompatible types: expected 'int', found 'string' in json");
     }
 
+    @Test(description = "Test constrained map with union retrieving string value.")
+    public void testConstrainedUnionRetrieveString() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedUnionRetrieveString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "kevin");
+    }
+
+    @Test(description = "Test constrained map with union retrieving int value.")
+    public void testConstrainedUnionRetrieveInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedUnionRetrieveInt");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test(description = "Test constrained map with increment operators.")
+    public void testConstrainedMapWithIncrementOperator() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapWithIncrementOperator");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1003);
+    }
+
+    @Test(description = "Test constrained map with compound assignment.")
+    public void testConstrainedMapWithCompoundAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testConstrainedMapWithCompoundAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 52);
+    }
+
 }
