@@ -33,7 +33,7 @@ public class BalGenConstants {
     
     public static final String DEFAULT_SAMPLE_CONNECTOR_PORT = "9090";
     
-    public static final String DEFAULT_SAMPLE_CONNECTOR_HOST = "0.0.0.0";
+    public static final String DEFAULT_SAMPLE_CONNECTOR_HOST = "localhost";
     
     public static final String DEFAULT_PACKAGE = "client";
     

@@ -51,7 +51,7 @@ public class MessageConstants {
 
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
-    public static final String DEFAULT_HOSTNAME = "0.0.0.0";
+    public static final String DEFAULT_HOSTNAME = "localhost";
     public static final String CHANNEL_KEY = "channel";
     public static final String SERVICE_STUB = "ServiceStub";
     public static final int SERVICE_STUB_REF_INDEX = 0;

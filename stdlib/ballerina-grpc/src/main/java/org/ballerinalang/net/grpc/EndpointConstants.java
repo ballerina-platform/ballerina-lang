@@ -30,7 +30,7 @@ public class EndpointConstants {
 
     public static final String PROTOCOL_HTTPS = "https";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
+    public static final String HTTP_DEFAULT_HOST = "localhost";
     public static final String ENDPOINT_CONFIG = "config";
 
     //Service Endpoint Config

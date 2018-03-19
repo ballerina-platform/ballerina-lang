@@ -25,7 +25,7 @@ import org.ballerinalang.net.grpc.ssl.SSLConfig;
  * @since 1.0.0
  */
 public class EndpointConfiguration {
-    private String host = "0.0.0.0";
+    private String host = "localhost";
     private int port = 9090;
     private String scheme = "http";
     private SSLConfig sslConfig;
