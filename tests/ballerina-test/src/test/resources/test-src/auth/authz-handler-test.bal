@@ -1,9 +1,9 @@
-import ballerina.auth.authz;
+import ballerina.net.http.authadaptor;
 import ballerina.net.http;
 import ballerina.mime;
 
 function testHandleHttpAuthzFailure () (boolean) {
-    authz:HttpAuthzHandler handler = {};
+    authadaptor:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXNoYXJhOmFiYw==";
@@ -14,7 +14,7 @@ function testHandleHttpAuthzFailure () (boolean) {
 }
 
 function testHandleAuthz () (boolean) {
-    authz:HttpAuthzHandler handler = {};
+    authadaptor:HttpAuthzHandler handler = {};
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
@@ -22,4 +22,26 @@ function testHandleAuthz () (boolean) {
     requestEntity.setHeader("Authorization", basicAutheaderValue);
     inRequest.setEntity(requestEntity);
     return handler.handle(inRequest, "scope2", "/sayHello");
+}
+
+function testExtractInvalidBasicAuthHeaderValue () (string, error) {
+    // create dummy request
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string basicAutheaderValue = ".Basic FSADFfgfsagas423gfdGSdfa";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    inRequest.setEntity(requestEntity);
+    return authadaptor:extractBasicAuthHeaderValue(inRequest);
+}
+
+function testExtractBasicAuthHeaderValue () (string, error) {
+    // create dummy request
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+                                 userAgent:"curl/7.35.0", extraPathInfo:"null"};
+    string basicAutheaderValue = "Basic aXN1cnU6eHh4";
+    mime:Entity requestEntity = {};
+    requestEntity.setHeader("Authorization", basicAutheaderValue);
+    inRequest.setEntity(requestEntity);
+    return authadaptor:extractBasicAuthHeaderValue(inRequest);
 }
