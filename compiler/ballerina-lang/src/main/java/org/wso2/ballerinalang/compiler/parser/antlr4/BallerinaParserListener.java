@@ -1994,15 +1994,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinStreamingInput(BallerinaParser.JoinStreamingInputContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Enter a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void enterOutputRate(BallerinaParser.OutputRateContext ctx);
+	void enterOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRate}.
+	 * Exit a parse tree produced by {@link BallerinaParser#outputRateLimit}.
 	 * @param ctx the parse tree
 	 */
-	void exitOutputRate(BallerinaParser.OutputRateContext ctx);
+	void exitOutputRateLimit(BallerinaParser.OutputRateLimitContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#patternStreamingInput}.
 	 * @param ctx the parse tree
@@ -2074,15 +2074,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitJoinType(BallerinaParser.JoinTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#outputRateType}.
+	 * Enter a parse tree produced by {@link BallerinaParser#timeScale}.
 	 * @param ctx the parse tree
 	 */
-	void enterOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
+	void enterTimeScale(BallerinaParser.TimeScaleContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#outputRateType}.
+	 * Exit a parse tree produced by {@link BallerinaParser#timeScale}.
 	 * @param ctx the parse tree
 	 */
-	void exitOutputRateType(BallerinaParser.OutputRateTypeContext ctx);
+	void exitTimeScale(BallerinaParser.TimeScaleContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedAttachment}.
 	 * @param ctx the parse tree
@@ -2167,14 +2167,12 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void enterDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void enterDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
 	 * @param ctx the parse tree
 	 */
-	void exitDocumentationTemplateAttributeDescription(
-            BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
+	void exitDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docText}.
 	 * @param ctx the parse tree
