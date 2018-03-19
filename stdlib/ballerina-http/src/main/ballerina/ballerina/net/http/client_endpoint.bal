@@ -10,6 +10,7 @@ package ballerina.net.http;
 public struct ClientEndpoint {
     string epName;
     ClientEndpointConfiguration config;
+    HttpClient httpClient;
 }
 
 public enum Algorithm {
@@ -74,10 +75,8 @@ public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
         }
     }
     ep.config = config;
-    ep.initEndpoint();
+    ep.httpClient = createHttpClient(config);
 }
-
-public native function<ClientEndpoint ep> initEndpoint();
 
 public function <ClientEndpoint ep> register(type serviceType) {
 
@@ -90,16 +89,16 @@ public function <ClientEndpoint ep> start() {
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 public function <ClientEndpoint ep> getClient() (HttpClient) {
-    return ep.getHttpClient();
+    return ep.httpClient;
 }
-
-public native function <ClientEndpoint ep> getHttpClient() (HttpClient);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public function <ClientEndpoint ep> stop() {
 
 }
+
+public native function createHttpClient(ClientEndpointConfiguration config) (HttpClient);
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
