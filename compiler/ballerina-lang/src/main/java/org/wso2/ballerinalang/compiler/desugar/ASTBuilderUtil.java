@@ -47,6 +47,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -158,6 +160,16 @@ class ASTBuilderUtil {
         return assignment;
     }
 
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, List<BLangExpression> varRefs,
+                                                BLangExpression rhsExpr, boolean declaredWithVar) {
+        final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        assignment.pos = pos;
+        assignment.varRefs = varRefs;
+        assignment.expr = rhsExpr;
+        assignment.declaredWithVar = declaredWithVar;
+        return assignment;
+    }
+
     static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.pos = pos;
@@ -182,6 +194,35 @@ class ASTBuilderUtil {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
+    }
+
+    static BLangBlockStmt createBlockStmt(DiagnosticPos pos, List<BLangStatement> stmts) {
+        final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        blockNode.pos = pos;
+        blockNode.stmts = stmts;
+        return blockNode;
+    }
+
+    static BLangMatchStmtPatternClause createMatchStatementPattern(DiagnosticPos pos,
+                                                                   BLangVariable variable,
+                                                                   BLangBlockStmt body) {
+        BLangMatchStmtPatternClause patternClause =
+                (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
+        patternClause.pos = pos;
+        patternClause.variable = variable;
+        patternClause.body = body;
+        return patternClause;
+
+    }
+
+    static BLangMatch createMatchStatement(DiagnosticPos pos,
+                                           BLangExpression expr,
+                                           List<BLangMatchStmtPatternClause> patternClauses) {
+        BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
+        matchStmt.pos = pos;
+        matchStmt.expr = expr;
+        matchStmt.patternClauses = patternClauses;
+        return matchStmt;
     }
 
     static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos) {

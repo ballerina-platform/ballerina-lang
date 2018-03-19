@@ -135,6 +135,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -408,6 +409,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineNode(varNode, env);
             }
         }
+        BType lhsType = varNode.symbol.type;
+        varNode.type = lhsType;
 
         // Here we validate annotation attachments for package level variables.
         varNode.annAttachments.forEach(a -> {
@@ -421,22 +424,65 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         // Analyze the init expression
-        if (varNode.expr != null) {
-            // Here we create a new symbol environment to catch self references by keep the current
-            // variable symbol in the symbol environment
-            // e.g. int a = x + a;
-            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-
-            // If the variable is a package/service/connector level variable, we don't need to check types.
-            // It will we done during the init-function of the respective construct is visited.
-            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
-                    (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE &&
-                    (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
-                typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
-            }
-
+        BLangExpression rhsExpr = varNode.expr;
+        if (rhsExpr == null) {
+            return;
         }
-        varNode.type = varNode.symbol.type;
+
+        // Here we create a new symbol environment to catch self references by keep the current
+        // variable symbol in the symbol environment
+        // e.g. int a = x + a;
+        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
+
+        // If the variable is a package/service/connector level variable, we don't need to check types.
+        // It will we done during the init-function of the respective construct is visited.
+        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
+                (ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
+                (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            return;
+        }
+
+        // Return if this not a safe assignment
+        if (!varNode.safeAssignment) {
+            typeChecker.checkExpr(rhsExpr, varInitEnv, Lists.of(lhsType));
+            return;
+        }
+
+        handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
+    }
+
+    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
+        // Collect all the lhs types
+        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+                ((BUnionType) lhsType).memberTypes :
+                new HashSet<BType>() {{
+                    add(lhsType);
+                }};
+
+        // If there is at least one lhs type which assignable to the error type, then report an error.
+        for (BType type : lhsTypes) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
+                return;
+            }
+        }
+
+        // Create a new union type with the error type and continue the type checking process.
+        lhsTypes.add(symTable.errStructType);
+        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
+        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
+
+        if (rhsExpr.type.tag == TypeTags.UNION) {
+            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
+            for (BType type : rhsUnionType.memberTypes) {
+                if (types.isAssignable(symTable.errStructType, type)) {
+                    return;
+                }
+            }
+        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
+            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        }
     }
 
 
@@ -540,7 +586,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Evaluate the variable reference expression.
             BLangVariableReference varRef = (BLangVariableReference) expr;
             varRef.lhsVar = true;
-            typeChecker.checkExpr(varRef, env).get(0);
+            typeChecker.checkExpr(varRef, env);
 
             // Check whether we've got an enumerator access expression here.
             if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -553,6 +599,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
             checkConstantAssignment(varRef);
         }
+
+        // TODO Continue the validate if this is a safe assignment operator
 
         typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
     }
@@ -609,7 +657,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchNode) {
-        List<BType> exprTypes = typeChecker.checkExpr(matchNode.expr, env, new ArrayList<>());
+        List<BType> exprTypes = typeChecker.checkExpr(matchNode.expr, env, Lists.of(symTable.noType));
         if (exprTypes.size() > 1) {
             dlog.error(matchNode.expr.pos, DiagnosticCode.MULTI_VAL_EXPR_IN_SINGLE_VAL_CONTEXT);
             return;

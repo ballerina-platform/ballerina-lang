@@ -398,6 +398,18 @@ public class BLangPackageBuilder {
         addType(arrayTypeNode);
     }
 
+    public void markTypeNodeAsNullable(Set<Whitespace> ws) {
+        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
+        typeNode.addWS(ws);
+        typeNode.nullable = true;
+    }
+
+    public void markTypeNodeAsGrouped(Set<Whitespace> ws) {
+        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
+        typeNode.addWS(ws);
+        typeNode.grouped = true;
+    }
+
     public void addUserDefineType(Set<Whitespace> ws) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
@@ -661,7 +673,8 @@ public class BLangPackageBuilder {
                                         Set<Whitespace> ws,
                                         String identifier,
                                         boolean exprAvailable,
-                                        boolean endpoint) {
+                                        boolean endpoint,
+                                        boolean safeAssignment) {
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         BLangVariableDef varDefNode = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         // TODO : Remove endpoint logic from here.
@@ -678,6 +691,7 @@ public class BLangPackageBuilder {
         var.addWS(ws);
         var.setName(this.createIdentifier(identifier));
         var.setTypeNode(this.typeNodeStack.pop());
+        var.safeAssignment = safeAssignment;
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
@@ -1170,23 +1184,27 @@ public class BLangPackageBuilder {
                                   Set<Whitespace> ws,
                                   String identifier,
                                   boolean exprAvailable,
-                                  boolean publicVar) {
+                                  boolean publicVar,
+                                  boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
+        var.safeAssignment = safeAssignment;
 
         this.compUnit.addTopLevelNode(var);
     }
 
-    public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicVar) {
+    public void addConstVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                 boolean publicVar, boolean safeAssignment) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, true);
         var.flagSet.add(Flag.CONST);
         if (publicVar) {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
+        var.safeAssignment = safeAssignment;
 
         attachAnnotations(var);
         attachDocumentations(var);

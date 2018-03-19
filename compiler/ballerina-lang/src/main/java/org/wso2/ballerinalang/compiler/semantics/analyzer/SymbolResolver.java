@@ -63,11 +63,13 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -252,18 +254,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return pkgSymbol;
     }
 
-    public BSymbol resolveFunction(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name invokableName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
-    }
-
-    public BSymbol resolveTransformer(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name transformerName) {
-        return lookupSymbolInPackage(pos, env, pkgAlias, transformerName, SymTag.TRANSFORMER);
-    }
-
     public BSymbol resolveTransformer(SymbolEnv env, BType sourceType, BType targetType) {
         Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
         return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
@@ -286,23 +276,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symbol;
     }
 
-    public BSymbol resolveInvokable(DiagnosticPos pos,
-                                    DiagnosticCode code,
-                                    SymbolEnv env,
-                                    Name pkgAlias,
-                                    Name invokableName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-
-        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.INVOKABLE);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, invokableName);
-        }
-        return symbol;
-    }
-
     public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
         return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
@@ -320,6 +293,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         typeNode.accept(this);
         this.env = prevEnv;
         this.diagCode = preDiagCode;
+
+        // If the typeNode.nullable is true then convert the resultType to a union type
+        // if it is not already a union type
+        if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) this.resultType;
+            unionType.memberTypes.add(symTable.nullType);
+            unionType.setNullable(true);
+        } else if (typeNode.nullable) {
+            Set<BType> memberTypes = new HashSet<BType>(2) {{
+                add(resultType);
+                add(symTable.nullType);
+            }};
+            this.resultType = new BUnionType(null, memberTypes, true);
+        }
 
         typeNode.type = resultType;
         return resultType;
@@ -477,8 +464,13 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangUnionTypeNode unionTypeNode) {
         Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
+                .flatMap(memBType ->
+                        memBType.tag == TypeTags.UNION ?
+                                ((BUnionType) memBType).memberTypes.stream() :
+                                Stream.of(memBType))
                 .collect(Collectors.toSet());
-        resultType = new BUnionType(TypeTags.UNION, null, memberTypes);
+        resultType = new BUnionType(null, memberTypes,
+                memberTypes.contains(symTable.nullType));
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {
