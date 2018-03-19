@@ -39,7 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         receiver = @Receiver(type = TypeKind.STRUCT,
                              structType = "ClientConnector",
                              structPackage = "ballerina.data.sql"),
-        args = {@Argument(name = "client", type = TypeKind.STRUCT),
+        args = {
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters",
                           type = TypeKind.ARRAY,
@@ -47,7 +48,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
                           arrayDimensions = 2,
                           structType = "Parameter")
         },
-        returnType = { @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT) })
+        returnType = {
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class BatchUpdate extends AbstractSQLAction {
     @Override
     public void execute(Context context) {
@@ -55,6 +61,10 @@ public class BatchUpdate extends AbstractSQLAction {
         String query = context.getStringArgument(0);
         BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeBatchUpdate(context, datasource, query, parameters);
+        try {
+            executeBatchUpdate(context, datasource, query, parameters);
+        } catch (Throwable e) {
+            context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+        }
     }
 }

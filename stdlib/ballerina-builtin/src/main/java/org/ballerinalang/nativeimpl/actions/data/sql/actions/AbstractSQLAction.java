@@ -107,7 +107,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             rs = stmt.executeQuery();
             TableResourceManager rm  = new TableResourceManager(conn, stmt);
             rm.addResultSet(rs);
-            context.setReturnValues(constructTable(rm, context, rs, structType));
+            context.setReturnValues(constructTable(rm, context, rs, structType), null);
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -124,7 +124,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             stmt = conn.prepareStatement(processedQuery);
             createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
-            context.setReturnValues(new BInteger(count));
+            context.setReturnValues(new BInteger(count), null);
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -164,7 +164,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
             }
-            context.setReturnValues(updatedCount, generatedKeys);
+            context.setReturnValues(updatedCount, generatedKeys, null);
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
@@ -194,13 +194,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             if (resultSetsReturned) {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return values
-                context.setReturnValues(createBRefValueArray(resultSets, rm, context, structType));
+                context.setReturnValues(createBRefValueArray(resultSets, rm, context, structType), null);
             } else if (!refCursorOutParamsPresent) {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
                 SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
-                context.setReturnValues();
+                context.setReturnValues(null, null);
             }
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
@@ -259,7 +259,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 countArray.add(i, updatedCount[i]);
             }
         }
-        context.setReturnValues(countArray);
+        context.setReturnValues(countArray, null);
     }
 
     protected BStructType getStructType(Context context) {

@@ -38,10 +38,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.data.sql",
         functionName = "select",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
-        args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                        structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeKind.TABLE) })
+                        structType = "Parameter")
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.TABLE),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class Select extends AbstractSQLAction {
 
     @Override
@@ -51,6 +58,10 @@ public class Select extends AbstractSQLAction {
         BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         BStructType structType = getStructType(context);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeQuery(context, datasource, query, parameters, structType);
+        try {
+            executeQuery(context, datasource, query, parameters, structType);
+        } catch (Throwable e) {
+            context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+        }
     }
 }

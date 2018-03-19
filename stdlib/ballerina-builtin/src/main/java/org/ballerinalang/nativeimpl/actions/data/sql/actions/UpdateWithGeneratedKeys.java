@@ -38,12 +38,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "ballerina.data.sql",
         functionName = "updateWithGeneratedKeys",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector"),
-        args = {@Argument(name = "sqlQuery", type = TypeKind.STRING),
+        args = {
+                @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
                           structType = "Parameter"),
-                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        returnType = { @ReturnType(type = TypeKind.INT),
-                       @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING) })
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @ReturnType(type = TypeKind.STRUCT, structType = "SQLConnectorError",
+                            structPackage = "ballerina.data.sql")
+        }
+)
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
     @Override
@@ -53,6 +60,10 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
         BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
         BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(2);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CLIENT_CONNECTOR);
-        executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
+        try {
+            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
+        } catch (Throwable e) {
+            context.setReturnValues(null, null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+        }
     }
 }

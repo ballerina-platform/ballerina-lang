@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,6 +33,8 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
@@ -1000,12 +1003,25 @@ public class SQLDatasourceUtils {
         if (udt.getAttributes() != null) {
             StringJoiner sj = new StringJoiner(",", "{", "}");
             Object[] udtValues = udt.getAttributes();
-            for (int i = 0; i < udtValues.length; i++) {
-                sj.add(String.valueOf(udtValues[i]));
+            for (Object obj : udtValues) {
+                sj.add(String.valueOf(obj));
             }
             return sj.toString();
         }
         return null;
+    }
+
+    public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
+        PackageInfo sqlPackageInfo = context.getProgramFile()
+                .getPackageInfo(Constants.SQL_PACKAGE_PATH);
+        StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
+        BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
+        if (throwable.getMessage() == null) {
+            sqlConnectorError.setStringField(0, Constants.SQL_EXCEPTION_OCCURED);
+        } else {
+            sqlConnectorError.setStringField(0, throwable.getMessage());
+        }
+        return sqlConnectorError;
     }
 
     private static String getString(Calendar calendar, String type) {
