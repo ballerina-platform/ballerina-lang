@@ -79,7 +79,7 @@ public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
 
 public native function<ClientEndpoint ep> initEndpoint();
 
-public function <ClientEndpoint ep> register(type serviceType) {
+public function <ClientEndpoint ep> register(typedesc serviceType) {
 
 }
 
