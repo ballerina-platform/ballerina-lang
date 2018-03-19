@@ -40,7 +40,6 @@ import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 
-import java.util.HashMap;
 import javax.websocket.Session;
 
 /**
@@ -106,8 +105,7 @@ public class Start extends BlockingNativeCallableUnit {
             wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
             //TODO: check below line
 //            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
-            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, wsConnection,
-                    new HashMap<>());
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, wsConnection);
             clientConnectorListener.setConnectionInfo(connectionInfo);
             context.setReturnValues(wsConnection);
         }

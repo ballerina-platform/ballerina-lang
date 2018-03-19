@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.net.ws.WebSocketEmptyCallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -57,8 +56,7 @@ public class WebSocketDispatcher {
      * @return matching service.
      */
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               Map<String, String> variables, WebSocketMessage webSocketMessage,
-                                               BMap<String, BString> queryParams) {
+                                               WebSocketMessage webSocketMessage, BMap<String, BString> queryParams) {
         try {
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
@@ -103,7 +101,6 @@ public class WebSocketDispatcher {
             wsTextFrame.setBooleanField(0, 0);
         }
         bValues[1] = wsTextFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         //TODO handle BallerinaConnectorException
         Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
@@ -129,7 +126,6 @@ public class WebSocketDispatcher {
             wsBinaryFrame.setBooleanField(0, 0);
         }
         bValues[1] = wsBinaryFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         //TODO handle BallerinaConnectorException
         Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
@@ -161,7 +157,6 @@ public class WebSocketDispatcher {
         byte[] data = controlMessage.getByteArray();
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         //TODO handle BallerinaConnectorException
         Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
@@ -181,7 +176,6 @@ public class WebSocketDispatcher {
         byte[] data = controlMessage.getByteArray();
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         //TODO handle BallerinaConnectorException
         Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
@@ -201,7 +195,6 @@ public class WebSocketDispatcher {
         wsCloseFrame.setIntField(0, closeMessage.getCloseCode());
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         //TODO handle BallerinaConnectorException
         Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
     }
@@ -217,19 +210,8 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         BConnector wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
         //TODO handle BallerinaConnectorException
         Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
-    }
-
-    public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,
-                                     int defaultArgSize) {
-        int parameterDetailsSize = paramDetails.size();
-        if (parameterDetailsSize > defaultArgSize) {
-            for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i] = new BString(variables.get(paramDetails.get(i).getVarName()));
-            }
-        }
     }
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {

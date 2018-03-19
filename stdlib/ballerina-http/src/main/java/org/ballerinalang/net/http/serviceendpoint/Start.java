@@ -33,6 +33,8 @@ import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import java.util.HashSet;
+
 /**
  * Get the ID of the connection.
  *
@@ -42,7 +44,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
@@ -54,8 +56,10 @@ public class Start extends AbstractHttpNativeFunction {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
+        HashSet<FilterHolder> filterHolder = getFilters(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
-        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
+        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
+                filterHolder));
         serverConnectorFuture
                 .setWSConnectorListener(new BallerinaWebSocketServerConnectorListener(webSocketServicesRegistry));
         // TODO: set startup server port binder. Do we really need it with new design?

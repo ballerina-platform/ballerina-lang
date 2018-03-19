@@ -46,6 +46,8 @@ public class BLangVMUtils {
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
 
+    private static final String GLOBAL_TRANSACTION_ENABLED = "GLOBAL_TRANSACTION_ENABLED";
+
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -392,5 +394,14 @@ public class BLangVMUtils {
 
     public static void removeTransactionInfo(WorkerExecutionContext ctx) {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
+    }
+
+    public static void setGlobalTransactionEnabledStatus(WorkerExecutionContext ctx,
+            boolean isGlobalTransactionEnabled) {
+        ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
+    }
+
+    public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
+        return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 }

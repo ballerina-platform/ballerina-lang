@@ -38,7 +38,6 @@ orgName
 definition
     :   serviceDefinition
     |   functionDefinition
-    |   connectorDefinition
     |   structDefinition
     |   streamletDefinition
     |   enumDefinition
@@ -50,7 +49,11 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE LT nameReference GT Identifier serviceBody
+    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
+    ;
+
+serviceEndpointAttachments
+    :   BIND nameReference (COMMA nameReference)*
     ;
 
 serviceBody
@@ -58,7 +61,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? RESOURCE Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+resourceParameterList
+    :   ENDPOINT Identifier (COMMA parameterList)?
+    |   parameterList
     ;
 
 callableUnitBody
@@ -78,19 +86,6 @@ lambdaFunction
 
 callableUnitSignature
     :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
-    ;
-
-connectorDefinition
-    :   (PUBLIC)? CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
-    ;
-
-connectorBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* actionDefinition* RIGHT_BRACE
-    ;
-
-actionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? NATIVE ACTION  callableUnitSignature SEMICOLON
-    |   annotationAttachment* documentationAttachment? deprecatedAttachment? ACTION callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -128,8 +123,6 @@ transformerDefinition
 attachmentPoint
      : SERVICE
      | RESOURCE
-     | CONNECTOR
-     | ACTION
      | FUNCTION
      | STRUCT
      | STREAMLET
@@ -158,19 +151,30 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* ENDPOINT (LT endpointType GT) Identifier recordLiteral?
+    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
     ;
 
 endpointType
     :   nameReference
     ;
 
+endpointInitlization
+    :   recordLiteral
+    |   ASSIGN variableReference
+    ;
+
 typeName
+    :   simpleTypeName                              # simpleTypeNameTemp
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
+    |   typeName (PIPE typeName)+                   # unionTypeName
+    ;
+
+// Temporary production rule name
+simpleTypeName
     :   TYPE_ANY
     |   TYPE_TYPE
     |   valueTypeName
     |   referenceTypeName
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
     ;
 
 builtInTypeName
@@ -178,7 +182,7 @@ builtInTypeName
      |   TYPE_TYPE
      |   valueTypeName
      |   builtInReferenceTypeName
-     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
+     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
 
 referenceTypeName
@@ -240,6 +244,7 @@ statement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
+    |   matchStatement
     |   foreachStatement
     |   whileStatement
     |   nextStatement
@@ -324,6 +329,15 @@ elseIfClause
 
 elseClause
     :   ELSE LEFT_BRACE statement*RIGHT_BRACE
+    ;
+
+matchStatement
+    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+    ;
+
+matchPatternClause
+    :   typeName EQUAL_GT statement
+    |   typeName Identifier EQUAL_GT statement
     ;
 
 foreachStatement
@@ -447,7 +461,7 @@ invocationArg
     ;
 
 actionInvocation
-    : variableReference RARROW functionInvocation
+    : nameReference RARROW functionInvocation
     ;
 
 expressionList
@@ -459,7 +473,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause failedClause?
+    :   transactionClause onretryClause?
     ;
 
 transactionClause
@@ -468,6 +482,8 @@ transactionClause
 
 transactionPropertyInitStatement
     : retriesStatement
+    | oncommitStatement
+    | onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -478,8 +494,8 @@ lockStatement
     : LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-failedClause
-    :   FAILED LEFT_BRACE statement* RIGHT_BRACE
+onretryClause
+    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
 abortStatement
     :   ABORT SEMICOLON
@@ -487,6 +503,14 @@ abortStatement
 
 retriesStatement
     :   RETRIES LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+oncommitStatement
+    :   ONCOMMIT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+    ;
+
+onabortStatement
+    :   ONABORT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement

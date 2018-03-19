@@ -21,14 +21,11 @@ import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.List;
 
@@ -41,8 +38,8 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "Service"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketService")}
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
+                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketEndpoint")}
 )
 public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -62,9 +59,10 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
-
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-        resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        if (HttpConstants.HTTP_SERVICE_TYPE.equals(serviceNode.getServiceTypeStruct().getTypeName().getValue())) {
+            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+            resources.forEach(resource -> ResourceSignatureValidator.validate(resource.getParameters()));
+        }
     }
 
     @Override
@@ -73,18 +71,5 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {
-        final BLangRecordLiteral expression = (BLangRecordLiteral) annotation.expr;
-        for (BLangRecordLiteral.BLangRecordKeyValue valueNode : expression.getKeyValuePairs()) {
-            final String key = ((BLangSimpleVarRef) valueNode.getKey()).variableName.value;
-            if (!key.equals("endpoints")) {
-                continue;
-            }
-            final List<BLangExpression> endpoints = ((BLangArrayLiteral) valueNode.getValue()).exprs;
-            for (BLangExpression endpoint : endpoints) {
-                if (endpoint instanceof BLangSimpleVarRef) {
-                    serviceNode.bindToEndpoint((BLangSimpleVarRef) endpoint);
-                }
-            }
-        }
     }
 }
