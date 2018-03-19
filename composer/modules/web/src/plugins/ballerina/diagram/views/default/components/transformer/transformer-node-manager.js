@@ -428,14 +428,15 @@ class TransformerNodeManager {
                 name: conversionExpression.getID() + ':0',
                 displayName: transformerDef[0].source.getName().getValue(),
                 type: transformerDef[0].source.getTypeNode().getTypeName().getValue(),
-                index: 0,
+                index: -1,
             });
             transformerDef[0].parameters.forEach((param, index) => {
                 parameters.push({
                     name: conversionExpression.getID() + ':' + (index + 1),
                     displayName: param.getName().getValue(),
                     type: param.getTypeNode().typeKind,
-                    index: index + 1,
+                    index,
+                    funcInv: conversionExpression.transformerInvocation,
                 });
             });
             transformerDef[0].returnParameters.forEach((param) => {
