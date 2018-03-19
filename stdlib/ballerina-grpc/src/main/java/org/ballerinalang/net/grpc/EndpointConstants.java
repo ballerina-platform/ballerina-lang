@@ -18,7 +18,9 @@
 package org.ballerinalang.net.grpc;
 
 /**
- * Created by daneshk on 3/10/18.
+ * gRPC Endpoint Constants Class.
+ *
+ * @since 1.0.0
  */
 public class EndpointConstants {
     //Client Endpoint
