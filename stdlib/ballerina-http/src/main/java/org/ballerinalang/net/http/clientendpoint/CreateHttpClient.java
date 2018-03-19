@@ -29,7 +29,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -46,10 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.B_CONNECTOR;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.URI;
 
 /**
  * Initialization of client endpoint.
@@ -59,27 +56,21 @@ import static org.ballerinalang.net.http.HttpConstants.URI;
 
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientEndpoint",
-                structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
+        functionName = "createHttpClient",
+        args = {@Argument(name = "uri", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
-        String url = null;
-        for (Value targetService:targetServices) {
-            url = targetService.getStructValue().getStringField(URI);
-        }
+        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
+        String url = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
 
         String scheme;
@@ -118,16 +109,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-        BStruct ballerinaClientConnector;
-        if (clientEndpoint.getNativeData(B_CONNECTOR) != null) {
-            ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(B_CONNECTOR);
-        } else {
-            ballerinaClientConnector = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                    CLIENT_CONNECTOR, url, clientEndpointConfig);
-            clientEndpoint.addNativeData(HttpConstants.B_CONNECTOR, ballerinaClientConnector);
-        }
-        ballerinaClientConnector.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
-        context.setReturnValues();
+        BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
+                HTTP_CLIENT, url, clientEndpointConfig);
+        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        context.setReturnValues(httpClient);
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct

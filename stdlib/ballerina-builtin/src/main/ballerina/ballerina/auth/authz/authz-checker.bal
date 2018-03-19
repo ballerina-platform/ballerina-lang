@@ -53,7 +53,7 @@ public function <AuthzChecker authzChecker> check (string username, string scope
 @Description {value:"Retrieves the cached authorization result if any, for the given basic auth header value"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Return {value:"any: cached entry, or null in a cache miss"}
-function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey) (any) {
+public function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey) (any) {
     if (authzChecker.authzCache != null) {
         return authzChecker.authzCache.get(authzCacheKey);
     }
@@ -63,7 +63,7 @@ function <AuthzChecker authzChecker> getCachedAuthzResult (string authzCacheKey)
 @Description {value:"Caches the authorization result"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
 @Param {value:"isAuthorized: authorization decision"}
-function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
+public function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheKey, boolean isAuthorized) {
     if (authzChecker.authzCache != null) {
         authzChecker.authzCache.put(authzCacheKey, isAuthorized);
     }
@@ -71,7 +71,7 @@ function <AuthzChecker authzChecker> cacheAuthzResult (string authzCacheKey, boo
 
 @Description {value:"Clears any cached authorization result"}
 @Param {value:"authzCacheKey: cache key - <username>-<resource>"}
-function <AuthzChecker authzChecker> clearCachedAuthzResult (string authzCacheKey) {
+public function <AuthzChecker authzChecker> clearCachedAuthzResult (string authzCacheKey) {
     if (authzChecker.authzCache != null) {
         authzChecker.authzCache.remove(authzCacheKey);
     }

@@ -31,7 +31,7 @@ public struct Filter {
 @Field {value:"filterResponse: Name of the resource"}
 public struct FilterContext {
     // TODO should have a map of properties
-    type serviceType;
+    typedesc serviceType;
     string serviceName;
     string resourceName;
 }

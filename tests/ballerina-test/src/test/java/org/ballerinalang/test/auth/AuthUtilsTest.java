@@ -109,26 +109,6 @@ public class AuthUtilsTest {
         Assert.assertTrue(returns[2] == null);
     }
 
-    @Test(description = "Test case for extracting invalid basic auth header value")
-    public void testExtractInvalidBasicAuthHeaderValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExtractInvalidBasicAuthHeaderValue");
-        Assert.assertTrue(returns != null);
-        // basic auth header should be null
-        Assert.assertTrue(returns[0].stringValue() == null);
-        // an error should be returned
-        Assert.assertTrue(returns[1] != null);
-    }
-
-    @Test(description = "Test case for extracting basic auth header value")
-    public void testExtractBasicAuthHeaderValue() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testExtractBasicAuthHeaderValue");
-        Assert.assertTrue(returns != null);
-        // basic auth header should not be null
-        Assert.assertTrue(returns[0].stringValue() != null);
-        // no error should be returned
-        Assert.assertTrue(returns[1] == null);
-    }
-
     @AfterClass
     public void tearDown() throws IOException {
         Files.deleteIfExists(ballerinaConfCopyPath);

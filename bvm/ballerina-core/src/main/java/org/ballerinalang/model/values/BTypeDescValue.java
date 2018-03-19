@@ -27,15 +27,15 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.90
  */
-public class BTypeValue implements BRefType<BType> {
+public class BTypeDescValue implements BRefType<BType> {
 
     private BType typeValue;
 
-    public BTypeValue() {
+    public BTypeDescValue() {
         this(null);
     }
 
-    public BTypeValue(BType typeValue) {
+    public BTypeDescValue(BType typeValue) {
         this.typeValue = typeValue;
     }
 
@@ -51,21 +51,21 @@ public class BTypeValue implements BRefType<BType> {
 
     @Override
     public BType getType() {
-        return BTypes.typeType;
+        return BTypes.typeDesc;
     }
 
     @Override
     public BValue copy() {
-        return new BTypeValue(typeValue);
+        return new BTypeDescValue(typeValue);
     }
 
     public boolean equals(Object obj) {
         // if obj == 'null' or not instance of BTypeValue - return false
-        if (obj == null || !(obj instanceof BTypeValue)) {
+        if (obj == null || !(obj instanceof BTypeDescValue)) {
             return false;
         }
 
-        BTypeValue typeValue = (BTypeValue) obj;
+        BTypeDescValue typeValue = (BTypeDescValue) obj;
         if ((typeValue.value() instanceof BArrayType) &&
                 (this.value() instanceof BArrayType)) {
             BArrayType objArrayType = (BArrayType) typeValue.value();
@@ -73,8 +73,8 @@ public class BTypeValue implements BRefType<BType> {
             if (objArrayType.getDimensions() != thisArrayType.getDimensions()) {
                 return false;
             }
-            return (new BTypeValue(thisArrayType.getElementType()))
-                    .equals(new BTypeValue(objArrayType.getElementType()));
+            return (new BTypeDescValue(thisArrayType.getElementType()))
+                    .equals(new BTypeDescValue(objArrayType.getElementType()));
         } else {
             return typeValue.value() == this.value();
         }

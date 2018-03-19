@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.authz;
+package ballerina.net.http.authadaptor;
+
 import ballerina.log;
 
 @Description {value:"Representation of Authorization Handler chain"}

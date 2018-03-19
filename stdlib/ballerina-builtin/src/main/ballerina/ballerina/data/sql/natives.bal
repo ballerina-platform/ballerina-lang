@@ -26,7 +26,7 @@ public struct Parameter {
 	Type sqlType;
 	any value;
 	Direction direction;
-	type structType;
+	typedesc structType;
 }
 
 @Description {value:"ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -212,14 +212,14 @@ public struct ClientConnector {
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set(s) for the given query"}
 public native function <ClientConnector client> call (@sensitive string sqlQuery, Parameter[] parameters,
-													  type structType) (@tainted table[]);
+													  typedesc structType) (@tainted table[]);
 
 @Description {value:"The select action implementation for SQL connector to select data from tables."}
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set for the given query"}
 public native function <ClientConnector client> select (@sensitive string sqlQuery, Parameter[] parameters,
-														type structType) (@tainted table);
+														typedesc structType) (@tainted table);
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
 public native function <ClientConnector client> close ();
