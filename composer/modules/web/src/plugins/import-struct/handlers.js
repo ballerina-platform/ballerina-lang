@@ -116,7 +116,7 @@ export function getHandlerDefinitions(plugin) {
                 const onImport = (json, structName, removeDefaults) => {
                     let success = true;
 
-                    if (structName !== undefined && structName !== ''){
+                    if (structName && structName !== ''){
                         structNode.getName().setValue(structName, true);
                         structNode.setName(structNode.getName(), false); 
                     }
