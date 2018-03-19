@@ -119,6 +119,7 @@ public enum NodeKind {
     /* Types */
     ARRAY_TYPE,
     UNION_TYPE_NODE,
+    TUPLE_TYPE_NODE,
     BUILT_IN_REF_TYPE,
     CONSTRAINED_TYPE,
     FUNCTION_TYPE,

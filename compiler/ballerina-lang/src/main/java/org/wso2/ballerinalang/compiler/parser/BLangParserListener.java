@@ -595,6 +595,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.typeName().size());
+    }
+
+    @Override
     public void exitSimpleTypeName(BallerinaParser.SimpleTypeNameContext ctx) {
         if (ctx.exception != null) {
             return;

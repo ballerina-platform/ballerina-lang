@@ -18,10 +18,12 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link BracedOrTupleExpression}
@@ -45,5 +47,10 @@ public class BLangBracedOrTupleExpr extends BLangExpression implements BracedOrT
     @Override
     public NodeKind getKind() {
         return NodeKind.BRACED_TUPLE_EXPR;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(",")) + ")";
     }
 }

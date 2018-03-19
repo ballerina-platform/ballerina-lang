@@ -181,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -386,6 +387,17 @@ public class BLangPackageBuilder {
         unionTypeNode.pos = pos;
         unionTypeNode.addWS(ws);
         this.typeNodeStack.push(unionTypeNode);
+    }
+
+    public void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        for (int i = 0; i < members; i++) {
+            final BLangType member = (BLangType) this.typeNodeStack.pop();
+            tupleTypeNode.memberTypeNodes.add(0, member);
+        }
+        tupleTypeNode.pos = pos;
+        tupleTypeNode.addWS(ws);
+        this.typeNodeStack.push(tupleTypeNode);
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
