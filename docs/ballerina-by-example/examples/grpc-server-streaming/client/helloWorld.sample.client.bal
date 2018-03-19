@@ -29,6 +29,7 @@ function main (string[] args) {
         io:println("Error occured while sending event " + err.message);
     }
 
+    //to hold the programme
     while (total == 0) {}
     io:println("Client got response successfully.");
 }
