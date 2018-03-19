@@ -193,6 +193,9 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
                     // Write trailing headers.
                     writeHttp2Headers(ctx, streamId, trailers, http2Trailers, true);
                 }
+                if (endStream) {
+                    outboundMsgHolder.setRequestWritten(true);
+                }
             } finally {
                 if (release) {
                     ReferenceCountUtil.release(msg);
@@ -220,6 +223,9 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
             http2ClientChannel.getDataEventListeners().
                     forEach(dataEventListener -> dataEventListener.onDataWrite(streamId, ctx, endStream));
             ctx.flush();
+            if (endStream) {
+                outboundMsgHolder.setRequestWritten(true);
+            }
         }
     }
 
