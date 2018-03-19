@@ -1,3 +1,5 @@
+import a.b;
+
 function test1()(int){
     function (int, int) returns (int) addFunction = func1;
     return addFunction(1, 2);
@@ -75,4 +77,14 @@ function testFuncWithArrayParams () (int){
 
 function funcWithArrayParams (string[] a) (int) {
     return 0;
+}
+
+function test7() (int){
+    function (int, int) returns (int) addFunction = b:Fn1();
+    return addFunction(1, 2);
+}
+
+function test8() (int){
+    function (int, int) returns (int) addFunction = b:Fn2();
+    return addFunction(1, 2);
 }
