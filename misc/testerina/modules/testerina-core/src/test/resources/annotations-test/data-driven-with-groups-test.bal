@@ -10,7 +10,7 @@ function testFunc1 (string fValue, string sValue, string result) {
     var value2, _ = <int>sValue;
     var result1, _ = <int>result;
 
-    test:assertIntEquals(value1 + value2, result1, "The sum is not correct");
+    test:assertIntEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
 @test:config{
@@ -23,7 +23,7 @@ function testFunc2 (string fValue, string sValue, string result) {
     var value2, _ = <int>sValue;
     var result1, _ = <int>result;
 
-    test:assertIntEquals(value1 + value2, result1, "The sum is not correct");
+    test:assertIntEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
 @test:config{
@@ -36,17 +36,17 @@ function testFunc3 (string fValue, string sValue, string result) {
     var value2, _ = <int>sValue;
     var result1, _ = <int>result;
 
-    test:assertIntEquals(value1 + value2, result1, "The sum is not correct");
+    test:assertIntEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
 @test:config{
     groups:["g3"]
 }
 function testFunc4 () {
-    test:assertFalse(false, "Asset Failed.");
+    test:assertFalse(false, msg = "Asset Failed.");
 }
 
 @test:config{}
 function testFunc5 () {
-    test:assertFalse(false, "Asset Failed.");
+    test:assertFalse(false, msg = "Asset Failed.");
 }

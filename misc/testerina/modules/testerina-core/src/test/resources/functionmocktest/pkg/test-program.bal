@@ -16,5 +16,5 @@ function testAssertIntEquals () {
     int answer = 0;
     answer = intAdd(5, 3);
     io:println("Function mocking test");
-    test:assertEquals(answer, 2, "function mocking failed");
+    test:assertEquals(answer, 2, msg = "function mocking failed");
 }

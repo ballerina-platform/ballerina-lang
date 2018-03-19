@@ -10,7 +10,7 @@ function testAssertIntEquals (){
     int a = 5;
     int b = 3;
     answer = intAdd(a, b);
-    test:assertEquals(answer, 8, "intAdd function failed");
+    test:assertEquals(answer, 8, msg = "intAdd function failed");
 
 }
 
@@ -20,7 +20,7 @@ function testAssertFloatEquals () {
     float a = 10.000;
     float b = 20.050;
     float answer = floatAdd(a, b);
-    test:assertEquals(answer, 30.050, "floatAdd function failed");
+    test:assertEquals(answer, 30.050, msg = "floatAdd function failed");
 }
 
 // Compare String values
@@ -29,7 +29,7 @@ function testAssertStringEquals () {
     string a = "John";
     string b = "Doe";
     string concatenated = stringConcat(a, b);
-    test:assertEquals(concatenated, "JohnDoe", "string concatenation failed");
+    test:assertEquals(concatenated, "JohnDoe", msg = "string concatenation failed");
 }
 
 // Compare Json objects
@@ -38,7 +38,7 @@ function testAssertJsonEquals () {
 
     json a = { "name": "Ballerina" };
     json b = { "name": "Ballerina" };
-    test:assertEquals(a, b, "json assert equals failed");
+    test:assertEquals(a, b, msg = "json assert equals failed");
 }
 
 // Compare boolean values
@@ -47,7 +47,7 @@ function testAssertBooleanEquals () {
 
     boolean x = true;
     boolean y = true;
-    test:assertEquals(x, y, "assertBooleanEquals failed");
+    test:assertEquals(x, y, msg = "assertBooleanEquals failed");
 }
 
 // Compare string arrays
@@ -57,7 +57,7 @@ function testAssertStringArrayEquals () {
     string[] x = ["A", "B", "C"];
     string[] y = ["A", "B", "C"];
 
-    test:assertEquals(x, y, "String arrays are not equal");
+    test:assertEquals(x, y, msg = "String arrays are not equal");
 
 }
 
@@ -68,7 +68,7 @@ function testAssertIntArrayEquals () {
     int[] x = [1, 2, 3];
     int[] y = [1, 2, 3];
 
-    test:assertEquals(x, y, "Int arrays are not equal");
+    test:assertEquals(x, y, msg = "Int arrays are not equal");
 }
 
 // Compare Float arrays
@@ -78,7 +78,7 @@ function testAssertFloatArrayEquals () {
     float[] x = [1.1, 2.2, 3.3];
     float[] y = [1.1, 2.2, 3.3];
 
-    test:assertEquals(x, y, "failed");
+    test:assertEquals(x, y, msg = "failed");
 }
 
 // ===== Assert Not Equals ==== //
@@ -90,7 +90,7 @@ function testAssertNotEqualsString () {
     string s1 = "abc";
     string s2 = "def";
 
-    test:assertNotEquals(s1, s2, "Strings are equal");
+    test:assertNotEquals(s1, s2, msg = "Strings are equal");
 
 }
 
@@ -100,7 +100,7 @@ function testAssertNotEqualsJson () {
 
     json s1 = {"a":"b"};
     json s2 = {"a":"c"};
-    test:assertNotEquals(s1, s2, "Json are equal");
+    test:assertNotEquals(s1, s2, msg = "Json are equal");
 }
 
 
@@ -110,7 +110,7 @@ function testAssertNotEqualsJson () {
 @test:config
 function testAssertTrue () {
     boolean value = true;
-    test:assertTrue(value, "assertTrue failed");
+    test:assertTrue(value, msg = "assertTrue failed");
 }
 
 // Assert false
@@ -118,7 +118,7 @@ function testAssertTrue () {
 function testAssertFalse () {
 
     boolean value = false;
-    test:assertFalse(value, "assertFalse failed");
+    test:assertFalse(value, msg = "assertFalse failed");
 }
 
 // ==== Asset Fail ==== //
@@ -130,7 +130,7 @@ function testAssertFail1 () {
         // I'm expecting a error
         error err;
         throw err;
-        test:assertFail("Exception Never occured");
+        test:assertFail(msg = "Exception Never occured");
 
     } catch (error e) {
         // Do more assertions
@@ -143,7 +143,7 @@ function testAssertFail2 () {
     if (true) {
         return;
     }
-    test:assertFail("assertFailed");
+    test:assertFail(msg = "assertFailed");
 }
 
 

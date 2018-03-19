@@ -10,7 +10,7 @@ function testAddingValues (string fValue, string sValue, string result) {
     var value2, _ = <int>sValue;
     var result1, _ = <int>result;
     io:println("Input params: ["+fValue+","+sValue+","+result+"]");
-    test:assertEquals(value1 + value2, result1, "The sum is not correct");
+    test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
 // Data provider function
@@ -25,9 +25,9 @@ function testJsonObjects (json fValue, json sValue, json result) {
     json a = {"a": "a"};
     json b = {"b": "b"};
     json c = {"c": "c"};
-    test:assertEquals(fValue, a, "json data provider failed");
-    test:assertEquals(sValue, b, "json data provider failed");
-    test:assertEquals(result, c, "json data provider failed");
+    test:assertEquals(fValue, a, msg = "json data provider failed");
+    test:assertEquals(sValue, b, msg = "json data provider failed");
+    test:assertEquals(result, c, msg = "json data provider failed");
 }
 
 function jsonDataProvider()(json[][]) {

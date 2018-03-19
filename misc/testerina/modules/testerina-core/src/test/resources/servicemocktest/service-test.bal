@@ -46,12 +46,12 @@ function testService () {
     http:HttpConnectorError err;
     resp, err = httpEndpoint -> get("/events", req);
     if (err != null) {
-        test:assertFail("Failed to call the endpoint: "+url2);
+        test:assertFail(msg = "Failed to call the endpoint: "+url2);
     }
     io:println("GET request:");
     var jsonRes, _ = resp.getJsonPayload();
     json expected = {"a":"b"};
-    test:assertEquals(jsonRes, expected, "failed");
+    test:assertEquals(jsonRes, expected);
 
     test:stopService("EventServiceMock");
     test:stopService("PortalService");

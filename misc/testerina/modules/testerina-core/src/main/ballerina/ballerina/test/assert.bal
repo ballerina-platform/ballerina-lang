@@ -27,13 +27,10 @@ public function createBallerinaError (string errorMessage, string category) (Ass
 @Description{value:"Asserts whether the given condition is true.
                   If it is not, a AssertError is thrown with the given errorMessage"}
 @Param{value:"condition: Boolean condition to evaluate"}
-@Param{value:"errorMessage: Assertion error message"}
-public function assertTrue(boolean condition, string errorMessage) {
+@Param{value:"msg: Assertion error message"}
+public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
     if (!condition) {
-        if (errorMessage == "") {
-            errorMessage = "Assert Failed";
-        }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
@@ -41,51 +38,41 @@ public function assertTrue(boolean condition, string errorMessage) {
                   If it is not, a AssertError is thrown with the given errorMessage"}
 @Param{value:"condition: Boolean condition to evaluate"}
 @Param{value:"errorMessage: Assertion error message"}
-public function assertFalse(boolean condition, string errorMessage) {
+public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
     if (condition) {
-        if (errorMessage == "") {
-            errorMessage = "Assert Failed";
-        }
-        throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+        throw createBallerinaError(msg, assertFailureErrorCategory);
     }
 }
 
 @Description{value:"Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage."}
 @Param{value:"actual: Actual value"}
 @Param{value:"expected: Expected value"}
-@Param{value:"errorMessage: Assertion error message"}
-public function assertEquals(any actual, any expected, string errorMessage) {
+@Param{value:"msg: Assertion error message"}
+public function assertEquals(any actual, any expected, string msg = "Assertion Failed!") {
     if (!reflect:equals(actual,expected)) {
-        if(errorMessage != ""){
-            errorMessage = errorMessage + " ";
-        }
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
-        string msg = string `{{errorMessage}}: expected {{expectedStr}} but found {{actualStr}}`;
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        string errorMsg = string `{{msg}}: expected {{expectedStr}} but found {{actualStr}}`;
+        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
 @Description{value:"Asserts whether the given values are not equal. If it is equal, an AssertError is thrown with the given errorMessage."}
 @Param{value:"actual: Actual value"}
 @Param{value:"expected: Expected value"}
-@Param{value:"errorMessage: Assertion error message"}
-public function assertNotEquals(any actual, any expected, string errorMessage) {
+@Param{value:"msg: Assertion error message"}
+public function assertNotEquals(any actual, any expected, string msg = "Assertion Failed!") {
     if (reflect:equals(actual,expected)) {
-        if(errorMessage != ""){
-            errorMessage = errorMessage + " ";
-        }
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
-        string msg = string `{{errorMessage}}: expected the actual value not to be {{expectedStr}}`;
-        throw createBallerinaError(msg, assertFailureErrorCategory);
+        string errorMsg = string `{{msg}}: expected the actual value not to be {{expectedStr}}`;
+        throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
 
 @Description{value:"Assert failure is triggered based on user discretion.
                   AssertError is thrown with the given errorMessage"}
-@Param{value:"errorMessage: Assertion error message"}
-public function assertFail(string errorMessage) {
-    throw createBallerinaError(errorMessage, assertFailureErrorCategory);
+@Param{value:"msg: Assertion error message"}
+public function assertFail(string msg = "Test Failed!") {
+    throw createBallerinaError(msg, assertFailureErrorCategory);
 }
-

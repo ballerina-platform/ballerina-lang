@@ -4,19 +4,19 @@ import ballerina.test;
     enable:false
 }
 function testFunc1 () {
-    test:assertTrue(false, "errorMessage");
+    test:assertTrue(false, msg = "errorMessage");
 }
 
 @test:config{
     enable:true
 }
 function testFunc4 () {
-    test:assertTrue(true, "errorMessage");
+    test:assertTrue(true, msg = "errorMessage");
 }
 
 // test without enable attribute
 @test:config{
 }
 function testFunc6 () {
-    test:assertFalse(false, "errorMessage");
+    test:assertFalse(false, msg = "errorMessage");
 }
