@@ -151,9 +151,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -603,24 +605,59 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangBinaryExpr createTypeofBinaryExpression(BLangMatchStmtPatternClause patternClause,
                                                          BVarSymbol varSymbol) {
+        BLangBinaryExpr binaryExpr;
         BType patternType = patternClause.variable.type;
         if (patternType.tag != TypeTags.UNION) {
-            return createTypeofBinaryExpression(patternClause.pos, patternClause.variable.type, varSymbol);
+            binaryExpr = createTypeofBinaryExpression(patternClause.pos, patternClause.variable.type, varSymbol);
+        } else {
+            BUnionType unionType = (BUnionType) patternType;
+            Set<BType> memberTypeWithoutNull = new HashSet<>(unionType.memberTypes);
+            memberTypeWithoutNull.remove(symTable.nullType);
+            BType[] memberTypes = memberTypeWithoutNull.toArray(new BType[0]);
+            if (memberTypes.length == 0) {
+                // TODO Handle this condition
+                binaryExpr = null;
+            } else if (memberTypes.length == 1) {
+                binaryExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[0], varSymbol);
+            } else {
+                BLangExpression lhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[0], varSymbol);
+                BLangExpression rhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[1], varSymbol);
+                binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
+                        symTable.booleanType, OperatorKind.OR,
+                        (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
+                                lhsExpr.type, rhsExpr.type));
+                for (int i = 2; i < memberTypes.length; i++) {
+                    lhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[i], varSymbol);
+                    rhsExpr = binaryExpr;
+                    binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
+                            symTable.booleanType, OperatorKind.OR,
+                            (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
+                                    lhsExpr.type, rhsExpr.type));
+                }
+            }
         }
 
-        BUnionType unionType = (BUnionType) patternType;
-        BType[] memberTypes = unionType.memberTypes.toArray(new BType[0]);
-        BLangExpression lhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[0], varSymbol);
-        BLangExpression rhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[1], varSymbol);
-        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
-                symTable.booleanType, OperatorKind.OR,
-                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR, lhsExpr.type, rhsExpr.type));
-        for (int i = 2; i < memberTypes.length; i++) {
-            lhsExpr = createTypeofBinaryExpression(patternClause.pos, memberTypes[i], varSymbol);
-            rhsExpr = binaryExpr;
-            binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, rhsExpr,
-                    symTable.booleanType, OperatorKind.OR,
-                    (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR, lhsExpr.type, rhsExpr.type));
+        BLangExpression lhsExpr;
+        if (patternType.isNullable() && varSymbol.type.isNullable()) {
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(patternClause.pos, varSymbol);
+            BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(patternClause.pos, symTable.nullType, null);
+            lhsExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, varRef, bLangLiteral, symTable.booleanType,
+                    OperatorKind.EQUAL, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
+                            symTable.anyType, symTable.nullType));
+
+            binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, binaryExpr, symTable.booleanType,
+                    OperatorKind.OR, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.OR,
+                            lhsExpr.type, binaryExpr.type));
+        } else if (patternType.isNullable() || varSymbol.type.isNullable()) {
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(patternClause.pos, varSymbol);
+            BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(patternClause.pos, symTable.nullType, null);
+            lhsExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, varRef, bLangLiteral, symTable.booleanType,
+                    OperatorKind.NOT_EQUAL, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.NOT_EQUAL,
+                            symTable.anyType, symTable.nullType));
+
+            binaryExpr = ASTBuilderUtil.createBinaryExpr(patternClause.pos, lhsExpr, binaryExpr, symTable.booleanType,
+                    OperatorKind.AND, (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.AND,
+                            lhsExpr.type, binaryExpr.type));
         }
 
         return binaryExpr;

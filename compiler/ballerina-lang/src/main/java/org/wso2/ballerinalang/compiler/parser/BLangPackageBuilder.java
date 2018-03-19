@@ -399,13 +399,13 @@ public class BLangPackageBuilder {
     }
 
     public void markTypeNodeAsNullable(Set<Whitespace> ws) {
-        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
         typeNode.addWS(ws);
         typeNode.nullable = true;
     }
 
     public void markTypeNodeAsGrouped(Set<Whitespace> ws) {
-        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        BLangType typeNode = (BLangType) this.typeNodeStack.peek();
         typeNode.addWS(ws);
         typeNode.grouped = true;
     }

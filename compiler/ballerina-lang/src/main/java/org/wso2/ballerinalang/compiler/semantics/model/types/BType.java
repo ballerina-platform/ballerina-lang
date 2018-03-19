@@ -69,6 +69,10 @@ public class BType implements ValueType {
         return new ArrayList<>(0);
     }
 
+    public boolean isNullable() {
+        return false;
+    }
+
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }

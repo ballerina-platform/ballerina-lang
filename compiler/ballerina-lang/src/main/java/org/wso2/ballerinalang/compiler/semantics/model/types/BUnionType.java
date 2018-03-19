@@ -32,12 +32,14 @@ import java.util.StringJoiner;
  */
 public class BUnionType extends BType implements UnionType {
     private String stringRep;
+    private boolean nullable;
 
     public Set<BType> memberTypes;
 
-    public BUnionType(int tag, BTypeSymbol tsymbol, Set<BType> memberTypes) {
+    public BUnionType(int tag, BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
         super(tag, tsymbol);
         this.memberTypes = memberTypes;
+        this.nullable = nullable;
     }
 
     @Override
@@ -48,6 +50,11 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public TypeKind getKind() {
         return TypeKind.UNION;
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override
@@ -70,5 +77,9 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String getDesc() {
         return TypeDescriptor.SIG_ANY;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 }
