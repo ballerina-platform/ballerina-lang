@@ -220,20 +220,36 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
 
         int expTypeTag = expTypes.get(0).tag;
-        if (expTypeTag == TypeTags.NONE) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.ARRAY_LITERAL_NOT_ALLOWED);
-
-        } else if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
             checkExprs(arrayLiteral.exprs, this.env, expTypes.get(0));
             actualType = expTypes.get(0);
 
-        } else if (expTypeTag != TypeTags.ARRAY && expTypeTag != TypeTags.ERROR) {
-            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
-
-        } else if (expTypeTag != TypeTags.ERROR) {
+        } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expTypes.get(0);
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
             actualType = new BArrayType(arrayType.eType);
+
+        } else if (expTypeTag != TypeTags.ERROR) {
+            List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
+            Set<BType> arrayLitExprTypeSet = new HashSet<>(resTypes);
+            BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+            if (uniqueExprTypes.length == 0) {
+                actualType = symTable.anyType;
+            } else if (uniqueExprTypes.length == 1) {
+                actualType = resTypes.get(0);
+            } else {
+                BType superType = uniqueExprTypes[0];
+                for (int i = 1; i < uniqueExprTypes.length; i++) {
+                    if (types.isAssignable(superType, uniqueExprTypes[i])) {
+                        superType = uniqueExprTypes[i];
+                    } else if (!types.isAssignable(uniqueExprTypes[i], superType)) {
+                        superType = symTable.anyType;
+                        break;
+                    }
+                }
+                actualType = superType;
+            }
+            actualType = new BArrayType(actualType);
         }
 
         resultTypes = types.checkTypes(arrayLiteral, Lists.of(actualType), expTypes);
