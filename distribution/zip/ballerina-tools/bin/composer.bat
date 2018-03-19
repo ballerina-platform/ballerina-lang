@@ -132,6 +132,10 @@ goto jdk16
 :jdk16
 goto runServer
 
+rem ------------------ Remove tmp folder content on startup -----------------------------
+set TMP_DIR=%BALLERINA_HOME%\tmp\*
+del /S /q "%TMP_DIR%"
+
 rem ----------------- Execute The Requested Command ----------------------------
 
 :runServer

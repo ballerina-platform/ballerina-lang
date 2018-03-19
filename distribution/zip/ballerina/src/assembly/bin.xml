@@ -51,6 +51,15 @@
         </fileSet>
 
         <fileSet>
+            <directory>./</directory>
+            <outputDirectory>tmp</outputDirectory>
+            <fileMode>644</fileMode>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet>
             <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
             </directory>
