@@ -26,7 +26,7 @@ function main (string[] args) {
     if (err != null) {
         io:println("Error from Connector: " + err.message);
     } else {
-        io:println("Client Got Responce : ");
+        io:println("Client Got Response : ");
         io:println(res);
     }
 }
