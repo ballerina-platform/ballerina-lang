@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.mime.util.Constants;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -50,19 +49,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 
 /**
  * Ballerina Connector listener for WebSocket.
  *
  * @since 0.93
  */
-public class BallerinaWebSocketServerConnectorListener implements WebSocketConnectorListener {
+public class WebSocketServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaWebSocketServerConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServerConnectorListener.class);
     private final WebSocketServicesRegistry servicesRegistry;
     private final WebSocketConnectionManager connectionManager;
 
-    public BallerinaWebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry) {
+    public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry) {
         this.servicesRegistry = servicesRegistry;
         this.connectionManager = WebSocketConnectionManager.getInstance();
     }
@@ -77,14 +77,15 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
             Semaphore semaphore = new Semaphore(0);
             AtomicBoolean isResourceExeSuccessful = new AtomicBoolean(false);
             // TODO: Resource should be able to run without any parameter.
-            BConnector serverConnector = BLangConnectorSPIUtil.createBConnector(
-                    WebSocketUtil.getProgramFile(wsService.getResources()[0]),
+            BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
-            serverConnector.setNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
-            serverConnector.setNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
-            serverConnector.setNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
-//            serverConnector.setStringField(0, webSocketInitMessage.getSessionID());
-//            serverConnector.setBooleanField(0, webSocketInitMessage.isConnectionSecured() ? 1 : 0);
+            BStruct serverConnector = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
+            serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
+            serverConnector.addNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
+            serverConnector.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
+            serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, serverConnector);
+
 
             BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
                     WebSocketUtil.getProgramFile(wsService.getResources()[0]), PROTOCOL_PACKAGE_HTTP,
@@ -106,7 +107,7 @@ public class BallerinaWebSocketServerConnectorListener implements WebSocketConne
             serverConnector.setRefField(0, bUpgradeHeaders);
             List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
             BValue[] bValues = new BValue[paramDetails.size()];
-            bValues[0] = serverConnector;
+            bValues[0] = serviceEndpoint;
             bValues[1] = inRequest;
             Executor.submit(onUpgradeResource, new CallableUnitCallback() {
                 @Override

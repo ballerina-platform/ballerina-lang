@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BStruct;
 
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
@@ -27,9 +27,9 @@ import org.ballerinalang.model.values.BConnector;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BConnector wsConnection;
+    private final BStruct wsConnection;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BConnector wsConnection) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BStruct wsConnection) {
         this.webSocketService = webSocketService;
         this.wsConnection = wsConnection;
     }
@@ -38,7 +38,7 @@ public class WebSocketOpenConnectionInfo {
         return webSocketService;
     }
 
-    public BConnector getWsConnection() {
+    public BStruct getWsConnection() {
         return wsConnection;
     }
 

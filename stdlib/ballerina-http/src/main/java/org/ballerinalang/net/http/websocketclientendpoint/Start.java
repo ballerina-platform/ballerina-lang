@@ -24,16 +24,16 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BallerinaWebSocketClientConnectorListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
+import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
@@ -68,8 +68,8 @@ public class Start extends BlockingNativeCallableUnit {
         }
         WebSocketClientConnector clientConnector =
                 connectorFactory.createWsClientConnector((WsClientConnectorConfig) configs);
-        BallerinaWebSocketClientConnectorListener
-                clientConnectorListener = new BallerinaWebSocketClientConnectorListener();
+        WebSocketClientConnectorListener
+                clientConnectorListener = new WebSocketClientConnectorListener();
         Object serviceConfig = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (serviceConfig == null || !(serviceConfig instanceof WebSocketService)) {
             throw new BallerinaConnectorException("Initialize the service before starting it");
@@ -86,10 +86,10 @@ public class Start extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig;
         Context context;
         WebSocketService wsService;
-        BallerinaWebSocketClientConnectorListener clientConnectorListener;
+        WebSocketClientConnectorListener clientConnectorListener;
 
         WsHandshakeListener(Struct clientEndpointConfig, Context context, WebSocketService wsService,
-                BallerinaWebSocketClientConnectorListener clientConnectorListener) {
+                WebSocketClientConnectorListener clientConnectorListener) {
             this.clientEndpointConfig = clientEndpointConfig;
             this.context = context;
             this.wsService = wsService;
@@ -98,16 +98,15 @@ public class Start extends BlockingNativeCallableUnit {
 
         @Override
         public void onSuccess(Session session) {
-            BConnector wsConnection = BLangConnectorSPIUtil
-                    .createBConnector(context.getProgramFile(), HttpConstants.HTTP_PACKAGE_PATH,
-                            WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
+            BStruct endpoint = (BStruct) context.getRefArgument(0);
+            BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
             clientEndpointConfig.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
-            wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+            wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
             //TODO: check below line
-//            context.getControlStack().currentFrame.returnValues[0] = wsConnection;
-            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, wsConnection);
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, endpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
-            context.setReturnValues(wsConnection);
+            endpoint.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
+            context.setReturnValues();
         }
 
         @Override
