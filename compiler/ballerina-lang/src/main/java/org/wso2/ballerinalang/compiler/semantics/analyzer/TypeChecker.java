@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
@@ -107,8 +108,12 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 /**
@@ -243,27 +248,44 @@ public class TypeChecker extends BLangNodeVisitor {
             expTypes = Lists.of(symTable.mapType);
         }
 
-        if (expTypeTag == TypeTags.JSON ||
-                expTypeTag == TypeTags.MAP ||
-                expTypeTag == TypeTags.STRUCT ||
-                expTypeTag == TypeTags.TABLE ||
-                expTypeTag == TypeTags.NONE ||
-                expTypeTag == TypeTags.STREAM ||
-                expTypeTag == TypeTags.STREAMLET ||
-                expTypeTag == TypeTags.ANY) {
-            recordLiteral.keyValuePairs.forEach(keyValuePair ->
-                    checkRecLiteralKeyValue(keyValuePair, expTypes.get(0)));
-            actualType = expTypes.get(0);
+        List<BType> matchedTypeList = getRecordCompatibleType(expTypes.get(0));
+
+        if (matchedTypeList.isEmpty()) {
+            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
+        } else if (matchedTypeList.size() > 1) {
+            // TODO: give proper error message
+            dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expTypes.get(0));
+        } else {
+            recordLiteral.keyValuePairs
+                    .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
+            actualType = matchedTypeList.get(0);
 
             // TODO Following check can be moved the code analyzer.
             if (expTypeTag == TypeTags.STRUCT) {
                 validateStructInitalizer(recordLiteral.pos);
             }
-        } else if (expTypeTag != TypeTags.ERROR) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         }
 
         resultTypes = types.checkTypes(recordLiteral, Lists.of(actualType), expTypes);
+    }
+
+    private List<BType> getRecordCompatibleType(BType bType) {
+        Set<BType> expTypes = bType.tag == TypeTags.UNION ? ((BUnionType) bType).memberTypes : new HashSet<BType>() {
+            {
+                add(bType);
+            }
+        };
+
+        return expTypes.stream()
+                .filter(type -> type.tag == TypeTags.JSON || 
+                        type.tag == TypeTags.MAP || 
+                        type.tag == TypeTags.STRUCT ||
+                        type.tag == TypeTags.TABLE || 
+                        type.tag == TypeTags.NONE || 
+                        type.tag == TypeTags.STREAM ||
+                        type.tag == TypeTags.STREAMLET || 
+                        type.tag == TypeTags.ANY)
+                .collect(Collectors.toList());
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

@@ -2587,47 +2587,6 @@ public class CPU {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
         sf.refRegs[i] = new BStruct(structInfo.getType());
-//
-//        // Populate default values
-//        int longRegIndex = -1;
-//        int doubleRegIndex = -1;
-//        int stringRegIndex = -1;
-//        int booleanRegIndex = -1;
-//        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
-        // DefaultValueAttributeInfo defaultValueInfo =
-        // (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-//            switch (fieldInfo.getFieldType().getTag()) {
-//                case TypeTags.INT_TAG:
-//                    longRegIndex++;
-//                    if (defaultValueInfo != null) {
-//                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
-//                    }
-//                    break;
-//                case TypeTags.FLOAT_TAG:
-//                    doubleRegIndex++;
-//                    if (defaultValueInfo != null) {
-//                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
-//                    }
-//                    break;
-//                case TypeTags.STRING_TAG:
-//                    stringRegIndex++;
-//                    if (defaultValueInfo != null) {
-//                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
-//                    } else {
-//                        bStruct.setStringField(stringRegIndex, BLangConstants.STRING_EMPTY_VALUE);
-//                    }
-//                    break;
-//                case TypeTags.BOOLEAN_TAG:
-//                    booleanRegIndex++;
-//                    if (defaultValueInfo != null) {
-//                        bStruct.setBooleanField(booleanRegIndex,
-//                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-//                    }
-//                    break;
-//            }
-//        }
-//
-//        sf.refRegs[i] = bStruct;
     }
 
     private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {

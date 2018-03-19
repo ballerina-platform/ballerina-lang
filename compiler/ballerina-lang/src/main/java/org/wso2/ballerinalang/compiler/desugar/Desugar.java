@@ -703,19 +703,22 @@ public class Desugar extends BLangNodeVisitor {
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
 
+        BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.STRUCT) {
-            result = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            result = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.TABLE) {
-            result = new BLangTableLiteral(recordLiteral.type);
+            expr = new BLangTableLiteral(recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.STREAM) {
-            result = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
+            expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else if (recordLiteral.type.tag == TypeTags.STREAMLET) {
-            result = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
+            expr = new BLangRecordLiteral.BLangStreamletLiteral(recordLiteral.type);
         } else {
-            result = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
+
+        result = rewriteExpr(expr);
     }
 
     @Override
@@ -1757,6 +1760,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression getInitExpr(BType type) {
+        // Don't need to create an empty init expressions if the type allows null.
+        if (type.isNullable()) {
+            return null;
+        }
+
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.FLOAT:
