@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -140,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangState
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -508,6 +510,22 @@ public class Desugar extends BLangNodeVisitor {
         assignNode.safeAssignment = false;
         safeAssignmentBlock.stmts.add(matchStmt);
         result = rewrite(safeAssignmentBlock, this.env);
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        this.visit((BLangAssignment) stmt);
+
+        // Resolve Access Expr's cast operator
+        for (int i = 0; i < stmt.varRefs.size(); i++) {
+            BLangExpression varRef = stmt.varRefs.get(i);
+            BSymbol symbol = symResolver.resolveExplicitCastOperator(symTable.anyType, varRef.type);
+            if (symbol == symTable.notFoundSymbol) {
+                stmt.castOperatorSymbols.add(null);
+            } else {
+                stmt.castOperatorSymbols.add((BCastOperatorSymbol) symbol);
+            }
+        }
     }
 
     @Override
@@ -969,6 +987,17 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        if (bracedOrTupleExpr.isBracedExpr) {
+            result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
+            return;
+        }
+        bracedOrTupleExpr.expressions.forEach(expr -> types.setImplicitCastExpr(expr, expr.type, symTable.anyType));
+        bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
+        result = bracedOrTupleExpr;
     }
 
     @Override

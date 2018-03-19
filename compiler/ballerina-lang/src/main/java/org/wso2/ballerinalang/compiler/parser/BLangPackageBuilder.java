@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -171,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -180,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -385,6 +388,17 @@ public class BLangPackageBuilder {
         unionTypeNode.pos = pos;
         unionTypeNode.addWS(ws);
         this.typeNodeStack.push(unionTypeNode);
+    }
+
+    public void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        for (int i = 0; i < members; i++) {
+            final BLangType member = (BLangType) this.typeNodeStack.pop();
+            tupleTypeNode.memberTypeNodes.add(0, member);
+        }
+        tupleTypeNode.pos = pos;
+        tupleTypeNode.addWS(ws);
+        this.typeNodeStack.push(tupleTypeNode);
     }
 
     public void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
@@ -931,6 +945,16 @@ public class BLangPackageBuilder {
         indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
         indexBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(indexBasedAccess);
+    }
+
+    public void createBracedOrTupleExpression(DiagnosticPos pos, Set<Whitespace> ws, int numberOfExpressions) {
+        final BLangBracedOrTupleExpr expr = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
+        expr.pos = pos;
+        expr.addWS(ws);
+        for (int i = 0; i < numberOfExpressions; i++) {
+            expr.expressions.add(0, (BLangExpression) exprNodeStack.pop());
+        }
+        addExpressionNode(expr);
     }
 
     public void createBinaryExpr(DiagnosticPos pos, Set<Whitespace> ws, String operator) {
@@ -1482,6 +1506,21 @@ public class BLangPackageBuilder {
         assignmentNode.safeAssignment = safeAssignment;
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    public void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                               boolean isVarsExist, boolean varDeclaration) {
+        BLangTupleDestructure stmt = (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
+        stmt.pos = pos;
+        stmt.addWS(ws);
+        if (isVarsExist) {
+            stmt.setDeclaredWithVar(varDeclaration);
+            stmt.expr = (BLangExpression) exprNodeStack.pop();
+            List<ExpressionNode> lExprList = exprNodeListStack.pop();
+            lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
+        }
+        // TODO: handle ParamList Destructue.
+        addStmtToCurrentBlock(stmt);
     }
 
     public void startForeachStatement() {

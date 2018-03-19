@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -618,6 +620,41 @@ public class TypeChecker extends BLangNodeVisitor {
         resultTypes = types.checkTypes(binaryExpr, Lists.of(actualType), expTypes);
     }
 
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        // Handle Tuple Expression.
+        if (!expTypes.isEmpty() && expTypes.get(0).tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) this.expTypes.get(0);
+            // Fix this.
+            List<BType> expTypes = getListWithErrorTypes(bracedOrTupleExpr.expressions.size());
+            if (tupleType.tupleTypes.size() != bracedOrTupleExpr.expressions.size()) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.SYNTAX_ERROR,
+                        "tuple and expression size does not match");
+            } else {
+                expTypes = tupleType.tupleTypes;
+            }
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, Lists.of(expTypes.get(i))).get(0));
+            }
+            resultTypes = Lists.of(new BTupleType(results));
+        } else if (bracedOrTupleExpr.expressions.size() > 1) {
+            // This is a tuple.
+            List<BType> results = new ArrayList<>();
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, Lists.of(symTable.noType)).get(0));
+            }
+            resultTypes = Lists.of(new BTupleType(results));
+        } else {
+            // This is a braced expression.
+            bracedOrTupleExpr.isBracedExpr = true;
+            final BLangExpression expr = bracedOrTupleExpr.expressions.get(0);
+            final BType actualType = checkExpr(expr, env, Lists.of(symTable.noType)).get(0);
+            types.setImplicitCastExpr(expr, actualType, expTypes.get(0));
+            resultTypes = Lists.of(actualType);
+        }
+    }
+
     public void visit(BLangTypeofExpr accessExpr) {
         BType actualType = symTable.typeType;
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
@@ -996,7 +1033,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private List<BType> getListWithErrorTypes(int count) {
+    public List<BType> getListWithErrorTypes(int count) {
         List<BType> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             list.add(symTable.errType);
