@@ -1,4 +1,34 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.net.http;
+
+@Description {value:"Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient."}
+@Field {value:"serviceUri: This is there just so that the struct is equivalent to HttpClient. This has no bearing on the functionality."}
+@Field {value:"config: The client endpoint configurations for the load balancer"}
+@Field {value:"loadBalanceClientsArray: The clients for the load balance endpoints"}
+@Field {value:"algorithm: The load balance algorithm. Round robin algorithm is provided out of the box. The user can also set their own load balancing algorithm."}
+@Field {value:"nextIndex: Indicates the next client to be used. Users should not edit this."}
+public struct LoadBalancer {
+    string serviceUri;
+    ClientEndpointConfiguration config;
+    HttpClient[] loadBalanceClientsArray;
+    function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
+    int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
+}
 
 @Description {value:"Represents an error occurred in an action of the Load Balance connector."}
 @Field {value:"message: An error message explaining about the error."}
@@ -13,27 +43,6 @@ public struct LoadBalanceConnectorError {
     HttpConnectorError[] httpConnectorError;
 }
 
-// Represents inferred load balance configurations passed to Load Balance connector.
-//struct LoadBalanceInferredConfig {
-//    HttpClient[] loadBalanceClientsArray;
-//    function (HttpClient[])(HttpClient) algorithm;
-//}
-
-public struct LoadBalancer {
-    string serviceUri;
-    ClientEndpointConfiguration config;
-    HttpClient[] loadBalanceClientsArray;
-    function (LoadBalancer, HttpClient[])(HttpClient) algorithm;
-    private:
-        int nextIndex; // Keeps to index which needs to be take the next load balance endpoint.
-}
-
-//@Description {value:"LoadBalancer Connector implementation to be used with the HTTP client connector to support load balance."}
-//@Param {value:"loadBalanceClientsArray: Array of HttpClient connector to be load balanced."}
-//@Param {value:"algorithm: Function pointer which implements the load balancing algorithm."}
-//public function <LoadBalancer lb> LoadBalancer () {
-//
-//}
 
 @Description {value:"The POST action implementation of the LoadBalancer Connector."}
 @Param {value:"path: Resource path"}
@@ -176,7 +185,7 @@ public function <LoadBalancer lb> rejectPromise (PushPromise promise) (boolean) 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performLoadBalanceExecuteAction (LoadBalancer lb, string path, Request outRequest, Request inRequest,
-                               string httpVerb) (Response, HttpConnectorError) {
+                                          string httpVerb) (Response, HttpConnectorError) {
     HttpOperation connctorAction = extractHttpOperation(httpVerb);
     if (connctorAction != null) {
         return performLoadBalanceAction(lb, path, outRequest, inRequest, connctorAction);
@@ -227,7 +236,6 @@ function performLoadBalanceAction (LoadBalancer lb, string path, Request outRequ
 // Round Robin Algorithm implementation with respect to load balancing endpoints.
 public function (LoadBalancer, HttpClient[])(HttpClient) roundRobin =
                         function (LoadBalancer lb, HttpClient [] loadBalanceConfigArray) returns (HttpClient nextEndpoint) {
-
     HttpClient httpClient;
 
     lock {
@@ -245,12 +253,12 @@ public function (LoadBalancer, HttpClient[])(HttpClient) roundRobin =
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceConnectorError (LoadBalanceConnectorError loadBalanceConnectorError,
-                                                HttpConnectorError httpConnectorError, int index)
+                                                   HttpConnectorError httpConnectorError, int index)
 (Response, HttpConnectorError) {
     loadBalanceConnectorError.statusCode = 500;
     loadBalanceConnectorError.httpConnectorError[index] = httpConnectorError;
     string lastErrorMsg = httpConnectorError.message;
-    loadBalanceConnectorError.message = "All the load balance endpoints were failed. Last error was " + lastErrorMsg;
+    loadBalanceConnectorError.message = "All the load balance endpoints failed. Last error was " + lastErrorMsg;
     return null, (HttpConnectorError) loadBalanceConnectorError;
 }
 

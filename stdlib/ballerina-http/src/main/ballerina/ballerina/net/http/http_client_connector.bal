@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 package ballerina.net.http;
 
 @Description { value:"HTTP client connector for outbound HTTP requests"}
@@ -6,10 +22,6 @@ public struct HttpClient {
     //for retry and other few places.
     string serviceUri;
     ClientEndpointConfiguration config;
-}
-
-public function <HttpClient conn> HttpClient() {
-
 }
 
 @Description {value:"The POST action implementation of the HTTP Connector."}
@@ -120,31 +132,4 @@ public struct HttpConnectorError {
     string message;
     error[] cause;
     int statusCode;
-}
-
-@Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
-@Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
-@Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
-@Field {value:"transferEncoding: The types of encoding applied to the request"}
-@Field {value:"chunking: The chunking behaviour of the request"}
-@Field {value:"httpVersion: The HTTP version understood by the client"}
-@Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
-@Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retryConfig: Retry related options"}
-@Field {value:"proxy: Proxy server related options"}
-@Field {value:"connectionThrottling: Configurations for connection throttling"}
-@Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
-public struct ClientEndpointConfiguration {
-    int endpointTimeout = 60000;
-    boolean keepAlive = true;
-    TransferEncoding transferEncoding;
-    Chunking chunking;
-    string httpVersion;
-    string forwarded = "disable";
-    FollowRedirects followRedirects;
-    Retry retryConfig;
-    Proxy proxy;
-    ConnectionThrottling connectionThrottling;
-    TargetService[] targets;
-    function (LoadBalancer, HttpClient[])(HttpClient) algorithm;
 }
