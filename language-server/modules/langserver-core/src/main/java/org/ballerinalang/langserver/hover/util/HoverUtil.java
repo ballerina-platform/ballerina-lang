@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -156,6 +157,21 @@ public class HoverUtil {
                         hover = getDocumentationContent(bLangAction.docAttachments);
                     } else {
                         hover = getAnnotationContent(bLangAction.annAttachments);
+                    }
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+                break;
+            case ContextConstants.VARIABLE:
+                BLangVariable bLangVariable = bLangPackage.globalVars.stream()
+                        .filter(globalVar -> globalVar.name.getValue()
+                                .equals(hoverContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                if (bLangVariable != null) {
+                    if (bLangVariable.docAttachments.size() > 0) {
+                        hover = getDocumentationContent(bLangVariable.docAttachments);
+                    } else {
+                        hover = getAnnotationContent(bLangVariable.annAttachments);
                     }
                 } else {
                     hover = getDefaultHoverObject();

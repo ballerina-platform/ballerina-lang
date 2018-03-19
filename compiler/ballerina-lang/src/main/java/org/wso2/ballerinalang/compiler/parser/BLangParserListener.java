@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -52,11 +53,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private List<String> pkgNameComps;
     private String pkgVersion;
+    private boolean distributedTransactionEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
+        this.distributedTransactionEnabled = CompilerUtils.isDistributedTransactionsEnabled();
     }
 
     @Override
@@ -264,7 +267,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), ctx.annotationAttachment().size(), docExists, isDeprecated, hasParameters);
+                ctx.Identifier().getText(), docExists, isDeprecated, hasParameters);
+    }
+
+    @Override
+    public void enterResourceParameterList(BallerinaParser.ResourceParameterListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        final BallerinaParser.ResourceDefinitionContext parent = (BallerinaParser.ResourceDefinitionContext) ctx.parent;
+        this.pkgBuilder.addResourceAnnotation(parent.annotationAttachment().size());
     }
 
     @Override
@@ -1414,7 +1426,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx), this.distributedTransactionEnabled);
     }
 
     /**
@@ -1453,24 +1465,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterFailedClause(BallerinaParser.FailedClauseContext ctx) {
+    public void enterOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.startFailedBlock();
+        this.pkgBuilder.startOnretryBlock();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitFailedClause(BallerinaParser.FailedClauseContext ctx) {
+    public void exitOnretryClause(BallerinaParser.OnretryClauseContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addFailedBlock(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addOnretryBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1494,6 +1506,28 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addRetryCountExpression();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addCommittedBlock();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addAbortedBlock();
     }
 
     /**
