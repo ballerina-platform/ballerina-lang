@@ -214,7 +214,7 @@ public interface InstructionCodes {
     int ANY2XML = 171;
     int ANY2MAP = 172;
     int ANY2DT = 174;
-    int ANYSTM = 175;
+    int ANY2STM = 175;
 
     int ANY2E = 177;
     int ANY2T = 178;

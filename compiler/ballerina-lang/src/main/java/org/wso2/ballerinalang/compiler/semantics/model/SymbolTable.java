@@ -373,7 +373,7 @@ public class SymbolTable {
         defineExplicitCastOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
         defineExplicitCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineExplicitCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
-        defineExplicitCastOperator(anyType, streamType, false, InstructionCodes.ANYSTM);
+        defineExplicitCastOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
         defineExplicitCastOperator(anyType, streamletType, false, InstructionCodes.ANY2M);
 
         defineExplicitCastOperator(jsonType, intType, false, InstructionCodes.JSON2I);

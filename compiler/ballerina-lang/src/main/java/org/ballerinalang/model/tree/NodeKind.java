@@ -143,4 +143,5 @@ public enum NodeKind {
     STREAMING_QUERY_DECLARATION,
     WITHIN,
     PATTERN_CLAUSE,
+    OUTPUT_RATE_LIMIT,
 }
