@@ -187,20 +187,20 @@ public class BallerinaParser extends Parser {
 		"'within'", null, null, "'snapshot'", null, "'inner'", "'outer'", "'right'", 
 		"'left'", "'full'", "'unidirectional'", "'int'", "'float'", "'boolean'", 
 		"'string'", "'blob'", "'map'", "'json'", "'xml'", "'table'", "'stream'", 
-		"'aggregation'", "'any'", null, null, "'future'", "'var'", "'new'", "'if'", 
-		"'match'", "'else'", "'foreach'", "'while'", "'next'", "'break'", "'fork'", 
-		"'join'", "'some'", "'all'", "'timeout'", "'try'", "'catch'", "'finally'", 
-		"'throw'", "'return'", "'transaction'", "'abort'", "'onretry'", "'retries'", 
-		"'onabort'", "'oncommit'", "'lengthof'", "'typeof'", "'with'", "'in'", 
-		"'lock'", "'untaint'", "'async'", "'await'", "';'", "':'", "'::'", "'.'", 
-		"','", "'{'", "'}'", "'('", "')'", "'['", "']'", "'?'", "'='", "'+'", 
-		"'-'", "'*'", "'/'", "'^'", "'%'", "'!'", "'=='", "'!='", "'>'", "'<'", 
-		"'>='", "'<='", "'&&'", "'||'", "'->'", "'<-'", "'@'", "'`'", "'..'", 
-		"'...'", "'|'", "'=>'", "'+='", "'-='", "'*='", "'/='", "'=?'", "'++'", 
-		"'--'", null, null, null, null, null, null, null, "'null'", null, null, 
-		null, null, null, null, null, null, null, null, "'<!--'", null, null, 
-		null, null, null, "'</'", null, null, null, null, null, "'?>'", "'/>'", 
-		null, null, null, "'\"'", "'''"
+		"'aggregation'", "'any'", "'typedesc'", "'type'", "'future'", "'var'", 
+		"'new'", "'if'", "'match'", "'else'", "'foreach'", "'while'", "'next'", 
+		"'break'", "'fork'", "'join'", "'some'", "'all'", "'timeout'", "'try'", 
+		"'catch'", "'finally'", "'throw'", "'return'", "'transaction'", "'abort'", 
+		"'onretry'", "'retries'", "'onabort'", "'oncommit'", "'lengthof'", "'typeof'", 
+		"'with'", "'in'", "'lock'", "'untaint'", "'async'", "'await'", "';'", 
+		"':'", "'::'", "'.'", "','", "'{'", "'}'", "'('", "')'", "'['", "']'", 
+		"'?'", "'='", "'+'", "'-'", "'*'", "'/'", "'^'", "'%'", "'!'", "'=='", 
+		"'!='", "'>'", "'<'", "'>='", "'<='", "'&&'", "'||'", "'->'", "'<-'", 
+		"'@'", "'`'", "'..'", "'...'", "'|'", "'=>'", "'+='", "'-='", "'*='", 
+		"'/='", "'=?'", "'++'", "'--'", null, null, null, null, null, null, null, 
+		"'null'", null, null, null, null, null, null, null, null, null, null, 
+		"'<!--'", null, null, null, null, null, "'</'", null, null, null, null, 
+		null, "'?>'", "'/>'", null, null, null, "'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "PACKAGE", "IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", 
@@ -3542,42 +3542,42 @@ public class BallerinaParser extends Parser {
 				break;
 			case 2:
 				{
-				_localctx = new TupleTypeNameContext(_localctx);
+				_localctx = new GroupTypeNameLabelContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(852);
 				match(LEFT_PARENTHESIS);
 				setState(853);
 				typeName(0);
-				setState(858);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==COMMA) {
-					{
-					{
-					setState(854);
-					match(COMMA);
-					setState(855);
-					typeName(0);
-					}
-					}
-					setState(860);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(861);
+				setState(854);
 				match(RIGHT_PARENTHESIS);
 				}
 				break;
 			case 3:
 				{
-				_localctx = new GroupTypeNameLabelContext(_localctx);
+				_localctx = new TupleTypeNameContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(863);
+				setState(856);
 				match(LEFT_PARENTHESIS);
-				setState(864);
+				setState(857);
 				typeName(0);
+				setState(862);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==COMMA) {
+					{
+					{
+					setState(858);
+					match(COMMA);
+					setState(859);
+					typeName(0);
+					}
+					}
+					setState(864);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
 				setState(865);
 				match(RIGHT_PARENTHESIS);
 				}
@@ -15072,7 +15072,7 @@ public class BallerinaParser extends Parser {
 		"\"\3\"\3#\5#\u0325\n#\3#\3#\3#\3#\3#\3#\3#\3$\3$\3$\7$\u0331\n$\f$\16"+
 		"$\u0334\13$\3$\3$\3%\3%\3%\3&\5&\u033c\n&\3&\3&\3\'\7\'\u0341\n\'\f\'"+
 		"\16\'\u0344\13\'\3\'\3\'\3\'\3\'\5\'\u034a\n\'\3\'\3\'\3(\3(\3)\3)\3)"+
-		"\5)\u0353\n)\3*\3*\3*\3*\3*\3*\7*\u035b\n*\f*\16*\u035e\13*\3*\3*\3*\3"+
+		"\5)\u0353\n)\3*\3*\3*\3*\3*\3*\3*\3*\3*\3*\7*\u035f\n*\f*\16*\u0362\13"+
 		"*\3*\3*\5*\u0366\n*\3*\3*\3*\6*\u036b\n*\r*\16*\u036c\3*\3*\3*\6*\u0372"+
 		"\n*\r*\16*\u0373\3*\3*\7*\u0378\n*\f*\16*\u037b\13*\3+\3+\3+\3+\5+\u0381"+
 		"\n+\3,\3,\3,\3,\3,\3,\3,\6,\u038a\n,\r,\16,\u038b\5,\u038e\n,\3-\3-\3"+
@@ -15425,12 +15425,12 @@ public class BallerinaParser extends Parser {
 		"\u034c\7l\2\2\u034cM\3\2\2\2\u034d\u034e\5\u00e6t\2\u034eO\3\2\2\2\u034f"+
 		"\u0353\5n8\2\u0350\u0351\7x\2\2\u0351\u0353\5\u00b6\\\2\u0352\u034f\3"+
 		"\2\2\2\u0352\u0350\3\2\2\2\u0353Q\3\2\2\2\u0354\u0355\b*\1\2\u0355\u0366"+
-		"\5T+\2\u0356\u0357\7s\2\2\u0357\u035c\5R*\2\u0358\u0359\7p\2\2\u0359\u035b"+
-		"\5R*\2\u035a\u0358\3\2\2\2\u035b\u035e\3\2\2\2\u035c\u035a\3\2\2\2\u035c"+
-		"\u035d\3\2\2\2\u035d\u035f\3\2\2\2\u035e\u035c\3\2\2\2\u035f\u0360\7t"+
-		"\2\2\u0360\u0366\3\2\2\2\u0361\u0362\7s\2\2\u0362\u0363\5R*\2\u0363\u0364"+
+		"\5T+\2\u0356\u0357\7s\2\2\u0357\u0358\5R*\2\u0358\u0359\7t\2\2\u0359\u0366"+
+		"\3\2\2\2\u035a\u035b\7s\2\2\u035b\u0360\5R*\2\u035c\u035d\7p\2\2\u035d"+
+		"\u035f\5R*\2\u035e\u035c\3\2\2\2\u035f\u0362\3\2\2\2\u0360\u035e\3\2\2"+
+		"\2\u0360\u0361\3\2\2\2\u0361\u0363\3\2\2\2\u0362\u0360\3\2\2\2\u0363\u0364"+
 		"\7t\2\2\u0364\u0366\3\2\2\2\u0365\u0354\3\2\2\2\u0365\u0356\3\2\2\2\u0365"+
-		"\u0361\3\2\2\2\u0366\u0379\3\2\2\2\u0367\u036a\f\7\2\2\u0368\u0369\7u"+
+		"\u035a\3\2\2\2\u0366\u0379\3\2\2\2\u0367\u036a\f\7\2\2\u0368\u0369\7u"+
 		"\2\2\u0369\u036b\7v\2\2\u036a\u0368\3\2\2\2\u036b\u036c\3\2\2\2\u036c"+
 		"\u036a\3\2\2\2\u036c\u036d\3\2\2\2\u036d\u0378\3\2\2\2\u036e\u0371\f\6"+
 		"\2\2\u036f\u0370\7\u008e\2\2\u0370\u0372\5R*\2\u0371\u036f\3\2\2\2\u0372"+
@@ -15947,7 +15947,7 @@ public class BallerinaParser extends Parser {
 		"\u027c\u0287\u028a\u028d\u0290\u0297\u02a0\u02a7\u02ab\u02ae\u02b1\u02b9"+
 		"\u02bd\u02bf\u02c6\u02ca\u02cd\u02d2\u02d9\u02dd\u02e6\u02eb\u02ef\u02f4"+
 		"\u02fe\u0306\u030c\u0311\u031a\u031d\u0324\u0332\u033b\u0342\u0349\u0352"+
-		"\u035c\u0365\u036c\u0373\u0377\u0379\u0380\u038b\u038d\u0392\u03a0\u03a7"+
+		"\u0360\u0365\u036c\u0373\u0377\u0379\u0380\u038b\u038d\u0392\u03a0\u03a7"+
 		"\u03af\u03b4\u03bb\u03c2\u03c9\u03d1\u03d4\u03da\u03de\u03e7\u03ff\u0406"+
 		"\u0408\u0412\u0415\u041f\u0423\u042b\u0430\u0436\u043b\u0443\u044d\u0451"+
 		"\u0465\u046c\u0470\u047a\u0488\u0492\u049d\u04aa\u04ae\u04b4\u04b7\u04bd"+
