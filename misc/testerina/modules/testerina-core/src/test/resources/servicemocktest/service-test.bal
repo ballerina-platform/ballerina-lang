@@ -5,27 +5,27 @@ import ballerina.io;
 import ballerina.test;
 import ballerina.config;
 
-endpoint<http:Service> eventEP {
+endpoint http:ServiceEndpoint eventEP {
     port: 9092
-}
+};
 
 string url1 = "http://0.0.0.0:9092/events";
 string url2 = "http://0.0.0.0:9090/portal";
 
 @http:serviceConfig {
-    endpoints:[eventEP], basePath: "/events"
+    basePath: "/events"
 }
-service<http:Service> EventServiceMock {
+service<http:Service> EventServiceMock bind eventEP {
 
     @http:resourceConfig {
         methods:["GET"],
         path:"/"
     }
-    resource getEvents (http:ServerConnector conn,http:Request req) {
+    getEvents (endpoint client, http:Request req) {
         http:Response res = {};
         json j = {"a":"b"};
         res.setJsonPayload(j);
-        _ = conn -> respond(res);
+        _ = client -> respond(res);
     }
 }
 
@@ -39,7 +39,11 @@ function init() {
 
 @test:config{before: "init"}
 function testService () {
-    endpoint<http:Client> httpEndpoint {serviceUri : url2}
+    endpoint http:ClientEndpoint httpEndpoint {
+        targets:[{
+            uri:url2
+        }]
+    };
     http:Request req = {};
     // Send a GET request to the specified endpoint
     http:Response resp = {};
