@@ -53,13 +53,13 @@ public class GetHeaders extends BlockingNativeCallableUnit {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues(null);
+            context.setReturnValues();
             return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
         if (headerValueList == null) {
-            context.setReturnValues(null);
+            context.setReturnValues();
             return;
         }
         int i = 0;
