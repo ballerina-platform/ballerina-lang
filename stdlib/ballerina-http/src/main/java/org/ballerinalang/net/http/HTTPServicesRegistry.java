@@ -45,8 +45,8 @@ public class HTTPServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
     // Outer Map key=basePath
-    private final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
-    private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    protected final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
+    protected CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
@@ -108,33 +108,6 @@ public class HTTPServicesRegistry {
                     websocketConfig, httpService.getBasePath());
         }
 
-    }
-
-    /**
-     * Register a WebSubSubscriber service in the map.
-     *
-     * @param service the {@link Service} to be registered
-     */
-    public void registerWebSubSubscriberService(Service service) {
-        String accessLogConfig = HttpConnectionManager.getInstance().getHttpAccessLoggerConfig();
-        if (accessLogConfig != null) {
-            try {
-                ((BLogManager) BLogManager.getLogManager()).setHttpAccessLogHandler(accessLogConfig);
-            } catch (IOException e) {
-                throw new BallerinaConnectorException("Invalid file path: " + accessLogConfig, e);
-            }
-        }
-
-        HttpService httpService = HttpService.buildWebSubSubscriberHttpService(service);
-
-        servicesInfoMap.put(httpService.getBasePath(), httpService);
-        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
-
-        //basePath will get cached after registering service
-        sortedServiceURIs.add(httpService.getBasePath());
-        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-
-        WebSubSubscriberServiceValidator.validateResources(httpService);
     }
 
     private String sanitizeBasePath(String basePath) {

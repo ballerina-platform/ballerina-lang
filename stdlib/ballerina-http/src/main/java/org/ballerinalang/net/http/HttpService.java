@@ -51,7 +51,7 @@ public class HttpService {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    private static final String BASE_PATH_FIELD = "basePath";
+    protected static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
@@ -70,7 +70,7 @@ public class HttpService {
         return balService;
     }
 
-    private HttpService(Service service) {
+    protected HttpService(Service service) {
         this.balService = service;
     }
 
@@ -196,48 +196,11 @@ public class HttpService {
         return httpService;
     }
 
-    /**
-     * Builds the HTTP service representation of the service.
-     *
-     * @param service   the service for which the HTTP representation is built
-     * @return  the built HttpService representation
-     */
-    static HttpService buildWebSubSubscriberHttpService(Service service) {
-        HttpService httpService = new HttpService(service);
-        Annotation serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
-
-        if (serviceConfigAnnotation == null) {
-            log.debug("serviceConfig not specified in the Service instance, using default base path");
-            //service name cannot start with / hence concat
-            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
-            return httpService;
-        }
-
-        Struct serviceConfig = serviceConfigAnnotation.getValue();
-
-        httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-
-        List<HttpResource> resources = new ArrayList<>();
-        for (Resource resource : httpService.getBallerinaService().getResources()) {
-            HttpResource httpResource = HttpResource.buildWebSubHttpResource(resource, httpService);
-            resources.add(httpResource);
-        }
-        httpService.setResources(resources);
-        httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
-
-        return httpService;
-    }
-
     private static Annotation getHttpServiceConfigAnnotation(Service service) {
         return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
-    private static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service) {
-        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
-                                          WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
-    }
-
-    private static Annotation getServiceConfigAnnotation(Service service, String packagePath, String annotationName) {
+    protected static Annotation getServiceConfigAnnotation(Service service, String packagePath, String annotationName) {
         List<Annotation> annotationList = service.getAnnotationList(packagePath, annotationName);
 
         if (annotationList == null || annotationList.isEmpty()) {

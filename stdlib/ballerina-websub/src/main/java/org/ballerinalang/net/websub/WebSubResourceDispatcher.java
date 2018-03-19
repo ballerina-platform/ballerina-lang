@@ -22,7 +22,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**

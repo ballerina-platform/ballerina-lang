@@ -22,28 +22,38 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
-
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The WebSub service registry which uses an {@link HTTPServicesRegistry} to maintain WebSub Subscriber HTTP services.
  *
  * @since 0.965.0
  */
-public class WebSubServicesRegistry  {
+public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
-    private HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(new WebSocketServicesRegistry());
+    private static final Logger logger = LoggerFactory.getLogger(WebSubServicesRegistry.class);
 
-    HTTPServicesRegistry getHttpServicesRegistry() {
-        return httpServicesRegistry;
+    public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
+        super(webSocketServicesRegistry);
     }
 
+    /**
+     * Register a WebSubSubscriber service in the map.
+     *
+     * @param service the {@link Service} to be registered
+     */
     public void registerWebSubSubscriberService(Service service) {
-        httpServicesRegistry.registerWebSubSubscriberService(service);
-    }
+        HttpService httpService = WebSubHttpService.buildWebSubSubscriberHttpService(service);
 
-    public Map<String, HttpService> getServicesInfoByInterface() {
-        return httpServicesRegistry.getServicesInfoByInterface();
+        servicesInfoMap.put(httpService.getBasePath(), httpService);
+        logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
+
+        //basePath will get cached after registering service
+        sortedServiceURIs.add(httpService.getBasePath());
+        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
+
+        WebSubSubscriberServiceValidator.validateResources(httpService);
     }
 
 }

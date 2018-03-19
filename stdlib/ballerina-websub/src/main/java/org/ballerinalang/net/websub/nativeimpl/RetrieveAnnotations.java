@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 
 /**

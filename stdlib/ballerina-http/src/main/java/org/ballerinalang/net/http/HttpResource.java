@@ -61,7 +61,7 @@ public class HttpResource {
     private SignatureParams signatureParams;
     private HttpService parentService;
 
-    private HttpResource(Resource resource, HttpService parentService) {
+    protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
@@ -187,27 +187,7 @@ public class HttpResource {
         return httpResource;
     }
 
-    /**
-     * Builds the WebSub HTTP resource representation for the resource.
-     *
-     * @param resource      the resource of the service for which the HTTP resource is built
-     * @param httpService   the HTTP service representation of the service
-     * @return  the built HTTP resource
-     */
-    static HttpResource buildWebSubHttpResource(Resource resource, HttpService httpService) {
-        HttpResource httpResource = new HttpResource(resource, httpService);
-        Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
-
-        if (resourceConfigAnnotation != null) {
-            throw new BallerinaException("resourceConfig annotation not allowed for WebSubSubscriber resource");
-        }
-
-        httpResource.setPath("/");
-        httpResource.prepareAndValidateSignatureParams();
-        return httpResource;
-    }
-
-    private static Annotation getResourceConfigAnnotation(Resource resource) {
+    protected static Annotation getResourceConfigAnnotation(Resource resource) {
         List<Annotation> annotationList = resource.getAnnotationList(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
 
         if (annotationList == null) {
@@ -257,7 +237,7 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    private void prepareAndValidateSignatureParams() {
+    protected void prepareAndValidateSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
     }

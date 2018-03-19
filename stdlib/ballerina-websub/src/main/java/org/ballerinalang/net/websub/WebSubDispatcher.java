@@ -48,7 +48,7 @@ class WebSubDispatcher extends HttpDispatcher {
         }
 
         try {
-            HttpService service = HttpDispatcher.findService(servicesRegistry.getHttpServicesRegistry(),
+            HttpService service = HttpDispatcher.findService(servicesRegistry,
                                                              httpCarbonMessage);
             if (service == null) {
                 throw new BallerinaConnectorException("no service found to handle the service request");

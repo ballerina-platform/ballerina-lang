@@ -29,12 +29,12 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.net.http.util.ConnectorStartupSynchronizer;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 

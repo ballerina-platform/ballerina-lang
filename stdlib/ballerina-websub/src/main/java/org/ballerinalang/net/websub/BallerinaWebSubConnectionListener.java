@@ -37,7 +37,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
 
     public BallerinaWebSubConnectionListener(WebSubServicesRegistry webSubServicesRegistry,
                                              HashSet<FilterHolder> filterHolders) {
-        super(webSubServicesRegistry.getHttpServicesRegistry(), filterHolders);
+        super(webSubServicesRegistry, filterHolders);
         this.webSubServicesRegistry = webSubServicesRegistry;
     }
 

@@ -17,8 +17,10 @@
  *
  */
 
-package org.ballerinalang.net.http;
+package org.ballerinalang.net.websub;
 
+import org.ballerinalang.net.http.HttpResource;
+import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;

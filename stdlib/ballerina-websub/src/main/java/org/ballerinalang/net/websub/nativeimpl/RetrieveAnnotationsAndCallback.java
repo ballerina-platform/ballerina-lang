@@ -28,9 +28,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpService;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 
 /**
  * Retrieve annotations specified and the callback URL to which WebSub notification should happen.

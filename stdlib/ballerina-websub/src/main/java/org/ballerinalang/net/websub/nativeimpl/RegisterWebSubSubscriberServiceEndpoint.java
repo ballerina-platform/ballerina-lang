@@ -28,9 +28,9 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 
 /**
  * Register a WebSub Subscriber service.

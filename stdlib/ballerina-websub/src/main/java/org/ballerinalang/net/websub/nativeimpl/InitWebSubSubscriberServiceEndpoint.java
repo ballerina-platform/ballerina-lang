@@ -26,9 +26,10 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSubSubscriberConstants;
+import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
+import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 
 /**
  * Initialize the WebSub subscriber endpoint.
@@ -52,7 +53,7 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
                 (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
 
-        WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry();
+        WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
         //setFilters(serviceEndpointConfig, serviceEndpoint);  // set filters
