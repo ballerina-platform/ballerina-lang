@@ -116,9 +116,21 @@ class TransformerNodeManager {
      */
     createStatementEdge(connection) {
         const { source, target } = connection;
+        let sourceType = source.type;
+        let targetType = target.type;
         let sourceExpression;
         let targetExpression;
-        const compatibility = this.getCompatibility(source.type, target.type);
+        let compatibility;
+        if (source.typeName && target.typeName) {
+            sourceType = source.typeName;
+            targetType = target.typeName;
+            compatibility = {
+                safe: false,
+                type: 'conversion',
+            };
+        } else {
+            compatibility = this.getCompatibility(sourceType, targetType);
+        }
 
         if (!compatibility) {
             return;
@@ -126,16 +138,16 @@ class TransformerNodeManager {
 
         // create source and target expressions
         if (source.endpointKind === 'input') {
-            sourceExpression = this.getVertexExpression(source.name, source.type);
+            sourceExpression = this.getVertexExpression(source.name, sourceType);
         }
         if (target.endpointKind === 'output') {
-            targetExpression = this.getVertexExpression(target.name, target.type);
+            targetExpression = this.getVertexExpression(target.name, targetType);
         }
 
         // create or modify statements as per the connection.
         if (source.endpointKind === 'input' && target.endpointKind === 'output') {
             // Connection is from source variable to a target variable.
-            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, target.type, compatibility);
+            this._mapper.createInputToOutputMapping(sourceExpression, targetExpression, targetType, compatibility);
             return;
         }
 
@@ -644,6 +656,21 @@ class TransformerNodeManager {
      */
     isTransformerConversion(nodeExpression) {
         return TreeUtil.isTypeConversionExpr(nodeExpression) && nodeExpression.transformerInvocation;
+    }
+
+    /**
+     * Provide compatible transformers list for given source target types
+     * @param {string} sourceType conversion source type
+     * @param {string} targetType conversion target type
+     * @returns {[Object]} compatible transformers list
+     */
+    getCompatibleTransformers(sourceType, targetType) {
+        return this._transformStmt.parent.getTopLevelNodes()
+            .filter((node) => {
+                return TreeUtil.isTransformer(node)
+                        && node.getSource().getTypeNode().getTypeName().getValue() === sourceType
+                        && node.getReturnParameters()[0].getTypeNode().getTypeName().getValue() === targetType;
+            });
     }
  }
 
