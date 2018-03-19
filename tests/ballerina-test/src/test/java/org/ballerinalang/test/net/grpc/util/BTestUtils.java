@@ -51,10 +51,10 @@ import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_ROOT;
  * @since 0.964.0
  */
 public class BTestUtils {
-
+    
     private static Path resourceDir = Paths.get(
             BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-
+    
     /**
      * Compile and return the semantic errors.
      *
@@ -64,7 +64,7 @@ public class BTestUtils {
     public static CompileResult compile(String sourceFilePath) {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
-
+    
     /**
      * Compile and return the semantic errors.
      *
@@ -76,7 +76,7 @@ public class BTestUtils {
         try {
             String effectiveSource;
             Path rootPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource()
-                                              .getLocation().toURI().getPath().concat(sourceRoot));
+                    .getLocation().toURI().getPath().concat(sourceRoot));
             if (Files.isDirectory(Paths.get(packageName))) {
                 String[] pkgParts = packageName.split("\\/");
                 List<Name> pkgNameComps = Arrays.stream(pkgParts)
@@ -99,7 +99,7 @@ public class BTestUtils {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }
     }
-
+    
     /**
      * Compile and return the semantic errors.
      *
@@ -113,7 +113,7 @@ public class BTestUtils {
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compile(sourceRoot.toString(), packageName, compilerPhase);
     }
-
+    
     /**
      * Compile and return the semantic errors.
      *
@@ -128,13 +128,13 @@ public class BTestUtils {
         options.put(SOURCE_ROOT, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-
+        
         CompileResult comResult = new CompileResult();
-
+        
         // catch errors
         DiagnosticListener listener = comResult::addDiagnostic;
         context.put(DiagnosticListener.class, listener);
-
+        
         // compile
         Compiler compiler = Compiler.getInstance(context);
         compiler.compile(packageName);
@@ -142,7 +142,7 @@ public class BTestUtils {
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
-
+        
         return comResult;
     }
     
@@ -165,7 +165,7 @@ public class BTestUtils {
         programFile.setDebugger(debugger);
         return BLangFunctions.invokeEntrypointCallable(programFile, packageName, functionName, args);
     }
-
+    
     /**
      * Invoke a ballerina function.
      *
@@ -178,7 +178,7 @@ public class BTestUtils {
         BValue[] args = {};
         return invoke(compileResult, packageName, functionName, args);
     }
-
+    
     /**
      * Invoke a ballerina function.
      *
@@ -196,7 +196,7 @@ public class BTestUtils {
         programFile.setDebugger(debugger);
         return BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), functionName, args);
     }
-
+    
     /**
      * Invoke a ballerina function.
      *
@@ -208,7 +208,7 @@ public class BTestUtils {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
     }
-
+    
     /**
      * Assert an error.
      *

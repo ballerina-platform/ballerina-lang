@@ -22,7 +22,6 @@ import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.ballerinalang.test.net.grpc.util.BTestUtils;
-import org.ballerinalang.util.codegen.ActionInfo;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,8 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -141,6 +138,7 @@ public class BalGenToolTest {
         String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
+    
     private void removePackage(String sourceFile, String destinationFile) throws IOException {
         File file = new File(destinationFile);
         file.createNewFile();
