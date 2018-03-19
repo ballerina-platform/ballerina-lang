@@ -811,11 +811,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private <E extends BLangExpression> void checkAccess(E node) {
-        if (node.type == null) {
-            return;
-        }
-
-        if (node.type.tsymbol == null) {
+        if (node.type == null || node.type.tsymbol == null) {
             return;
         }
 
