@@ -385,7 +385,7 @@ function testLocalTransactonFailedWithNextupdate () (int i) {
         username: "SA",
         password: "",
         options: {maximumPoolSize:1}
-    }
+    };
 
     i = 0;
     try {

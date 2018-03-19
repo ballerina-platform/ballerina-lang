@@ -41,7 +41,7 @@ under the License.
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
-            <!--<package name="org.ballerinalang.test.connectors.sql.*"/>-->
+            <package name="org.ballerinalang.test.connectors.sql.*"/>
             <!-- <package name="org.ballerinalang.test.net.*"/> -->
             <!-- <package name="org.ballerinalang.test.connectors.*"/> -->
             <package name="org.ballerinalang.test.debugger.*"/>
@@ -71,7 +71,7 @@ under the License.
     </test>
     <test name="ballerina-security-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <!--<package name="org.ballerinalang.test.auth.*"/>-->
+            <package name="org.ballerinalang.test.auth.*"/>
         </packages>
     </test>
 </suite>
