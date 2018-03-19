@@ -19,7 +19,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Header, Message, Segment, Transition } from 'semantic-ui-react';
+import { Modal, Header, Message, Segment, Transition, Button } from 'semantic-ui-react';
 
 /**
  * Base class for popup dialogs
@@ -76,6 +76,14 @@ class Dialog extends React.Component {
                         </Segment>
                     </Modal.Content>
                     <Modal.Actions>
+                        {this.props.closeDialog &&
+                            <Button
+                                secondary
+                                onClick={this.close}
+                            >
+                                Cancel
+                            </Button>
+                        }
                         {this.props.actions}
                     </Modal.Actions>
                 </Modal>
@@ -95,6 +103,7 @@ Dialog.propTypes = {
     size: PropTypes.string,
     titleIcon: PropTypes.string,
     className: PropTypes.string,
+    closeDialog: PropTypes.bool,
 };
 
 Dialog.defaultProps = {
@@ -106,6 +115,7 @@ Dialog.defaultProps = {
     className: '',
     size: 'tiny',
     titleIcon: null,
+    closeDialog: false,
 };
 
 export default Dialog;

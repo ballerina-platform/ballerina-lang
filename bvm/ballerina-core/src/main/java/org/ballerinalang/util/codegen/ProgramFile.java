@@ -63,6 +63,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private boolean servicesAvailable = false;
 
     private Debugger debugger;
+    private boolean distributedTransactionEnabled = false; //TODO:Default will be true. Read from new VMOptions
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -120,6 +121,14 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public boolean isServiceEPAvailable() {
         return servicesAvailable;
+    }
+
+    public void setDistributedTransactionEnabled(boolean distributedTransactionEnabled) {
+        this.distributedTransactionEnabled = distributedTransactionEnabled;
+    }
+
+    public boolean isDistributedTransactionEnabled() {
+        return distributedTransactionEnabled;
     }
 
     public void setServiceEPAvailable(boolean servicesAvailable) {

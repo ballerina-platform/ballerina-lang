@@ -48,4 +48,5 @@ public class TypeTags {
     public static final int SERVICE_TAG = 23;
     public static final int STREAMLET_TAG = 24;
     public static final int STREAM_TAG = 25;
+    public static final int FUTURE_TAG = 26;
 }
