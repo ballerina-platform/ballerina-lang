@@ -117,9 +117,9 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             HttpClientConnector httpClient = httpConnectorFactory.createHttpClientConnector(properties,
                                                                                             senderConfiguration);
             BStruct bHttpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                                                                      HTTP_PACKAGE_PATH, CLIENT_CONNECTOR, uri,
+                                                                      HTTP_PACKAGE_PATH, HTTP_CLIENT, uri,
                                                                       clientEndpointConfig);
-            bHttpClient.addNativeData(CLIENT_CONNECTOR, httpClient);
+            bHttpClient.addNativeData(HTTP_CLIENT, httpClient);
             targetServiceConnectors[i] = bHttpClient;
         }
 
@@ -197,7 +197,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 senderConfiguration.setParameters(clientParams);
             }
         }
-//        }
+
         Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
             String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
