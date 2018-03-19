@@ -153,8 +153,7 @@ class BallerinaFileEditor extends React.Component {
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
-        this.handleDiagramModeChange = this.handleDiagramModeChange.bind(this);
-        this.handleFitToWidthChange = this.handleFitToWidthChange.bind(this);
+        this.onModeChange = this.onModeChange.bind(this);
     }
 
     /**
@@ -268,21 +267,24 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Change the diagram mode.
+     *
+     * @param {any} data event data
+     * @memberof BallerinaFileEditor
+     */
+    onModeChange(data) {
+        this.setState({
+            diagramMode: data.mode,
+            diagramFitToWidth: data.fitToWidth,
+        });
+        this.persistState();
+    }
+
+    /**
      * @returns {File} file associated with the editor
      */
     getFile() {
         return this.props.file;
-    }
-
-    /**
-     * Change the diagram mode.
-     *
-     * @param {any} newState
-     * @memberof BallerinaFileEditor
-     */
-    handleDiagramModeChange(mode) {
-        this.setState({ diagramMode: mode });
-        this.persistState();
     }
 
     /**
@@ -686,8 +688,9 @@ class BallerinaFileEditor extends React.Component {
                     height={this.props.height}
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
-                    setZoom={this.setZoom}
-                    zoomLevel={this.state.zoomLevel}
+                    onModeChange={this.onModeChange}
+                    mode={this.state.diagramMode}
+                    fitToWidth={this.state.diagramFitToWidth}
                 />
             </div>
         );

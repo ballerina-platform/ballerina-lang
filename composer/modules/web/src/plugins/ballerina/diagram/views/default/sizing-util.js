@@ -1647,6 +1647,15 @@ class SizingUtil {
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
             }
+            if (TreeUtil.isExpressionStatement(node)) {
+                const exp = node.getExpression();
+                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                    return arg.getSource();
+                }).join(', ');
+                const displayText = this.getTextWidth(argExpSource, 0,
+                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
+                viewState.displayText = displayText.text;
+            }
         }
     }
 
