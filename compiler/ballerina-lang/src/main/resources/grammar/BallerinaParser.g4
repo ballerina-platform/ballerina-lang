@@ -39,6 +39,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
+    |   objectDefinition
     |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
@@ -76,8 +77,8 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION (LT parameter GT)? callableUnitSignature SEMICOLON
-    |   (PUBLIC)? FUNCTION (LT parameter GT)? callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
@@ -100,6 +101,39 @@ privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
+objectDefinition
+    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+    ;
+
+objectBody
+    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
+    ;
+
+publicObjectFields
+    :   PUBLIC LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    ;
+
+privateObjectFields
+    :   PRIVATE LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    ;
+
+objectInitializer
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    ;
+
+objectInitializerParameterList
+    :   LEFT_PARENTHESIS identiferList? (COMMA formalParameterList?)? RIGHT_PARENTHESIS
+    ;
+
+objectFunctions
+    : (annotationAttachment* documentationAttachment? deprecatedAttachment? functionDefinition)+
+    ;
+
+identiferList
+    :   Identifier (COMMA Identifier)*
+    ;
+
+
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
@@ -113,7 +147,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 transformerDefinition
@@ -135,7 +169,7 @@ attachmentPoint
      ;
 
 constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
     ;
 
 workerDeclaration
@@ -164,9 +198,11 @@ endpointInitlization
     ;
 
 typeName
-    :   simpleTypeName                              # simpleTypeNameTemp
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
-    |   typeName (PIPE typeName)+                   # unionTypeName
+    :   simpleTypeName                                  # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+          # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                       # unionTypeNameLabel
+    |   typeName QUESTION_MARK                          # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS     # groupTypeNameLabel
     ;
 
 // Temporary production rule name
@@ -263,7 +299,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -288,7 +324,7 @@ typeInitExpr
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement

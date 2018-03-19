@@ -36,8 +36,12 @@ export function getMenuDefinitions(plugin) {
                 return true;
             },
             icon: 'swagger',
+            order: 2,
             command: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
+            divider: {
+                after: true,
+            },
         },
     ];
 }

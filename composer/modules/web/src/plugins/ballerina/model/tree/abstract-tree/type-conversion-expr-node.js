@@ -48,6 +48,7 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
     }
 
 
+
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
     }
 
 
+
     setTransformerInvocation(newValue, silent, title) {
         const oldValue = this.transformerInvocation;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
     getTransformerInvocation() {
         return this.transformerInvocation;
     }
+
 
 
 }

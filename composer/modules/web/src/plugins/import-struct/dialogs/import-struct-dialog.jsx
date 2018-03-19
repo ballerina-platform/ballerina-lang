@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Input, Checkbox } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
-import AceEditor from 'react-ace';
+import MonacoEditor from 'react-monaco-editor';
 
 /**
  * File Open Wizard Dialog
@@ -109,8 +109,10 @@ class ImportStructDialog extends React.Component {
         return (
             <Dialog
                 show={this.state.showDialog}
-                title='Import from JSON'
-                actions={
+                title='Import struct definition'
+                titleIcon='fw fw-import'
+                closeDialog
+                actions={[
                     <Button
                         primary
                         onClick={this.onImportJson}
@@ -118,8 +120,7 @@ class ImportStructDialog extends React.Component {
                     >
                         Import
                     </Button>
-                }
-                closeAction
+                ]}
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
@@ -146,6 +147,30 @@ class ImportStructDialog extends React.Component {
                             />
                         </Form.Field>
                     </Form.Group>
+                    <Form.Field>
+                        <p>Please enter a valid sample JSON to generate struct definition.</p>
+                        <MonacoEditor
+                            width='auto'
+                            height='300'
+                            language='json'
+                            theme='vs-dark'
+                            value={this.state.json}
+                            onChange={this.textChange}
+                            name='json'
+                            options={{
+                                autoIndent: true,
+                                fontSize: 14,
+                                contextmenu: true,
+                                renderIndentGuides: true,
+                                autoClosingBrackets: true,
+                                matchBrackets: true,
+                                automaticLayout: true,
+                                glyphMargin: true,
+                                folding: true,
+                                lineNumbersMinChars: 2,
+                            }}
+                        />
+                    </Form.Field>
                     <Form.Group controlId='removeDefaults' inline className='inverted'>
                         <Form.Field width={15} className='inverted'>
                             <Checkbox
@@ -161,26 +186,6 @@ class ImportStructDialog extends React.Component {
                         </Form.Field>
                     </Form.Group>
                 </Form>
-                <p>Please enter a valid sample JSON to generate struct definition.</p>
-                <AceEditor
-                    mode='json'
-                    theme='monokai'
-                    onChange={this.textChange}
-                    onValidate={this.onValidate}
-                    value={this.state.json}
-                    name='json'
-                    editorProps={{
-                        $blockScrolling: Infinity,
-                    }}
-                    setOptions={{
-                        showLineNumbers: false,
-                    }}
-                    maxLines={30}
-                    minLines={10}
-                    showGutter={this.state.isGenerationError && this.state.isJSONError}
-                    width='auto'
-                    showPrintMargin={false}
-                />
                 {(this.state.isGenerationError && this.state.isJSONError) &&
                     <div className='alert alert-danger'>
                         <p style={errorStyle}>Invalid JSON</p>
