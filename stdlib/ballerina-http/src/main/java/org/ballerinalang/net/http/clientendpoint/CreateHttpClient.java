@@ -47,7 +47,6 @@ import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.URI;
 
 /**
  * Initialization of client endpoint.
@@ -58,7 +57,8 @@ import static org.ballerinalang.net.http.HttpConstants.URI;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "createHttpClient",
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+        args = {@Argument(name = "uri", type = TypeKind.STRING),
+                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
@@ -70,12 +70,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
-
-        Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
-        String url = null;
-        for (Value targetService:targetServices) {
-            url = targetService.getStructValue().getStringField(URI);
-        }
+        String url = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
 
         String scheme;
