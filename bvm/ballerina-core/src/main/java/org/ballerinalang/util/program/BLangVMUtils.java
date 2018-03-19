@@ -1,20 +1,20 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.bvm.WorkerData;
@@ -46,10 +46,12 @@ import java.io.PrintStream;
  * Utilities related to the Ballerina VM.
  */
 public class BLangVMUtils {
-
+    
     private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
+
+    private static final String GLOBAL_TRANSACTION_ENABLED = "GLOBAL_TRANSACTION_ENABLED";
 
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -397,6 +399,15 @@ public class BLangVMUtils {
 
     public static void removeTransactionInfo(WorkerExecutionContext ctx) {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
+    }
+
+    public static void setGlobalTransactionEnabledStatus(WorkerExecutionContext ctx,
+            boolean isGlobalTransactionEnabled) {
+        ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
+    }
+
+    public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
+        return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 
     public static void initServerConnectorTrace(WorkerExecutionContext ctx, Resource resource, Tracer tracer) {

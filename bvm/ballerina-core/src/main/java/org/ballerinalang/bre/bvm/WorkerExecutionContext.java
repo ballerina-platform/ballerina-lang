@@ -40,33 +40,33 @@ import java.util.Map;
 public class WorkerExecutionContext {
 
     public WorkerExecutionContext parent;
-
+    
     public WorkerState state = WorkerState.CREATED;
-
+    
     public Map<String, Object> globalProps;
-
+    
     public Map<String, Object> localProps = new HashMap<>();
-
+    
     public int ip;
-
+        
     public ProgramFile programFile;
-
+    
     public ConstantPoolEntry[] constPool;
-
+    
     public Instruction[] code;
-
+    
     public WorkerData workerLocal;
-
+    
     public WorkerData workerResult;
-
+    
     public int[] retRegIndexes;
-
+        
     public CallableUnitInfo callableUnitInfo;
-
+    
     public WorkerInfo workerInfo;
-
+    
     public WorkerResponseContext respCtx;
-
+    
     public boolean runInCaller;
 
     private BStruct error;
@@ -79,10 +79,11 @@ public class WorkerExecutionContext {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
+        setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
     }
-
-    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
-            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
+    
+    public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 
+            CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
             WorkerData workerResult, int[] retRegIndexes, boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
@@ -105,7 +106,7 @@ public class WorkerExecutionContext {
     }
 
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx,
-                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal,
+                                  CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerData workerLocal, 
                                   boolean runInCaller) {
         this.parent = parent;
         this.respCtx = respCtx;
@@ -144,11 +145,11 @@ public class WorkerExecutionContext {
         }
         this.programFile.getDebugger().addWorkerContext(this);
     }
-
+    
     public void setError(BStruct error) {
         this.error = error;
     }
-
+    
     public BStruct getError() {
         return error;
     }
@@ -163,6 +164,14 @@ public class WorkerExecutionContext {
 
     public LocalTransactionInfo getLocalTransactionInfo() {
         return BLangVMUtils.getTransactionInfo(this);
+    }
+
+    public void setGlobalTransactionEnabled(boolean isGlobalTransactionEnabled) {
+        BLangVMUtils.setGlobalTransactionEnabledStatus(this, isGlobalTransactionEnabled);
+    }
+
+    public boolean getGlobalTransactionEnabled() {
+        return BLangVMUtils.getGlobalTransactionenabled(this);
     }
 
     public boolean isRootContext() {
@@ -189,7 +198,7 @@ public class WorkerExecutionContext {
         StringBuilder builder = new StringBuilder();
         builder.append("\n{ ID: " + this.hashCode() + "\n");
         builder.append("Parent: " + (this.parent != null ? this.parent.hashCode() : "N/A") + "\n");
-        builder.append("Callable Unit: " + (this.callableUnitInfo != null ?
+        builder.append("Callable Unit: " + (this.callableUnitInfo != null ? 
                 this.callableUnitInfo.getName() : "N/A") + "\n");
         builder.append("Worker ID: " + (this.workerInfo != null ? this.workerInfo.getWorkerName() : "N/A") + "\n");
         builder.append("STATE: " + this.state + "\n");
@@ -197,10 +206,10 @@ public class WorkerExecutionContext {
         builder.append("IP: " + this.ip + "\n");
         return builder.toString();
     }
-
+    
     @Override
     public boolean equals(Object rhs) {
         return this == rhs;
     }
-
+    
 }

@@ -133,10 +133,9 @@ public class DefinitionUtil {
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
-                    .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps,
-                            parentPath.toString(),
-                            definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).nameComps),
-                            fileName);
+                    .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)
+                            .name.getValue(), parentPath.toString(), definitionContext
+                            .get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()), fileName);
             l.setUri(filePath.toUri().toString());
             Range r = new Range();
             // Subtract 1 to convert the token lines and char positions to zero based indexing

@@ -30,27 +30,30 @@ under the License.
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
-            <package name="org.ballerinalang.test.expressions.*"/>
-            <package name="org.ballerinalang.test.documentation.*"/>
-            <package name="org.ballerinalang.test.statements.*">
-                <exclude name="org.ballerinalang.test.statements.transaction.*"/>
-                <exclude name="org.ballerinalang.test.statements.trycatch.*"/>
+            <package name="org.ballerinalang.test.expressions.*">
+                <exclude name="org.ballerinalang.test.expressions.identifierliteral.*"/>
             </package>
-            <package name="org.ballerinalang.test.types.*"/>
+            <package name="org.ballerinalang.test.documentation.*"/>
+            <package name="org.ballerinalang.test.statements.*"/>
+            <package name="org.ballerinalang.test.types.*">
+                <exclude name="org.ballerinalang.test.types.service.*"/>
+            </package>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.*"/>
+            <package name="org.ballerinalang.test.connectors.sql.*"/>
             <!-- <package name="org.ballerinalang.test.net.*"/> -->
             <!-- <package name="org.ballerinalang.test.connectors.*"/> -->
             <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-            <package name="org.ballerinalang.test.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.test.services.session"/>
-            <package name="org.ballerinalang.test.services.basics"/>
-            <package name="org.ballerinalang.test.services.cors"/>
-            <package name="org.ballerinalang.test.services.configuration"/>
-            <package name="org.ballerinalang.test.services.dispatching"/>
-            <package name="org.ballerinalang.test.mime"/>
+            <package name="org.ballerinalang.test.endpoint.*"/>
+            <!--<package name="org.ballerinalang.test.services.nativeimpl.*"/>-->
+            <!--<package name="org.ballerinalang.test.services.session"/>-->
+            <!--<package name="org.ballerinalang.test.services.basics"/>-->
+            <!--<package name="org.ballerinalang.test.services.cors"/>-->
+            <!--<package name="org.ballerinalang.test.services.configuration"/>-->
+            <!--<package name="org.ballerinalang.test.services.dispatching"/>-->
+            <!--<package name="org.ballerinalang.test.mime"/>-->
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>

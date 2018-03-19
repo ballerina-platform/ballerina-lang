@@ -41,8 +41,8 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 4, "incompatible types: 'string' is not an iterable collection", 28, 18);
         BAssertUtil.validateError(compile, 5, "invalid assignment in variable 'p.id'", 41, 13);
         BAssertUtil.validateError(compile, 6, "too many variables are defined for iterable type 'string[]'", 49, 24);
-        BAssertUtil.validateError(compile, 7, "incompatible types: expected 'int', found 'string'", 55, 18);
-        BAssertUtil.validateError(compile, 8, "incompatible types: expected 'int', found 'string'", 55, 23);
+        BAssertUtil.validateError(compile, 7, "incompatible types: expected 'int', found 'string'", 55, 20);
+        BAssertUtil.validateError(compile, 8, "incompatible types: expected 'int', found 'string'", 55, 25);
         BAssertUtil.validateError(compile, 9,
                 "incompatible types: 'json' cannot be convert to 'json[]', use cast expression", 62, 15);
         BAssertUtil.validateError(compile, 10, "unreachable code", 74, 9);

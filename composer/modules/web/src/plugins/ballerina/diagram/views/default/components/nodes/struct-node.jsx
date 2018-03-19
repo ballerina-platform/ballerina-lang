@@ -183,82 +183,6 @@ class StructNode extends React.Component {
         this.setState({ canShowAddType: false });
     }
 
-    /**
-     * Open JSON import dialog box and pass callback
-     */
-    onClickJsonImport() {
-        const onImport = (json) => {
-            let success = true;
-            const refExpr = TreeBuilder.build(
-                FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json)));
-            if (!refExpr.error) {
-                success = this.processJSONStruct(this.props.model, refExpr.variable.initialExpression);
-            } else {
-                success = false;
-            }
-            return success;
-        };
-        const id = 'composer.dialog.import.struct';
-        const { command: { dispatch } } = this.context;
-        dispatch('popup-dialog', {
-            id,
-            additionalProps: {
-                onImport,
-            },
-        });
-    }
-
-    /**
-     * process JSON and generate struct fields
-     * @param  {object} parent      parent struct object
-     * @param  {object} literalExpr JSON expression
-     * @return {boolean}             status
-     */
-    processJSONStruct(parent, literalExpr) {
-        let currentValue;
-        let success = true;
-        parent.setFields([], true);
-        literalExpr.keyValuePairs.every((ketValPair) => {
-            let currentName;
-            if (TreeUtils.isLiteral(ketValPair.getKey())) {
-                currentName = ketValPair.getKey().getValue().replace(/"/g, '');
-            } else {
-                currentName = ketValPair.getKey().getVariableName().getValue();
-            }
-            if (TreeUtils.isRecordLiteralExpr(ketValPair.getValue())) {
-                const parsedJson = FragmentUtils.parseFragment(
-                              FragmentUtils.createStatementFragment(`struct { } ${currentName};`));
-                const anonStruct = TreeBuilder.build(parsedJson);
-                success = this.processJSONStruct(anonStruct.getVariable().getTypeNode().anonStruct,
-                            ketValPair.getValue());
-                if (success) {
-                    parent.addFields(anonStruct.getVariable());
-                }
-                return success;
-            } else if (TreeUtils.isLiteral(ketValPair.getValue())) {
-                currentValue = ketValPair.getValue().getValue();
-                let currentType = 'string';
-                if (this.isInt(currentValue)) {
-                    currentType = 'int';
-                } else if (this.isFloat(currentValue)) {
-                    currentType = 'float';
-                } else if (currentValue === 'true' || currentValue === 'false') {
-                    currentType = 'boolean';
-                }
-                const refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                 FragmentUtils.createStatementFragment(`${currentType} ${currentName} = ${currentValue};`)));
-                if (!refExpr.error) {
-                    parent.addFields(refExpr.getVariable());
-                } else {
-                    success = false;
-                }
-                return success;
-            } else {
-                success = false;
-            }
-        });
-        return success;
-    }
 
     /**
      * Check given value is an Integer
@@ -330,21 +254,6 @@ class StructNode extends React.Component {
         const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
-                <rect
-                    x={x + 480}
-                    y={y - 22}
-                    width={120}
-                    height={20}
-                    className='struct-import-json-button'
-                    onClick={e => this.onClickJsonImport()}
-                />
-                <text
-                    x={x + 485}
-                    y={y - 10}
-                    className='struct-import-json-text'
-                    onClick={e => this.onClickJsonImport()}
-                > {'Import from JSON'}
-                </text>
                 <rect x={x} y={y} width={w} height={h} className='struct-content-operations-wrapper' fill='#3d3d3d' />
                 <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className='struct-type-dropdown-wrapper' />

@@ -1,9 +1,9 @@
 function matches(string s, string r)(boolean, error) {
     Regex reg = {pattern:r};
-    boolean match;
+    boolean matched;
     error err;
-    match, err = s.matchesWithRegex(reg);
-    return match, err;
+    matched, err = s.matchesWithRegex(reg);
+    return matched, err;
 }
 
 function findAll(string s, string r) (string[], error) {
@@ -33,10 +33,10 @@ function replaceFirstRgx(string s, string r, string target) (string, error) {
 function invalidPattern(string r)(boolean, error) {
     Regex reg = {pattern:r};
     string s = "test";
-    boolean match;
+    boolean matched;
     error err;
-    match, err = s.matchesWithRegex(reg);
-    return  match, err;
+    matched, err = s.matchesWithRegex(reg);
+    return  matched, err;
 }
 
 function multipleReplaceFirst(string s, string r, string target) (string) {

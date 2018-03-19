@@ -1,20 +1,20 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.net.ws.WebSocketEmptyCallableUnitCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.tracer.TraceManagerWrapper;
 import org.ballerinalang.util.tracer.Tracer;
@@ -59,8 +58,7 @@ public class WebSocketDispatcher {
      * @return matching service.
      */
     public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               Map<String, String> variables, WebSocketMessage webSocketMessage,
-                                               BMap<String, BString> queryParams) {
+                                               WebSocketMessage webSocketMessage, BMap<String, BString> queryParams) {
         try {
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = servicesRegistry.refactorUri(serviceUri);
@@ -105,7 +103,6 @@ public class WebSocketDispatcher {
             wsTextFrame.setBooleanField(0, 0);
         }
         bValues[1] = wsTextFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onTextMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
@@ -133,7 +130,6 @@ public class WebSocketDispatcher {
             wsBinaryFrame.setBooleanField(0, 0);
         }
         bValues[1] = wsBinaryFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onBinaryMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
@@ -167,7 +163,6 @@ public class WebSocketDispatcher {
         byte[] data = controlMessage.getByteArray();
         wsPingFrame.setBlobField(0, data);
         bValues[1] = wsPingFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onPingMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
@@ -189,7 +184,6 @@ public class WebSocketDispatcher {
         byte[] data = controlMessage.getByteArray();
         wsPongFrame.setBlobField(0, data);
         bValues[1] = wsPongFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onPongMessageResource, new WebSocketEmptyCallableUnitCallback(), null,
@@ -211,7 +205,6 @@ public class WebSocketDispatcher {
         wsCloseFrame.setIntField(0, closeMessage.getCloseCode());
         wsCloseFrame.setStringField(0, closeMessage.getCloseReason());
         bValues[1] = wsCloseFrame;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 2);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onCloseResource, new WebSocketEmptyCallableUnitCallback(), null,
@@ -229,21 +222,10 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         BConnector wsConnection = connectionInfo.getWsConnection();
         bValues[0] = wsConnection;
-        setPathParams(bValues, paramDetails, connectionInfo.getVarialbles(), 1);
         Tracer tracer = TraceManagerWrapper.newTracer(null, false);
         //TODO handle BallerinaConnectorException
         Executor.submit(onIdleTimeoutResource, new WebSocketEmptyCallableUnitCallback(), null,
                 tracer, bValues);
-    }
-
-    public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> variables,
-                                     int defaultArgSize) {
-        int parameterDetailsSize = paramDetails.size();
-        if (parameterDetailsSize > defaultArgSize) {
-            for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i] = new BString(variables.get(paramDetails.get(i).getVarName()));
-            }
-        }
     }
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {
