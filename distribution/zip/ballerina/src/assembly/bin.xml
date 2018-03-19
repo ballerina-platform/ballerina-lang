@@ -163,6 +163,7 @@
                 <include>com.google.guava:guava</include>
                 <include>io.opencensus:opencensus-api</include>
                 <include>io.opencensus:opencensus-contrib-grpc-metrics</include>
+                <include>com.github.jknack:handlebars</include>
                 <include>commons-pool.wso2:commons-pool</include>
                 <include>org.apache.commons:commons-pool2</include>
                 <include>org.wso2.orbit.org.yaml:snakeyaml</include>
