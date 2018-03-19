@@ -24,7 +24,7 @@ public class BalGenerationConstants {
     public static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     public static final String OS_ARCH_SYSTEM_PROPERTY = "os.arch";
     public static final String META_LOCATION = "desc_gen/";
-    public static final String META_DEPENDENCY_LOCATION = "desc_gen/dependencies/";
+    public static final String META_DEPENDENCY_LOCATION = "desc_gen/dependencies";
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
     public static final String GOOGLE_STANDARD_LIB = "google/protobuf";

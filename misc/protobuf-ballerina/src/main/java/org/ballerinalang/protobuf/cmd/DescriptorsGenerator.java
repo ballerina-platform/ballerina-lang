@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,12 +85,8 @@ public class DescriptorsGenerator {
                 }
                 String command = new ProtocCommandBuilder(exePath, protoPath, protoPath.substring(0,
                         protoPath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR))
-                        , getDescriptorPath(depPath)).build();
-                try {
-                    generateDescriptor(command);
-                } catch (UnsupportedEncodingException e) {
-                    throw new BalGenToolException("Error executing protoc executor.", e);
-                }
+                        , new File(getDescriptorPath(depPath)).getAbsolutePath()).build();
+                generateDescriptor(command);
                 File childFile = new File(path);
                 try (InputStream childStream = new FileInputStream(childFile)) {
                     DescriptorProtos.FileDescriptorSet childDescSet = DescriptorProtos.FileDescriptorSet

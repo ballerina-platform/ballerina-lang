@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
+import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
 import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
@@ -113,7 +114,8 @@ public class GrpcCmd implements BLauncherCmd {
         ClassLoader classLoader = this.getClass().getClassLoader();
         String descriptorPath = BalGenerationConstants.META_LOCATION + getProtoFileName() + "-descriptor.desc";
         File descFile = generateDescTempFolder(descriptorPath);
-        StringBuilder msg = new StringBuilder("Initializing the ballerina code generation." + NEW_LINE_CHARACTER);
+        StringBuilder msg = new StringBuilder();
+        LOG.debug("Initializing the ballerina code generation.");
         List<String> protoFiles = readProperties(classLoader);
         for (String file : protoFiles) {
             try {
@@ -127,16 +129,16 @@ public class GrpcCmd implements BLauncherCmd {
         msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
         byte[] root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile
                 .getAbsolutePath());
-        msg.append("Successfully generated root descriptor.").append(NEW_LINE_CHARACTER);
+        LOG.debug("Successfully generated root descriptor.");
         List<byte[]> dependant;
         dependant = org.ballerinalang.protobuf.cmd.DescriptorsGenerator.generatedependentDescriptor
                 (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
-        msg.append("Successfully generated dependent descriptor.").append(NEW_LINE_CHARACTER);
+        LOG.debug("Successfully generated dependent descriptor.");
         //Path balPath = Paths.get(balOutPath);
         try {
             BallerinaFileBuilder ballerinaFileBuilder;
             // By this user can generate stub at different location
-            if (balOutPath == null) {
+            if (EMPTY_STRING.equals(balOutPath)) {
                 ballerinaFileBuilder = new BallerinaFileBuilder(dependant);
             } else {
                 ballerinaFileBuilder = new BallerinaFileBuilder(dependant, balOutPath);
@@ -152,7 +154,7 @@ public class GrpcCmd implements BLauncherCmd {
         //delete temporary meta files
         delete(new File("desc_gen"));
         delete(new File("google"));
-        msg.append("Successfully deleted temporary files.").append(NEW_LINE_CHARACTER);
+        LOG.debug("Successfully deleted temporary files.");
         outStream.println(msg.toString());
     }
     
@@ -202,7 +204,7 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private static void exportResource(String resourceName, ClassLoader classLoader) {
         try (InputStream initialStream = classLoader.getResourceAsStream(resourceName);
-             OutputStream resStreamOut = new FileOutputStream(resourceName)) {
+             OutputStream resStreamOut = new FileOutputStream(resourceName.replace("stdlib", "protobuf"))) {
             if (initialStream == null) {
                 throw new BalGenToolException("Cannot get resource \"" + resourceName + "\" from Jar file.");
             }
@@ -220,8 +222,8 @@ public class GrpcCmd implements BLauncherCmd {
      * Download the protoc executor.
      */
     private void downloadProtocexe() {
-        outStream.println("Downloading proc executor ...");
         if (exePath == null) {
+            outStream.println("Downloading proc executor ...");
             exePath = "protoc-" + org.ballerinalang.protobuf.cmd.OSDetector.getDetectedClassifier() + ".exe";
             File exeFile = new File(exePath);
             exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
@@ -250,6 +252,8 @@ public class GrpcCmd implements BLauncherCmd {
                 grantPermission(exeFile);
                 outStream.println("Continue with existing protoc executor.");
             }
+        } else {
+            outStream.println("Pre-Downloaded descriptor detected ...");
         }
     }
     

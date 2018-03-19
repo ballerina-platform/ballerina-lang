@@ -36,7 +36,6 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
-import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
 
 /**
@@ -70,12 +69,12 @@ public class BalFileGenerationUtils {
      * @param command protoc executor command.
      * @throws UnsupportedEncodingException when Character Encoding is not supported.
      */
-    public static void generateDescriptor(String command) throws UnsupportedEncodingException {
+    public static void generateDescriptor(String command) {
         boolean isWindows = System.getProperty("os.name")
                 .toLowerCase(Locale.ENGLISH).startsWith("windows");
         ProcessBuilder builder = new ProcessBuilder();
         if (isWindows) {
-            builder.command("cmd" + PROTOC_PLUGIN_EXE_PREFIX, "/c", "dir");
+            builder.command("cmd.exe", "/c", "dir");
         } else {
             builder.command("sh", "-c", command);
         }
@@ -120,11 +119,7 @@ public class BalFileGenerationUtils {
                 (exePath, protoPath, protoPath.substring(0, protoPath.lastIndexOf
                         (BalGenerationConstants.FILE_SEPARATOR)),
                         descriptorPath).build();
-        try {
-            generateDescriptor(command);
-        } catch (UnsupportedEncodingException e) {
-            throw new BalGenToolException("Error generating descriptor for command '" + command + "'", e);
-        }
+        generateDescriptor(command);
         File initialFile = new File(descriptorPath);
         try (InputStream targetStream = new FileInputStream(initialFile)) {
             DescriptorProtos.FileDescriptorSet set = DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
