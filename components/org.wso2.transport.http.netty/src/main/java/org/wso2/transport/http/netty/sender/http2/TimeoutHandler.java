@@ -54,14 +54,26 @@ public class TimeoutHandler implements Http2DataEventListener {
     }
 
     public void onStreamInit(int streamId, ChannelHandlerContext ctx) {
-        http2ClientChannel.getInFlightMessage(streamId).setLastReadWriteTime(ticksInNanos());
-        timerTasks.put(streamId,
-                       schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        if (outboundMsgHolder == null) {
+            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
+        }
+        if (outboundMsgHolder != null) {
+            outboundMsgHolder.setLastReadWriteTime(ticksInNanos());
+            timerTasks.put(streamId,
+                           schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));
+        }
     }
 
     @Override
     public void onDataRead(int streamId, ChannelHandlerContext ctx, boolean endOfStream) {
-        http2ClientChannel.getInFlightMessage(streamId).setLastReadWriteTime(ticksInNanos());
+        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+        if (outboundMsgHolder == null) {
+            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
+        }
+        if (outboundMsgHolder != null) {
+            outboundMsgHolder.setLastReadWriteTime(ticksInNanos());
+        }
         if (endOfStream) {
             onStreamClose(streamId);
         }
