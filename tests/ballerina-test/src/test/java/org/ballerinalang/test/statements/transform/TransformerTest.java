@@ -227,7 +227,7 @@ public class TransformerTest {
                 "cannot be updated inside transformer block", 26, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAllExpressionsAsRHSInTransformer() {
         CompileResult resNegative =
                 BCompileUtil.compile("test-src/statements/transform/transform-all-rhs-expressions-negative.bal");
@@ -270,7 +270,7 @@ public class TransformerTest {
                 "expressions inside transformer block", 100, 33);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTransformerNegative() {
         int i = 0;
         CompileResult resNegative =

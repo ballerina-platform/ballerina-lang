@@ -1,23 +1,22 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoEP {
+endpoint http:ServiceEndpoint echoEP {
     port:9099
-}
+};
 
-@http:serviceConfig {
-    basePath:"/echo",
-    endpoints:[echoEP]
+@http:ServiceConfig {
+    basePath:"/echo"
 }
 service<http:Service> echo {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
+    echo (endpoint outboundEP, http:Request req) {
         http:Response resp = {};
         var payload, _ = req.getStringPayload();
         resp.setStringPayload(payload);
-        _ = conn -> respond(resp);
+        _ = outboundEP -> respond(resp);
     }
 }

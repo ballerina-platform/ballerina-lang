@@ -100,6 +100,8 @@ public enum NodeKind {
     FOREACH,
     FORK_JOIN,
     IF,
+    MATCH,
+    MATCH_PATTERN_CLAUSE,
     REPLY,
     RETURN,
     THROW,
@@ -115,6 +117,7 @@ public enum NodeKind {
 
     /* Types */
     ARRAY_TYPE,
+    UNION_TYPE_NODE,
     BUILT_IN_REF_TYPE,
     CONSTRAINED_TYPE,
     FUNCTION_TYPE,

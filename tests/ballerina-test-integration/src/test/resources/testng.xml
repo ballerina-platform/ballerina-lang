@@ -26,10 +26,16 @@
     <!-- Below tests should run sequentially since it will use same port in each test -->
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.service.http.sample"/>
-            <package name="org.ballerinalang.test.service.http2"/>
-            <!--<package name="org.ballerinalang.test.transaction"/>-->
+            <!--<package name="org.ballerinalang.test.service.http.sample"/>-->
+            <!--<package name="org.ballerinalang.test.service.http2"/>-->
+            <package name="org.ballerinalang.test.transaction"/>
+            <package name="org.ballerinalang.test.filter"/>
         </packages>
+
+        <classes>
+            <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
+        </classes>
     </test>
 
     <!--<test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">-->

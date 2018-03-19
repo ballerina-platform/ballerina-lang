@@ -33,21 +33,18 @@ public struct ContentDisposition {
 level message and an entity(body part) inside of a multipart entity."}
 @Field {value:"contentType: Describes the data contained in the body of the entity"}
 @Field {value:"contentId: Helps one body of an entity to make a reference to another"}
-@Field {value:"headers: Denote general, request/response and entity related headers. Keys of the header map
-should represent the header name and value will be the 'HeaderValue' struct"}
 @Field {value:"size: Represent the size of the entity"}
 @Field {value:"contentDisposition: Represent values related to Content-Disposition header"}
 public struct Entity {
     MediaType contentType;
     string contentId;
-    map headers;
     int size;
     ContentDisposition contentDisposition;
 }
 
-@Description { value: "Represent all entity related errors"}
-@Field { value : "message: The error message"}
-@Field { value : "cause: The error which caused the entity error"}
+@Description {value:"Represent all entity related errors"}
+@Field {value:"message: The error message"}
+@Field {value:"cause: The error which caused the entity error"}
 public struct EntityError {
     string message;
     error[] cause;
@@ -276,3 +273,41 @@ public const string DEFAULT_CHARSET = "UTF-8";
 
 @Description {value:"Permission to be used with opening a byte channel for overflow data"}
 const string READ_PERMISSION = "r";
+
+@Description {value:"Represent 'content-type' header name"}
+public const string CONTENT_TYPE = "content-type";
+
+@Description {value:"Get the header value associated with the given header name"}
+@Param {value:"entity: Represent the MIME entity"}
+@Param {value:"headerName: Represent header name"}
+@Return {value:"Return header value associated with the given header name. If multiple header values are present,
+then the first value will be returned"}
+public native function <Entity entity> getHeader (string headerName) (string);
+
+@Description {value:"Get all the header values associated with the given header name"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Return {value:"Return all the header values associated with the given header name as a string of arrays"}
+public native function <Entity entity> getHeaders (string headerName) (string[]);
+
+@Description {value:"Add the given header value against the given header"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Param {value:"headerValue: Represent the header value to be added"}
+public native function <Entity entity> addHeader (string headerName, string headerValue);
+
+@Description {value:"Set the given header value against the given header. If a header already exist, its value will be
+replaced with the given header value"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+@Param {value:"headerValue: Represent the header value"}
+public native function <Entity entity> setHeader (string headerName, string headerValue);
+
+@Description {value:"Remove the given header from the entity"}
+@Param {value:"entity: Represent a MIME entity"}
+@Param {value:"headerName: Represent the header name"}
+public native function <Entity entity> removeHeader (string headerName);
+
+@Description {value:"Remove all headers associated with the entity"}
+@Param {value:"entity: Represent a MIME entity"}
+public native function <Entity entity> removeAllHeaders ();

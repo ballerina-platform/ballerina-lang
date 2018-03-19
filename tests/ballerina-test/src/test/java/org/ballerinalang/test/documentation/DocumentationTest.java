@@ -221,7 +221,7 @@ public class DocumentationTest {
                 " address which serves Eg: `POSTCODE 112`\n");
     }
 
-    @Test(description = "Test doc service.")
+    @Test(description = "Test doc service.", enabled = false)
     public void testDocService() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/service.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -253,45 +253,7 @@ public class DocumentationTest {
                 " In request.");
     }
 
-    @Test(description = "Test doc connector.")
-    public void testDocConnector() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
-        PackageNode packageNode = compileResult.getAST();
-        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
-        List<BLangDocumentation> docNodes = connector.docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " url for endpoint\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " path for endpoint\n");
-
-        dNode = connector.getActions().get(0).docAttachments.get(0);
-        Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testAction ");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not");
-
-        dNode = connector.getActions().get(1).docAttachments.get(0);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testSend ");
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "ep");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not ");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " which represent successful or not");
-    }
-
-    @Test(description = "Test doc connector/function.")
+    @Test(description = "Test doc connector/function.", enabled = false)
     public void testDocConnectorFunction() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "documentation/connector_function.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
@@ -596,37 +558,6 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "successful");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
                 " boolean `true` or `false`\n");
-
-    }
-
-    @Test(description = "Test doc native connector.")
-    public void testDocNativeConnector() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/native_action.bal",
-                CompilerPhase.TYPE_CHECK);
-        Assert.assertEquals(1, compileResult.getWarnCount());
-        BAssertUtil.validateWarning(compileResult, 0,
-                "no such documentable attribute 's' with doc prefix 'P'", 7, 53);
-        PackageNode packageNode = compileResult.getAST();
-        BLangConnector connector = (BLangConnector) packageNode.getConnectors().get(0);
-        List<BLangDocumentation> docNodes = connector.docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.getAttributes().size(), 2);
-        Assert.assertEquals(dNode.documentationText, "Test Connector\n");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "url");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " url for endpoint\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
-                " path for endpoint\n");
-
-        dNode = connector.getActions().get(0).docAttachments.get(0);
-        Assert.assertEquals(dNode.getAttributes().size(), 1);
-        Assert.assertEquals(dNode.documentationText,
-                "Test Connector action testAction ");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "s");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
-                " which represent successful or not");
 
     }
 
