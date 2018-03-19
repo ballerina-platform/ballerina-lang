@@ -631,7 +631,16 @@ public class Types {
     }
 
     private boolean isNullable(BType fieldType) {
-        return fieldType.isNullable();
+        if (!isValueType(fieldType)) {
+            return true;
+        }
+
+        // TODO: include blob as well, when the null support for blob is implemented
+        if (fieldType.tag == TypeTags.STRING) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean isJSONAssignableType(BType type) {
