@@ -2,12 +2,12 @@ import ballerina.io;
 import ballerina.net.http;
 import ballerina.net.websub;
 
-endpoint websub:WebSubSubscriberServiceEndpoint websubEP {
+endpoint websub:SubscriberServiceEndpoint websubEP {
     host:"localhost",
     port:8181
 };
 
-@websub:WebSubSubscriberServiceConfig {
+@websub:SubscriberServiceConfig {
     basePath:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
@@ -15,7 +15,7 @@ endpoint websub:WebSubSubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:WebSubSubscriberService> websubSubscriber bind websubEP {
+service<websub:SubscriberService> websubSubscriber bind websubEP {
 
     onVerifyIntent (endpoint client, http:Request request) {
         http:Response response = {};

@@ -39,7 +39,7 @@ public struct WebSubError {
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
 public function buildSubscriptionVerificationResponse(http:Request request) (http:Response) {
-    WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
+    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
     return buildIntentVerificationResponse(request, MODE_SUBSCRIBE, webSubSubscriberAnnotations);
 }
 
@@ -47,7 +47,7 @@ public function buildSubscriptionVerificationResponse(http:Request request) (htt
 @Param {value:"request: The intent verification request from the hub"}
 @Return {value:"The response to the hub verifying/denying intent to subscribe"}
 public function buildUnsubscriptionVerificationResponse(http:Request request) (http:Response) {
-    WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
+    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
     return buildIntentVerificationResponse(request, MODE_UNSUBSCRIBE, webSubSubscriberAnnotations);
 }
 
@@ -56,7 +56,7 @@ public function buildUnsubscriptionVerificationResponse(http:Request request) (h
 @Param { value : "mode: The mode (subscription/unsubscription) for which a request was sent" }
 @Return { value : "The response to the hub verifying/denying intent to subscripe/unsubscribe" }
 function buildIntentVerificationResponse(http:Request request, string mode,
-                         WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations) (http:Response response) {
+                                SubscriberServiceConfiguration webSubSubscriberAnnotations) (http:Response response) {
 
     if (webSubSubscriberAnnotations == null || webSubSubscriberAnnotations.topic == null) {
         log:printError("Unable to verify intent since the topic is not specified");
@@ -93,7 +93,7 @@ function buildIntentVerificationResponse(http:Request request, string mode,
 public function processWebSubNotification(http:Request request)
                                 (WebSubNotification webSubNotification, WebSubError webSubError) {
 
-    WebSubSubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
+    SubscriberServiceConfiguration webSubSubscriberAnnotations = retrieveAnnotations();
     var secret, _ = (string) webSubSubscriberAnnotations["secret"];
     string xHubSignature = (string) request.getHeader(X_HUB_SIGNATURE);
 

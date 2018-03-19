@@ -37,7 +37,7 @@ import java.util.List;
  */
 @SupportEndpointTypes(
         value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.websub",
-                        name = "WebSubSubscriberServiceEndpoint")
+                        name = "SubscriberServiceEndpoint")
         }
 )
 public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {

@@ -41,7 +41,7 @@ import org.ballerinalang.net.websub.WebSubServicesRegistry;
 @BallerinaFunction(
         packageName = "ballerina.net.websub",
         functionName = "registerWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
         isPublic = true
@@ -52,9 +52,9 @@ public class RegisterWebSubSubscriberServiceEndpoint extends AbstractHttpNativeF
     public void execute(Context context) {
 
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        Struct webSubSubscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
-                (BStruct) ((BStruct) (webSubSubscriberServiceEndpoint.getVMValue())).getRefField(1));
+                (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry)
                 serviceEndpoint.getNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
         webSubServicesRegistry.registerWebSubSubscriberService(service);

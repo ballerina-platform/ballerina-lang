@@ -50,7 +50,7 @@ import java.util.logging.LogManager;
 @BallerinaFunction(
         packageName = "ballerina.net.websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),
         isPublic = true
 )
@@ -58,9 +58,9 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
 
     @Override
     public void execute(Context context) {
-        Struct webSubSubscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
-                (BStruct) ((BStruct) (webSubSubscriberServiceEndpoint.getVMValue())).getRefField(1));
+                (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
 
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         if (isHTTPTraceLoggerEnabled()) {

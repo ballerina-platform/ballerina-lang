@@ -27,8 +27,8 @@ public class WebSubSubscriberConstants {
 
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
     public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME =
-                                                        "ballerina.net.websub:WebSubSubscriberServiceEndpoint";
-    public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "WebSubSubscriberServiceConfig";
+                                                        "ballerina.net.websub:SubscriberServiceEndpoint";
+    public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
     public static final String WEBSUB_PACKAGE_PATH = "ballerina.net.websub";
 
     public static final String RESOURCE_NAME_VERIFY_INTENT = "onVerifyIntent";

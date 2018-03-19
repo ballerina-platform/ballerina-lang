@@ -4,8 +4,8 @@ package ballerina.net.websub;
 //////////////////// WebSub Subscriber Natives ////////////////////
 ///////////////////////////////////////////////////////////////////
 @Description {value:"Function to retrieve annotations specified for the WebSub Subscriber Service"}
-@Return {value:"WebSubSubscriberServiceConfiguration representing the annotation"}
-native function retrieveAnnotations () (WebSubSubscriberServiceConfiguration);
+@Return {value:"SubscriberServiceConfiguration representing the annotation"}
+native function retrieveAnnotations () (SubscriberServiceConfiguration);
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////

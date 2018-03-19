@@ -12,8 +12,8 @@ package ballerina.net.websub;
 @Field {value:"callback: The callback URL (part of this service) at which notifications are expected."}
 @Field {value:"leaseSeconds: The period for which the subscription is expected to be active."}
 @Field {value:"secret: The secret to be used for authenticated content distribution."}
-public struct WebSubSubscriberServiceConfiguration {
-    WebSubSubscriberServiceEndpoint[] endpoints;
+public struct SubscriberServiceConfiguration {
+    SubscriberServiceEndpoint[] endpoints;
     string basePath;
     boolean subscribeOnStartUp;
     string hub;
@@ -23,4 +23,4 @@ public struct WebSubSubscriberServiceConfiguration {
 }
 
 @Description {value:"WebebSubSubscriber Configuration for service"}
-public annotation <service> WebSubSubscriberServiceConfig WebSubSubscriberServiceConfiguration;
+public annotation <service> SubscriberServiceConfig SubscriberServiceConfiguration;

@@ -5,7 +5,7 @@ import ballerina.mime;
 import ballerina.net.http;
 
 @Description {value:"HTTP client connector for outbound WebSub Subscription/Unsubscription requests to a Hub"}
-public struct WebSubHubClientConnector {
+public struct HubClientConnector {
     string hubUri;
     http:ClientEndpoint httpClientEndpoint;
 }
@@ -14,7 +14,7 @@ public struct WebSubHubClientConnector {
 @Param {value:"subscriptionRequest: The SubscriptionChangeRequest containing subscription details"}
 @Return {value:"SubscriptionChangeResponse indicating subscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the subscription request"}
-public function <WebSubHubClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest)
+public function <HubClientConnector client> subscribe (SubscriptionChangeRequest subscriptionRequest)
 (SubscriptionChangeResponse, WebSubError) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_SUBSCRIBE, subscriptionRequest);
@@ -28,7 +28,7 @@ public function <WebSubHubClientConnector client> subscribe (SubscriptionChangeR
 @Param {value:"unsubscriptionRequest: The SubscriptionChangeRequest containing unsubscription details"}
 @Return {value:"SubscriptionChangeResponse indicating unsubscription details, if the request was successful"}
 @Return {value:"WebSubError if an error occurred with the unsubscription request"}
-public function <WebSubHubClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest)
+public function <HubClientConnector client> unsubscribe (SubscriptionChangeRequest unsubscriptionRequest)
 (SubscriptionChangeResponse, WebSubError) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeOutRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
@@ -43,7 +43,7 @@ public function <WebSubHubClientConnector client> unsubscribe (SubscriptionChang
 @Param {value:"topic: The topic for which the update occurred"}
 @Param {value:"payload: The update payload"}
 @Return {value:"WebSubError if an error occurred with the update"}
-public function <WebSubHubClientConnector client> publishUpdateToRemoteHub (string topic, json payload)
+public function <HubClientConnector client> publishUpdateToRemoteHub (string topic, json payload)
 (WebSubError webSubError) {
     endpoint http:ClientEndpoint httpClientEndpoint = client.httpClientEndpoint;
     http:Request request = {};

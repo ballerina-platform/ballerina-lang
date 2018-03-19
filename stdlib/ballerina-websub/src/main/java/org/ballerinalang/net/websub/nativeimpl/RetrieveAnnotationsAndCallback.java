@@ -41,7 +41,7 @@ import org.ballerinalang.net.websub.WebSubServicesRegistry;
 @BallerinaFunction(
         packageName = "ballerina.net.websub",
         functionName = "retrieveAnnotationsAndCallback",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSubSubscriberServiceEndpoint",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),
         returnType = {@ReturnType(type = TypeKind.MAP)}
 )
@@ -49,8 +49,8 @@ public class RetrieveAnnotationsAndCallback extends AbstractHttpNativeFunction {
 
     @Override
     public void execute(Context context) {
-        Struct webSubSubscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = webSubSubscriberServiceEndpoint.getStructField("serviceEndpoint");
+        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        Struct serviceEndpoint = subscriberServiceEndpoint.getStructField("serviceEndpoint");
 
         HttpService httpService = ((HttpService) ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY)).getServicesInfoByInterface()
