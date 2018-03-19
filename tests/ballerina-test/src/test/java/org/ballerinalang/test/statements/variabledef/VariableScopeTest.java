@@ -74,6 +74,6 @@ public class VariableScopeTest {
         //testVariableWhileScope
         BAssertUtil.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
         //testVariableResourceScope
-        BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 48, 17);
+        BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 47, 17);
     }
 }

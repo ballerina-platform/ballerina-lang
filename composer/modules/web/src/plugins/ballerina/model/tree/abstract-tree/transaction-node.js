@@ -48,6 +48,7 @@ class AbstractTransactionNode extends StatementNode {
     }
 
 
+
     setFailedBody(newValue, silent, title) {
         const oldValue = this.failedBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -74,6 +75,7 @@ class AbstractTransactionNode extends StatementNode {
     }
 
 
+
     setTransactionBody(newValue, silent, title) {
         const oldValue = this.transactionBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -98,6 +100,7 @@ class AbstractTransactionNode extends StatementNode {
     getTransactionBody() {
         return this.transactionBody;
     }
+
 
 
 }

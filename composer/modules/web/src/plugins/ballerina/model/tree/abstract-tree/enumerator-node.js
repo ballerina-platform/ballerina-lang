@@ -167,6 +167,7 @@ class AbstractEnumeratorNode extends Node {
     }
 
 
+
     setFlags(newValue, silent, title) {
         const oldValue = this.flags;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -189,6 +190,7 @@ class AbstractEnumeratorNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {

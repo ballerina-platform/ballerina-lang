@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -51,7 +52,7 @@ public class HttpService {
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
     private static final String BASE_PATH_FIELD = "basePath";
-    private static final String COMPRESSION_ENABLED_FIELD = "compressionEnabled";
+    private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
@@ -63,7 +64,7 @@ public class HttpService {
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
     private Struct webSocketUpgradeConfig;
     private boolean keepAlive = true; //default behavior
-    private boolean compressionEnabled = true; //default behavior
+    private String compression = AUTO; //default behavior
 
     public Service getBallerinaService() {
         return balService;
@@ -81,12 +82,8 @@ public class HttpService {
         this.keepAlive = keepAlive;
     }
 
-    public boolean isCompressionEnabled() {
-        return compressionEnabled;
-    }
-
-    public void setCompressionEnabled(boolean compressionEnabled) {
-        this.compressionEnabled = compressionEnabled;
+    public void setCompression(String compression) {
+        this.compression = compression;
     }
 
     public String getName() {
@@ -178,7 +175,7 @@ public class HttpService {
         Struct serviceConfig = serviceConfigAnnotation.getValue();
 
         httpService.setBasePath(serviceConfig.getStringField(BASE_PATH_FIELD));
-        httpService.setCompressionEnabled(serviceConfig.getBooleanField(COMPRESSION_ENABLED_FIELD));
+        httpService.setCompression(serviceConfig.getEnumField(COMPRESSION_FIELD));
         httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
         httpService.setWebSocketUpgradeConfig(serviceConfig.getStructField(WEBSOCKET_UPGRADE_FIELD));
 

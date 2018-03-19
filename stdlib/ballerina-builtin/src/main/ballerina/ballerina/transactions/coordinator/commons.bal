@@ -17,6 +17,7 @@
 package ballerina.transactions.coordinator;
 
 import ballerina.caching;
+import ballerina.io;
 import ballerina.log;
 import ballerina.net.http;
 import ballerina.util;
@@ -28,20 +29,55 @@ documentation {
 }
 string localParticipantId = util:uuid();
 
+const boolean initialized = initialize();
+
 documentation {
     This cache is used for caching transaction that are initiated.
 }
-caching:Cache initiatedTransactions = caching:createCache("ballerina.transactions.initiated.cache", 600000, 10, 0.1);
+Cache initiatedTransactions;
+//caching:Cache initiatedTransactions = caching:createCache("ballerina.transactions.initiated.cache", 1200000, 100000000, 0.1);
 
 documentation {
     This cache is used for caching transaction that are this Ballerina instance participates in.
 }
-caching:Cache participatedTransactions = caching:createCache("ballerina.transactions.participated.cache", 600000, 10, 0.1);
+Cache participatedTransactions;
+//caching:Cache participatedTransactions = caching:createCache("ballerina.transactions.participated.cache", 1200000, 100000000, 0.1);
 
 documentation {
     This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 }
-caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 10, 0.1);
+caching:Cache httpClientCache = caching:createCache("ballerina.http.client.cache", 900000, 100, 0.1);
+
+struct Cache {
+    map content;
+}
+
+function <Cache c> get (string key) returns (any) {
+    return c.content[key];
+}
+
+function <Cache c> put (string key, any value) {
+    c.content[key] = value;
+}
+
+function <Cache c> remove (string key) {
+    boolean removed = c.content.remove(key);
+    if(!removed) {
+        log:printError("Remove from cache failed for key:" + key);
+    }
+}
+
+function <Cache c> hasKey (string key) returns (boolean) {
+    return c.content.hasKey(key);
+}
+
+function initialize () returns (boolean) {
+    initiatedTransactions = {};
+    initiatedTransactions.content = {};
+    participatedTransactions = {};
+    participatedTransactions.content = {};
+    return true;
+}
 
 struct Transaction {
     string transactionId;
@@ -269,14 +305,51 @@ function registerParticipantWithLocalInitiator (string transactionId,
 function localParticipantProtocolFn (string transactionId,
                                      int transactionBlockId,
                                      string protocolAction) returns (boolean successful) {
+    string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+    var txn, _ = (TwoPhaseCommitTransaction)participatedTransactions.get(participatedTxnId);
+    if(txn == null) {
+        successful = false;
+        return;
+    }
     if (protocolAction == "prepare") {
-        successful = prepareResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.ABORTED) {
+            participatedTransactions.remove(participatedTxnId);
+        } else {
+            successful = prepareResourceManagers(transactionId, transactionBlockId);
+            if (successful) {
+                txn.state = TransactionState.PREPARED;
+            }
+            successful = true;
+        }
     } else if (protocolAction == "notifycommit") {
-        successful = commitResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.PREPARED) {
+            successful = commitResourceManagers(transactionId, transactionBlockId);
+            participatedTransactions.remove(participatedTxnId);
+            successful = true;
+        }
     } else if (protocolAction == "notifyabort") {
-        successful = abortResourceManagers(transactionId, transactionBlockId);
+        if (txn.state == TransactionState.PREPARED) {
+            successful = abortResourceManagers(transactionId, transactionBlockId);
+            participatedTransactions.remove(participatedTxnId);
+            successful = true;
+        }
     }
     return;
+}
+
+function getInitiatorClientEP(string registerAtURL) returns (InitiatorClientEP) {
+    var initiatorEP, cacheErr = (InitiatorClientEP)httpClientCache.get(registerAtURL);
+    if (cacheErr != null) {
+        throw cacheErr; // We can't continue due to a programmer error
+    }
+    if (initiatorEP == null) {
+        initiatorEP = {};
+        InitiatorClientConfig config = {registerAtURL: registerAtURL,
+                                           endpointTimeout: 120000, retryConfig:{count:5, interval:5000}};
+        initiatorEP.init (config);
+        httpClientCache.put(registerAtURL, initiatorEP);
+    }
+    return initiatorEP;
 }
 
 documentation {
@@ -291,9 +364,8 @@ documentation {
 function registerParticipantWithRemoteInitiator (string transactionId,
                                                  int transactionBlockId,
                                                  string registerAtURL) returns (TransactionContext txnCtx, error err) {
-    endpoint<InitiatorClient> initiatorEP {
-    }
-
+    endpoint InitiatorClientEP initiatorEP;
+    initiatorEP = getInitiatorClientEP(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
@@ -301,17 +373,8 @@ function registerParticipantWithRemoteInitiator (string transactionId,
         log:printError("Already registered with initiator for transaction:" + participatedTxnId);
         return;
     }
-    var client, cacheErr = (InitiatorClient)httpClientCache.get(registerAtURL);
-    if (cacheErr != null) {
-        throw cacheErr; // We can't continue due to a programmer error
-    }
-    if (client == null) {
-        client = create InitiatorClient(registerAtURL);
-        httpClientCache.put(registerAtURL, client);
-    }
-    bind client with initiatorEP;
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
-    var regRes, e = initiatorEP.register(transactionId, transactionBlockId);
+    var regRes, e = initiatorEP -> register(transactionId, transactionBlockId);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);

@@ -141,6 +141,31 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+    setJoinType(newValue, silent, title) {
+        const oldValue = this.joinType;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinType = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinType',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinType() {
+        return this.joinType;
+    }
+
+
+
     setJoinedWorkerIdentifiers(newValue, silent, title) {
         const oldValue = this.joinedWorkerIdentifiers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -260,30 +285,6 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
-    setJoinType(newValue, silent, title) {
-        const oldValue = this.joinType;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinType = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinType',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinType() {
-        return this.joinType;
-    }
-
-
     setJoinCount(newValue, silent, title) {
         const oldValue = this.joinCount;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -306,6 +307,7 @@ class AbstractForkJoinNode extends StatementNode {
     getJoinCount() {
         return this.joinCount;
     }
+
 
 
     setJoinBody(newValue, silent, title) {
@@ -334,6 +336,7 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+
     setTimeOutExpression(newValue, silent, title) {
         const oldValue = this.timeOutExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -358,6 +361,7 @@ class AbstractForkJoinNode extends StatementNode {
     getTimeOutExpression() {
         return this.timeOutExpression;
     }
+
 
 
     setTimeOutVariable(newValue, silent, title) {
@@ -386,6 +390,7 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+
     setTimeoutBody(newValue, silent, title) {
         const oldValue = this.timeoutBody;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -412,6 +417,7 @@ class AbstractForkJoinNode extends StatementNode {
     }
 
 
+
     setJoinResultVar(newValue, silent, title) {
         const oldValue = this.joinResultVar;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -436,6 +442,7 @@ class AbstractForkJoinNode extends StatementNode {
     getJoinResultVar() {
         return this.joinResultVar;
     }
+
 
 
 }
