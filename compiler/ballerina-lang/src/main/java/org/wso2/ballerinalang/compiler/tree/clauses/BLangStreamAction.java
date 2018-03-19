@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
 
-    private String identifierName;
+    private ExpressionNode targetReference;
 
     private String outputEventType;
 
@@ -74,8 +74,8 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
     }
 
     @Override
-    public void setIdentifier(String identifier) {
-        this.identifierName = identifier;
+    public void setTargetReference(ExpressionNode ref) {
+        this.targetReference = ref;
     }
 
     @Override
@@ -89,8 +89,8 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
     }
 
     @Override
-    public String getIdentifier() {
-        return identifierName;
+    public ExpressionNode getTargetReference() {
+        return targetReference;
     }
 
     @Override

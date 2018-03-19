@@ -730,6 +730,15 @@ public class CPU {
                     InstructionLock instructionUnLock = (InstructionLock) instruction;
                     handleVariableUnlock(ctx, instructionUnLock.types, instructionUnLock.varRegs);
                     break;
+                case InstructionCodes.ASYNC:
+                    execAsync(ctx);
+                    break;
+                case InstructionCodes.AWAIT:
+                    ctx = execAwait(ctx);
+                    if (ctx == null) {
+                        return;
+                    }
+                    break;
                 default:
                     throw new UnsupportedOperationException();
             }
@@ -2608,13 +2617,10 @@ public class CPU {
         int cpIndex = operands[0];
         int i = operands[1];
         StreamletRefCPEntry streamletRefCPEntry = (StreamletRefCPEntry) ctx.constPool[cpIndex];
-        StreamletInfo streamletInfo = (StreamletInfo) streamletRefCPEntry.getStreamletInfo();
+        StreamletInfo streamletInfo = streamletRefCPEntry.getStreamletInfo();
         BStreamlet streamlet = new BStreamlet(streamletInfo.getType());
         streamlet.setSiddhiApp(streamletInfo.getSiddhiQuery());
         streamlet.setStreamIdsAsString(streamletInfo.getStreamIdsAsString());
-        StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
-        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
-                                                                          streamletInfo.getStreamIdsAsString());
         sf.refRegs[i] = streamlet;
     }
 
@@ -3584,6 +3590,13 @@ public class CPU {
         BNewArray newArray = (BNewArray) entity;
         sf.longRegs[j] = newArray.size();
         return;
+    }
+    
+    private static void execAsync(WorkerExecutionContext ctx) {        
+    }
+    
+    private static WorkerExecutionContext execAwait(WorkerExecutionContext ctx) {
+        return null;
     }
 
     /**

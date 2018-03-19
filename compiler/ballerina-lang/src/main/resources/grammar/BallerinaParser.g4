@@ -205,6 +205,7 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
+    |   TYPE_FUTURE (LT typeName GT)?    
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
@@ -428,7 +429,7 @@ xmlAttrib
     ;
 
 functionInvocation
-    : nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    : ASYNC? nameReference LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 invocation
@@ -521,6 +522,7 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   AWAIT expression                                                    # awaitExpression    
     ;
 
 //reusable productions
@@ -753,9 +755,9 @@ havingClause
     ;
 
 streamingAction
-    :   INSERT outputEventType? INTO Identifier
-    |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression
-    |   DELETE Identifier ON expression
+    :   INSERT outputEventType? INTO variableReference
+    |   UPDATE (OR INSERT INTO)? variableReference setClause ? ON expression
+    |   DELETE variableReference ON expression
     ;
 
 setClause
@@ -789,7 +791,7 @@ patternStreamingInput
     ;
 
 patternStreamingEdgeInput
-    :   Identifier whereClause? intRangeExpression? (AS alias=Identifier)?
+    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
     ;
 
 whereClause

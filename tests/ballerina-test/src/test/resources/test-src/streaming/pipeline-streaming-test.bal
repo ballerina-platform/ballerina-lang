@@ -33,6 +33,7 @@ struct Teacher {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 stream<StatusCount> filteredStatusCountStream = {};
+stream<Teacher> preProcessedStatusCountStream = {};
 stream<Teacher> teacherStream = {};
 
 streamlet pipelineStreamlet () {

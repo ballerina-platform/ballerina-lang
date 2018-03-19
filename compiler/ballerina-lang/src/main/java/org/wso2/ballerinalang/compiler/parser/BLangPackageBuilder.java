@@ -1353,15 +1353,16 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr) {
+    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr, DiagnosticPos currentPos) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        AnnotationAttachmentNode annotAttach = annotAttachmentStack.peek();
-        annotAttach.addWS(nameReference.ws);
-        annotAttach.addWS(ws);
-        annotAttach.setAnnotationName(nameReference.name);
-        annotAttach.setPackageAlias(nameReference.pkgAlias);
+        BLangAnnotationAttachment bLangAnnotationAttachment = (BLangAnnotationAttachment) annotAttachmentStack.peek();
+        bLangAnnotationAttachment.pos = currentPos;
+        bLangAnnotationAttachment.addWS(nameReference.ws);
+        bLangAnnotationAttachment.addWS(ws);
+        bLangAnnotationAttachment.setAnnotationName(nameReference.name);
+        bLangAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
         if (hasExpr) {
-            annotAttach.setExpression(exprNodeStack.pop());
+            bLangAnnotationAttachment.setExpression(exprNodeStack.pop());
         }
     }
 
@@ -2333,21 +2334,19 @@ public class BLangPackageBuilder {
         this.streamActionNodeStack.push(streamActionNode);
     }
 
-    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier, String action,
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String action,
                                     boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
 
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
-
-        if (!exprNodeStack.empty()) {
+        if (!action.equalsIgnoreCase("insert")) {
             streamActionNode.setExpression(exprNodeStack.pop());
         }
-
         if (!setAssignmentListStack.empty()) {
             streamActionNode.setSetClause(setAssignmentListStack.pop());
         }
-        streamActionNode.setIdentifier(identifier);
+        streamActionNode.setTargetReference(exprNodeStack.pop());
         streamActionNode.setStreamActionType(action);
         streamActionNode.setOutputEventType(isAllEvents, isCurrentEvents, isExpiredEvents);
     }
@@ -2359,22 +2358,23 @@ public class BLangPackageBuilder {
         this.patternStreamingEdgeInputStack.push(patternStreamingEdgeInputNode);
     }
 
-    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                                 String alias) {
+    public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String alias) {
 
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
 
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
         patternStreamingEdgeInputNode.addWS(ws);
 
-        if (!exprNodeStack.empty()) {
+        if (exprNodeStack.size() == 2) {
             patternStreamingEdgeInputNode.setExpression(exprNodeStack.pop());
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
+        } else if (exprNodeStack.size() == 1) {
+            patternStreamingEdgeInputNode.setStreamReference(exprNodeStack.pop());
         }
 
         if (!whereClauseStack.empty()) {
             patternStreamingEdgeInputNode.setWhereClause(whereClauseStack.pop());
         }
-        patternStreamingEdgeInputNode.setIdentifier(identifier);
         patternStreamingEdgeInputNode.setAliasIdentifier(alias);
     }
 

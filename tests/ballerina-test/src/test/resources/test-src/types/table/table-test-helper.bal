@@ -22,7 +22,7 @@ function getTableCount (string tablePrefix) (int count) {
     try {
         table dt = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
                                  parameters, typeof ResultCount);
-        if (dt.hasNext()) {
+        while (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();
             count = rs.COUNTVAL;
         }
@@ -48,7 +48,7 @@ function getSessionCount () (int count) {
     try {
         table dt = testDB -> select("SELECT count(*) as count FROM information_schema.sessions",
                                  null, typeof ResultCount);
-        if (dt.hasNext()) {
+        while (dt.hasNext()) {
             var rs, _ = (ResultCount) dt.getNext();
             count = rs.COUNTVAL;
         }

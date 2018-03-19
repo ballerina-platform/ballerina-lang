@@ -91,6 +91,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
+TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
@@ -121,6 +122,8 @@ BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
+ASYNC       : 'async' ;
+AWAIT       : 'await' ;
 
 // Separators
 

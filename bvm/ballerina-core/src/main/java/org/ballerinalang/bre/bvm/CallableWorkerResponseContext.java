@@ -37,11 +37,11 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected boolean fulfilled;
 
     protected Map<String, BStruct> workerErrors;
-    
+        
     protected int haltCount;
 
-    public CallableWorkerResponseContext(BType[] responseTypes, int workerCount, boolean checkResponse) {
-        super(workerCount, checkResponse);
+    public CallableWorkerResponseContext(BType[] responseTypes, int workerCount) {
+        super(workerCount);
         this.responseTypes = responseTypes;
     }
     
@@ -81,9 +81,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     }
     
     protected WorkerExecutionContext propagateErrorToTarget() {
-        this.notifyResponseChecker();
-        return this.onFinalizedError(this.targetCtx, BLangVMErrors.createCallFailedException(
-                this.targetCtx, this.getWorkerErrors()));
+        BStruct error = BLangVMErrors.createCallFailedException(this.targetCtx, this.getWorkerErrors());
+        this.doFailCallbackNotify(error);
+        return this.onFinalizedError(this.targetCtx, error);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
                 runInCallerCtx = BLangScheduler.resume(this.targetCtx, runInCaller);
             }
         }
-        this.notifyResponseChecker();
+        this.doSuccessCallbackNotify();
         return runInCallerCtx;
     }
     

@@ -760,7 +760,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null);
+        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null, getCurrentPos(ctx));
     }
 
 
@@ -2207,8 +2207,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isCurentEvents = ctx.outputEventType() != null && ctx.outputEventType().CURRENT() != null;
         boolean isExpiredEvents = ctx.outputEventType() != null && ctx.outputEventType().EXPIRED() != null;
 
-        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
-                ctx.getChild(0).getText(), isAllEvents, isCurentEvents, isExpiredEvents);
+        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText(), isAllEvents,
+                isCurentEvents, isExpiredEvents);
     }
 
     @Override
@@ -2216,6 +2216,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
+
         this.pkgBuilder.startPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -2225,12 +2226,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        String alias = null;
-        if (ctx.Identifier().size() == 2) {
-            alias = ctx.Identifier().get(1).getText();
-        }
-        this.pkgBuilder.endPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().get(0).getText(), alias);
+        String alias = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.endPatternStreamingEdgeInputNode(getCurrentPos(ctx), getWS(ctx), alias);
     }
 
     @Override

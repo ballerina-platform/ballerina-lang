@@ -77,12 +77,11 @@ public class WriteBytesEvent implements Event {
         try {
             int numberOfBytesWritten = byteChannel.write(writeBuffer);
             result = new NumericResult(numberOfBytesWritten, context);
-            return result;
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
             result = new NumericResult(context);
-            return result;
         }
+        return result;
     }
 }

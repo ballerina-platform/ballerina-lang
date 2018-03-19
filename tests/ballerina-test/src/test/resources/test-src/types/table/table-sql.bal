@@ -49,8 +49,6 @@ function testSimpleSelectAll () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    personTableCopy.close();
     return recordCount;
 }
 
@@ -75,8 +73,6 @@ function testSimpleSelectFewFields () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    studentTable.close();
     return recordCount;
 }
 
@@ -115,9 +111,6 @@ function testSimpleSelectWithJoin () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }
 
@@ -157,9 +150,6 @@ function testSelectWithJoinAndWhere () (int) {
         recordCount = recordCount +1;
     }
 
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }
 
@@ -200,8 +190,5 @@ function testSelectWithJoinAndWhereWithGroupBy () (int) {
         recordCount = recordCount +1;
     }
     io:println(orderDetailsTable);
-    personTable.close();
-    orderDetailsTable.close();
-    orderTable.close();
     return recordCount;
 }

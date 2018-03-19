@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.debugger.DebugCommand;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 /**
  * This class represents the base implementation for a {@link WorkerResponseContext}.
@@ -31,8 +33,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     protected int[] retRegIndexes;
 
     protected WorkerSignal currentSignal;
-
-    protected Semaphore responseChecker;
+    
+    protected List<CallableUnitCallback> responseCallbacks;
 
     protected WorkerExecutionContext targetCtx;
 
@@ -40,11 +42,8 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     
     protected int workerCount;
 
-    public BaseWorkerResponseContext(int workerCount, boolean checkResponse) {
+    public BaseWorkerResponseContext(int workerCount) {
         this.workerCount = workerCount;
-        if (checkResponse) {
-            this.responseChecker = new Semaphore(0);
-        }
     }
     
     @Override
@@ -81,12 +80,6 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return null;
     }
     
-    protected void notifyResponseChecker() {
-        if (this.responseChecker != null) {
-            this.responseChecker.release();
-        }
-    }
-
     protected WorkerExecutionContext onReturn(WorkerSignal signal) {
         return null;
     }
@@ -114,15 +107,6 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         return null;
     }
 
-    public void waitForResponse() {
-        if (this.responseChecker == null) {
-            return;
-        }
-        try {
-            this.responseChecker.acquire();
-        } catch (InterruptedException ignore) { /* ignore */ }
-    }
-
     @Override
     public synchronized WorkerDataChannel getWorkerDataChannel(String name) {
         if (this.workerDataChannels == null) {
@@ -134,6 +118,36 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             this.workerDataChannels.put(name, channel);
         }
         return channel;
+    }
+    
+    /**
+     * Registers a response callback handler with this context. This must be registered before
+     * any actions are done on the response context, or else, the events will not be triggered
+     * on the callback. 
+     * 
+     * @param responseCallback the response callback
+     */
+    public synchronized void registerResponseCallback(CallableUnitCallback responseCallback) {
+        if (this.responseCallbacks == null) {
+            this.responseCallbacks = new ArrayList<CallableUnitCallback>();
+        }
+        this.responseCallbacks.add(responseCallback);
+    }
+    
+    protected void doSuccessCallbackNotify() {
+        if (this.responseCallbacks != null) {
+            for (CallableUnitCallback callback : this.responseCallbacks) {
+                callback.notifySuccess();
+            }
+        }
+    }
+    
+    protected void doFailCallbackNotify(BStruct error) {
+        if (this.responseCallbacks != null) {
+            for (CallableUnitCallback callback : this.responseCallbacks) {
+                callback.notifyFailure(error);
+            }
+        }
     }
 
 }

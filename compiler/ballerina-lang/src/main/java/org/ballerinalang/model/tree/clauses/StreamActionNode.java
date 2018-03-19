@@ -42,13 +42,13 @@ public interface StreamActionNode extends Node {
 
     void setStreamActionType(String streamActionType);
 
-    void setIdentifier(String identifier);
+    void setTargetReference(ExpressionNode ref);
 
     void setSetClause(List<SetAssignmentNode> setAssignmentNodeList);
 
     void setExpression(ExpressionNode expressionNode);
 
-    String getIdentifier();
+    ExpressionNode getTargetReference();
 
     List<SetAssignmentNode> getSetClause();
 

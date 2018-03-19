@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.util;
+package org.ballerinalang.langserver.common;
 
 /**
  * Utility Symbol Keys related to Completion.
@@ -42,4 +42,20 @@ public class UtilSymbolKeys {
     public static final String CREATE_KEYWORD_KEY = "create";
 
     public static final String ENDPOINT_KEYWORD_KEY = "endpoint";
+
+    public static final String FUNCTION_KEYWORD_KEY = "function";
+
+    public static final String RESOURCE_KEYWORD_KEY = "resource";
+
+    public static final String SERVICE_KEYWORD_KEY = "service";
+
+    public static final String CONNECTOR_KEYWORD_KEY = "connector";
+
+    public static final String ACTION_KEYWORD_KEY = "action";
+
+    public static final String ENUM_KEYWORD_KEY = "enum";
+
+    public static final String TRANSFORMER_KEYWORD_KEY = "transformer";
+
+    public static final String STRUCT_KEYWORD_KEY = "struct";
 }

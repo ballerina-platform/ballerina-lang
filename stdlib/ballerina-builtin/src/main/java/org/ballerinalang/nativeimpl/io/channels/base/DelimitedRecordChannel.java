@@ -66,7 +66,13 @@ public class DelimitedRecordChannel {
     private CharacterChannel channel;
 
     /**
+     * <p>
      * Specified whether there're any remaining records left to be read from the channel.
+     * </p>
+     * <p>
+     * This will be false if there're no characters remaining in the persistentCharSequence and the the channel has
+     * reached EoF
+     * </p>
      */
     private boolean remaining = true;
 
@@ -146,6 +152,8 @@ public class DelimitedRecordChannel {
         //If there're any remaining characters left we provide it as the last record
         if (persistentCharSequence.length() > minimumRemainingLength) {
             record = persistentCharSequence.toString();
+            //Once the final record is processed there will be no chars left
+            persistentCharSequence.setLength(minimumRemainingLength);
             if (log.isTraceEnabled()) {
                 log.trace("char [] remaining in memory, will be marked as the last record " + record);
             }
@@ -316,8 +324,17 @@ public class DelimitedRecordChannel {
      * Check whether there are more records or not.
      *
      * @return true if more records in the channel else false.
+     * @throws IOException if an error occurs while reading from channel.
      */
-    public boolean hasNext() {
+    public boolean hasNext() throws IOException {
+        if (remaining && persistentCharSequence.length() == 0) {
+            //If this is the case we need to further verify whether there will be more bytes left to be read
+            //Remaining can become false in the next iteration
+            String readChars = readRecordFromChannel();
+            if (readChars.isEmpty()) {
+                remaining = false;
+            }
+        }
         return remaining;
     }
 }

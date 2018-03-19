@@ -19,3 +19,12 @@ package ballerina.builtin;
 @Description {value:"Stops the streamlet runtime"}
 @Param {value:"s: The streamlet runtime which needs to be stop"}
 public native function <streamlet s> stop ();
+
+@Description {value:"Creates the streamlet runtime"}
+@Param {value:"streamletType: The streamlet runtime type which needs to be created"}
+@Param {value:"inStreamRefs: References of the input streams in the streamlet"}
+@Param {value:"inTableRefs: References of the input tables in the streamlet"}
+@Param {value:"outStreamRefs: References of the output streams in the streamlet"}
+@Param {value:"outTableRefs: References of the output tables in the streamlet"}
+public native function startStreamlet (streamlet streamletRef, any inStreamRefs, any inTableRefs, any outStreamRefs,
+        any outTableRefs) (streamlet);

@@ -1,4 +1,5 @@
 import ballerina.io;
+import ballerina.data.sql;
 
 struct Person {
     int id;
@@ -37,16 +38,51 @@ struct ArraTypeTest {
     boolean[] booleanArrData;
 }
 
+struct ResultCount {
+    int COUNTVAL;
+}
+
 table<Person> dt1 = {};
 table<Company> dt2 = {};
 
-function testEmptyTableCreate () {
+function testEmptyTableCreate () (int count1, int count2) {
     table<Person> dt3 = {};
     table<Person> dt4 = {};
     table<Company> dt5 = {};
     table < Person > dt6;
     table < Company > dt7;
     table dt8;
+    count1 = checkTableCount("TABLE_PERSON_%");
+    count2 = checkTableCount("TABLE_COMPANY_%");
+    return;
+}
+
+function checkTableCount(string tablePrefix) (int count) {
+    endpoint<sql:Client> testDBEP {
+        database: sql:DB.H2_MEM,
+        host: "",
+        port: 0,
+        name: "TABLEDB",
+        username: "sa",
+        password: "",
+        options: {maximumPoolSize:1}
+    }
+    var testDB = testDBEP.getConnector();
+
+    sql:Parameter  p1 = {value:tablePrefix, sqlType:sql:Type.VARCHAR};
+    sql:Parameter[] parameters = [p1];
+
+    try {
+        table dt = testDB -> select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like ?",
+        parameters, typeof ResultCount);
+        while (dt.hasNext()) {
+            var rs, _ = (ResultCount) dt.getNext();
+            count = rs.COUNTVAL;
+        }
+    } finally {
+        testDB -> close();
+    }
+    return;
 }
 
 function testEmptyTableCreateInvalid () {
@@ -410,6 +446,24 @@ function testTableRemoveFailed () (int count, json j) {
 
     count = dt.remove(isBellow35);
     j, _ = <json>dt;
+    return;
+}
+
+function testTableAddAndAccess () (string s1, string s2) {
+    Person p1 = {id:1, age:35, salary:300.50, name:"jane", married:true};
+    Person p2 = {id:2, age:40, salary:200.50, name:"martin", married:true};
+    Person p3 = {id:3, age:42, salary:100.50, name:"john", married:false};
+
+    table<Person> dt = {};
+    dt.add(p1);
+    dt.add(p2);
+
+    var j1, _ = <json>dt;
+    s1 = j1.toString();
+
+    dt.add(p3);
+    var j2, _ = <json>dt;
+    s2 = j2.toString();
     return;
 }
 

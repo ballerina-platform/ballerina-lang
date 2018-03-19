@@ -61,9 +61,4 @@ public interface WorkerResponseContext {
      */
     WorkerDataChannel getWorkerDataChannel(String name);
     
-    /**
-     * This will block the calling thread until the current worker response context is fulfilled.
-     */
-    void waitForResponse();
-    
 }

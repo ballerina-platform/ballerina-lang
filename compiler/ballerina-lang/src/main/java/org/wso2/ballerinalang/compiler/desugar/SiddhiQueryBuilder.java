@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
-import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
@@ -68,7 +67,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -107,6 +108,11 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     private Set<String> streamIds;
 
+    private List<BLangExpression> inStreamRefs;
+    private List<BLangExpression> inTableRefs;
+    private List<BLangExpression> outStreamRefs;
+    private List<BLangExpression> outTableRefs;
+
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
         SiddhiQueryBuilder siddhiQueryBuilder = context.get(SIDDHI_QUERY_BUILDER_KEY);
         if (siddhiQueryBuilder == null) {
@@ -120,21 +126,37 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         context.put(SIDDHI_QUERY_BUILDER_KEY, this);
     }
 
+    public static CompilerContext.Key<SiddhiQueryBuilder> getSiddhiQueryBuilderKey() {
+        return SIDDHI_QUERY_BUILDER_KEY;
+    }
+
+    List<BLangExpression> getInStreamRefs() {
+        return inStreamRefs;
+    }
+
+    List<BLangExpression> getInTableRefs() {
+        return inTableRefs;
+    }
+
+    List<BLangExpression> getOutStreamRefs() {
+        return outStreamRefs;
+    }
+
+    List<BLangExpression> getOutTableRefs() {
+        return outTableRefs;
+    }
+
     @Override
     public void visit(BLangOrderBy orderBy) {
         List<? extends ExpressionNode> varRefs = orderBy.getVariables();
         Iterator<? extends ExpressionNode> iterator = varRefs.iterator();
         BLangSimpleVarRef variableRef = (BLangSimpleVarRef) iterator.next();
         orderByClause = new StringBuilder("order by ");
-        variableRef.accept(this);
-        orderByClause.append(varRef);
-        varRef = "";
+        addVarRefToClauseBuilder(variableRef, orderByClause);
         while (iterator.hasNext()) {
             orderByClause.append(",").append(" ");
             variableRef = (BLangSimpleVarRef) iterator.next();
-            variableRef.accept(this);
-            orderByClause.append(varRef);
-            varRef = "";
+            addVarRefToClauseBuilder(variableRef, orderByClause);
         }
     }
 
@@ -173,9 +195,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         binaryExpr = new StringBuilder();
         ExpressionNode leftExpression = expr.getLeftExpression();
         if (leftExpression != null) {
-            ((BLangExpression) leftExpression).accept(this);
-            binaryExpr.append(varRef);
-            varRef = "";
+            addVarRefToClauseBuilder((BLangExpression) leftExpression, binaryExpr);
         }
 
         OperatorKind operatorKind = expr.getOperatorKind();
@@ -185,9 +205,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
         ExpressionNode rightExpression = expr.getRightExpression();
         if (rightExpression != null) {
-            ((BLangExpression) rightExpression).accept(this);
-            binaryExpr.append(varRef);
-            varRef = "";
+            addVarRefToClauseBuilder((BLangExpression) rightExpression, binaryExpr);
         }
         varRef = binaryExpr.toString();
     }
@@ -219,11 +237,12 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             streamingInputClause.append(" as ").append(streamingInput.getAlias()).append(" ");
         }
 
-        ExpressionNode streamReference = streamingInput.getStreamReference();
+        BLangExpression streamReference = (BLangExpression) streamingInput.getStreamReference();
         if (streamReference != null) {
-            ((BLangSimpleVarRef) streamReference).accept(this);
+            streamReference.accept(this);
             streamIds.add(varRef);
             varRef = "";
+            addInRefs(streamReference);
         }
     }
 
@@ -282,13 +301,11 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         Iterator<? extends ExpressionNode> iterator = varList.iterator();
         groupByClause = new StringBuilder("group by ");
         BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) iterator.next();
-        simpleVarRef.accept(this);
-        groupByClause.append(varRef);
+        addVarRefToClauseBuilder(simpleVarRef, groupByClause);
         while (iterator.hasNext()) {
             simpleVarRef = (BLangSimpleVarRef) iterator.next();
             groupByClause.append(", ");
-            simpleVarRef.accept(this);
-            groupByClause.append(varRef);
+            addVarRefToClauseBuilder(simpleVarRef, groupByClause);
         }
     }
 
@@ -334,9 +351,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         BLangExpression expr = (BLangExpression) selectExpression.getExpression();
         selectExpr = new StringBuilder();
-        expr.accept(this);
-        selectExpr.append(varRef);
-        varRef = "";
+        addVarRefToClauseBuilder(expr, selectExpr);
         String identifier = selectExpression.getIdentifier();
         if (identifier != null) {
             selectExpr.append(" as ").append(identifier);
@@ -353,6 +368,25 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         siddhiQuery = new StringBuilder();
         streamDefinitionQuery = new StringBuilder();
         streamIds = new HashSet<>();
+        inStreamRefs = new ArrayList<>();
+        outStreamRefs = new ArrayList<>();
+        inTableRefs = new ArrayList<>();
+        outTableRefs = new ArrayList<>();
+        binaryExpr = null;
+        setExpr = null;
+        orderByClause = null;
+        whereClause = null;
+        windowClause = null;
+        joinStreamingInputClause = null;
+        streamingInputClause = null;
+        selectExprClause = null;
+        selectExpr = null;
+        setAssignmentClause = null;
+        groupByClause = null;
+        havingClause = null;
+        patternStreamingClause = null;
+        streamActionClause = null;
+        intRangeExpr = null;
 
         List<VariableNode> globalVariables = streamletNode.getGlobalVariables();
         if (globalVariables != null) {
@@ -416,9 +450,9 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             siddhiQuery.append(" ").append(outputRateLimitClause);
         }
 
-        StreamActionNode streamActionNode = streamingQueryStatement.getStreamingAction();
+        BLangStreamAction streamActionNode = (BLangStreamAction) streamingQueryStatement.getStreamingAction();
         if (streamActionNode != null) {
-            ((BLangStreamAction) streamActionNode).accept(this);
+            streamActionNode.accept(this);
             siddhiQuery.append(" ").append(streamActionClause);
             siddhiQuery.append(" ; ");
         }
@@ -450,10 +484,13 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             if (streamAction.getOutputEventType() != null) {
                 streamActionClause.append(" ").append(streamAction.getOutputEventType());
             }
-            streamActionClause.append(" into").append(" ").append(streamAction.getIdentifier());
+            streamActionClause.append(" into").append(" ");
+            BLangExpression ref = (BLangExpression) streamAction.getTargetReference();
+            addVarRefToClauseBuilder(ref, streamActionClause);
+            addOutRefs(ref);
         } else if (streamActionType.equalsIgnoreCase("update")) {
             streamActionClause.append(" ").append("update");
-            streamActionClause.append(" ").append(streamAction.getIdentifier());
+            streamActionClause.append(" ").append(streamAction.getTargetReference());
             List<SetAssignmentNode> setAssignments = streamAction.getSetClause();
 
             if (!setAssignments.isEmpty()) {
@@ -472,7 +509,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             streamActionClause.append(setAssignmentClause);
         } else if (streamActionType.equalsIgnoreCase("delete")) {
             streamActionClause.append(" ").append("delete");
-            streamActionClause.append(" ").append(streamAction.getIdentifier());
+            streamActionClause.append(" ").append(streamAction.getTargetReference());
             ((BLangExpression) streamAction.getExpression()).accept(this);
             streamActionClause.append(" ").append(this.binaryExpr);
         }
@@ -510,12 +547,14 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
     }
 
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        varRef = patternStreamingEdgeInput.getIdentifier();
+        BLangExpression streamRef = (BLangExpression) patternStreamingEdgeInput.getStreamReference();
+        streamRef.accept(this);
         streamIds.add(varRef);
         varRef = "";
+        addInRefs(streamRef);
 
         String alias = patternStreamingEdgeInput.getAliasIdentifier();
-        patternStreamingClause.append(alias).append(" = ").append(patternStreamingEdgeInput.getIdentifier());
+        patternStreamingClause.append(alias).append(" = ").append(patternStreamingEdgeInput.getStreamReference());
         WhereNode whereNode = patternStreamingEdgeInput.getWhereClause();
         if (whereNode != null) {
             ((BLangWhere) whereNode).accept(this);
@@ -538,28 +577,23 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         varRef = "";
         BLangExpression endExpr = intRangeExpression.endExpr;
         if (endExpr != null) {
-            endExpr.accept(this);
-            intRangeExpr.append(varRef);
-            varRef = "";
+            addVarRefToClauseBuilder(endExpr, intRangeExpr);
         }
         intRangeExpr.append(">");
     }
 
     @Override
     public void visit(BLangSetAssignment setAssignmentClause) {
-        setExpr = new StringBuilder();
-        ((BLangExpression) setAssignmentClause.getVariableReference()).accept(this);
-        setExpr.append(" ").append(varRef).append(" = ");
-        varRef = "";
-        ((BLangExpression) setAssignmentClause.getExpressionNode()).accept(this);
-        setExpr.append(varRef);
-        varRef = "";
+        setExpr = new StringBuilder(" ");
+        addVarRefToClauseBuilder((BLangExpression) setAssignmentClause.getVariableReference(), setExpr);
+        setExpr.append(" = ");
+        addVarRefToClauseBuilder((BLangExpression) setAssignmentClause.getExpressionNode(), setExpr);
     }
 
     public void visit(BLangVariable varNode) {
         StringBuilder streamDefinition = new StringBuilder("define stream ");
         streamDefinition.append(varNode.name).append("( ");
-        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) ((BLangVariable) varNode).type).
+        List<BStructType.BStructField> structFieldList = ((BStructType) ((BStreamType) (varNode).type).
                 constraint).fields;
         generateStreamDefinition(structFieldList, streamDefinition);
 
@@ -640,5 +674,29 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
             return "or";
         }
         return operandKindAsString;
+    }
+
+    // adds the input streams/tables references
+    private void addInRefs(BLangExpression streamReference) {
+        addRefs(streamReference, inStreamRefs, inTableRefs);
+    }
+
+    // adds the output streams/tables references
+    private void addOutRefs(BLangExpression streamReference) {
+        addRefs(streamReference, outStreamRefs, outTableRefs);
+    }
+
+    private void addRefs(BLangExpression ref, List<BLangExpression> streams, List<BLangExpression> tables) {
+        if (ref.type.tag == TypeTags.STREAM) {
+            streams.add(ref);
+        } else if (ref.type.tag == TypeTags.TABLE) {
+            tables.add(ref);
+        }
+    }
+
+    private void addVarRefToClauseBuilder(BLangExpression expr, StringBuilder clauseBuilder) {
+        expr.accept(this);
+        clauseBuilder.append(varRef);
+        varRef = "";
     }
 }
