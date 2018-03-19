@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.wso2.ballerinalang.programfile.InstructionCodes;
-
 /**
  * @since 0.87
  */

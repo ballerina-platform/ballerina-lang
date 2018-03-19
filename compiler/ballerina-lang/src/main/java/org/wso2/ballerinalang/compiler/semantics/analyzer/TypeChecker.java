@@ -253,7 +253,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expTypes.get(0));
         } else if (matchedTypeList.size() > 1) {
-            // TODO: give proper error message
             dlog.error(recordLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expTypes.get(0));
         } else {
             recordLiteral.keyValuePairs
