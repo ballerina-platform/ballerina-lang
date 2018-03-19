@@ -1,15 +1,13 @@
 import ballerina.io;
 
 function openFileSuccess(string path) returns (boolean | error) {
-    //int k =? 5;
     return true;
 }
 
 function openFileFailure(string path) returns (boolean | error) {
-    error e = {message: "file not found error: " + path};
+    error  e = {message: "file not found error: " + path};
     return e;
 }
-
 
 function testSafeAssignmentBasics1 () returns (boolean | error) {
     boolean statusSuccess =? openFileSuccess("/home/sameera/foo.txt");
@@ -36,7 +34,41 @@ function testSafeAssignmentBasics4 () returns (boolean){
     return statusFailure;
 }
 
+function testSafeAssignOpInAssignmentStatement1 () returns (boolean) {
+    boolean b = false;
+    int a = 0;
+    b =? openFileSuccess("/home/sameera/foo.txt");
+    return b;
+}
 
+function testSafeAssignOpInAssignmentStatement2 () returns (boolean|error) {
+    boolean b = false;
+    int a = 0;
+    b =? openFileFailure("/home/sameera/foo.txt");
+    return b;
+}
 
-function testSafeAssignmentBasics5 (){
+function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
+    FileOpenStatus fos = {};
+    fos.status =? openFileSuccess("/home/sameera/foo.txt");
+    return fos.status;
+}
+
+struct FileOpenStatus {
+    boolean status = false;
+}
+
+function testSafeAssignOpInAssignmentStatement4 () returns (boolean|error) {
+    boolean[] ba = [];
+    ba[0] =? openFileSuccess("/home/sameera/foo.txt");
+    ba[1] = false;
+    return ba[0];
+}
+
+function testSafeAssignOpInAssignmentStatement5 () {
+    io:println("there....failure3. 0");
+    boolean statusFailure;
+    int a = 10;
+    statusFailure =? openFileFailure("/home/sameera/bar.txt");
+    io:println("there....failure3. 1");
 }

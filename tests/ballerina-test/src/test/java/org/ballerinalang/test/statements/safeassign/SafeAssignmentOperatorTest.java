@@ -41,7 +41,7 @@ public class SafeAssignmentOperatorTest {
                 "test-src/statements/safeassign/safe_assign_basics.bal");
     }
 
-    @Test(description = "Test basics of union types")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics1() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -49,7 +49,7 @@ public class SafeAssignmentOperatorTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
     }
 
-    @Test(description = "Test basics of union types")
+    @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -59,16 +59,58 @@ public class SafeAssignmentOperatorTest {
                 "file not found error: /home/sameera/bar.txt", "Invalid error message value returned.");
     }
 
-    @Test(description = "Test basics of union types", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
     public void testSafeAssignmentBasics3() {
         BRunUtil.invoke(result, "testSafeAssignmentBasics3", new BValue[]{});
     }
 
-    @Test(description = "Test basics of union types", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
     public void testSafeAssignmentBasics4() {
         BRunUtil.invoke(result, "testSafeAssignmentBasics4", new BValue[]{});
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement1() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement2() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        BStruct errorStruct = (BStruct) returns[0];
+        Assert.assertEquals(errorStruct.getStringField(0),
+                "file not found error: /home/sameera/foo.txt", "Invalid error message value returned.");
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement3() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement3", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
+
+    }
+
+    @Test(description = "Test basics of safe assignment statement")
+    public void testSafeAssignOpInAssignmentStatement4() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true, "Invalid boolean value returned.");
+
+    }
+
+    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: error, message: file not found error: /home/sameera/bar.txt.*")
+    public void testSafeAssignOpInAssignmentStatement5() {
+        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new BValue[]{});
     }
 }
 

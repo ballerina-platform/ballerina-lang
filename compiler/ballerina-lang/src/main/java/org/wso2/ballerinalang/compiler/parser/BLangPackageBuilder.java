@@ -1469,7 +1469,8 @@ public class BLangPackageBuilder {
         tempAnnotAttachments.forEach(annot -> annotatableNode.addAnnotationAttachment(annot));
     }
 
-    public void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean isVarDeclaration) {
+    public void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                       boolean isVarDeclaration, boolean safeAssignment) {
         ExpressionNode rExprNode = exprNodeStack.pop();
         List<ExpressionNode> lExprList = exprNodeListStack.pop();
         BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
@@ -1478,6 +1479,7 @@ public class BLangPackageBuilder {
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.addWS(commaWsStack.pop());
+        assignmentNode.safeAssignment = safeAssignment;
         lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
         addStmtToCurrentBlock(assignmentNode);
     }

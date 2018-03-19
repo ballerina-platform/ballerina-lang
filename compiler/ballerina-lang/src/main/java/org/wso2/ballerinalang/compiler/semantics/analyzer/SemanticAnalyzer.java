@@ -600,9 +600,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkConstantAssignment(varRef);
         }
 
-        // TODO Continue the validate if this is a safe assignment operator
+        if (!assignNode.safeAssignment) {
+            typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+            return;
+        }
 
-        typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        // Assume that there is only one variable reference in LHS
+        // Continue the validate if this is a safe assignment operator
+        handleSafeAssignment(assignNode.pos, assignNode.varRefs.get(0).type, assignNode.expr, this.env);
     }
 
     public void visit(BLangBind bindNode) {
