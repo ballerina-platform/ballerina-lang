@@ -96,7 +96,7 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     }
 }
 
-public function <ClientEndpoint ep> register(type serviceType) {
+public function <ClientEndpoint ep> register(typedesc serviceType) {
 
 }
 
