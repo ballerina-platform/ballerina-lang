@@ -1292,18 +1292,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamAction streamAction) {
-        BLangExpression targetRef = (BLangExpression) streamAction.getTargetReference();
-        typeChecker.checkExpr(targetRef, env);
-        ExpressionNode expressionNode = streamAction.getExpression();
-        if (expressionNode != null) {
-            ((BLangExpression) expressionNode).accept(this);
-        }
-        List<SetAssignmentNode> setAssignmentNodeList = streamAction.getSetClause();
-        if (setAssignmentNodeList != null) {
-            for (SetAssignmentNode setAssignmentNode : setAssignmentNodeList) {
-                ((BLangSetAssignment) setAssignmentNode).accept(this);
-            }
-        }
+        // ignore
     }
 
     public void visit(BLangJoinStreamingInput joinStreamingInput) {

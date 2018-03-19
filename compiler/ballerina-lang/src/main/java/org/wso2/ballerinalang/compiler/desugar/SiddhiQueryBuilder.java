@@ -477,42 +477,7 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamAction streamAction) {
-        streamActionClause = new StringBuilder();
-        String streamActionType = streamAction.getActionType();
-        if (streamActionType.equalsIgnoreCase("insert")) {
-            streamActionClause.append(" ").append("insert");
-            if (streamAction.getOutputEventType() != null) {
-                streamActionClause.append(" ").append(streamAction.getOutputEventType());
-            }
-            streamActionClause.append(" into").append(" ");
-            BLangExpression ref = (BLangExpression) streamAction.getTargetReference();
-            addVarRefToClauseBuilder(ref, streamActionClause);
-            addOutRefs(ref);
-        } else if (streamActionType.equalsIgnoreCase("update")) {
-            streamActionClause.append(" ").append("update");
-            streamActionClause.append(" ").append(streamAction.getTargetReference());
-            List<SetAssignmentNode> setAssignments = streamAction.getSetClause();
-
-            if (!setAssignments.isEmpty()) {
-                Iterator<? extends SetAssignmentNode> iterator = setAssignments.iterator();
-                setAssignmentClause = new StringBuilder(" set ");
-                BLangSetAssignment setAssignment = (BLangSetAssignment) iterator.next();
-                setAssignment.accept(this);
-                setAssignmentClause.append(setExpr);
-                while (iterator.hasNext()) {
-                    setAssignment = (BLangSetAssignment) iterator.next();
-                    setAssignmentClause.append(", ");
-                    setAssignment.accept(this);
-                    setAssignmentClause.append(setExpr);
-                }
-            }
-            streamActionClause.append(setAssignmentClause);
-        } else if (streamActionType.equalsIgnoreCase("delete")) {
-            streamActionClause.append(" ").append("delete");
-            streamActionClause.append(" ").append(streamAction.getTargetReference());
-            ((BLangExpression) streamAction.getExpression()).accept(this);
-            streamActionClause.append(" ").append(this.binaryExpr);
-        }
+        // ignore
     }
 
     @Override

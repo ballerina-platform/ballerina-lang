@@ -2230,12 +2230,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean isAllEvents = true;
-        boolean isCurentEvents = false;
-        boolean isExpiredEvents = false;
 
-//        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText(), isAllEvents,
-//                isCurentEvents, isExpiredEvents);
+        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

@@ -19,20 +19,19 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-
-import java.util.List;
+import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 
 /**
- * The interface with the APIs to implement the "group by" in ballerina streams/table SQLish syntax.
+ * The interface with the APIs to implement the straming action in ballerina streams/table SQLish syntax.
  * <pre>Grammar:
- *     INSERT INTO Identifier |   UPDATE (OR INSERT INTO)? Identifier setClause ? ON expression |
- *     DELETE Identifier ON expression
+ *     EQUAL_GT LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
  *
  * E.g.
- *      insert into testInputStream
- *      update testTable set x == 20
- *      delete testTable on symbol="WSO2"
+ *      from teacherStream where age > 18 window lengthBatch(3) select status, count(status) as totalCount
+ *      group by status having totalCount > 1 => ( Teacher[] teachers) {
+ *          //Do something with Teacher[] array (Streaming action)
+ *      };
  * </pre>
  *
  * @since 0.965.0
@@ -40,23 +39,11 @@ import java.util.List;
 
 public interface StreamActionNode extends Node {
 
-    void setStreamActionType(String streamActionType);
+    void setStreamingActionBody(BlockNode streamingActionBody);
 
-    void setTargetReference(ExpressionNode ref);
+    void setStreamingActionArgument(VariableNode arg);
 
-    void setSetClause(List<SetAssignmentNode> setAssignmentNodeList);
+    VariableNode getStreamingActionArgument();
 
-    void setExpression(ExpressionNode expressionNode);
-
-    ExpressionNode getTargetReference();
-
-    List<SetAssignmentNode> getSetClause();
-
-    ExpressionNode getExpression();
-
-    String getActionType();
-
-    String getOutputEventType();
-
-    void setOutputEventType(boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents);
+    BlockNode getStreamingActionBody();
 }

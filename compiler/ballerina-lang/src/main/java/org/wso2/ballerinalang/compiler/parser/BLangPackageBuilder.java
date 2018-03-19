@@ -2478,23 +2478,15 @@ public class BLangPackageBuilder {
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
+        startBlock();
     }
 
-    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, String action,
-                                    boolean isAllEvents, boolean isCurrentEvents, boolean isExpiredEvents) {
+    public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
-
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
-        if (!action.equalsIgnoreCase("insert")) {
-            streamActionNode.setExpression(exprNodeStack.pop());
-        }
-        if (!setAssignmentListStack.empty()) {
-            streamActionNode.setSetClause(setAssignmentListStack.pop());
-        }
-        streamActionNode.setTargetReference(exprNodeStack.pop());
-        streamActionNode.setStreamActionType(action);
-        streamActionNode.setOutputEventType(isAllEvents, isCurrentEvents, isExpiredEvents);
+        streamActionNode.setStreamingActionBody(this.blockNodeStack.pop());
+        streamActionNode.setStreamingActionArgument(this.varStack.pop());
     }
 
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2505,7 +2497,6 @@ public class BLangPackageBuilder {
     }
 
     public void endPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws, String alias) {
-
         PatternStreamingEdgeInputNode patternStreamingEdgeInputNode = this.patternStreamingEdgeInputStack.peek();
 
         ((BLangPatternStreamingEdgeInput) patternStreamingEdgeInputNode).pos = pos;
@@ -2722,7 +2713,7 @@ public class BLangPackageBuilder {
     }
 
     public void endForeverNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        ForeverNode foreverNode = this.foreverNodeStack.peek();
+        ForeverNode foreverNode = this.foreverNodeStack.pop();
         ((BLangForever) foreverNode).pos = pos;
         foreverNode.addWS(ws);
 
