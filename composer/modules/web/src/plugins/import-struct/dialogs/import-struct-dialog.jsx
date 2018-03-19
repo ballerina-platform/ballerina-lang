@@ -20,7 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Input, Checkbox } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
-import AceEditor from 'react-ace';
+import MonacoEditor from 'react-monaco-editor';
 
 /**
  * File Open Wizard Dialog
@@ -162,25 +162,29 @@ class ImportStructDialog extends React.Component {
                     </Form.Group>
                 </Form>
                 <p>Please enter a valid sample JSON to generate struct definition.</p>
-                <AceEditor
-                    mode='json'
-                    theme='monokai'
-                    onChange={this.textChange}
-                    onValidate={this.onValidate}
-                    value={this.state.json}
-                    name='json'
-                    editorProps={{
-                        $blockScrolling: Infinity,
-                    }}
-                    setOptions={{
-                        showLineNumbers: false,
-                    }}
-                    maxLines={30}
-                    minLines={10}
-                    showGutter={this.state.isGenerationError && this.state.isJSONError}
+                
+                <MonacoEditor
                     width='auto'
-                    showPrintMargin={false}
+                    height='300'
+                    language='json'
+                    theme='vs-dark'
+                    value={this.state.json}
+                    onChange={this.textChange}
+                    name='json'
+                    options={{
+                        autoIndent: true,
+                        fontSize: 14,
+                        contextmenu: true,
+                        renderIndentGuides: true,
+                        autoClosingBrackets: true,
+                        matchBrackets: true,
+                        automaticLayout: true,
+                        glyphMargin: true,
+                        folding: true,
+                        lineNumbersMinChars: 2,
+                    }}
                 />
+
                 {(this.state.isGenerationError && this.state.isJSONError) &&
                     <div className='alert alert-danger'>
                         <p style={errorStyle}>Invalid JSON</p>

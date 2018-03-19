@@ -23,20 +23,16 @@ package org.ballerinalang.net.http;
  */
 public class WebSocketConstants {
 
-    // Common constants
-    public static final String CONNECTOR_NAME = "WsClient";
     public static final String TO = "TO";
 
-    public static final String WEBSOCKET_SERVICE_ENDPOINT_NAME = "ballerina.net.http:WebSocketService";
-    public static final String PROTOCOL_WEBSOCKET = "ws";
+    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina.net.http:WebSocketEndpoint";
 
     public static final String WEBSOCKET_ANNOTATION_CONFIGURATION = "webSocketServiceConfig";
-    public static final String ANNOTATION_WEBSOCKET_CLIENT_SERVICE = "clientService";
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
-    public static final String RESOURCE_NAME_ON_HANDSHAKE = "onHandshake";
+    public static final String RESOURCE_NAME_ON_UPGRADE = "onUpgrade";
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT_MESSAGE = "onTextMessage";
     public static final String RESOURCE_NAME_ON_BINARY_MESSAGE = "onBinaryMessage";
@@ -44,18 +40,10 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
-    public static final String RESOURCE_NAME_ON_ERROR = "onError";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
 
     public static final String CONNECTION = "Connection";
-    public static final String UPGRADE = "Upgrade";
-    public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
-    public static final String STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION = "HandshakeConnection";
     public static final String STRUCT_WEBSOCKET_TEXT_FRAME = "TextFrame";
     public static final String STRUCT_WEBSOCKET_BINARY_FRAME = "BinaryFrame";
     public static final String STRUCT_WEBSOCKET_PING_FRAME = "PingFrame";
@@ -66,11 +54,11 @@ public class WebSocketConstants {
 
     public static final String NATIVE_DATA_WEBSOCKET_SESSION = "NATIVE_DATA_WEBSOCKET_SESSION";
     public static final String NATIVE_DATA_UPGRADE_HEADERS = "NATIVE_DATA_UPGRADE_HEADERS";
-    public static final String NATIVE_DATA_PING_TIME_VALIDATOR = "NATIVE_DATA_PING_TIME_VALIDATOR";
 
     public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
 
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
+    public static final String WEBSOCKET_ENDPOINT = "WebSocketEndpoint";
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
     public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";
@@ -79,6 +67,5 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_CONFIG = "webSocketUpgrade";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
-
-
+    public static final String WEBSOCKET_SERVICE = "webSocketService";
 }

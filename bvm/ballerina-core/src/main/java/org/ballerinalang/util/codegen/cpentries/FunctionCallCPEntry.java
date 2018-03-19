@@ -27,15 +27,22 @@ import java.util.Arrays;
  */
 public class FunctionCallCPEntry implements ConstantPoolEntry {
 
+    private boolean async;
+    
     // Registers which contains function arguments
     private int[] argRegs;
 
     // Registers to which return  values to be copied
     private int[] retRegs;
 
-    public FunctionCallCPEntry(int[] argRegs, int[] retRegs) {
+    public FunctionCallCPEntry(boolean async, int[] argRegs, int[] retRegs) {
+        this.async = async;
         this.argRegs = argRegs;
         this.retRegs = retRegs;
+    }
+    
+    public boolean isAsync() {
+        return async;
     }
 
     public int[] getArgRegs() {

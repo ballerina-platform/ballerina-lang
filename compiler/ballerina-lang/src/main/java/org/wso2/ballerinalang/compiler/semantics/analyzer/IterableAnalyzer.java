@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -293,6 +294,11 @@ public class IterableAnalyzer {
         }
 
         @Override
+        public List<BType> visit(BUnionType t, Operation s) {
+            return null;
+        }
+
+        @Override
         public List<BType> visit(BTupleCollectionType type, Operation op) {
             if (type.tupleTypes.size() == op.arity) {
                 return type.tupleTypes;
@@ -345,6 +351,11 @@ public class IterableAnalyzer {
         @Override
         public List<BType> visit(BTableType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
+        public List<BType> visit(BUnionType t, Operation s) {
+            return null;
         }
 
         BType calculateType(Operation operation, BType type) {

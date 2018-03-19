@@ -95,12 +95,6 @@ public class WebSocketService implements Service {
         return idleTimeoutInSeconds;
     }
 
-    public BStruct createHandshakeConnectionStruct() {
-        return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
-                                                   HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                   WebSocketConstants.STRUCT_WEBSOCKET_HANDSHAKE_CONNECTION);
-    }
-
     public BStruct createTextFrameStruct() {
         return BLangConnectorSPIUtil.createBStruct(WebSocketUtil.getProgramFile(service.getResources()[0]),
                                                    HttpConstants.PROTOCOL_PACKAGE_HTTP,

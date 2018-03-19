@@ -20,8 +20,6 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.model.values.BConnector;
 
-import java.util.Map;
-
 /**
  * This class represent already opened WebSocket connection. Which include all necessary details needed after for
  * dispatching after a successful handshake.
@@ -30,13 +28,10 @@ public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
     private final BConnector wsConnection;
-    private final Map<String, String> varialbles;
 
-    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BConnector wsConnection,
-                                       Map<String, String> varialbles) {
+    public WebSocketOpenConnectionInfo(WebSocketService webSocketService, BConnector wsConnection) {
         this.webSocketService = webSocketService;
         this.wsConnection = wsConnection;
-        this.varialbles = varialbles;
     }
 
     public WebSocketService getService() {
@@ -47,7 +42,4 @@ public class WebSocketOpenConnectionInfo {
         return wsConnection;
     }
 
-    public Map<String, String> getVarialbles() {
-        return varialbles;
-    }
 }
