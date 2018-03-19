@@ -229,15 +229,16 @@ public class HttpService {
     }
 
     private static Annotation getHttpServiceConfigAnnotation(Service service) {
-        return getServiceConfigAnnotation(service, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, HTTP_PACKAGE_PATH, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
     private static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service) {
-        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+        return getServiceConfigAnnotation(service, WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH,
+                                          WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     }
 
-    private static Annotation getServiceConfigAnnotation(Service service, String annotationName) {
-        List<Annotation> annotationList = service.getAnnotationList(HTTP_PACKAGE_PATH, annotationName);
+    private static Annotation getServiceConfigAnnotation(Service service, String packagePath, String annotationName) {
+        List<Annotation> annotationList = service.getAnnotationList(packagePath, annotationName);
 
         if (annotationList == null || annotationList.isEmpty()) {
             return null;

@@ -1,12 +1,13 @@
 import ballerina.io;
 import ballerina.net.http;
+import ballerina.net.websub;
 
-endpoint http:WebSubSubscriberServiceEndpoint websubEP {
+endpoint websub:WebSubSubscriberServiceEndpoint websubEP {
     host:"localhost",
     port:8181
 };
 
-@http:webSubSubscriberServiceConfig {
+@websub:webSubSubscriberServiceConfig {
     basePath:"/websub",
     subscribeOnStartUp:true,
     topic: "http://www.websubpubtopic.com",
@@ -14,11 +15,11 @@ endpoint http:WebSubSubscriberServiceEndpoint websubEP {
     leaseSeconds: 3600000,
     secret: "Kslk30SNF2AChs2"
 }
-service<http:WebSubSubscriberService> websubSubscriber bind websubEP {
+service<websub:WebSubSubscriberService> websubSubscriber bind websubEP {
 
     onVerifyIntent (endpoint client, http:Request request) {
         http:Response response = {};
-        response = http:buildSubscriptionVerificationResponse(request);
+        response = websub:buildSubscriptionVerificationResponse(request);
         io:println("Intent verified for subscription request");
         _ = client -> respond(response);
     }
@@ -26,9 +27,9 @@ service<http:WebSubSubscriberService> websubSubscriber bind websubEP {
     onNotification (endpoint client, http:Request request) {
         http:Response response = { statusCode:202 };
         _ = client -> respond(response);
-        http:WebSubNotification webSubNotification;
-        http:WebSubError webSubError;
-        webSubNotification, webSubError = http:processWebSubNotification(request);
+        websub:WebSubNotification webSubNotification;
+        websub:WebSubError webSubError;
+        webSubNotification, webSubError = websub:processWebSubNotification(request);
         if (webSubError == null) {
             io:println("WebSub Notification Received: " + webSubNotification.payload.toString());
         } else {

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.http.compiler;
+package org.ballerinalang.net.websub.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
@@ -22,26 +22,25 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.WebSubSubscriberConstants;
+import org.ballerinalang.net.http.compiler.ResourceSignatureValidator;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 
 import java.util.List;
 
-import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-
 /**
- * Compiler plugin for validating HTTP service.
+ * Compiler plugin for validating WebSub service.
  *
  * @since 0.965.0
  */
 @SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "ServiceEndpoint"),
-                @SupportEndpointTypes.EndpointType(packageName = "ballerina.net.http", name = "WebSocketEndpoint")}
+        value = {@SupportEndpointTypes.EndpointType(packageName = "ballerina.net.websub",
+                        name = "WebSubSubscriberServiceEndpoint")
+        }
 )
-public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
+public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -50,12 +49,12 @@ public class HTTPServiceCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         for (AnnotationAttachmentNode annotation : annotations) {
-            if (!PROTOCOL_PACKAGE_HTTP.equals(
+            if (!HttpConstants.PROTOCOL_PACKAGE_HTTP.equals(
                     ((BLangAnnotationAttachment) annotation).annotationSymbol.pkgID.name.value)) {
                 continue;
             }
-            if (annotation.getAnnotationName().getValue().equals(ANN_NAME_HTTP_SERVICE_CONFIG) || annotation
-                    .getAnnotationName().getValue().equals(WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+            if (annotation.getAnnotationName().getValue().equals(
+                    WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG)) {
                 handleServiceConfigAnnotation(serviceNode, (BLangAnnotationAttachment) annotation);
             }
         }
