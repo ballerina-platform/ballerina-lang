@@ -163,7 +163,7 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/global-variable-def-var-type-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "extraneous input 'var'", 1, 1);
-        BAssertUtil.validateError(res, 1, "mismatched input '='. expecting {'[', Identifier}", 1, 15);
+        BAssertUtil.validateError(res, 1, "mismatched input '='. expecting {'[', '|', Identifier}", 1, 15);
     }
 
     @Test

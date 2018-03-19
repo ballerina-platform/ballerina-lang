@@ -41,6 +41,12 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
      * during the code generation phase of the compiler.
      */
     public RegIndex regIndex;
+    
+    /**
+     * Marks this expression if it's an expression that is used with the
+     * await option.
+     */
+    public boolean await;
 
     public boolean isMultiReturnExpr() {
         return false;

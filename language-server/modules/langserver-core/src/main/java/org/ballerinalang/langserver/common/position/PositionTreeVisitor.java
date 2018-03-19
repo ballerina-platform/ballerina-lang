@@ -492,8 +492,8 @@ public class PositionTreeVisitor extends NodeVisitor {
             acceptNode(transactionNode.transactionBody);
         }
 
-        if (transactionNode.failedBody != null) {
-            acceptNode(transactionNode.failedBody);
+        if (transactionNode.onRetryBody != null) {
+            acceptNode(transactionNode.onRetryBody);
         }
 
         if (transactionNode.retryCount != null) {
@@ -691,6 +691,7 @@ public class PositionTreeVisitor extends NodeVisitor {
      */
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor) {
+            this.position.setLine(this.position.getLine() - 1);
             return;
         }
         node.accept(this);

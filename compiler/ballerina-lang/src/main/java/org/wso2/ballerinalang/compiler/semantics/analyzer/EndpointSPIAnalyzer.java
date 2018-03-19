@@ -18,23 +18,23 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_GET_CONNECTOR;
+import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_GET_CLIENT;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_INIT;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_REGISTER;
 import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_START;
@@ -46,9 +46,6 @@ import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_STOP;
  * @since 0.965.0
  */
 public class EndpointSPIAnalyzer {
-
-    private static final List<Name> EP_SPI_FUNCTIONS =
-            Lists.of(EP_SPI_INIT, EP_SPI_REGISTER, EP_SPI_GET_CONNECTOR, EP_SPI_START, EP_SPI_STOP);
 
     private static final CompilerContext.Key<EndpointSPIAnalyzer> ENDPOINT_SPI_ANALYZER_KEY =
             new CompilerContext.Key<>();
@@ -65,8 +62,8 @@ public class EndpointSPIAnalyzer {
     private BLangDiagnosticLog dlog;
 
     // Cached Valid SPIs.
-    private Map<BStructSymbol, EndPoint> validSPIs = new HashMap<>();
-    private Map<BStructSymbol, EndPoint> invalidSPIs = new HashMap<>();
+    private Map<BStructSymbol, Endpoint> validSPIs = new HashMap<>();
+    private Map<BStructSymbol, Endpoint> invalidSPIs = new HashMap<>();
 
     private EndpointSPIAnalyzer(CompilerContext context) {
         context.put(ENDPOINT_SPI_ANALYZER_KEY, this);
@@ -74,18 +71,45 @@ public class EndpointSPIAnalyzer {
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
-    public void resolveEndpointSymbol(DiagnosticPos pos, BEndpointVarSymbol endpointVarSymbol) {
-        if (endpointVarSymbol == null) {
-            dlog.error(pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, "");
+    public void resolveEndpointSymbol(BLangEndpoint endpoint) {
+        if (endpoint.symbol == null) {
+            dlog.error(endpoint.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, "");
             return;
         }
-        if (isValidEndpointType(pos, endpointVarSymbol.type)) {
-            final BStructSymbol tsymbol = (BStructSymbol) endpointVarSymbol.type.tsymbol;
-            final EndPoint endPoint = validSPIs.get(tsymbol);
-            final BStructSymbol.BAttachedFunction getConnector = endPoint.attachedFunctionMap.get(EP_SPI_GET_CONNECTOR);
-            endpointVarSymbol.attachedConnector = (BConnectorSymbol)
-                    ((BConnectorType) getConnector.type.retTypes.get(0)).tsymbol;
+        if (isValidEndpointType(endpoint.pos, endpoint.symbol.type)) {
+            // Update endpoint variable symbol
+            populateEndpointSymbol((BStructSymbol) endpoint.symbol.type.tsymbol, endpoint.symbol);
         }
+    }
+
+    public BStructType getEndpointTypeFromServiceType(DiagnosticPos pos, BType type) {
+        if (type.tag != TypeTags.STRUCT) {
+            dlog.error(pos, DiagnosticCode.ENDPOINT_STRUCT_TYPE_REQUIRED);
+            return null;
+        }
+        final BStructSymbol serviceType = (BStructSymbol) type.tsymbol;
+        for (BStructSymbol.BAttachedFunction attachedFunc : serviceType.attachedFuncs) {
+            if (Names.EP_SERVICE_GET_ENDPOINT.equals(attachedFunc.funcName)) {
+                if (attachedFunc.type.getParameterTypes().size() != 0
+                        || attachedFunc.type.retTypes.size() != 1
+                        || attachedFunc.type.retTypes.get(0).tag != TypeTags.STRUCT) {
+                    dlog.error(pos, DiagnosticCode.SERVICE_INVALID_STRUCT_TYPE, serviceType);
+                    return null;
+                }
+                final BStructSymbol endPointType = (BStructSymbol) attachedFunc.type.retTypes.get(0).tsymbol;
+                if (isValidEndpointSPI(pos, endPointType)) {
+                    return (BStructType) attachedFunc.type.retTypes.get(0);
+                }
+                break;
+            }
+        }
+        dlog.error(pos, DiagnosticCode.SERVICE_INVALID_STRUCT_TYPE, serviceType);
+        return null;
+    }
+
+    public BStructType getClientType(BStructSymbol endPointType) {
+        final Endpoint endpoint = validSPIs.get(endPointType);
+        return endpoint.clientStruct;
     }
 
     public boolean isValidEndpointType(DiagnosticPos pos, BType type) {
@@ -93,98 +117,161 @@ public class EndpointSPIAnalyzer {
             dlog.error(pos, DiagnosticCode.ENDPOINT_STRUCT_TYPE_REQUIRED);
             return false;
         }
-        return isValidateEndpointSPI(pos, (BStructSymbol) type.tsymbol);
+        return isValidEndpointSPI(pos, (BStructSymbol) type.tsymbol);
     }
 
-    private boolean isValidateEndpointSPI(DiagnosticPos pos, BStructSymbol structSymbol) {
+    private boolean isValidEndpointSPI(DiagnosticPos pos, BStructSymbol structSymbol) {
         if (isProcessedValidEndpoint(structSymbol)) {
             return true;
         }
         if (isProcessedInvalidEndpoint(structSymbol)) {
-            // Check for cached values, to avoid duplication of error messages.
+            // Check for cached values, to avoid duplication of endpoint related error messages.
             dlog.error(pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, structSymbol);
             return false;
         }
-        EndPoint ep = new EndPoint(structSymbol);
-        funNameLoop:
-        for (Name funName : EP_SPI_FUNCTIONS) {
-            for (BStructSymbol.BAttachedFunction attachedFunc : structSymbol.attachedFuncs) {
-                if (funName.equals(attachedFunc.funcName)) {
-                    ep.attachedFunctionMap.put(funName, attachedFunc);
-                    continue funNameLoop;
-                }
-            }
-            dlog.error(pos, DiagnosticCode.ENDPOINT_INVALID_TYPE, structSymbol);
-            invalidSPIs.put(structSymbol, ep);
-            return false;
-        }
-        if (!isValidSPIFunctionSignatures(pos, ep)) {
-            invalidSPIs.put(structSymbol, ep);
+        Endpoint ep = new Endpoint(pos, structSymbol);
+        processEndpointSPIFunctions(ep);
+        // Check validity of endpoint interface.
+        checkValidBaseEndpointSPI(ep);
+        checkValidInteractableEndpoint(ep);
+        checkValidStartableEndpoint(ep);
+        checkValidStoppableEndpoint(ep);
+        checkValidRegistrableEndpoint(ep);
+
+        if (invalidSPIs.containsKey(ep.structSymbol)) {
             return false;
         }
         validSPIs.put(structSymbol, ep);
         return true;
     }
 
-    private boolean isValidSPIFunctionSignatures(DiagnosticPos pos, EndPoint ep) {
-        boolean isValid = true;
+    private void processEndpointSPIFunctions(Endpoint ep) {
+        for (BStructSymbol.BAttachedFunction attachedFunc : ep.structSymbol.attachedFuncs) {
+            if (Names.EP_SPI_INIT.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_INIT, attachedFunc);
+            } else if (Names.EP_SPI_GET_CLIENT.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_GET_CLIENT, attachedFunc);
+            } else if (Names.EP_SPI_START.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_START, attachedFunc);
+            } else if (Names.EP_SPI_STOP.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_STOP, attachedFunc);
+            } else if (Names.EP_SPI_REGISTER.equals(attachedFunc.funcName)) {
+                ep.attachedFunctionMap.put(Names.EP_SPI_REGISTER, attachedFunc);
+            }
+        }
+    }
+
+    private void checkValidBaseEndpointSPI(Endpoint ep) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_INIT)) {
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_INVALID_TYPE_NO_FUNCTION, ep.structSymbol, Names.EP_SPI_INIT);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
+        }
         // validate init function.
         final BStructSymbol.BAttachedFunction init = ep.attachedFunctionMap.get(EP_SPI_INIT);
-        if (init.type.getParameterTypes().size() != 2 || init.type.retTypes.size() != 0
-                || init.type.getReceiverType() != ep.structSymbol.type
-                || init.type.getParameterTypes().get(0) != symTable.stringType
-                || init.type.getParameterTypes().get(1).tag != TypeTags.STRUCT) {
-            isValid = false;
-            dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
+        if (init.type.getParameterTypes().size() != 1 || init.type.retTypes.size() != 0
+                || init.type.getParameterTypes().get(0).tag != TypeTags.STRUCT) {
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_INIT);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
+        }
+        ep.initFunction = init.symbol;
+    }
+
+    private void checkValidInteractableEndpoint(Endpoint ep) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_GET_CLIENT)) {
+            return;
+        }
+        // validate getClient function
+        final BStructSymbol.BAttachedFunction getClient = ep.attachedFunctionMap.get(EP_SPI_GET_CLIENT);
+        if (getClient.type.getParameterTypes().size() != 0
+                || getClient.type.retTypes.size() != 1
+                || getClient.type.retTypes.get(0).tag != TypeTags.STRUCT) {
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_GET_CLIENT);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
+        }
+        ep.interactable = true;
+        ep.getClientFunction = getClient.symbol;
+        ep.clientStruct = (BStructType) getClient.type.retTypes.get(0);
+    }
+
+    private void checkValidStartableEndpoint(Endpoint ep) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_START)) {
+            return;
+        }
+        // validate start function
+        final BStructSymbol.BAttachedFunction start = ep.attachedFunctionMap.get(EP_SPI_START);
+        if (start.type.getParameterTypes().size() != 0 || start.type.retTypes.size() != 0) {
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_START);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
+        }
+        ep.startFunction = start.symbol;
+    }
+
+    private void checkValidStoppableEndpoint(Endpoint ep) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_STOP)) {
+            return;
+        }
+        // validate stop function
+        final BStructSymbol.BAttachedFunction stop = ep.attachedFunctionMap.get(EP_SPI_STOP);
+        if (stop.type.getParameterTypes().size() != 0 || stop.type.retTypes.size() != 0) {
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_STOP);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
+        }
+        ep.stopFunction = stop.symbol;
+    }
+
+    private void checkValidRegistrableEndpoint(Endpoint ep) {
+        if (!ep.attachedFunctionMap.containsKey(Names.EP_SPI_REGISTER)) {
+            return;
         }
         // validate register function
         final BStructSymbol.BAttachedFunction register = ep.attachedFunctionMap.get(EP_SPI_REGISTER);
         if (register.type.getParameterTypes().size() != 1 || register.type.retTypes.size() != 0
-                || register.type.getReceiverType() != ep.structSymbol.type
                 || register.type.getParameterTypes().get(0).tag != TypeTags.TYPE) {
-            isValid = false;
-            dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_REGISTER);
+            dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_REGISTER);
+            invalidSPIs.putIfAbsent(ep.structSymbol, ep);
+            return;
         }
-        // validate start function
-        final BStructSymbol.BAttachedFunction start = ep.attachedFunctionMap.get(EP_SPI_START);
-        if (start.type.getParameterTypes().size() != 0 || start.type.retTypes.size() != 0
-                || start.type.getReceiverType() != ep.structSymbol.type) {
-            isValid = false;
-            dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_START);
-        }
-        // validate stop function
-        final BStructSymbol.BAttachedFunction stop = ep.attachedFunctionMap.get(EP_SPI_STOP);
-        if (stop.type.getParameterTypes().size() != 0 || stop.type.retTypes.size() != 0
-                || stop.type.getReceiverType() != ep.structSymbol.type) {
-            isValid = false;
-            dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_STOP);
-        }
-        // validate getConnector function
-        final BStructSymbol.BAttachedFunction getConnector = ep.attachedFunctionMap.get(EP_SPI_GET_CONNECTOR);
-        if (getConnector.type.getParameterTypes().size() != 0 || getConnector.type.retTypes.size() != 1
-                || getConnector.type.getReceiverType() != ep.structSymbol.type
-                || getConnector.type.retTypes.get(0).tag != TypeTags.CONNECTOR) {
-            isValid = false;
-            dlog.error(pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_GET_CONNECTOR);
-        }
-        return isValid;
+        ep.registrable = true;
+        ep.registerFunction = register.symbol;
     }
 
     BType getEndpointConfigType(BStructSymbol structSymbol) {
         if (!isProcessedValidEndpoint(structSymbol)) {
             return symTable.errType;
         }
-        final BStructSymbol.BAttachedFunction bAttachedFunction =
-                validSPIs.get(structSymbol).attachedFunctionMap.get(EP_SPI_INIT);
-        return bAttachedFunction.symbol.getParameters().get(1).type;
+        final Endpoint endpoint = validSPIs.get(structSymbol);
+        return endpoint.initFunction.getParameters().get(0).type;
     }
 
     private boolean isProcessedInvalidEndpoint(BStructSymbol structSymbol) {
         return invalidSPIs.containsKey(structSymbol);
     }
 
-    private boolean isProcessedValidEndpoint(BStructSymbol structSymbol) {
+    public boolean isProcessedValidEndpoint(BStructSymbol structSymbol) {
         return validSPIs.containsKey(structSymbol);
+    }
+
+    public void populateEndpointSymbol(BStructSymbol structSymbol, BEndpointVarSymbol endpointVarSymbol) {
+        final Endpoint endpoint = validSPIs.get(structSymbol);
+        if (endpoint != null) {
+            final Endpoint endPoint = validSPIs.get(structSymbol);
+            endpointVarSymbol.initFunction = endPoint.initFunction;
+
+            endpointVarSymbol.interactable = endPoint.interactable;
+            endpointVarSymbol.getClientFunction = endPoint.getClientFunction;
+            endpointVarSymbol.clientSymbol = (BStructSymbol) endPoint.clientStruct.tsymbol;
+
+            endpointVarSymbol.startFunction = endPoint.startFunction;
+            endpointVarSymbol.stopFunction = endPoint.stopFunction;
+
+            endpointVarSymbol.registrable = endPoint.registrable;
+            endpointVarSymbol.registerFunction = endPoint.registerFunction;
+        }
     }
 
     /**
@@ -192,11 +279,25 @@ public class EndpointSPIAnalyzer {
      *
      * @since 0.965.0
      */
-    private static class EndPoint {
-        BStructSymbol structSymbol;
+    public static class Endpoint {
+        final DiagnosticPos pos;
+        final BStructSymbol structSymbol;
         Map<Name, BStructSymbol.BAttachedFunction> attachedFunctionMap = new HashMap<>();
 
-        EndPoint(BStructSymbol structSymbol) {
+        BInvokableSymbol initFunction;
+
+        boolean interactable;
+        BInvokableSymbol getClientFunction;
+        BStructType clientStruct;
+
+        BInvokableSymbol startFunction;
+        BInvokableSymbol stopFunction;
+
+        boolean registrable;
+        BInvokableSymbol registerFunction;
+
+        Endpoint(DiagnosticPos pos, BStructSymbol structSymbol) {
+            this.pos = pos;
             this.structSymbol = structSymbol;
         }
     }

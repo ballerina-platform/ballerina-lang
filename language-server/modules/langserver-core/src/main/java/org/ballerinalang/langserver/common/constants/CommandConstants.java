@@ -38,9 +38,13 @@ public class CommandConstants {
 
     public static final String ADD_DOCUMENTATION_TITLE = "Document This";
 
+    public static final String ADD_ALL_DOC_TITLE = "Document All";
+
 
     // Commands List
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
 
     public static final String CMD_ADD_DOCUMENTATION = "ADD_DOC";
+
+    public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
 }

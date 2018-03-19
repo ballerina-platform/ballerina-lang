@@ -40,7 +40,7 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:Service";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.net.http:ServiceEndpoint";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -98,7 +98,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_CIPHERS = "ciphers";
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
-    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLED = "compressionEnabled";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
@@ -150,7 +150,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
-    public static final String SERVER_CONNECTOR = "ServerConnector";
+    public static final String SERVICE_ENDPOINT = "ServiceEndpoint";
     public static final String CONNECTION = "Connection";
     public static final String REQUEST = "Request";
     public static final String RESPONSE = "Response";
@@ -196,7 +196,7 @@ public class HttpConstants {
     public static final int ENTITY_INDEX = 1;
 
     // ServeConnector struct indices
-    public static final int SERVER_CON_CONNECTION_INDEX = 0;
+    public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 0;
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
@@ -291,13 +291,14 @@ public class HttpConstants {
     public static final int OPTIONS_INDEX = 0;
 
     //Client Endpoint Config
-    public static final String SERVICE_URI = "serviceUri";
+    public static final String URI = "uri";
     public static final String CLIENT_EP_TRNASFER_ENCODING = "transferEncoding";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "endpointTimeout";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
+    public static final String TARGET_SERVICES = "targets";
 
     //Connection Throttling Indexes
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
@@ -315,4 +316,9 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "pasword";
+
+    public static final String HTTP_SERVICE_TYPE = "Service";
+    // Filter related
+    public static final String ENDPOINT_CONFIG_FILTERS = "filters";
+    public static final String FILTERS = "FILTERS";
 }

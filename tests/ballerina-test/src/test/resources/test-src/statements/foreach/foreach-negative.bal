@@ -52,7 +52,7 @@ function test6(){
 }
 
 function test7(){
-    foreach i in "a".."z" {
+    foreach i in [ "a".."z" ] {
         io:println(i);
     }
 }

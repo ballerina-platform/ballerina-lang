@@ -28,6 +28,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 /**
  * This class contains utilities to execute Ballerina main and service programs.
@@ -50,12 +51,16 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
+        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
+        if (distributedTxEnabled) {
+            deployTransactionCoordinatorServices(programFile);
+        }
+
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
-
-        deployTransactionCoordinatorServices(programFile);
     }
 
     private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
@@ -77,6 +82,10 @@ public class BLangProgramRunner {
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
+
+        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
+        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
+
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
             BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));

@@ -3,9 +3,9 @@ package ballerina.net.http;
 /////////////////////////////
 /// HTTP Service Endpoint ///
 /////////////////////////////
-public struct Service {
+public struct ServiceEndpoint {
     // TODO : Make all field Read-Only
-    string epName;
+    Connection conn;
     ServiceEndpointConfiguration config;
 }
 
@@ -29,6 +29,7 @@ public struct RequestLimits {
 @Field {value:"ssl: The SSL configurations for the service endpoint"}
 @Field {value:"httpVersion: Highest HTTP version supported"}
 @Field {value:"requestLimits: Request validation limits configuration"}
+@Field {value:"filters: Filters to be applied to the request before dispatched to the actual resource"}
 public struct ServiceEndpointConfiguration {
     string host;
     int port;
@@ -38,6 +39,7 @@ public struct ServiceEndpointConfiguration {
     SslConfiguration ssl;
     string httpVersion;
     RequestLimits requestLimits;
+    Filter[] filters;
 }
 
 @Description {value:"Initializes a ServiceEndpointConfiguration struct"}
@@ -79,89 +81,88 @@ public enum KeepAlive {
     AUTO, ALWAYS, NEVER
 }
 
-//
-//public enum Chunking {
-//    AUTO, ALWAYS, NEVER
-//}
-//
-//public enum TransferEncoding {
-//    CHUNKING
-//}
-
 @Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <Service ep> init (string epName, ServiceEndpointConfiguration config) {
-    ep.epName = epName;
+public function <ServiceEndpoint ep> init (ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
         throw err;
     }
+    // if filters are defined, call init on them
+    if (config.filters != null) {
+        foreach filter in config.filters  {
+            filter.init();
+        }
+    }
 }
 
-public native function<Service ep> initEndpoint () returns (error);
+public native function<ServiceEndpoint ep> initEndpoint () returns (error);
 
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <Service ep> register (type serviceType);
+public native function <ServiceEndpoint ep> register (type serviceType);
 
 @Description { value:"Starts the registered service"}
-public native function <Service ep> start ();
+public native function <ServiceEndpoint ep> start ();
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <Service ep> getConnector () returns (ServerConnector repConn);
+public native function <ServiceEndpoint ep> getClient () returns (Connection);
 
 @Description { value:"Stops the registered service"}
-public native function <Service ep> stop ();
+public native function <ServiceEndpoint ep> stop ();
 
 //////////////////////////////////
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
-public struct WebSocketService{
+public struct WebSocketEndpoint{
     string epName;
     ServiceEndpointConfiguration config;
-    Service serviceEndpoint;
+    ServiceEndpoint httpEndpoint;
+    //TODO remove below client
+    WebSocketClient wsClient;
 }
 
-public function <WebSocketService ep> WebSocketService() {
-    ep.serviceEndpoint = {};
+public function <WebSocketEndpoint ep> WebSocketService() {
+    ep.httpEndpoint = {};
 }
 
 @Description { value:"Gets called when the endpoint is being initialize during package init time"}
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WebSocketService ep> init (string epName, ServiceEndpointConfiguration config) {
-    ep.serviceEndpoint.init(epName, config);
+public function <WebSocketEndpoint ep> init (ServiceEndpointConfiguration config) {
+    ep.httpEndpoint.init(config);
 }
 
 @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketService ep> register (type serviceType) {
-    ep.serviceEndpoint.register(serviceType);
+public function <WebSocketEndpoint ep> register (type serviceType) {
+    ep.httpEndpoint.register(serviceType);
 }
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketService ep> start () {
-    ep.serviceEndpoint.start();
+public function <WebSocketEndpoint ep> start () {
+    ep.httpEndpoint.start();
 }
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public function <WebSocketService ep> getConnector () returns (ServerConnector repConn) {
-    return ep.serviceEndpoint.getConnector();
+//TODO make this native
+public function <WebSocketEndpoint ep> getClient () returns (WebSocketConnector) {
+    return ep.wsClient.getClient();
 }
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <WebSocketService ep> stop () {
-    ep.serviceEndpoint.stop();
+public function <WebSocketEndpoint ep> stop () {
+    ep.httpEndpoint.stop();
 }
