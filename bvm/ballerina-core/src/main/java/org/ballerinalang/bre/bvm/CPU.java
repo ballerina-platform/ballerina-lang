@@ -401,7 +401,7 @@ public class CPU {
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(callIns.functionInfo, ctx, callIns.argRegs,
-                            callIns.retRegs, false);
+                            callIns.retRegs, false, callIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -409,14 +409,14 @@ public class CPU {
                 case InstructionCodes.VCALL:
                     InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                     ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
-                            vcallIns.argRegs, vcallIns.retRegs);
+                            vcallIns.argRegs, vcallIns.retRegs, vcallIns.async);
                     if (ctx == null) {
                         return;
                     }
                     break;
                 case InstructionCodes.ACALL:
                     InstructionACALL acallIns = (InstructionACALL) instruction;
-                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs);
+                    ctx = invokeAction(ctx, acallIns.actionName, acallIns.argRegs, acallIns.retRegs, acallIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -424,7 +424,7 @@ public class CPU {
                 case InstructionCodes.TCALL:
                     InstructionTCALL tcallIns = (InstructionTCALL) instruction;
                     ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                            tcallIns.retRegs, false);
+                            tcallIns.retRegs, false, tcallIns.async);
                     if (ctx == null) {
                         return;
                     }
@@ -2790,7 +2790,7 @@ public class CPU {
 
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
-                                                                int[] retRegs) {
+                                                                int[] retRegs, boolean async) {
         BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2806,11 +2806,11 @@ public class CPU {
         BLangVMUtils.initClientConnectorTrace(ctx, concreteFuncInfo.attachedToType.toString(),
                 concreteFuncInfo.getName());
 
-        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false);
+        return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, async);
     }
 
     private static WorkerExecutionContext invokeAction(WorkerExecutionContext ctx, String actionName, int[] argRegs,
-                                                       int[] retRegs) {
+                                                       int[] retRegs, boolean async) {
         BConnector connector = (BConnector) ctx.workerLocal.refRegs[argRegs[0]];
         if (connector == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
@@ -2825,7 +2825,7 @@ public class CPU {
         //TODO: find a way to only trace connectors
         // BLangVMUtils.initClientConnectorTrace(ctx, actualCon, actionName);
 
-        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false);
+        return BLangFunctions.invokeCallable(actionInfo, ctx, argRegs, retRegs, false, async);
     }
 
     @SuppressWarnings("rawtypes")

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -101,6 +102,11 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                 .equals(funcNode.name.getValue())) {
             addLocation(funcNode, funcNode.symbol.pkgID.name.getValue(), funcNode.symbol.pkgID.name.getValue());
         }
+
+        if (funcNode.receiver != null) {
+            this.acceptNode(funcNode.receiver);
+        }
+
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }
@@ -128,12 +134,24 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                     serviceNode.symbol.pkgID.name.getValue());
         }
 
+        if (serviceNode.serviceTypeStruct != null) {
+            this.acceptNode(serviceNode.serviceTypeStruct);
+        }
+
         if (!serviceNode.vars.isEmpty()) {
             serviceNode.vars.forEach(this::acceptNode);
         }
 
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.endpoints.isEmpty()) {
+            serviceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.boundEndpoints.isEmpty()) {
+            serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
         if (serviceNode.initFunction != null) {
@@ -541,6 +559,27 @@ public class ReferencesTreeVisitor extends NodeVisitor {
 
         if (conversionExpr.transformerInvocation != null) {
             acceptNode(conversionExpr.transformerInvocation);
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
+                endpointNode.symbol.owner.pkgID.name.getValue()
+                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
+                        .equals(endpointNode.symbol.pkgID.name.getValue()) &&
+                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(endpointNode.name.getValue())) {
+            addLocation(endpointNode, endpointNode.symbol.owner.pkgID.name.getValue(),
+                    endpointNode.pos.getSource().pkgID.name.getValue());
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 
