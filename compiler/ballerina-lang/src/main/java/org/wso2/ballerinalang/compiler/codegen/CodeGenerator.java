@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -1010,6 +1011,30 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
+        if (cIExpr.objectInit) {
+            BSymbol structSymbol = cIExpr.type.tsymbol;
+            int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
+            int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
+
+            //Emit an instruction to create a new struct.
+            RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
+            emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
+
+            // Invoke the struct initializer here.
+            Operand[] operands = getFuncOperands(cIExpr.objectInitInvocation);
+
+            Operand[] callOperands = new Operand[operands.length + 1];
+            callOperands[0] = operands[0];
+            callOperands[1] = operands[1];
+            callOperands[2] = getOperand(operands[2].value + 1);
+            callOperands[3] = structRegIndex;
+
+            System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
+            emit(InstructionCodes.CALL, callOperands);
+            return;
+        }
         BConnectorType connectorType = (BConnectorType) cIExpr.type;
         BConnectorSymbol connectorSymbol = (BConnectorSymbol) connectorType.tsymbol;
 
@@ -2425,6 +2450,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
+    }
+
+    public void visit(BLangObject objectNode) {
     }
 
     public void visit(BLangStreamlet streamletNode) {

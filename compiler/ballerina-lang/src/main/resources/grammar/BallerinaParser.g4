@@ -115,11 +115,11 @@ objectBody
     ;
 
 publicObjectFields
-    :   PUBLIC LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
     ;
 
 privateObjectFields
-    :   PRIVATE LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -127,15 +127,42 @@ objectInitializer
     ;
 
 objectInitializerParameterList
-    :   LEFT_PARENTHESIS identiferList? (COMMA formalParameterList?)? RIGHT_PARENTHESIS
+    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFunctions
-    : (annotationAttachment* documentationAttachment? deprecatedAttachment? functionDefinition)+
+    : (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
     ;
 
-identiferList
-    :   Identifier (COMMA Identifier)*
+// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
+    ;
+
+// TODO try to merge with formalParameterList later
+objectParameterList
+    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
+// TODO try to merge with parameter later
+objectParameter
+    :   annotationAttachment* typeName? Identifier
+    ;
+
+// TODO try to merge with defaultableParameter later
+objectDefaultableParameter
+    :   objectParameter COLON expression
+    ;
+
+// TODO merge with functionDefinition later
+objectFunctionDefinition
+    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    ;
+
+//TODO merge with callableUnitSignature later
+objectCallableUnitSignature
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
     ;
 
 

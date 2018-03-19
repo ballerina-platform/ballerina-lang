@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -515,6 +516,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangObject objectNode) {
+        /* ignore */
+    }
+
     public void visit(BLangEnum enumNode) {
         /* ignore */
     }
@@ -734,6 +739,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
+        analyzeExpr(cIExpr.objectInitInvocation);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {

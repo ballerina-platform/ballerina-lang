@@ -87,17 +87,26 @@ import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StreamletRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -110,6 +119,7 @@ import org.ballerinalang.util.transactions.TransactionConstants;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -122,10 +132,90 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  */
 public class CPU {
 
-    public static void traceCode(Instruction[] code) {
+    private static void traceCode(WorkerExecutionContext ctx) {
         PrintStream printStream = System.out;
-        for (int i = 0; i < code.length; i++) {
-            printStream.println(i + ": " + code[i].toString());
+        for (int i = 0; i < ctx.code.length; i++) {
+            printStream.println(i + ": " + ctx.code[i].toString());
+        }
+
+        PackageInfo packageInfo = ctx.callableUnitInfo.getPackageInfo();
+        ErrorTableAttributeInfo errorTableAttributeInfo = (ErrorTableAttributeInfo) packageInfo
+                .getAttributeInfo(Kind.ERROR_TABLE);
+        if (errorTableAttributeInfo != null) {
+            printStream.println("********** Error table");
+            printStream.println("from\tto\ttarget\tpriority");
+
+            List<ErrorTableEntry> errorTableInfos = errorTableAttributeInfo.getErrorTableEntriesList();
+            errorTableInfos.forEach(l -> printStream.println(l.getIpFrom() + "\t" + l.getIpTo() + "\t" + l.getIpTarget() + "\t" + l.getPriority()));
+        }
+
+        printStream.println("********** Line number table");
+        printStream.println("File name\t\tLN\tIp");
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) packageInfo
+                .getAttributeInfo(Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        lineNumberInfos.forEach(l -> printStream.println(l.getFileName() + "\t" + l.getLineNumber() + "\t" + l.getIp()));
+
+        int index = 0;
+        String val = "entry not added";
+        for (ConstantPoolEntry entry : ctx.constPool) {
+            val = "entry not added";
+            switch (entry.getEntryType()) {
+                case CP_ENTRY_UTF8:
+                    val = "index - " + index + " type - CP_ENTRY_UTF8, value - " + ((UTF8CPEntry) entry).getValue();
+                    break;
+                case CP_ENTRY_INTEGER:
+                    val = "index - " + index + " type - CP_ENTRY_INTEGER, value - "
+                            + ((IntegerCPEntry) entry).getValue();
+                    break;
+                case CP_ENTRY_FLOAT:
+                    val = "index - " + index + " type - CP_ENTRY_FLOAT, value - "
+                            + ((FloatCPEntry) entry).getValue();
+                    break;
+                case CP_ENTRY_STRING:
+                    val = "index - " + index + " type - CP_ENTRY_STRING, value - "
+                            + ((StringCPEntry) entry).getValue();
+                    break;
+                case CP_ENTRY_PACKAGE:
+                    val = "index - " + index + " type - CP_ENTRY_PACKAGE, value - "
+                            + ((PackageRefCPEntry) entry).getPackageName();
+                    break;
+                case CP_ENTRY_FUNCTION_REF:
+                    FunctionRefCPEntry fRef = (FunctionRefCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_FUNCTION_REF, value - "
+                            + fRef.getPackagePath() + ":" + fRef.getFunctionName();
+                    break;
+                case CP_ENTRY_ACTION_REF:
+                    ActionRefCPEntry aRef = (ActionRefCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_ACTION_REF, value - "
+                            + aRef.getPackagePath() + ":" + aRef.getActionName();
+                    break;
+                case CP_ENTRY_FUNCTION_CALL_ARGS:
+                    FunctionCallCPEntry fCall = (FunctionCallCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_FUNCTION_CALL_ARGS, value - "
+                            + Arrays.toString(fCall.getArgRegs()) + ":" + Arrays.toString(fCall.getRetRegs());
+                    break;
+                case CP_ENTRY_STRUCTURE_REF:
+                    StructureRefCPEntry sRef = (StructureRefCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_STRUCTURE_REF, value - "
+                            + sRef.getPackagePath() + ":" + sRef.getStructureName();
+                    break;
+                case CP_ENTRY_TYPE_REF:
+                    TypeRefCPEntry tRef = (TypeRefCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_TYPE_REF, value - "
+                            + tRef.getTypeSig();
+                    break;
+                case CP_ENTRY_FORK_JOIN:
+                    ForkJoinCPEntry frk = (ForkJoinCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_FORK_JOIN, value - " + frk.toString();
+                    break;
+                case CP_ENTRY_WRKR_DATA_CHNL_REF:
+                    WorkerDataChannelRefCPEntry wdc = (WorkerDataChannelRefCPEntry) entry;
+                    val = "index - " + index + " type - CP_ENTRY_WRKR_DATA_CHNL_REF, value - " + wdc.getUniqueName();
+                    break;
+            }
+            printStream.println(val);
+            index++;
         }
     }
 
@@ -163,6 +253,8 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry;
         FunctionInfo functionInfo;
         InstructionCALL callIns;
+
+        traceCode(ctx);
 
         boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 

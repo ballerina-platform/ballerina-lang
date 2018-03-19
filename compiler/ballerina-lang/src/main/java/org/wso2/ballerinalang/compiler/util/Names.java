@@ -47,6 +47,8 @@ public class Names {
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name CONNECTOR = new Name("connector");
+    public static final Name SELF = new Name("self");
+    public static final Name OBJECT_INIT_SUFFIX = new Name("new");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
 

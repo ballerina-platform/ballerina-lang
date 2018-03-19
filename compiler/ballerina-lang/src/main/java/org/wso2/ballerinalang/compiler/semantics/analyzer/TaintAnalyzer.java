@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -287,6 +288,15 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
         BSymbol structSymbol = structNode.symbol;
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, env);
         structNode.fields.forEach(field -> analyzeNode(field, structEnv));
+    }
+
+    //TODO double check this
+    public void visit(BLangObject objectNode) {
+        BSymbol objectSymbol = objectNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
+        objectNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        analyzeNode(objectNode.initFunction, objectEnv);
+        objectNode.functions.forEach(f -> analyzeNode(f, objectEnv));
     }
 
     public void visit(BLangEnum enumNode) {
@@ -1002,6 +1012,39 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     private void visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
         if (invNode.symbol.taintTable == null) {
             if (Symbols.isNative(invNode.symbol)) {
+                attachTaintTableBasedOnAnnotations(invNode);
+                return;
+            }
+            Map<Integer, TaintRecord> taintTable = new HashMap<>();
+            returnTaintedStatusList = null;
+            // Check the tainted status of return values when no parameter is tainted.
+            analyzeAllParamsUntaintedReturnTaintedStatus(taintTable, invNode, symbolEnv);
+            boolean isBlocked = processBlockedNode(invNode);
+            if (isBlocked) {
+                return;
+            }
+            int requiredParamCount = invNode.requiredParams.size();
+            int defaultableParamCount = invNode.defaultableParams.size();
+            int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
+            for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
+                BLangVariable param = getParam(invNode, paramIndex, requiredParamCount, defaultableParamCount);
+                // If parameter is sensitive, it is invalid to have a case where tainted status of parameter is true.
+                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
+                    continue;
+                }
+                returnTaintedStatusList = null;
+                // Set each parameter "tainted", then analyze the body to observe the outcome of the function.
+                analyzeReturnTaintedStatus(taintTable, invNode, symbolEnv, paramIndex, requiredParamCount,
+                        defaultableParamCount);
+            }
+            invNode.symbol.taintTable = taintTable;
+        }
+    }
+
+    //TODO fix properly
+    private void visitInvokable(BLangFunction invNode, SymbolEnv symbolEnv) {
+        if (invNode.symbol.taintTable == null) {
+            if (Symbols.isNative(invNode.symbol) || invNode.interfaceFunction) {
                 attachTaintTableBasedOnAnnotations(invNode);
                 return;
             }

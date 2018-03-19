@@ -280,8 +280,21 @@ public class SymbolResolver extends BLangNodeVisitor {
             return pkgSymbol;
         }
         BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
+//        if (symbol == symTable.notFoundSymbol) {
+//            dlog.error(pos, code, connectorName);
+//        }
+        return symbol;
+    }
+
+    public BSymbol resolveObject(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
+                                    Name pkgAlias, Name objectName) {
+        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, objectName, SymTag.OBJECT);
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, connectorName);
+            dlog.error(pos, code, objectName);
         }
         return symbol;
     }
@@ -305,6 +318,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
         return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
+    public BSymbol resolveObjectField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol objectSymbol) {
+        return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {

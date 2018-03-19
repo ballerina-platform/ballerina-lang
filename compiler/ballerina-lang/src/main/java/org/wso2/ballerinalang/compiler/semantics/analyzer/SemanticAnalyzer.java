@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -243,6 +244,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        if (funcNode.objectInitFunction) {
+            funcNode.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
+        }
+
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
@@ -251,7 +257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
 
         // Check for native functions
-        if (Symbols.isNative(funcNode.symbol)) {
+        if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             return;
         }
 
@@ -286,6 +292,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
         });
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
+    }
+
+    public void visit(BLangObject objectNode) {
+        BSymbol objectSymbol = objectNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
+        objectNode.fields.forEach(field -> analyzeDef(field, objectEnv));
+
+        objectNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
+            annotationAttachment.accept(this);
+        });
+        objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
+
+        analyzeDef(objectNode.initFunction, objectEnv);
+        objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
     }
 
     @Override

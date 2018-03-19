@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,15 +17,23 @@
 */
 package org.ballerinalang.model.tree;
 
+import java.util.List;
+
 /**
- * @since 0.94
+ * @since 0.966.0
  */
-public interface FunctionNode extends InvokableNode, AnnotatableNode, TopLevelNode {
+public interface ObjectNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
+    
+    IdentifierNode getName();
+    
+    void setName(IdentifierNode name);
 
-  VariableNode getReceiver();
+    List<? extends VariableNode> getFields();
+    
+    void addField(VariableNode field);
 
-  void setReceiver(VariableNode receiver);
+    List<? extends FunctionNode> getFunctions();
 
-  boolean isInterfaceFunction();
-
+    void addFunction(FunctionNode function);
+    
 }

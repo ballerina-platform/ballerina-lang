@@ -208,6 +208,136 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitPrivateStructBody(BallerinaParser.PrivateStructBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectDefinition(BallerinaParser.ObjectDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectBody(BallerinaParser.ObjectBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectBody(BallerinaParser.ObjectBodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#publicObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void enterPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#publicObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#privateObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#privateObjectFields}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectInitializerParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectInitializerParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectFunctions}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectFunctions(BallerinaParser.ObjectFunctionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectFunctions}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectFunctions(BallerinaParser.ObjectFunctionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectFieldDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectFieldDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectParameterList(BallerinaParser.ObjectParameterListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectParameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectParameter(BallerinaParser.ObjectParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectParameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectParameter(BallerinaParser.ObjectParameterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectDefaultableParameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectDefaultableParameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectFunctionDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectFunctionDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#objectCallableUnitSignature}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#objectCallableUnitSignature}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
 	 */

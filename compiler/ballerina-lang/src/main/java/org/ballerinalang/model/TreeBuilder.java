@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -134,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -386,12 +388,16 @@ public class TreeBuilder {
         return new BLangLambdaFunction();
     }
 
-    public static TypeInitNode createConnectorInitNode() {
+    public static TypeInitNode createObjectInitNode() {
         return new BLangTypeInit();
     }
 
     public static StructNode createStructNode() {
         return new BLangStruct();
+    }
+
+    public static ObjectNode createObjectNode() {
+        return new BLangObject();
     }
 
     public static EnumNode createEnumNode() {

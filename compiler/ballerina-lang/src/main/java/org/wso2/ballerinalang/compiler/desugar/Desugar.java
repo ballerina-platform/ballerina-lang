@@ -54,10 +54,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStreamlet;
+import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -225,6 +227,18 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        //Adding object functions to package level.
+        pkgNode.objects.forEach(o -> {
+            pkgNode.functions.add(o.initFunction);
+            pkgNode.topLevelNodes.add(o.initFunction);
+            o.functions.forEach(f -> {
+                pkgNode.functions.add(f);
+                pkgNode.topLevelNodes.add(f);
+            });
+        });
+        //Rewriting Object to struct
+        pkgNode.objects.forEach(o -> pkgNode.structs.add(rewriteObjectToStruct(o, env)));
+
         pkgNode.imports = rewrite(pkgNode.imports, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
@@ -255,9 +269,21 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        addReturnIfNotPresent(funcNode);
+        if (!funcNode.interfaceFunction) {
+            addReturnIfNotPresent(funcNode);
+        }
+
         Collections.reverse(funcNode.endpoints); // To preserve endpoint code gen order.
         funcNode.endpoints = rewrite(funcNode.endpoints, fucEnv);
+
+        //Adding init statements to the init function.
+        if (funcNode.objectInitFunction) {
+            BLangStatement[] initStmts = funcNode.initFunctionStmts.values().toArray(new BLangStatement[0]);
+            for (int i = 0; i < funcNode.initFunctionStmts.size(); i++) {
+                funcNode.body.stmts.add(i, initStmts[i]);
+            }
+        }
+
         funcNode.body = rewrite(funcNode.body, fucEnv);
         funcNode.workers = rewrite(funcNode.workers, fucEnv);
 
@@ -287,6 +313,21 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangStreamlet streamletNode) {
         siddhiQueryBuilder.visit(streamletNode);
         result = streamletNode;
+    }
+
+    private BLangStruct rewriteObjectToStruct(BLangObject objectNode, SymbolEnv env) {
+        BLangStruct bLangStruct = (BLangStruct) TreeBuilder.createStructNode();
+        bLangStruct.name = objectNode.name;
+        bLangStruct.fields = objectNode.fields;
+//        bLangStruct.functions = rewrite(objectNode.functions, env);
+//        bLangStruct.initFunction = rewrite(objectNode.initFunction, env);
+        bLangStruct.annAttachments = rewrite(objectNode.annAttachments, env);
+        bLangStruct.docAttachments = rewrite(objectNode.docAttachments, env);
+        bLangStruct.deprecatedAttachments = rewrite(objectNode.deprecatedAttachments, env);
+        bLangStruct.isAnonymous = objectNode.isAnonymous;
+        bLangStruct.symbol = objectNode.symbol;
+
+        return bLangStruct;
     }
 
     @Override
@@ -907,6 +948,7 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangTypeInit connectorInitExpr) {
         connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
+        connectorInitExpr.objectInitInvocation = rewriteExpr(connectorInitExpr.objectInitInvocation);
         result = connectorInitExpr;
     }
 

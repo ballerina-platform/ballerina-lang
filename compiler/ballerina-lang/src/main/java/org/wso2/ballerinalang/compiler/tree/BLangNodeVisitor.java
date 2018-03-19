@@ -174,6 +174,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangObject objectNode) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangEnum enumNode) {
         throw new AssertionError();
     }

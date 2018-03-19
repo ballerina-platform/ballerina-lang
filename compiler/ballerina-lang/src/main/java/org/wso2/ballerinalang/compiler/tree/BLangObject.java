@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,19 +17,16 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -37,32 +34,29 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @since 0.94
+ * @since 0.966.0
  */
-public class BLangVariable extends BLangNode implements VariableNode {
+public class BLangObject extends BLangNode implements ObjectNode {
 
-    public DocTag docTag;
-    public BLangType typeNode;
     public BLangIdentifier name;
-    public BLangExpression expr;
+    public List<BLangVariable> fields;
     public Set<Flag> flagSet;
+    public List<BLangFunction> functions;
+    public BLangFunction initFunction;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
-    public boolean isField;
+    public boolean isAnonymous;
 
-    public BVarSymbol symbol;
+    public BSymbol symbol;
 
-    public BLangVariable() {
-        this.docAttachments = new ArrayList<>();
-        this.annAttachments = new ArrayList<>();
+    public BLangObject() {
+        this.fields = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
+        this.functions = new ArrayList<>();
+        this.annAttachments = new ArrayList<>();
+        this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
-    }
-
-    @Override
-    public BLangType getTypeNode() {
-        return typeNode;
     }
 
     @Override
@@ -71,8 +65,23 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public BLangExpression getInitialExpression() {
-        return expr;
+    public List<BLangVariable> getFields() {
+        return fields;
+    }
+
+    @Override
+    public void addField(VariableNode var) {
+        this.getFields().add((BLangVariable) var);
+    }
+
+    @Override
+    public List<? extends FunctionNode> getFunctions() {
+        return functions;
+    }
+
+    @Override
+    public void addFunction(FunctionNode function) {
+        this.functions.add((BLangFunction) function);
     }
 
     @Override
@@ -83,16 +92,6 @@ public class BLangVariable extends BLangNode implements VariableNode {
     @Override
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
-    }
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public void addFlag(Flag flag) {
-        this.flagSet.add(flag);
     }
 
     @Override
@@ -121,8 +120,13 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public void setTypeNode(TypeNode typeNode) {
-        this.typeNode = (BLangType) typeNode;
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
     }
 
     @Override
@@ -131,19 +135,13 @@ public class BLangVariable extends BLangNode implements VariableNode {
     }
 
     @Override
-    public void setInitialExpression(ExpressionNode expr) {
-        this.expr = (BLangExpression) expr;
-    }
-
-    @Override
     public NodeKind getKind() {
-        return NodeKind.VARIABLE;
+        return NodeKind.OBJECT;
     }
 
     @Override
     public String toString() {
-        return "BLangVariable: " + (this.getFlags().contains(Flag.CONST) ? "const " : "") +
-                (this.name != null ? this.name : "") + "[" + this.typeNode + "]" +
-                (this.expr != null ? " = " + this.expr : "");
+        return "BLangObject: " + this.name + " -> " + this.fields;
     }
+
 }

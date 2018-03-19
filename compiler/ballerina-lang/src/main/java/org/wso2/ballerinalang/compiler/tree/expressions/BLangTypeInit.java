@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -37,6 +38,8 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
     public BLangUserDefinedType userDefinedType;
     public List<BLangExpression> argsExpr;
+    public BLangInvocation objectInitInvocation;
+    public boolean objectInit;
 
 
     public BLangTypeInit() {
