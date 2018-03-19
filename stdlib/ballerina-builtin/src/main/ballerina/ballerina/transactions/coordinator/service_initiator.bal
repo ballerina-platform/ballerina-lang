@@ -36,7 +36,7 @@ function getCoordinationTypeToProtocolsMap () returns (map m) {
     return;
 }
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:initiatorCoordinatorBasePath
 }
 documentation {
@@ -44,7 +44,7 @@ documentation {
 }
 service<http:Service> InitiatorService bind coordinatorServerEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:registrationPathPattern
     }

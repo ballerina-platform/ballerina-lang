@@ -391,7 +391,7 @@ class ExportDiagramDialog extends React.Component {
                             Export
                         </Button>
                     }
-                    closeAction
+                    closeDialog
                     onHide={this.onDialogHide}
                     error={this.state.error}
                 >

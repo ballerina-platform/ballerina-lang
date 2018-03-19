@@ -141,7 +141,7 @@ class ServiceNode extends AbstractServiceNode {
      * @memberof ServiceNode
      */
     getType() {
-        return this.endpointType.typeName.value;
+        return this.serviceTypeStruct.typeName.value;
     }
 
 }

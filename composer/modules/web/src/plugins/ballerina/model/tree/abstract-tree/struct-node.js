@@ -48,6 +48,7 @@ class AbstractStructNode extends Node {
     }
 
 
+
     setFields(newValue, silent, title) {
         const oldValue = this.fields;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -189,6 +190,7 @@ class AbstractStructNode extends Node {
     getFlags() {
         return this.flags;
     }
+
 
 
     setAnnotationAttachments(newValue, silent, title) {

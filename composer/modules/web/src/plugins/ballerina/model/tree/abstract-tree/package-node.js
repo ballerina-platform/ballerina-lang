@@ -22,6 +22,125 @@ import Node from '../node';
 class AbstractPackageNode extends Node {
 
 
+    setGlobalVariables(newValue, silent, title) {
+        const oldValue = this.globalVariables;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.globalVariables = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'globalVariables',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getGlobalVariables() {
+        return this.globalVariables;
+    }
+
+
+    addGlobalVariables(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.globalVariables.push(node);
+            index = this.globalVariables.length;
+        } else {
+            this.globalVariables.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeGlobalVariables(node, silent) {
+        const index = this.getIndexOfGlobalVariables(node);
+        this.removeGlobalVariablesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeGlobalVariablesByIndex(index, silent) {
+        this.globalVariables.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceGlobalVariables(oldChild, newChild, silent) {
+        const index = this.getIndexOfGlobalVariables(oldChild);
+        this.globalVariables[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceGlobalVariablesByIndex(index, newChild, silent) {
+        this.globalVariables[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfGlobalVariables(child) {
+        return _.findIndex(this.globalVariables, ['id', child.id]);
+    }
+
+    filterGlobalVariables(predicateFunction) {
+        return _.filter(this.globalVariables, predicateFunction);
+    }
+
+
     setImports(newValue, silent, title) {
         const oldValue = this.imports;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -286,6 +405,7 @@ class AbstractPackageNode extends Node {
     }
 
 
+
     setNamespaceDeclarations(newValue, silent, title) {
         const oldValue = this.namespaceDeclarations;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -524,125 +644,6 @@ class AbstractPackageNode extends Node {
     }
 
 
-    setGlobalVariables(newValue, silent, title) {
-        const oldValue = this.globalVariables;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.globalVariables = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'globalVariables',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getGlobalVariables() {
-        return this.globalVariables;
-    }
-
-
-    addGlobalVariables(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.globalVariables.push(node);
-            index = this.globalVariables.length;
-        } else {
-            this.globalVariables.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeGlobalVariables(node, silent) {
-        const index = this.getIndexOfGlobalVariables(node);
-        this.removeGlobalVariablesByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeGlobalVariablesByIndex(index, silent) {
-        this.globalVariables.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceGlobalVariables(oldChild, newChild, silent) {
-        const index = this.getIndexOfGlobalVariables(oldChild);
-        this.globalVariables[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceGlobalVariablesByIndex(index, newChild, silent) {
-        this.globalVariables[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfGlobalVariables(child) {
-        return _.findIndex(this.globalVariables, ['id', child.id]);
-    }
-
-    filterGlobalVariables(predicateFunction) {
-        return _.filter(this.globalVariables, predicateFunction);
-    }
-
-
     setServices(newValue, silent, title) {
         const oldValue = this.services;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -878,6 +879,125 @@ class AbstractPackageNode extends Node {
 
     filterConnectors(predicateFunction) {
         return _.filter(this.connectors, predicateFunction);
+    }
+
+
+    setStreamlets(newValue, silent, title) {
+        const oldValue = this.streamlets;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.streamlets = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'streamlets',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getStreamlets() {
+        return this.streamlets;
+    }
+
+
+    addStreamlets(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.streamlets.push(node);
+            index = this.streamlets.length;
+        } else {
+            this.streamlets.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeStreamlets(node, silent) {
+        const index = this.getIndexOfStreamlets(node);
+        this.removeStreamletsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeStreamletsByIndex(index, silent) {
+        this.streamlets.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceStreamlets(oldChild, newChild, silent) {
+        const index = this.getIndexOfStreamlets(oldChild);
+        this.streamlets[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceStreamletsByIndex(index, newChild, silent) {
+        this.streamlets[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfStreamlets(child) {
+        return _.findIndex(this.streamlets, ['id', child.id]);
+    }
+
+    filterStreamlets(predicateFunction) {
+        return _.filter(this.streamlets, predicateFunction);
     }
 
 

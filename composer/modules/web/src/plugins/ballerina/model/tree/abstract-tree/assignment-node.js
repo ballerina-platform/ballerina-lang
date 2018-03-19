@@ -48,6 +48,7 @@ class AbstractAssignmentNode extends StatementNode {
     }
 
 
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -167,6 +168,7 @@ class AbstractAssignmentNode extends StatementNode {
     }
 
 
+
     isDeclaredWithVar() {
         return this.declaredWithVar;
     }
@@ -175,6 +177,7 @@ class AbstractAssignmentNode extends StatementNode {
         const oldValue = this.declaredWithVar;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
         this.declaredWithVar = newValue;
+        this.clearWS();
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
