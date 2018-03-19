@@ -39,14 +39,6 @@ struct TwoPhaseCommitTransaction {
     boolean possibleMixedOutcome;
 }
 
-struct CommitRequest {
-    string transactionId;
-}
-
-struct CommitResponse {
-    string message;
-}
-
 public struct PrepareRequest {
     string transactionId;
 }
@@ -55,21 +47,12 @@ public struct PrepareResponse {
     string message;
 }
 
-struct NotifyRequest {
+public struct NotifyRequest {
     string transactionId;
     string message;
 }
 
-struct NotifyResponse {
-    string message;
-}
-
-struct AbortRequest {
-    string transactionId;
-    string participantId;
-}
-
-struct AbortResponse {
+public struct NotifyResponse {
     string message;
 }
 

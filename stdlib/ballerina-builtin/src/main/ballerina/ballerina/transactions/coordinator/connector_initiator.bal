@@ -19,7 +19,7 @@ package ballerina.transactions.coordinator;
 import ballerina.config;
 import ballerina.net.http;
 
-public struct InitiatorClientConfig {
+struct InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
     struct {
@@ -28,11 +28,11 @@ public struct InitiatorClientConfig {
     } retryConfig;
 }
 
-public struct InitiatorClientEP {
+struct InitiatorClientEP {
     http:ClientEndpoint httpClient;
 }
 
-public function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
+function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
                                             endpointTimeout:conf.endpointTimeout,
                                             retryConfig:{count:conf.retryConfig.count,
@@ -40,15 +40,15 @@ public function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     ep.httpClient = httpEP;
 }
 
-public function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
+function <InitiatorClientEP ep> getClient() returns (InitiatorClient) {
     return {clientEP: ep};
 }
 
-public struct InitiatorClient {
+struct InitiatorClient {
     InitiatorClientEP clientEP;
 }
 
-public function<InitiatorClient client> register (string transactionId,
+function<InitiatorClient client> register (string transactionId,
                                                   int transactionBlockId,
                                                   Protocol[] participantProtocols) returns (RegistrationResponse registrationRes,
                                                                             error err) {
