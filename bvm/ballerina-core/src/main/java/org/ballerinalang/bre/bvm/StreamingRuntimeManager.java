@@ -43,9 +43,6 @@ public class StreamingRuntimeManager {
     private List<SiddhiAppRuntime> siddhiAppRuntimeList = new ArrayList<>();
     private Map<String, BStream> streamMap = new HashMap<>();
 
-    //TODO temp fix ?
-    private Map<String, BTable> tableMap = new HashMap<>();
-
     private StreamingRuntimeManager() {
 
     }
@@ -60,10 +57,6 @@ public class StreamingRuntimeManager {
             }
         }
         return streamingRuntimeManager;
-    }
-
-    public BTable getTableReference (String tableName) {
-        return tableMap.get(tableName);
     }
 
     public void createSiddhiAppRuntime(BStreamlet streamlet) {
