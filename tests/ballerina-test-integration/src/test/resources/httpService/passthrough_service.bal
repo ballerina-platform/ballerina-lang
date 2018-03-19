@@ -8,10 +8,10 @@ endpoint http:ClientEndpoint nyseEP {
     targets: [{uri:"http://localhost:9090"}]
 };
 
-@http:serviceConfig {basePath:"/passthrough"}
+@http:ServiceConfig {basePath:"/passthrough"}
 service<http:Service> passthroughService bind passthroughEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
@@ -21,10 +21,10 @@ service<http:Service> passthroughService bind passthroughEP {
     }
 }
 
-@http:serviceConfig {basePath:"/nyseStock"}
+@http:ServiceConfig {basePath:"/nyseStock"}
 service<http:Service> nyseStockQuote bind passthroughEP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"]
     }
     stocks (endpoint outboundEP, http:Request clientRequest) {

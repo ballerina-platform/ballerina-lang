@@ -20,7 +20,7 @@ endpoint http:ServiceEndpoint participant2EP {
     port:8890
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
 }
 service<http:Service> participant2 bind participant2EP {
     task1 (endpoint conn, http:Request req) {

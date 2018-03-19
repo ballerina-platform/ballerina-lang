@@ -75,7 +75,7 @@ class FileDeleteConfirmDialog extends React.Component {
                         Delete
                     </Button>,
                 ]}
-                closeAction
+                closeDialog
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >
