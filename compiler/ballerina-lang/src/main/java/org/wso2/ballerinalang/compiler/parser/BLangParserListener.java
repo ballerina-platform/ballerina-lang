@@ -72,7 +72,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitParameter(BallerinaParser.ParameterContext ctx) {
+    public void exitSimpleParameter(BallerinaParser.SimpleParameterContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -598,6 +598,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTupleTypeName(BallerinaParser.TupleTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.typeName().size());
+    }
+
+    @Override
     public void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -871,10 +879,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isVarDeclaration = false;
-        if (ctx.getChild(0).getText().equals("var")) {
+        if (ctx.VAR() != null) {
             isVarDeclaration = true;
         }
         this.pkgBuilder.addAssignmentStatement(getCurrentPos(ctx), getWS(ctx), isVarDeclaration);
+    }
+
+    @Override
+    public void exitTupleDestructuringStatement(BallerinaParser.TupleDestructuringStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean isVarDeclaration = false;
+        boolean isVarExist = ctx.variableReferenceList() != null;
+        if (ctx.VAR() != null) {
+            isVarDeclaration = true;
+        }
+        this.pkgBuilder.addTupleDestructuringStatement(getCurrentPos(ctx), getWS(ctx), isVarExist, isVarDeclaration);
     }
 
     /**
@@ -1682,6 +1704,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
+    }
+
+    @Override
+    public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.createBracedOrTupleExpression(getCurrentPos(ctx), getWS(ctx), ctx.expression().size());
     }
 
     /**

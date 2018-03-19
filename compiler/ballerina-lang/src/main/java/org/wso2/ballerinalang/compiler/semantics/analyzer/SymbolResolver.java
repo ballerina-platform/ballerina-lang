@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -47,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -471,6 +473,13 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .collect(Collectors.toSet());
         resultType = new BUnionType(null, memberTypes,
                 memberTypes.contains(symTable.nullType));
+    }
+
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        List<BType> memberTypes = tupleTypeNode.memberTypeNodes.stream()
+                .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
+                .collect(Collectors.toList());
+        resultType = new BTupleType(memberTypes);
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {
