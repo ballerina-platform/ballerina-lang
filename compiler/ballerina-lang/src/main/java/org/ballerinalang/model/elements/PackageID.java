@@ -46,6 +46,7 @@ public class PackageID {
                 nameComps.stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining(".")));
+        this.version = version;
     }
 
     public PackageID(Name orgName, Name name, Name version) {
@@ -57,6 +58,7 @@ public class PackageID {
             this.nameComps = Arrays.stream(name.value.split("\\."))
                     .map(Name::new).collect(Collectors.toList());
         }
+        this.version = version;
     }
 
     public Name getName() {

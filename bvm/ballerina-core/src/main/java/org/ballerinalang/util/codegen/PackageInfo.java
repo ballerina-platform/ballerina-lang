@@ -39,6 +39,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private int pkgNameCPIndex;
     private String pkgPath;
+    private int pkgVersionCPIndex;
+    private String pkgVersion;
     private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
@@ -72,9 +74,11 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     // cache values.
     ProgramFile programFile;
 
-    public PackageInfo(int packageNameCPIndex, String packageName) {
+    public PackageInfo(int packageNameCPIndex, String packageName, int packageVersionCPIndex, String packageVersion) {
         this.pkgNameCPIndex = packageNameCPIndex;
         this.pkgPath = packageName;
+        this.pkgVersionCPIndex = packageVersionCPIndex;
+        this.pkgVersion = packageVersion;
     }
 
     public int getPkgNameCPIndex() {
@@ -85,7 +89,13 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgPath;
     }
 
-    // CP
+    public int getPackageVersionCPIndex() {
+        return pkgVersionCPIndex;
+    }
+
+    public String getPackageVersion() {
+        return pkgVersion;
+    }
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {

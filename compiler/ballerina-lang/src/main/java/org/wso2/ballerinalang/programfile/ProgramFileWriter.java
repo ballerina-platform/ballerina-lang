@@ -143,6 +143,8 @@ public class ProgramFileWriter {
                 case CP_ENTRY_PACKAGE:
                     nameCPIndex = ((PackageRefCPEntry) cpEntry).nameCPIndex;
                     dataOutStream.writeInt(nameCPIndex);
+                    int versionCPIndex = ((PackageRefCPEntry) cpEntry).versionCPIndex;
+                    dataOutStream.writeInt(versionCPIndex);
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefEntry = (FunctionRefCPEntry) cpEntry;
@@ -197,6 +199,7 @@ public class ProgramFileWriter {
     private static void writePackageInfo(DataOutputStream dataOutStream,
                                          PackageInfo packageInfo) throws IOException {
         dataOutStream.writeInt(packageInfo.nameCPIndex);
+        dataOutStream.writeInt(packageInfo.versionCPIndex);
         writeCP(dataOutStream, packageInfo.getConstPoolEntries());
 
         // Emit struct info entries
