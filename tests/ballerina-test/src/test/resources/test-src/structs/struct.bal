@@ -9,7 +9,7 @@ struct Person {
     map adrs;
     int age = 999;
     Family family;
-    Person parent;
+    Person? parent;
 }
 
 struct Family {
