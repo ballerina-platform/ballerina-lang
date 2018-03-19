@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 
 /**
  * A utility class for validating an HTTP resource signature at compile time.
@@ -18,7 +18,7 @@ public class ResourceSignatureValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 2;
 
-    private static final String SERVER_CONNECTOR_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + SERVER_CONNECTOR;
+    private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + SERVICE_ENDPOINT;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
     public static void validate(List<BLangVariable> signatureParams) {
@@ -28,8 +28,8 @@ public class ResourceSignatureValidator {
             throw new BallerinaConnectorException("resource signature parameter count should be >= 2");
         }
 
-        if (!isValidResourceParam(signatureParams.get(0), SERVER_CONNECTOR_TYPE)) {
-            throw new BallerinaConnectorException("first parameter should be of type " + SERVER_CONNECTOR_TYPE);
+        if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
+            throw new BallerinaConnectorException("first parameter should be of type " + ENDPOINT_TYPE);
         }
 
         if (!isValidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {

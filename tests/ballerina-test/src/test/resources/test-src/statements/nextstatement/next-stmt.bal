@@ -58,7 +58,7 @@ function testFinallyWithWhile (string command) (string) {
 
 function testFinallyWithForeach (string command) (string) {
     output = "start";
-    foreach i in 0..5 {
+    foreach i in [ 0..5 ] {
         tracePath("foreach" + i);
         try {
             tracePath("try" + i);
