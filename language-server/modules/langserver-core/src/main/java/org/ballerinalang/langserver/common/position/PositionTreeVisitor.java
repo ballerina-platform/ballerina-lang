@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -129,6 +130,10 @@ public class PositionTreeVisitor extends NodeVisitor {
                 funcNode.symbol.kind.name(), funcNode.symbol.owner.name.getValue(), funcNode.symbol.owner.pkgID);
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
+
+        if (funcNode.receiver != null) {
+            this.acceptNode(funcNode.receiver);
+        }
 
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
@@ -427,8 +432,24 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
+        if (serviceNode.serviceTypeStruct != null) {
+            this.acceptNode(serviceNode.serviceTypeStruct);
+        }
+
+        if (!serviceNode.vars.isEmpty()) {
+            serviceNode.vars.forEach(this::acceptNode);
+        }
+
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.endpoints.isEmpty()) {
+            serviceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.boundEndpoints.isEmpty()) {
+            serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
         if (serviceNode.initFunction != null) {
@@ -681,6 +702,17 @@ public class PositionTreeVisitor extends NodeVisitor {
                 enumNode.symbol.owner.name.getValue(), enumNode.symbol.owner.pkgID);
         if (enumNode.getPosition().sLine == this.position.getLine()) {
             this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, enumNode.name.getValue());
+        }
+    }
+
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.endpointTypeNode != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 
