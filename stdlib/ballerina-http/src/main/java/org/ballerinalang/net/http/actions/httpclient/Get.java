@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "get",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -61,7 +61,7 @@ public class Get extends AbstractHTTPAction {
         } catch (ClientConnectorException clientConnectorException) {
             // This is should be a JavaError. Need to handle this properly.
             BallerinaException exception = new BallerinaException("Failed to invoke 'get' action in " +
-                    HttpConstants.CLIENT_CONNECTOR + ". " + clientConnectorException.getMessage(), context);
+                    HttpConstants.HTTP_CLIENT + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
         }
     }

@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.B_CONNECTOR;
-import static org.ballerinalang.net.http.HttpConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.URI;
 
@@ -123,10 +123,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             ballerinaClientConnector = (BStruct) clientEndpoint.getNativeData(B_CONNECTOR);
         } else {
             ballerinaClientConnector = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                    CLIENT_CONNECTOR, url, clientEndpointConfig);
+                    HTTP_CLIENT, url, clientEndpointConfig);
             clientEndpoint.addNativeData(HttpConstants.B_CONNECTOR, ballerinaClientConnector);
         }
-        ballerinaClientConnector.addNativeData(HttpConstants.CLIENT_CONNECTOR, httpClientConnector);
+        ballerinaClientConnector.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         context.setReturnValues();
     }
 
