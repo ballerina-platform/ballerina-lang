@@ -171,8 +171,8 @@ public native function <CharacterChannel channel> closeCharacterChannel () (IOEr
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSecureSocket (@sensitive string host, @sensitive int port,
-                                         SocketProperties options) (@tainted Socket, IOError);
+public native function openSecureSocket (@sensitive string host, @sensitive int port, SocketProperties options)
+(@tainted Socket, IOError);
 
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}
