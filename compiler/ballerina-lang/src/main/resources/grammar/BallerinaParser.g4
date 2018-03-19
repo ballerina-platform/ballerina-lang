@@ -174,14 +174,14 @@ typeName
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
-    |   TYPE_TYPE
+    |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
     ;
 
 builtInTypeName
      :   TYPE_ANY
-     |   TYPE_TYPE
+     |   TYPE_DESC
      |   valueTypeName
      |   builtInReferenceTypeName
      |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+

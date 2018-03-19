@@ -25,9 +25,9 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.90
  */
-public class BTypeType extends BType {
+public class BTypeDesc extends BType {
 
-    public BTypeType(String typeName, String pkgPath) {
+    public BTypeDesc(String typeName, String pkgPath) {
         super(typeName, pkgPath, BValue.class);
     }
 
@@ -43,12 +43,12 @@ public class BTypeType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_TYPE);
+        return new TypeSignature(TypeSignature.SIG_TYPEDESC);
     }
 
     @Override
     public int getTag() {
-        return TypeTags.TYPE_TAG;
+        return TypeTags.TYPEDESC_TAG;
     }
 }
 

@@ -38,7 +38,7 @@ public class TypeDescriptor {
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
-    public static final String SIG_TYPE = "Y";
+    public static final String SIG_TYPEDESC = "Y";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
 
