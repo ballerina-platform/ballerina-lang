@@ -269,23 +269,6 @@ class TreeUtil extends AbstractTreeUtil {
                 break;
             }
         }
-        if (this.isAssignment(node) && this.isInvocation(node.getExpression())) {
-            const exp = node.getExpression();
-            if ((exp.invocationType === 'FUNCTION')
-                && ((exp.name.value === 'forward') || (exp.name.value === 'send') || (exp.name.value === 'respond'))) {
-                return true;
-            }
-            return false;
-        }
-        if (this.isVariableDef(node) && node.variable.getInitialExpression()
-                && this.isInvocation(node.variable.getInitialExpression())) {
-            const exp = node.variable.getInitialExpression();
-            if ((exp.invocationType === 'FUNCTION')
-                && ((exp.name.value === 'forward') || (exp.name.value === 'send'))) {
-                return true;
-            }
-            return false;
-        }
         return false;
     }
 

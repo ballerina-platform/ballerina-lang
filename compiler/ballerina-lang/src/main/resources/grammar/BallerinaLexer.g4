@@ -15,14 +15,12 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
-PRIVATE      : 'private' ;
+PRIVATE     : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
-STREAMLET    : 'streamlet' { inSiddhi = true; } ;
-CONNECTOR   : 'connector' ;
-ACTION      : 'action' ;
+STREAMLET   : 'streamlet' { inSiddhi = true; } ;
 STRUCT      : 'struct' ;
 ANNOTATION  : 'annotation' ;
 ENUM        : 'enum' ;
@@ -31,6 +29,7 @@ CONST       : 'const' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
 ENDPOINT    : 'endpoint' ;
+BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
@@ -83,10 +82,12 @@ TYPE_STREAM     : 'stream' ;
 TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
 TYPE_TYPE       : 'type' ;
+TYPE_FUTURE     : 'future' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
 IF          : 'if' ;
+MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
@@ -104,15 +105,18 @@ THROW       : 'throw' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
-FAILED      : 'failed' ;
+ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
+ONABORT     : 'onabort' ;
+ONCOMMIT    : 'oncommit' ;
 LENGTHOF    : 'lengthof' ;
 TYPEOF      : 'typeof' ;
 WITH        : 'with' ;
-BIND        : 'bind' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
+ASYNC       : 'async' ;
+AWAIT       : 'await' ;
 
 // Separators
 
@@ -158,6 +162,9 @@ AT          : '@' ;
 BACKTICK    : '`' ;
 RANGE       : '..' ;
 ELLIPSIS    : '...' ;
+PIPE        : '|' ;
+EQUAL_GT    : '=>' ;
+
 
 // Compound Assignment operators.
 
@@ -465,11 +472,11 @@ LINE_COMMENT
 
 fragment
 IdentifierLiteral
-    : '|' IdentifierLiteralChar+ '|' ;
+    : '^"' IdentifierLiteralChar+ '"' ;
 
 fragment
 IdentifierLiteralChar
-    : ~[|\\\b\f\n\r\t]
+    : ~[|"\\\b\f\n\r\t]
     | IdentifierLiteralEscapeSequence
     ;
 
@@ -479,6 +486,7 @@ IdentifierLiteralEscapeSequence
     | '\\\\' [btnfr]
     | UnicodeEscape
     ;
+
 
 // XML lexer rules
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,9 @@
 import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { PLUGIN_ID, DIALOG } from './constants';
+import { getCommandDefinitions } from './commands';
+import { getHandlerDefinitions } from './handlers';
+import { getMenuDefinitions } from './menus';
 import ImportStructDialog from './dialogs/import-struct-dialog';
 
 /**
@@ -38,8 +41,11 @@ class ImportStructPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
-        const { DIALOGS } = CONTRIBUTIONS;
+        const { COMMANDS, HANDLERS, MENUS, DIALOGS } = CONTRIBUTIONS;
         return {
+            [COMMANDS]: getCommandDefinitions(this),
+            [HANDLERS]: getHandlerDefinitions(this),
+            [MENUS]: getMenuDefinitions(this),
             [DIALOGS]: [
                 {
                     id: DIALOG.IMPORT_STRUCT,

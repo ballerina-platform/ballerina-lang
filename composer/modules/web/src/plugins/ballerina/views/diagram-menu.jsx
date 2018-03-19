@@ -31,19 +31,35 @@ class DiagramMenu extends React.Component {
     render() {
         return (
             <Menu style={{ position: 'fixed', width: this.props.width }}>
+                { !this.props.fitToWidth &&
                 <Menu.Item>
-                    <Input icon='fw fw-package' iconPosition='left' placeholder='Package...' />
+                    <Input className='package-input' icon='fw fw-package' iconPosition='left' placeholder='Package...' />
                 </Menu.Item>
-
+                }
+                { !this.props.fitToWidth &&
                 <Menu.Menu position='right'>
-                    <Menu.Item onClick={()=>{}}>
-                        <Icon name='fw fw-package' />
-                    </Menu.Item>
-                    <Menu.Item onClick={()=>{}}>
-                        <Icon name='resize horizontal' />
+                    { this.props.mode === 'action' &&
+                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}>
+                        <Icon name='fw fw-zoom-in menu-icon' />
+                    </Menu.Item>}
+                    { this.props.mode === 'default' &&
+                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}>
+                        <Icon name='fw fw-zoom-out menu-icon' />
+                    </Menu.Item>}
+                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: true }); }}>
+                        <Icon name='resize horizontal menu-icon' />
                     </Menu.Item>
                     <AddDefinitionMenu model={this.props.model} />
                 </Menu.Menu>
+                }
+                { this.props.fitToWidth &&
+                <Menu.Menu position='right'>
+                    <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}>
+                        <Icon name='fw fw-edit' />
+                        Edit
+                    </Menu.Item>
+                </Menu.Menu>
+                }
             </Menu>
         );
     }

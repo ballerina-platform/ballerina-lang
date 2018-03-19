@@ -25,10 +25,9 @@ import TopLevelElements from '../tool-palette/item-provider/compilation-unit-too
 
 class AddDefinitionMenu extends React.Component {
 
-
     render() {
         return (
-            <Dropdown icon='fw fw-plus' text='Definition' pointing className='link item' button primary>
+            <Dropdown icon='fw fw-add left-icon' text='Definition' pointing className='link item' button className=' primary definition-dropdown'>
                 <Dropdown.Menu>
                     {
                         TopLevelElements.map((element) => {
@@ -38,6 +37,11 @@ class AddDefinitionMenu extends React.Component {
                             return (<Dropdown.Item
                                 onClick={
                                 (event, item) => {
+                                    if (item.data.id === 'struct') {
+                                        this.context.command.dispatch('show-import-struct-dialog');
+                                        return;
+                                    }
+                                    // Handle struct / transformer addition.
                                     const newNode = item.data.nodeFactoryMethod();
                                     item.model.acceptDrop(newNode);
                                 }
@@ -65,7 +69,10 @@ AddDefinitionMenu.defaultProps = {
 };
 
 AddDefinitionMenu.contextTypes = {
-
+    command: PropTypes.shape({
+        on: PropTypes.func,
+        dispatch: PropTypes.func,
+    }).isRequired,
 };
 
 AddDefinitionMenu.childContextTypes = {

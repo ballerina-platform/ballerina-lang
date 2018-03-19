@@ -162,7 +162,13 @@ public class GeneralFSPackageRepository implements PackageRepository {
         return pkgDirPath;
     }
 
-    private Path generatePath(PackageID pkgID) {
+    /**
+     * Generate path for given package.
+     *
+     * @param pkgID package ID
+     * @return {@link Path} generated path
+     */
+    public Path generatePath(PackageID pkgID) {
         return this.basePath.resolve(createPackageNameWithDots(pkgID));
     }
 

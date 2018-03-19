@@ -16,7 +16,7 @@
 
 package ballerina.data.sql;
 
-@Description { value: "Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
+@Description {value:"Parameter struct represents a query parameter for the SQL queries specified in connector actions"}
 @Field {value:"sqlType: The data type of the corresponding SQL parameter"}
 @Field {value:"value: Value of paramter pass into the SQL query"}
 @Field {value:"direction: Direction of the SQL Parameter IN, OUT, or INOUT"}
@@ -29,7 +29,7 @@ public struct Parameter {
 	type structType;
 }
 
-@Description { value: "ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
+@Description {value:"ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
 @Field {value:"url: Platform independent DB access URL"}
 @Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
 @Field {value:"connectionTestQuery: Query that will be executed to validate that the connection to the database is still alive"}
@@ -75,26 +75,26 @@ public struct ConnectionProperties {
 	map datasourceProperties;
 }
 
-@Description { value:"Initialize the ConnectionProperties with default values"}
-public function<ConnectionProperties c> ConnectionProperties () {
+@Description {value:"Initialize the ConnectionProperties with default values"}
+public function <ConnectionProperties c> ConnectionProperties () {
 	c.datasourceProperties = {};
 }
 
-@Description { value:"The Databases which has direct parameter support."}
-@Field { value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
-@Field { value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
-@Field { value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
-@Field { value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
-@Field { value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
-@Field { value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
-@Field { value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
-@Field { value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
-@Field { value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
-@Field { value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
-@Field { value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
-@Field { value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
-@Field { value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
-@Field { value:"GENERIC: Custom DB connection with given connection url"}
+@Description {value:"The Databases which has direct parameter support."}
+@Field {value:"MYSQL: MySQL DB with connection url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
+@Field {value:"SQLSERVER: SQL Server DB with connection url in the format of jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
+@Field {value:"ORACLE: Oracle DB with connection url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
+@Field {value:"SYBASE: Sybase DB with connection url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
+@Field {value:"POSTGRES: PostgreSQL DB with connection url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+@Field {value:"IBMDB2: IBMDB2 DB with connection url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
+@Field {value:"HSQLDB_SERVER: HSQL Server with connection url in the format of jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
+@Field {value:"HSQLDB_FILE: HSQL Server with connection url in the format of jdbc:hsqldb:file:[path]/[database]"}
+@Field {value:"H2_SERVER: H2 Server DB with connection url in the format of jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
+@Field {value:"H2_FILE: H2 File DB with connection url in the format of jdbc:h2:file://[path]/[database]"}
+@Field {value:"H2_MEM: H2 in memory DB with connection url in the format of jdbc:h2:mem:[database]"}
+@Field {value:"DERBY_SERVER: DERBY server DB with connection url in the format of jdbc:derby://[HOST]:[PORT]/[database]"}
+@Field {value:"DERBY_FILE: Derby file DB with connection url in the format of jdbc:derby://[path]/[database]"}
+@Field {value:"GENERIC: Custom DB connection with given connection url"}
 public enum DB {
 	MYSQL,
 	SQLSERVER,
@@ -112,35 +112,35 @@ public enum DB {
 	GENERIC
 }
 
-@Description { value:"The SQL Datatype of the parameter"}
-@Field { value:"VARCHAR: Small, variable-length character string"}
-@Field { value:"CHAR: Small, fixed-length character string"}
-@Field { value:"LONGVARCHAR: Large, variable-length character string"}
-@Field { value:"NCHAR: Small, fixed-length character string with unicode support"}
-@Field { value:"LONGNVARCHAR: Large, variable-length character string with unicode support"}
-@Field { value:"BIT: Single bit value that can be zero or one, or null"}
-@Field { value:"BOOLEAN: Boolean value either True or false"}
-@Field { value:"TINYINT: 8-bit integer value which may be unsigned or signed"}
-@Field { value:"SMALLINT: 16-bit signed integer value which may be unsigned or signed"}
-@Field { value:"INTEGER: 32-bit signed integer value which may be unsigned or signed"}
-@Field { value:"BIGINT: 64-bit signed integer value which may be unsigned or signed"}
-@Field { value:"NUMERIC: Fixed-precision and scaled decimal values"}
-@Field { value:"DECIMAL: Fixed-precision and scaled decimal values"}
-@Field { value:"REAL: Single precision floating point number"}
-@Field { value:"FLOAT: Double precision floating point number"}
-@Field { value:"DOUBLE: Double precision floating point number"}
-@Field { value:"BINARY: Small, fixed-length binary value"}
-@Field { value:"BLOB: Binary Large Object"}
-@Field { value:"LONGVARBINARY: Large, variable-length binary value"}
-@Field { value:"VARBINARY: Small, variable-length binary value"}
-@Field { value:"CLOB: Character Large Object"}
-@Field { value:"NCLOB: Character large objects in multibyte national character set"}
-@Field { value:"DATE: Date consisting of day, month, and year"}
-@Field { value:"TIME: Time consisting of hours, minutes, and seconds"}
-@Field { value:"DATETIME: Both DATE and TIME with additional a nanosecond field"}
-@Field { value:"TIMESTAMP: Both DATE and TIME with additional a nanosecond field"}
-@Field { value:"ARRAY: Composite data value that consists of zero or more elements of a specified data type"}
-@Field { value:"STRUCT: User defined structured type, consists of one or more attributes"}
+@Description {value:"The SQL Datatype of the parameter"}
+@Field {value:"VARCHAR: Small, variable-length character string"}
+@Field {value:"CHAR: Small, fixed-length character string"}
+@Field {value:"LONGVARCHAR: Large, variable-length character string"}
+@Field {value:"NCHAR: Small, fixed-length character string with unicode support"}
+@Field {value:"LONGNVARCHAR: Large, variable-length character string with unicode support"}
+@Field {value:"BIT: Single bit value that can be zero or one, or null"}
+@Field {value:"BOOLEAN: Boolean value either True or false"}
+@Field {value:"TINYINT: 8-bit integer value which may be unsigned or signed"}
+@Field {value:"SMALLINT: 16-bit signed integer value which may be unsigned or signed"}
+@Field {value:"INTEGER: 32-bit signed integer value which may be unsigned or signed"}
+@Field {value:"BIGINT: 64-bit signed integer value which may be unsigned or signed"}
+@Field {value:"NUMERIC: Fixed-precision and scaled decimal values"}
+@Field {value:"DECIMAL: Fixed-precision and scaled decimal values"}
+@Field {value:"REAL: Single precision floating point number"}
+@Field {value:"FLOAT: Double precision floating point number"}
+@Field {value:"DOUBLE: Double precision floating point number"}
+@Field {value:"BINARY: Small, fixed-length binary value"}
+@Field {value:"BLOB: Binary Large Object"}
+@Field {value:"LONGVARBINARY: Large, variable-length binary value"}
+@Field {value:"VARBINARY: Small, variable-length binary value"}
+@Field {value:"CLOB: Character Large Object"}
+@Field {value:"NCLOB: Character large objects in multibyte national character set"}
+@Field {value:"DATE: Date consisting of day, month, and year"}
+@Field {value:"TIME: Time consisting of hours, minutes, and seconds"}
+@Field {value:"DATETIME: Both DATE and TIME with additional a nanosecond field"}
+@Field {value:"TIMESTAMP: Both DATE and TIME with additional a nanosecond field"}
+@Field {value:"ARRAY: Composite data value that consists of zero or more elements of a specified data type"}
+@Field {value:"STRUCT: User defined structured type, consists of one or more attributes"}
 public enum Type {
 	VARCHAR,
 	CHAR,
@@ -152,7 +152,7 @@ public enum Type {
 	BOOLEAN,
 	TINYINT,
 	SMALLINT,
-	INTEGER ,
+	INTEGER,
 	BIGINT,
 	NUMERIC,
 	DECIMAL,
@@ -174,12 +174,12 @@ public enum Type {
 	REFCURSOR
 }
 
-@Description { value:"The direction of the parameter"}
-@Field { value:"IN: IN parameters are used to send values to stored procedures"}
-@Field { value:"OUT: OUT parameters are used to get values from stored procedures"}
-@Field { value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
+@Description {value:"The direction of the parameter"}
+@Field {value:"IN: IN parameters are used to send values to stored procedures"}
+@Field {value:"OUT: OUT parameters are used to get values from stored procedures"}
+@Field {value:"INOUT: INOUT parameters are used to send values and get values from stored procedures"}
 public enum Direction {
-    IN,
+	IN,
 	OUT,
 	INOUT
 }
@@ -188,53 +188,64 @@ public enum Direction {
 // SQL Client Connector
 ///////////////////////////////
 
-@Description { value:"The Client Connector for SQL databases."}
-@Param { value:"dbType: SQL database type" }
-@Param { value:"hostOrPath: Host name of the database or file path for file based database" }
-@Param { value:"port: Port of the database" }
-@Param { value:"dbName: Name of the database to connect" }
-@Param { value:"username: Username for the database connection" }
-@Param { value:"password: Password for the database connection" }
-@Param { value:"options: ConnectionProperties for the connection pool configuration" }
-public connector ClientConnector (DB dbType, string hostOrPath, int port, string dbName, string username,
-								  string password, ConnectionProperties options) {
-
-	@Description { value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
-	@Param { value:"sqlQuery: SQL query to execute" }
-	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Result set(s) for the given query" }
-	native action call (@sensitive string sqlQuery, Parameter[] parameters, type structType) (@tainted table[]);
-
-	@Description { value:"The select action implementation for SQL connector to select data from tables."}
-	@Param { value:"sqlQuery: SQL query to execute" }
-	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Result set for the given query" }
-	native action select (@sensitive string sqlQuery, Parameter[] parameters, type structType) (@tainted table);
-
-	@Description { value:"The close action implementation for SQL connector to shutdown the connection pool."}
-	native action close ();
-
-	@Description { value:"The update action implementation for SQL connector to update data and schema of the database."}
-	@Param { value:"sqlQuery: SQL query to execute" }
-	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Updated row count" }
-	native action update (@sensitive string sqlQuery, Parameter[] parameters) (int);
-
-	@Description { value:"The batchUpdate action implementation for SQL connector to batch data insert."}
-	@Param { value:"sqlQuery: SQL query to execute" }
-	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Return { value:"Array of update counts" }
-	native action batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters) (int[]);
-
-	@Description { value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto generated keys during the update action."}
-	@Param { value:"sqlQuery: SQL query to execute" }
-	@Param { value:"parameters: Parameter array used with the SQL query" }
-	@Param { value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned" }
-	@Return { value:"Updated row count during the query exectuion" }
-	@Return { value:"Array of auto generated key values during the query execution" }
-	native action updateWithGeneratedKeys (@sensitive string sqlQuery, Parameter[] parameters, string[] keyColumns) (int, string[]);
-
+@Description {value:"The Client Connector for SQL databases."}
+@Field {value:"dbType: SQL database type"}
+@Field {value:"hostOrPath: Host name of the database or file path for file based database"}
+@Field {value:"port: Port of the database"}
+@Field {value:"dbName: Name of the database to connect"}
+@Field {value:"username: Username for the database connection"}
+@Field {value:"password: Password for the database connection"}
+@Field {value:"options: ConnectionProperties for the connection pool configuration"}
+public struct ClientConnector {
+	DB dbType;
+	string hostOrPath;
+	int port;
+	string dbName;
+	string username;
+	string password;
+	ConnectionProperties options;
+	ClientEndpointConfiguration config;
 }
+
+@Description {value:"The call action implementation for SQL connector to invoke stored procedures/functions."}
+@Param {value:"sqlQuery: SQL query to execute"}
+@Param {value:"parameters: Parameter array used with the SQL query"}
+@Return {value:"Result set(s) for the given query"}
+public native function <ClientConnector client> call (@sensitive string sqlQuery, Parameter[] parameters,
+													  type structType) (@tainted table[]);
+
+@Description {value:"The select action implementation for SQL connector to select data from tables."}
+@Param {value:"sqlQuery: SQL query to execute"}
+@Param {value:"parameters: Parameter array used with the SQL query"}
+@Return {value:"Result set for the given query"}
+public native function <ClientConnector client> select (@sensitive string sqlQuery, Parameter[] parameters,
+														type structType) (@tainted table);
+
+@Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
+public native function <ClientConnector client> close ();
+
+@Description {value:"The update action implementation for SQL connector to update data and schema of the database."}
+@Param {value:"sqlQuery: SQL query to execute"}
+@Param {value:"parameters: Parameter array used with the SQL query"}
+@Return {value:"Updated row count"}
+public native function <ClientConnector client> update (@sensitive string sqlQuery, Parameter[] parameters) (int);
+
+@Description {value:"The batchUpdate action implementation for SQL connector to batch data insert."}
+@Param {value:"sqlQuery: SQL query to execute"}
+@Param {value:"parameters: Parameter array used with the SQL query"}
+@Return {value:"Array of update counts"}
+public native function <ClientConnector client> batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters)
+(int[]);
+
+@Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
+generated keys during the update action."}
+@Param {value:"sqlQuery: SQL query to execute"}
+@Param {value:"parameters: Parameter array used with the SQL query"}
+@Param {value:"keyColumns: Names of auto generated columns for which the auto generated key values are returned"}
+@Return {value:"Updated row count during the query exectuion"}
+@Return {value:"Array of auto generated key values during the query execution"}
+public native function <ClientConnector client> updateWithGeneratedKeys (@sensitive string sqlQuery,
+													Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 ///////////////////////////////
 // SQL Client Endpoint
@@ -255,39 +266,22 @@ public struct ClientEndpointConfiguration {
 	ConnectionProperties options;
 }
 
-public function<ClientEndpointConfiguration c> ClientEndpointConfiguration () {
+public function <ClientEndpointConfiguration c> ClientEndpointConfiguration () {
 	c.database = DB.GENERIC;
 	c.options = {};
 }
 
-@Description { value:"Gets called when the endpoint is being initialize during package init time"}
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <Client ep> init (string epName, ClientEndpointConfiguration config) {
-	ep.epName = epName;
+@Description {value:"Gets called when the endpoint is being initialize during package init time"}
+@Param {value:"epName: The endpoint name"}
+@Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
+public function <Client ep> init (ClientEndpointConfiguration config) {
 	ep.config = config;
 	ep.initEndpoint();
 }
 
-@Description { value:"Initialize the endpoint"}
-public native function<Client ep> initEndpoint();
+@Description {value:"Initialize the endpoint"}
+public native function <Client ep> initEndpoint ();
 
-@Description { value:"Returns the connector that client code uses"}
-@Return { value:"The connector that client code uses" }
-public native function <Client ep> getConnector () returns (ClientConnector conn);
-
-@Description { value:"Stops the registered service"}
-@Param { value:"Type of the service" }
-public function <Client ep> register (type serviceType){
-
-}
-
-@Description { value:"Starts the registered service"}
-public function <Client ep> start (){
-
-}
-
-@Description { value:"Stops the registered service"}
-public function <Client ep> stop () {
-
-}
+@Description {value:"Returns the connector that client code uses"}
+@Return {value:"The connector that client code uses"}
+public native function <Client ep> getClient () returns (ClientConnector conn);

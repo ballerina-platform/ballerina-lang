@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -129,6 +130,10 @@ public class PositionTreeVisitor extends NodeVisitor {
                 funcNode.symbol.kind.name(), funcNode.symbol.owner.name.getValue(), funcNode.symbol.owner.pkgID);
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
+
+        if (funcNode.receiver != null) {
+            this.acceptNode(funcNode.receiver);
+        }
 
         if (!funcNode.requiredParams.isEmpty()) {
             funcNode.requiredParams.forEach(this::acceptNode);
@@ -427,8 +432,24 @@ public class PositionTreeVisitor extends NodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
+        if (serviceNode.serviceTypeStruct != null) {
+            this.acceptNode(serviceNode.serviceTypeStruct);
+        }
+
+        if (!serviceNode.vars.isEmpty()) {
+            serviceNode.vars.forEach(this::acceptNode);
+        }
+
         if (!serviceNode.resources.isEmpty()) {
             serviceNode.resources.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.endpoints.isEmpty()) {
+            serviceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!serviceNode.boundEndpoints.isEmpty()) {
+            serviceNode.boundEndpoints.forEach(this::acceptNode);
         }
 
         if (serviceNode.initFunction != null) {
@@ -492,8 +513,8 @@ public class PositionTreeVisitor extends NodeVisitor {
             acceptNode(transactionNode.transactionBody);
         }
 
-        if (transactionNode.failedBody != null) {
-            acceptNode(transactionNode.failedBody);
+        if (transactionNode.onRetryBody != null) {
+            acceptNode(transactionNode.onRetryBody);
         }
 
         if (transactionNode.retryCount != null) {
@@ -684,6 +705,17 @@ public class PositionTreeVisitor extends NodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangEndpoint endpointNode) {
+        if (endpointNode.endpointTypeNode != null) {
+            this.acceptNode(endpointNode.endpointTypeNode);
+        }
+
+        if (endpointNode.configurationExpr != null) {
+            this.acceptNode(endpointNode.configurationExpr);
+        }
+    }
+
     /**
      * Accept node to visit.
      *
@@ -691,6 +723,7 @@ public class PositionTreeVisitor extends NodeVisitor {
      */
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor) {
+            this.position.setLine(this.position.getLine() - 1);
             return;
         }
         node.accept(this);
