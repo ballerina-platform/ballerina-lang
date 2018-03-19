@@ -2230,12 +2230,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        boolean isAllEvents = ctx.outputEventType() != null && ctx.outputEventType().ALL() != null;
-        boolean isCurentEvents = ctx.outputEventType() != null && ctx.outputEventType().CURRENT() != null;
-        boolean isExpiredEvents = ctx.outputEventType() != null && ctx.outputEventType().EXPIRED() != null;
+        boolean isAllEvents = true;
+        boolean isCurentEvents = false;
+        boolean isExpiredEvents = false;
 
-        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText(), isAllEvents,
-                isCurentEvents, isExpiredEvents);
+//        this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText(), isAllEvents,
+//                isCurentEvents, isExpiredEvents);
     }
 
     @Override
@@ -2482,23 +2482,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override
-    public void enterQueryStatement(BallerinaParser.QueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.startQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitQueryStatement(BallerinaParser.QueryStatementContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-    }
+//    @Override
+//    public void enterQueryStatement(BallerinaParser.QueryStatementContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.startQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
+//    }
+//
+//    @Override
+//    public void exitQueryStatement(BallerinaParser.QueryStatementContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+//    }
 
     @Override
     public void exitStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx) {
@@ -2533,12 +2533,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamletNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
     public void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        this.pkgBuilder.endForeverNode(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

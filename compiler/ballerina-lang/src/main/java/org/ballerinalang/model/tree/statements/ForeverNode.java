@@ -26,13 +26,18 @@ import java.util.List;
  */
 public interface ForeverNode extends StatementNode {
 
-    void setBody(BlockNode body);
 
-    BlockNode getBody();
+    void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);
+
+    List<StreamingQueryStatementNode> gettreamingQueryStatements();
 
     void addGlobalVariable(VariableNode variable);
 
     List<VariableNode> getGlobalVariables();
+
+    List<? extends VariableNode> getParameters();
+
+    void addParameter(VariableNode param);
 
 }
 

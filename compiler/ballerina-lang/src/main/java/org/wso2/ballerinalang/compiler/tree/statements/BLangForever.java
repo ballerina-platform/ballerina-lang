@@ -19,9 +19,10 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
+import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +32,11 @@ import java.util.List;
  */
 public class BLangForever extends BLangStatement implements ForeverNode {
 
-    private BlockNode body;
+    private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private List<VariableNode> globalVariables = new ArrayList<>();
-
+    private String siddhiQuery;
+    private String streamIdsAsString;
+    public List<BLangVariable> params;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -46,13 +49,13 @@ public class BLangForever extends BLangStatement implements ForeverNode {
     }
 
     @Override
-    public void setBody(BlockNode body) {
-        this.body = body;
+    public void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode) {
+        this.streamingQueryStatementNodeList.add(streamingQueryStatementNode);
     }
 
     @Override
-    public BlockNode getBody() {
-        return body;
+    public List<StreamingQueryStatementNode> gettreamingQueryStatements() {
+        return streamingQueryStatementNodeList;
     }
 
     @Override
@@ -64,4 +67,34 @@ public class BLangForever extends BLangStatement implements ForeverNode {
     public List<VariableNode> getGlobalVariables() {
         return globalVariables;
     }
+
+    @Override
+    public List<BLangVariable> getParameters() {
+        return params;
+    }
+
+    @Override
+    public void addParameter(VariableNode param) {
+        this.getParameters().add((BLangVariable) param);
+    }
+
+    public String getSiddhiQuery() {
+        return siddhiQuery;
+    }
+
+
+    public void setSiddhiQuery(String siddhiQuery) {
+        this.siddhiQuery = siddhiQuery;
+    }
+
+
+    public String getStreamIdsAsString() {
+        return streamIdsAsString;
+    }
+
+
+    public void setStreamIdsAsString(String streamIdsAsString) {
+        this.streamIdsAsString = streamIdsAsString;
+    }
+
 }
