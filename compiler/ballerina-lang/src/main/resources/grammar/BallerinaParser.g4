@@ -227,8 +227,8 @@ endpointInitlization
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
-    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     |   annotatedTypeName                                                   # annotatedTypeNameLabel
@@ -412,8 +412,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT statement
-    |   typeName Identifier EQUAL_GT statement
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
     ;
 
 foreachStatement
