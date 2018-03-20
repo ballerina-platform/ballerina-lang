@@ -30,6 +30,7 @@
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
             <package name="org.ballerinalang.test.transaction"/>
             <package name="org.ballerinalang.test.filter"/>
+            <package name="org.ballerinalang.test.auth"/>
         </packages>
 
         <classes>
