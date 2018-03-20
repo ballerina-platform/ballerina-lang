@@ -248,10 +248,8 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
-            log.error(e.getMessage(), e);
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
-            log.error(e.getMessage(), e);
             return handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
         }
     }

@@ -92,12 +92,12 @@ public class LocalTransactionInfo {
     }
 
     public boolean isRetryPossible(int transactionId) {
-        boolean retryPossible = false;
+        boolean retryPossible = true;
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
             if (currentRetryCount != 0) {
-                retryPossible = true;
+                retryPossible = false;
             }
         }
         return retryPossible;

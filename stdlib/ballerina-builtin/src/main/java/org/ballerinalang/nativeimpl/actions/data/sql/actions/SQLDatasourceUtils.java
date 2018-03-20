@@ -1036,6 +1036,10 @@ public class SQLDatasourceUtils {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
+        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
+            return;
+        }
+
         BValue[] args = { new BString(globalTransactionId) , new BInteger(transactionBlockId)};
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(TransactionConstants.COORDINATOR_MARK_FOR_ABORTION);

@@ -2697,7 +2697,7 @@ public class CPU {
 
     private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo.isRetryPossible(transactionBlockId)) {
+        if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
             ctx.ip = startOfAbortIP;
         }
         localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);

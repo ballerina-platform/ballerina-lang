@@ -68,7 +68,7 @@ public class SQLXATransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test
+    @Test
     public void testXAransactonRetry() {
         BValue[] returns = BRunUtil.invoke(result, "testXAransactonRetry");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
