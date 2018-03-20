@@ -21,10 +21,10 @@ public enum Algorithm {
 
 @Description {value:"Represents the configurations applied to a particular service."}
 @Field {value:"uri: Target service url"}
-@Field {value:"ssl: SSL/TLS related options"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;
-    SSL ssl;
+    SecureSocket secureSocket;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
@@ -105,29 +105,19 @@ public struct Retry {
     int interval;
 }
 
-@Description { value:"SSL struct represents SSL/TLS options to be used for HTTP client invocation" }
-@Field {value:"trustStoreFile: File path to trust store file"}
-@Field {value:"trustStorePassword: Trust store password"}
-@Field {value:"keyStoreFile: File path to key store file"}
-@Field {value:"keyStorePassword: Key store password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Field {value: "trustStore: TrustStore related options"}
+@Field {value: "keyStore: KeyStore related options"}
+@Field {value: "protocols: SSL/TLS protocol related options"}
+@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-public struct SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
+public struct SecureSocket {
+    TrustStore trustStore;
+    KeyStore keyStore;
+    Protocols protocols;
+    ValidateCert validateCert;
     string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
 }
 
