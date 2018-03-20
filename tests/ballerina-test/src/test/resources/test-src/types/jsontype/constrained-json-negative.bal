@@ -78,7 +78,3 @@ function testBooleanArrayToJsonAssignment() returns (json) {
     json j = b;
     return j;
 }
-
-function main(string[] args) {
-
-}
