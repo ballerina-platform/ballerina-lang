@@ -244,12 +244,12 @@ public class TreeVisitor extends BLangNodeVisitor {
             BSymbol structSymbol = structNode.symbol;
             SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, symbolEnv);
 
-            if (structNode.fields.isEmpty()) {
+            if (structNode.fields.isEmpty() && isCursorWithinBlock(structNode.getPosition(), structEnv)) {
                 symbolEnv = structEnv;
                 Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
                 this.populateSymbols(visibleSymbolEntries, null);
                 this.setTerminateVisitor(true);
-            } else {
+            } else if (!structNode.fields.isEmpty()) {
                 // Since the struct definition do not have a block statement within, we push null
                 this.blockStmtStack.push(null);
                 this.blockOwnerStack.push(structNode);

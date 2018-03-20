@@ -107,7 +107,7 @@ documentation {
                 the `protocolFn` will be called
     F{{protocolFn}} - This function will be called only if the participant is local. This avoid calls over the network.
 }
-struct Protocol {
+public struct Protocol {
     string name;
     string url;
     int transactionBlockId;
@@ -116,13 +116,13 @@ struct Protocol {
               string protocolAction) returns (boolean successful) protocolFn;
 }
 
-struct RegistrationRequest {
+public struct RegistrationRequest {
     string transactionId;
     string participantId;
     Protocol[] participantProtocols;
 }
 
-transformer <RegistrationRequest req, json j> regRequestToJson() {
+public transformer <RegistrationRequest req, json j> regRequestToJson() {
     j.transactionId = req.transactionId;
     j.participantId = req.participantId;
     json[] protocols = req.participantProtocols.map(
@@ -133,7 +133,7 @@ transformer <RegistrationRequest req, json j> regRequestToJson() {
     j.participantProtocols = protocols;
 }
 
-transformer <json j, RegistrationRequest req> jsonToRegRequest() {
+public transformer <json j, RegistrationRequest req> jsonToRegRequest() {
     var transactionId, _ = (string)j.transactionId;
     var participantId, _ = (string)j.participantId;
     req.transactionId = transactionId;
@@ -148,12 +148,12 @@ transformer <json j, RegistrationRequest req> jsonToRegRequest() {
     req.participantProtocols = protocols;
 }
 
-struct RegistrationResponse {
+public struct RegistrationResponse {
     string transactionId;
     Protocol[] coordinatorProtocols;
 }
 
-transformer <RegistrationResponse res, json j> regResposeToJson () {
+public transformer <RegistrationResponse res, json j> regResposeToJson () {
     j.transactionId = res.transactionId;
     json[] protocols = res.coordinatorProtocols.map(
                                                function (Protocol proto) returns (json) {
@@ -163,7 +163,7 @@ transformer <RegistrationResponse res, json j> regResposeToJson () {
     j.coordinatorProtocols = protocols;
 }
 
-transformer <json j, RegistrationResponse res> jsonToRegResponse () {
+public transformer <json j, RegistrationResponse res> jsonToRegResponse () {
     var transactionId, _ = (string)j.transactionId;
     res.transactionId = transactionId;
     Protocol[] protocols = j.coordinatorProtocols.map(
@@ -176,7 +176,7 @@ transformer <json j, RegistrationResponse res> jsonToRegResponse () {
     res.coordinatorProtocols = protocols;
 }
 
-struct RequestError {
+public struct RequestError {
     string errorMessage;
 }
 
@@ -361,9 +361,10 @@ documentation {
     R{{txnCtx}} - The transaction context which will be created on successfully registering with the initiator
     R{{err}} - The error which will be returned if registration fails
 }
-function registerParticipantWithRemoteInitiator (string transactionId,
-                                                 int transactionBlockId,
-                                                 string registerAtURL) returns (TransactionContext txnCtx, error err) {
+public function registerParticipantWithRemoteInitiator (string transactionId,
+                                                        int transactionBlockId,
+                                                        string registerAtURL,
+                                                        Protocol[] participantProtocols) returns (TransactionContext txnCtx, error err) {
     endpoint InitiatorClientEP initiatorEP;
     initiatorEP = getInitiatorClientEP(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -374,7 +375,8 @@ function registerParticipantWithRemoteInitiator (string transactionId,
         return;
     }
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
-    var regRes, e = initiatorEP -> register(transactionId, transactionBlockId);
+
+    var regRes, e = initiatorEP -> register(transactionId, transactionBlockId, participantProtocols);
     if (e != null) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
         log:printErrorCause(msg, e);

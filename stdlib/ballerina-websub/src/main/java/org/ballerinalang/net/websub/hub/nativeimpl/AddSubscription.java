@@ -16,31 +16,35 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.http.websocketclientendpoint;
+package org.ballerinalang.net.websub.hub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Check whether the connection is secure connection or not.
+ * Native function to add a subscription to the default Ballerina Hub's underlying broker.
  *
- * @since 0.966
+ * @since 0.965.0
  */
-
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
-                             structPackage = "ballerina.net.http"),
-        isPublic = true
+        packageName = "ballerina.net.websub.hub",
+        functionName = "addSubscription",
+        args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)}
 )
-public class Stop extends BlockingNativeCallableUnit {
+public class AddSubscription extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+        BStruct subscriptionDetails = (BStruct) context.getRefArgument(0);
+        String topic = subscriptionDetails.getStringField(0);
+        String callback = subscriptionDetails.getStringField(1);
+        Hub.getInstance().registerSubscription(topic, callback, subscriptionDetails);
         context.setReturnValues();
     }
+
 }

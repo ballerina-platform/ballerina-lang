@@ -76,7 +76,6 @@ public annotation <service> ServiceConfig HttpServiceConfig;
 @Description {value:"Configurations annotation for a WebSocket service"}
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
-
 ////////////////////////////
 /// Resource Annotations ///
 ////////////////////////////

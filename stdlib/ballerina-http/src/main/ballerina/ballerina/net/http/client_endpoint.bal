@@ -21,13 +21,14 @@ public enum Algorithm {
 
 @Description {value:"Represents the configurations applied to a particular service."}
 @Field {value:"uri: Target service url"}
-@Field {value:"ssl: SSL/TLS related options"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;
-    SSL ssl;
+    SecureSocket secureSocket;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Field {value:"circuitBreaker: Circuit Breaker configuration"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
@@ -40,6 +41,7 @@ public struct TargetService {
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 public struct ClientEndpointConfiguration {
+    CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
@@ -67,12 +69,17 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     string uri = config.targets[0].uri;
-    if (uri.hasSuffix("/")) {
-        int lastIndex = uri.length() - 1;
-        uri = uri.subString(0, lastIndex);
+    if (config.circuitBreaker != null) {
+        ep.config = config;
+        ep.httpClient = createCircuitBreakerClient(uri, config);
+    } else {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        ep.config = config;
+        ep.httpClient = createHttpClient(uri, config);
     }
-    ep.config = config;
-    ep.httpClient = createHttpClient(uri, config);
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -105,29 +112,19 @@ public struct Retry {
     int interval;
 }
 
-@Description { value:"SSL struct represents SSL/TLS options to be used for HTTP client invocation" }
-@Field {value:"trustStoreFile: File path to trust store file"}
-@Field {value:"trustStorePassword: Trust store password"}
-@Field {value:"keyStoreFile: File path to key store file"}
-@Field {value:"keyStorePassword: Key store password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Field {value: "trustStore: TrustStore related options"}
+@Field {value: "keyStore: KeyStore related options"}
+@Field {value: "protocols: SSL/TLS protocol related options"}
+@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-public struct SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
+public struct SecureSocket {
+    TrustStore trustStore;
+    KeyStore keyStore;
+    Protocols protocols;
+    ValidateCert validateCert;
     string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
 }
 
@@ -157,4 +154,29 @@ public struct Proxy {
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;
+}
+
+function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
+    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
+    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
+                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
+                                                                    httpStatusCodes:httpStatusCodes
+                                                                };
+    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
+                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                                        httpClient:cbHttpClient,
+                                        circuitHealth:{},
+                                        currentCircuitState:CircuitState.CLOSED};
+    var httpClient , e = (HttpClient) cbClient;
+    return httpClient;
+}
+
+function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
+    result = [];
+    foreach i in errorCode {
+        result[i] = true;
+    }
+    return result;
 }
