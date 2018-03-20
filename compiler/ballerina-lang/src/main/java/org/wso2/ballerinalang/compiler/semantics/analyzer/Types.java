@@ -61,7 +61,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -1191,18 +1193,23 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BUnionType target) {
+        Set<BType> sourceTypes = new HashSet<>();
+        Set<BType> targetTypes = target.memberTypes;
+
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            // Check whether source is a subset of target
-            return target.memberTypes.containsAll(sourceUnionType.memberTypes);
+            sourceTypes = sourceUnionType.memberTypes;
+        } else {
+            sourceTypes.add(source);
         }
 
-        for (BType memberType : target.memberTypes) {
-            boolean assignable = isAssignable(source, memberType);
-            if (assignable) {
-                return true;
-            }
-        }
-        return false;
+        boolean notAssignable = sourceTypes
+                .stream()
+                .map(s -> targetTypes
+                        .stream()
+                        .anyMatch(t -> isAssignable(s, t)))
+                .anyMatch(b -> !b);
+
+        return !notAssignable;
     }
 }
