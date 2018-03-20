@@ -72,7 +72,7 @@ class FileReplaceConfirmDialog extends React.Component {
                         Overwrite
                     </Button>,
                 ]}
-                closeAction
+                closeDialog
                 onHide={this.onDialogHide}
                 error={this.state.error}
             >

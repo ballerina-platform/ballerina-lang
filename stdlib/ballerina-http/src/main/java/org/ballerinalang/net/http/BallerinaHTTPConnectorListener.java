@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
@@ -82,7 +82,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
-    private void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
                                                             HttpResource httpResource) {
         Map<String, Object> properties = collectRequestProperties(httpCarbonMessage);
         properties.put(HttpConstants.REMOTE_ADDRESS, httpCarbonMessage.getProperty(HttpConstants.REMOTE_ADDRESS));
@@ -100,7 +100,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
         filterCtxtStruct.setRefField(0,
-                new BTypeValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType()));
+                new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType()));
         filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
         filterCtxtStruct.setStringField(1, httpResource.getName());
         return filterCtxtStruct;
@@ -110,7 +110,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
+    protected Map<String, Object> collectRequestProperties(HTTPCarbonMessage httpCarbonMessage) {
         Map<String, Object> properties = new HashMap<>();
         if (httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = httpCarbonMessage.getProperty(HttpConstants.SRC_HANDLER);

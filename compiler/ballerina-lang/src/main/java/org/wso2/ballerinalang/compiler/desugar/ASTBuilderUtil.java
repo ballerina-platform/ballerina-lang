@@ -211,7 +211,7 @@ class ASTBuilderUtil {
     }
 
     static BLangExpression generateCastExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
             return varRef;
         }
         // Box value using cast expression.
@@ -225,7 +225,7 @@ class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPE) {
+        if (varRef.type.tag == target.tag || varRef.type.tag > TypeTags.TYPEDESC) {
             return varRef;
         }
         // Box value using cast expression.

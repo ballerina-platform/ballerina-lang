@@ -41,7 +41,7 @@ public struct CorsConfig {
 
 public struct WebSocketUpgradeConfig {
     string upgradePath;
-    type upgradeService;
+    typedesc upgradeService;
 }
 
 
@@ -50,7 +50,7 @@ public struct WebSocketUpgradeConfig {
 @Field {value:"basePath: Path of the WebSocket service"}
 @Field {value:"subProtocols: Negotiable sub protocol by the service"}
 @Field {value:"idleTimeoutInSeconds: Idle timeout for the client connection. This can be triggered by putting onIdleTimeout resource in WS service."}
-public struct WebSocketServiceConfig {
+public struct WSServiceConfig {
     ServiceEndpoint[] endpoints;
     WebSocketEndpoint[] webSocketEndpoints;
     string basePath;
@@ -71,11 +71,10 @@ public enum HttpServiceLifeTime {
 }
 
 @Description {value:"Configurations annotation for an HTTP service"}
-public annotation <service> serviceConfig HttpServiceConfig;
+public annotation <service> ServiceConfig HttpServiceConfig;
 
 @Description {value:"Configurations annotation for a WebSocket service"}
-public annotation <service> webSocketServiceConfig WebSocketServiceConfig;
-
+public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
 ////////////////////////////
 /// Resource Annotations ///
@@ -87,7 +86,7 @@ public annotation <service> webSocketServiceConfig WebSocketServiceConfig;
 @Field {value:"consumes: The media types which are accepted by resource"}
 @Field {value:"produces: The media types which are produced by resource"}
 @Field {value:"cors: The CORS configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service."}
-public struct ResourceConfig {
+public struct HttpResourceConfig {
     string[] methods;
     string path;
     string body;
@@ -97,4 +96,4 @@ public struct ResourceConfig {
 }
 
 @Description {value:"Configurations annotation for an HTTP resource"}
-public annotation <resource> resourceConfig ResourceConfig;
+public annotation <resource> ResourceConfig HttpResourceConfig;

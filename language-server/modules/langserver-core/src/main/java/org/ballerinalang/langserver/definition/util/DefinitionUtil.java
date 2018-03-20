@@ -104,6 +104,21 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
+            case ContextConstants.ENDPOINT:
+                bLangNode = bLangPackage.globalEndpoints.stream()
+                        .filter(globalEndpoint -> globalEndpoint.name.value
+                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+
+                if (bLangNode == null) {
+                    DefinitionTreeVisitor definitionTreeVisitor = new DefinitionTreeVisitor(definitionContext);
+                    definitionContext.get(NodeContextKeys.NODE_STACK_KEY).pop().accept(definitionTreeVisitor);
+                    if (definitionContext.get(NodeContextKeys.NODE_KEY) != null) {
+                        bLangNode = definitionContext.get(NodeContextKeys.NODE_KEY);
+                    }
+                }
+
+                break;
             case ContextConstants.VARIABLE:
                 bLangNode = bLangPackage.globalVars.stream()
                         .filter(globalVar -> globalVar.name.getValue()
