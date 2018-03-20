@@ -21,40 +21,39 @@ package org.ballerinalang.observe.trace;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
 
 /**
  * This function injects a span context and returns the spans Id.
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",
-        functionName = "extractSpanContext",
+        functionName = "extractTraceContext",
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ExtractSpanContext extends BlockingNativeCallableUnit {
+public class ExtractTraceContext extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
 
-        BStruct httpRequest = (BStruct) context.getRefArgument(0);
-        String group = context.getStringArgument(0);
+        BMap header = (BMap) context.getRefArgument(0);
+        String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
+        Iterator<Map.Entry<String, String>> headerMap = Utils.toStringMap(header).entrySet().iterator();
 
-        HTTPCarbonMessage carbonMessage = HttpUtil.getCarbonMsg(httpRequest, null);
-        Iterator<Map.Entry<String, String>> entryIterator = carbonMessage.getHeaders().iteratorAsString();
         Map<String, String> spanHeaders = new HashMap<>();
 
-        while (entryIterator.hasNext()) {
-            Map.Entry<String, String> headers = entryIterator.next();
+        while (headerMap.hasNext()) {
+            Map.Entry<String, String> headers = headerMap.next();
             if (headers.getKey().startsWith(group)) {
                 spanHeaders.put(headers.getKey().substring(group.length()), headers.getValue());
             } else {
