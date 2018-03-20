@@ -126,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -282,6 +283,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopResetInstructionStack = new Stack<>();
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
+    private Stack<Instruction> failInstructions = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -2666,8 +2668,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
         Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
-        Instruction gotoFailedTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
-        abortInstructions.push(gotoFailedTransBlockEnd);
+        Operand transStmtFailEndAddr = getOperand(-1);
+        Instruction gotoAbortTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
+        Instruction gotoFailTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtFailEndAddr);
+
+        abortInstructions.push(gotoAbortTransBlockEnd);
+        failInstructions.push(gotoFailTransBlockEnd);
 
         //start transaction
         this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
@@ -2675,8 +2681,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand transBlockStartAddr = getOperand(nextIP());
 
         //retry transaction;
-        Operand retryInsAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryInsAddr);
+        Operand retryEndWithThrowAddr = getOperand(-1);
+        Operand retryEndWithNoThrowAddr = getOperand(-1);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryEndWithThrowAddr, retryEndWithNoThrowAddr);
 
         //process transaction statements
         this.genNode(transactionNode.transactionBody, this.env);
@@ -2686,18 +2693,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.SUCCESS.value()));
 
         abortInstructions.pop();
+        failInstructions.pop();
 
         emit(InstructionCodes.GOTO, transStmtEndAddr);
 
         // CodeGen for error handling.
         int errorTargetIP = nextIP();
+        transStmtFailEndAddr.value = errorTargetIP;
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
         if (transactionNode.onRetryBody != null) {
             this.genNode(transactionNode.onRetryBody, this.env);
 
         }
         emit(InstructionCodes.GOTO, transBlockStartAddr);
-        retryInsAddr.value = nextIP();
+        retryEndWithThrowAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
 
         emit(InstructionCodes.THROW, getOperand(-1));
@@ -2708,13 +2717,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()));
 
-        transStmtEndAddr.value = nextIP();
+        int transactionEndIp = nextIP();
+        transStmtEndAddr.value = transactionEndIp;
+        retryEndWithNoThrowAddr.value = transactionEndIp;
         emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
     }
 
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
+    }
+
+    public void visit(BLangFail failNode) {
+        generateFinallyInstructions(failNode, NodeKind.TRANSACTION);
+        this.emit(failInstructions.peek());
     }
 
     @Override

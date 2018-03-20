@@ -396,7 +396,8 @@ public class CPU {
                 case InstructionCodes.TR_RETRY:
                     i = operands[0];
                     j = operands[1];
-                    retryTransaction(ctx, i, j);
+                    int l = operands[2];
+                    retryTransaction(ctx, i, j, l);
                     break;
                 case InstructionCodes.CALL:
                     callIns = (InstructionCALL) instruction;
@@ -2695,10 +2696,19 @@ public class CPU {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP) {
+    private static void retryTransaction(WorkerExecutionContext ctx, int transactionBlockId, int startOfAbortIP,
+            int startOfNoThrowEndIP) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         if (!localTransactionInfo.isRetryPossible(transactionBlockId)) {
-            ctx.ip = startOfAbortIP;
+            if (ctx.getError() == null) {
+                ctx.ip = startOfNoThrowEndIP;
+            } else {
+                if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
+                    ctx.ip = startOfNoThrowEndIP;
+                } else {
+                    ctx.ip = startOfAbortIP;
+                }
+            }
         }
         localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
     }
@@ -3589,10 +3599,6 @@ public class CPU {
         if (match != null) {
             ctx.ip = match.getIpTarget();
         } else {
-            if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
-                ctx.ip = ctx.ip + 2;
-                return;
-            }
             BLangScheduler.workerExcepted(ctx);
             throw new HandleErrorException(
                     ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));

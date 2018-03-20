@@ -107,7 +107,7 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
-                + "inCatch afterTrx");
+                + "afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 

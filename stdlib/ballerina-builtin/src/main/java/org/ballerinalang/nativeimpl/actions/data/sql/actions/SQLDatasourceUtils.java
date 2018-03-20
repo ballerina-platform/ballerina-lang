@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.actions;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeKind;
@@ -1026,6 +1027,12 @@ public class SQLDatasourceUtils {
             sqlConnectorError.setStringField(0, throwable.getMessage());
         }
         return sqlConnectorError;
+    }
+
+    public static void handleError(Context context, Throwable e) {
+        SQLDatasourceUtils.notifyTxMarkForAbort(context);
+        context.setReturnValues(null, SQLDatasourceUtils.getSQLConnectorError(context, e));
+        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
     }
 
     public static void notifyTxMarkForAbort(Context context) {
