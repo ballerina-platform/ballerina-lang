@@ -88,14 +88,14 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     string uri = config.targets[0].uri;
-    if (config.circuitBreaker != null) {
-        ep.config = config;
-        ep.httpClient = createCircuitBreakerClient(uri, config);
-    } else if (config.algorithm != null && lengthof config.targets > 1) {
+    if (config.algorithm != null && lengthof config.targets > 1) {
         ep.httpClient = createLoadBalancerClient(config);
     } else if (config.failoverConfig != null) {
         ep.config = config;
         ep.httpClient = createFailOverClient(config);
+    } else if (config.circuitBreaker != null) {
+        ep.config = config;
+        ep.httpClient = createCircuitBreakerClient(uri, config);
     } else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -180,23 +180,6 @@ public struct Proxy {
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;
-}
-
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
-    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
-    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
-    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
-                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
-                                                                    httpStatusCodes:httpStatusCodes
-                                                                };
-    HttpClient cbHttpClient = createHttpClient(uri, configuration);
-    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
-                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
-                                        httpClient:cbHttpClient,
-                                        circuitHealth:{},
-                                        currentCircuitState:CircuitState.CLOSED};
-    var httpClient , e = (HttpClient) cbClient;
-    return httpClient;
 }
 
 function createLoadBalancerClient(ClientEndpointConfiguration config) (HttpClient) {
