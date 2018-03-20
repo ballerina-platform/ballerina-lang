@@ -40,6 +40,7 @@ public class BRefValueArray extends BNewArray {
     public BRefValueArray(BType type) {
         this.arrayType = type;
         values = (BRefType[]) newArrayInstance(BRefType.class);
+        Arrays.fill(values, type.getEmptyValue());
     }
 
     public BRefValueArray() {

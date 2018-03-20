@@ -19,3 +19,45 @@ function testUnionTypeBasics2() returns ( int | float | string | boolean) {
 function getUnion (string | int | float si) returns (int | float | string) {
     return "union types";
 }
+
+
+function testNullableTypeBasics1() returns ((int | json | string | float | map | boolean)?) {
+ (int? | string?) | (((float? | (json?| map)) )?| boolean)?  k = 5;
+
+    k = "sss";
+    k = 1.0;
+
+    json j = {name:"ddd"};
+    k = j;
+
+    map m = {name:"dddd"};
+    k = m;
+
+    k = true;
+
+    k = null;
+    return k;
+
+}
+
+
+function testNullableTypeBasics2() returns (int| boolean?) {
+
+   int | float? x = null;
+
+  match x {
+      float | int s => io:println("int");
+      int? s => io:println("null");
+  }
+
+  (int | boolean)? i = null;
+
+  match i {
+          int => io:println("int");
+          boolean => io:println("boolean");
+          any? a => io:println(a);
+  }
+
+  return i;
+
+}

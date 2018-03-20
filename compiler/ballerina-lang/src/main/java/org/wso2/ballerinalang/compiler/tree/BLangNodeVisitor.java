@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -86,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -108,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -117,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -171,6 +175,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStruct structNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangObject objectNode) {
         throw new AssertionError();
     }
 
@@ -320,6 +328,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTupleDestructure stmt) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangCatch catchNode) {
         throw new AssertionError();
     }
@@ -444,6 +456,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangUnaryExpr unaryExpr) {
         throw new AssertionError();
     }
@@ -562,6 +578,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        throw new AssertionError();
+    }
+
 
     // expressions that will used only from the Desugar phase
 
@@ -650,6 +670,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         throw new AssertionError();
     }
 }

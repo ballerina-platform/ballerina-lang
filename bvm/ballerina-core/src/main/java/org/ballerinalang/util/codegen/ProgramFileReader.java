@@ -915,7 +915,7 @@ public class ProgramFileReader {
                 typeStack.push(BTypes.typeBlob);
                 return index + 1;
             case 'Y':
-                typeStack.push(BTypes.typeType);
+                typeStack.push(BTypes.typeDesc);
                 return index + 1;
             case 'A':
                 typeStack.push(BTypes.typeAny);
@@ -1023,7 +1023,7 @@ public class ProgramFileReader {
             case 'B':
                 return BTypes.typeBoolean;
             case 'Y':
-                return BTypes.typeType;
+                return BTypes.typeDesc;
             case 'L':
                 return BTypes.typeBlob;
             case 'A':
@@ -1376,6 +1376,7 @@ public class ProgramFileReader {
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.NEWMAP:
+                case InstructionCodes.NEWXMLSEQ:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;

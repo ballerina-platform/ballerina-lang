@@ -22,7 +22,7 @@ package ballerina.jwt.signature;
 @Param {value:"algorithm: Signature algorithm."}
 @Param {value:"keyAlias: Public key alias."}
 @Return {value:"Verified status. true or false."}
-public native function verify (string data, string signature, string algorithm, string keyAlias) (boolean);
+public native function verify (string data, string signature, string algorithm, string keyAlias) returns (boolean);
 
 @Description {value:"Sign the given input jwt data."}
 @Param {value:"data: Original that need to sign."}
@@ -30,5 +30,5 @@ public native function verify (string data, string signature, string algorithm, 
 @Param {value:"keyAlias: Private key alias. If this is null use default private key."}
 @Param {value:"keyPassword: Private key password."}
 @Return {value:"Signature. Signed string."}
-public native function sign (string data, string algorithm, string keyAlias, string keyPassword) (string);
+public native function sign (string data, string algorithm, string keyAlias, string keyPassword) returns (string);
 

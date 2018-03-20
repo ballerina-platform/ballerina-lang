@@ -126,4 +126,22 @@ public class HeaderTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
     }
+
+    @Test(description = "Test getting all headers")
+    public void testGetCopyOfAllHeaders() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCopyOfAllHeaders");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\"], \"header1\":[\"value2\", " +
+                "\"value3\"], \"hEader2\":[\"value3\"], \"headeR2\":[\"value4\"], " +
+                "\"HeADEr2\":[\"totally different value\"], \"HEADER3\":[\"testVal\"]}");
+    }
+
+    @Test(description = "Test manipulating return headers")
+    public void testManipulatingReturnHeaders() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testManipulatingReturnHeaders");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "{\"heAder1\":[\"value1\"], \"header1\":[\"value2\", " +
+                "\"value3\"], \"hEader2\":[\"value3\"], \"headeR2\":[\"value4\"], " +
+                "\"HeADEr2\":[\"totally different value\"], \"HEADER3\":[\"testVal\"]}");
+    }
 }
