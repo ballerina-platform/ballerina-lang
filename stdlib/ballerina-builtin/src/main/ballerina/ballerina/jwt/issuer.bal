@@ -31,7 +31,7 @@ public struct JWTIssuerConfig {
 @Param {value:"config: JWTIssuerConfig object"}
 @Return {value:"string: JWT token string"}
 @Return {value:"error: If token validation fails "}
-public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string) | error {
+public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string | error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
     match createPayload(payload) {
@@ -51,7 +51,7 @@ function createHeader (Header header) returns (string) {
     return urlEncode(util:base64Encode(headerJson.toString()));
 }
 
-function createPayload (Payload payload) returns (string) | error {
+function createPayload (Payload payload) returns (string | error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};

@@ -33,7 +33,7 @@ public struct JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload|null) | error {
+public function validate (string jwtToken, JWTValidatorConfig config) returns ((boolean, Payload|null) | error) {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {
         string[] encodedJWT => encodedJWTComponents = encodedJWT;
@@ -45,9 +45,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns (b
     match parseJWT(encodedJWTComponents) {
         error e => return e;
         (Header, Payload) result => {
-            var (h,p) = result;
-            header = h;
-            payload = p;
+            var (header,payload) = result;
         }
     }
 
@@ -57,7 +55,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) returns (b
     }
 }
 
-function getJWTComponents (string jwtToken) returns (string[]|null) | error {
+function getJWTComponents (string jwtToken) returns (string[] | null | error) {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
@@ -67,15 +65,13 @@ function getJWTComponents (string jwtToken) returns (string[]|null) | error {
     return jwtComponents;
 }
 
-function parseJWT (string[] encodedJWTComponents) returns (Header, Payload) | error {
+function parseJWT (string[] encodedJWTComponents) returns ((Header, Payload) | error) {
     json headerJson = {};
     json payloadJson = {};
     match getDecodedJWTComponents(encodedJWTComponents) {
         error e => return e;
         (json, json) result => {
-            var (h,p) = result;
-            headerJson = h;
-            payloadJson = p;
+            var (headerJson,payloadJson) = result;
         }
     }
 
@@ -84,7 +80,7 @@ function parseJWT (string[] encodedJWTComponents) returns (Header, Payload) | er
     return (jwtHeader, jwtPayload);
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) returns (json, json) | error {
+function getDecodedJWTComponents (string[] encodedJWTComponents) returns ((json, json) | error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
 
@@ -180,7 +176,7 @@ function parsePayload (json jwtPayloadJson) returns (Payload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean) | error {
+function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean | error) {
     if (!validateMandatoryFields(jwtPayload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return err;
