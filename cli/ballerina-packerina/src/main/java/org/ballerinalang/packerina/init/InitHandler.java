@@ -25,7 +25,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,27 +40,24 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class InitHandler {
     /**
      * Creates the project files.
-     * @param out The output stream for printing.
      * @param projectPath The output path.
      * @param manifest The manifest for Ballerina.toml.
      * @param srcFiles The source files.
      */
-    public static void initialize(PrintStream out, Path projectPath, Manifest manifest, List<SrcFile> srcFiles)
-            throws IOException {
-        createBallerinaToml(out, projectPath, manifest);
-        createBallerinaCacheFile(out, projectPath);
-        createSrcFolder(out, projectPath, srcFiles);
-        createGitignore(out, projectPath);
+    public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles) throws IOException {
+        createBallerinaToml(projectPath, manifest);
+        createBallerinaCacheFile(projectPath);
+        createSrcFolder(projectPath, srcFiles);
+        createIgnoreFiles(projectPath);
     }
     
     /**
      * Create the Ballerina.toml manifest file.
-     * @param out The output stream for printing.
      * @param projectPath The output path.
      * @param manifest The manifest for the file.
      * @throws IOException If file write exception occurs.
      */
-    private static void createBallerinaToml(PrintStream out, Path projectPath, Manifest manifest) throws IOException {
+    private static void createBallerinaToml(Path projectPath, Manifest manifest) throws IOException {
         if (null != manifest) {
             Path tomlPath = Paths.get(projectPath.toString() + File.separator + "Ballerina.toml");
             if (!Files.exists(tomlPath)) {
@@ -69,38 +65,30 @@ public class InitHandler {
                 Files.createFile(tomlPath);
                 // Writing content.
                 writeContent(tomlPath, getManifestContent(manifest));
-                out.println("Created Ballerina.toml file.");
-            } else {
-                out.println("Ballerina.toml already exists, hence skipping.");
             }
         }
     }
     
     /**
      * Create the .ballerina/ cache folder.
-     * @param out The output stream for printing.
      * @param projectPath The output path.
      * @throws IOException If file write exception occurs.
      */
-    private static void createBallerinaCacheFile(PrintStream out, Path projectPath) throws IOException {
+    private static void createBallerinaCacheFile(Path projectPath) throws IOException {
         Path cacheFolder = Paths.get(projectPath.toString() + File.separator + ".ballerina");
         if (!Files.exists(cacheFolder)) {
             // Creating main function file.
             Files.createDirectory(cacheFolder);
-            out.println("Created .ballerina/ folder.");
-        } else {
-            out.println(".ballerina folder already exists, hence skipping.");
         }
     }
     
     /**
      * Create src/ folder.
-     * @param out The output stream for printing.
      * @param projectPath The output path.
      * @param srcFiles The source files to be created.
      * @throws IOException If file write exception occurs.
      */
-    private static void createSrcFolder(PrintStream out, Path projectPath, List<SrcFile> srcFiles) throws IOException {
+    private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 if (srcFile.getSrcFileType() == SrcFile.SrcFileType.MAIN) {
@@ -110,8 +98,6 @@ public class InitHandler {
                         Files.createFile(srcFilePath);
                         // Writing content.
                         writeContent(srcFilePath, srcFile.getContent());
-                    } else {
-                        out.println(srcFilePath.toString() + " already exists, hence skipping.");
                     }
                 } else if (srcFile.getSrcFileType() == SrcFile.SrcFileType.SERVICE) {
                     // Creating package directory.
@@ -125,8 +111,6 @@ public class InitHandler {
     
                         // Writing content.
                         writeContent(servicesBalFile, srcFile.getContent());
-                    } else {
-                        out.println(servicesBalFile.toString() + " already exists, hence skipping.");
                     }
                 }
             }
@@ -135,21 +119,36 @@ public class InitHandler {
     
     /**
      * Creates the .gitignore file.
-     * @param out The output stream for printing.
      * @param projectPath The output path.
      * @throws IOException If file write exception occurs.
      */
-    private static void createGitignore(PrintStream out, Path projectPath) throws IOException {
+    private static void createIgnoreFiles(Path projectPath) throws IOException {
         Path gitIgnorePath = Paths.get(projectPath.toString() + File.separator + ".gitignore");
-        if (!Files.exists(gitIgnorePath)) {
-            // Creating main function file.
-            Files.createFile(gitIgnorePath);
-            // Writing content.
-            String ignoreFileContent = ".ballerina/ \n target/";
-            writeContent(gitIgnorePath, ignoreFileContent);
-            out.println("Created .gitignore file.");
+        Path svnIgnorePath = Paths.get(projectPath.toString() + File.separator + ".svnignore");
+        if (Files.exists(gitIgnorePath)) {
+            writeIgnoreFileContent(gitIgnorePath);
+        } else if (Files.exists(svnIgnorePath)) {
+            writeIgnoreFileContent(svnIgnorePath);
         } else {
-            out.println(".gitignore already exists, hence skipping.");
+            // Creating ignore files.
+            Files.createFile(gitIgnorePath);
+            Files.createFile(svnIgnorePath);
+            writeIgnoreFileContent(gitIgnorePath);
+            writeIgnoreFileContent(svnIgnorePath);
+        }
+    }
+    
+    /**
+     * Add ignore content to file.
+     * @param ignoreFile The ignore file path.
+     * @throws IOException If file write exception occurs.
+     */
+    private static void writeIgnoreFileContent(Path ignoreFile) throws IOException {
+        String ignoreFileContent = ".ballerina/\ntarget/\n";
+        String content = new String(Files.readAllBytes(ignoreFile), Charset.defaultCharset());
+        if (!content.contains(ignoreFileContent)) {
+            // Writing content.
+            writeContent(ignoreFile, ignoreFileContent);
         }
     }
     

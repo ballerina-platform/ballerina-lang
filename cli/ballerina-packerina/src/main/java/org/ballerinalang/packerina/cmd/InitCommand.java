@@ -34,6 +34,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Init command for creating a ballerina project.
@@ -69,22 +71,28 @@ public class InitCommand implements BLauncherCmd {
         
             if (interactiveFlag) {
                 sourceFiles = new ArrayList<>();
-                manifest = new Manifest();
     
                 // Check if Ballerina.toml file needs to be created.
                 out.print("Create Ballerina.toml: (yes/y) ");
                 String createToml = scanner.nextLine().trim();
-                
-                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")) {
+    
+                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") ||
+                    createToml.isEmpty()) {
+                    manifest = new Manifest();
+                    
                     // Get org name.
-                    out.print("Organization name: (home) ");
+                    out.print("--Organization name: (home) ");
                     String orgName = scanner.nextLine().trim();
                     manifest.setName(orgName.isEmpty() ? "home" : orgName);
-        
-                    out.print("Version: (1.0.0) ");
-                    // TODO: Validation with semver
-                    String version = scanner.nextLine().trim();
-                    manifest.setVersion(version.isEmpty() ? "1.0.0" : version);
+    
+                    String version;
+                    do {
+                        out.print("--Version: (1.0.0) ");
+                        version = scanner.nextLine().trim();
+                        version = version.isEmpty() ? "1.0.0" : version;
+                    } while (!validateVersion(out, version));
+                    
+                    manifest.setVersion(version);
                 }
     
                 String srcInput;
@@ -93,9 +101,9 @@ public class InitCommand implements BLauncherCmd {
                     srcInput = scanner.nextLine().trim();
                     
                     if (srcInput.equalsIgnoreCase("package") || srcInput.equalsIgnoreCase("p")) {
-                        out.print("--Package Name: (my.package) ");
+                        out.print("--Package Name: (my-package) ");
                         String packageName = scanner.nextLine().trim();
-                        packageName = packageName.isEmpty() ? "my.package" : packageName;
+                        packageName = packageName.isEmpty() ? "my-package" : packageName;
                         SrcFile srcFile = new SrcFile(packageName, SrcFile.SrcFileType.SERVICE);
                         sourceFiles.add(srcFile);
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
@@ -113,8 +121,8 @@ public class InitCommand implements BLauncherCmd {
                 out.print("\n");
             }
             
-            InitHandler.initialize(System.out, projectPath, manifest, sourceFiles);
-            out.println("Ballerina project initialized.");
+            InitHandler.initialize(projectPath, manifest, sourceFiles);
+            out.println("Ballerina project initialized");
 
         } catch (IOException e) {
             out.println("Error occurred while creating project: " + e.getMessage());
@@ -136,7 +144,7 @@ public class InitCommand implements BLauncherCmd {
     public void printLongDesc(StringBuilder out) {
         out.append("Initializes a Ballerina Project. \n");
         out.append("\n");
-        out.append("Use --interactive or -i to create a project in interactive mode.\n");
+        out.append("Use --interactive or -i to create a ballerina project in interactive mode.\n");
     }
     
     /**
@@ -144,7 +152,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build <balfile | packagename> [-o output] \n");
+        out.append("  ballerina init [-i] \n");
     }
     
     /**
@@ -161,5 +169,24 @@ public class InitCommand implements BLauncherCmd {
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
     
+    }
+    
+    /**
+     * Validates the version is a semver version.
+     * @param versionAsString The version.
+     * @return True if valid version, else false.
+     */
+    private boolean validateVersion(PrintStream out, String versionAsString) {
+        String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
+        Pattern pattern = Pattern.compile(semverRegex);
+        Matcher matcher = pattern.matcher(versionAsString);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        if (count != 1) {
+            out.println("--Invalid version: \"" + versionAsString + "\"");
+        }
+        return count == 1;
     }
 }
