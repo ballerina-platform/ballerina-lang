@@ -77,3 +77,8 @@ function testReturnTuples (string a) returns ((string, float, string)) {
     var x = (a,5.0, "z");
     return x;
 }
+
+function testFunctionReturnValue2() returns (string, float) {
+    var (i, j, k) = testReturnTuples("x");
+    return (i + k, j);
+}

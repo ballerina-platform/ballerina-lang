@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -625,7 +626,10 @@ public class CPU {
                     break;
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
-                    sf.refRegs[i] = new BMap<String, BRefType>();
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
+                    BMapType mapType = (BMapType) typeRefCPEntry.getType();
+                    sf.refRegs[i] = new BMap<String, BRefType>(mapType);
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
@@ -1462,7 +1466,19 @@ public class CPU {
                     break;
                 }
 
-                bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                BMapType mapType = (BMapType) bMap.getType();
+                if (sf.refRegs[k] == null) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else if (mapType.getConstrainedType() == BTypes.typeAny ||
+                        mapType.getConstrainedType().equals(sf.refRegs[k].getType())) {
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                } else {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+                                    mapType.getConstrainedType(), sf.refRegs[k].getType())));
+                    handleError(ctx);
+                    break;
+                }
                 break;
             case InstructionCodes.JSONSTORE:
                 i = operands[0];
@@ -2951,6 +2967,29 @@ public class CPU {
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
+        }
+
+        // Check MAP casting
+        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(sourceType, targetType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkMapCast(BType sourceType, BType targetType) {
+
+        BMapType sourceMapType = (BMapType) sourceType;
+        BMapType targetMapType = (BMapType) targetType;
+
+        if (sourceMapType.equals(targetMapType)) {
+            return true;
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
+                && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
+                    (BStructType) targetMapType.getConstrainedType());
         }
 
         return false;
