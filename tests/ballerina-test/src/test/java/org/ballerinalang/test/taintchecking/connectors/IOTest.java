@@ -46,16 +46,15 @@ public class IOTest {
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'numberOfChars'", 20, 40);
         BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 22, 18);
     }
-    
+
     @Test
     public void testFileIONegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/file-read-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 5);
+        Assert.assertTrue(result.getDiagnostics().length == 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'accessMode'", 6, 17);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'accessMode'", 8, 50);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'numberOfBytes'", 14, 34);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'offset'", 14, 42);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 18);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'nBytes'", 14, 34);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'sensitiveValue'", 16, 18);
     }
 }

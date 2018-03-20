@@ -35,7 +35,7 @@ struct InitiatorClientEP {
 function <InitiatorClientEP ep> init(InitiatorClientConfig conf){
     endpoint http:ClientEndpoint httpEP {targets:[{uri:conf.registerAtURL}],
                                             endpointTimeout:conf.endpointTimeout,
-                                            retryConfig:{count:conf.retryConfig.count,
+                                            retry:{count:conf.retryConfig.count,
                                                             interval:conf.retryConfig.interval}};
     ep.httpClient = httpEP;
 }

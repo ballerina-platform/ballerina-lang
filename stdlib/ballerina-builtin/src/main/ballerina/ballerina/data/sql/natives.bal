@@ -26,7 +26,7 @@ public struct Parameter {
 	Type sqlType;
 	any value;
 	Direction direction;
-	type structType;
+	typedesc structType;
 }
 
 @Description {value:"ConnectionProperties structs represents the properties which are used to configure DB connection pool"}
@@ -213,7 +213,7 @@ public struct ClientConnector {
 @Return {value:"Result set(s) for the given query"}
 @Return {value:"The Error occured during SQL client invocation"}
 public native function <ClientConnector client> call (@sensitive string sqlQuery, Parameter[] parameters,
-													  type structType) (@tainted table[], SQLConnectorError);
+													  typedesc structType) (@tainted table[], SQLConnectorError);
 
 @Description {value:"The select action implementation for SQL connector to select data from tables."}
 @Param {value:"sqlQuery: SQL query to execute"}
@@ -221,7 +221,7 @@ public native function <ClientConnector client> call (@sensitive string sqlQuery
 @Return {value:"Result set for the given query"}
 @Return {value:"The Error occured during SQL client invocation"}
 public native function <ClientConnector client> select (@sensitive string sqlQuery, Parameter[] parameters,
-														type structType) (@tainted table, SQLConnectorError);
+                                                        typedesc structType) (@tainted table, SQLConnectorError);
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
 @Return {value:"The Error occured during SQL client invocation"}

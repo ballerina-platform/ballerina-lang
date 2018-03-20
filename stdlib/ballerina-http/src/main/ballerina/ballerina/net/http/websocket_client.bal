@@ -12,7 +12,7 @@ public struct WebSocketClient {
 @Field {value: "idleTimeoutInSeconds: Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)."}
 public struct WebSocketClientEndpointConfig {
     string url;
-    type callbackService;
+    typedesc callbackService;
     string [] subProtocols;
     map<string> customHeaders;
     int idleTimeoutInSeconds = -1;
@@ -33,23 +33,23 @@ public struct WebSocketClientEndpointConfig {
 @Param { value:"epName: The endpoint name" }
 @Param { value:"config: The ServiceEndpointConfiguration of the endpoint" }
 @Return { value:"Error occured during initialization" }
-public function <WebSocketClient ep> init (WebSocketClientEndpointConfig config){
+public function <WebSocketClient ep> init(WebSocketClientEndpointConfig config){
     ep.config = config;
     ep.initEndpoint();
 }
 
-public native function<WebSocketClient ep> initEndpoint ();
+public native function<WebSocketClient ep> initEndpoint();
 
 
 @Description { value:"gets called every time a service attaches itself to this endpoint - also happens at package init time"}
 @Param { value:"conn: The server connector connection" }
 @Param { value:"res: The outbound response message" }
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> register (type serviceType);
+public native function <WebSocketClient h> register(typedesc serviceType);
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> start ();
+public native function <WebSocketClient h> start();
 
 //TODO:This throws errors. Fix it.
 //@Description { value:"Returns the connector that client code uses"}
@@ -64,8 +64,10 @@ public native function <WebSocketClient h> start ();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> getClient () (WebSocketConnector);
+public native function <WebSocketClient h> getClient() (WebSocketConnector);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> stop ();
+public function <WebSocketClient h> stop (){
+    h.getClient().closeConnection(1001, "The connection has been stopped");
+}

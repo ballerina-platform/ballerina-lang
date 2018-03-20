@@ -19,30 +19,40 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 
 /**
  * Ballerina value for the "future" type.
  */
 public class BFuture implements BRefType<WorkerResponseContext> {
 
+    private String callableName;
+    
+    private WorkerResponseContext respCtx;
+    
+    public BFuture(String callableName, WorkerResponseContext respCtx) {
+        this.callableName = callableName;
+        this.respCtx = respCtx;
+    }
+    
     @Override
     public String stringValue() {
-        return null;
+        return "future: " + this.callableName;
     }
 
     @Override
     public BType getType() {
-        return null;
+        return BTypes.typeFuture;
     }
 
     @Override
     public BValue copy() {
-        return null;
+        return new BFuture(this.callableName, this.value());
     }
 
     @Override
     public WorkerResponseContext value() {
-        return null;
+        return this.respCtx;
     }
 
 }

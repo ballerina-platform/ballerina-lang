@@ -211,7 +211,7 @@ public class HttpConnectionManager {
 //        HTTPServicesRegistry httpServicesRegistry = httpServerConnector.getHttpServicesRegistry();
 //        WebSocketServicesRegistry webSocketServicesRegistry = httpServerConnector.getWebSocketServicesRegistry();
 //        connectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry));
-//        connectorFuture.setWSConnectorListener(new BallerinaWebSocketServerConnectorListener
+//        connectorFuture.setWSConnectorListener(new WebSocketServerConnectorListener
 //        (webSocketServicesRegistry));
 //        connectorFuture.setPortBindingEventListener(
 //                new HttpConnectorPortBindingListener(startupSyncer, serverConnectorId));

@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getNextPromise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ClientConnector",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
@@ -67,7 +67,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         }
         BConnector bConnector = (BConnector) context.getRefArgument(0);
         HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CLIENT_CONNECTOR);
+                (HttpClientConnector) bConnector.getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getNextPushPromise(responseHandle).
                 setPushPromiseListener(new PromiseListener(dataContext));
     }

@@ -4,12 +4,12 @@ endpoint http:ServiceEndpoint echoEP {
     port:9099
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echo"
 }
 service<http:Service> echo {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }

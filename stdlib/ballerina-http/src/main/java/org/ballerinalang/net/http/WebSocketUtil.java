@@ -26,7 +26,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -40,6 +39,10 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 import java.util.List;
 import javax.websocket.Session;
+
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 
 
 /**
@@ -55,9 +58,9 @@ public abstract class WebSocketUtil {
         return new BMap<>();
     }
 
-    public static BConnector createAndGetConnector(Resource resource) {
-        return BLangConnectorSPIUtil.createBConnector(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
-                                                      WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
+    public static BStruct createAndGetBStruct(Resource resource) {
+        return BLangConnectorSPIUtil.createBStruct(getProgramFile(resource), HttpConstants.HTTP_PACKAGE_PATH,
+                                                   WebSocketConstants.WEBSOCKET_CONNECTOR, new BMap<>());
     }
 
 
@@ -89,14 +92,18 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new HandshakeListener() {
             @Override
             public void onSuccess(Session session) {
-                BConnector wsConnection = WebSocketUtil.createAndGetConnector(wsService.getResources()[0]);
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-                wsConnection.setNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
-                wsConnection.setNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
-                WebSocketConnectionManager.getInstance().addConnection(session.getId(),
-                                                                       new WebSocketOpenConnectionInfo(wsService,
-                                                                                                       wsConnection));
+                BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
+                                .getProgramFile(),
+                        PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+                BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
+                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
+                wsConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, initMessage);
+                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_UPGRADE_HEADERS, initMessage.getHeaders());
+                wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS, queryParams);
+                WebSocketConnectionManager.getInstance().addConnection(
+                        session.getId(), new WebSocketOpenConnectionInfo(wsService, serviceEndpoint));
+                serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, wsConnection);
 
                 Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                 if (onOpenResource == null) {
@@ -105,7 +112,7 @@ public abstract class WebSocketUtil {
                 List<ParamDetail> paramDetails =
                         onOpenResource.getParamDetails();
                 BValue[] bValues = new BValue[paramDetails.size()];
-                bValues[0] = wsConnection;
+                bValues[0] = serviceEndpoint;
                 //TODO handle BallerinaConnectorException
                 Executor.submit(onOpenResource, new WebSocketEmptyCallableUnitCallback(), null, bValues);
             }
