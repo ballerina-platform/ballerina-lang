@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -162,11 +163,23 @@ public class HoverUtil {
                     hover = getDefaultHoverObject();
                 }
                 break;
+            case ContextConstants.ENDPOINT:
+                BLangEndpoint bLangEndpoint = bLangPackage.globalEndpoints.stream()
+                        .filter(globalEndpoint -> globalEndpoint.name.value
+                                .equals(hoverContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                        .findAny().orElse(null);
+                if (bLangEndpoint != null) {
+                    hover = getAnnotationContent(bLangEndpoint.annAttachments);
+                } else {
+                    hover = getDefaultHoverObject();
+                }
+                break;
             case ContextConstants.VARIABLE:
                 BLangVariable bLangVariable = bLangPackage.globalVars.stream()
                         .filter(globalVar -> globalVar.name.getValue()
                                 .equals(hoverContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
+
                 if (bLangVariable != null) {
                     if (bLangVariable.docAttachments.size() > 0) {
                         hover = getDocumentationContent(bLangVariable.docAttachments);
