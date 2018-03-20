@@ -1045,6 +1045,9 @@ public class Types {
                 return false;
             }
             for (int i = 0; i < source.tupleTypes.size(); i++) {
+                if (t.getTupleTypes().get(i) == symTable.noType) {
+                    continue;
+                }
                 if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
                     return false;
                 }
