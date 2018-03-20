@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
@@ -953,8 +952,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String typeName = ctx.getChild(0).getText();
         if (ctx.nameReference() != null) {
             this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
-        } else if (ctx.typeName() != null && typeName.equals(TypeKind.FUTURE.typeName())) { 
-            // for the moment, only future is supported, this should later support map as well 
+        } else if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);

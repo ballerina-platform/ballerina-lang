@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BEnumType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStreamletType;
@@ -1002,6 +1003,17 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'N':
+                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
+                BType constrainedType = typeStack.pop();
+                BType mapType;
+                if (constrainedType == BTypes.typeAny) {
+                    mapType = BTypes.typeMap;
+                } else {
+                    mapType = new BMapType(constrainedType);
+                }
+                typeStack.push(mapType);
+                return index;
             case 'U':
                 // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
@@ -1030,6 +1042,13 @@ public class ProgramFileReader {
                 return BTypes.typeAny;
             case 'R':
                 return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
+            case 'N':
+                BType constrainedType = getBTypeFromDescriptor(desc.substring(1));
+                if (constrainedType == BTypes.typeAny) {
+                    return BTypes.typeMap;
+                } else {
+                    return new BMapType(constrainedType);
+                }
             case 'C':
             case 'X':
             case 'J':
@@ -1375,7 +1394,6 @@ public class ProgramFileReader {
                 case InstructionCodes.GOTO:
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
-                case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWXMLSEQ:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
@@ -1445,6 +1463,7 @@ public class ProgramFileReader {
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
                 case InstructionCodes.NEWJSON:
+                case InstructionCodes.NEWMAP:
                 case InstructionCodes.NEWTABLE:
                 case InstructionCodes.NEWSTREAMLET:
                     i = codeStream.readInt();
