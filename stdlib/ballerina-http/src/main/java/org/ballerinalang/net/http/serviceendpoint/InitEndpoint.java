@@ -274,7 +274,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             }
         }
         listenerConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
-
+        String serverEnableSessionCreation = String.valueOf(sslConfig
+                .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
+        Parameter enableSessionCreationParam = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                serverEnableSessionCreation);
+        serverParams.add(enableSessionCreationParam);
         if (!serverParams.isEmpty()) {
             listenerConfiguration.setParameters(serverParams);
         }
