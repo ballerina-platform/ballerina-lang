@@ -556,7 +556,7 @@ class TransformerNodeMapper {
                     nestedNodes.push(paramExp);
                 }
             });
-        } else {
+        } else if (!TreeUtil.isTypeConversionExpr(nodeExpression)) {
             nodeName = nodeExpression.getOperatorKind();
             if (TreeUtil.isUnaryExpr(nodeExpression)
                     && this.isComplexExpression(nodeExpression.getExpression())) {
