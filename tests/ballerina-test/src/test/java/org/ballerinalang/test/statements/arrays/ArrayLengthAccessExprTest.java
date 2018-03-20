@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -194,11 +193,4 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test array length access expression when array is null.",
-          expectedExceptions = {BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error:.*NullReferenceException.*")
-    public void testArrayLengthAccessExpArrayNullCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BRunUtil.invoke(compilerResult, "arrayLengthAccessNullArrayCase", args);
-    }
 }
