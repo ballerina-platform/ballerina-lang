@@ -73,7 +73,7 @@ public native function<Client ep> initEndpoint();
 init time. not supported in client connector"}
 @Param { value:"serviceType: The type of the service to be registered" }
 @Return { value:"Error occured during registration" }
-public native function <Client ep> register (type serviceType);
+public native function <Client ep> register (typedesc serviceType);
 
 @Description { value:"Starts the registered service"}
 @Return { value:"Error occured during registration" }

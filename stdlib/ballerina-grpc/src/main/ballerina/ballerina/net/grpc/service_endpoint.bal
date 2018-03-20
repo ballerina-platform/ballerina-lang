@@ -66,7 +66,7 @@ public native function<Service ep> initEndpoint() returns (error);
 @Description { value:"Gets called every time a service attaches itself to this endpoint. Also happens at package initialization."}
 @Param { value:"ep: The endpoint to which the service should be registered to" }
 @Param { value:"serviceType: The type of the service to be registered" }
-public native function <Service ep> register (type serviceType);
+public native function <Service ep> register (typedesc serviceType);
 
 @Description { value:"Starts the registered service"}
 public native function <Service ep> start ();

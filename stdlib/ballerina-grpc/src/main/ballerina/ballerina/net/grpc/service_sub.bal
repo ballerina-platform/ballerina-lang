@@ -35,13 +35,13 @@ public native function<ServiceStub ep>  blockingExecute (string methodID, any pa
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, type listenerService)
+public native function<ServiceStub ep>  nonBlockingExecute (string methodID, any payload, typedesc listenerService)
 (ConnectorError);
 
 @Description {value:"The execute action implementation of the gRPC Connector."}
 @Param {value:"Connection stub."}
 @Param {value:"Any type of request parameters."}
-public native function<ServiceStub ep>  streamingExecute (string methodID, type listenerService) (ClientConnection ,
+public native function<ServiceStub ep>  streamingExecute (string methodID, typedesc listenerService) (ClientConnection ,
                                                                                                ConnectorError);
 
 
