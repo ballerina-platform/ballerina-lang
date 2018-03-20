@@ -57,6 +57,7 @@ public struct TargetService {
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
+@Field {value:"failoverConfig: Failover configuration"}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
@@ -71,6 +72,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
     function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
+    FailoverConfig failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -91,6 +93,9 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         ep.httpClient = createCircuitBreakerClient(uri, config);
     } else if (config.algorithm != null && lengthof config.targets > 1) {
         ep.httpClient = createLoadBalancer(config);
+    } else if (config.failoverConfig != null) {
+        ep.config = config;
+        ep.httpClient = createFailOverClient(uri, config);
     } else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -195,10 +200,10 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
+function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ) {
     validateCircuitBreakerConfiguration(configuration.circuitBreaker);
-    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
-    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
+    boolean[] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {failureThreshold:configuration.circuitBreaker.failureThreshold,
                                                                     resetTimeout:configuration.circuitBreaker.resetTimeout,
                                                                     httpStatusCodes:httpStatusCodes
                                                                 };
@@ -208,14 +213,29 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                         httpClient:cbHttpClient,
                                         circuitHealth:{},
                                         currentCircuitState:CircuitState.CLOSED};
-    var httpClient , e = (HttpClient) cbClient;
+    var httpClient, e = (HttpClient)cbClient;
     return httpClient;
 }
 
-function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
-    result = [];
-    foreach i in errorCode {
-        result[i] = true;
+public function createFailOverClient(string url, ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] clients = [];
+    int i=0;
+    foreach target in config.targets {
+        string uri = target.uri;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        clients[i] = createHttpClient(uri, config);
+        clients[i].config = config;
+        i = i+1;
     }
-    return result;
+    Failover failover = {};
+    failover.config = config;
+    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
+    failover.failoverInferredConfig = {failoverClientsArray : clients,
+                                          failoverCodesIndex : failoverCodes,
+                                          failoverInterval : config.failoverConfig.interval};
+    var hc,_ = (HttpClient) failover;
+    return hc;
 }

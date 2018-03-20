@@ -105,6 +105,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
         try {
             String uri = connector.getStringField(0) + path;
+            System.out.println("java path");
+            System.out.println(uri);
             URL url = new URL(uri);
 
             int port = getOutboundReqPort(url);
