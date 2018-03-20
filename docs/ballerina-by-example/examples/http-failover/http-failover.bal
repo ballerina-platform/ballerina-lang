@@ -13,7 +13,7 @@ service<http> failoverService {
         path:"/"
     }
 
-    resource failoverPostResource (http:Connection conn, http:InRequest req) {
+    resource failoverPostResource (http:Connection conn, http:Request req) {
         // Failover Connector takes the input as an array of HttpClient connectors and FailoverConfig struct.
         // The FailoverConfig struct should contain int array of HTTP status codes and interval of failover in  milliseconds.
         //      struct FailoverConfig {
@@ -29,15 +29,15 @@ service<http> failoverService {
                      errorCode);
         }
 
-        http:InResponse inResponse = {};
+        http:Response inResponse = {};
         http:HttpConnectorError err;
 
-        http:OutRequest outRequest = {};
+        http:Request outRequest = {};
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
         inResponse, err = endPoint.post("/", outRequest);
 
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         if (err != null) {
             outResponse.statusCode = err.statusCode;
             outResponse.setStringPayload(err.message);
@@ -56,8 +56,8 @@ service<http> echo {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource echoResource (http:Connection conn, http:InRequest req) {
-        http:OutResponse outResponse = {};
+    resource echoResource (http:Connection conn, http:Request req) {
+        http:Response outResponse = {};
         runtime:sleepCurrentWorker(30000);
         outResponse.setStringPayload("Resource is invoked");
         _ = conn.respond(outResponse);
@@ -69,8 +69,8 @@ service<http> mock {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mockResource (http:Connection conn, http:InRequest req) {
-        http:OutResponse outResponse = {};
+    resource mockResource (http:Connection conn, http:Request req) {
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock Resource is Invoked.");
         _ = conn.respond(outResponse);
     }

@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.ConnectorNode;
+import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -28,6 +29,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageDeclarationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.StreamletNode;
 import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
@@ -49,14 +51,16 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BLangPackageDeclaration pkgDecl;
     public List<BLangImportPackage> imports;
     public List<BLangXMLNS> xmlnsList;
+    public List<BLangEndpoint> globalEndpoints;
     public List<BLangVariable> globalVars;
     public List<BLangService> services;
     public List<BLangConnector> connectors;
+    public List<BLangStreamlet> streamlets;
     public List<BLangFunction> functions;
     public List<BLangStruct> structs;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public BLangFunction initFunction;
+    public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
 
@@ -67,9 +71,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();
         this.xmlnsList = new ArrayList<>();
+        this.globalEndpoints = new ArrayList<>();
         this.globalVars = new ArrayList<>();
         this.services = new ArrayList<>();
         this.connectors = new ArrayList<>();
+        this.streamlets = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.structs = new ArrayList<>();
         this.enums = new ArrayList<>();
@@ -101,6 +107,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
+    public List<? extends EndpointNode> getGlobalEndpoints() {
+        return globalEndpoints;
+    }
+
+    @Override
     public List<BLangVariable> getGlobalVariables() {
         return globalVars;
     }
@@ -113,6 +124,11 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangConnector> getConnectors() {
         return connectors;
+    }
+
+    @Override
+    public List<? extends StreamletNode> getStreamlets() {
+        return streamlets;
     }
 
     @Override
@@ -134,7 +150,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
     }
-    
+
     @Override
     public List<? extends TransformerNode> getTransformers() {
         return transformers;
@@ -172,6 +188,12 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addConnector(ConnectorNode connector) {
         this.connectors.add((BLangConnector) connector);
         this.topLevelNodes.add(connector);
+    }
+
+    @Override
+    public void addStreamlet(StreamletNode streamletNode) {
+        this.streamlets.add((BLangStreamlet) streamletNode);
+        this.topLevelNodes.add(streamletNode);
     }
 
     @Override

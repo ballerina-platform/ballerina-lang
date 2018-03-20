@@ -56,3 +56,20 @@ public function <table dt> remove (function (any) returns (boolean) func) (int) 
 @Param {value:"data: A struct with data"}
 native function <table dt> delete (any data);
 
+@Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
+@Param {value:"sqlQuery: The query to execute"}
+@Param {value:"fromTable: The table on which the query is executed"}
+@Param {value:"joinTable: The table which is joined with 'fromTable'"}
+@Param {value:"parameters: liternal parameters to be passed to prepared statement 'sqlQuery'"}
+@Param {value:"retType: return type of the resultant table instance"}
+native function queryTableWithJoinClause (string sqlQuery, table fromTable, table joinTable, any parameters,
+                                                 any retType) (table);
+
+@Description {value:"Execute the given sql query to fetch the records and return as a new in memory table"}
+@Param {value:"sqlQuery: The query to execute"}
+@Param {value:"fromTable: The table on which the query is executed"}
+@Param {value:"parameters: literal parameters to be passed to prepared statement 'sqlQuery'"}
+@Param {value:"retType: return type of the resultant table instance"}
+native function queryTableWithoutJoinClause (string sqlQuery, table fromTable, any parameters,
+                                                    any retType) (table);
+

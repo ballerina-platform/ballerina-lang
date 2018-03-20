@@ -132,6 +132,13 @@ public class JWTAuthenHandlerTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test case for JWT auth interceptor authentication failure")
+    public void testHandleHttpJwtAuthFailure() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHandleHttpJwtAuthFailure");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
     //TODO Enable this test after config api get the capability to set new properties.
     public void testHandleHttpJwtAuth() {
         BValue[] inputBValues = {new BString(jwtToken)};

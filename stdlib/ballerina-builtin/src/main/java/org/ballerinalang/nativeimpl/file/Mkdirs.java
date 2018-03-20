@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,27 +48,27 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class Mkdirs extends AbstractNativeFunction {
+public class Mkdirs extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(Mkdirs.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         String path = fileStruct.getStringField(0);
         File dir = Paths.get(path).toFile();
 
-        boolean dirCreated;
         try {
-            dirCreated = dir.mkdirs();
+            if (dir.mkdirs()) {
+                context.setReturnValues(new BBoolean(true), null, null);
+            } else {
+                context.setReturnValues(new BBoolean(false), createAccessDeniedError(context,
+                        "Permission denied to create the requested directory structure: " + path), null);
+            }
         } catch (SecurityException e) {
             log.error("Could not create directory structure: " + path, e);
-            return getBValues(new BBoolean(false), null,
+            context.setReturnValues(new BBoolean(false), null,
                               createIOError(context, "Could not create the requested directory structure: " + path));
         }
-
-        return dirCreated ? getBValues(new BBoolean(true), null, null) :
-                getBValues(new BBoolean(false), createAccessDeniedError
-                        (context, "Permission denied to create the requested directory structure: " + path), null);
     }
 }

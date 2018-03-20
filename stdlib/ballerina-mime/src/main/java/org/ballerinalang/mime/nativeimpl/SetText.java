@@ -19,11 +19,10 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -42,12 +41,12 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         args = {@Argument(name = "textContent", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetText extends AbstractNativeFunction {
+public class SetText extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
-        BStruct entityStruct = (BStruct) this.getRefArgument(context, FIRST_PARAMETER_INDEX);
-        String textContent = this.getStringArgument(context, FIRST_PARAMETER_INDEX);
+    public void execute(Context context) {
+        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
         EntityBodyHandler.addMessageDataSource(entityStruct, new StringDataSource(textContent));
-        return AbstractNativeFunction.VOID_RETURN;
+        context.setReturnValues();
     }
 }

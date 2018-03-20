@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -79,11 +78,10 @@ public class TesterinaFunction {
      * @return values returned by the ballerina function
      */
     public BValue[] invoke(BValue[] args) {
-        Context ctx = new Context(programFile);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
-        initDebugger(ctx, debugger);
-        return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(),
-                args, ctx);
+        initDebugger(programFile, debugger);
+        return BLangFunctions.invokeCallable(bFunction, ctx, args);
     }
 
 
@@ -111,13 +109,11 @@ public class TesterinaFunction {
         this.bFunction = bFunction;
     }
 
-    private static void initDebugger(Context bContext, Debugger debugger) {
-        bContext.getProgramFile().setDebugger(debugger);
+    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
+        programFile.setDebugger(debugger);
         if (debugger.isDebugEnabled()) {
-            DebugContext debugContext = new DebugContext();
-            bContext.setDebugContext(debugContext);
             debugger.init();
-            debugger.addDebugContextAndWait(debugContext);
+            debugger.waitTillDebuggeeResponds();
         }
     }
 

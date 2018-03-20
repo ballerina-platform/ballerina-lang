@@ -44,4 +44,10 @@ public class CompletionKeys {
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Boolean> INVOCATION_STATEMENT_KEY
             = new LanguageServerContext.Key<>();
+    
+    // Meta context Keys
+    public static final LanguageServerContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
+            = new LanguageServerContext.Key<>();
+    public static final LanguageServerContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
+            = new LanguageServerContext.Key<>();
 }

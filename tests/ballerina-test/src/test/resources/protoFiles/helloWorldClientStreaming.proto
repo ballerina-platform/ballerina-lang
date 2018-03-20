@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+service helloWorldClientStreaming {
+		rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse);
+}
+
+message HelloRequest {
+	string name = 1;
+}
+message HelloResponse {
+	string message = 1;
+}

@@ -19,10 +19,9 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -41,11 +40,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                              structPackage = "ballerina.net.http"),
         isPublic = true
 )
-public class Invalidate extends AbstractNativeFunction {
+public class Invalidate extends BlockingNativeCallableUnit {
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null && session.isValid()) {
                 session.invalidate();
@@ -55,6 +54,6 @@ public class Invalidate extends AbstractNativeFunction {
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-        return new BValue[0];
+        context.setReturnValues();
     }
 }

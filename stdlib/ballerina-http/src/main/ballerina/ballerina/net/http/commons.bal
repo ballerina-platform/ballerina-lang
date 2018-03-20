@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,47 +16,76 @@
 
 package ballerina.net.http;
 
-import ballerina.mime;
+//Constants to represent Failover connector actions.
+public const string FORWARD = "forward";
+public const string GET = "get";
+public const string POST = "post";
+public const string DELETE = "delete";
+public const string OPTIONS = "options";
+public const string PUT = "put";
+public const string PATCH = "patch";
+public const string HEAD = "head";
 
-const string HTTP_GET = "GET";
-const string HTTP_POST = "POST";
-const string HTTP_HEAD = "HEAD";
-const string HTTP_PUT = "PUT";
-const string HTTP_DELETE = "DELETE";
-const string HTTP_PATCH = "PATCH";
-const string HTTP_OPTIONS = "OPTIONS";
-
-function getFirstHeaderFromEntity (mime:Entity entity, string headerName) (string) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue == null ? null : headerValue[0];
+enum HttpOperation {
+    GET, POST, DELETE, OPTIONS, PUT, PATCH, HEAD, FORWARD
 }
 
-function getHeadersFromEntity (mime:Entity entity, string headerName) (string[]) {
-    var headerValue, _ = (string[]) entity.headers[headerName];
-    return headerValue;
-}
-
-function getContentLengthIntValue (string strContentLength) (int) {
-    var contentLength, conversionErr = <int>strContentLength;
-    if (conversionErr != null) {
-        contentLength = -1;
-        throw conversionErr;
-    }
-    return contentLength;
-}
-
-function addHeaderToEntity (mime:Entity entity, string headerName, string headerValue){
-    var existingValues = entity.headers[headerName];
-    if (existingValues == null) {
-        setHeaderToEntity(entity, headerName, headerValue);
+// makes the actual endpoints call according to the http operation passed in.
+public function invokeEndpoint (string path, Request outRequest, Request inRequest,
+                                HttpOperation requestAction, HttpClient httpClient) (Response, HttpConnectorError) {
+    if (HttpOperation.GET == requestAction) {
+        return httpClient.get(path, outRequest);
+    } else if (HttpOperation.POST == requestAction) {
+        return httpClient.post(path, outRequest);
+    } else if (HttpOperation.OPTIONS == requestAction) {
+        return httpClient.options(path, outRequest);
+    } else if (HttpOperation.PUT == requestAction) {
+        return httpClient.put(path, outRequest);
+    } else if (HttpOperation.DELETE == requestAction) {
+        return httpClient.delete(path, outRequest);
+    } else if (HttpOperation.PATCH == requestAction) {
+        return httpClient.patch(path, outRequest);
+    } else if (HttpOperation.FORWARD == requestAction) {
+        return httpClient.forward(path, inRequest);
+    } else if (HttpOperation.HEAD == requestAction) {
+        return httpClient.head(path, outRequest);
     } else {
-        var valueArray, _ = (string[]) existingValues;
-        valueArray[lengthof valueArray] = headerValue;
-        entity.headers[headerName] = valueArray;
+        HttpConnectorError httpConnectorError = {};
+        httpConnectorError.statusCode = 400;
+        httpConnectorError.message = "Unsupported connector action received.";
+        return null, httpConnectorError;
     }
 }
 
-function setHeaderToEntity (mime:Entity entity, string headerName, string headerValue) {
-    string[] valueArray = [headerValue];
-    entity.headers[headerName] = valueArray;
+// Extracts HttpOperation from the Http verb passed in.
+function extractHttpOperation (string httpVerb) (HttpOperation connectorAction) {
+    HttpOperation inferredConnectorAction;
+    if (GET == httpVerb) {
+        inferredConnectorAction = HttpOperation.GET;
+    } else if (POST == httpVerb) {
+        inferredConnectorAction = HttpOperation.POST;
+    } else if (OPTIONS == httpVerb) {
+        inferredConnectorAction = HttpOperation.OPTIONS;
+    } else if (PUT == httpVerb) {
+        inferredConnectorAction = HttpOperation.PUT;
+    } else if (DELETE == httpVerb) {
+        inferredConnectorAction = HttpOperation.DELETE;
+    } else if (PATCH == httpVerb) {
+        inferredConnectorAction = HttpOperation.PATCH;
+    } else if (FORWARD == httpVerb) {
+        inferredConnectorAction = HttpOperation.FORWARD;
+    } else if (HEAD == httpVerb) {
+        inferredConnectorAction = HttpOperation.HEAD;
+    }
+    return inferredConnectorAction;
+}
+
+// Populate boolean index array by looking at the configured Http status codes to get better performance
+// at runtime.
+function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
+    result = [];
+    foreach i in errorCode {
+        result[i] = true;
+    }
+    return result;
 }

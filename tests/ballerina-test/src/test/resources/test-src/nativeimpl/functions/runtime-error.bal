@@ -12,11 +12,11 @@ function level2Function () returns (runtime:CallStackElement[] trace) {
     return runtime:getCallStack();
 }
 
-function testErrorStack () returns (runtime:CallStackElement[] trace) {
+function testErrorStackFrame () returns (runtime:CallStackElement trace) {
     try {
         int i = level1Error(-10);
     } catch (error e) {
-        return runtime:getErrorCallStack(e);
+        return runtime:getErrorCallStackFrame(e);
     }
     return null;
 }

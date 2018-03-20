@@ -23,6 +23,10 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.result.BooleanResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Validates whether there's another text record.
@@ -36,6 +40,8 @@ public class HasNextDelimitedRecordEvent implements Event {
      * Holds the context to the event.
      */
     private EventContext context;
+
+    private static final Logger log = LoggerFactory.getLogger(HasNextDelimitedRecordEvent.class);
 
     public HasNextDelimitedRecordEvent(DelimitedRecordChannel channel) {
         this.channel = channel;
@@ -51,7 +57,16 @@ public class HasNextDelimitedRecordEvent implements Event {
      */
     @Override
     public EventResult get() {
-        boolean hasNext = channel.hasNext();
-        return new BooleanResult(hasNext, context);
+        BooleanResult result;
+        try {
+            boolean hasNext = channel.hasNext();
+            result = new BooleanResult(hasNext, context);
+        } catch (IOException e) {
+            String message = "Error occurred while reading bytes for hasNext()";
+            log.error(message, e);
+            context.setError(e);
+            result = new BooleanResult(context);
+        }
+        return result;
     }
 }

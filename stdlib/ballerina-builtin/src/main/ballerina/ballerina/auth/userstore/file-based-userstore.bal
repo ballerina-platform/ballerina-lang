@@ -52,7 +52,7 @@ function readPasswordHash (string username) (string) {
 @Param {value:"string: username"}
 @Return {value:"string: user id read from the userstore, or null if not found"}
 function readUserId (string username) (string) {
-    return config:getInstanceValue("userids", username);
+    return config:getInstanceValue(username, "userid");
 }
 
 @Description {value:"Reads the groups for a user"}

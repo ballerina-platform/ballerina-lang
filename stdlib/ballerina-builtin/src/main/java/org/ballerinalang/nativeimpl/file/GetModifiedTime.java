@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,6 +39,7 @@ import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
 import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createAccessDeniedError;
 import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
+
 /**
  * Retrieves the last modified time of the specified file.
  *
@@ -53,13 +53,13 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class GetModifiedTime extends AbstractNativeFunction {
+public class GetModifiedTime extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetModifiedTime.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         String path = fileStruct.getStringField(0);
 
         BStruct lastModifiedStruct;
@@ -68,16 +68,15 @@ public class GetModifiedTime extends AbstractNativeFunction {
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
             lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
                     lastModified.toMillis(), zonedDateTime.getZone().toString());
+            context.setReturnValues(lastModifiedStruct, null, null);
         } catch (IOException e) {
             String msg = "Error in reading file: " + path;
             log.error(msg, e);
-            return getBValues(null, null, createIOError(context, msg));
+            context.setReturnValues(null, null, createIOError(context, msg));
         } catch (SecurityException e) {
             String msg = "Read permission denied for file: " + path;
             log.error(msg, e);
-            return getBValues(null, createAccessDeniedError(context, msg), null);
+            context.setReturnValues(null, createAccessDeniedError(context, msg), null);
         }
-
-        return getBValues(lastModifiedStruct, null, null);
     }
 }

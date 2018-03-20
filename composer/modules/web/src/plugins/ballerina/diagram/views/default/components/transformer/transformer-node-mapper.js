@@ -556,7 +556,7 @@ class TransformerNodeMapper {
                     nestedNodes.push(paramExp);
                 }
             });
-        } else {
+        } else if (!TreeUtil.isTypeConversionExpr(nodeExpression)) {
             nodeName = nodeExpression.getOperatorKind();
             if (TreeUtil.isUnaryExpr(nodeExpression)
                     && this.isComplexExpression(nodeExpression.getExpression())) {
@@ -1367,7 +1367,7 @@ class TransformerNodeMapper {
         const varDeclarations = this._transformStmt.getBody().getStatements()
           .filter((node) => { return TreeUtil.isVariableDef(node); });
 
-        const inputOutput = [this._transformStmt.getSourceParam(), ...this._transformStmt.getParameters(),
+        const inputOutput = [this._transformStmt.getSource(), ...this._transformStmt.getParameters(),
             ...this._transformStmt.getReturnParameters(), ...varDeclarations.map(varNode => varNode.getVariable())];
         const ioReference = inputOutput.find((io) => {
             return io.name.getSource().trim() === expression.getSource().trim();

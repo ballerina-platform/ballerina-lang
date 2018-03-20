@@ -20,7 +20,7 @@ service<http> circuitBreakerDemo {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
 
         // The Circuit Breaker accepts an HTTP client connector as its first argument.
         // - When the percentage of failed requests passes the specified threshold, the circuit trips and subsequent requests to the backend fails immediately.<br>
@@ -31,13 +31,13 @@ service<http> circuitBreakerDemo {
             create resiliency:CircuitBreaker(create http:HttpClient("http://localhost:8080",
                                                                     {endpointTimeout:2000}), circuitBreakerConfig);
         }
-        http:InResponse clientRes;
+        http:Response clientRes;
         http:HttpConnectorError err;
         clientRes, err = circuitBreakerEP.forward("/hello", req);
         if (err != null) {
             io:println(err);
             if (clientRes == null) {
-                http:OutResponse res = {};
+                http:Response res = {};
                 res.statusCode = 500;
                 res.setStringPayload(err.message);
                 _ = conn.respond(res);
@@ -48,7 +48,7 @@ service<http> circuitBreakerDemo {
                 io:println(payload);
                 _ = conn.forward(clientRes);
             } else {
-                http:OutResponse res = {};
+                http:Response res = {};
                 res.statusCode = 500;
                 res.setStringPayload(payloadError.message);
                 _ = conn.respond(res);
@@ -66,22 +66,22 @@ service<http> helloWorld {
         methods:["GET"],
         path:"/"
     }
-    resource sayHello (http:Connection conn, http:InRequest req) {
+    resource sayHello (http:Connection conn, http:Request req) {
         if (counter % 5 == 0) {
             runtime:sleepCurrentWorker(5000);
             counter = counter + 1;
-            http:OutResponse res = {};
+            http:Response res = {};
             res.setStringPayload("Hello World!!!");
             _ = conn.respond(res);
         } else if (counter % 5 == 3) {
             counter = counter + 1;
-            http:OutResponse res = {};
+            http:Response res = {};
             res.statusCode = 500;
             res.setStringPayload("Internal error occurred while processing the request.");
             _ = conn.respond(res);
         } else {
             counter = counter + 1;
-            http:OutResponse res = {};
+            http:Response res = {};
             res.setStringPayload("Hello World!!!");
             _ = conn.respond(res);
         }

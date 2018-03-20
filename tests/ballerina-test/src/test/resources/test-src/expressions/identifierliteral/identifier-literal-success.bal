@@ -73,39 +73,39 @@ function |test function for identifier|(string val) (string) {
     return val + s;
 }
 
-connector |Test Connector|(string param1, string param2, int param3) {
-    boolean action2Invoked;
+//connector |Test Connector|(string param1, string param2, int param3) {
+//    boolean action2Invoked;
+//
+//    action action1() (string) {
+//        string |sample string| = "this is a sample";
+//        return |sample string|;
+//    }
+//
+//    action |second action|() (string){
+//        string |string \| value| = "sample string";
+//       return |string \| value|;
+//    }
+//}
 
-    action action1() (string) {
-        string |sample string| = "this is a sample";
-        return |sample string|;
-    }
+//function testConnectorNameWithIL() (string) {
+//    endpoint<|Test Connector|> testConnector {
+//        create |Test Connector|("MyParam1", "MyParam2", 5);
+//    }
+//    string value;
+//
+//    value = testConnector.action1();
+//    return value;
+//}
 
-    action |second action|() (string){
-        string |string \| value| = "sample string";
-        return |string \| value|;
-    }
-}
-
-function testConnectorNameWithIL() (string) {
-    endpoint<|Test Connector|> testConnector {
-        create |Test Connector|("MyParam1", "MyParam2", 5);
-    }
-    string value;
-
-    value = testConnector.action1();
-    return value;
-}
-
-function testConnectorActionWithIL() (string) {
-    endpoint<|Test Connector|> |test Connector| {
-        create |Test Connector|("MyParam1", "MyParam2", 5);
-    }
-    string value;
-
-    value = |test Connector|.|second action|();
-    return value;
-}
+//function testConnectorActionWithIL() (string) {
+//    endpoint<|Test Connector|> |test Connector| {
+//        create |Test Connector|("MyParam1", "MyParam2", 5);
+//    }
+//    string value;
+//
+//    value = |test Connector|.|second action|();
+//    return value;
+//}
 
 function useILInStructName() (string, string, int, string) {
     |family person| |person one| = {|first name|: "Tom", |last name|:"hank", |current age|: 50};

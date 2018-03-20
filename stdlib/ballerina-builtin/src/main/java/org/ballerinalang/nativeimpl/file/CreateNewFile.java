@@ -19,11 +19,10 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -51,26 +50,26 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
                 @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class CreateNewFile extends AbstractNativeFunction {
+public class CreateNewFile extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CreateNewFile.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         Path filePath = Paths.get(fileStruct.getStringField(0));
         Path newFile;
         try {
             newFile = Files.createFile(filePath);
+            context.setReturnValues(new BBoolean(Files.exists(newFile)), null, null);
         } catch (IOException | UnsupportedOperationException e) {
             String msg = "Failed to create the file: " + filePath.toString();
             log.error(msg, e);
-            return getBValues(new BBoolean(false), null, createIOError(context, msg));
+            context.setReturnValues(new BBoolean(false), null, createIOError(context, msg));
         } catch (SecurityException e) {
             String msg = "Permission denied. Failed to create the file: " + filePath.toString();
             log.error(msg, e);
-            return getBValues(new BBoolean(false), createAccessDeniedError(context, msg), null);
+            context.setReturnValues(new BBoolean(false), createAccessDeniedError(context, msg), null);
         }
-        return getBValues(new BBoolean(Files.exists(newFile)), null, null);
     }
 }

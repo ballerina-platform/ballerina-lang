@@ -14,6 +14,6 @@ public function main (string[] args) {
     secureFunction(x3@[ns0:count], x3@[ns0:count]);
 }
 
-public function secureFunction (@sensitive{} any secureIn, any insecureIn) {
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
 
 }

@@ -37,10 +37,10 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
-    UNDEFINED_ACTION("undefined.action"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
     ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
-
+    UNDEFINED_PARAMETER("undefined.parameter"),
+    
     INCOMPATIBLE_TYPES("incompatible.types"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
@@ -66,6 +66,21 @@ public enum DiagnosticCode {
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
+
+    // Service, endpoint related errors codes
+    SERVICE_STRUCT_TYPE_REQUIRED("service.struct.type.required"),
+    SERVICE_INVALID_STRUCT_TYPE("service.invalid.struct.type"),
+    SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
+    ENDPOINT_STRUCT_TYPE_REQUIRED("endpoint.struct.type.required"),
+    ENDPOINT_INVALID_TYPE("endpoint.invalid.type"),
+    ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
+    ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
+
+    ENDPOINT_NOT_SUPPORT_INTERACTIONS("endpoint.not.support.interactions"),
+    ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
+    INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
+    UNDEFINED_ACTION("undefined.action"),
 
     // Transformer related error codes
     UNDEFINED_TRANSFORMER("undefined.transformer"),
@@ -95,6 +110,7 @@ public enum DiagnosticCode {
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
+    MULTI_VAL_EXPR_IN_SINGLE_VAL_CONTEXT("multi.valued.expr.in.single.valued.context"),
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
     FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
     FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
@@ -103,14 +119,15 @@ public enum DiagnosticCode {
     ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
     STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
+    INVALID_REST_ARGS("invalid.rest.args"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
     TOO_MANY_RETURN_VALUES("return.value.too.many"),
     NOT_ENOUGH_RETURN_VALUES("return.value.not.enough"),
     RETURN_VALUE_NOT_EXPECTED("return.value.not.expected"),
-    INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     INVALID_FUNCTION_INVOCATION("invalid.function.invocation"),
+    DUPLICATE_NAMED_ARGS("duplicate.named.args"),
 
     DUPLICATED_ERROR_CATCH("duplicated.error.catch"),
 
@@ -123,6 +140,7 @@ public enum DiagnosticCode {
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
+    INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -133,17 +151,15 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    INVALID_OPERATION_INCOMPATIBLE_TYPES("invalid.operation.incompatible.types"),
-    INVALID_DEFAULT_VALUE("invalid.default.value"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type"),
-    NO_SUCH_ATTRIBUTE("no.such.attribute"),
-    ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST("annotation.attribute.value.cannot.refer.non.constant"),
+    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
     USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    OPERATOR_NOT_SUPPORTED("operator.not.supported"),
+    OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
@@ -156,6 +172,10 @@ public enum DiagnosticCode {
     ITERABLE_NO_ARGS_REQUIRED("iterable.no.args.required"),
     ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("iterable.lambda.incompatible.types"),
     ITERABLE_RETURN_TYPE_MISMATCH("iterable.return.type.mismatch"),
+
+    // match statement related errors
+    MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("match.stmt.cannot.guarantee.a.matching.pattern"),
+    MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

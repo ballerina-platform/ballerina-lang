@@ -100,7 +100,7 @@ public class StructAccessWithIndexTest {
 
         // Check the default value of a field where the default value is not set
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "");
+        Assert.assertEquals(returns[1].stringValue(), null);
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);

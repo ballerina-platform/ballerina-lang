@@ -1,6 +1,6 @@
 public struct InvalidNameError {
     string message;
-    error cause;
+    error[] cause;
     string companyName;
 }
 
@@ -58,7 +58,7 @@ function testReturnAndThrowError()(string){
     try{
         checkAndThrow();
     }catch(error e){
-        return e.message;
+        return e.cause[0].message;
     }
     return "OK";
 }

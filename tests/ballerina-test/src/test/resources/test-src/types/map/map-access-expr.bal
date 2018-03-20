@@ -89,3 +89,13 @@ function testGetMapValues () (string, string) {
     var city, _ = (string) jsn.city;
     return nam, city;
 }
+
+function testMapRemovePositive() (boolean, boolean, boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname");
+}
+
+function testMapRemoveNegative() (boolean, boolean, boolean) {
+    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    return namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2");
+}

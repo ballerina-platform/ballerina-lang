@@ -8,6 +8,6 @@ public function main (string[] args) {
     secureFunction(student1["name"], student1["name"]);
 }
 
-public function secureFunction (@sensitive{} any secureIn, any insecureIn) {
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
 
 }

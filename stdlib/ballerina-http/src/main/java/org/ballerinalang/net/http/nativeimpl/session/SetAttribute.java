@@ -19,10 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,14 +46,14 @@ import java.util.IllegalFormatException;
                 @Argument(name = "attributeValue", type = TypeKind.ANY)},
         isPublic = true
 )
-public class SetAttribute extends AbstractNativeFunction {
+public class SetAttribute extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) throws IllegalFormatException {
+    public void execute(Context context) throws IllegalFormatException {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            String attributeKey = getStringArgument(context, 0);
-            BValue attributeValue = getRefArgument(context, 1);
+            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            String attributeKey = context.getStringArgument(0);
+            BValue attributeValue = context.getRefArgument(1);
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
 
             if (attributeKey == null || attributeValue == null) {
@@ -68,6 +68,6 @@ public class SetAttribute extends AbstractNativeFunction {
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-        return VOID_RETURN;
+        context.setReturnValues();
     }
 }

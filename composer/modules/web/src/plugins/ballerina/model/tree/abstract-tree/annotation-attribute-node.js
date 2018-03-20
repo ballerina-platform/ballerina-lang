@@ -22,33 +22,6 @@ import Node from '../node';
 class AbstractAnnotationAttributeNode extends Node {
 
 
-    setInitialExpression(newValue, silent, title) {
-        const oldValue = this.initialExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initialExpression = newValue;
-
-        this.initialExpression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initialExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitialExpression() {
-        return this.initialExpression;
-    }
-
-
-
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +45,33 @@ class AbstractAnnotationAttributeNode extends Node {
 
     getTypeNode() {
         return this.typeNode;
+    }
+
+
+
+    setInitialExpression(newValue, silent, title) {
+        const oldValue = this.initialExpression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initialExpression = newValue;
+
+        this.initialExpression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initialExpression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitialExpression() {
+        return this.initialExpression;
     }
 
 

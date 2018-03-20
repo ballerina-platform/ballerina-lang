@@ -45,7 +45,7 @@ export default {
                     '@controlKeywords': 'keyword.control.ballerina',
                     '@otherKeywords': 'keyword.other.ballerina',
                     '@typeKeywords': 'type.ballerina',
-                    '(documentation|deprecated)': {token: 'keyword.other.ballerina', next: '@documentation'},
+                    '(documentation|deprecated)': { token: 'keyword.other.ballerina', next: '@documentation' },
                     '@default': 'identifier',
                 },
             }],
@@ -89,9 +89,9 @@ export default {
         ],
 
         documentation: [
-            ['(P|R|T|F|V)({{)(.+)(}})', 
+            ['(P|R|T|F|V)({{)(.+)(}})',
                 ['keyword.other.documentation', 'keyword.other.documentation',
-                'variable.parameter.documentation', 'keyword.other.documentation' ]
+                    'variable.parameter.documentation', 'keyword.other.documentation'],
             ],
             ['```(.+)```', 'comment.code.documentation'],
             ['``(.+)``', 'comment.code.documentation'],
@@ -99,8 +99,8 @@ export default {
             ['\\\\{', 'comment.documentation'], // escaped bracket
             ['\\\\}', 'comment.documentation'], // escaped bracket
             ['{', '@brackets'],
-            ['}', { token: '@brackets', next: '@pop'}],
+            ['}', { token: '@brackets', next: '@pop' }],
             ['.', 'comment.documentation'],
-        ]
+        ],
     },
 };

@@ -23,7 +23,7 @@ function funcReturnInt()(int){
 
 public struct TestError {
     string message;
-    error cause;
+    error[] cause;
     string code;
 }
 

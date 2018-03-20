@@ -4,7 +4,7 @@ import ballerina.mime;
 
 function testHandleHttpAuthzFailure () (boolean) {
     authz:HttpAuthzHandler handler = {};
-    http:InRequest inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string[] basicAutheaderValue = ["Basic aXNoYXJhOmFiYw=="];
     mime:Entity requestEntity = {headers:{"Authorization": basicAutheaderValue}};
@@ -14,7 +14,7 @@ function testHandleHttpAuthzFailure () (boolean) {
 
 function testHandleAuthz () (boolean) {
     authz:HttpAuthzHandler handler = {};
-    http:InRequest inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
+    http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string[] basicAutheaderValue = ["Basic aXN1cnU6eHh4"];
     mime:Entity requestEntity = {headers:{"Authorization": basicAutheaderValue}};

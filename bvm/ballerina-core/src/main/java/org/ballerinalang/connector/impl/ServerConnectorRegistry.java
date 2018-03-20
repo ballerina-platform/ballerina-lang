@@ -17,18 +17,9 @@
 */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.connector.api.AnnAttrValue;
-import org.ballerinalang.connector.api.AnnotationValueType;
 import org.ballerinalang.connector.api.BallerinaServerConnector;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.types.TypeSignature;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeKeyValuePair;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
-import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -80,12 +71,12 @@ public class ServerConnectorRegistry {
      * @param serviceInfo to be registered.
      */
     public void registerService(ServiceInfo serviceInfo) {
-        if (!serverConnectorMap.containsKey(serviceInfo.getProtocolPkgPath())) {
+        if (!serverConnectorMap.containsKey(serviceInfo.getEndpointName())) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                    serviceInfo.getProtocolPkgPath());
+                    serviceInfo.getEndpointName());
         }
         Service service = buildService(serviceInfo);
-        serverConnectorMap.get(serviceInfo.getProtocolPkgPath()).serviceRegistered(service);
+        serverConnectorMap.get(serviceInfo.getEndpointName()).serviceRegistered(service);
     }
 
     /**
@@ -99,84 +90,7 @@ public class ServerConnectorRegistry {
     }
 
     private Service buildService(ServiceInfo serviceInfo) {
-        BService service =
-                new BService(serviceInfo.getName(), serviceInfo.getPackagePath(), serviceInfo.getProtocolPkgPath());
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo != null) {
-            for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-                BAnnotation annotation = buildAnnotation(annotationInfo);
-                service.addAnnotation(annotation.getKey(), annotation);
-            }
-        }
-        for (ResourceInfo resourceInfo : serviceInfo.getResourceInfoEntries()) {
-            BResource resource = buildResource(resourceInfo);
-            service.addResource(resource.getName(), resource);
-        }
-        return service;
-    }
-
-    private BResource buildResource(ResourceInfo resourceInfo) {
-        BResource resource = new BResource(resourceInfo.getName(), resourceInfo);
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) resourceInfo.getAttributeInfo(
-                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        if (attributeInfo != null) {
-            for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
-                BAnnotation annotation = buildAnnotation(annotationInfo);
-                resource.addAnnotation(annotation.getKey(), annotation);
-            }
-        }
-        return resource;
-    }
-
-    private BAnnotation buildAnnotation(AnnAttachmentInfo annAttachmentInfo) {
-        BAnnotation annotation = new BAnnotation(annAttachmentInfo.getName(), annAttachmentInfo.getPkgPath());
-
-        for (AnnAttributeKeyValuePair keyValuePair : annAttachmentInfo.getAttributeKeyValuePairs()) {
-            AnnAttributeValue attributeValue = keyValuePair.getAttributeValue();
-            AnnAttrValue annotationValue = getAttributeValue(attributeValue);
-            annotation.addAnnotationValue(keyValuePair.getAttributeName(), annotationValue);
-        }
-        return annotation;
-    }
-
-
-    private AnnAttrValue getAttributeValue(AnnAttributeValue attributeValue) {
-        BAnnAttrValue annotationValue = null;
-        switch (attributeValue.getTypeDesc()) {
-            case TypeSignature.SIG_INT:
-                annotationValue = new BAnnAttrValue(AnnotationValueType.INT);
-                annotationValue.setIntValue(attributeValue.getIntValue());
-                break;
-            case TypeSignature.SIG_FLOAT:
-                annotationValue = new BAnnAttrValue(AnnotationValueType.FLOAT);
-                annotationValue.setFloatValue(attributeValue.getFloatValue());
-                break;
-            case TypeSignature.SIG_STRING:
-                annotationValue = new BAnnAttrValue(AnnotationValueType.STRING);
-                annotationValue.setStringValue(attributeValue.getStringValue());
-                break;
-            case TypeSignature.SIG_BOOLEAN:
-                annotationValue = new BAnnAttrValue(AnnotationValueType.BOOLEAN);
-                annotationValue.setBooleanValue(attributeValue.getBooleanValue());
-                break;
-            case TypeSignature.SIG_ANNOTATION:
-                annotationValue = new BAnnAttrValue(AnnotationValueType.ANNOTATION);
-                annotationValue.setAnnotation(buildAnnotation(attributeValue.getAnnotationAttachmentValue()));
-                break;
-            case TypeSignature.SIG_ARRAY:
-                int length = attributeValue.getAttributeValueArray().length;
-                AnnAttrValue[] annotationValues = new AnnAttrValue[length];
-                AnnAttributeValue[] annAttributeValues = attributeValue.getAttributeValueArray();
-                for (int i = 0; i < length; i++) {
-                    annotationValues[i] = getAttributeValue(annAttributeValues[i]);
-                }
-                annotationValue = new BAnnAttrValue(AnnotationValueType.ARRAY);
-                annotationValue.setAnnotationValueArray(annotationValues);
-                break;
-            default:
-        }
-        return annotationValue;
+        return null;
     }
 
 

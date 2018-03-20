@@ -23,12 +23,12 @@ function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     // output is equal to v1\nv2
 }
 
-function testPrintAndPrintlnConnector() {
-    Foo f1 = create Foo();
-    Foo f2 = create Foo();
-    io:println(f1);
-    io:print(f2);
-}
+//function testPrintAndPrintlnConnector() {
+//    Foo f1 = create Foo();
+//    Foo f2 = create Foo();
+//    io:println(f1);
+//    io:print(f2);
+//}
 
 function testPrintAndPrintlnFunctionPointer() {
     function (int, int) returns (int) addFunction = func1;
@@ -49,8 +49,8 @@ function func1 (int a, int b) (int c) {
     return;
 }
 
-connector Foo() {
-    action bar() (int) {
-        return 5;
-    }
-}
+//connector Foo() {
+//    action bar() (int) {
+//        return 5;
+//    }
+//}

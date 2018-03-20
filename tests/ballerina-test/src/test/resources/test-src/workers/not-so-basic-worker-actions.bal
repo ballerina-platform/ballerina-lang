@@ -1,5 +1,4 @@
 import ballerina.io;
-import ballerina.net.http;
 import ballerina.runtime;
 
 function forkJoinWithTimeoutTest1() (map) {
@@ -473,14 +472,14 @@ function forkJoinWithSameWorkerContent () (string result) {
     return result;
 }
 
-function testWorkerStackCreation ()(int) {
-    endpoint<http:HttpClient> c {
-        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "HTTP1.1", ssl : {}});
-    }
-    worker w1 {
-        return 1;
-    }
-    worker w2 {
-        io:println("testWorkerStackCreation done.");
-    }
-}
+//function testWorkerStackCreation ()(int) {
+//    endpoint<http:HttpClient> c {
+//        create http:HttpClient("http://example.com", {port:80,keepAlive:true, httpVersion : "1.1", ssl : {}});
+//    }
+//    worker w1 {
+//        return 1;
+//    }
+//    worker w2 {
+//        io:println("testWorkerStackCreation done.");
+//    }
+//}

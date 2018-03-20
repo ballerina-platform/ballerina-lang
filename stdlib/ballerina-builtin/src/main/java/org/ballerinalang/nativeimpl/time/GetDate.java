@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,9 +43,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetDate extends AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        context.setReturnValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
                 new BInteger(getDay(timeStruct)));
     }
 }

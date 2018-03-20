@@ -17,11 +17,10 @@
 package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,15 +42,15 @@ import java.security.NoSuchAlgorithmException;
                 @Argument(name = "algorithm", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true)
-public class GetHash extends AbstractNativeFunction {
+public class GetHash extends BlockingNativeCallableUnit {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
     @Override
-    public BValue[] execute(Context context) {
-        String baseString = getStringArgument(context, 0);
-        BEnumerator algorithm = (BEnumerator) getRefArgument(context, 0);
+    public void execute(Context context) {
+        String baseString = context.getStringArgument(0);
+        BEnumerator algorithm = (BEnumerator) context.getRefArgument(0);
         String hashAlgorithm;
 
         //todo document the supported algorithm
@@ -91,6 +90,6 @@ public class GetHash extends AbstractNativeFunction {
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Error while encoding" + e.getMessage(), context);
         }
-        return getBValues(new BString(result));
+        context.setReturnValues(new BString(result));
     }
 }

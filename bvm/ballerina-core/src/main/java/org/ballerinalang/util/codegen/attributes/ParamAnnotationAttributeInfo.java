@@ -39,10 +39,12 @@ public class ParamAnnotationAttributeInfo implements AttributeInfo {
         this.attributeNameIndex = attributeNameIndex;
     }
 
+    @Deprecated
     public void addParamAttachmentInfo(ParamAnnAttachmentInfo attachmentInfo) {
         attachmentInfoArray.add(attachmentInfo);
     }
 
+    @Deprecated
     public ParamAnnAttachmentInfo[] getAttachmentInfoArray() {
         return attachmentInfoArray.toArray(new ParamAnnAttachmentInfo[0]);
     }

@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CurrentTime extends  AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        return new BValue[]{createCurrentTime(context)};
+    public void execute(Context context) {
+        context.setReturnValues(createCurrentTime(context));
     }
 }

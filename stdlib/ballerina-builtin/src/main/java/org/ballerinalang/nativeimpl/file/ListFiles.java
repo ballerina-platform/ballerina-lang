@@ -19,12 +19,11 @@
 package org.ballerinalang.nativeimpl.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -54,13 +53,13 @@ import static org.ballerinalang.nativeimpl.file.utils.FileUtils.createIOError;
                 @ReturnType(type = TypeKind.STRUCT), @ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
-public class ListFiles extends AbstractNativeFunction {
+public class ListFiles extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(ListFiles.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct fileStruct = (BStruct) getRefArgument(context, 0);
+    public void execute(Context context) {
+        BStruct fileStruct = (BStruct) context.getRefArgument(0);
         String path = fileStruct.getStringField(0);
         List<BStruct> structList = new ArrayList<>();
         BRefValueArray filesList;
@@ -68,16 +67,15 @@ public class ListFiles extends AbstractNativeFunction {
         try {
             Files.list(Paths.get(path)).forEach(p -> structList.add(createFileStruct(context, p.toString())));
             filesList = new BRefValueArray(structList.toArray(new BRefType[0]), fileStruct.getType());
+            context.setReturnValues(filesList, null, null);
         } catch (IOException e) {
             String msg = "Error occurred while opening directory: " + path;
             log.error(msg, e);
-            return getBValues(null, null, createIOError(context, msg));
+            context.setReturnValues(null, null, createIOError(context, msg));
         } catch (SecurityException e) {
             String msg = "Permission denied. Could not open directory: " + path;
             log.error(msg, e);
-            return getBValues(null, createAccessDeniedError(context, msg), null);
+            context.setReturnValues(null, createAccessDeniedError(context, msg), null);
         }
-
-        return getBValues(filesList, null, null);
     }
 }

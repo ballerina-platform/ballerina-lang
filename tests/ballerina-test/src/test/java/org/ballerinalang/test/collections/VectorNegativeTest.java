@@ -65,7 +65,7 @@ public class VectorNegativeTest {
         Assert.assertEquals(errors.size(), expectedErrMsgs.length);
 
         for (int i = 0; i < expectedErrMsgs.length; i++) {
-            Assert.assertEquals(((BStruct) errors.get(i)).getStringField(0), expectedErrMsgs[i]);
+            Assert.assertTrue(((BStruct) errors.get(i)).stringValue().contains(expectedErrMsgs[i]));
         }
     }
 
@@ -97,8 +97,8 @@ public class VectorNegativeTest {
 
         Assert.assertEquals(errors.size(), 3); // Since there are 3 insertions
         Assert.assertNull(errors.get(0)); // Since first insertion is valid, the error is null
-        Assert.assertEquals(((BStruct) errors.get(1)).getStringField(0), expectedErrMsgs[0]);
-        Assert.assertEquals(((BStruct) errors.get(2)).getStringField(0), expectedErrMsgs[1]);
+        Assert.assertTrue(((BStruct) errors.get(1)).stringValue().contains(expectedErrMsgs[0]));
+        Assert.assertTrue(((BStruct) errors.get(2)).stringValue().contains(expectedErrMsgs[1]));
     }
 
     @Test(description = "Test case for testing removal of elements from outside of the bounds of a vector.")
@@ -131,7 +131,7 @@ public class VectorNegativeTest {
         Assert.assertEquals(errors.size(), expectedErrMsgs.length);
 
         for (int i = 0; i < expectedErrMsgs.length; i++) {
-            Assert.assertEquals(((BStruct) errors.get(i)).getStringField(0), expectedErrMsgs[i]);
+            Assert.assertTrue(((BStruct) errors.get(i)).stringValue().contains(expectedErrMsgs[i]));
         }
     }
 
@@ -163,8 +163,8 @@ public class VectorNegativeTest {
 
         Assert.assertEquals(errors.size(), 3); // Since there are 3 insertions
         Assert.assertNull(errors.get(0)); // Since first insertion is valid, the error is null
-        Assert.assertEquals(((BStruct) errors.get(1)).getStringField(0), expectedErrMsgs[0]);
-        Assert.assertEquals(((BStruct) errors.get(2)).getStringField(0), expectedErrMsgs[1]);
+        Assert.assertTrue(((BStruct) errors.get(1)).stringValue().contains(expectedErrMsgs[0]));
+        Assert.assertTrue(((BStruct) errors.get(2)).stringValue().contains(expectedErrMsgs[1]));
     }
 
     private BIntArray buildIntArray(long[] args) {

@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.test.utils.debug;
 
-import java.util.ArrayList;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
+
 import java.util.List;
 
 /**
@@ -27,36 +28,34 @@ import java.util.List;
  */
 public class ExpectedResults {
 
-    private List<WorkerResults> workerResults;
+    private List<DebugPoint> debugPoints;
 
-    private WorkerResults current;
+    private int expCount;
 
-    private boolean multiThreaded;
-
-    public ExpectedResults(WorkerResults current, boolean multiThreaded) {
-        this.workerResults = new ArrayList<>();
-        this.workerResults.add(current);
-        this.current = current;
-        this.multiThreaded = multiThreaded;
+    public ExpectedResults(List<DebugPoint> debugPoints, int expCount) {
+        this.debugPoints = debugPoints;
+        this.expCount = expCount;
     }
 
-    public void addWorkerResults(WorkerResults workerResults) {
-        this.workerResults.add(workerResults);
+    DebugPoint getDebugHit(BreakPointDTO breakPoint) {
+        for (DebugPoint debugPoint : debugPoints) {
+            if (debugPoint.match(breakPoint)) {
+                return debugPoint;
+            }
+        }
+        return null;
     }
 
-    public List<WorkerResults> getWorkerResults() {
-        return workerResults;
+    int getDebugCount() {
+        return expCount;
     }
 
-    public WorkerResults getCurrentWorkerResult() {
-        return current;
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n");
+        debugPoints.forEach(v -> builder.append(v).append("\n"));
+        return builder.toString();
     }
 
-    public void setCurrentWorkerResult(WorkerResults current) {
-        this.current = current;
-    }
-
-    public boolean isMultiThreaded() {
-        return multiThreaded;
-    }
 }

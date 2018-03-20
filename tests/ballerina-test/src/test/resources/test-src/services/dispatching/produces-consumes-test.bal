@@ -1,17 +1,24 @@
 import ballerina.net.http;
+import ballerina.net.http.mock;
 
-@http:configuration {basePath:"/echo66"}
-service<http> echo66 {
+endpoint<mock:NonListeningService> testEP {
+    port:9090
+}
+
+@http:serviceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo66 {
     @http:resourceConfig {
         methods:["POST"],
         path:"/test1",
         consumes:["application/xml"]
     }
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource echo1 (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"msg":"wso2"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
@@ -19,11 +26,11 @@ service<http> echo66 {
         path:"/test2",
         produces:["text/xml","application/xml "]
     }
-    resource echo2 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource echo2 (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"msg":"wso22"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 
     @http:resourceConfig {
@@ -32,20 +39,22 @@ service<http> echo66 {
         consumes:["application/xhtml+xml","text/plain","text/json"],
         produces:["text/css","application/json"]
     }
-    resource echo3 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+    resource echo3 (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"msg":"wso222"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }
 
-@http:configuration {basePath:"/echo67"}
-service<http> echo67 {
-    resource echo1 (http:Connection conn, http:InRequest req) {
-        http:OutResponse res = {};
+@http:serviceConfig {
+    endpoints:[testEP]
+}
+service<http:Service> echo67 {
+    resource echo1 (http:ServerConnector conn, http:Request req) {
+        http:Response res = {};
         json responseJson = {"echo33": "echo1"};
         res.setJsonPayload(responseJson);
-        _ = conn.respond(res);
+        _ = conn -> respond(res);
     }
 }

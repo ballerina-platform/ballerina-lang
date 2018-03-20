@@ -14,6 +14,7 @@ function testVoid() {
     }
     worker w2 {
          int x = i + 10;
+         i = 5;
     }
 }
 

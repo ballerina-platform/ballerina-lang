@@ -41,7 +41,9 @@ public enum OperatorKind {
     NOT("!"),
     LENGTHOF("lengthof"),
     TYPEOF("typeof"),
-    UNTAINT("untaint");
+    UNTAINT("untaint"),
+    INCREMENT("++"),
+    DECREMENT("--");
 
     private final String opValue;
 

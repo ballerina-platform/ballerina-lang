@@ -33,7 +33,10 @@ public struct JWTIssuerConfig {
 @Return {value:"error: If token validation fails "}
 public function issue (Header header, Payload payload, JWTIssuerConfig config) (string, error) {
     string jwtHeader = createHeader(header);
-    string jwtPayload = createPayload(payload);
+    var jwtPayload, err = createPayload(payload);
+    if (err != null) {
+        return null, err;
+    }
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     string signature = signature:sign(jwtAssertion, header.alg, config.certificateAlias, config.keyPassword);
     return jwtAssertion + "." + signature, null;
@@ -47,16 +50,22 @@ function createHeader (Header header) (string) {
     return urlEncode(util:base64Encode(headerJson.toString()));
 }
 
-function createPayload (Payload payload) (string) {
+function createPayload (Payload payload) (string, error) {
     json payloadJson = {};
+    if (!validateMandatoryFields(payload)) {
+        error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
+        return null, err;
+    }
     payloadJson[SUB] = payload.sub;
     payloadJson[ISS] = payload.iss;
     payloadJson[EXP] = payload.exp;
     payloadJson[IAT] = payload.iat;
-    payloadJson[JTI] = payload.jti;
+    if (payload.jti != null) {
+        payloadJson[JTI] = payload.jti;
+    }
     payloadJson[AUD] = convertStringArrayToJson(payload.aud);
     payloadJson = addMapToJson(payloadJson, payload.customClaims);
-    return urlEncode(util:base64Encode(payloadJson.toString()));
+    return urlEncode(util:base64Encode(payloadJson.toString())), null;
 }
 
 function urlEncode (string data) (string) {

@@ -41,7 +41,7 @@ public struct File {
 @Field { value : "cause: The error which caused the I/O error"}
 public struct IOError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a non-existent file."}
@@ -49,7 +49,7 @@ public struct IOError {
 @Field { value : "cause: The error which caused the file not found error"}
 public struct FileNotFoundError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without the required privileges."}
@@ -57,7 +57,7 @@ public struct FileNotFoundError {
 @Field { value : "cause: The error which caused the access denied error"}
 public struct AccessDeniedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value: "Represents an error which occurs when attempting to perform operations on a file without opening it."}
@@ -65,7 +65,7 @@ public struct AccessDeniedError {
 @Field { value : "cause: The error which caused the file not opened error"}
 public struct FileNotOpenedError {
     string message;
-    error cause;
+    error[] cause;
 }
 
 @Description { value:"Closes a given file and its stream"}
@@ -75,7 +75,7 @@ public native function <File file> close ();
 @Description { value:"Retrieves the stream from a local file"}
 @Param { value:"file: The file which needs to be opened" }
 @Param { value:"accessMode: The file access mode used when opening the file" }
-public native function <File file> open (string accessMode);
+public native function <File file> open (@sensitive string accessMode);
 
 @Description { value:"Copies a file from a given location to another"}
 @Param { value:"source: File/Directory that should be copied" }
@@ -148,4 +148,4 @@ public native function <File file> list () (File[], AccessDeniedError, IOError);
 @Param { value: "file: The file to which a channel needs to be opened"}
 @Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
 @Return{value:"ByteChannel which will allow to perform I/O operations"}
-public native function <File file>  openChannel (string accessMode)(io:ByteChannel);
+public native function <File file>  openChannel (@sensitive string accessMode)(@tainted io:ByteChannel);

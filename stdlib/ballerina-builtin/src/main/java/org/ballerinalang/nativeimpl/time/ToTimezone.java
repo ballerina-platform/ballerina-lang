@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.time;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,9 +42,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToTimezone extends  AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        String zoneId = getStringArgument(context, 0);
-        return new BValue[] { changeTimezone(context, timeStruct, zoneId) };
+    public void execute(Context context) {
+        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        String zoneId = context.getStringArgument(0);
+        context.setReturnValues(changeTimezone(context, timeStruct, zoneId));
     }
 }

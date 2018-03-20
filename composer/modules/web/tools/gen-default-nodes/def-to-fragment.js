@@ -23,7 +23,7 @@ export default {
         return FragmentUtils.createTopLevelNodeFragment(
             `
                 service<http> service1 {
-                    resource echo1 (http:Connection conn, http:InRequest req) {
+                    resource echo1 (http:Connection conn, http:Request req) {
 
                     }
                 }
@@ -107,7 +107,7 @@ export default {
     },
     createHTTPResource: () => {
         return FragmentUtils.createServiceResourceFragment(`
-            resource echo1 (http:Connection conn, http:InRequest req) {
+            resource echo1 (http:Connection conn, http:Request req) {
 
             }
         `);

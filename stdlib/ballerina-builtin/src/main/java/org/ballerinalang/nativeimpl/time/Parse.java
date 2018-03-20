@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,9 +40,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Parse extends  AbstractTimeFunction {
 
     @Override
-    public BValue[] execute(Context context) {
-        String dateString = getStringArgument(context, 0);
-        String pattern = getStringArgument(context, 1);
-        return new BValue[] { parseTime(context, dateString, pattern) };
+    public void execute(Context context) {
+        String dateString = context.getStringArgument(0);
+        String pattern = context.getStringArgument(1);
+        context.setReturnValues(parseTime(context, dateString, pattern));
     }
 }

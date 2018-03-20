@@ -32,6 +32,8 @@ import java.util.Map;
 public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public List<BVarSymbol> params;
+    public List<BVarSymbol> defaultableParams;
+    public BVarSymbol restParam;
     public List<BVarSymbol> retParams;
     public Map<Integer, TaintRecord> taintTable;
 
@@ -58,5 +60,10 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     @Override
     public List<BVarSymbol> getReturnParameters() {
         return retParams;
+    }
+
+    @Override
+    public List<BVarSymbol> getDefaultableParameters() {
+        return defaultableParams;
     }
 }

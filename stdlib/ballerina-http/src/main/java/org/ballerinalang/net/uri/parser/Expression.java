@@ -30,13 +30,14 @@ import java.util.List;
 /**
  * Expression represents a expression path segment in uri.
  *
- * @param <DataElementType> Specific data element created by the user.
+ * @param <DataType> Type of data which should be stored in the node.
+ * @param <InboundMsgType> Inbound message type for additional checks.
  */
-public abstract class Expression<DataElementType extends DataElement> extends Node<DataElementType> {
+public abstract class Expression<DataType, InboundMsgType> extends Node<DataType, InboundMsgType> {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);
 
-    public Expression(DataElementType dataElement, String token) throws URITemplateException {
+    public Expression(DataElement<DataType, InboundMsgType> dataElement, String token) throws URITemplateException {
         super(dataElement, token);
         int startIndex = 0;
         for (int i = 0; i < token.length(); i++) {

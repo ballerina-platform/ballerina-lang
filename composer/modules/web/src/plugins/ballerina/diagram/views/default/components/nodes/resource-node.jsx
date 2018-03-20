@@ -102,10 +102,10 @@ class ResourceNode extends React.Component {
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
 
-        const protocolPkgIdentifier = parentNode.getProtocolPackageIdentifier().value;
+        const protocolPkgIdentifier = parentNode.getType();
 
         let panelAdditionalProps = {};
-        if (protocolPkgIdentifier === 'http') {
+        if (protocolPkgIdentifier === 'HttpService') {
             const nodeDetails = ({ x, y }) => {
                 return (
                     <HttpResourceHeader

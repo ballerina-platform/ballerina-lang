@@ -108,10 +108,16 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     /**
      * Remove an item from the map.
+     *
      * @param key key of the item to be removed
+     * @return boolean to indicate whether given key is removed.
      */
-    public void remove(K key) {
-        map.remove(key);
+    public boolean remove(K key) {
+        boolean hasKey = map.containsKey(key);
+        if (hasKey) {
+            map.remove(key);
+        }
+        return hasKey;
     }
 
     /**

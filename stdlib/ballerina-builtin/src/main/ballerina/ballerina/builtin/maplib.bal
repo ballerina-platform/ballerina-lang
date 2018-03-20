@@ -19,7 +19,8 @@ package ballerina.builtin;
 @Description { value:"Removes the specified element from the map"}
 @Param { value:"m: The map object" }
 @Param { value:"key: The key to be removed" }
-public native function <map m>  remove (string key);
+@Return { value:"A boolean to indicate whether the key is removed or not from map " }
+public native function <map m>  remove (string key) (boolean);
 
 @Description { value:"Returns an array of keys contained in the specified map"}
 @Param { value:"m: The map object" }

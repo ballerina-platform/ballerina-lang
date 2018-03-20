@@ -137,7 +137,7 @@ function testReplace (int[] values, int[] indices, int size) (collections:Vector
     return vector, replacedVals;
 }
 
-function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, collections:IndexOutOfRangeError[] errs) {
+function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, error[] errs) {
     collections:Vector vector = {vec:[]};
     populateVector(vector, size);
     vals = [];
@@ -148,7 +148,7 @@ function testGetIndexOutOfRange (int[] indices, int size) (any[] vals, collectio
     while (i < lengthof indices) {
         try {
             vals[i] = vector.get(indices[i]);
-        } catch (collections:IndexOutOfRangeError e) {
+        } catch (error e) {
             errs[errIndex] = e;
             errIndex = errIndex + 1;
         }

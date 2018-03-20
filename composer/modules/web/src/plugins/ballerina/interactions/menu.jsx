@@ -30,7 +30,7 @@ class Menu extends React.Component {
         const maxHeight = this.props.maxHeight;
         let divStyle = {};
         if (maxHeight > 0) {
-            divStyle = { maxHeight: this.props.maxHeight + 'px', 'overflow-y': 'scroll' };
+            divStyle = { maxHeight: this.props.maxHeight + 'px', 'overflow-y': 'auto' };
         }
         return (
             <nav style={divStyle} className='interaction-menu'>

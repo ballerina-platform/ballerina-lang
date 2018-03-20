@@ -14,9 +14,9 @@ service<http> ParticipantService {
     @http:resourceConfig {
         path:"/update"
     }
-    resource updateStockQuote (http:Connection conn, http:InRequest req) {
+    resource updateStockQuote (http:Connection conn, http:Request req) {
         log:printInfo("Received update stockquote request");
-        http:OutResponse res;
+        http:Response res;
 
         // At the beginning of the transaction statement, since a transaction context has been received, this service
         // will register with the initiator as a participant.

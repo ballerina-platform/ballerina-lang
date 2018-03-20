@@ -9,7 +9,7 @@ function testCompositeConnector () (string, string) {
     TestConnector t2 = create TestConnector("URI2");
     TestConnector[] tArray = [t1, t2];
     testLB = create TestLBConnector(tArray, "RoundRobin");
-    http:InRequest req = {};
+    http:Request req = {};
     string value1;
     string value2;
     bind testLB with ep;
@@ -21,11 +21,11 @@ function testCompositeConnector () (string, string) {
 
 connector TestConnector(string param1) {
 
-    action action1(http:InRequest req) (string){
+    action action1(http:Request req) (string) {
         return param1;
     }
 
-    action action2(http:InRequest req) (string) {
+    action action2(http:Request req) (string) {
         return "value from action2";
     }
 
@@ -35,7 +35,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
 
     int count = 0;
 
-    action action1(http:InRequest req) (string){
+    action action1(http:Request req) (string) {
         endpoint<TestConnector> t1 {
 
         }
@@ -46,7 +46,7 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
         return retValue;
     }
 
-    action action2(http:InRequest req) (string) {
+    action action2(http:Request req) (string) {
         return "value from action2";
     }
 }

@@ -106,7 +106,7 @@ public class StructTest {
 
         // Check the default value of a field where the default value is not set
         Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "");
+        Assert.assertEquals(returns[1].stringValue(), null);
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
@@ -158,7 +158,7 @@ public class StructTest {
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getStruct");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"\", adrs:null, age:25, family:null, " +
-                "parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\", lname:\"null\", adrs:null, age:25, " +
+                "family:null, parent:{name:\"bbb\", lname:\"ccc\", adrs:null, age:50, family:null, parent:null}}");
     }
 }

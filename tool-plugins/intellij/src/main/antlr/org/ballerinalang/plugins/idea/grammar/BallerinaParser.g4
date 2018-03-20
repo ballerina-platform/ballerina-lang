@@ -49,15 +49,12 @@ definition
     |   constantDefinition
     |   annotationDefinition
     |   globalVariableDefinition
+    |   globalEndpointDefinition
     |   transformerDefinition
     ;
 
 serviceDefinition
-    :   SERVICE sourceNotation Identifier LEFT_BRACE serviceBody RIGHT_BRACE
-    ;
-
-sourceNotation
-    :   LT packageName GT
+    :   SERVICE LT nameReference GT Identifier LEFT_BRACE serviceBody RIGHT_BRACE
     ;
 
 serviceBody
@@ -120,7 +117,7 @@ privateStructBody
     ;
 
 annotationDefinition
-    : (PUBLIC)? ANNOTATION Identifier (ATTACH attachmentPoint (COMMA attachmentPoint)*)? LEFT_BRACE annotationBody RIGHT_BRACE
+    : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 enumDefinition
@@ -152,6 +149,7 @@ attachmentPoint
      | STRUCT                               # structAttachPoint
      | STREAMLET                            # streamletAttachPoint
      | ENUM                                 # enumAttachPoint
+     | ENDPOINT                             # endpointAttachPoint
      | CONST                                # constAttachPoint
      | PARAMETER                            # parameterAttachPoint
      | ANNOTATION                           # annotationAttachPoint
@@ -172,6 +170,18 @@ workerDeclaration
 
 workerBody
     :   statement*
+    ;
+
+globalEndpointDefinition
+    :   PUBLIC? endpointDeclaration
+    ;
+
+endpointDeclaration
+    :   annotationAttachment* endpointType Identifier recordLiteral?
+    ;
+
+endpointType
+    :   ENDPOINT (LT nameReference GT)
     ;
 
 typeName
@@ -214,6 +224,7 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
+    |   TYPE_FUTURE (LT typeName GT)?         
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT structReference GT)?
     |   TYPE_TABLE (LT structReference GT)?
@@ -235,26 +246,7 @@ xmlLocalName
     ;
 
  annotationAttachment
-     :   AT annotationReference LEFT_BRACE annotationAttributeList? RIGHT_BRACE
-     ;
-
- annotationAttributeList
-     :   annotationAttribute (COMMA annotationAttribute)*
-     ;
-
- annotationAttribute
-     :    Identifier COLON annotationAttributeValue
-     ;
-
- annotationAttributeValue
-     :   simpleLiteral
-     |   nameReference
-     |   annotationAttachment
-     |   annotationAttributeArray
-     ;
-
- annotationAttributeArray
-     :   LEFT_BRACKET (annotationAttributeValue (COMMA annotationAttributeValue)*)? RIGHT_BRACKET
+     :    AT nameReference recordLiteral?
      ;
 
  //============================================================================================================
@@ -263,7 +255,6 @@ xmlLocalName
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
-    |   bindStatement
     |   ifElseStatement
     |   foreachStatement
     |   whileStatement
@@ -283,7 +274,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -307,24 +298,12 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-connectorInit
-    :   CREATE connectorReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
-    ;
-
-endpointDeclaration
-    :   ENDPOINT (LT connectorReference GT) Identifier LEFT_BRACE endpointBody RIGHT_BRACE
-    ;
-
-endpointBody
-    :   ((variableReference | connectorInit) SEMICOLON)?
+typeInitExpr
+    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN expression SEMICOLON
-    ;
-
-bindStatement
-    :   BIND expression WITH nameReference SEMICOLON
+    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 variableReferenceList
@@ -446,11 +425,15 @@ xmlAttrib
     ;
 
 functionInvocation
-    : functionReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    : ASYNC? functionReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 invocation
     : DOT anyIdentifierName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+actionInvocation
+    : variableReference RARROW functionInvocation
     ;
 
 expressionList
@@ -458,7 +441,7 @@ expressionList
     ;
 
 expressionStmt
-    :   expression SEMICOLON
+    :   (variableReference | actionInvocation) SEMICOLON
     ;
 
 transactionStatement
@@ -506,8 +489,8 @@ expression
     |   builtInReferenceTypeName DOT Identifier                             # builtInReferenceTypeTypeExpression
     |   variableReference                                                   # variableReferenceExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   connectorInit                                                       # connectorInitExpression
     |   typeCast                                                            # typeCastingExpression
     |   typeConversion                                                      # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
@@ -521,6 +504,7 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   AWAIT expression                                                    # awaitExpression    
     ;
 
 simpleExpression
@@ -542,14 +526,6 @@ nameReference
     ;
 
 functionReference
-    :   (packageName COLON)? Identifier
-    ;
-
-connectorReference
-    :   (packageName COLON)? Identifier
-    ;
-
-annotationReference
     :   (packageName COLON)? Identifier
     ;
 

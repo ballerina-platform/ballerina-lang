@@ -9,11 +9,11 @@ service<http> passthrough {
         methods:["GET"],
         path:"/"
     }
-    resource passthrough (http:Connection conn, http:InRequest inRequest) {
+    resource passthrough (http:Connection conn, http:Request inRequest) {
         endpoint<http:HttpClient> nyseEP {
             create http:HttpClient("http://localhost:9090", {});
         }
-        http:OutRequest clientRequest = {};
+        http:Request clientRequest = {};
         var clientResponse, _ = nyseEP.get("/nyseStock/stocks", clientRequest);
         _ = conn.forward(clientResponse);
     }

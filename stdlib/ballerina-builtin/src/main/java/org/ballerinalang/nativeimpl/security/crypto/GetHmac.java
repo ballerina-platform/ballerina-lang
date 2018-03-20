@@ -17,11 +17,10 @@
 package org.ballerinalang.nativeimpl.security.crypto;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BEnumerator;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -31,6 +30,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,13 +51,13 @@ import javax.crypto.spec.SecretKeySpec;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetHmac extends AbstractNativeFunction {
+public class GetHmac extends BlockingNativeCallableUnit {
 
     @Override
-    public BValue[] execute(Context context) {
-        String baseString = getStringArgument(context, 0);
-        String keyString = getStringArgument(context, 1);
-        BEnumerator algorithm = (BEnumerator) getRefArgument(context, 0);
+    public void execute(Context context) {
+        String baseString = context.getStringArgument(0);
+        String keyString = context.getStringArgument(1);
+        BEnumerator algorithm = (BEnumerator) context.getRefArgument(0);
         String hmacAlgorithm;
 
         //todo document the supported algorithm
@@ -87,6 +87,6 @@ public class GetHmac extends AbstractNativeFunction {
             throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
                                          context);
         }
-        return getBValues(new BString(result));
+        context.setReturnValues(new BString(result));
     }
 }
