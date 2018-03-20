@@ -99,7 +99,7 @@ Encode Nested BodyParts in Multipart
 Decode Nested BodyParts in Multipart
 Inbound Response with Multiparts
 Outbound Response with Multiparts
-gRPC Unary Blocking
-gRPC Unary Non-Blocking
+gRPC Unary Non Blocking Stub
+grpc Unary Blocking Stub
 gRPC Server Streaming
 gRPC Client Streaming
