@@ -47,10 +47,11 @@ struct FailoverInferredConfig {
     int failoverInterval;
 }
 
-@Description {value:"Failover Connector implementation to be used with the HTTP client connector to support failover."}
+@Description {value:"Failover client implementation to be used with the HTTP client connector to support failover."}
+@Field {value:"serviceUri: Service path."}
+@Field {value:"config: Represents options to be used for HTTP client invocation."}
+@Field {value:"failoverInferredConfig: Represents inferred failover configurations passed to Failover connector."}
 public struct Failover {
-    //public struct Failover (HttpClient[] failoverClientsArray, FailoverConfig failoverConfig) {
-    //boolean[] failoverCodes = populateErrorCodeIndex(failoverConfig.failoverCodes);
     string serviceUri;
     ClientEndpointConfiguration config;
     FailoverInferredConfig failoverInferredConfig;
