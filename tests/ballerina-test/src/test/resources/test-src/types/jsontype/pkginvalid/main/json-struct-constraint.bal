@@ -2,7 +2,7 @@ package main;
 
 import structdef;
 
-function testJsonStructConstraintInvalid () (json) {
+function testJsonStructConstraintInvalid () returns (json) {
     json<structdef:Person> j = {};
     j.firstname = "John Doe";
     return j.firstname;
