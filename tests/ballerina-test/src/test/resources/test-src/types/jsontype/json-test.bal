@@ -21,33 +21,37 @@ function testGetKeys () returns (string[], string[], string[], string[]) {
     return (j1.getKeys(), j2.getKeys(), j3.getKeys(), j4.getKeys());
 }
 
-function testToXML (json msg) returns (xml, error) {
+function testToXML (json msg) returns (xml | error) {
     return msg.toXML({});
 }
 
-function testToXMLStringValue () returns (xml, error) {
+function testToXMLStringValue () returns (xml | error) {
     json j = "value";
     return j.toXML({});
 }
 
-function testToXMLBooleanValue () returns (xml, error) {
+function testToXMLBooleanValue () returns (xml | error) {
     json j = true;
     return j.toXML({});
 }
 
 function testToXMLString (json msg) returns (string) {
-    var (xmlData, _) = msg.toXML({});
-    string s = <string> xmlData;
-    return s;
+    var x = msg.toXML({});
+    match(x){
+        error e => return "";
+        xml xmlData => return <string> xmlData;
+    }
 }
 
 function testToXMLWithXMLSequence (json msg) returns (string) {
-    var (xmlSequence, _) = msg.toXML({});
-    string s = <string> xmlSequence;
-    return s;
+    var x = msg.toXML({});
+    match(x){
+        error e => return "";
+        xml xmlData => return <string> xmlData;
+    }
 }
 
-function testToXMLWithOptions (json msg) returns (xml, error) {
+function testToXMLWithOptions (json msg) returns (xml | error) {
     return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
