@@ -48,6 +48,7 @@ class AbstractCatchNode extends Node {
     }
 
 
+
     setParameter(newValue, silent, title) {
         const oldValue = this.parameter;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractCatchNode extends Node {
     getParameter() {
         return this.parameter;
     }
+
 
 
 }

@@ -21,11 +21,11 @@ endpoint http:ServiceEndpoint participant1EP {
     port:8889
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
 }
 service<http:Service> participant1 bind participant1EP {
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         path:"/"
     }
     member (endpoint conn, http:Request req) {

@@ -38,6 +38,7 @@ export function getMenuDefinitions(plugin) {
                 return activeTab && activeTab.file;
             },
             icon: 'import',
+            order: 1,
             command: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },

@@ -64,11 +64,11 @@ endpoint http:ServiceEndpoint echoEP {
     filters:[filter1,filter2]
 };
 
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath:"/echo"
 }
 service<http:Service> echo bind echoEP {
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/test"
     }

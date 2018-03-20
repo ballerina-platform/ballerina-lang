@@ -48,6 +48,16 @@ public class Symbols {
         return typeSymbol;
     }
 
+    public static BTypeSymbol createObjectSymbol(int flags,
+                                                 Name name,
+                                                 PackageID pkgID,
+                                                 BType type,
+                                                 BSymbol owner) {
+        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.OBJECT;
+        return typeSymbol;
+    }
+
     public static BTypeSymbol createEnumSymbol(int flags,
                                                Name name,
                                                PackageID pkgID,
@@ -228,7 +238,7 @@ public class Symbols {
     public static BOperatorSymbol createTypeofOperatorSymbol(BType exprType, Types types,
                                                              SymbolTable symTable, Names names) {
         List<BType> paramTypes = Lists.of(exprType);
-        List<BType> retTypes = Lists.of(symTable.typeType);
+        List<BType> retTypes = Lists.of(symTable.typeDesc);
         BInvokableType opType = new BInvokableType(paramTypes, retTypes, null);
         if (types.isValueType(exprType)) {
             return new BOperatorSymbol(names.fromString(OperatorKind.TYPEOF.value()),
