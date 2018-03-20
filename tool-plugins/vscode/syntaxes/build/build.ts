@@ -103,7 +103,6 @@ function updateGrammarVariables(grammar: any, variables: any) {
         const pattern = replacePatternVariables(variables[variableName], variableReplacers);
         variableReplacers.push([new RegExp(`{{${variableName}}}`, "gim"), pattern]);
     }
-    console.log(variableReplacers);
     transformGrammarRepository(
         grammar,
         ["begin", "end", "match"],
@@ -115,7 +114,6 @@ function updateGrammarVariables(grammar: any, variables: any) {
 function buildGrammar() {
     const tsGrammarBeforeTransformation = readYaml(file(Language.TypeScript, Extension.YamlTmLangauge));
     const variables = tsGrammarBeforeTransformation.variables;
-    console.log(variables, '<-------------------------------')
     const tsGrammar = updateGrammarVariables(tsGrammarBeforeTransformation, variables);
 
     // Write TypeScript.tmLanguage
