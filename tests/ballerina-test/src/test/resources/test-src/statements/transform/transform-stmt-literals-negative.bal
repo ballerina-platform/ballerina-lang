@@ -17,7 +17,7 @@ function testConstantsInTransform () {
 }
 
 
-function getPrefixedName(string name) (string) {
+function getPrefixedName(string name) returns (string) {
     return "Mr." + name;
 }
 
