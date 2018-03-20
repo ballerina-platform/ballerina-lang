@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,12 +41,11 @@ public class StreamJoiningTest {
 
     @Test(description = "Test streaming join query.")
     public void testStreamJoinQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testJoinQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testJoinQuery");
 
-        BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 4, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.length, 4, "Expected events are not received");
 
     }
 
