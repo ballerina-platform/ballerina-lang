@@ -196,6 +196,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -817,6 +822,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -854,6 +860,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -885,6 +892,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/ballerina-http</module>
                 <module>stdlib/ballerina-mime</module>
+                <module>stdlib/ballerina-websub</module>
 
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
