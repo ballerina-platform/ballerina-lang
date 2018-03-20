@@ -211,11 +211,3 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     var httpClient , e = (HttpClient) cbClient;
     return httpClient;
 }
-
-function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
-    result = [];
-    foreach i in errorCode {
-        result[i] = true;
-    }
-    return result;
-}
