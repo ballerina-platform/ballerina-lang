@@ -99,9 +99,30 @@ function createHttpClientArray (ClientEndpointConfiguration config) (HttpClient[
             int lastIndex = uri.length() - 1;
             uri = uri.subString(0, lastIndex);
         }
-        httpClients[i] = createHttpClient(uri, config);
+        if (config.circuitBreaker != null) {    
+            httpClients[i] = createCircuitBreakerClient(uri, config);
+        } else {
+            httpClients[i] = createHttpClient(uri, config);
+        }
         httpClients[i].config = config;
         i = i+1;
     }
     return httpClients;
+}
+
+public function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
+    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
+    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
+                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
+                                                                    httpStatusCodes:httpStatusCodes
+                                                                };
+    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
+                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                                        httpClient:cbHttpClient,
+                                        circuitHealth:{},
+                                        currentCircuitState:CircuitState.CLOSED};
+    var httpClient , e = (HttpClient) cbClient;
+    return httpClient;
 }

@@ -407,7 +407,7 @@ function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredC
 }
 
 // Validates the struct configurations passed to create circuit breaker.
-function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreakerConfig){
+public function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreakerConfig){
    float failureThreshold = circuitBreakerConfig.failureThreshold;
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
