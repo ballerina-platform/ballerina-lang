@@ -76,19 +76,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
                 continue;
             }
 
-            switch (prop.getType()) {
-                case "integer":
-                    prop.setType("int");
-                    break;
-                case "number":
-                    prop.setType("float");
-                    break;
-                case "object":
-                    prop.setType("any");
-                    break;
-                default:
-                    break;
-            }
+            prop.setType(getPropertyType(prop));
         }
 
         this.properties = entries;
@@ -101,8 +89,44 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     }
 
     private String getReferenceType(String refPath) {
-        // null check on refPath is not required since swagger parser always make this is not null
+        // null check on refPath is not required since swagger parser always make sure this is not null
         return refPath.substring(refPath.lastIndexOf(OAS_PATH_SEPARATOR) + 1);
+    }
+
+    private String getPropertyType(Schema prop) {
+        String type = "any";
+
+        switch (prop.getType()) {
+            case "integer":
+                type = "int";
+                break;
+            case "number":
+                type = "float";
+                break;
+            case "array":
+                String ref = null;
+                if (prop instanceof ArraySchema) {
+                    ref = ((ArraySchema) prop).getItems().get$ref();
+                }
+
+                if (ref == null) {
+                    type = getPropertyType(((ArraySchema) prop).getItems());
+                } else {
+                    type = getReferenceType(ref);
+                }
+
+                // define type with ballerina array syntax
+                type += "[]";
+                break;
+            case "object":
+                type = "any";
+                break;
+            default:
+                type = prop.getType();
+                break;
+        }
+
+        return type;
     }
 
     public Schema getOasSchema() {
