@@ -26,7 +26,7 @@ enum Protocols {
     COMPLETION, DURABLE, VOLATILE
 }
 
-enum TransactionState {
+public enum TransactionState {
     ACTIVE, PREPARED, COMMITTED, ABORTED
 }
 
@@ -39,37 +39,20 @@ struct TwoPhaseCommitTransaction {
     boolean possibleMixedOutcome;
 }
 
-struct CommitRequest {
+public struct PrepareRequest {
     string transactionId;
 }
 
-struct CommitResponse {
+public struct PrepareResponse {
     string message;
 }
 
-struct PrepareRequest {
-    string transactionId;
-}
-
-struct PrepareResponse {
-    string message;
-}
-
-struct NotifyRequest {
+public struct NotifyRequest {
     string transactionId;
     string message;
 }
 
-struct NotifyResponse {
-    string message;
-}
-
-struct AbortRequest {
-    string transactionId;
-    string participantId;
-}
-
-struct AbortResponse {
+public struct NotifyResponse {
     string message;
 }
 

@@ -19,27 +19,6 @@ package ballerina.transactions.coordinator;
 import ballerina.config;
 import ballerina.net.http;
 
-const string participantHost = getParticipantHost();
-const int participantPort = getParticipantPort();
-
-function getParticipantHost () returns (string host) {
-    host = config:getInstanceValue("http", "participant.host");
-    if (host == "") {
-        host = "localhost";
-    }
-    return;
-}
-
-function getParticipantPort () returns (int port) {
-    var p, e = <int>config:getInstanceValue("http", "participant.port");
-    if (e != null) {
-        port = 8081;
-    } else {
-        port = p;
-    }
-    return;
-}
-
 struct InitiatorClientConfig {
     string registerAtURL;
     int endpointTimeout;
@@ -70,16 +49,14 @@ struct InitiatorClient {
 }
 
 function<InitiatorClient client> register (string transactionId,
-                                           int transactionBlockId) returns (RegistrationResponse registrationRes,
+                                                  int transactionBlockId,
+                                                  Protocol[] participantProtocols) returns (RegistrationResponse registrationRes,
                                                                             error err) {
     endpoint http:ClientEndpoint httpClient = client.clientEP.httpClient;
     string participantId = getParticipantId(transactionBlockId);
     RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId};
 
-    //TODO: set the proper protocol
-    string protocol = "durable";
-    Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
-    regReq.participantProtocols = protocols;
+    regReq.participantProtocols = participantProtocols;
 
     json j = <json, regRequestToJson()>regReq;
     http:Request req = {};
@@ -108,4 +85,3 @@ function<InitiatorClient client> register (string transactionId,
     }
     return;
 }
-

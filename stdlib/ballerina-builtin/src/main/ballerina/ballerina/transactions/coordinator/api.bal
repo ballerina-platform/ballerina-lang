@@ -42,7 +42,10 @@ function beginTransaction (string transactionId, int transactionBlockId, string 
         // we don't need to do a network call and can simply do a local function call
         txnCtx, err = registerParticipantWithLocalInitiator(transactionId, transactionBlockId, registerAtUrl);
     } else {
-        txnCtx, err = registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl);
+        //TODO: set the proper protocol
+        string protocol = "durable";
+        Protocol[] protocols = [{name:protocol, url:getParticipantProtocolAt(protocol, transactionBlockId)}];
+        txnCtx, err = registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
     }
     return;
 }
