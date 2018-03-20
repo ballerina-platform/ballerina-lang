@@ -37,7 +37,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.CarbonTransportInitializer;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
@@ -47,15 +46,13 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
 /**
  * A class that responsible for build server side channels.
  */
-public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel>
-        implements CarbonTransportInitializer {
+public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final Logger log = LoggerFactory.getLogger(HttpServerChannelInitializer.class);
 
@@ -69,16 +66,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private SSLConfig sslConfig;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
-    private boolean isHttp2Enabled = false;
+    private boolean http2Enabled = false;
     private boolean validateCertEnabled;
     private int cacheDelay;
     private int cacheSize;
-    private SSLEngine sslEngine;
     private ChannelGroup allChannels;
-
-    @Override
-    public void setup(Map<String, String> parameters) {
-    }
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -88,33 +80,32 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         ChannelPipeline serverPipeline = ch.pipeline();
 
-        if (isHttp2Enabled) {
+        if (http2Enabled) {
             if (sslConfig != null) {
                 SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForServer();
-                ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
+                serverPipeline.addLast(sslCtx.newHandler(ch.alloc()), new Http2PipelineConfiguratorForServer());
             } else {
                 configureH2cPipeline(serverPipeline);
             }
         } else {
             if (sslConfig != null) {
-                sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
-                serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-            }
-
-            if (validateCertEnabled) {
-                ch.pipeline().addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                                      new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
-            }
-            serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
-            configureHTTPPipeline(serverPipeline);
-
-            if (socketIdleTimeout > 0) {
-                serverPipeline.addBefore(
-                        Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
-                                             TimeUnit.MILLISECONDS));
+                configureSslForHttp(serverPipeline);
+            } else {
+                configureHTTPPipeline(serverPipeline);
             }
         }
+    }
+
+    private void configureSslForHttp(ChannelPipeline serverPipeline) {
+
+        SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
+        serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
+        if (validateCertEnabled) {
+            serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
+                    new CertificateValidationHandler(sslEngine, cacheDelay, cacheSize));
+        }
+        serverPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                new SslHandshakeCompletionHandlerForServer(this, serverPipeline));
     }
 
     /**
@@ -122,8 +113,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      *
      * @param serverPipeline Channel
      */
-    private void configureHTTPPipeline(ChannelPipeline serverPipeline) {
+    void configureHTTPPipeline(ChannelPipeline serverPipeline) {
 
+        if (!http2Enabled) {
+            serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
+        }
         serverPipeline.addLast("decoder",
                 new HttpRequestDecoder(reqSizeValidationConfig.getMaxUriLength(),
                         reqSizeValidationConfig.getMaxHeaderSize(), reqSizeValidationConfig.getMaxChunkSize()));
@@ -148,6 +142,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
                                                  keepAliveConfig, this.serverName, this.allChannels));
+        if (socketIdleTimeout > 0) {
+            serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
+                            TimeUnit.MILLISECONDS));
+        }
     }
 
     /**
@@ -175,11 +174,6 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         configureHTTPPipeline(pipeline);
     }
 
-    @Override
-    public boolean isServerInitializer() {
-        return true;
-    }
-
     public void setServerConnectorFuture(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
     }
@@ -192,7 +186,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
-    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+    void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
         this.httpAccessLogEnabled = httpAccessLogEnabled;
     }
 
@@ -212,11 +206,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.chunkConfig = chunkConfig;
     }
 
-    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+    void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
         this.keepAliveConfig = keepAliveConfig;
     }
 
-    public void setValidateCertEnabled(boolean validateCertEnabled) {
+    void setValidateCertEnabled(boolean validateCertEnabled) {
         this.validateCertEnabled = validateCertEnabled;
     }
 
@@ -237,8 +231,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      *
      * @param http2Enabled whether HTTP/2.0 is enabled
      */
-    public void setHttp2Enabled(boolean http2Enabled) {
-        isHttp2Enabled = http2Enabled;
+    void setHttp2Enabled(boolean http2Enabled) {
+        this.http2Enabled = http2Enabled;
     }
 
     /**
@@ -246,7 +240,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      */
     class Http2PipelineConfiguratorForServer extends ApplicationProtocolNegotiationHandler {
 
-        public Http2PipelineConfiguratorForServer() {
+        Http2PipelineConfiguratorForServer() {
             super(ApplicationProtocolNames.HTTP_1_1);
         }
 

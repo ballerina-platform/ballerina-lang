@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
+import io.netty.channel.EventLoopGroup;
 import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -30,26 +31,27 @@ import java.util.Map;
 /**
  * Implementation of WebSocket client connector.
  */
-public class WebSocketClientConnectorImpl implements WebSocketClientConnector {
+public class DefaultWebSocketClientConnector implements WebSocketClientConnector {
 
     private final String remoteUrl;
     private final String subProtocols;
-    private final String target;
     private final int idleTimeout;
     private final Map<String, String> customHeaders;
+    private final EventLoopGroup wsClientEventLoopGroup;
 
-    public WebSocketClientConnectorImpl(WsClientConnectorConfig clientConnectorConfig) {
+    public DefaultWebSocketClientConnector(WsClientConnectorConfig clientConnectorConfig,
+            EventLoopGroup wsClientEventLoopGroup) {
         this.remoteUrl = clientConnectorConfig.getRemoteAddress();
-        this.target = clientConnectorConfig.getTarget();
         this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
         this.customHeaders = clientConnectorConfig.getHeaders();
         this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
+        this.wsClientEventLoopGroup = wsClientEventLoopGroup;
     }
 
     @Override
     public HandshakeFuture connect(WebSocketConnectorListener connectorListener) {
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, target, subProtocols, idleTimeout,
-                                                              customHeaders, connectorListener);
+        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, subProtocols, idleTimeout,
+                wsClientEventLoopGroup, customHeaders, connectorListener);
         return webSocketClient.handshake();
     }
 }
