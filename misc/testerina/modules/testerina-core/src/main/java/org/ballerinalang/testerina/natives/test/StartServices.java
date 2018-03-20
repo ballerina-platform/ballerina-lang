@@ -50,9 +50,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 public class StartServices extends BlockingNativeCallableUnit {
 
     /**
-     *
-     * Starts all the services defined in the package specified in the 'packageName' argument
-     *
+     * Starts all the services defined in the package specified in the 'packageName' argument.
      */
     @Override
     public void execute(Context ctx) {
