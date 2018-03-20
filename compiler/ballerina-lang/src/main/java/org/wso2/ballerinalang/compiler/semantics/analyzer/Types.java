@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.types.Type;
-import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -229,7 +227,7 @@ public class Types {
                 return isArrayTypesAssignable(source, target);
             }
         }
-        
+
         if (target.tag == TypeTags.FUTURE && source.tag == TypeTags.FUTURE) {
             if (((BFutureType) target).constraint.tag == TypeTags.NONE) {
                 return true;
@@ -999,7 +997,7 @@ public class Types {
             BMapType sType = ((BMapType) s);
             return isSameType(sType.constraint, t.constraint);
         }
-        
+
         @Override
         public Boolean visit(BFutureType t, BType s) {
             return s.tag == TypeTags.FUTURE && t.constraint.tag == ((BFutureType) s).constraint.tag;
@@ -1218,7 +1216,7 @@ public class Types {
      * Check whether a given type has a default value.
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
-     * 
+     *
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
