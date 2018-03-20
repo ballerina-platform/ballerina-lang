@@ -222,6 +222,9 @@ public abstract class AbstractItemResolver {
     protected boolean isInvocationOrFieldAccess(TextDocumentServiceContext documentServiceContext) {
         ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        if (tokenStream == null) {
+            return false;
+        }
         int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
         
         /*
