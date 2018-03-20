@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
         receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "client", type = TypeKind.CONNECTOR),
+                @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",

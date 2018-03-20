@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "parameters",
                         type = TypeKind.ARRAY),
                 @Argument(name = "retType",
-                        type = TypeKind.TYPE)
+                        type = TypeKind.TYPEDESC)
         },
         returnType = {@ReturnType(type = TypeKind.TABLE)})
 public class QueryTableWithoutJoinClause extends BlockingNativeCallableUnit {

@@ -231,7 +231,7 @@ public class EndpointSPIAnalyzer {
         // validate register function
         final BStructSymbol.BAttachedFunction register = ep.attachedFunctionMap.get(EP_SPI_REGISTER);
         if (register.type.getParameterTypes().size() != 1 || register.type.retTypes.size() != 0
-                || register.type.getParameterTypes().get(0).tag != TypeTags.TYPE) {
+                || register.type.getParameterTypes().get(0).tag != TypeTags.TYPEDESC) {
             dlog.error(ep.pos, DiagnosticCode.ENDPOINT_SPI_INVALID_FUNCTION, ep.structSymbol, EP_SPI_REGISTER);
             invalidSPIs.putIfAbsent(ep.structSymbol, ep);
             return;

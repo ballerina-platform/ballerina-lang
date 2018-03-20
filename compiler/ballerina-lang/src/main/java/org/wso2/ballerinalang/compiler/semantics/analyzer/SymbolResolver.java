@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -64,11 +66,13 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -253,18 +257,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return pkgSymbol;
     }
 
-    public BSymbol resolveFunction(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name invokableName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        return lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.FUNCTION);
-    }
-
-    public BSymbol resolveTransformer(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name transformerName) {
-        return lookupSymbolInPackage(pos, env, pkgAlias, transformerName, SymTag.TRANSFORMER);
-    }
-
     public BSymbol resolveTransformer(SymbolEnv env, BType sourceType, BType targetType) {
         Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
         return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
@@ -281,31 +273,31 @@ public class SymbolResolver extends BLangNodeVisitor {
             return pkgSymbol;
         }
         BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, connectorName);
-        }
+//        if (symbol == symTable.notFoundSymbol) {
+//            dlog.error(pos, code, connectorName);
+//        }
         return symbol;
     }
 
-    public BSymbol resolveInvokable(DiagnosticPos pos,
-                                    DiagnosticCode code,
-                                    SymbolEnv env,
-                                    Name pkgAlias,
-                                    Name invokableName) {
+    public BSymbol resolveObject(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
+                                    Name pkgAlias, Name objectName) {
         BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
             return pkgSymbol;
         }
-
-        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, invokableName, SymTag.INVOKABLE);
+        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, objectName, SymTag.OBJECT);
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, invokableName);
+            dlog.error(pos, code, objectName);
         }
         return symbol;
     }
 
     public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
         return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
+    public BSymbol resolveObjectField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol objectSymbol) {
+        return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -321,6 +313,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         typeNode.accept(this);
         this.env = prevEnv;
         this.diagCode = preDiagCode;
+
+        // If the typeNode.nullable is true then convert the resultType to a union type
+        // if it is not already a union type
+        if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) this.resultType;
+            unionType.memberTypes.add(symTable.nullType);
+            unionType.setNullable(true);
+        } else if (typeNode.nullable) {
+            Set<BType> memberTypes = new HashSet<BType>(2) {{
+                add(resultType);
+                add(symTable.nullType);
+            }};
+            this.resultType = new BUnionType(null, memberTypes, true);
+        }
 
         typeNode.type = resultType;
         return resultType;
@@ -478,8 +484,20 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangUnionTypeNode unionTypeNode) {
         Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
+                .flatMap(memBType ->
+                        memBType.tag == TypeTags.UNION ?
+                                ((BUnionType) memBType).memberTypes.stream() :
+                                Stream.of(memBType))
                 .collect(Collectors.toSet());
-        resultType = new BUnionType(TypeTags.UNION, null, memberTypes);
+        resultType = new BUnionType(null, memberTypes,
+                memberTypes.contains(symTable.nullType));
+    }
+
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        List<BType> memberTypes = tupleTypeNode.memberTypeNodes.stream()
+                .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
+                .collect(Collectors.toList());
+        resultType = new BTupleType(memberTypes);
     }
 
     public void visit(BLangConstrainedType constrainedTypeNode) {
