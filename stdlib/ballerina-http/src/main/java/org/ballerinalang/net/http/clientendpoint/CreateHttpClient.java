@@ -192,6 +192,11 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
                     Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
                     clientParams.add(clientCiphers);
                 }
+                String enableSessionCreation = String.valueOf(secureSocket
+                        .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
+                Parameter clientEnableSessionCreation = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                        enableSessionCreation);
+                clientParams.add(clientEnableSessionCreation);
                 if (!clientParams.isEmpty()) {
                     senderConfiguration.setParameters(clientParams);
                 }
