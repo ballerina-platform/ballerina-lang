@@ -1618,7 +1618,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String fieldName = ctx.field().Identifier().getText();
-        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName);
+        this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName,
+                ctx.field().NOT() != null);
     }
 
     @Override

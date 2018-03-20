@@ -180,6 +180,10 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
+    
+    // Safe navigation operator related errors
+    SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
+    SAFE_NAVIGATION_FOR_NOT_NULLABLE_TYPE("safe.navigation.for.not.nullable.type"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

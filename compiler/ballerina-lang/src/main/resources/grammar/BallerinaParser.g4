@@ -501,7 +501,7 @@ variableReference
     ;
 
 field
-    : DOT Identifier
+    : NOT? DOT Identifier
     ;
 
 index

@@ -350,6 +350,37 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.errType;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+
+        switch (varRefType.tag) {
+            case TypeTags.UNION:
+                if (!fieldAccessExpr.safeNavigate) {
+                    break;
+                }
+
+                // Extract the types without the error and null, and revisit access expression
+                // TODO: Improve this logic. This will fail if the varRef is of type: error|null
+                
+                // TODO: Add null/error to the final set of actual values
+                Set<BType> varRefMemberTypes = ((BUnionType) varRefType).memberTypes;
+                List<BType> lhsTypes = varRefMemberTypes.stream()
+                        .filter(type -> {
+                            return type != symTable.errStructType && type != symTable.nullType;
+                        }).collect(Collectors.toList());
+
+                if (lhsTypes.size() == 1) {
+                    varRefType = lhsTypes.get(0);
+                }
+                break;
+            default:
+                break;
+        }
+
+        actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        resultTypes = types.checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
+    }
+
+    private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        BType actualType = symTable.errType;
         switch (varRefType.tag) {
             case TypeTags.STRUCT:
                 actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, varRefType);
@@ -367,6 +398,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         actualType = new BJSONType(TypeTags.JSON, fieldType, symTable.jsonType.tsymbol);
                         break;
                     }
+                } else if (fieldAccessExpr.safeNavigate) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
                 }
                 actualType = symTable.jsonType;
                 break;
@@ -398,7 +431,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         varRefType);
         }
 
-        resultTypes = types.checkTypes(fieldAccessExpr, Lists.of(actualType), this.expTypes);
+        return actualType;
     }
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {

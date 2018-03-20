@@ -36,6 +36,8 @@ public class BLangFieldBasedAccess extends BLangVariableReference implements Fie
 
     public BLangVariableReference expr;
 
+    public boolean safeNavigate;
+
     @Override
     public BLangVariableReference getExpression() {
         return expr;
