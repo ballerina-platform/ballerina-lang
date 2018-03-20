@@ -182,11 +182,10 @@ public function <Request request> getStringPayload () returns string | null | mi
 @Description {value:"Gets the request payload in blob format"}
 @Param {value:"request: The request message"}
 @Return {value:"The blob representation of the message payload"}
-public function <Request request> getBinaryPayload () returns blob | null | mime:EntityError {
+public function <Request request> getBinaryPayload () returns blob | mime:EntityError {
     match request.getEntity() {
         mime:Entity entity => entity.getBlob();
         mime:EntityError err => return err;
-        any | null => return null;
     }
 }
 
@@ -196,7 +195,7 @@ please use 'getMultiparts()' instead."}
 @Return {value:"A byte channel as the message payload"}
 public function <Request request> getByteChannel () returns io:ByteChannel | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => entity.getByteChannel();
+        mime:Entity[] entity => return entity.getByteChannel();
         mime:EntityError err => return err;
     }
 }
