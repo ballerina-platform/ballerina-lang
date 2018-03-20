@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.Semaphore;
@@ -42,7 +41,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     private HTTPCarbonMessage responseMsg;
     private int timeOut = 120;
 
-    public TestCallableUnitCallback(HTTPCarbonMessage requestMessage, Tracer tracer) {
+    public TestCallableUnitCallback(HTTPCarbonMessage requestMessage) {
         executionWaitSem = new Semaphore(0);
         this.requestMessage = requestMessage;
     }

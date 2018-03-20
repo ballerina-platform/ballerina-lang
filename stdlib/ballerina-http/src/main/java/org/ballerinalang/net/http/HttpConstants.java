@@ -170,27 +170,6 @@ public class HttpConstants {
     public static final String CIPHERS = "ciphers";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final int OPTIONS_STRUCT_INDEX = 0;
-    public static final int ENDPOINT_TIMEOUT_STRUCT_INDEX = 1;
-    public static final int TRANSFER_ENCODING = 0;
-    public static final int ENABLE_CHUNKING_INDEX = 1;
-    public static final int IS_KEEP_ALIVE_INDEX = 0;
-    public static final int HTTP_VERSION_STRUCT_INDEX = 2;
-    public static final int FORWARDED_EXTENSION_INDEX = 3;
-    public static final int SSL_STRUCT_INDEX = 1;
-    public static final int FOLLOW_REDIRECT_STRUCT_INDEX = 0;
-    public static final int FOLLOW_REDIRECT_INDEX = 0;
-    public static final int MAX_REDIRECT_COUNT = 0;
-    public static final int TRUST_STORE_FILE_INDEX = 0;
-    public static final int TRUST_STORE_PASSWORD_INDEX = 1;
-    public static final int KEY_STORE_FILE_INDEX = 2;
-    public static final int KEY_STORE_PASSWORD_INDEX = 3;
-    public static final int SSL_ENABLED_PROTOCOLS_INDEX = 4;
-    public static final int CIPHERS_INDEX = 5;
-    public static final int SSL_PROTOCOL_INDEX = 6;
-    public static final int VALIDATE_CERT_ENABLED_INDEX = 0;
-    public static final int CACHE_SIZE_INDEX = 0;
-    public static final int CACHE_VALIDITY_PERIOD_INDEX = 1;
-    public static final int HOST_NAME_VERIFICATION_ENABLED_INDEX = 1;
 
     public static final int HTTP_MESSAGE_INDEX = 0;
     public static final int ENTITY_INDEX = 1;
@@ -231,7 +210,7 @@ public class HttpConstants {
     public static final int CONNECTION_THROTTLING_WAIT_TIME_INDEX = 1;
 
     //Retry Struct indexes
-    public static final int RETRY_STRUCT_INDEX = 2;
+    public static final int RETRY_STRUCT_INDEX = 4;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
@@ -266,29 +245,27 @@ public class HttpConstants {
     public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
 
-    public static final String ENDPOINT_CONFIG_SSL = "ssl";
+    public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+
+    public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
+    public static final String FILE_PATH = "filePath";
+    public static final String PASSWORD = "password";
+    public static final String PROTOCOL_VERSION = "protocolName";
+    public static final String ENABLED_PROTOCOLS = "versions";
+    public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocols";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "validateCert";
 
     //SslConfiguration indexes
-    public static final String SSL_CONFIG_KEY_STORE_FILE = "keyStoreFile";
-    public static final String SSL_CONFIG_KEY_STORE_PASSWORD = "keyStorePassword";
-    public static final String SSL_CONFIG_STRUST_STORE_FILE = "trustStoreFile";
-    public static final String SSL_CONFIG_STRUST_STORE_PASSWORD = "trustStorePassword";
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
-    public static final String SSL_CONFIG_CERT_PASSWORD = "certPassword";
-    public static final String SSL_CONFIG_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
-    public static final String SSL_CONFIG_SSL_PROTOCOL = "sslProtocol";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_VALIDATE_CERT_ENABLED = "validateCertEnabled";
     public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerificationEnabled";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
-    public static final int CLIENT_ENDPOINT_INDEX = 0;
-    public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
-    public static final int SERVICE_URL_INDEX = 0;
-    public static final int OPTIONS_INDEX = 0;
 
     //Client Endpoint Config
     public static final String URI = "uri";
@@ -321,4 +298,9 @@ public class HttpConstants {
     // Filter related
     public static final String ENDPOINT_CONFIG_FILTERS = "filters";
     public static final String FILTERS = "FILTERS";
+
+    // Retry Config
+    public static final String CLIENT_EP_RETRY = "retry";
+    public static final String RETRY_COUNT = "count";
+    public static final String RETRY_INTERVAL = "interval";
 }

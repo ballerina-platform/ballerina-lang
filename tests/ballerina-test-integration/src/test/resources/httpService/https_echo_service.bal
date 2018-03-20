@@ -10,10 +10,11 @@ endpoint http:ServiceEndpoint echoHttpEP {
 
 endpoint http:ServiceEndpoint echoEP {
     port:9095,
-    ssl:{
-        keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        keyStorePassword:"ballerina",
-        certPassword:"ballerina"
+    secureSocket: {
+        keyStore: {
+            filePath:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
+        }
     }
 };
 
