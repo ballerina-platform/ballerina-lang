@@ -54,15 +54,13 @@ public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
         WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
-        WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) serverConnector.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         Set<String> keys = headers.keySet();
         for (String key : keys) {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(initMessage, webSocketService, httpHeaders, serverConnector);
+        WebSocketUtil.handleHandshake(webSocketService, httpHeaders, serverConnector);
 
         context.setReturnValues();
     }

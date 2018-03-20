@@ -120,14 +120,14 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 semaphore.acquire();
                 if (isResourceExeSuccessful.get() && !webSocketInitMessage.isCancelled() &&
                         !webSocketInitMessage.isHandshakeStarted()) {
-                    WebSocketUtil.handleHandshake(webSocketInitMessage, wsService, null, serverConnector);
+                    WebSocketUtil.handleHandshake(wsService, null, serverConnector);
                 }
             } catch (InterruptedException e) {
                 throw new BallerinaConnectorException("Connection interrupted during handshake");
             }
 
         } else {
-            WebSocketUtil.handleHandshake(webSocketInitMessage, wsService, null, serverConnector);
+            WebSocketUtil.handleHandshake(wsService, null, serverConnector);
         }
     }
 
