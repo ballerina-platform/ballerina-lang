@@ -829,6 +829,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableLiteral tableLiteral) {
+        result = tableLiteral;
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
 
