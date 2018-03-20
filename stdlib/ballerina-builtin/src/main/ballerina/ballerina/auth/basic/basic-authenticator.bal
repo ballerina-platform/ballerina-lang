@@ -62,7 +62,7 @@ public function <BasicAuthenticator authenticator> authenticate (string username
 @Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Return {value:"any: cached entry, or null in a cache miss"}
-function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) (any) {
+public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) (any) {
     if (authenticator.authCache != null) {
         return authenticator.authCache.get(basicAuthCacheKey);
     }
@@ -72,7 +72,8 @@ function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAut
 @Description {value:"Caches the authentication result"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Param {value:"authInfo: AuthenticationInfo instance containing authentication decision"}
-function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCacheKey, AuthenticationInfo authInfo) {
+public function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCacheKey,
+                                                                    AuthenticationInfo authInfo) {
     if (authenticator.authCache != null) {
         authenticator.authCache.put(basicAuthCacheKey, authInfo);
     }
@@ -80,7 +81,7 @@ function <BasicAuthenticator authenticator> cacheAuthResult (string basicAuthCac
 
 @Description {value:"Clears any cached authentication result"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
-function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicAuthCacheKey) {
+public function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicAuthCacheKey) {
     if (authenticator.authCache != null) {
         authenticator.authCache.remove(basicAuthCacheKey);
     }
@@ -90,7 +91,7 @@ function <BasicAuthenticator authenticator> clearCachedAuthResult (string basicA
 @Param {value:"username: user name"}
 @Param {value:"isAuthenticated: authentication decision"}
 @Return {value:"AuthenticationInfo: Authentication decision instance, whether the user is authenticated or not"}
-function createAuthenticationInfo (string username, boolean isAuthenticated) (AuthenticationInfo) {
+public function createAuthenticationInfo (string username, boolean isAuthenticated) (AuthenticationInfo) {
     AuthenticationInfo authInfo = {username:username, isAuthenticated:isAuthenticated};
     return authInfo;
 }

@@ -61,7 +61,7 @@ public class HttpResource {
     private SignatureParams signatureParams;
     private HttpService parentService;
 
-    private HttpResource(Resource resource, HttpService parentService) {
+    protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
@@ -187,7 +187,7 @@ public class HttpResource {
         return httpResource;
     }
 
-    private static Annotation getResourceConfigAnnotation(Resource resource) {
+    protected static Annotation getResourceConfigAnnotation(Resource resource) {
         List<Annotation> annotationList = resource.getAnnotationList(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
 
         if (annotationList == null) {
@@ -237,7 +237,7 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    private void prepareAndValidateSignatureParams() {
+    protected void prepareAndValidateSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
     }

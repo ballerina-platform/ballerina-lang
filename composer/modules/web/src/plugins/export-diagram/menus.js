@@ -38,6 +38,7 @@ export function getMenuDefinitions(plugin) {
                 return activeTab && activeTab.file;
             },
             icon: 'export',
+            order: 3,
             command: COMMANDS.SHOW_EXPORT_DIAGRAM_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },

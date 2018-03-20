@@ -229,6 +229,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
         endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.transformers = rewrite(pkgNode.transformers, env);
@@ -236,7 +237,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.connectors = rewrite(pkgNode.connectors, env);
         pkgNode.streamlets = rewrite(pkgNode.streamlets, env);
         pkgNode.services = rewrite(pkgNode.services, env);
-        annotationDesugar.rewritePackageAnnotations(pkgNode);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -633,16 +633,16 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
 
         // LHS unary expression
-        BLangUnaryExpr lhsUnary = ASTBuilderUtil.createUnaryExpr(pos, varRef, symTable.typeType,
+        BLangUnaryExpr lhsUnary = ASTBuilderUtil.createUnaryExpr(pos, varRef, symTable.typeDesc,
                 OperatorKind.TYPEOF, Symbols.createTypeofOperatorSymbol(varRef.symbol.type, types, symTable, names));
 
         // RHS typeof expression
-        BLangTypeofExpr rhsTypeOfExpr = ASTBuilderUtil.createTypeofExpr(pos, symTable.typeType, type);
+        BLangTypeofExpr rhsTypeOfExpr = ASTBuilderUtil.createTypeofExpr(pos, symTable.typeDesc, type);
 
         // Binary operator for equality
         return ASTBuilderUtil.createBinaryExpr(pos, lhsUnary, rhsTypeOfExpr, symTable.booleanType, OperatorKind.EQUAL,
                 (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.EQUAL,
-                        symTable.typeType, symTable.typeType));
+                        symTable.typeDesc, symTable.typeDesc));
     }
 
     @Override

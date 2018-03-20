@@ -10,6 +10,7 @@ package ballerina.net.http;
 public struct ClientEndpoint {
     string epName;
     ClientEndpointConfiguration config;
+    HttpClient httpClient;
 }
 
 public enum Algorithm {
@@ -20,10 +21,10 @@ public enum Algorithm {
 
 @Description {value:"Represents the configurations applied to a particular service."}
 @Field {value:"uri: Target service url"}
-@Field {value:"ssl: SSL/TLS related options"}
+@Field {value:"secureSocket: SSL/TLS related options"}
 public struct TargetService {
     string uri;
-    SSL ssl;
+    SecureSocket secureSocket;
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
@@ -34,7 +35,7 @@ public struct TargetService {
 @Field {value:"httpVersion: The HTTP version understood by the client"}
 @Field {value:"forwarded: The choice of setting forwarded/x-forwarded header"}
 @Field {value:"followRedirects: Redirect related options"}
-@Field {value:"retryConfig: Retry related options"}
+@Field {value:"retry: Retry related options"}
 @Field {value:"proxy: Proxy server related options"}
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
@@ -46,7 +47,7 @@ public struct ClientEndpointConfiguration {
     string httpVersion;
     string forwarded = "disable";
     FollowRedirects followRedirects;
-    Retry retryConfig;
+    Retry retry;
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
@@ -60,42 +61,41 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
-@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param { value:"ep: The endpoint to be initialized" }
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-            target.uri = uri;
-        }
+@Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
+@Param {value:"ep: The endpoint to be initialized"}
+@Param {value:"epName: The endpoint name"}
+@Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
+public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
+    string uri = config.targets[0].uri;
+    if (uri.hasSuffix("/")) {
+        int lastIndex = uri.length() - 1;
+        uri = uri.subString(0, lastIndex);
     }
     ep.config = config;
-    ep.initEndpoint();
+    ep.httpClient = createHttpClient(uri, config);
 }
 
-public native function<ClientEndpoint ep> initEndpoint ();
-
-public function <ClientEndpoint ep> register (type serviceType) {
+public function <ClientEndpoint ep> register(typedesc serviceType) {
 
 }
 
-public function <ClientEndpoint ep> start () {
+public function <ClientEndpoint ep> start() {
 
 }
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public native function <ClientEndpoint ep> getClient () (ClientConnector);
+public function <ClientEndpoint ep> getClient() (HttpClient) {
+    return ep.httpClient;
+}
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public function <ClientEndpoint ep> stop () {
+public function <ClientEndpoint ep> stop() {
 
 }
+
+public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -105,29 +105,19 @@ public struct Retry {
     int interval;
 }
 
-@Description { value:"SSL struct represents SSL/TLS options to be used for HTTP client invocation" }
-@Field {value:"trustStoreFile: File path to trust store file"}
-@Field {value:"trustStorePassword: Trust store password"}
-@Field {value:"keyStoreFile: File path to key store file"}
-@Field {value:"keyStorePassword: Key store password"}
-@Field {value:"sslEnabledProtocols: SSL/TLS protocols to be enabled. eg: TLSv1,TLSv1.1,TLSv1.2"}
+@Description { value:"SecureSocket struct represents SSL/TLS options to be used for HTTP client invocation" }
+@Field {value: "trustStore: TrustStore related options"}
+@Field {value: "keyStore: KeyStore related options"}
+@Field {value: "protocols: SSL/TLS protocol related options"}
+@Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
-@Field {value:"sslProtocol: SSL Protocol to be used. eg: TLS1.2"}
-@Field {value:"validateCertEnabled: The status of validateCertEnabled"}
-@Field {value:"cacheSize: Maximum size of the cache"}
-@Field {value:"cacheValidityPeriod: Time duration of cache validity period"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
-public struct SSL {
-    string trustStoreFile;
-    string trustStorePassword;
-    string keyStoreFile;
-    string keyStorePassword;
-    string sslEnabledProtocols;
+public struct SecureSocket {
+    TrustStore trustStore;
+    KeyStore keyStore;
+    Protocols protocols;
+    ValidateCert validateCert;
     string ciphers;
-    string sslProtocol;
-    boolean validateCertEnabled;
-    int cacheSize;
-    int cacheValidityPeriod;
     boolean hostNameVerificationEnabled;
 }
 
