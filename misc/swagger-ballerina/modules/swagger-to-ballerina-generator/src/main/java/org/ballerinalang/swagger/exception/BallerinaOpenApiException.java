@@ -23,4 +23,8 @@ public class BallerinaOpenApiException extends Exception {
     public BallerinaOpenApiException(String message, Throwable e) {
         super(message, e);
     }
+
+    public BallerinaOpenApiException(String message) {
+        super(message);
+    }
 }

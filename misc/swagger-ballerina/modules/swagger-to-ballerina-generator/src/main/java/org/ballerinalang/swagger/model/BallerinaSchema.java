@@ -18,6 +18,7 @@ package org.ballerinalang.swagger.model;
 
 import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.Schema;
+import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 
 import java.util.AbstractMap;
 import java.util.LinkedHashSet;
@@ -38,7 +39,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
-    public BallerinaSchema buildContext(Schema schema) {
+    public BallerinaSchema buildContext(Schema schema) throws BallerinaOpenApiException {
         this.oasSchema = schema;
 
         // identify array type schema definitions
@@ -55,6 +56,10 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             properties.add(entry);
 
             return this;
+        }
+
+        if (schema.getProperties() == null) {
+            throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
         }
 
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
