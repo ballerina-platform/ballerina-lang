@@ -112,13 +112,15 @@ public struct Retry {
 @Field {value: "validateCert: Certificate validation against CRL or OCSP related options"}
 @Field {value:"ciphers: List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"}
 @Field {value:"hostNameVerificationEnabled: Enable/disable host name verification"}
+@Field {value:"sessionCreationEnabled: Enable/disable new ssl session creation"}
 public struct SecureSocket {
     TrustStore trustStore;
     KeyStore keyStore;
     Protocols protocols;
     ValidateCert validateCert;
     string ciphers;
-    boolean hostNameVerificationEnabled;
+    boolean hostNameVerification = true;
+    boolean sessionCreation = true;
 }
 
 @Description { value:"FollowRedirects struct represents HTTP redirect related options to be used for HTTP client invocation" }
