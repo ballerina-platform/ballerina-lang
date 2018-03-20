@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -1111,6 +1112,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
 
     //Streaming related methods.
+
+    public void visit(BLangForever foreverStatement) {
+        for(StreamingQueryStatementNode streamingQueryStatement : foreverStatement.gettreamingQueryStatements()) {
+            analyzeStmt((BLangStatement)streamingQueryStatement, env);
+        }
+
+        List<BLangVariable> globalVariableList = this.env.enclPkg.globalVars;
+        if (globalVariableList != null) {
+            for (BLangVariable variable : globalVariableList) {
+                if (((variable).type.tsymbol) != null) {
+                    if ("stream".equals((((variable).type.tsymbol)).name.value)) {
+                        foreverStatement.addGlobalVariable(variable);
+                    }
+                }
+            }
+        }
+    }
 
     public void visit(BLangStreamlet streamletNode) {
 

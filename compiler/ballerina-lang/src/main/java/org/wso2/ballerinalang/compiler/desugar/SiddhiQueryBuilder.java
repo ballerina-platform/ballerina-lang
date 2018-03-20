@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -401,6 +402,45 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
         }
         streamletNode.setSiddhiQuery(this.getSiddhiQuery());
         streamletNode.setStreamIdsAsString(String.join(",", streamIds));
+    }
+
+    public void visit(BLangForever foreverStatement) {
+        siddhiQuery = new StringBuilder();
+        streamDefinitionQuery = new StringBuilder();
+        streamIds = new HashSet<>();
+        inStreamRefs = new ArrayList<>();
+        outStreamRefs = new ArrayList<>();
+        inTableRefs = new ArrayList<>();
+        outTableRefs = new ArrayList<>();
+        binaryExpr = null;
+        setExpr = null;
+        orderByClause = null;
+        whereClause = null;
+        windowClause = null;
+        joinStreamingInputClause = null;
+        streamingInputClause = null;
+        selectExprClause = null;
+        selectExpr = null;
+        setAssignmentClause = null;
+        groupByClause = null;
+        havingClause = null;
+        patternStreamingClause = null;
+        streamActionClause = null;
+        intRangeExpr = null;
+
+        List<VariableNode> globalVariables = foreverStatement.getGlobalVariables();
+        if (globalVariables != null) {
+            for (VariableNode variable : globalVariables) {
+                ((BLangVariable) variable).accept(this);
+            }
+        }
+
+        List<? extends StatementNode> statementNodes = foreverStatement.gettreamingQueryStatements();
+        for (StatementNode statementNode : statementNodes) {
+            ((BLangStatement) statementNode).accept(this);
+        }
+        foreverStatement.setSiddhiQuery(this.getSiddhiQuery());
+        foreverStatement.setStreamIdsAsString(String.join(",", streamIds));
     }
 
     @Override

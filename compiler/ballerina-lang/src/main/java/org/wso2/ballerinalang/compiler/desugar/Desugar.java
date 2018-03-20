@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -284,6 +285,11 @@ public class Desugar extends BLangNodeVisitor {
         serviceNode.endpoints = rewrite(serviceNode.endpoints, serviceEnv);
         serviceNode.initFunction = rewrite(serviceNode.initFunction, serviceEnv);
         result = serviceNode;
+    }
+
+    public void visit(BLangForever foreverStatement) {
+        siddhiQueryBuilder.visit(foreverStatement);
+        result = foreverStatement;
     }
 
     public void visit(BLangStreamlet streamletNode) {

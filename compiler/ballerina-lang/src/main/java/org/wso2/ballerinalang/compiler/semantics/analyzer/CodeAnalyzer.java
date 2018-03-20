@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -503,6 +504,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConnector connectorNode) {
         connectorNode.actions.forEach(a -> a.accept(this));
+    }
+
+    public void visit(BLangForever foreverStatement) {
+        /* ignore */
+        //TODO Implement
     }
 
     public void visit(BLangStreamlet streamletNode) {
