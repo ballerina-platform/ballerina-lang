@@ -170,18 +170,38 @@ public class OutboundMsgHolder {
         return promises.poll();
     }
 
-    public long getLastReadWriteTime() {
+    /**
+     * Gets last read or write operation execution time.
+     *
+     * @return the last read or write operation execution time
+     */
+    long getLastReadWriteTime() {
         return lastReadWriteTime;
     }
 
-    public void setLastReadWriteTime(long lastReadWriteTime) {
+    /**
+     * Sets the last read or write operation execution time.
+     *
+     * @param lastReadWriteTime the last read or write operation execution time
+     */
+    void setLastReadWriteTime(long lastReadWriteTime) {
         this.lastReadWriteTime = lastReadWriteTime;
     }
 
+    /**
+     * Checks whether the request is written.
+     *
+     * @return whether the request is written
+     */
     public boolean isRequestWritten() {
         return requestWritten;
     }
 
+    /**
+     * Sets request is completely written.
+     *
+     * @param requestWritten whether request is written
+     */
     public void setRequestWritten(boolean requestWritten) {
         this.requestWritten = requestWritten;
     }
