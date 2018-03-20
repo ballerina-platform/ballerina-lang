@@ -43,12 +43,11 @@ public class PatternTest {
 
     @Test(description = "Test pattern streaming query")
     public void testPatternQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testPatternQuery");
+        BValue[] tempDifferences = BRunUtil.invoke(result, "testPatternQuery");
 
-        BRefValueArray tempDifferences = (BRefValueArray) returns[0];
         Assert.assertNotNull(tempDifferences);
 
-        BStruct tempDifference = (BStruct) tempDifferences.get(0);
+        BStruct tempDifference = (BStruct) tempDifferences[0];
         Assert.assertEquals(tempDifference.getFloatField(0), 7.0);
     }
 

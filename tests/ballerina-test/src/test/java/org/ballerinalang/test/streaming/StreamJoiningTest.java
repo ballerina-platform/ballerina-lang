@@ -42,12 +42,11 @@ public class StreamJoiningTest {
 
     @Test(description = "Test streaming join query.")
     public void testStreamJoinQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testJoinQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testJoinQuery");
 
-        BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 4, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.length, 4, "Expected events are not received");
 
     }
 

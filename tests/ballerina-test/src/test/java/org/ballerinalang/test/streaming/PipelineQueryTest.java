@@ -43,14 +43,13 @@ public class PipelineQueryTest {
 
     @Test(description = "Test streaming pipeline query.")
     public void testPipelineQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testPipelineQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testPipelineQuery");
 
-        BRefValueArray outputStatusCountArray = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputStatusCountArray);
 
-        Assert.assertEquals(outputStatusCountArray.size(), 1, "Expected events are not received");
+        Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray.get(0);
+        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
 
         Assert.assertEquals(statusCount0.getStringField(0), "single");
         Assert.assertEquals(statusCount0.getIntField(0), 2);
