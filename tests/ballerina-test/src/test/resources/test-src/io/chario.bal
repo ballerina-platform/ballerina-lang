@@ -4,21 +4,43 @@ io:CharacterChannel characterChannel;
 
 function initFileChannel (string filePath, string permission, string encoding) {
     io:ByteChannel channel = io:openFile(filePath, permission);
-    characterChannel, _ = io:createCharacterChannel(channel, encoding);
+    var result = io:createCharacterChannel(channel, encoding);
+    match result{
+         io:CharacterChannel charChannel => {
+             characterChannel = charChannel;
+         }
+         io:IOError err => {
+             throw err;
+         }
+    }
 }
 
 function readCharacters (int numberOfCharacters) returns (string) {
-    string characters;
-    characters, _ = characterChannel.readCharacters(numberOfCharacters);
-    return characters;
+    var result = characterChannel.readCharacters(numberOfCharacters);
+    match result{
+       string characters => {
+          return characters;
+       }
+       io:IOError err => {
+          throw err;
+       }
+    }
+    return "";
 }
 
 function writeCharacters (string content, int startOffset) returns (int) {
-    int numberOfCharactersWritten;
-    (numberOfCharactersWritten, _) = characterChannel.writeCharacters(content, startOffset);
-    return numberOfCharactersWritten;
+    var result = characterChannel.writeCharacters(content, startOffset);
+    match result {
+        int numberOfCharsWritten =>{
+           return numberOfCharsWritten;
+        }
+        io:IOError err => {
+           throw err;
+        }
+    }
+    return -1;
 }
 
 function close(){
-    characterChannel.closeCharacterChannel();
+    io:IOError err = characterChannel.closeCharacterChannel();
 }
