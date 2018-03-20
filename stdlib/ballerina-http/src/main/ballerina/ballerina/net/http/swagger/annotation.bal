@@ -10,14 +10,14 @@ import ballerina.net.http;
 @Field {value: "license: License information for the exposed API."}
 @Field {value: "externalDoc: Additional external documentation."}
 @Field {value: "tags: A list of tags used by the specification with additional metadata"}
-public struct ServiceInfo {
+public struct ServiceInformation {
     string title;
     string serviceVersion;
     string description;
     string termsOfService;
     Contact contact;
     License license;
-    DocumentationInfo externalDocs;
+    DocumentationInformation externalDocs;
     Tag[] tags;
     SecurityRequirement[] security;
 }
@@ -43,7 +43,7 @@ public struct License {
 @Description {value: "Model for service documentation definition"}
 @Field {value: "description: Documentation description"}
 @Field {value: "url: Documentation url"}
-public struct DocumentationInfo {
+public struct DocumentationInformation {
     string description;
     string url;
 }
@@ -55,7 +55,7 @@ public struct DocumentationInfo {
 public struct Tag {
     string name;
     string description;
-    DocumentationInfo externalDocs;
+    DocumentationInformation externalDocs;
 }
 
 @Description {value: "Model for security requirement definition. This is most likely the oauth scopes"}
@@ -74,7 +74,7 @@ public struct SecurityRequirement {
 @Field {value: "discontinued: Is this parameter deprecated"}
 @Field {value: "allowEmptyValue: is empty values allowed for this parameter. Valid only for query parameters"}
 @Field {value: "schema: Parameter data type"}
-public struct ParameterInfo {
+public struct ParameterInformation {
     string inInfo;
     string name;
     string description;
@@ -98,12 +98,12 @@ public struct Schema {
 @Field {value: "description: A verbose explanation of the operation behavior"}
 @Field {value: "externalDocs: Additional documentation for this operation"}
 @Field {value: "parameters: A list of parameters that are applicable for this operation"}
-public struct ResourceInfo {
+public struct ResourceInformation {
     string[] tags;
     string summary;
     string description;
-    DocumentationInfo externalDocs;
-    ParameterInfo[] parameters;
+    DocumentationInformation externalDocs;
+    ParameterInformation[] parameters;
 }
 
 public struct Response {
@@ -147,7 +147,7 @@ public struct requestBody {
 @Field {value: "explode: Should property values of array or object generate separate parameters for each value of the array"}
 @Field {value: "allowReserved: Determines whether the parameter value SHOULD allow reserved characters"}
 public struct Encoding {
-    ParameterInfo[] headers;
+    ParameterInformation[] headers;
     string contentType;
     string style;
     boolean explode;
@@ -155,7 +155,7 @@ public struct Encoding {
 }
 
 @Description {value: "Annotation for additional swagger information of a ballerina service"}
-public annotation <service> serviceInfo ServiceInfo;
+public annotation <service> ServiceInfo ServiceInformation;
 
 @Description {value: "Annotation for additional swagger information of a ballerina resource"}
-public annotation <resource> resourceInfo ResourceInfo;
+public annotation <resource> ResourceInfo ResourceInformation;

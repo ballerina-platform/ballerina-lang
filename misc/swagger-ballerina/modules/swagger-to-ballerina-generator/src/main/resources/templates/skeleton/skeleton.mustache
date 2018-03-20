@@ -9,7 +9,7 @@ import ballerina.net.http.swagger;
     port: {{port}}
 };
 {{/servers}}
-@swagger:serviceInfo { {{#info}}
+@swagger:ServiceInfo { {{#info}}
     title: "{{title}}",
     description: "{{description}}",
     serviceVersion: "{{version}}",
@@ -24,12 +24,12 @@ import ballerina.net.http.swagger;
         {{>security}}{{/security}}
     ]
 }
-@http:serviceConfig {
+@http:ServiceConfig {
     basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
 }
 service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {
 {{#paths}}{{#value}}{{#get}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -45,7 +45,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -58,7 +58,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/get}}{{#post}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -74,7 +74,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["POST"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -87,7 +87,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/post}}{{#put}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -103,7 +103,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PUT"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -116,7 +116,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/put}}{{#delete}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -132,7 +132,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["DELETE"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -145,7 +145,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/delete}}{{#options}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -161,7 +161,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["OPTIONS"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -174,7 +174,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/options}}{{#head}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -190,7 +190,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["HEAD"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -203,7 +203,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/head}}{{#patch}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -219,7 +219,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["PATCH"],
         path:"{{key}}"
     }{{#deprecated}}
@@ -232,7 +232,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
         _ = outboundEp -> respond(resp);
     }
 {{/patch}}{{#trace}}
-    @swagger:resourceInfo {
+    @swagger:ResourceInfo {
         tags: [{{#tags}}"{{.}}"{{#unless @last}},{{/unless}}{{/tags}}],
         summary: "{{summary}}",
         description: "{{description}}",
@@ -248,7 +248,7 @@ service<http:Service> {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unl
             }{{#unless @last}},{{/unless}}{{/parameters}}
         ]
     }
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["TRACE"],
         path:"{{key}}"
     }{{#deprecated}}
