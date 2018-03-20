@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.BLangAsyncCallableUnitCallback;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
@@ -323,9 +322,7 @@ public class BLangFunctions {
         if (nativeCallable.isBlocking()) {
             respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);            
         } else {
-            respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 1);
-            BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
-            nativeCallable.execute(nativeCtx, callback);
+            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx);
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
                 new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
