@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,38 +19,36 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
-        functionName = "getQueryParams",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.net.http"),
+        functionName = "cancelUpgradeToWebSocket",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType =  WebSocketConstants.WEBSOCKET_CONNECTOR,
+                             structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "wsConnector", type = TypeKind.STRUCT)
+                @Argument(name = "status", type = TypeKind.INT),
+                @Argument(name = "reason", type = TypeKind.STRING)
         },
-        returnType = {
-                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)
-        }
+        isPublic = true
 )
-public class GetQueryParams extends BlockingNativeCallableUnit {
-
+public class CancelUpgradeToWebSocket extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        try {
-            context.setReturnValues(WebSocketUtil.getQueryParams(context));
-        } catch (Throwable e) {
-            throw new BallerinaException(
-                    "Error occurred while retrieving query parameters from Connection: " + e.getMessage());
-        }
+        BStruct serverConnector = (BStruct) context.getRefArgument(0);
+        int statusCode = (int) context.getIntArgument(0);
+        String reason = context.getStringArgument(0);
+        WebSocketInitMessage initMessage =
+                (WebSocketInitMessage) serverConnector.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        initMessage.cancelHandShake(statusCode, reason);
+        context.setReturnValues();
     }
 }

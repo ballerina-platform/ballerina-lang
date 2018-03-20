@@ -20,14 +20,11 @@ package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 
 /**
@@ -48,8 +45,8 @@ public class GetClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        context.setReturnValues((BValue) clientEndpointConfig.getNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR));
+        BStruct clientEndPoint = (BStruct) context.getRefArgument(0);
+        BStruct clientConnector = (BStruct) clientEndPoint.getNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR);
+        context.setReturnValues(clientConnector);
     }
 }

@@ -180,7 +180,7 @@ public class NativeFunctionsTestCase {
 //        wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_PARENT_CONNECTION_ID, testSessionID);
 //        WsOpenConnectionInfo connectionInfo =
 //                new WsOpenConnectionInfo(null, testParentWsConnection, null);
-//        WebSocketConnectionManager.getInstance().addConnection(testSessionID, connectionInfo);
+//        WebSocketConnectionManager.getInstance().addService(testSessionID, connectionInfo);
 
         // Test the original WebSocket connection.
         BValue[] inputBValues = {wsConnection};

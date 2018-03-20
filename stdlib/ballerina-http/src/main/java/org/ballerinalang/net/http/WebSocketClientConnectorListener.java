@@ -31,12 +31,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  *
  * @since 0.93
  */
-public class BallerinaWebSocketClientConnectorListener implements WebSocketConnectorListener {
+public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
+    WebSocketService webSocketService;
 
-    private WebSocketOpenConnectionInfo connectionInfo;
-
-    public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
-        this.connectionInfo = connectionInfo;
+    public void setWebSocketService(WebSocketService connectionInfo) {
+        this.webSocketService = connectionInfo;
     }
 
     @Override
@@ -46,22 +45,22 @@ public class BallerinaWebSocketClientConnectorListener implements WebSocketConne
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
+        WebSocketDispatcher.dispatchTextMessage(webSocketService, webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
+        WebSocketDispatcher.dispatchBinaryMessage(webSocketService, webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
+        WebSocketDispatcher.dispatchControlMessage(webSocketService, webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+        WebSocketDispatcher.dispatchCloseMessage(webSocketService, webSocketCloseMessage);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class BallerinaWebSocketClientConnectorListener implements WebSocketConne
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(webSocketService, controlMessage);
     }
 
 }

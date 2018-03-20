@@ -158,7 +158,7 @@ public final class BLangConnectorSPIUtil {
     public static Service getService(ProgramFile programFile, BServiceType serviceType) {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
-        final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+            final ServiceImpl service = ConnectorSPIModelHelper.createService(programFile, serviceInfo);
         BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
         return service;
     }

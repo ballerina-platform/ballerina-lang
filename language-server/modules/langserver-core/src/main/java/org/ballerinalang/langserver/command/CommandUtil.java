@@ -28,6 +28,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -46,7 +47,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 /**
  * Utilities for the command related operations.
@@ -154,8 +154,11 @@ public class CommandUtil {
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
         bLangFunction.getReturnParameters()
-                .forEach(bLangVariable ->
-                        attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
+                .forEach(bLangVariable -> {
+                    if (!bLangVariable.getName().getValue().isEmpty()) {
+                        attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset));
+                    }
+                });
 
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionPos.getStartColumn()), replaceFrom);
     }
@@ -293,9 +296,12 @@ public class CommandUtil {
     static DocAttachmentInfo getResourceNodeDocumentation(BLangResource bLangResource, int replaceFrom) {
         List<String> attributes = new ArrayList<>();
         DiagnosticPos resourcePos = CommonUtil.toZeroBasedPosition(bLangResource.getPosition());
-        attributes.addAll(bLangResource.getParameters().stream()
-                .map(bLangVariable ->getDocAttributeFromBLangVariable(bLangVariable,
-                        resourcePos.getStartColumn())).collect(Collectors.toList()));
+        bLangResource.getParameters()
+                .forEach(bLangVariable -> {
+                    if (!(bLangVariable.symbol instanceof BEndpointVarSymbol)) {
+                        attributes.add(getDocAttributeFromBLangVariable(bLangVariable, resourcePos.getStartColumn()));
+                    }
+                });
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, resourcePos.getStartColumn()), replaceFrom);
     }
 
