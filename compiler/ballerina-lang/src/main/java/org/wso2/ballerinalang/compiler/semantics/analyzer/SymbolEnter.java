@@ -966,6 +966,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             initFunction = createInitFunction(object.pos, "", Names.OBJECT_INIT_SUFFIX);
         }
 
+        initFunction.objectInitFunction = true;
+        initFunction.attachedFunction = true;
+
         //Set cached receiver to the init function
         initFunction.receiver = object.receiver;
 

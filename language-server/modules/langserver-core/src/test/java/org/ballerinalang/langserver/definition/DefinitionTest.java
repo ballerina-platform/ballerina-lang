@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +35,12 @@ import java.nio.file.Paths;
  */
 public class DefinitionTest {
     private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
-            + "resources" + File.separator + "definition";
+            + "resources" + File.separator + "definition.test";
     private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition";
+    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition.test";
     private static final String METHOD = "textDocument/definition";
-    private String balPath1 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition1.bal";
-    private String balPath2 = SAMPLES_COPY_DIR + File.separator + "test" + File.separator + "definition2.bal";
+    private String balPath1 = SAMPLES_COPY_DIR + File.separator + "definition1.bal";
+    private String balPath2 = SAMPLES_COPY_DIR + File.separator + "definition2.bal";
     private String balFile1Content;
     private String balFile2Content;
 
@@ -54,7 +55,7 @@ public class DefinitionTest {
         balFile2Content = new String(encoded2);
     }
 
-//    @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
+    @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
     public void definitionForLocalFunctionsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -64,7 +65,7 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
+    @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
     public void definitionForStructsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -74,7 +75,7 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
+    @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
     public void definitionForGlobalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -84,7 +85,7 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -164,8 +165,7 @@ public class DefinitionTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile, String expectedFileURI) throws IOException {
-        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "test" + File.separator
-                + "expected" + File.separator + expectedFile;
+        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "expected" + File.separator + expectedFile;
         byte[] expectedByte = Files.readAllBytes(Paths.get(expectedFilePath));
         String positionRange = new String(expectedByte);
 

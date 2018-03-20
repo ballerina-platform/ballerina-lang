@@ -65,7 +65,7 @@ public struct ServiceSecureSocket {
     ValidateCert validateCert;
     string ciphers;
     string sslVerifyClient;
-    boolean hostNameVerificationEnabled;
+    boolean sessionCreation = true;
 }
 
 public enum KeepAlive {

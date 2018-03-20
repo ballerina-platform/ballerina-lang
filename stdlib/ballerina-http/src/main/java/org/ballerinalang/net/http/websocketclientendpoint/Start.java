@@ -31,7 +31,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -89,7 +88,7 @@ public class Start extends BlockingNativeCallableUnit {
         WebSocketClientConnectorListener clientConnectorListener;
 
         WsHandshakeListener(Struct clientEndpointConfig, Context context, WebSocketService wsService,
-                WebSocketClientConnectorListener clientConnectorListener) {
+                            WebSocketClientConnectorListener clientConnectorListener) {
             this.clientEndpointConfig = clientEndpointConfig;
             this.context = context;
             this.wsService = wsService;
@@ -99,12 +98,11 @@ public class Start extends BlockingNativeCallableUnit {
         @Override
         public void onSuccess(Session session) {
             BStruct endpoint = (BStruct) context.getRefArgument(0);
+            wsService.setServiceEndpoint(endpoint);
             BStruct wsConnection = WebSocketUtil.createAndGetBStruct(wsService.getResources()[0]);
             clientEndpointConfig.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
             wsConnection.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_SESSION, session);
-            //TODO: check below line
-            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(wsService, endpoint);
-            clientConnectorListener.setConnectionInfo(connectionInfo);
+            clientConnectorListener.setWebSocketService(wsService);
             endpoint.addNativeData(WebSocketConstants.WEBSOCKET_CONNECTOR, wsConnection);
             context.setReturnValues();
         }

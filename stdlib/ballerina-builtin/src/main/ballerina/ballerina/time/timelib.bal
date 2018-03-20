@@ -34,7 +34,7 @@ public struct Time {
 
 @Description {value:"Returns the current time value with the system default timezone."}
 @Return { value:"Time struct containing the time and zone information."}
-public native function currentTime()(Time);
+public native function currentTime() returns (Time);
 
 @Description {value:"Returns the Time struct correspoding to the given time components and timezone."}
 @Param {value:"year: The year representation"}
@@ -47,71 +47,71 @@ public native function currentTime()(Time);
 @Param {value:"zoneId: The zone id of the required timezone.If empty the system local timezone will be used"}
 @Return { value:"Time struct containing time and zone information."}
 public native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
-                                  string zoneId)(Time);
+                                  string zoneId) returns (Time);
 
 @Description {value:"Returns the time for the given string representation based on the given format string."}
 @Param {value:"data: The time text to parse"}
 @Param {value:"format: The format which is used to parse the given text"}
 @Return { value:"Time struct containing time and zone information."}
-public native function parse(string data, string format) (Time);
+public native function parse(string data, string format) returns (Time);
 
 @Description {value:"Returns ISO 8601 string representation of the given time."}
 @Param {value:"time: The time struct for which needs to get the string representation"}
 @Return { value:"The ISO 8601 formatted string of the given time."}
-public native function <Time time> toString()(string);
+public native function <Time time> toString() returns (string);
 
 @Description {value:"Returns formatted string representation of the given time."}
 @Param {value:"time: The time struct for which needs to get the string representation"}
 @Param {value:"format: The format which is used to format the given text"}
 @Return { value:"The formatted string of the given time."}
-public native function <Time time> format(string format)(string);
+public native function <Time time> format(string format) returns (string);
 
 @Description {value:"Returns the year representation of the given time."}
 @Param {value:"time: The time struct which needs to get the year representation"}
 @Return { value:"The year representation."}
-public native function <Time time> year()(int);
+public native function <Time time> year() returns (int);
 
 @Description {value:"Returns the month representation of the given time."}
 @Param {value:"time: The time struct which needs to get the month representation"}
 @Return { value:"The month-of-year, from 1 (January) to 12 (December)."}
-public native function <Time time> month()(int);
+public native function <Time time> month() returns (int);
 
 @Description {value:"Returns the date representation of the given time."}
 @Param {value:"time: The time struct which needs to get the date representation"}
 @Return { value:"The day-of-month, from 1 to 31."}
-public native function <Time time> day()(int);
+public native function <Time time> day() returns (int);
 
 @Description {value:"Returns the weekday representation of the given time."}
 @Param {value:"time: The time struct which needs to get the weekday representation"}
 @Return { value:"The weekday representation from SUNDAY to SATURDAY."}
-public native function <Time time> weekday()(string);
+public native function <Time time> weekday() returns (string);
 
 @Description {value:"Returns the hour representation of the given time."}
 @Param {value:"time: The time struct which needs to get the hour representation"}
 @Return { value:"The hour-of-day, from 0 to 23."}
-public native function <Time time> hour()(int);
+public native function <Time time> hour() returns (int);
 
 @Description {value:"Returns the minute representation of the given time."}
 @Param {value:"time: The time struct which needs to get the minute representation"}
 @Return { value:"The minute-of-hour to represent, from 0 to 59."}
-public native function <Time time> minute()(int);
+public native function <Time time> minute() returns (int);
 
 @Description {value:"Returns the second representation of the given time."}
 @Param {value:"time: The time struct which needs to get the second representation"}
 @Return { value:"The second-of-minute, from 0 to 59."}
-public native function <Time time> second()(int);
+public native function <Time time> second() returns (int);
 
 @Description {value:"Returns the millisecond representation of the given time."}
 @Param {value:"time: The time struct which needs to get the millisecond representation"}
 @Return { value:"The milli-of-second, from 0 to 999."}
-public native function <Time time> milliSecond()(int);
+public native function <Time time> milliSecond() returns (int);
 
 @Description {value:"Returns the date representation of the given time."}
 @Param {value:"time: The time struct which needs to get the date representation"}
 @Return { value:"The year representation."}
 @Return { value:"The month-of-year, from 1 (January) to 12 (December)."}
 @Return { value:"The day-of-month, from 1 to 31."}
-public native function <Time time> getDate()(int, int, int);
+public native function <Time time> getDate() returns (int, int, int);
 
 @Description {value:"Returns the time representation of the given time."}
 @Param {value:"time: The time struct which needs to get the time representation"}
@@ -119,7 +119,7 @@ public native function <Time time> getDate()(int, int, int);
 @Return {value:"The minute-of-hour to represent, from 0 to 59."}
 @Return {value:"The second-of-minute, from 0 to 59."}
 @Return {value:"The milli-of-second, from 0 to 999."}
-public native function <Time time> getTime()(int, int, int, int);
+public native function <Time time> getTime() returns (int, int, int, int);
 
 @Description {value:"Add specified durations to the given time value."}
 @Param {value:"time: The time struct which needs to add the given duration"}
@@ -132,7 +132,7 @@ public native function <Time time> getTime()(int, int, int, int);
 @Param {value:"milliSeconds: The milli-of-second to represent, from 0 to 999"}
 @Return { value:"Time struct containing time and zone information after the addition."}
 public native function <Time time> addDuration(int years, int months, int days, int hours, int minutes, int seconds,
-    int milliSeconds)(Time);
+    int milliSeconds) returns (Time);
 
 @Description {value:"Subtract specified durations from the given time value."}
 @Param {value:"years: The year representation"}
@@ -144,10 +144,10 @@ public native function <Time time> addDuration(int years, int months, int days, 
 @Param {value:"milliSeconds: The milli-of-second to represent, from 0 to 999"}
 @Return { value:"Time struct containing time and zone information after the subtraction."}
 public native function <Time time> subtractDuration(int years, int months, int days, int hours, int minutes, int seconds,
-    int milliSeconds)(Time);
+    int milliSeconds) returns (Time);
 
 @Description {value:"Change the timezone of the given time."}
 @Param {value:"time: The time struct which needs to change the timezone information"}
 @Param {value:"zoneId: The new timezone id"}
 @Return { value:"Time struct containing time and zone information after the conversion."}
-public native function <Time time> toTimezone(string zoneId)(Time);
+public native function <Time time> toTimezone(string zoneId) returns (Time);
