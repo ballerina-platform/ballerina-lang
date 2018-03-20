@@ -223,14 +223,20 @@ class TransformerRender {
                     },
                 }]];
             } else if (castType) {
-                options.overlays = [['Label', {
-                    location: 0.9,
+                options.overlays = [['Custom', {
+                    location: 0.75,
                     id: 'label',
-                    label: '&lt;&gt',
+                    create: (component) => {
+                        return $('<span class="button-show-always fw-lg button-background" title="">'
+                        + '&lt;&gt</span>');
+                    },
                     cssClass: 'connectionLabel',
                     events: {
-                        mouseover: (connection, e) => {
-                            render.showConnectionMenu(connection, e, castType);
+                        mousedown: (connection, e) => {
+                            callback(e.pageX,
+                                e.pageY,
+                                render.getConnectionObject(connection.component.getParameter('input'),
+                                connection.component.getParameter('output')));
                         },
                     },
                 }]];
