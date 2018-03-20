@@ -104,20 +104,19 @@ public native function createDelimitedRecordChannel (CharacterChannel channel, s
 
 @Description {value:"Function to read bytes"}
 @Param {value:"channel: The ByteChannel to read bytes from"}
-@Param {value:"numberOfBytes: Number of bytes which should be read"}
+@Param {value:"nBytes: Number of bytes which should be read"}
 @Return {value:"The bytes which were read"}
 @Return {value:"Number of bytes read"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function <ByteChannel channel> read (@sensitive int numberOfBytes, @sensitive int offset) returns (blob, int,
-                                                                                                         IOError);
+public native function <ByteChannel channel> read (@sensitive int nBytes) returns (blob, int, IOError);
 
 @Description {value:"Function to write bytes"}
 @Param {value:"channel: The ByteChannel to write bytes to"}
 @Param {value:"content: Bytes which should be written"}
-@Param {value:"startOffset: If the bytes need to be written with an offset, the value of that offset"}
+@Param {value:"offset: If the bytes need to be written with an offset, the value of that offset"}
 @Return {value:"Number of bytes written"}
 @Return {value:"Returns if there's any error while performaing I/O operation"}
-public native function <ByteChannel channel> write (blob content, int startOffset, int numberOfBytes) returns (int, IOError);
+public native function <ByteChannel channel> write (blob content, int offset) returns (int, IOError);
 
 @Description {value:"Function to read characters"}
 @Param {value:"channel: The CharacterChannel to read characters from"}
@@ -172,8 +171,8 @@ public native function <CharacterChannel channel> closeCharacterChannel () retur
 @Param {value:"options: Connection stream that bridge the client and the server"}
 @Return {value:"Socket which will allow to communicate with a remote server"}
 @Return {value:"Returns an IOError if unable to open the socket connection"}
-public native function openSecureSocket (@sensitive string host, @sensitive int port,
-                                         SocketProperties options) returns (@tainted Socket, IOError);
+public native function openSecureSocket (@sensitive string host, @sensitive int port, SocketProperties options) returns
+(@tainted Socket, IOError);
 
 @Description {value:"Close the socket connection with the remote server"}
 @Param {value:"socket: The client socket connection to be to be closed"}

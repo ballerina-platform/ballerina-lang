@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -190,27 +191,22 @@ public class PositionTreeVisitor extends NodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
                 varRefExpr.pkgAlias.value);
-//        if (varRefExpr.type instanceof BEndpointType && ((BEndpointType) varRefExpr.type).constraint != null
-//                && ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name().equals(ContextConstants.CONNECTOR)
-//                && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-//            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-//            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-//            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.name.getValue());
-//            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.pkgID);
-//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
-//                    ((BEndpointType) varRefExpr.type).constraint.tsymbol.kind.name());
-//            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
-//            if (varRefExpr.symbol != null) {
-//                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-//                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-//                        varRefExpr.symbol.owner.pkgID);
-//                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-//            }
-//            setTerminateVisitor(true);
-//        } else
-        if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
+        if (varRefExpr.symbol != null && varRefExpr.symbol instanceof BEndpointVarSymbol &&
+                HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
+                    ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, ((BEndpointVarSymbol) varRefExpr.symbol).pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
+                    varRefExpr.symbol.owner.pkgID);
+
+            setTerminateVisitor(true);
+        } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.ENUM)
                 || varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.STRUCT))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
