@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.bre.BLangAsyncCallableUnitCallback;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
@@ -318,16 +319,17 @@ public class BLangFunctions {
         if (nativeCallable == null) {
             return;
         }
+        WorkerResponseContext respCtx;
         if (nativeCallable.isBlocking()) {
-            WorkerResponseContext respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);
-            BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                    new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
-                    new BType[] { BTypes.typeFuture });
-            return;
+            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);            
         } else {
-            //TODO
-            return;
+            respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 1);
+            BLangAsyncCallableUnitCallback callback = new BLangAsyncCallableUnitCallback(respCtx, nativeCtx);
+            nativeCallable.execute(nativeCtx, callback);
         }
+        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
+                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
+                new BType[] { BTypes.typeFuture });
     }
     
     private static void handleError(WorkerExecutionContext ctx) {
