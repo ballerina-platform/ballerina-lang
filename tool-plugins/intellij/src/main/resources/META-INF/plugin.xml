@@ -108,8 +108,8 @@
                                id="ballerinaSkipAutoPopupInComments"/>
 
         <!--line marker-->
-        <codeInsight.lineMarkerProvider language="Ballerina"
-                                        implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
+        <!--<codeInsight.lineMarkerProvider language="Ballerina"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>-->
 
         <!--spell checking-->
         <spellchecker.support language="Ballerina"
@@ -237,39 +237,39 @@
 
         <!--inspections-->
         <!--<localInspection language="Ballerina" displayName="Wrong package statement" groupPath="Ballerina"-->
-                         <!--groupName="Probable bugs" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaWrongPackageStatement"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.WrongPackageStatementInspection"/>-->
+        <!--groupName="Probable bugs" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaWrongPackageStatement"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.WrongPackageStatementInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unused import inspection" groupPath="Ballerina"-->
-                         <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaUnusedImport"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedImportInspection"/>-->
+        <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaUnusedImport"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedImportInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"-->
-                         <!--groupName="General" enabledByDefault="true" level="ERROR"-->
-                         <!--shortName="BallerinaUnresolvedReference"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>-->
+        <!--groupName="General" enabledByDefault="true" level="ERROR"-->
+        <!--shortName="BallerinaUnresolvedReference"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unused variable inspection" groupPath="Ballerina"-->
-                         <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaUnusedVariable"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedVariableInspection"/>-->
+        <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaUnusedVariable"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedVariableInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"-->
-                         <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaUnusedConstant"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedConstantInspection"/>-->
+        <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaUnusedConstant"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedConstantInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"-->
-                         <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaUnusedGlobalVariable"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedGlobalVariableInspection"/>-->
+        <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaUnusedGlobalVariable"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedGlobalVariableInspection"/>-->
 
         <!--<localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"-->
-                         <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
-                         <!--shortName="BallerinaUnusedParameter"-->
-                         <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedParameterInspection"/>-->
+        <!--groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"-->
+        <!--shortName="BallerinaUnusedParameter"-->
+        <!--implementationClass="org.ballerinalang.plugins.idea.codeinspection.UnusedParameterInspection"/>-->
 
         <externalAnnotator language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.BallerinaExternalAnnotator"/>

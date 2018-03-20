@@ -50,6 +50,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.FUNCTION_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH_PATTERN_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
@@ -144,6 +145,8 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == PRIVATE_STRUCT_BODY) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == MATCH_PATTERN_CLAUSE) {
+                    indent = Indent.getSpaceIndent(4);
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.

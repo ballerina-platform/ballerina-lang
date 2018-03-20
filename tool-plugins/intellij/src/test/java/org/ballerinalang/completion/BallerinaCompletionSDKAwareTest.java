@@ -77,22 +77,22 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     //        doCheckResult("test.bal", "import ballerina.net.http; function test() {ht<caret>}",
     //                "import ballerina.net.http; function test() {http:}", null);
     //    }
-
-    public void testFunctionInvocationFromAPackage() {
-        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
-    }
-
-    public void testFunctionInvocationFromAPackageAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
-                "import ballerina.net.uri; function test() {uri:encode()}", null);
-    }
-
-    public void testMultiLevelFunctionInvocation1() {
-        doTest("function test() {string s =\"\"; \n    string s2 = s.<caret>}", "contains", "equalsIgnoreCase",
-                "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace", "replaceAll",
-                "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim", "unescape");
-    }
-
+    //
+    //    public void testFunctionInvocationFromAPackage() {
+    //        doTest("import ballerina.net.uri; function test() {uri:<caret>}", "encode");
+    //    }
+    //
+    //    public void testFunctionInvocationFromAPackageAutoCompletion() {
+    //        doCheckResult("test.bal", "import ballerina.net.uri; function test() {uri:en<caret>}",
+    //                "import ballerina.net.uri; function test() {uri:encode()}", null);
+    //    }
+    //
+    //    public void testMultiLevelFunctionInvocation1() {
+    //        doTest("function test() {string s =\"\"; \n    string s2 = s.<caret>}", "contains", "equalsIgnoreCase",
+    //                "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace", "replaceAll",
+    //                "replaceFirst", "split", "subString", "toBlob", "toLowerCase", "toUpperCase", "trim", "unescape");
+    //    }
+    //
     //    public void testMultiLevelFunctionInvocation2() {
     //        doTest("function test() {string s =\"\"; \n    string s2 = s.toUpperCase().<caret>}", "contains",
     //                "equalsIgnoreCase", "hasPrefix", "hasSuffix", "indexOf", "lastIndexOf", "length", "replace",

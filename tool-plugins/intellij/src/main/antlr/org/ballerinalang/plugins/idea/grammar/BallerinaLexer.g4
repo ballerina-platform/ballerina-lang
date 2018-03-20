@@ -15,7 +15,7 @@ PACKAGE     : 'package' ;
 IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
-PRIVATE      : 'private' ;
+PRIVATE     : 'private' ;
 NATIVE      : 'native' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
@@ -82,6 +82,7 @@ TYPE_TABLE      : 'table' ;
 TYPE_STREAM     : 'stream' ;
 TYPE_AGGREGATION : 'aggregation' ;
 TYPE_ANY        : 'any' ;
+TYPE_DESC       : 'typedesc' ;
 TYPE_TYPE       : 'type' ;
 TYPE_FUTURE     : 'future' ;
 
@@ -178,6 +179,10 @@ COMPOUND_ADD   : '+=' ;
 COMPOUND_SUB   : '-=' ;
 COMPOUND_MUL   : '*=' ;
 COMPOUND_DIV   : '/=' ;
+
+// Safe assignment operator
+
+SAFE_ASSIGNMENT   : '=?' ;
 
 // Post Arithmetic operators.
 

@@ -16,9 +16,6 @@
 
 package org.ballerinalang.completion;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Constant completion test.
  */
@@ -107,32 +104,33 @@ public class BallerinaConstantCompletionTest extends BallerinaCompletionTestBase
         doTest("const <caret>\n string test =\"\";", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
     }
 
-    public void testConstantInSamePackageSameFile() {
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("S");
-        expectedLookups.add("F");
-        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
+    //    public void testConstantInSamePackageSameFile() {
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        expectedLookups.addAll(COMMON_KEYWORDS);
+    //        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+    //        expectedLookups.add("S");
+    //        expectedLookups.add("F");
+    //        doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups
+    // .size()]));
+    //    }
 
-    public void testConstantInSamePackageDifferentFile() {
-        myFixture.addFileToProject("file.bal", "const string S=\"\";");
-        List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.addAll(DATA_TYPES);
-        expectedLookups.addAll(OTHER_TYPES);
-        expectedLookups.addAll(XMLNS_TYPE);
-        expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("S");
-        expectedLookups.add("F");
-        doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
-    }
+    //    public void testConstantInSamePackageDifferentFile() {
+    //        myFixture.addFileToProject("file.bal", "const string S=\"\";");
+    //        List<String> expectedLookups = new LinkedList<>();
+    //        expectedLookups.addAll(DATA_TYPES);
+    //        expectedLookups.addAll(OTHER_TYPES);
+    //        expectedLookups.addAll(XMLNS_TYPE);
+    //        expectedLookups.addAll(REFERENCE_TYPES);
+    //        expectedLookups.addAll(COMMON_KEYWORDS);
+    //        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+    //        expectedLookups.add("S");
+    //        expectedLookups.add("F");
+    //        doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    //    }
 
     public void testConstantInDifferentPackage() {
         myFixture.addFileToProject("org/test/file.bal", "public const string S=\"\";");

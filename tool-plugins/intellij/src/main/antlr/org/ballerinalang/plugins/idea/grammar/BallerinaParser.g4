@@ -54,7 +54,11 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE LT nameReference GT Identifier LEFT_BRACE serviceBody RIGHT_BRACE
+    :   SERVICE (LT nameReference GT) Identifier serviceEndpointAttachments? LEFT_BRACE serviceBody RIGHT_BRACE
+    ;
+
+serviceEndpointAttachments
+    :   BIND nameReference (COMMA nameReference)*
     ;
 
 serviceBody
@@ -62,7 +66,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS LEFT_BRACE callableUnitBody RIGHT_BRACE
+    ;
+
+resourceParameterList
+    :   ENDPOINT Identifier (COMMA parameterList)?
+    |   parameterList
     ;
 
 callableUnitBody
@@ -70,15 +79,15 @@ callableUnitBody
     |  endpointDeclaration* workerDeclaration+
     ;
 
+
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? SEMICOLON
-    |   (PUBLIC)? FUNCTION (LT codeBlockParameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? (LEFT_BRACE callableUnitBody RIGHT_BRACE | SEMICOLON)
+    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
     :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
-
 
 structDefinition
     :   (PUBLIC)? STRUCT Identifier LEFT_BRACE structBody RIGHT_BRACE
@@ -101,11 +110,11 @@ objectBody
     ;
 
 publicObjectFields
-    :   PUBLIC LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
     ;
 
 privateObjectFields
-    :   PRIVATE LEFT_BRACE fieldDefinition+ RIGHT_BRACE
+    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -113,16 +122,44 @@ objectInitializer
     ;
 
 objectInitializerParameterList
-    :   LEFT_PARENTHESIS identiferList? (COMMA formalParameterList?)? RIGHT_PARENTHESIS
+    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFunctions
-    : (annotationAttachment* documentationAttachment? deprecatedAttachment? functionDefinition)+
+    : (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
     ;
 
-identiferList
-    :   Identifier (COMMA Identifier)*
+// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
     ;
+
+// TODO try to merge with formalParameterList later
+objectParameterList
+    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
+// TODO try to merge with parameter later
+objectParameter
+    :   annotationAttachment* typeName? Identifier
+    ;
+
+// TODO try to merge with defaultableParameter later
+objectDefaultableParameter
+    :   objectParameter COLON expression
+    ;
+
+// TODO merge with functionDefinition later
+objectFunctionDefinition
+    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    ;
+
+//TODO merge with callableUnitSignature later
+objectCallableUnitSignature
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
+    ;
+
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
@@ -141,7 +178,7 @@ enumField
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 transformerDefinition
@@ -163,7 +200,7 @@ attachmentPoint
      ;
 
 constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
     ;
 
 workerDeclaration
@@ -192,25 +229,28 @@ endpointInitlization
     ;
 
 typeName
-    :   simpleTypeName                              # simpleTypeNameTemp
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
-    |   typeName (PIPE typeName)+                   # unionTypeName
+    :   simpleTypeName                                                      # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     ;
 
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
-    |   TYPE_TYPE
+    |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
     ;
 
 builtInTypeName
      :   TYPE_ANY
-     |   TYPE_TYPE
+     |   TYPE_DESC
      |   valueTypeName
      |   builtInReferenceTypeName
-     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
+     |   simpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
      ;
 
 referenceTypeName
@@ -239,8 +279,8 @@ builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
     |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
-    |   TYPE_JSON (LT structReference GT)?
-    |   TYPE_TABLE (LT structReference GT)?
+    |   TYPE_JSON (LT nameReference GT)?
+    |   TYPE_TABLE (LT nameReference GT)?
     |   TYPE_STREAM (LT nameReference GT)?
     |   STREAMLET
     |   TYPE_AGGREGATION (LT nameReference GT)?
@@ -269,6 +309,7 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   tupleDestructuringStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
@@ -291,7 +332,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -316,11 +357,16 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    ;
+
+tupleDestructuringStatement
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -500,7 +546,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody onretryClause? RIGHT_BRACE
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE onretryClause?
     ;
 
 transactionPropertyInitStatement
@@ -514,7 +560,7 @@ transactionPropertyInitStatementList
     ;
 
 lockStatement
-    : LOCK LEFT_BRACE codeBlockBody RIGHT_BRACE
+    : LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 onretryClause
@@ -560,7 +606,7 @@ expression
     |   typeConversion                                                      # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) simpleExpression    # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
+    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -635,7 +681,8 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
+    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
     ;
 
 defaultableParameter

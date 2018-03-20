@@ -84,6 +84,7 @@ import org.ballerinalang.plugins.idea.psi.InvocationNode;
 import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.LambdaFunctionNode;
+import org.ballerinalang.plugins.idea.psi.MatchPatternClauseNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
@@ -210,6 +211,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETRIES;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETURN;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RETURNS;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.RIGHT;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SAFE_ASSIGNMENT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SELECT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SEMICOLON;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.SERVICE;
@@ -229,6 +231,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_AGGREGA
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_ANY;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BLOB;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_BOOL;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_DESC;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_FLOAT;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_FUTURE;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.TYPE_INT;
@@ -286,12 +289,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
             LENGTHOF, LOCK, MATCH, NATIVE, NEW, NEXT, OBJECT, ON, ONABORT, ONCOMMIT, ONRETRY, ORDER, OUTER, OUTPUT,
             PACKAGE, PARAMETER, PRIVATE, PUBLIC, QUERY, RESOURCE, RETRIES, RETURN, RETURNS, RIGHT, SELECT, SERVICE,
             SET, SNAPSHOT, SOME, STREAMLET, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORMER, TRY, VAR, WHILE,
-            WORKER, XMLNS, TYPEOF, TYPE_AGGREGATION, TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_FLOAT, TYPE_FUTURE,
+            WORKER, XMLNS, TYPEOF, TYPE_AGGREGATION, TYPE_ANY, TYPE_BLOB, TYPE_BOOL, TYPE_DESC, TYPE_FLOAT, TYPE_FUTURE,
             TYPE_INT, TYPE_JSON, TYPE_MAP, TYPE_STREAM, TYPE_STRING, TYPE_TABLE, TYPE_TYPE, TYPE_XML, UNIDIRECTIONAL,
             UNTAINT, UPDATE, VERSION, WHERE, WITHIN, WINDOW, WITH, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            COLON, COMMA, DOUBLE_COLON, EQUAL_GT, LARROW, QUESTION_MARK, RARROW, SEMICOLON, TILDE);
+            COLON, COMMA, DOUBLE_COLON, EQUAL_GT, LARROW, QUESTION_MARK, RARROW, SAFE_ASSIGNMENT, SEMICOLON, TILDE);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);
@@ -538,6 +541,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FormalParameterListNode(node);
             case BallerinaParser.RULE_integerLiteral:
                 return new IntegerLiteralNode(node);
+            case BallerinaParser.RULE_matchPatternClause:
+                return new MatchPatternClauseNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

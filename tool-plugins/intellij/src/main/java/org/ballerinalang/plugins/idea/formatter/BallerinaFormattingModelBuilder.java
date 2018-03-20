@@ -46,9 +46,11 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.BY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CATCH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.COMMA;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.COMPOUND_OPERATOR;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.CONST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DELETE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.DOT;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.DOUBLE_COLON;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ELSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ENDPOINT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.EXPRESSION;
@@ -86,6 +88,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.LOCK;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LPAREN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.LT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MAP;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NAME_REFERENCE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NATIVE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.NEW;
@@ -191,16 +194,20 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(ANY).spaceIf(false)
                 .after(ANY).spaceIf(true)
                 .around(AS).spaceIf(true)
+                .around(BIND).spaceIf(true)
                 .around(BY).spaceIf(true)
                 .around(BREAK).spaceIf(false)
                 .around(CATCH).spaceIf(true)
+                .around(COMPOUND_OPERATOR).spaceIf(true)
                 .around(ONABORT).spaceIf(true)
                 .around(ONCOMMIT).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
+                .around(DOUBLE_COLON).spaceIf(false)
                 .around(FINALLY).spaceIf(true)
                 .around(GROUP).spaceIf(true)
                 .after(CONST).spaceIf(true)
                 .around(DELETE).spaceIf(true)
+                .after(ENDPOINT).spaceIf(true)
                 .around(ELSE).spaceIf(true)
                 .between(FORK, LBRACE).spaceIf(true)
                 .around(FOLLOWED).spaceIf(true)
@@ -217,6 +224,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(FOREACH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(JOIN).spaceIf(true)
+                .after(MATCH).spaceIf(true)
                 .after(NATIVE).spaceIf(true)
                 .after(NEW).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
@@ -253,6 +261,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(LOCK).spaceIf(true)
                 .before(SEMI).spaceIf(false)
                 .around(DOT).spaceIf(false)
+                .between(TYPE_NAME, QUESTION_MARK).spaceIf(false)
                 .around(QUESTION_MARK).spaceIf(true)
                 .around(PUBLIC).spaceIf(true)
                 .between(LPAREN, RPAREN).spaceIf(false)

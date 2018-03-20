@@ -31,6 +31,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_callab
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_catchClauses;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_codeBlockBody;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_compoundOperator;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_elseIfClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_enumFieldList;
@@ -50,6 +51,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_intege
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_invocation;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinConditions;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_matchPatternClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onabortStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_oncommitStatement;
@@ -183,6 +185,8 @@ public class BallerinaTypes {
     public static final RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(RULE_attachmentPoint);
     public static final RuleIElementType RECORD_KEY_VALUE = ruleIElementTypes.get(RULE_recordKeyValue);
 
+    public static final RuleIElementType MATCH_PATTERN_CLAUSE = ruleIElementTypes.get(RULE_matchPatternClause);
+
     public static final RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(RULE_expressionList);
     public static final RuleIElementType TYPE_LIST = ruleIElementTypes.get(RULE_parameterTypeNameList);
     public static final RuleIElementType TYPE_NAME = ruleIElementTypes.get(RULE_typeName);
@@ -197,7 +201,7 @@ public class BallerinaTypes {
     public static final RuleIElementType ENUM_FIELD_LIST = ruleIElementTypes.get(RULE_enumFieldList);
     public static final RuleIElementType TRANSACTION_PROPERTY_INIT_STATEMENT_LIST =
             ruleIElementTypes.get(RULE_transactionPropertyInitStatementList);
-
+    public static final RuleIElementType COMPOUND_OPERATOR = ruleIElementTypes.get(RULE_compoundOperator);
     // Keywords
     public static final TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
     public static final TokenIElementType ANNOTATION = tokenIElementTypes.get(BallerinaLexer.ANNOTATION);
@@ -233,6 +237,7 @@ public class BallerinaTypes {
     public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);
     public static final TokenIElementType LOCK = tokenIElementTypes.get(BallerinaLexer.LOCK);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
+    public static final TokenIElementType MATCH = tokenIElementTypes.get(BallerinaLexer.MATCH);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static final TokenIElementType NEW = tokenIElementTypes.get(BallerinaLexer.NEW);
     public static final TokenIElementType OBJECT = tokenIElementTypes.get(BallerinaLexer.OBJECT);
@@ -284,6 +289,7 @@ public class BallerinaTypes {
     public static final TokenIElementType COMMA = tokenIElementTypes.get(BallerinaLexer.COMMA);
     public static final TokenIElementType DOT = tokenIElementTypes.get(BallerinaLexer.DOT);
 
+    public static final TokenIElementType DOUBLE_COLON = tokenIElementTypes.get(BallerinaLexer.DOUBLE_COLON);
     public static final TokenIElementType ASSIGN = tokenIElementTypes.get(BallerinaLexer.ASSIGN);
     public static final TokenIElementType GT = tokenIElementTypes.get(BallerinaLexer.GT);
     public static final TokenIElementType LT = tokenIElementTypes.get(BallerinaLexer.LT);
@@ -306,7 +312,14 @@ public class BallerinaTypes {
     public static final TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
     public static final TokenIElementType QUESTION_MARK = tokenIElementTypes.get(BallerinaLexer.QUESTION_MARK);
+    public static final TokenIElementType COMPOUND_ADD = tokenIElementTypes.get(BallerinaLexer.COMPOUND_ADD);
+    public static final TokenIElementType COMPOUND_SUB = tokenIElementTypes.get(BallerinaLexer.COMPOUND_SUB);
+    public static final TokenIElementType COMPOUND_MUL = tokenIElementTypes.get(BallerinaLexer.COMPOUND_MUL);
+    public static final TokenIElementType COMPOUND_DIV = tokenIElementTypes.get(BallerinaLexer.COMPOUND_DIV);
+    public static final TokenIElementType SAGE_ASSIGNMENT = tokenIElementTypes.get(BallerinaLexer.SAFE_ASSIGNMENT);
+    public static final TokenIElementType EQUAL_GT = tokenIElementTypes.get(BallerinaLexer.EQUAL_GT);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
-            BITAND, BITOR, CARET, MOD);
+            BITAND, BITOR, CARET, MOD, COMPOUND_ADD, COMPOUND_SUB, COMPOUND_MUL, COMPOUND_DIV, SAGE_ASSIGNMENT,
+            EQUAL_GT, SENDARROW, RECEIVEARROW);
 }

@@ -65,66 +65,6 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
         myFixture.checkResult("\nservice<>  {\n    \n}\nservice<http> test {\n    \n}\n");
     }
 
-    public void testResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    <caret>\n}");
-        myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n    \n    resource  (http:Request req, http:Response res) " +
-                "{\n        \n    }\n}");
-    }
-
-    public void testResourceAfterResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (http:Request req, " +
-                "http:Response res) {\n        \n    }\n    <caret>\n}");
-        myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n    resource test (http:Request req, http:Response res) {\n     " +
-                "   \n    }\n    \n    resource  (http:Request req, http:Response res) {\n        \n    }\n}");
-    }
-
-    public void testResourceBeforeResource() {
-        myFixture.configureByText("test.bal", "service<http> test {\n\n    <caret>\n    \n    resource test " +
-                "(http:Request req, http:Response res) {\n\n    }\n}");
-        myFixture.type("res\t");
-        myFixture.checkResult("service<http> test {\n\n    \n    resource  (http:Request req, http:Response res) {\n " +
-                "       \n    }\n    \n" +
-                "    resource test (http:Request req, http:Response res) {\n\n    }\n}");
-    }
-
-    public void testConnectorInEmptyFile() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("con\t");
-        myFixture.checkResult("connector  () {\n    \n}");
-    }
-
-    public void testConnectorAfterConnector() {
-        myFixture.configureByText("test.bal", "connector test () {\n    \n}\n<caret>");
-        myFixture.type("con\t");
-        myFixture.checkResult("connector test () {\n    \n}\nconnector  () {\n    \n}");
-    }
-
-    public void testConnectorBeforeConnector() {
-        myFixture.configureByText("test.bal", "<caret>\nconnector test () {\n    \n}");
-        myFixture.type("con\t");
-        myFixture.checkResult("connector  () {\n    \n}\nconnector test () {\n    \n}");
-    }
-
-    //    public void testAction() {
-    //        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n}");
-    //        myFixture.type("act\t");
-    //        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n}");
-    //    }
-
-    //    public void testActionAfterAction() {
-    //        myFixture.configureByText("test.bal", "connector() {\n    action test () {}\n    <caret>\n}");
-    //        myFixture.type("act\t");
-    //        myFixture.checkResult("connector() {\n    action test () {}\n    action  () (){\n        \n    }\n}");
-    //    }
-
-    //    public void testActionBeforeAction() {
-    //        myFixture.configureByText("test.bal", "connector() {\n    <caret>\n    action test () {}\n}");
-    //        myFixture.type("act\t");
-    //        myFixture.checkResult("connector() {\n    action  () (){\n        \n    }\n    action test () {}\n}");
-    //    }
-
     public void testStructInEmptyFile() {
         myFixture.configureByText("test.bal", "<caret>");
         myFixture.type("str\t");
