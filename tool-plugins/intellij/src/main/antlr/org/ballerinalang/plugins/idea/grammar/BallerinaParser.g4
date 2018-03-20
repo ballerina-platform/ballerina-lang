@@ -216,16 +216,11 @@ globalEndpointDefinition
     ;
 
 endpointDeclaration
-    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
+    :   annotationAttachment* ENDPOINT endpointType Identifier (LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE | ASSIGN variableReference)? SEMICOLON
     ;
 
 endpointType
     :   nameReference
-    ;
-
-endpointInitlization
-    :   recordLiteral
-    |   ASSIGN variableReference
     ;
 
 typeName
@@ -300,7 +295,7 @@ xmlLocalName
     ;
 
 annotationAttachment
-    :   AT nameReference recordLiteral?
+    :   AT nameReference (LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE)?
     ;
 
  //============================================================================================================
@@ -546,7 +541,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE onretryClause?
+    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE codeBlockBody onretryClause? RIGHT_BRACE
     ;
 
 transactionPropertyInitStatement
@@ -564,7 +559,7 @@ lockStatement
     ;
 
 onretryClause
-    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
+    :   RIGHT_BRACE ONRETRY LEFT_BRACE codeBlockBody
     ;
 abortStatement
     :   ABORT SEMICOLON

@@ -100,6 +100,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.ONRETRY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.OPERATORS;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PACKAGE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PARAMETER_LIST;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.PUBLIC;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.QUERY;
@@ -268,6 +269,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RPAREN, LBRACE).spaceIf(true)
                 .aroundInside(COLON, EXPRESSION).spaceIf(true)
                 .around(COLON).spaceIf(false)
+                .between(COMMA, PARAMETER).spaceIf(true)
+                .around(PARAMETER).spaceIf(false)
+                .between(COMMA, PARAMETER_LIST).spaceIf(true)
                 .around(PARAMETER_LIST).spaceIf(false)
                 .around(TYPE_LIST).spaceIf(false)
                 .before(COMMA).spaceIf(false)

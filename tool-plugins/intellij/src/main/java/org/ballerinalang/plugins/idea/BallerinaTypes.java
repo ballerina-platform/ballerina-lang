@@ -57,6 +57,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onabor
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_oncommitStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onretryClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_packageName;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameter;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parameterTypeNameList;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_privateStructBody;
@@ -186,6 +187,7 @@ public class BallerinaTypes {
     public static final RuleIElementType RECORD_KEY_VALUE = ruleIElementTypes.get(RULE_recordKeyValue);
 
     public static final RuleIElementType MATCH_PATTERN_CLAUSE = ruleIElementTypes.get(RULE_matchPatternClause);
+    public static final RuleIElementType PARAMETER = ruleIElementTypes.get(RULE_parameter);
 
     public static final RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(RULE_expressionList);
     public static final RuleIElementType TYPE_LIST = ruleIElementTypes.get(RULE_parameterTypeNameList);
