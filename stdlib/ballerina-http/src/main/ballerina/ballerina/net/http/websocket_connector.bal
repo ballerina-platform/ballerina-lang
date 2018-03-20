@@ -20,28 +20,28 @@ public function <WebSocketConnector conn> WebSocketConnector() {
 //TODO: Following functions throws compilations errors. Fix it.
 @Description {value:"Gets the ID of the WebSocket connection"}
 @Return {value:"ID of the connection"}
-public native function <WebSocketConnector wsConnector> getID() (string);
+public native function <WebSocketConnector wsConnector> getID() returns (string);
 
 @Description {value:"Gets the negotiated sub protocol of the connection"}
 @Return {value:"Negotiated sub protocol"}
-public native function <WebSocketConnector wsConnector> getNegotiatedSubProtocol() (string);
+public native function <WebSocketConnector wsConnector> getNegotiatedSubProtocol() returns (string);
 
 @Description {value:"Checks whether the connection is secure or not"}
 @Return {value:"True if the connection is secure"}
-public native function <WebSocketConnector wsConnector> isSecure() (boolean);
+public native function <WebSocketConnector wsConnector> isSecure() returns (boolean);
 
 @Description {value:"Checks whether the connection is still open or not."}
 @Return {value:"True if the connection is open"}
-public native function <WebSocketConnector wsConnector> isOpen() (boolean);
+public native function <WebSocketConnector wsConnector> isOpen() returns (boolean);
 
 @Description {value:"Gets a map of all the upgrade headers of the connection"}
 @Return {value:"Map of all the headers received in the connection upgrade"}
-public native function <WebSocketConnector wsConnector> getUpgradeHeaders() (map);
+public native function <WebSocketConnector wsConnector> getUpgradeHeaders() returns (map);
 
 @Description {value:"Gets a value of a header"}
 @Param {value:"key: Key of the header for which the value should be retrieved"}
 @Return {value:"Value of the header if it exists, else it is null"}
-public native function <WebSocketConnector wsConnector> getUpgradeHeader(string key) (string);
+public native function <WebSocketConnector wsConnector> getUpgradeHeader(string key) returns (string);
 
 @Description {value:"Push text to the connection"}
 @Param {value:"text: Text to be sent"}
@@ -66,4 +66,4 @@ public native function <WebSocketConnector wsConnector> closeConnection(int stat
 
 @Description {value:"Gets the query parameters from the Connection as a map"}
 @Return {value:"The map of query params" }
-public native function <WebSocketConnector ep> getQueryParams() (map);
+public native function <WebSocketConnector ep> getQueryParams() returns (map);

@@ -31,7 +31,7 @@ public struct JWTIssuerConfig {
 @Param {value:"config: JWTIssuerConfig object"}
 @Return {value:"string: JWT token string"}
 @Return {value:"error: If token validation fails "}
-public function issue (Header header, Payload payload, JWTIssuerConfig config) (string, error) {
+public function issue (Header header, Payload payload, JWTIssuerConfig config) returns (string, error) {
     string jwtHeader = createHeader(header);
     var jwtPayload, err = createPayload(payload);
     if (err != null) {
@@ -42,7 +42,7 @@ public function issue (Header header, Payload payload, JWTIssuerConfig config) (
     return jwtAssertion + "." + signature, null;
 }
 
-function createHeader (Header header) (string) {
+function createHeader (Header header) returns (string) {
     json headerJson = {};
     headerJson[ALG] = header.alg;
     headerJson[TYP] = "JWT";
@@ -50,7 +50,7 @@ function createHeader (Header header) (string) {
     return urlEncode(util:base64Encode(headerJson.toString()));
 }
 
-function createPayload (Payload payload) (string, error) {
+function createPayload (Payload payload) returns (string, error) {
     json payloadJson = {};
     if (!validateMandatoryFields(payload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty."};
@@ -68,13 +68,13 @@ function createPayload (Payload payload) (string, error) {
     return urlEncode(util:base64Encode(payloadJson.toString())), null;
 }
 
-function urlEncode (string data) (string) {
+function urlEncode (string data) returns (string) {
     string encodedString = data.replaceAll("\\+", "-");
     encodedString = encodedString.replaceAll("/", "_");
     return encodedString;
 }
 
-function addMapToJson (json inJson, map mapToConvert) (json) {
+function addMapToJson (json inJson, map mapToConvert) returns (json) {
     if (mapToConvert != null) {
         foreach key in mapToConvert.keys() {
             if (typeof mapToConvert[key] == typeof string[]) {
@@ -98,7 +98,7 @@ function addMapToJson (json inJson, map mapToConvert) (json) {
     return inJson;
 }
 
-function convertStringArrayToJson (string[] arrayToConvert) (json) {
+function convertStringArrayToJson (string[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {
@@ -108,7 +108,7 @@ function convertStringArrayToJson (string[] arrayToConvert) (json) {
     return jsonPayload;
 }
 
-function convertIntArrayToJson (int[] arrayToConvert) (json) {
+function convertIntArrayToJson (int[] arrayToConvert) returns (json) {
     json jsonPayload = [];
     int i = 0;
     while (i < lengthof arrayToConvert) {

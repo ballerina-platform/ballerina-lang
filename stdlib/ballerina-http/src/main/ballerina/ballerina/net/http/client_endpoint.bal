@@ -85,7 +85,7 @@ public function <ClientEndpoint ep> start() {
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public function <ClientEndpoint ep> getClient() (HttpClient) {
+public function <ClientEndpoint ep> getClient() returns (HttpClient) {
     return ep.httpClient;
 }
 
@@ -95,7 +95,7 @@ public function <ClientEndpoint ep> stop() {
 
 }
 
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
+public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns (HttpClient);
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}

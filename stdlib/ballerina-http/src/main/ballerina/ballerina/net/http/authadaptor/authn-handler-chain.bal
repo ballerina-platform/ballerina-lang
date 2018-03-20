@@ -26,7 +26,7 @@ public struct AuthnHandlerChain {
 
 @Description {value:"Creates a Authentication handler chain"}
 @Return {value:"AuthnHandlerChain: AuthnHandlerChain instance"}
-public function createAuthnHandlerChain () (AuthnHandlerChain) {
+public function createAuthnHandlerChain () returns (AuthnHandlerChain) {
     AuthnHandlerChain authnHandlerChain = {authnHandlers:{}};
     // TODO: read the authn handlers from a config file and load them dynamically. currently its hardcoded.
     HttpBasicAuthnHandler httpAuthnHandler = {};
@@ -40,7 +40,7 @@ public function createAuthnHandlerChain () (AuthnHandlerChain) {
 @Description {value:"Tries to authenticate against any one of the available authentication handlers"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authenticated successfully, else false"}
-public function <AuthnHandlerChain authnHandlerChain> handle (http:Request req) (boolean) {
+public function <AuthnHandlerChain authnHandlerChain> handle (http:Request req) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authnHandlerChain.authnHandlers {
         var authnHandler, err = (HttpAuthnHandler)currentAuthHandler;
         if (err == null && authnHandler.canHandle(req)) {

@@ -72,7 +72,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action post (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action post (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -92,7 +92,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action head (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action head (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -113,7 +113,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action put (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action put (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -135,7 +135,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action execute (string httpVerb, string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action execute (string httpVerb, string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -156,7 +156,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action patch (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action patch (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -177,7 +177,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action delete (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action delete (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -198,7 +198,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action options (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action options (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -219,7 +219,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action forward (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action forward (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -240,7 +240,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    action get (string path, http:Request request) (http:Response, http:HttpConnectorError) {
+    action get (string path, http:Request request) returns (http:Response, http:HttpConnectorError) {
         currentCircuitState = updateCircuitState(circuitHealth, currentCircuitState, circuitBreakerInferredConfig);
         http:Response response;
         http:HttpConnectorError httpConnectorError;
@@ -262,7 +262,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param { value:"req: An HTTP outbound request message" }
     @Return { value:"The Handle for further interactions" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action submit (string httpVerb, string path, http:Request req) (http:HttpHandle, http:HttpConnectorError) {
+    action submit (string httpVerb, string path, http:Request req) returns (http:HttpHandle, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Circuit breaker";
         return null, httpConnectorError;
@@ -272,7 +272,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"The HTTP response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action getResponse (http:HttpHandle handle) (http:Response, http:HttpConnectorError) {
+    action getResponse (http:HttpHandle handle) returns (http:Response, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Circuit breaker";
         return null, httpConnectorError;
@@ -281,7 +281,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Description { value:"The hasPromise implementation of Circuit Breaker."}
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"Whether push promise exists" }
-    action hasPromise (http:HttpHandle handle) (boolean) {
+    action hasPromise (http:HttpHandle handle) returns (boolean) {
         return false;
     }
 
@@ -289,7 +289,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param { value:"handle: The Handle which relates to previous async invocation" }
     @Return { value:"The HTTP Push Promise message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action getNextPromise (http:HttpHandle handle) (http:PushPromise, http:HttpConnectorError) {
+    action getNextPromise (http:HttpHandle handle) returns (http:PushPromise, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Circuit breaker";
         return null, httpConnectorError;
@@ -299,7 +299,7 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Param { value:"promise: The related Push Promise message" }
     @Return { value:"HTTP The Push Response message" }
     @Return { value:"The Error occured during HTTP client invocation" }
-    action getPromisedResponse (http:PushPromise promise) (http:Response, http:HttpConnectorError) {
+    action getPromisedResponse (http:PushPromise promise) returns (http:Response, http:HttpConnectorError) {
         http:HttpConnectorError httpConnectorError = {};
         httpConnectorError.message = "Unsupported action for Circuit breaker";
         return null, httpConnectorError;
@@ -308,12 +308,12 @@ public connector CircuitBreaker (http:HttpClient httpClient, CircuitBreakerConfi
     @Description { value:"The rejectPromise implementation of Circuit Breaker."}
     @Param { value:"promise: The Push Promise need to be rejected" }
     @Return { value:"Whether operation is successful" }
-    action rejectPromise (http:PushPromise promise) (boolean) {
+    action rejectPromise (http:PushPromise promise) returns (boolean) {
         return false;
     }
 }
 
-function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (CircuitState) {
+function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
 
     lock {
         if (currentState == CircuitState.OPEN) {
@@ -365,7 +365,7 @@ function updateCircuitHealth(CircuitHealth circuitHealth, http:Response inRespon
 }
 
 // Handles open circuit state.
-function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (http:HttpConnectorError) {
+function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (http:HttpConnectorError) {
     time:Time currentT = time:currentTime();
     int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
     int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;
@@ -376,7 +376,7 @@ function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredC
 }
 
 // Validates the struct configurations passed to create circuit breaker.
-function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreakerConfig) (boolean isValidThreshold){
+function validateCircuitBreakerConfiguration (CircuitBreakerConfig circuitBreakerConfig) returns (boolean isValidThreshold){
     float failureThreshold = circuitBreakerConfig.failureThreshold;
      if (failureThreshold < 0 || failureThreshold > 1) {
          string errorMessage = "Invalid failure threshold. Failure threshold value"

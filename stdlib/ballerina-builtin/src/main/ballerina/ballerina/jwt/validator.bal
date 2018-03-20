@@ -33,7 +33,7 @@ public struct JWTValidatorConfig {
 @Return {value:"boolean: If JWT token is valied true , else false"}
 @Return {value:"Payload: If JWT token is valied return the JWT payload"}
 @Return {value:"error: If token validation fails"}
-public function validate (string jwtToken, JWTValidatorConfig config) (boolean, Payload, error) {
+public function validate (string jwtToken, JWTValidatorConfig config) returns (boolean, Payload, error) {
     error err;
     string[] encodedJWTComponents;
     encodedJWTComponents, err = getJWTComponents(jwtToken);
@@ -52,7 +52,7 @@ public function validate (string jwtToken, JWTValidatorConfig config) (boolean, 
     return false, null, err;
 }
 
-function getJWTComponents (string jwtToken) (string[], error) {
+function getJWTComponents (string jwtToken) returns (string[], error) {
     string[] jwtComponents = jwtToken.split("\\.");
     if (lengthof jwtComponents != 3) {
         log:printDebug("Invalid JWT token :" + jwtToken);
@@ -62,7 +62,7 @@ function getJWTComponents (string jwtToken) (string[], error) {
     return jwtComponents, null;
 }
 
-function parseJWT (string[] encodedJWTComponents) (Header, Payload, error) {
+function parseJWT (string[] encodedJWTComponents) returns (Header, Payload, error) {
     var headerJson, payloadJson, err = getDecodedJWTComponents(encodedJWTComponents);
     if (err != null) {
         return null, null, err;
@@ -72,7 +72,7 @@ function parseJWT (string[] encodedJWTComponents) (Header, Payload, error) {
     return jwtHeader, jwtPayload, null;
 }
 
-function getDecodedJWTComponents (string[] encodedJWTComponents) (json, json, error) {
+function getDecodedJWTComponents (string[] encodedJWTComponents) returns (json, json, error) {
     string jwtHeader = util:base64Decode(urlDecode(encodedJWTComponents[0]));
     string jwtPayload = util:base64Decode(urlDecode(encodedJWTComponents[1]));
 
@@ -85,7 +85,7 @@ function getDecodedJWTComponents (string[] encodedJWTComponents) (json, json, er
     return jwtHeaderJson, jwtPayloadJson, null;
 }
 
-function parseHeader (json jwtHeaderJson) (Header) {
+function parseHeader (json jwtHeaderJson) returns (Header) {
     Header jwtHeader = {};
     map customClaims = {};
     foreach key in jwtHeaderJson.getKeys() {
@@ -110,7 +110,7 @@ function parseHeader (json jwtHeaderJson) (Header) {
     return jwtHeader;
 }
 
-function parsePayload (json jwtPayloadJson) (Payload) {
+function parsePayload (json jwtPayloadJson) returns (Payload) {
     Payload jwtPayload = {};
     map customClaims = {};
     foreach key in jwtPayloadJson.getKeys() {
@@ -146,8 +146,7 @@ function parsePayload (json jwtPayloadJson) (Payload) {
     return jwtPayload;
 }
 
-function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config)
-(boolean, error) {
+function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload jwtPayload, JWTValidatorConfig config) returns (boolean, error) {
     if (!validateMandatoryFields(jwtPayload)) {
         error err = {message:"Mandatory fields(Issuer, Subject, Expiration time or Audience) are empty in the given JSON Web Token."};
         return false, err;
@@ -177,24 +176,24 @@ function validateJWT (string[] encodedJWTComponents, Header jwtHeader, Payload j
     return true, null;
 }
 
-function validateMandatoryFields (Payload jwtPayload) (boolean) {
+function validateMandatoryFields (Payload jwtPayload) returns (boolean) {
     if (jwtPayload.iss == null || jwtPayload.sub == null || jwtPayload.exp == 0 || jwtPayload.aud == null) {
         return false;
     }
     return true;
 }
 
-function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) (boolean) {
+function validateSignature (string[] encodedJWTComponents, Header jwtHeader, JWTValidatorConfig config) returns (boolean) {
     string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
     string signPart = encodedJWTComponents[2];
     return signature:verify(assertion, signPart, jwtHeader.alg, config.certificateAlias);
 }
 
-function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) (boolean) {
+function validateIssuer (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     return jwtPayload.iss == config.issuer;
 }
 
-function validateAudience (Payload jwtPayload, JWTValidatorConfig config) (boolean) {
+function validateAudience (Payload jwtPayload, JWTValidatorConfig config) returns (boolean) {
     foreach audience in jwtPayload.aud {
         if (audience == config.audience) {
             return true;
@@ -203,15 +202,15 @@ function validateAudience (Payload jwtPayload, JWTValidatorConfig config) (boole
     return false;
 }
 
-function validateExpirationTime (Payload jwtPayload) (boolean) {
+function validateExpirationTime (Payload jwtPayload) returns (boolean) {
     return jwtPayload.exp > time:currentTime().time;
 }
 
-function validateNotBeforeTime (Payload jwtPayload) (boolean) {
+function validateNotBeforeTime (Payload jwtPayload) returns (boolean) {
     return time:currentTime().time > jwtPayload.nbf;
 }
 
-function convertToStringArray (json jsonData) (string[]) {
+function convertToStringArray (json jsonData) returns (string[]) {
     string[] outData = [];
     if (lengthof jsonData > 0) {
         int i = 0;
@@ -225,7 +224,7 @@ function convertToStringArray (json jsonData) (string[]) {
     return outData;
 }
 
-function urlDecode (string encodedString) (string) {
+function urlDecode (string encodedString) returns (string) {
     string decodedString = encodedString.replaceAll("-", "+");
     decodedString = decodedString.replaceAll("_", "/");
     return decodedString;

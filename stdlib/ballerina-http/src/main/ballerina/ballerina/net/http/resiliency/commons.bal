@@ -34,8 +34,7 @@ enum HttpOperation {
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, http:Request outRequest, http:Request inRequest,
-                                HttpOperation requestAction, http:HttpClient httpClient)
-(http:Response, http:HttpConnectorError) {
+                                HttpOperation requestAction, http:HttpClient httpClient) returns (http:Response, http:HttpConnectorError) {
 
     endpoint<http:HttpClient> endPoint {
     }
@@ -67,7 +66,7 @@ public function invokeEndpoint (string path, http:Request outRequest, http:Reque
 }
 
 // Extracts HttpOperation from the Http verb passed in.
-function extractHttpOperation (string httpVerb) (HttpOperation connectorAction) {
+function extractHttpOperation (string httpVerb) returns (HttpOperation connectorAction) {
     HttpOperation inferredConnectorAction;
     if (GET == httpVerb) {
         inferredConnectorAction = HttpOperation.GET;
@@ -91,7 +90,7 @@ function extractHttpOperation (string httpVerb) (HttpOperation connectorAction) 
 
 // Populate boolean index array by looking at the configured Http status codes to get better performance
 // at runtime.
-function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
+function populateErrorCodeIndex (int[] errorCode) returns (boolean[] result) {
     result = [];
     foreach i in errorCode {
         result[i] = true;

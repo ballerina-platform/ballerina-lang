@@ -25,7 +25,7 @@ public struct UserStore {
 @Param {value:"username: user name"}
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <UserStore userStore> authenticate (string username, string password) (boolean) {
+public function <UserStore userStore> authenticate (string username, string password) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;
@@ -34,7 +34,7 @@ public function <UserStore userStore> authenticate (string username, string pass
 @Description {value:"Reads the group(s) for the user with the given username"}
 @Param {value:"username: user name"}
 @Return {value:"string: relevant group(s) for the user, null if not found"}
-public function <UserStore userstore> readGroupsOfUser (string username) (string) {
+public function <UserStore userstore> readGroupsOfUser (string username) returns (string) {
     error e = {message:"Not implemented"};
     throw e;
     return null;
