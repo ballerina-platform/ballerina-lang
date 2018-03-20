@@ -3,6 +3,7 @@ package ballerina.net.http;
 import ballerina.file;
 import ballerina.io;
 import ballerina.mime;
+import src.test.resources.test-
 
 @Description { value:"Represents an HTTP response message"}
 @Field {value:"statusCode: The response status code"}
@@ -103,7 +104,7 @@ public function <Response res> removeAllHeaders () {
 
 @Description {value:"Get all transport headers from the response. Manipulating the return map does not have any impact to the original copy"}
 @Param {value:"res: The response message"}
-public function <Response res> getCopyOfAllHeaders () map {
+public function <Response res> getCopyOfAllHeaders () returns map | null {
     mime:Entity entity = res.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
