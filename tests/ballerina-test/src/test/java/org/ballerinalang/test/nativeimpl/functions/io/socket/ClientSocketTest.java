@@ -128,7 +128,7 @@ public class ClientSocketTest {
         server.destroy();
     }
 
-    @Test(description = "Open client socket connection to the remote server that started in 9999")
+    @Test(description = "Open client socket connection to the remote server")
     public void testOpenClientSocket() {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
         BRunUtil.invoke(socketClient, "openSocketConnection", args);
