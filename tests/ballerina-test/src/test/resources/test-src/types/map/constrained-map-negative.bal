@@ -1,20 +1,20 @@
-function testConstrainedMapAssignNegative() (map<int>) {
+function testConstrainedMapAssignNegative() returns (map<int>) {
     map testMap = {};
     return testMap;
 }
 
-function testConstrainedMapRecordLiteralNegative() (map<int>) {
+function testConstrainedMapRecordLiteralNegative() returns (map<int>) {
     map<int> testMap = {index_1:1, index_2:"two"};
     return testMap;
 }
 
-function testConstrainedMapIndexBasedAssignNegative() (map<string>) {
+function testConstrainedMapIndexBasedAssignNegative() returns (map<string>) {
     map<string> testMap = {};
     testMap["name"] = 24;
     return testMap;
 }
 
-function testConstrainedMapAssignDifferentConstraintsNegative() (map<int>) {
+function testConstrainedMapAssignDifferentConstraintsNegative() returns (map<int>) {
     map<string> testMap = {};
     return testMap;
 }
@@ -30,30 +30,30 @@ struct Employee {
     int age;
 }
 
-function testInvalidMapPassAsArgument() (map<Person>) {
+function testInvalidMapPassAsArgument() returns (map<Person>) {
     map<Employee> testMap = {};
     map<Person> m = returnMap(testMap);
     return m;
 }
 
-function returnMap(map<Person> m) (map<Person>) {
+function returnMap(map<Person> m) returns (map<Person>) {
     return m;
 }
 
-function testInvalidAnyMapPassAsArgument() (map<Person>) {
+function testInvalidAnyMapPassAsArgument() returns (map<Person>) {
     map testMap = {};
     map<Person> m = returnMap(testMap);
     return m;
 }
 
-function testInvalidStructEquivalentCast() (map<Person>) {
+function testInvalidStructEquivalentCast() returns (map<Person>) {
     map<Employee> testEMap = {};
     map<Person> testPMap;
     testPMap,_ = (map<Person>)testEMap;
     return testPMap;
 }
 
-function testInvalidCastAnyToConstrainedMap() (map<Employee>) {
+function testInvalidCastAnyToConstrainedMap() returns (map<Employee>) {
     map<Employee> testMap = {};
     any m = testMap;
     map<Employee> castMap;
@@ -66,14 +66,14 @@ struct Student {
     int age;
 }
 
-function testInvalidStructToConstrainedMapSafeConversion() (map<int>) {
+function testInvalidStructToConstrainedMapSafeConversion() returns (map<int>) {
     Student s = {index:100, age:25};
     map<int> imap;
     imap = <map<int>>s;
     return imap;
 }
 
-function testInvalidStructEquivalentCastCaseTwo() (map<Student>) {
+function testInvalidStructEquivalentCastCaseTwo() returns (map<Student>) {
     map<Person> testPMap = {};
     map<Student> testSMap;
     testSMap,_ = (map<Student>)testPMap;

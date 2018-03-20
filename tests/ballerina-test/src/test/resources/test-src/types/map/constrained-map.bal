@@ -306,10 +306,7 @@ function testStructEquivalentMapAccess() returns ((string, int)) {
     map<Person> testMap = {};
     Person jack = {name:"Mervin", age:25, address:"Usa"};
     testMap["item"] = jack;
-    string name;
-    int age;
-    (name, age) = equivalentMapAccess(testMap);
-    return (name, age);
+    return equivalentMapAccess(testMap);
 }
 
 function equivalentMapAccess(map<Employee> m) returns ((string, int)) {
