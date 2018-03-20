@@ -290,6 +290,11 @@ public native function <Entity entity> getHeader (string headerName) (string);
 @Return {value:"Return all the header values associated with the given header name as a string of arrays"}
 public native function <Entity entity> getHeaders (string headerName) (string[]);
 
+@Description {value:"Get all the headers as a map. Please note that manipulating the returned map has no effect to the original copy of headers"}
+@Param {value:"entity: Represent a MIME entity"}
+@Return {value:"Return a copy of all headers as a map."}
+public native function <Entity entity> getCopyOfAllHeaders () (map);
+
 @Description {value:"Add the given header value against the given header"}
 @Param {value:"entity: Represent a MIME entity"}
 @Param {value:"headerName: Represent the header name"}

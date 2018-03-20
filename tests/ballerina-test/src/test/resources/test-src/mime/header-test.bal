@@ -71,3 +71,30 @@ function testNonExistenceHeader () (string) {
     entity.addHeader("heAder1", "value1");
     return entity.getHeader("header");
 }
+
+function testGetCopyOfAllHeaders () (map) {
+    mime:Entity entity = {};
+    entity.addHeader("heAder1", "value1");
+    entity.addHeader("header1", "value2");
+    entity.addHeader("header1", "value3");
+    entity.addHeader("hEader2", "value3");
+    entity.addHeader("headeR2", "value4");
+    entity.addHeader("HeADEr2", "totally different value");
+    entity.addHeader("HEADER3", "testVal");
+    return entity.getCopyOfAllHeaders();
+}
+
+function testManipulatingReturnHeaders () (map) {
+    mime:Entity entity = {};
+    entity.addHeader("heAder1", "value1");
+    entity.addHeader("header1", "value2");
+    entity.addHeader("header1", "value3");
+    entity.addHeader("hEader2", "value3");
+    entity.addHeader("headeR2", "value4");
+    entity.addHeader("HeADEr2", "totally different value");
+    entity.addHeader("HEADER3", "testVal");
+    map headerMap = entity.getCopyOfAllHeaders();
+    _ = headerMap.remove("HeADEr2");
+    _ = headerMap.remove("HEADER3");
+    return entity.getCopyOfAllHeaders();
+}
