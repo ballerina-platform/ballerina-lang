@@ -39,7 +39,7 @@ function <helloWorldBlockingStub stub> hello (string req) (string, error) {
     return response, null;
 }
 
-function <helloWorldStub stub> hello (string req, type listener) (error) {
+function <helloWorldStub stub> hello (string req, typedesc listener) (error) {
     var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/hello", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};
