@@ -31,7 +31,7 @@ public function <HubClientEndpoint ep> init (HubClientEndpointConfiguration conf
 
 @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
 @Param {value:"serviceType: The service attached"}
-public function <HubClientEndpoint ep> register (type serviceType) {
+public function <HubClientEndpoint ep> register (typedesc serviceType) {
     ep.httpClientEndpoint.register(serviceType);
 }
 

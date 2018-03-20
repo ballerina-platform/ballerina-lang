@@ -26,12 +26,12 @@ public native function <SubscriberServiceEndpoint ep> initWebSubSubscriberServic
 
 @Description {value:"Gets called whenever a service attaches itself to this endpoint and during package init"}
 @Param {value:"serviceType: The service attached"}
-public function <SubscriberServiceEndpoint ep> register (type serviceType) {
+public function <SubscriberServiceEndpoint ep> register (typedesc serviceType) {
     ep.serviceEndpoint.register(serviceType);
     ep.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-public native function <SubscriberServiceEndpoint ep> registerWebSubSubscriberServiceEndpoint(type serviceType);
+public native function <SubscriberServiceEndpoint ep> registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
 @Description {value:"Starts the registered service"}
 public function <SubscriberServiceEndpoint ep> start () {

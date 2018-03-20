@@ -43,7 +43,7 @@ import org.ballerinalang.net.websub.WebSubSubscriberConstants;
         functionName = "registerWebSubSubscriberServiceEndpoint",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "SubscriberServiceEndpoint",
                 structPackage = "ballerina.net.websub"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
 public class RegisterWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
