@@ -12,6 +12,3 @@ function returnStmtBranch(int value, int b) returns (int) {
         return 500;
     }
 }
-function main (string[] args) {
-    //int a = returnStmtBranch(1,2);
-}
