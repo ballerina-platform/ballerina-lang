@@ -1,4 +1,4 @@
-function AccessPrimitiveAsArray() (string) {
+function AccessPrimitiveAsArray() returns (string) {
     string animal;
     animal[0] = "Dog";
     return animal[0];
