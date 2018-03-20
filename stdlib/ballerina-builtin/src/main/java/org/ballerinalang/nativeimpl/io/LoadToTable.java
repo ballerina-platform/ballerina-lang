@@ -82,13 +82,13 @@ public class LoadToTable implements NativeCallableUnit {
             path = Paths.get(filePath);
         } catch (InvalidPathException e) {
             String msg = "Unable to resolve the file path[" + filePath + "]: " + e.getMessage();
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
             callback.notifySuccess();
             return;
         }
         if (Files.notExists(path)) {
             String msg = "Unable to find a file in given path: " + filePath;
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
             callback.notifySuccess();
             return;
         }
@@ -104,7 +104,7 @@ public class LoadToTable implements NativeCallableUnit {
         } catch (IOException e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);
-            context.setReturnValues(null, IOUtils.createError(context, msg));
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
     }
 
@@ -121,15 +121,15 @@ public class LoadToTable implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
-            context.setReturnValues(null, errorStruct);
+            context.setReturnValues(errorStruct);
         } else {
             try {
                 List records = result.getResponse();
                 table = getbTable(context, records);
-                context.setReturnValues(table, null);
+                context.setReturnValues(table);
             } catch (Throwable e) {
                 errorStruct = IOUtils.createError(context, e.getMessage());
-                context.setReturnValues(null, errorStruct);
+                context.setReturnValues(errorStruct);
             }
         }
         CallableUnitCallback callback = eventContext.getCallback();

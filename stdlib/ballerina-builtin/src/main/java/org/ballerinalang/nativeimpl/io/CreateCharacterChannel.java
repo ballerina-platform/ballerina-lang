@@ -110,11 +110,11 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
                     .BYTE_CHANNEL_NAME);
             CharacterChannel bCharacterChannel = new CharacterChannel(byteChannel, encoding);
             characterChannel.addNativeData(IOConstants.CHARACTER_CHANNEL_NAME, bCharacterChannel);
-            context.setReturnValues(characterChannel, null);
+            context.setReturnValues(characterChannel);
         } catch (Throwable e) {
             String message = "Error occurred while converting byte channel to character channel:" + e.getMessage();
             log.error(message, e);
-            context.setReturnValues(null, IOUtils.createError(context, message));
+            context.setReturnValues(IOUtils.createError(context, message));
         }
     }
 }

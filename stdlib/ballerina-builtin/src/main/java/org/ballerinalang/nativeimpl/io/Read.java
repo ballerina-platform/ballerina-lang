@@ -76,8 +76,10 @@ public class Read implements NativeCallableUnit {
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BBlob(content), new BInteger(numberOfBytes));
         }
-        context.setReturnValues(new BBlob(content), new BInteger(numberOfBytes), errorStruct);
         callback.notifySuccess();
         return result;
     }

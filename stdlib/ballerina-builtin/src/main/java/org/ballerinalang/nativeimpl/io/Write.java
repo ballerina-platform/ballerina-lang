@@ -80,8 +80,10 @@ public class Write implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BInteger(numberOfBytesWritten));
         }
-        context.setReturnValues(new BInteger(numberOfBytesWritten), errorStruct);
         callback.notifySuccess();
         return result;
     }
