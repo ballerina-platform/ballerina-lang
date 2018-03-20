@@ -34,9 +34,8 @@ public function <UserStore userStore> authenticate (string username, string pass
 @Description {value:"Reads the group(s) for the user with the given username"}
 @Param {value:"username: user name"}
 @Return {value:"string: relevant group(s) for the user, null if not found"}
-public function <UserStore userstore> readGroupsOfUser (string username) returns (string) {
+public function <UserStore userstore> readGroupsOfUser (string username) {
     error e = {msg:"Not implemented"};
     throw e;
-    return null;
 }
 
