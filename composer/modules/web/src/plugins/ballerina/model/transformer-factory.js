@@ -212,6 +212,26 @@ class TransformerFactory {
         tree.clearWS();
         return tree;
     }
+
+    /**
+     * Create Transformer conversion expression for given transformer and expression
+     * @param {string} targetType statement target type
+     * @param {object} expression statement expression
+     * @param {strong} transformerName transformer name
+     * @param {[object]} parameters transformer parameters
+     */
+    static createTransformerConversion(targetType, expression, transformerName, parameters) {
+        let params = '';
+        parameters.forEach((param, i) => {
+            params += (i === 0 ? '' : ',') + param.getName().getValue();
+        });
+        transformerName = transformerName ? `, ${transformerName}(${params})` : '';
+        const fragment = FragmentUtils.createExpressionFragment(`<${targetType}${transformerName}>${expression}`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        const conExpr = TreeBuilder.build(parsedJson.variable.initialExpression);
+        conExpr.clearWS();
+        return conExpr;
+    }
 }
 
 export default TransformerFactory;

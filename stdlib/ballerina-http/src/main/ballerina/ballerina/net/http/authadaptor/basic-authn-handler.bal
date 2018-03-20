@@ -38,7 +38,7 @@ public struct HttpBasicAuthnHandler {
 @Description {value:"Intercepts a request for authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request req) returns (boolean) {
 
     // extract the header value
     var basicAuthHeaderValue, err = extractBasicAuthHeaderValue(req);
@@ -90,7 +90,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
 @Description {value:"Checks if the provided request can be authenticated with basic auth"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Request req) (boolean) {
+public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Request req) returns (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;

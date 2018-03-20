@@ -212,14 +212,14 @@ public struct ClientConnector {
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set(s) for the given query"}
 public native function <ClientConnector client> call (@sensitive string sqlQuery, Parameter[] parameters,
-													  typedesc structType) (@tainted table[]);
+													  typedesc structType) returns (@tainted table[]);
 
 @Description {value:"The select action implementation for SQL connector to select data from tables."}
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set for the given query"}
 public native function <ClientConnector client> select (@sensitive string sqlQuery, Parameter[] parameters,
-														typedesc structType) (@tainted table);
+														typedesc structType) returns (@tainted table);
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
 public native function <ClientConnector client> close ();
@@ -228,14 +228,13 @@ public native function <ClientConnector client> close ();
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Updated row count"}
-public native function <ClientConnector client> update (@sensitive string sqlQuery, Parameter[] parameters) (int);
+public native function <ClientConnector client> update (@sensitive string sqlQuery, Parameter[] parameters) returns (int);
 
 @Description {value:"The batchUpdate action implementation for SQL connector to batch data insert."}
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Array of update counts"}
-public native function <ClientConnector client> batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters)
-(int[]);
+public native function <ClientConnector client> batchUpdate (@sensitive string sqlQuery, Parameter[][] parameters) returns (int[]);
 
 @Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
 generated keys during the update action."}
@@ -245,7 +244,7 @@ generated keys during the update action."}
 @Return {value:"Updated row count during the query exectuion"}
 @Return {value:"Array of auto generated key values during the query execution"}
 public native function <ClientConnector client> updateWithGeneratedKeys (@sensitive string sqlQuery,
-													Parameter[] parameters, string[] keyColumns) (int, string[]);
+													Parameter[] parameters, string[] keyColumns) returns (int, string[]);
 
 ///////////////////////////////
 // SQL Client Endpoint

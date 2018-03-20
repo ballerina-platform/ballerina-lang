@@ -26,7 +26,7 @@ public struct HttpAuthnHandler {
 @Description {value:"Intercepts a HTTP request for authentication"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if authentication is a success, else false"}
-public function <HttpAuthnHandler authnHandler> canHandle (http:Request req) (boolean) {
+public function <HttpAuthnHandler authnHandler> canHandle (http:Request req) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;
@@ -35,7 +35,7 @@ public function <HttpAuthnHandler authnHandler> canHandle (http:Request req) (bo
 @Description {value:"Checks if the provided HTTP request can be authenticated with basic auth"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
-public function <HttpAuthnHandler authnHandler> handle (http:Request req) (boolean) {
+public function <HttpAuthnHandler authnHandler> handle (http:Request req) returns (boolean) {
     error e = {message:"Not implemented"};
     throw e;
     return false;

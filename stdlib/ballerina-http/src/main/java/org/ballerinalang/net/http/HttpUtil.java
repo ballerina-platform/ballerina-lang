@@ -41,9 +41,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.session.Session;
@@ -555,19 +553,6 @@ public class HttpUtil {
             throw new BallerinaException("Invalid content length");
         }
         entity.addNativeData(ENTITY_HEADERS, cMsg.getHeaders());
-    }
-
-    private static BMap<String, BValue> prepareEntityHeaderMap(HttpHeaders headers, BMap<String, BValue> headerMap) {
-        for (Map.Entry<String, String> header : headers.entries()) {
-            if (headerMap.keySet().contains(header.getKey())) {
-                BStringArray valueArray = (BStringArray) headerMap.get(header.getKey());
-                valueArray.add(valueArray.size(), header.getValue());
-            } else {
-                BStringArray valueArray = new BStringArray(new String[]{header.getValue()});
-                headerMap.put(header.getKey(), valueArray);
-            }
-        }
-        return headerMap;
     }
 
     /**

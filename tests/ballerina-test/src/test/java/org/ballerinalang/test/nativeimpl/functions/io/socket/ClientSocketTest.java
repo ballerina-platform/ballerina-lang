@@ -139,7 +139,7 @@ public class ClientSocketTest {
     public void testWriteReadContent() {
         String content = "Hello World\n";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes), new BInteger(contentBytes.length) };
+        BValue[] args = { new BBlob(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invoke(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");

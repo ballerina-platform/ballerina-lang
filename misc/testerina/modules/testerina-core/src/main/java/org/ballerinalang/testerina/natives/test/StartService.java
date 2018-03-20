@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.ws.WebSocketConstants;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnAttributeValue;

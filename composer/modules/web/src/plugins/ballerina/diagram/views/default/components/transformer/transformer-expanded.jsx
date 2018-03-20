@@ -36,6 +36,7 @@ import DropZone from '../../../../../drag-drop/DropZone';
 import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
 import IterableList from './iterable-list';
+import ConversionList from './conversion-list';
 
 /**
  * React component for transform expanded view
@@ -55,7 +56,7 @@ class TransformerExpanded extends React.Component {
         this.state = {
             // vertices changes must re-render. Hence added as a state.
             name: props.model.getName().getValue(),
-            iterableOperationMenu: {},
+            connectionMenu: {},
             vertices: [],
             typedSource: '',
             typedTarget: '',
@@ -1119,16 +1120,19 @@ class TransformerExpanded extends React.Component {
                     type = this.getFunctionArgConversionType(expression.getArgumentExpressions(),
                     sourceId.split(':')[0]);
                 }
-            } else if (TreeUtil.isFieldBasedAccessExpr(expression) && (expression.symbolType[0].includes('[]'))) {
+            } else if (TreeUtil.isFieldBasedAccessExpr(expression)
+                        && (expression.symbolType && expression.symbolType[0].includes('[]'))) {
                 type = 'iterable';
             }
         }
         const callback = (pageX, pageY, connection) => {
-            this.setState({ iterableOperationMenu: {
-                showIterables: true,
+            this.setState({ connectionMenu: {
+                showIterables: type === 'iterable',
+                showConversions: type !== 'iterable',
                 iterableX: pageX,
                 iterableY: pageY,
                 currrentConnection: connection,
+                currentStatement: statement,
             } });
         };
         this.mapper.addConnection(sourceId, targetId, folded, type, callback);
@@ -1449,17 +1453,32 @@ class TransformerExpanded extends React.Component {
                                         transformNodeManager={this.transformNodeManager}
                                     />
                                     <IterableList
-                                        showIterables={this.state.iterableOperationMenu.showIterables}
+                                        showIterables={this.state.connectionMenu.showIterables}
                                         bBox={{
-                                            x: this.state.iterableOperationMenu.iterableX,
-                                            y: this.state.iterableOperationMenu.iterableY,
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
                                             h: 0,
                                             w: 0,
                                         }}
-                                        currrentConnection={this.state.iterableOperationMenu.currrentConnection}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
                                         transformNodeManager={this.transformNodeManager}
                                         callback={() => {
-                                            this.setState({ iterableOperationMenu: { showIterables: false } });
+                                            this.setState({ connectionMenu: { showIterables: false } });
+                                        }}
+                                    />
+                                    <ConversionList
+                                        showConvesrsion={this.state.connectionMenu.showConversions}
+                                        bBox={{
+                                            x: this.state.connectionMenu.iterableX,
+                                            y: this.state.connectionMenu.iterableY,
+                                            h: 0,
+                                            w: 0,
+                                        }}
+                                        currrentConnection={this.state.connectionMenu.currrentConnection}
+                                        currentStatement={this.state.connectionMenu.currentStatement}
+                                        transformNodeManager={this.transformNodeManager}
+                                        callback={() => {
+                                            this.setState({ connectionMenu: { showConvesrsion: false } });
                                         }}
                                     />
                                     <div className='right-content'>
