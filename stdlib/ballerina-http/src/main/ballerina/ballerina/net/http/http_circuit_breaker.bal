@@ -85,7 +85,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> post (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> post (string path, Request request) returns (Response|HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -96,18 +96,26 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.post(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-       return response, httpConnectorError;
+           match httpClient.post(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+        }
    }
+
 
    @Description {value:"The HEAD action implementation of the Circuit Breaker. Protects the invocation of the HEAD action of the underlying HTTP client connector."}
    @Param {value:"path: Resource path"}
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> head (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> head (string path, Request request) returns (Response|HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -118,11 +126,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.head(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.head(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+         }
    }
 
    @Description {value:"The PUT action implementation of the Circuit Breaker. Protects the invocation of the PUT action of the underlying HTTP client connector."}
@@ -130,7 +144,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> put (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> put (string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -141,11 +155,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.put(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.put(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+         }
    }
 
    @Description {value:"Protects the invocation of the Execute action of the underlying HTTP client connector. The Execute action can be used to invoke an HTTP call with the given HTTP verb."}
@@ -154,7 +174,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> execute (string httpVerb, string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> execute (string httpVerb, string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -165,11 +185,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.execute(httpVerb, path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.execute(httpVerb, path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+        }
    }
 
    @Description {value:"The PATCH action implementation of the Circuit Breaker. Protects the invocation of the PATCH action of the underlying HTTP client connector."}
@@ -177,7 +203,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> patch (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> patch (string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -188,11 +214,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.patch(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.patch(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+        }
    }
 
    @Description {value:"The DELETE action implementation of the Circuit Breaker. Protects the invocation of the DELETE action of the underlying HTTP client connector."}
@@ -200,7 +232,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> delete (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> delete (string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -211,11 +243,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.delete(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.delete(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+        }
    }
 
     @Description {value:"The GET action implementation of the Circuit Breaker. Protects the invocation of the GET action of the underlying HTTP client connector."}
@@ -223,7 +261,7 @@ public struct CircuitBreakerClient {
     @Param {value:"request: A Request struct"}
     @Return {value:"The Response struct"}
     @Return {value:"Error occurred during the action invocation, if any"}
-    public function <CircuitBreakerClient client> get (string path, Request request) (Response, HttpConnectorError) {
+    public function <CircuitBreakerClient client> get (string path, Request request) returns (Response | HttpConnectorError) {
         HttpClient httpClient = client.httpClient;
         CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
         client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -234,11 +272,17 @@ public struct CircuitBreakerClient {
             // TODO: Allow the user to handle this scenario. Maybe through a user provided function
             httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
         } else {
-            response, httpConnectorError = httpClient.get(path, request);
-            updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
+           match httpClient.get(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
         }
-
-        return response, httpConnectorError;
     }
 
    @Description {value:"The OPTIONS action implementation of the Circuit Breaker. Protects the invocation of the OPTIONS action of the underlying HTTP client connector."}
@@ -246,7 +290,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> options (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> options (string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -257,11 +301,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.options(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
-       }
-
-       return response, httpConnectorError;
+           match httpClient.options(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
+        }
    }
 
    @Description {value:"Protects the invocation of the Forward action of the underlying HTTP client connector. The Forward action can be used to forward an incoming request to an upstream service as it is."}
@@ -269,7 +319,7 @@ public struct CircuitBreakerClient {
    @Param {value:"request: A Request struct"}
    @Return {value:"The Response struct"}
    @Return {value:"Error occurred during the action invocation, if any"}
-   public function <CircuitBreakerClient client> forward (string path, Request request) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> forward (string path, Request request) returns (Response | HttpConnectorError) {
        HttpClient httpClient = client.httpClient;
        CircuitBreakerInferredConfig cbic = client.circuitBreakerInferredConfig;
        client.currentCircuitState = updateCircuitState(client.circuitHealth, client.currentCircuitState, cbic);
@@ -280,11 +330,17 @@ public struct CircuitBreakerClient {
            // TODO: Allow the user to handle this scenario. Maybe through a user provided function
            httpConnectorError = handleOpenCircuit(client.circuitHealth, client.circuitBreakerInferredConfig);
        } else {
-           response, httpConnectorError = httpClient.forward(path, request);
-           updateCircuitHealth(client.circuitHealth, response, httpConnectorError, client.circuitBreakerInferredConfig);
+           match httpClient.forward(path, request) {
+                Response response => {
+                                        updateCircuitHealth(client.circuitHealth, null, httpConnectorError, client.circuitBreakerInferredConfig);
+                                        return response;
+                                    }
+                HttpConnectorError httpConnectorError => {
+                                                            updateCircuitHealth(client.circuitHealth, response, null, client.circuitBreakerInferredConfig);
+                                                            return httpConnectorError;
+                                                        }
+            }
        }
-
-       return response, httpConnectorError;
    }
 
    @Description { value:"The submit implementation of Circuit Breaker."}
@@ -293,7 +349,7 @@ public struct CircuitBreakerClient {
    @Param { value:"req: An HTTP outbound request message" }
    @Return { value:"The Handle for further interactions" }
    @Return { value:"The Error occured during HTTP client invocation" }
-   public function <CircuitBreakerClient client> submit (string httpVerb, string path, Request req) (HttpHandle, HttpConnectorError) {
+   public function <CircuitBreakerClient client> submit (string httpVerb, string path, Request req) returns (HttpHandle | HttpConnectorError) {
        HttpConnectorError httpConnectorError = {};
        httpConnectorError.message = "Unsupported action for Circuit breaker";
        return null, httpConnectorError;
@@ -303,7 +359,7 @@ public struct CircuitBreakerClient {
    @Param { value:"handle: The Handle which relates to previous async invocation" }
    @Return { value:"The HTTP response message" }
    @Return { value:"The Error occured during HTTP client invocation" }
-   public function <CircuitBreakerClient client> getResponse (HttpHandle handle) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> getResponse (HttpHandle handle) returns (Response | HttpConnectorError) {
        HttpConnectorError httpConnectorError = {};
        httpConnectorError.message = "Unsupported action for Circuit breaker";
        return null, httpConnectorError;
@@ -312,7 +368,7 @@ public struct CircuitBreakerClient {
    @Description { value:"The hasPromise implementation of Circuit Breaker."}
    @Param { value:"handle: The Handle which relates to previous async invocation" }
    @Return { value:"Whether push promise exists" }
-   public function <CircuitBreakerClient client> hasPromise (HttpHandle handle) (boolean) {
+   public function <CircuitBreakerClient client> hasPromise (HttpHandle handle) returns (boolean) {
        return false;
    }
 
@@ -320,7 +376,7 @@ public struct CircuitBreakerClient {
    @Param { value:"handle: The Handle which relates to previous async invocation" }
    @Return { value:"The HTTP Push Promise message" }
    @Return { value:"The Error occured during HTTP client invocation" }
-   public function <CircuitBreakerClient client> getNextPromise (HttpHandle handle) (PushPromise, HttpConnectorError) {
+   public function <CircuitBreakerClient client> getNextPromise (HttpHandle handle) returns (PushPromise | HttpConnectorError) {
        HttpConnectorError httpConnectorError = {};
        httpConnectorError.message = "Unsupported action for Circuit breaker";
        return null, httpConnectorError;
@@ -330,7 +386,7 @@ public struct CircuitBreakerClient {
    @Param { value:"promise: The related Push Promise message" }
    @Return { value:"HTTP The Push Response message" }
    @Return { value:"The Error occured during HTTP client invocation" }
-   public function <CircuitBreakerClient client> getPromisedResponse (PushPromise promise) (Response, HttpConnectorError) {
+   public function <CircuitBreakerClient client> getPromisedResponse (PushPromise promise) returns (Response | HttpConnectorError) {
        HttpConnectorError httpConnectorError = {};
        httpConnectorError.message = "Unsupported action for Circuit breaker";
        return null, httpConnectorError;
@@ -339,11 +395,11 @@ public struct CircuitBreakerClient {
    @Description { value:"The rejectPromise implementation of Circuit Breaker."}
    @Param { value:"promise: The Push Promise need to be rejected" }
    @Return { value:"Whether operation is successful" }
-   public function <CircuitBreakerClient client> rejectPromise (PushPromise promise) (boolean) {
+   public function <CircuitBreakerClient client> rejectPromise (PushPromise promise) returns (boolean) {
        return false;
    }
 
-function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (CircuitState) {
+function updateCircuitState (CircuitHealth circuitHealth, CircuitState currentState, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
 
    lock {
 
@@ -396,7 +452,7 @@ function updateCircuitHealth(CircuitHealth circuitHealth, Response inResponse,
 }
 
 // Handles open circuit state.
-function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) (HttpConnectorError) {
+function handleOpenCircuit (CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (HttpConnectorError) {
    time:Time currentT = time:currentTime();
    int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
    int timeRemaining = circuitBreakerInferredConfig.resetTimeout - timeDif;

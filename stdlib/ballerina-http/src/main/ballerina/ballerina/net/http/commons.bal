@@ -32,7 +32,7 @@ enum HttpOperation {
 
 // makes the actual endpoints call according to the http operation passed in.
 public function invokeEndpoint (string path, Request outRequest, Request inRequest,
-                                HttpOperation requestAction, HttpClient httpClient) returns (Response, HttpConnectorError) {
+                                HttpOperation requestAction, HttpClient httpClient) returns (Response | HttpConnectorError) {
     if (HttpOperation.GET == requestAction) {
         return httpClient.get(path, outRequest);
     } else if (HttpOperation.POST == requestAction) {
@@ -53,7 +53,7 @@ public function invokeEndpoint (string path, Request outRequest, Request inReque
         HttpConnectorError httpConnectorError = {};
         httpConnectorError.statusCode = 400;
         httpConnectorError.message = "Unsupported connector action received.";
-        return null, httpConnectorError;
+        return httpConnectorError;
     }
 }
 
