@@ -1,10 +1,10 @@
-function checkEqulalityOfTwoTypes() (boolean){
+function checkEqulalityOfTwoTypes() returns (boolean){
     int a;
     string b;
     return a == b;
 }
 
-function checkEqulalityOfUnsupportedType() (boolean){
+function checkEqulalityOfUnsupportedType() returns (boolean){
     json j1;
     json j2;
     j1 = {"name":"Jack"};
@@ -13,7 +13,7 @@ function checkEqulalityOfUnsupportedType() (boolean){
     return j1 == j2;
 }
 
-function checkNotEqulalityOfUnsupportedType() (boolean){
+function checkNotEqulalityOfUnsupportedType() returns (boolean){
     json j1;
     json j2;
     j1 = {"name":"Jack"};
