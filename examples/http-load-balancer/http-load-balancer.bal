@@ -8,7 +8,7 @@ service<http> loadBalancerService {
         path:"/"
     }
 
-    resource loadBalanceResource (http:Connection conn, http:InRequest req) {
+    resource loadBalanceResource (http:Connection conn, http:Request req) {
 
         endpoint<http:HttpClient> endPoint {
             create resiliency:LoadBalancer(
@@ -18,15 +18,15 @@ service<http> loadBalancerService {
             resiliency:roundRobin);
         }
 
-        http:InResponse inResponse = {};
+        http:Response inResponse = {};
         http:HttpConnectorError httpConnectorError;
 
-        http:OutRequest outRequest = {};
+        http:Request outRequest = {};
         json requestPayload = {"name":"Ballerina"};
         outRequest.setJsonPayload(requestPayload);
         inResponse, httpConnectorError = endPoint.post("/", outRequest);
 
-        http:OutResponse outResponse = {};
+        http:Response outResponse = {};
         if (httpConnectorError != null) {
             outResponse.statusCode = httpConnectorError.statusCode;
             outResponse.setStringPayload(httpConnectorError.message);
@@ -42,8 +42,8 @@ service<http> mock1 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock1Resource (http:Connection conn, http:InRequest req) {
-        http:OutResponse outResponse = {};
+    resource mock1Resource (http:Connection conn, http:Request req) {
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock1 Resource is invoked.");
         _ = conn.respond(outResponse);
     }
@@ -54,8 +54,8 @@ service<http> mock2 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock2Resource (http:Connection conn, http:InRequest req) {
-        http:OutResponse outResponse = {};
+    resource mock2Resource (http:Connection conn, http:Request req) {
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock2 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }
@@ -66,8 +66,8 @@ service<http> mock3 {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    resource mock3Resource (http:Connection conn, http:InRequest req) {
-        http:OutResponse outResponse = {};
+    resource mock3Resource (http:Connection conn, http:Request req) {
+        http:Response outResponse = {};
         outResponse.setStringPayload("Mock3 Resource is Invoked.");
         _ = conn.respond(outResponse);
     }

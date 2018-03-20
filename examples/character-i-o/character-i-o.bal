@@ -3,10 +3,15 @@ import ballerina.io;
 @Description {value:"This function returns a CharacterChannel from a given file location according to the specified permissions and encoding."}
 function getFileCharacterChannel (string filePath, string permission, string encoding)
 (io:CharacterChannel) {
+    io:IOError err;
+    io:CharacterChannel characterChannel;
     // First we get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     // Then we create a character channel from the byte channel to read content as text.
-    io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
+    characterChannel, err = io:createCharacterChannel(channel, encoding);
+    if(err != null){
+        throw err.cause;
+    }
     return characterChannel;
 }
 

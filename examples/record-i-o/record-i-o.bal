@@ -3,13 +3,22 @@ import ballerina.io;
 @Description{value:"This function will return a DelimitedRecordChannel from a given file location.The encoding is character represenation of the content in file i.e UTF-8 ASCCI. The rs is record seperator i.e newline etc. and fs is field seperator i.e comma etc."}
 function getFileRecordChannel (string filePath, string permission, string encoding,
                                string rs, string fs) (io:DelimitedRecordChannel) {
+    io:IOError err;
+    io:CharacterChannel characterChannel;
+    io:DelimitedRecordChannel delimitedRecordChannel;
     //First we get the ByteChannel representation of the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     //Then we create a character channel from the byte channel to read content as text.
-    io:CharacterChannel characterChannel = io:createCharacterChannel(channel, encoding);
+    characterChannel,err = io:createCharacterChannel(channel, encoding);
+    if(err != null){
+        throw err.cause;
+    }
     //Finally we convert the character channel to record channel
     //to read content as records.
-    io:DelimitedRecordChannel delimitedRecordChannel = io:createDelimitedRecordChannel(characterChannel, rs, fs);
+    delimitedRecordChannel, err = io:createDelimitedRecordChannel(characterChannel, rs, fs);
+    if(err != null){
+        throw err.cause;
+    }
     return delimitedRecordChannel;
 }
 
