@@ -28,9 +28,11 @@ import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Statement context resolver for resolving the items of the statement context.
@@ -66,10 +68,16 @@ public class StatementContextResolver extends AbstractItemResolver {
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
-            // We need to remove the functions having a receiver symbol
+            // We need to remove the functions having a receiver symbol and the bTypes of the following
+            // ballerina.coordinator, ballerina.runtime, and anonStructs
+            ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("ballerina.runtime",
+                    "ballerina.transactions.coordinator"));
             completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+                String symbolName = bSymbol.getName().getValue();
+                return (bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null)
+                        || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
+                        || (symbolName.startsWith("$anonStruct"));
             });
             populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
             // Now we need to sort the completion items and populate the completion items specific to the scope owner

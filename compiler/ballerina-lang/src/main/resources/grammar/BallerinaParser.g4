@@ -626,7 +626,7 @@ nameReference
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
+    : RETURNS (parameterList | parameterTypeNameList)
     ;
 
 parameterTypeNameList

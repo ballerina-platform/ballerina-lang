@@ -210,7 +210,7 @@ public class HttpConstants {
     public static final int CONNECTION_THROTTLING_WAIT_TIME_INDEX = 1;
 
     //Retry Struct indexes
-    public static final int RETRY_STRUCT_INDEX = 2;
+    public static final int RETRY_STRUCT_INDEX = 4;
     public static final int RETRY_COUNT_INDEX = 0;
     public static final int RETRY_INTERVAL_INDEX = 1;
 
@@ -262,7 +262,8 @@ public class HttpConstants {
     public static final String SSL_CONFIG_CIPHERS = "ciphers";
     public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
     public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
-    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerificationEnabled";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "hostNameVerification";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "sessionCreation";
 
     //Client Endpoint
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
@@ -298,4 +299,9 @@ public class HttpConstants {
     // Filter related
     public static final String ENDPOINT_CONFIG_FILTERS = "filters";
     public static final String FILTERS = "FILTERS";
+
+    // Retry Config
+    public static final String CLIENT_EP_RETRY = "retry";
+    public static final String RETRY_COUNT = "count";
+    public static final String RETRY_INTERVAL = "interval";
 }

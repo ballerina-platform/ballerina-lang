@@ -115,12 +115,20 @@ public class ReferencesTreeVisitor extends NodeVisitor {
             funcNode.retParams.forEach(this::acceptNode);
         }
 
+        if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+            funcNode.endpoints.forEach(this::acceptNode);
+        }
+
         if (funcNode.body != null) {
             this.acceptNode(funcNode.body);
         }
 
         if (!funcNode.workers.isEmpty()) {
             funcNode.workers.forEach(this::acceptNode);
+        }
+
+        if (!funcNode.defaultableParams.isEmpty()) {
+            funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
 
@@ -574,7 +582,7 @@ public class ReferencesTreeVisitor extends NodeVisitor {
                     endpointNode.pos.getSource().pkgID.name.getValue());
         }
 
-        if (endpointNode.configurationExpr != null) {
+        if (endpointNode.endpointTypeNode != null) {
             this.acceptNode(endpointNode.endpointTypeNode);
         }
 

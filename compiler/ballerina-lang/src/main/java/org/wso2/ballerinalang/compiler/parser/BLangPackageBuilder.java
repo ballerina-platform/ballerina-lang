@@ -1368,9 +1368,6 @@ public class BLangPackageBuilder {
             function.body = null;
         }
 
-        function.objectInitFunction = true;
-        function.attachedFunction = true;
-
         if (!function.deprecatedAttachments.isEmpty()) {
             function.flagSet.add(Flag.DEPRECATED);
         }

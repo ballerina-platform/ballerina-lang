@@ -26,7 +26,7 @@ public struct AuthzHandlerChain {
 
 @Description {value:"Creates an Authz handler chain"}
 @Return {value:"AuthzHandlerChain: AuthzHandlerChain instance"}
-public function createAuthzHandlerChain () (AuthzHandlerChain) {
+public function createAuthzHandlerChain () returns (AuthzHandlerChain) {
     AuthzHandlerChain authzHandlerChain = {authzHandlers:{}};
     // TODO: read the authz handlers from a config file and load them dynamically. currently its hardcoded.
     HttpAuthzHandler authzHandler = {};
@@ -40,7 +40,7 @@ public function createAuthzHandlerChain () (AuthzHandlerChain) {
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
 public function <AuthzHandlerChain authzHandlerChain> handle (http:Request req, string scopeName,
-                                                              string resourceName) (boolean) {
+                                                              string resourceName) returns (boolean) {
     foreach currentAuthHandlerType, currentAuthHandler in authzHandlerChain.authzHandlers {
         var authzHandler, err = (HttpAuthzHandler)currentAuthHandler;
         if (err == null && authzHandler.canHandle(req)) {

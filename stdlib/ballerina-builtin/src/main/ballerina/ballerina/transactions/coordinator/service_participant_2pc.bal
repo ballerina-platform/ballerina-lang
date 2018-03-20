@@ -25,7 +25,7 @@ import ballerina.net.http;
 documentation {
     Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
 }
-service<http:Service> Participant2pcService bind coordinatorServerEP{
+service<http:Service> Participant2pcService bind coordinatorServerEP {
 
     @http:ResourceConfig {
         methods:["POST"],
@@ -68,7 +68,6 @@ service<http:Service> Participant2pcService bind coordinatorServerEP{
                 if (txn.state == TransactionState.ABORTED) {
                     res = {statusCode:200};
                     prepareRes = {message:"aborted"};
-                    //TODO remove the transaction
                     participatedTransactions.remove(participatedTxnId);
                 } else {
                     // Call prepare on the local resource manager
@@ -83,7 +82,6 @@ service<http:Service> Participant2pcService bind coordinatorServerEP{
                         res = {statusCode:200};
                         prepareRes = {message:"aborted"};
                         txn.state = TransactionState.ABORTED;
-                        //TODO do not remove the transaction since we may get a msg from the initiator
                         participatedTransactions.remove(participatedTxnId);
                         log:printInfo("Aborted transaction: " + transactionId);
                     }
@@ -168,7 +166,6 @@ service<http:Service> Participant2pcService bind coordinatorServerEP{
                         notifyRes = {message:"Failed-EOT"};
                     }
                 }
-                //TODO do not remove the transaction since we may get a msg from the initiator
                 participatedTransactions.remove(participatedTxnId);
             }
             var j, _ = <json>notifyRes;

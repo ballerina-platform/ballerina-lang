@@ -40,7 +40,7 @@ public struct AuthenticationInfo {
 @Param {value:"cache: cache instance"}
 @Return {value:"BasicAuthenticator instance"}
 public function createAuthenticator (userstore:UserStore userStore,
-                                     caching:Cache cache) (BasicAuthenticator) {
+                                     caching:Cache cache) returns (BasicAuthenticator) {
     if (userStore == null) {
         // error, cannot proceed without validator
         error e = {message:"Userstore cannot be null for basic authenticator"};
@@ -55,14 +55,14 @@ public function createAuthenticator (userstore:UserStore userStore,
 @Param {value:"username: user name"}
 @Param {value:"password: password"}
 @Return {value:"boolean: true if authentication is successful, else false"}
-public function <BasicAuthenticator authenticator> authenticate (string username, string password) (boolean) {
+public function <BasicAuthenticator authenticator> authenticate (string username, string password) returns (boolean) {
     return authenticator.userStore.authenticate(username, password);
 }
 
 @Description {value:"Retrieves the cached authentication result if any, for the given basic auth header value"}
 @Param {value:"basicAuthCacheKey: basic authentication cache key - sha256(basic auth header)"}
 @Return {value:"any: cached entry, or null in a cache miss"}
-public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) (any) {
+public function <BasicAuthenticator authenticator> getCachedAuthResult (string basicAuthCacheKey) returns (any) {
     if (authenticator.authCache != null) {
         return authenticator.authCache.get(basicAuthCacheKey);
     }
@@ -91,7 +91,7 @@ public function <BasicAuthenticator authenticator> clearCachedAuthResult (string
 @Param {value:"username: user name"}
 @Param {value:"isAuthenticated: authentication decision"}
 @Return {value:"AuthenticationInfo: Authentication decision instance, whether the user is authenticated or not"}
-public function createAuthenticationInfo (string username, boolean isAuthenticated) (AuthenticationInfo) {
+public function createAuthenticationInfo (string username, boolean isAuthenticated) returns (AuthenticationInfo) {
     AuthenticationInfo authInfo = {username:username, isAuthenticated:isAuthenticated};
     return authInfo;
 }
