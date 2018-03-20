@@ -1,11 +1,16 @@
 import ballerina.net.http;
 
-service<http> sample {
+endpoint<http:Service> helloWorldEP {
+port:9090
+}
+
+@http:serviceConfig { endpoints:[helloWorldEP] }
+service<http:Service> sample {
     @http:resourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    resource params (http:Connection conn, http:Request req, string foo) {
+    resource params (http:ServerConnector conn, http:Request req, string foo) {
         map params = req.getQueryParams();
         var bar, _ = (string) params.bar;
 

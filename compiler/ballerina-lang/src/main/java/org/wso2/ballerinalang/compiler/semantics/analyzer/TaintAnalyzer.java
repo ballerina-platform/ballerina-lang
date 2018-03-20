@@ -1145,6 +1145,10 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                     }
                 }
             }
+        } else if (retParams.size() > 0) {
+            // This is when invokable has no return statement, but it returns some value. Example: Transformers.
+            returnTaintedStatusList = new ArrayList<>();
+            retParams.forEach(param -> returnTaintedStatusList.add(param.symbol.tainted));
         } else {
             returnTaintedStatusList = new ArrayList<>();
         }
@@ -1234,7 +1238,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
             addTaintError(allParamsUntaintedRecord.taintError);
         } else {
-            returnTaintedStatus = new ArrayList<>(taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintdStatus);
+            returnTaintedStatus = new
+                    ArrayList<>(taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus);
         }
         if (invocationExpr.argExprs != null) {
             for (int argIndex = 0; argIndex < invocationExpr.argExprs.size(); argIndex++) {
@@ -1263,7 +1268,7 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
                         // Go through tainted status of returns for each "tainted" parameter value. Combine tainted
                         // status of all returns to get accumulated tainted status of all returns for the invocation.
                         for (int returnIndex = 0; returnIndex < returnTaintedStatus.size(); returnIndex++) {
-                            if (taintRecord.retParamTaintdStatus.get(returnIndex)) {
+                            if (taintRecord.retParamTaintedStatus.get(returnIndex)) {
                                 returnTaintedStatus.set(returnIndex, true);
                             }
                         }

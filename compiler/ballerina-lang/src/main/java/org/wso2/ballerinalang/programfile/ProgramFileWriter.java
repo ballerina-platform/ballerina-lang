@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.programfile.attributes.ErrorTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
@@ -52,6 +53,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.ServiceLoader;
 
 /**
@@ -590,6 +592,18 @@ public class ProgramFileWriter {
                 dataOutStream.writeShort(defaultValues.length);
                 for (DefaultValue defaultValue : defaultValues) {
                     writeDefaultValue(dataOutStream, defaultValue);
+                }
+                break;
+            case TAINT_TABLE:
+                TaintTableAttributeInfo taintTableAttributeInfo = (TaintTableAttributeInfo) attributeInfo;
+                dataOutStream.writeShort(taintTableAttributeInfo.tableSize);
+                dataOutStream.writeShort(taintTableAttributeInfo.retParamCount);
+                for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
+                    dataOutStream.writeShort(paramIndex);
+                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Boolean taintStatus : taintRecord) {
+                        dataOutStream.writeBoolean(taintStatus);
+                    }
                 }
                 break;
         }
