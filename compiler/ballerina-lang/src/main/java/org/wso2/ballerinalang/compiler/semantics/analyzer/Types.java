@@ -180,6 +180,7 @@ public class Types {
      * 2) there exists an implicit cast symbol from source to target.
      * 3) both types are JSON and the target constraint is no type.
      * 4) both types are array type and both array types are assignable.
+     * 5) both types are MAP and the target constraint is any type or constraints are structurally equivalent.
      *
      * @param source type.
      * @param target type.
@@ -230,6 +231,19 @@ public class Types {
                 return true;
             }
             return isAssignable(((BFutureType) source).constraint, ((BFutureType) target).constraint);
+        }
+
+        if (target.tag == TypeTags.MAP && source.tag == TypeTags.MAP) {
+            // Here source condition is added for prevent assigning map union constrained
+            // to map any constrained.
+            if (((BMapType) target).constraint.tag == TypeTags.ANY &&
+                    ((BMapType) source).constraint.tag != TypeTags.UNION) {
+                return true;
+            }
+            if (checkStructEquivalency(((BMapType) source).constraint,
+                    ((BMapType) target).constraint)) {
+                return true;
+            }
         }
 
         if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
@@ -631,16 +645,7 @@ public class Types {
     }
 
     private boolean isNullable(BType fieldType) {
-        if (!isValueType(fieldType)) {
-            return true;
-        }
-
-        // TODO: include blob as well, when the null support for blob is implemented
-        if (fieldType.tag == TypeTags.STRING) {
-            return true;
-        }
-
-        return false;
+        return fieldType.isNullable();
     }
 
     private boolean isJSONAssignableType(BType type) {
@@ -688,11 +693,37 @@ public class Types {
                 return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
             }
 
+            // Here condition is added for prevent explicit cast assigning map union constrained
+            // to map any constrained.
+            if (s.tag == TypeTags.MAP &&
+                    ((BMapType) s).constraint.tag == TypeTags.UNION) {
+                return symTable.notFoundSymbol;
+            }
+
             return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
         }
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            if (isSameType(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.MAP) {
+                if (t.constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BMapType) s).constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BMapType) s).constraint,
+                        t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else {
+                    return symTable.notFoundSymbol;
+                }
+            } else if (t.constraint.tag != TypeTags.ANY) {
+                // Semantically fail rest of the casts for Constrained Maps.
+                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
+                return symTable.notFoundSymbol;
+            }
+
             return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
         }
 
@@ -838,6 +869,12 @@ public class Types {
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            // Semantically fail all conversions for Constrained Maps.
+            // Eg:- T2MAP, XMLATTRS2MAP
+            if (t.constraint.tag != TypeTags.ANY) {
+                return symTable.notFoundSymbol;
+            }
+
             if (s.tag == TypeTags.STRUCT) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
             }
@@ -950,7 +987,13 @@ public class Types {
 
         @Override
         public Boolean visit(BMapType t, BType s) {
-            return t == s;
+            if (s.tag != TypeTags.MAP) {
+                return false;
+            }
+            // At this point both source and target types are of map types. Inorder to be equal in type as whole
+            // constraints should be in equal type.
+            BMapType sType = ((BMapType) s);
+            return isSameType(sType.constraint, t.constraint);
         }
         
         @Override
@@ -1037,7 +1080,7 @@ public class Types {
 
         @Override
         public Boolean visit(BUnionType t, BType s) {
-            return false;
+            return t == s;
         }
 
         @Override

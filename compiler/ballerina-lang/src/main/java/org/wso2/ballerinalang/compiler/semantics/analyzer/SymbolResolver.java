@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -314,12 +315,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.diagCode = preDiagCode;
 
         // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type
+        // if it is not already a union type or a JSON type
         if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) this.resultType;
             unionType.memberTypes.add(symTable.nullType);
             unionType.setNullable(true);
-        } else if (typeNode.nullable) {
+        } else if (typeNode.nullable && typeNode.type.tag != TypeTags.JSON) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nullType);
@@ -508,6 +509,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BStreamType(TypeTags.STREAM, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.FUTURE) {
             resultType = new BFutureType(TypeTags.FUTURE, constraintType, type.tsymbol);
+        } else if (type.tag == TypeTags.MAP) {
+            resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
