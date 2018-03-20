@@ -56,8 +56,6 @@ public class InitWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunct
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
         serviceEndpoint.addNativeData(WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
 
-        //setFilters(serviceEndpointConfig, serviceEndpoint);  // set filters
-
         context.setReturnValues();
     }
 
