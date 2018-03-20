@@ -519,6 +519,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
+
+        // Check whether variable is initialized, if the type don't support default values.
+        // eg: struct types.
+        if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.var.type)) {
+            dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
+        }
     }
 
     public void visit(BLangPostIncrement postIncrement) {

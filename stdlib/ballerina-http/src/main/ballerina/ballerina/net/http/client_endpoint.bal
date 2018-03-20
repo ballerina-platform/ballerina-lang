@@ -16,9 +16,9 @@
 
 package ballerina.net.http;
 
-///////////////////////////////
-// HTTP Client Endpoint
-///////////////////////////////
+////////////////////////////////
+///// HTTP Client Endpoint /////
+////////////////////////////////
 
 @Description {value:"Represents an HTTP client endpoint"}
 @Field {value:"epName: The name of the endpoint"}
@@ -71,7 +71,7 @@ public struct ClientEndpointConfiguration {
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
-    function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
+    function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     FailoverConfig failoverConfig;
 }
 
@@ -116,7 +116,7 @@ public function <ClientEndpoint ep> start() {
 
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
-public function <ClientEndpoint ep> getClient() returns (HttpClient) {
+public function <ClientEndpoint ep> getClient() returns HttpClient {
     return ep.httpClient;
 }
 
@@ -126,7 +126,7 @@ public function <ClientEndpoint ep> stop() {
 
 }
 
-public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns (HttpClient);
+public native function createHttpClient(string uri, ClientEndpointConfiguration config) returns HttpClient;
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -182,38 +182,39 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
+function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) returns HttpClient {
     validateCircuitBreakerConfiguration(configuration.circuitBreaker);
     boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
-    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
-                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
-                                                                    httpStatusCodes:httpStatusCodes
-                                                                };
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig =
+        { failureThreshold:configuration.circuitBreaker.failureThreshold,
+          resetTimeout:configuration.circuitBreaker.resetTimeout, httpStatusCodes:httpStatusCodes };
     HttpClient cbHttpClient = createHttpClient(uri, configuration);
     CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
                                         circuitBreakerInferredConfig:circuitBreakerInferredConfig,
                                         httpClient:cbHttpClient,
                                         circuitHealth:{},
                                         currentCircuitState:CircuitState.CLOSED};
-    var httpClient , e = (HttpClient) cbClient;
+    var httpClient, _ = (HttpClient) cbClient;
     return httpClient;
 }
 
-function createLoadBalancerClient(ClientEndpointConfiguration config) (HttpClient) {
+function createLoadBalancerClient(ClientEndpointConfiguration config) returns HttpClient {
     HttpClient[] lbClients = createHttpClientArray(config);
-    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
-    var httpClient, e = (HttpClient)lb;
+    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients,
+                          algorithm:config.algorithm};
+    var httpClient, _ = (HttpClient) lb;
     return httpClient;
 }
 
-function createFailOverClient(ClientEndpointConfiguration config) (HttpClient) {
+function createFailOverClient(ClientEndpointConfiguration config) returns HttpClient {
     HttpClient[] clients = createHttpClientArray(config);
     boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
     FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
                                           failoverCodesIndex : failoverCodes,
                                           failoverInterval : config.failoverConfig.interval};
 
-    Failover failover = {serviceUri:config.targets[0].uri, config:config, failoverInferredConfig:failoverInferredConfig};
-    var httpClient, e = (HttpClient) failover;
+    Failover failover = {serviceUri:config.targets[0].uri, config:config,
+                            failoverInferredConfig:failoverInferredConfig};
+    var httpClient, _ = (HttpClient) failover;
     return httpClient;
 }
