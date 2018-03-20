@@ -39,7 +39,7 @@ import java.util.Set;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "upgradeToWebSocket",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType =  WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.net.http"),
         args = {
                 @Argument(name = "headers", type = TypeKind.MAP)
@@ -53,8 +53,6 @@ public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
         BStruct serverConnector = (BStruct) context.getRefArgument(0);
         WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
-        BMap<String, BString> queryParams =
-                (BMap<String, BString>) serverConnector.getNativeData(WebSocketConstants.NATIVE_DATA_QUERY_PARAMS);
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
         WebSocketInitMessage initMessage =
                 (WebSocketInitMessage) serverConnector.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
@@ -64,7 +62,7 @@ public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(initMessage, webSocketService, queryParams, httpHeaders);
+        WebSocketUtil.handleHandshake(initMessage, webSocketService, httpHeaders, serverConnector);
 
         context.setReturnValues();
     }
