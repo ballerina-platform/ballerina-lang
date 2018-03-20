@@ -148,9 +148,17 @@ public class PositionTreeVisitor extends NodeVisitor {
             this.acceptNode(funcNode.body);
         }
 
+        if (funcNode.endpoints != null && !funcNode.endpoints.isEmpty()) {
+            funcNode.endpoints.forEach(this::acceptNode);
+        }
+
         // Process workers
         if (!funcNode.workers.isEmpty()) {
             funcNode.workers.forEach(this::acceptNode);
+        }
+
+        if (!funcNode.defaultableParams.isEmpty()) {
+            funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
 
@@ -471,6 +479,14 @@ public class PositionTreeVisitor extends NodeVisitor {
 
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
+        }
+
+        if (!resourceNode.endpoints.isEmpty()) {
+            resourceNode.endpoints.forEach(this::acceptNode);
+        }
+
+        if (!resourceNode.workers.isEmpty()) {
+            resourceNode.workers.forEach(this::acceptNode);
         }
     }
 
