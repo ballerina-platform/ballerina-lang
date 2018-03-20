@@ -57,6 +57,10 @@
     position: absolute;
     border-top: 1px;
     background-color: #dcdcdc;
+    overflow: hidden;
+}
+.variable:hover{
+    overflow: auto;
 }
 
 .property {
@@ -200,7 +204,7 @@ svg.plumbConnect path {
     top: 0;
     z-index: 41;
     cursor: pointer;
-    padding: 8px 10px;
+    padding: 0 10px;
     background-color: #f17b31;
 }
 
@@ -235,6 +239,7 @@ svg.plumbConnect path {
     font-size: 14px;
     margin: 0;
     padding-left: 3px;
+    padding-top: 4px;
 }
 
 .transform-action {
