@@ -87,6 +87,7 @@ import org.ballerinalang.plugins.idea.psi.LambdaFunctionNode;
 import org.ballerinalang.plugins.idea.psi.MatchPatternClauseNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.NonEmptyCodeBlockBodyNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -98,7 +99,7 @@ import org.ballerinalang.plugins.idea.psi.RecordLiteralNode;
 import org.ballerinalang.plugins.idea.psi.RecordValueNode;
 import org.ballerinalang.plugins.idea.psi.ReferenceTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
+import org.ballerinalang.plugins.idea.psi.ReturnParameterNode;
 import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -421,8 +422,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AnnotationAttributeValueNode(node);
             case BallerinaParser.RULE_structBody:
                 return new StructBodyNode(node);
-            case BallerinaParser.RULE_returnParameters:
-                return new ReturnParametersNode(node);
+            case BallerinaParser.RULE_returnParameter:
+                return new ReturnParameterNode(node);
             case BallerinaParser.RULE_attachmentPoint:
                 return new AttachmentPointNode(node);
             case BallerinaParser.RULE_definition:
@@ -467,6 +468,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionReferenceNode(node);
             case BallerinaParser.RULE_codeBlockBody:
                 return new CodeBlockBodyNode(node);
+            case BallerinaParser.RULE_nonEmptyCodeBlockBody:
+                return new NonEmptyCodeBlockBodyNode(node);
             case BallerinaParser.RULE_tryCatchStatement:
                 return new TryCatchStatementNode(node);
             case BallerinaParser.RULE_catchClause:

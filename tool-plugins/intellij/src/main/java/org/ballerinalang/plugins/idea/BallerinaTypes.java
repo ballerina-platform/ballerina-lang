@@ -53,6 +53,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinCl
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_joinConditions;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_matchPatternClause;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nameReference;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_nonEmptyCodeBlockBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onabortStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_oncommitStatement;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_onretryClause;
@@ -63,7 +64,7 @@ import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_parame
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_privateStructBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_recordKeyValue;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_resourceDefinition;
-import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_returnParameters;
+import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_returnParameter;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceBody;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_serviceDefinition;
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.RULE_simpleExpression;
@@ -155,6 +156,7 @@ public class BallerinaTypes {
     public static final RuleIElementType ELSE_IF_CLAUSE = ruleIElementTypes.get(RULE_elseIfClause);
     public static final RuleIElementType ELSE_CLAUSE = ruleIElementTypes.get(RULE_elseClause);
     public static final RuleIElementType CODE_BLOCK_BODY = ruleIElementTypes.get(RULE_codeBlockBody);
+    public static final RuleIElementType NON_EMPTY_CODE_BLOCK_BODY = ruleIElementTypes.get(RULE_nonEmptyCodeBlockBody);
     public static final RuleIElementType FOREACH_STATEMENT = ruleIElementTypes.get(RULE_foreachStatement);
     public static final RuleIElementType WHILE_STATEMENT = ruleIElementTypes.get(RULE_whileStatement);
     public static final RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(RULE_tryCatchStatement);
@@ -194,7 +196,7 @@ public class BallerinaTypes {
     public static final RuleIElementType TYPE_NAME = ruleIElementTypes.get(RULE_typeName);
     public static final RuleIElementType EXPRESSION = ruleIElementTypes.get(RULE_expression);
     public static final RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(RULE_simpleExpression);
-    public static final RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(RULE_returnParameters);
+    public static final RuleIElementType RETURN_PARAMETER = ruleIElementTypes.get(RULE_returnParameter);
     public static final RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(RULE_valueTypeName);
     public static final RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(RULE_xmlNamespaceName);
     public static final RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(RULE_packageName);

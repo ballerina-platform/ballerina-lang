@@ -35,10 +35,10 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
     //    public void testStructInSameFileInAction() {
     //        doFileTest();
     //    }
-
-    public void testStructInSameFileInConnector() {
-        doFileTest();
-    }
+    //
+    //    public void testStructInSameFileInConnector() {
+    //        doFileTest();
+    //    }
 
     public void testStructInSameFileInFunction() {
         doFileTest();
@@ -48,10 +48,10 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
-    public void testStructInDifferentFileInAction() throws IOException {
-        doFileTest(struct);
-    }
-
+    //    public void testStructInDifferentFileInAction() throws IOException {
+    //        doFileTest(struct);
+    //    }
+    //
     //    public void testStructInDifferentFileInConnector() throws IOException {
     //        doFileTest(struct);
     //    }
@@ -64,10 +64,10 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
         doFileTest(struct);
     }
 
-    public void testStructInDifferentPackageInAction() throws IOException {
-        doFileTest(struct, "org/test/test.bal");
-    }
-
+    //    public void testStructInDifferentPackageInAction() throws IOException {
+    //        doFileTest(struct, "org/test/test.bal");
+    //    }
+    //
     //    public void testStructInDifferentPackageInConnector() throws IOException {
     //        doFileTest(struct, "org/test/test.bal");
     //    }

@@ -51,6 +51,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.IF_ELSE_STATEMENT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.JOIN_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.MATCH_PATTERN_CLAUSE;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.NON_EMPTY_CODE_BLOCK_BODY;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_ABORT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_COMMIT_CLAUSE;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.ON_RETRY_CLAUSE;
@@ -135,7 +136,8 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 } else if (childElementType == RECORD_KEY_VALUE) {
                     indent = Indent.getSpaceIndent(4);
-                } else if (childElementType == CODE_BLOCK_BODY || childElementType == ENUM_FIELD_LIST) {
+                } else if (childElementType == CODE_BLOCK_BODY || childElementType == NON_EMPTY_CODE_BLOCK_BODY
+                        || childElementType == ENUM_FIELD_LIST) {
                     indent = Indent.getSpaceIndent(4);
                 } else if (childElementType == EXPRESSION_LIST) {
                     if (parentElementType == VARIABLE_REFERENCE) {

@@ -23,65 +23,65 @@ import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
  */
 public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCase {
 
-    public void testMainFunction() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("funm\t");
-        myFixture.checkResult("function main (string[] args) {\n    \n}");
-    }
-
-    public void testFunctionInEmptyFile() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("fun\t");
-        myFixture.checkResult("function  ()  {\n    \n}");
-    }
-
-    public void testFunctionAfterFunction() {
-        myFixture.configureByText("test.bal", "function test(){\n\n}\n<caret>");
-        myFixture.type("fun\t");
-        myFixture.checkResult("function test(){\n\n}\nfunction  ()  {\n    \n}");
-    }
-
-    public void testFunctionBeforeFunction() {
-        myFixture.configureByText("test.bal", "<caret>\nfunction test(){\n\n}\n");
-        myFixture.type("fun\t");
-        myFixture.checkResult("function  ()  {\n    \n}\nfunction test(){\n\n}\n");
-    }
-
-    public void testServiceInEmptyFile() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("ser\t");
-        myFixture.checkResult("\nservice<>  {\n    \n}");
-    }
-
-    public void testServiceAfterService() {
-        myFixture.configureByText("test.bal", "service<http> test {\n    \n}\n<caret>");
-        myFixture.type("ser\t");
-        myFixture.checkResult("service<http> test {\n    \n}\n\nservice<>  {\n    \n}");
-    }
-
-    public void testServiceBeforeService() {
-        myFixture.configureByText("test.bal", "<caret>\nservice<http> test {\n    \n}\n");
-        myFixture.type("ser\t");
-        myFixture.checkResult("\nservice<>  {\n    \n}\nservice<http> test {\n    \n}\n");
-    }
-
-    public void testStructInEmptyFile() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("str\t");
-        myFixture.checkResult("struct  {\n    \n}");
-    }
-
-    public void testStructAfterService() {
-        myFixture.configureByText("test.bal", "struct test {\n    \n}\n<caret>");
-        myFixture.type("str\t");
-        myFixture.checkResult("struct test {\n    \n}\nstruct  {\n    \n}");
-    }
-
-    public void testStructBeforeStruct() {
-        myFixture.configureByText("test.bal", "<caret>\nstruct test {\n    \n}\n");
-        myFixture.type("str\t");
-        myFixture.checkResult("struct  {\n    \n}\nstruct test {\n    \n}\n");
-    }
+    //    public void testMainFunction() {
+    //        myFixture.configureByText("test.bal", "<caret>");
+    //        myFixture.type("funm\t");
+    //        myFixture.checkResult("function main (string[] args) {\n    \n}");
+    //    }
+    //
+    //    public void testFunctionInEmptyFile() {
+    //        myFixture.configureByText("test.bal", "<caret>");
+    //        myFixture.type("fun\t");
+    //        myFixture.checkResult("function  ()  {\n    \n}");
+    //    }
+    //
+    //    public void testFunctionAfterFunction() {
+    //        myFixture.configureByText("test.bal", "function test(){\n\n}\n<caret>");
+    //        myFixture.type("fun\t");
+    //        myFixture.checkResult("function test(){\n\n}\nfunction  ()  {\n    \n}");
+    //    }
+    //
+    //    public void testFunctionBeforeFunction() {
+    //        myFixture.configureByText("test.bal", "<caret>\nfunction test(){\n\n}\n");
+    //        myFixture.type("fun\t");
+    //        myFixture.checkResult("function  ()  {\n    \n}\nfunction test(){\n\n}\n");
+    //    }
+    //
+    //    public void testServiceInEmptyFile() {
+    //        myFixture.configureByText("test.bal", "<caret>");
+    //        myFixture.type("ser\t");
+    //        myFixture.checkResult("\nservice<>  {\n    \n}");
+    //    }
+    //
+    //    public void testServiceAfterService() {
+    //        myFixture.configureByText("test.bal", "service<http> test {\n    \n}\n<caret>");
+    //        myFixture.type("ser\t");
+    //        myFixture.checkResult("service<http> test {\n    \n}\n\nservice<>  {\n    \n}");
+    //    }
+    //
+    //    public void testServiceBeforeService() {
+    //        myFixture.configureByText("test.bal", "<caret>\nservice<http> test {\n    \n}\n");
+    //        myFixture.type("ser\t");
+    //        myFixture.checkResult("\nservice<>  {\n    \n}\nservice<http> test {\n    \n}\n");
+    //    }
+    //
+    //    public void testStructInEmptyFile() {
+    //        myFixture.configureByText("test.bal", "<caret>");
+    //        myFixture.type("str\t");
+    //        myFixture.checkResult("struct  {\n    \n}");
+    //    }
+    //
+    //    public void testStructAfterService() {
+    //        myFixture.configureByText("test.bal", "struct test {\n    \n}\n<caret>");
+    //        myFixture.type("str\t");
+    //        myFixture.checkResult("struct test {\n    \n}\nstruct  {\n    \n}");
+    //    }
+    //
+    //    public void testStructBeforeStruct() {
+    //        myFixture.configureByText("test.bal", "<caret>\nstruct test {\n    \n}\n");
+    //        myFixture.type("str\t");
+    //        myFixture.checkResult("struct  {\n    \n}\nstruct test {\n    \n}\n");
+    //    }
 
     public void testWorkerInFunction() {
         myFixture.configureByText("test.bal", "function test () {\n    <caret>\n}");
@@ -155,9 +155,9 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
                 "int a = 10;\n}");
     }
 
-    public void testTransformer() {
-        myFixture.configureByText("test.bal", "<caret>");
-        myFixture.type("tra\t");
-        myFixture.checkResult("transformer <, > () {\n    \n}");
-    }
+    //    public void testTransformer() {
+    //        myFixture.configureByText("test.bal", "<caret>");
+    //        myFixture.type("tra\t");
+    //        myFixture.checkResult("transformer <, > () {\n    \n}");
+    //    }
 }

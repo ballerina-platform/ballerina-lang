@@ -113,7 +113,7 @@ import static org.ballerinalang.plugins.idea.BallerinaTypes.RESOURCE_DEFINITION;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETRIES;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURNS;
-import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN_PARAMETERS;
+import static org.ballerinalang.plugins.idea.BallerinaTypes.RETURN_PARAMETER;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.RPAREN;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SELECT;
 import static org.ballerinalang.plugins.idea.BallerinaTypes.SEMI;
@@ -285,7 +285,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(AT).spaceIf(false)
                 .between(BIND, EXPRESSION).spaceIf(true)
                 .around(EXPRESSION).spaceIf(false)
-                .around(RETURN_PARAMETERS).spaceIf(true)
+                .around(RETURN_PARAMETER).spaceIf(true)
                 .around(SENDARROW).spaceIf(true)
                 .around(RECEIVEARROW).spaceIf(true)
                 .before(TILDE).spaceIf(false)

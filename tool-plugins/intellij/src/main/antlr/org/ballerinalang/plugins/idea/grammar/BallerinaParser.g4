@@ -81,12 +81,12 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? (LEFT_BRACE callableUnitBody RIGHT_BRACE | SEMICOLON)
-    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? (LEFT_BRACE callableUnitBody RIGHT_BRACE | SEMICOLON)
+    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 lambdaFunction
-    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters? LEFT_BRACE callableUnitBody RIGHT_BRACE
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter? LEFT_BRACE callableUnitBody RIGHT_BRACE
     ;
 
 structDefinition
@@ -157,7 +157,7 @@ objectFunctionDefinition
 
 //TODO merge with callableUnitSignature later
 objectCallableUnitSignature
-    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 
@@ -236,6 +236,12 @@ typeName
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
+    |   annotatedTypeName                                                   # annotatedTypeNameLabel
+    ;
+
+annotatedTypeName
+    :   simpleTypeName
+    |   annotationAttachment* simpleTypeName
     ;
 
 // Temporary production rule name
@@ -289,7 +295,7 @@ builtInReferenceTypeName
     ;
 
 functionTypeName
-    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameters?
+    :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
     ;
 
 xmlNamespaceName
@@ -415,8 +421,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT statement
-    |   typeName Identifier EQUAL_GT statement
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE nonEmptyCodeBlockBody RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE nonEmptyCodeBlockBody RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -637,6 +643,10 @@ nameReference
     :   (packageName COLON)? Identifier
     ;
 
+returnParameter
+    : RETURNS typeName
+    ;
+
 functionReference
     :   (packageName COLON)? Identifier
     ;
@@ -661,12 +671,12 @@ codeBlockBody
     :   statement*
     ;
 
-codeBlockParameter
-    :   typeName Identifier
+nonEmptyCodeBlockBody
+    :   statement+
     ;
 
-returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
+codeBlockParameter
+    :   typeName Identifier
     ;
 
 parameterTypeNameList

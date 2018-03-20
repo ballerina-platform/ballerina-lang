@@ -26,33 +26,33 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
         return getTestDataPath("completion/structFields");
     }
 
-    public void testStructAsFunctionNamedReturn() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructAsFunctionNamedReturn() {
+    //        doTestFile("name", "age");
+    //    }
 
     //    public void testStructAsFunctionNamedReturnVarAssignment() {
     //        doTestFile("name", "age");
     //    }
 
-    public void testStructAsFunctionReturnParam() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructAsFunctionReturnParam() {
+    //        doTestFile("name", "age");
+    //    }
 
     //    public void testStructAsFunctionReturnParamVarAssignment() {
     //        doTestFile("name", "age");
     //    }
 
-    public void testStructAsNamedReturn() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructAsNamedReturn() {
+    //        doTestFile("name", "age");
+    //    }
 
-    public void testStructAsNamedReturn2() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructAsNamedReturn2() {
+    //        doTestFile("name", "age");
+    //    }
 
-    public void testStructAsNamedReturnPartialField() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructAsNamedReturnPartialField() {
+    //        doTestFile("name", "age");
+    //    }
 
     public void testStructAsParam() {
         doTestFile("name", "age");
@@ -78,7 +78,7 @@ public class BallerinaStructFieldCompletionTest extends BallerinaCompletionTestB
     //        doTestFile("name", "age");
     //    }
 
-    public void testStructWithPrivateField() {
-        doTestFile("name", "age");
-    }
+    //    public void testStructWithPrivateField() {
+    //        doTestFile("name", "age");
+    //    }
 }
