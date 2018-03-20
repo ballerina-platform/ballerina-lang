@@ -1,19 +1,3 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
-// WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 (the "License"); you may not use this file except
-// in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
-
 package ballerina.net.http;
 
 ///////////////////////////////
@@ -56,7 +40,6 @@ public struct TargetService {
 @Field {value:"proxy: Proxy server related options"}
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
-@Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
@@ -70,7 +53,7 @@ public struct ClientEndpointConfiguration {
     Proxy proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
-    function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
+    Algorithm algorithm;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -89,8 +72,6 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     if (config.circuitBreaker != null) {
         ep.config = config;
         ep.httpClient = createCircuitBreakerClient(uri, config);
-    } else if (config.algorithm != null && lengthof config.targets > 1) {
-        ep.httpClient = createLoadBalancer(config);
     } else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -122,26 +103,6 @@ public function <ClientEndpoint ep> stop() {
 }
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
-
-function createLoadBalancer (ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] lbClients = [];
-    int i = 0;
-
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        }
-        lbClients[i] = createHttpClient(uri, config);
-        lbClients[i].config = config;
-        i = i + 1;
-    }
-
-    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
-    var httpClient, e = (HttpClient)lb;
-    return httpClient;
-}
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
