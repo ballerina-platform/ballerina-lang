@@ -84,7 +84,8 @@ function testGetDateFunction () returns (int, int, int) {
 function testGetTimeFunction () returns (int, int, int, int) {
     time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1456876583555, zone:zoneValue};
-    var (hour, minute, second, milliSecond) = timeStruct.getTime();
+    int hour; int minute; int second; int milliSecond;
+    (hour, minute, second, milliSecond) = timeStruct.getTime();
     return (hour, minute, second, milliSecond);
 }
 
