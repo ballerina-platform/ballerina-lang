@@ -27,7 +27,6 @@ function <helloWorldStub stub> LotsOfGreetings (type listener) (grpc:Client, err
     }
         return response,null;
 }
-
 public struct helloWorldClient {
     grpc:Client client;
     helloWorldStub stub;
