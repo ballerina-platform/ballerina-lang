@@ -30,27 +30,30 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Map;
 
+import static org.ballerinalang.observe.trace.Constants.DEFAULT_USER_API_GROUP;
+
 /**
  * This function returns the span context of a given span.
  */
 @BallerinaFunction(
         packageName = "ballerina.observe",
-        functionName = "inject",
+        functionName = "injectTraceContext",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "Span", structPackage = "ballerina.observe"),
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
-public class InjectSpanContext extends BlockingNativeCallableUnit {
+public class InjectTraceContext extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct span = (BStruct) context.getRefArgument(0);
+        String group = context.getStringArgument(0) == null ? DEFAULT_USER_API_GROUP : context.getStringArgument(0);
         String spanId = span.getStringField(0);
 
         Map<String, String> propertiesToInject = OpenTracerBallerinaWrapper.getInstance().inject(spanId);
 
         BMap<String, BString> headerMap = new BMap<>();
         propertiesToInject.forEach((key, value) -> {
-            headerMap.put(key, new BString(value));
+            headerMap.put(group + key, new BString(value));
         });
         context.setReturnValues(headerMap);
     }

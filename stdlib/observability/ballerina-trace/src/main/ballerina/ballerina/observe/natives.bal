@@ -92,23 +92,32 @@ public native function <Span span> logError (string errorKind, string message);
 
 @Description {value:"Adds span headers when request chaining"}
 @Return {value:"The span context as a key value pair that should be passed out to an external function"}
-native function <Span span> inject () (map);
+public native function <Span span> injectTraceContext (string traceGroup) (map);
+
+@Description {value:"Creates a span context of a parent span propogated through request chaining"}
+@Param {value:"headers: The map of headers"}
+@Param {value:"traceGroup: The kind of error. e.g. DBError"}
+@Return {value:""}
+public native function extractTraceContext (map headers, string traceGroup) (string);
 
 @Description {value:"Method to save the parent span and extract the span Id"}
 @Param {value:"req: The http request that contains the header maps"}
 @Param {value:"traceGroup: The group to which this span belongs to"}
 @Return {value:"The id of the parent span passed in from an external function"}
-public native function extractSpanContext (http:Request req, string traceGroup) (string);
+public function extractTraceContextFromHttpHeader (http:Request req, string traceGroup) (string) {
+    map headers = req.getCopyOfAllHeaders();
+    return extractTraceContext(headers, traceGroup);
+}
 
 @Description {value:"Injects the span context the OutRequest struct to send to another service"}
 @Param {value:"req: The http request used when calling an endpoint"}
 @Param {value:"traceGroup: The group that the span context is associated to"}
 @Return {value:"The http request which includes the span context related headers"}
-public function <Span span> injectSpanContext (http:Request req, string traceGroup) (http:Request) {
-    map headers = span.inject();
+public function <Span span> injectTraceContextToHttpHeader (http:Request req, string traceGroup) (http:Request) {
+    map headers = span.injectTraceContext(traceGroup);
     foreach key, v in headers {
         var value, _ = (string)v;
-        req.addHeader(traceGroup + key, value);
+        req.addHeader(key, value);
     }
     return req;
 }
