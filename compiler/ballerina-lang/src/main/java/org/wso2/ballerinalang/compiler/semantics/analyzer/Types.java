@@ -1194,7 +1194,6 @@ public class Types {
 
     private boolean isAssignableToUnionType(BType source, BUnionType target) {
         Set<BType> sourceTypes = new HashSet<>();
-        Set<BType> targetTypes = target.memberTypes;
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -1205,7 +1204,7 @@ public class Types {
 
         boolean notAssignable = sourceTypes
                 .stream()
-                .map(s -> targetTypes
+                .map(s -> target.memberTypes
                         .stream()
                         .anyMatch(t -> isAssignable(s, t)))
                 .anyMatch(assignable -> !assignable);
