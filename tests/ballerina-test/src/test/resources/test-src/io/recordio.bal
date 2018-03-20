@@ -15,18 +15,18 @@ function initFileChannel(string filePath,string permission,string encoding,strin
     delimitedRecordChannel, _ = io:createDelimitedRecordChannel(characterChannel, rs, fs);
 }
 
-function nextRecord () (string[]) {
+function nextRecord () returns (string[]) {
     string[] fields;
-    fields, _ = delimitedRecordChannel.nextTextRecord();
+    (fields, _) = delimitedRecordChannel.nextTextRecord();
     return fields;
 }
 
 function writeRecord (string[] fields) {
-   _ = delimitedRecordChannel.writeTextRecord(fields);
+   var (_) = delimitedRecordChannel.writeTextRecord(fields);
 }
 
 function close(){
-    _ = delimitedRecordChannel.closeDelimitedRecordChannel();
+    delimitedRecordChannel.closeDelimitedRecordChannel();
 }
 
 function hasNextRecord () (boolean) {

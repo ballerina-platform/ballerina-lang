@@ -7,18 +7,18 @@ function initFileChannel (string filePath, string permission, string encoding) {
     characterChannel, _ = io:createCharacterChannel(channel, encoding);
 }
 
-function readCharacters (int numberOfCharacters) (string) {
+function readCharacters (int numberOfCharacters) returns (string) {
     string characters;
     characters, _ = characterChannel.readCharacters(numberOfCharacters);
     return characters;
 }
 
-function writeCharacters (string content, int startOffset) (int) {
+function writeCharacters (string content, int startOffset) returns (int) {
     int numberOfCharactersWritten;
-    numberOfCharactersWritten, _ = characterChannel.writeCharacters(content, startOffset);
+    (numberOfCharactersWritten, _) = characterChannel.writeCharacters(content, startOffset);
     return numberOfCharactersWritten;
 }
 
 function close(){
-    _ = characterChannel.closeCharacterChannel();
+    characterChannel.closeCharacterChannel();
 }

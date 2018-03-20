@@ -6,19 +6,25 @@ function initFileChannel (string filePath, string permission) {
     channel = io:openFile(filePath, permission);
 }
 
-function readBytes (int numberOfBytes) (blob) {
-    blob bytes;
-    int numberOfBytesRead;
-    bytes, numberOfBytesRead, _ = channel.read(numberOfBytes);
-    return bytes;
+function readBytes (int numberOfBytes) returns (blob) {
+    var result = channel.read(numberOfBytes);
+    match result{
+       (blob , int)  content => {
+               var (bytes, numberOfBytes) = data;
+               return bytes;
+       }
+       io:IOError error => {
+         throw error;
+       }
+    }
 }
 
-function writeBytes (blob content, int startOffset) (int) {
+function writeBytes (blob content, int startOffset) returns (int) {
     int numberOfBytesWritten;
-    numberOfBytesWritten, _ = channel.write(content, startOffset);
+    var (numberOfBytesWritten, _) = channel.write(content, startOffset);
     return numberOfBytesWritten;
 }
 
 function close () {
-    _ = channel.close();
+    channel.close();
 }
