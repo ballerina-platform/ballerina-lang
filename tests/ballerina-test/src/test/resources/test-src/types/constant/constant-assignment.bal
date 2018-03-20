@@ -7,28 +7,28 @@ const string varNativeFunc = str.replace("$$$","awesome");
 const int varIntExpr = 10+10+10;
 const string varConcat = envVar + varFunc + varNativeFunc;
 
-function accessConstant() (string) {
+function accessConstant() returns (string) {
     return envVar;
 }
 
-function accessConstantViaFunction() (string) {
+function accessConstantViaFunction() returns (string) {
     return varFunc;
 }
 
-function dummyStringFunction() (string) {
+function dummyStringFunction() returns (string) {
     return "dummy";
 }
 
-function accessConstantViaNativeFunction() (string) {
+function accessConstantViaNativeFunction() returns (string) {
     return varNativeFunc;
 }
 
 
-function accessConstantEvalIntegerExpression() (int) {
+function accessConstantEvalIntegerExpression() returns (int) {
     return varIntExpr;
 }
 
-function accessConstantEvalWithMultipleConst() (string) {
+function accessConstantEvalWithMultipleConst() returns (string) {
     return varConcat;
 }
 
