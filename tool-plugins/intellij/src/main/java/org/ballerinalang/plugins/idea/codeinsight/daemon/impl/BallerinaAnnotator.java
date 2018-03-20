@@ -512,6 +512,17 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotatePackageNameNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+
+        PsiElement parent = element.getParent();
+        if (parent != null) {
+            PsiElement superParent = parent.getParent();
+            if (superParent != null && superParent instanceof AnnotationAttachmentNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+                return;
+            }
+        }
+
         ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element, ImportDeclarationNode.class);
         if (importDeclarationNode != null) {
             return;
