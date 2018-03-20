@@ -62,7 +62,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -132,6 +134,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
     }
 
@@ -369,7 +372,6 @@ public class CPU {
                     sf.refRegs[j] = new BTypeDescValue(sf.refRegs[i].getType());
                     break;
                 case InstructionCodes.HALT:
-                    BLangScheduler.workerDone(ctx);
                     ctx = handleHalt(ctx);
                     if (ctx == null) {
                         return;
@@ -717,6 +719,7 @@ public class CPU {
                 case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.XMLSTORE:
                 case InstructionCodes.XMLLOAD:
+                case InstructionCodes.NEWXMLSEQ:
                     execXMLOpcodes(ctx, sf, opcode, operands);
                     break;
                 case InstructionCodes.ITR_NEW:
@@ -1801,6 +1804,7 @@ public class CPU {
             case InstructionCodes.NEWXMLTEXT:
             case InstructionCodes.NEWXMLPI:
             case InstructionCodes.XMLSTORE:
+            case InstructionCodes.NEWXMLSEQ:
                 execXMLCreationOpcodes(ctx, sf, opcode, operands);
                 break;
             default:
@@ -2370,6 +2374,10 @@ public class CPU {
                 BXML<?> child = (BXML<?>) sf.refRegs[j];
                 xmlVal.addChildren(child);
                 break;
+            case InstructionCodes.NEWXMLSEQ:
+                i = operands[0];
+                sf.refRegs[i] = new BXMLSequence();
+                break;
         }
     }
 
@@ -2578,46 +2586,7 @@ public class CPU {
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
         StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
-        BStruct bStruct = new BStruct(structInfo.getType());
-
-        // Populate default values
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
-            DefaultValueAttributeInfo defaultValueInfo =
-                    (DefaultValueAttributeInfo) fieldInfo.getAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
-            switch (fieldInfo.getFieldType().getTag()) {
-                case TypeTags.INT_TAG:
-                    longRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
-                    }
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    doubleRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setFloatField(doubleRegIndex, defaultValueInfo.getDefaultValue().getFloatValue());
-                    }
-                    break;
-                case TypeTags.STRING_TAG:
-                    stringRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setStringField(stringRegIndex, defaultValueInfo.getDefaultValue().getStringValue());
-                    }
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    booleanRegIndex++;
-                    if (defaultValueInfo != null) {
-                        bStruct.setBooleanField(booleanRegIndex,
-                                defaultValueInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
-                    }
-                    break;
-            }
-        }
-
-        sf.refRegs[i] = bStruct;
+        sf.refRegs[i] = new BStruct(structInfo.getType());
     }
 
     private static void createNewStreamlet(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -2954,6 +2923,7 @@ public class CPU {
     }
 
     private static WorkerExecutionContext handleReturn(WorkerExecutionContext ctx) {
+        BLangScheduler.workerDone(ctx);
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
@@ -3253,7 +3223,7 @@ public class CPU {
         try {
             jsonNode = jsonValue.value();
         } catch (BallerinaException e) {
-            sf.stringRegs[j] = "";
+            sf.stringRegs[j] = BLangConstants.STRING_EMPTY_VALUE;
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             ctx.setError(BLangVMErrors.createError(ctx, errorMsg));

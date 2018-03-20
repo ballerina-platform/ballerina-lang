@@ -70,7 +70,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
             return null;
         }
         TargetContextInfo info = this.targetContextInfos.get(0);
-        WorkerExecutionContext runInCallerCtx = this.onFulfillment(info.targetCtx, info.retRegIndexes, true);
+        WorkerExecutionContext runInCallerCtx = this.onFulfillment(info.targetCtx, info.retRegIndexes, runInCaller);
         for (int i = 1; i < this.targetContextInfos.size(); i++) {
             info = this.targetContextInfos.get(i);
             this.onFulfillment(info.targetCtx, info.retRegIndexes, false);
@@ -91,7 +91,6 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
             this.propagateErrorToTarget(this.targetContextInfos.get(i).targetCtx, false);
         }
         return runInCallerCtx;
-        
     }
     
     private WorkerExecutionContext propagateErrorToTarget(WorkerExecutionContext targetCtx, boolean runInCaller) {

@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -477,5 +478,12 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+    public void testFieldAccessOfNullableJSON() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
+        BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
     }
 }

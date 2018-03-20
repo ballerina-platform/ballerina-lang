@@ -20,11 +20,10 @@ package org.ballerinalang.util.program;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
+import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.AsyncTimer;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinTimeoutCallback;
@@ -49,8 +48,6 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
@@ -66,7 +63,6 @@ import java.util.concurrent.Semaphore;
  */
 public class BLangFunctions {
 
-    private static final Logger log = LoggerFactory.getLogger(BLangFunctions.class);
     private static final String JOIN_TYPE_SOME = "some";
 
     private BLangFunctions() { }
@@ -172,7 +168,12 @@ public class BLangFunctions {
         BLangScheduler.switchToWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
-            resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs);
+            if (async) {
+                invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
+                resultCtx = parentCtx;
+            } else {
+                resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs);
+            }
         } else {
             if (async) {
                 invokeNonNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs);
@@ -246,8 +247,8 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
         WorkerSet workerSet = listWorkers(callableUnitInfo);
         int generalWorkersCount = workerSet.generalWorkers.length;
-        CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
-                generalWorkersCount);
+        CallableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), generalWorkersCount);
         WorkerDataIndex wdi = callableUnitInfo.retWorkerIndex;
 
         /* execute the init worker and extract the local variables created by it */
@@ -300,26 +301,32 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
-            log.error(e.getMessage(), e);
-            return handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(callableUnitInfo));
+            return BLangVMUtils.handleNativeInvocationError(parentCtx, 
+                    BLangVMErrors.createNullRefException(callableUnitInfo));
         } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-            return handleNativeInvocationError(parentCtx, BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+            return BLangVMUtils.handleNativeInvocationError(parentCtx, 
+                    BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
         }
     }
-
-    private static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
-        parentCtx.setError(error);
-        try {
-            CPU.handleError(parentCtx);
-            return parentCtx;
-        } catch (HandleErrorException e) {
-            if (e.ctx != null && !e.ctx.isRootContext()) {
-                return e.ctx;
-            } else {
-                return null;
-            }
+    
+    private static void invokeNativeCallableAsync(CallableUnitInfo callableUnitInfo, 
+            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
+        WorkerData caleeSF = BLangVMUtils.createWorkerDataForLocal(callableUnitInfo.getDefaultWorkerInfo(), parentCtx,
+                argRegs, callableUnitInfo.getParamTypes());
+        Context nativeCtx = new NativeCallContext(parentCtx, callableUnitInfo, caleeSF);
+        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+        if (nativeCallable == null) {
+            return;
         }
+        WorkerResponseContext respCtx;
+        if (nativeCallable.isBlocking()) {
+            respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx);            
+        } else {
+            respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx);
+        }
+        BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
+                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
+                new BType[] { BTypes.typeFuture });
     }
     
     private static void handleError(WorkerExecutionContext ctx) {

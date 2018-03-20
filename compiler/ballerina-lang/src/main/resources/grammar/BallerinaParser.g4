@@ -39,6 +39,7 @@ definition
     :   serviceDefinition
     |   functionDefinition
     |   structDefinition
+    |   objectDefinition
     |   streamletDefinition
     |   enumDefinition
     |   constantDefinition
@@ -76,8 +77,8 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? NATIVE FUNCTION (LT parameter GT)? callableUnitSignature SEMICOLON
-    |   (PUBLIC)? FUNCTION (LT parameter GT)? callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
@@ -100,6 +101,66 @@ privateStructBody
     :   PRIVATE COLON fieldDefinition*
     ;
 
+objectDefinition
+    :   TYPE_TYPE Identifier OBJECT LEFT_BRACE objectBody RIGHT_BRACE
+    ;
+
+objectBody
+    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
+    ;
+
+publicObjectFields
+    :   PUBLIC LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    ;
+
+privateObjectFields
+    :   PRIVATE LEFT_BRACE objectFieldDefinition* RIGHT_BRACE
+    ;
+
+objectInitializer
+    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    ;
+
+objectInitializerParameterList
+    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
+    ;
+
+objectFunctions
+    : (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    ;
+
+// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   typeName Identifier (COLON simpleLiteral)? (COMMA | SEMICOLON)
+    ;
+
+// TODO try to merge with formalParameterList later
+objectParameterList
+    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
+    |   restParameter
+    ;
+
+// TODO try to merge with parameter later
+objectParameter
+    :   annotationAttachment* typeName? Identifier
+    ;
+
+// TODO try to merge with defaultableParameter later
+objectDefaultableParameter
+    :   objectParameter COLON expression
+    ;
+
+// TODO merge with functionDefinition later
+objectFunctionDefinition
+    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    ;
+
+//TODO merge with callableUnitSignature later
+objectCallableUnitSignature
+    :   Identifier LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameters?
+    ;
+
+
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
@@ -113,7 +174,7 @@ enumerator
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) expression )? SEMICOLON
     ;
 
 transformerDefinition
@@ -135,7 +196,7 @@ attachmentPoint
      ;
 
 constantDefinition
-    :   (PUBLIC)? CONST valueTypeName Identifier ASSIGN expression SEMICOLON
+    :   (PUBLIC)? CONST valueTypeName Identifier (ASSIGN | SAFE_ASSIGNMENT) expression SEMICOLON
     ;
 
 workerDeclaration
@@ -164,9 +225,12 @@ endpointInitlization
     ;
 
 typeName
-    :   simpleTypeName                              # simpleTypeNameTemp
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+      # arrayTypeName
-    |   typeName (PIPE typeName)+                   # unionTypeName
+    :   simpleTypeName                                                      # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName PIPE NullLiteral                                           # nullableTypeNameLabel
+    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeName
     ;
 
 // Temporary production rule name
@@ -241,6 +305,7 @@ annotationAttachment
 statement
     :   variableDefinitionStatement
     |   assignmentStatement
+    |   tupleDestructuringStatement
     |   compoundAssignmentStatement
     |   postIncrementStatement
     |   ifElseStatement
@@ -263,7 +328,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN (expression | actionInvocation))? SEMICOLON
+    :   typeName Identifier ((ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation))? SEMICOLON
     ;
 
 recordLiteral
@@ -284,11 +349,16 @@ arrayLiteral
     ;
 
 typeInitExpr
-    :   NEW userDefineTypeName LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 assignmentStatement
-    :   (VAR)? variableReferenceList ASSIGN (expression | actionInvocation) SEMICOLON
+    :   (VAR)? variableReferenceList (ASSIGN | SAFE_ASSIGNMENT) (expression | actionInvocation) SEMICOLON
+    ;
+
+tupleDestructuringStatement
+    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
+    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN (expression | actionInvocation) SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -336,8 +406,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT statement
-    |   typeName Identifier EQUAL_GT statement
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
     ;
 
 foreachStatement
@@ -537,7 +607,7 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   TYPEOF builtInTypeName                                              # typeAccessExpression
     |   (ADD | SUB | NOT | LENGTHOF | TYPEOF | UNTAINT) expression          # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
+    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
@@ -556,7 +626,7 @@ nameReference
     ;
 
 returnParameters
-    : RETURNS? LEFT_PARENTHESIS (parameterList | parameterTypeNameList) RIGHT_PARENTHESIS
+    : RETURNS (parameterList | parameterTypeNameList)
     ;
 
 parameterTypeNameList
@@ -572,7 +642,8 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* typeName Identifier                                                                       #simpleParameter
+    |   annotationAttachment* LEFT_PARENTHESIS typeName Identifier (COMMA typeName Identifier)* RIGHT_PARENTHESIS       #tupleParameter
     ;
 
 defaultableParameter

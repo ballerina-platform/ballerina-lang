@@ -104,6 +104,7 @@ public enum DiagnosticCode {
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
+    AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
@@ -176,6 +177,9 @@ public enum DiagnosticCode {
     // match statement related errors
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
+
+    // Safe Assignment operator related errors
+    SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("invalid.token"),

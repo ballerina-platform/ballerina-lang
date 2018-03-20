@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -124,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatem
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -135,6 +138,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -248,6 +252,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        if (funcNode.objectInitFunction) {
+            funcNode.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
+        }
+
         funcNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachmentPoint =
                     new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.FUNCTION);
@@ -262,7 +271,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Check for native functions
-        if (Symbols.isNative(funcNode.symbol)) {
+        if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             return;
         }
 
@@ -294,6 +303,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
         });
         structNode.docAttachments.forEach(doc -> analyzeDef(doc, structEnv));
+    }
+
+    public void visit(BLangObject objectNode) {
+        BSymbol objectSymbol = objectNode.symbol;
+        SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
+        objectNode.fields.forEach(field -> analyzeDef(field, objectEnv));
+
+        objectNode.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachmentPoint =
+                    new BLangAnnotationAttachmentPoint(BLangAnnotationAttachmentPoint.AttachmentPoint.STRUCT);
+            annotationAttachment.accept(this);
+        });
+        objectNode.docAttachments.forEach(doc -> analyzeDef(doc, objectEnv));
+
+        analyzeDef(objectNode.initFunction, objectEnv);
+        objectNode.functions.forEach(f -> analyzeDef(f, objectEnv));
     }
 
     @Override
@@ -408,6 +433,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 symbolEnter.defineNode(varNode, env);
             }
         }
+        BType lhsType = varNode.symbol.type;
+        varNode.type = lhsType;
 
         // Here we validate annotation attachments for package level variables.
         varNode.annAttachments.forEach(a -> {
@@ -421,22 +448,65 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         // Analyze the init expression
-        if (varNode.expr != null) {
-            // Here we create a new symbol environment to catch self references by keep the current
-            // variable symbol in the symbol environment
-            // e.g. int a = x + a;
-            SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-
-            // If the variable is a package/service/connector level variable, we don't need to check types.
-            // It will we done during the init-function of the respective construct is visited.
-            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE &&
-                    (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE &&
-                    (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
-                typeChecker.checkExpr(varNode.expr, varInitEnv, Lists.of(varNode.symbol.type));
-            }
-
+        BLangExpression rhsExpr = varNode.expr;
+        if (rhsExpr == null) {
+            return;
         }
-        varNode.type = varNode.symbol.type;
+
+        // Here we create a new symbol environment to catch self references by keep the current
+        // variable symbol in the symbol environment
+        // e.g. int a = x + a;
+        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
+
+        // If the variable is a package/service/connector level variable, we don't need to check types.
+        // It will we done during the init-function of the respective construct is visited.
+        if ((ownerSymTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
+                (ownerSymTag & SymTag.SERVICE) == SymTag.SERVICE ||
+                (ownerSymTag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
+            return;
+        }
+
+        // Return if this not a safe assignment
+        if (!varNode.safeAssignment) {
+            typeChecker.checkExpr(rhsExpr, varInitEnv, Lists.of(lhsType));
+            return;
+        }
+
+        handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
+    }
+
+    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
+        // Collect all the lhs types
+        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
+                ((BUnionType) lhsType).memberTypes :
+                new HashSet<BType>() {{
+                    add(lhsType);
+                }};
+
+        // If there is at least one lhs type which assignable to the error type, then report an error.
+        for (BType type : lhsTypes) {
+            if (types.isAssignable(symTable.errStructType, type)) {
+                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+                typeChecker.checkExpr(rhsExpr, env, Lists.of(symTable.errType));
+                return;
+            }
+        }
+
+        // Create a new union type with the error type and continue the type checking process.
+        lhsTypes.add(symTable.errStructType);
+        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nullType));
+        typeChecker.checkExpr(rhsExpr, env, Lists.of(lhsUnionType));
+
+        if (rhsExpr.type.tag == TypeTags.UNION) {
+            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
+            for (BType type : rhsUnionType.memberTypes) {
+                if (types.isAssignable(symTable.errStructType, type)) {
+                    return;
+                }
+            }
+        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
+            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
+        }
     }
 
 
@@ -540,7 +610,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Evaluate the variable reference expression.
             BLangVariableReference varRef = (BLangVariableReference) expr;
             varRef.lhsVar = true;
-            typeChecker.checkExpr(varRef, env).get(0);
+            typeChecker.checkExpr(varRef, env);
 
             // Check whether we've got an enumerator access expression here.
             if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -553,8 +623,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
             checkConstantAssignment(varRef);
         }
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            BTupleType tupleType = new BTupleType(expTypes);
+            expTypes = Lists.of(tupleType);
+        }
 
-        typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        if (!assignNode.safeAssignment) {
+            typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+            return;
+        }
+
+        // Assume that there is only one variable reference in LHS
+        // Continue the validate if this is a safe assignment operator
+        handleSafeAssignment(assignNode.pos, assignNode.varRefs.get(0).type, assignNode.expr, this.env);
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        visit((BLangAssignment) stmt);
     }
 
     public void visit(BLangBind bindNode) {
@@ -609,7 +695,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchNode) {
-        List<BType> exprTypes = typeChecker.checkExpr(matchNode.expr, env, new ArrayList<>());
+        List<BType> exprTypes = typeChecker.checkExpr(matchNode.expr, env, Lists.of(symTable.noType));
         if (exprTypes.size() > 1) {
             dlog.error(matchNode.expr.pos, DiagnosticCode.MULTI_VAL_EXPR_IN_SINGLE_VAL_CONTEXT);
             return;
@@ -1370,8 +1456,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(assignNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
         }
         // Check RHS expressions with expected type list.
-        final List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
-
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            expTypes = Lists.of(symTable.noType);
+        }
+        List<BType> rhsTypes = typeChecker.checkExpr(assignNode.expr, this.env, expTypes);
+        if (assignNode.getKind() == NodeKind.TUPLE_DESTRUCTURE) {
+            if (rhsTypes.get(0) != symTable.errType) {
+                BTupleType tupleType = (BTupleType) rhsTypes.get(0);
+                rhsTypes = tupleType.tupleTypes;
+            } else {
+                rhsTypes = typeChecker.getListWithErrorTypes(assignNode.varRefs.size());
+            }
+        }
         // visit all lhs expressions
         for (int i = 0; i < assignNode.varRefs.size(); i++) {
             BLangExpression varRef = assignNode.varRefs.get(i);

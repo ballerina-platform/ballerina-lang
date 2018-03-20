@@ -80,4 +80,4 @@ public native function <WebSocketConnector conn> cancelUpgradeToWebSocket(int st
 //TODO: Check on this if it should come in the request
 //@Description {value:"Gets the query parameters from the Connection as a map"}
 //@Return {value:"The map of query params" }
-//public native function <WebSocketConnector ep> getQueryParams () (map);
+//public native function <WebSocketConnector ep> getQueryParams () returns (map);

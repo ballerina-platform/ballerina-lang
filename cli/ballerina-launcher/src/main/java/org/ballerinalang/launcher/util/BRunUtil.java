@@ -18,6 +18,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -99,7 +100,10 @@ public class BRunUtil {
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
-        return BLangFunctions.invokeCallable(functionInfo, compileResult.getContext(), args);
+
+        BValue[] response = BLangFunctions.invokeCallable(functionInfo,
+                compileResult.getContext(), args);
+        return spreadToBValueArray(response);
     }
 
 //    Package init helpers
@@ -150,7 +154,10 @@ public class BRunUtil {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeEntrypointCallable(programFile, packageName, functionName, args);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                packageName, functionName, args);
+        return spreadToBValueArray(response);
     }
 
     /**
@@ -181,8 +188,26 @@ public class BRunUtil {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), functionName, args);
+
+        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
+                programFile.getEntryPkgName(), functionName, args);
+        return spreadToBValueArray(response);
     }
+
+    private static BValue[] spreadToBValueArray(BValue[] response) {
+        if (!(response[0] instanceof BRefValueArray)) {
+            return response;
+        }
+
+        BRefValueArray refValueArray = (BRefValueArray) response[0];
+        int length = (int) refValueArray.size();
+        BValue[] arr = new BValue[length];
+        for (int i = 0; i < length; i++) {
+            arr[i] = refValueArray.get(i);
+        }
+        return arr;
+    }
+
 
     /**
      * Invoke a ballerina function.
