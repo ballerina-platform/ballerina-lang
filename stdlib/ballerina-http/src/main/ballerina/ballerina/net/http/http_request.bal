@@ -151,12 +151,7 @@ public function <Request request> getContentLength () returns int {
 @Return {value:"The JSON reresentation of the message payload"}
 public function <Request request> getJsonPayload () returns json | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getJson() {
-                json jsonPayload => return jsonPayload;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => return entity.getJson();
         mime:EntityError err => return err;
         any | null => return null;
     }
@@ -167,12 +162,7 @@ public function <Request request> getJsonPayload () returns json | null | mime:E
 @Return {value:"The XML representation of the message payload"}
 public function <Request request> getXmlPayload () returns xml | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getXml() {
-                xml xmlPayload => return xmlPayload;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => entity.getXml();
         mime:EntityError err => return err;
         any | null => return null;
     }
@@ -183,12 +173,7 @@ public function <Request request> getXmlPayload () returns xml | null | mime:Ent
 @Return {value:"The string representation of the message payload"}
 public function <Request request> getStringPayload () returns string | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getStringPayload() {
-                strng stringPayload => return stringPayload;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => entity.getText();
         mime:EntityError err => return err;
         any | null => return null;
     }
@@ -199,12 +184,7 @@ public function <Request request> getStringPayload () returns string | null | mi
 @Return {value:"The blob representation of the message payload"}
 public function <Request request> getBinaryPayload () returns blob | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getBlob() {
-                blob blobPayload => return blobPayload;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => entity.getBlob();
         mime:EntityError err => return err;
         any | null => return null;
     }
@@ -216,12 +196,7 @@ please use 'getMultiparts()' instead."}
 @Return {value:"A byte channel as the message payload"}
 public function <Request request> getByteChannel () returns io:ByteChannel | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getByteChannel() {
-                io:ByteChannel byteChannnel => return byteChannnel;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => entity.getByteChannel();
         mime:EntityError err => return err;
     }
 }
@@ -264,15 +239,11 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
 @Description {value:"Get multiparts from request"}
 @Param {value:"req: The request message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Request request> getMultiparts () returns mime:Entity[] | mime:EntityError {
+public function <Request request> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
     match request.getEntity() {
-        mime:Entity entity => {
-            match entity.getBodyParts() {
-                mime:Entity[] bodyParts => return bodyParts;
-                mime:EntityError err => return err;
-            }
-        }
+        mime:Entity entity => entity.getBodyParts();
         mime:EntityError err => return err;
+        any | null => return null;
     }
 }
 
@@ -360,5 +331,6 @@ function getMediaTypeFromRequest (Request request, string defaultContentType) re
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
     match request.getHeader(mime:CONTENT_TYPE) {
         string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
+        any | null => return {};
     }
 }
