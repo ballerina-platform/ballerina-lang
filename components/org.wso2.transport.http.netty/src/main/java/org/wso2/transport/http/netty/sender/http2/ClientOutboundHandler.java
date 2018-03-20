@@ -235,7 +235,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
      * @param streamId   stream to be terminated
      * @param http2Error cause for the termination
      */
-    private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
+    void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
         encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
         http2ClientChannel.getDataEventListeners().
                 forEach(dataEventListener -> dataEventListener.onStreamReset(streamId));

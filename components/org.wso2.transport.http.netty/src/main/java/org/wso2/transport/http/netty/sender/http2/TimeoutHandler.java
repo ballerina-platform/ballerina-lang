@@ -24,6 +24,7 @@ import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -37,10 +38,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
  */
-public class TimeoutHandler implements Http2DataEventListener {
+public class TimeoutHandler  implements Http2DataEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
-
     private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
     private long idleTimeNanos;
@@ -122,6 +122,7 @@ public class TimeoutHandler implements Http2DataEventListener {
         public void run() {
             long nextDelay = idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
             if (nextDelay <= 0) {
+                closeStream(streamId, ctx);
                 if (msgHolder.getResponse() != null) {
                     handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
                 } else if (msgHolder.isRequestWritten()) {
@@ -151,6 +152,12 @@ public class TimeoutHandler implements Http2DataEventListener {
 
     private long ticksInNanos() {
         return System.nanoTime();
+    }
+
+    private void closeStream(int streamId, ChannelHandlerContext ctx) {
+        ClientOutboundHandler clientOutboundHandler =
+                (ClientOutboundHandler) ctx.pipeline().get(Constants.OUTBOUND_HANDLER);
+        clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
     }
 
     private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay, TimeUnit unit) {

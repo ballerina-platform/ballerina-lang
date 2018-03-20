@@ -217,6 +217,7 @@ public final class Constants {
     public static final String CONNECTION_HANDLER = "connectionHandler";
     public static final String OUTBOUND_HANDLER = "outboundHandler";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String DECOMPRESSOR_HANDLER = "deCompressor";
