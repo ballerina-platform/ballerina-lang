@@ -38,7 +38,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.PROTOCOL_PACKAGE_GRPC;
         functionName = "register",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = CLIENT_ENDPOINT_TYPE,
                              structPackage = PROTOCOL_PACKAGE_GRPC),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPE)},
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {

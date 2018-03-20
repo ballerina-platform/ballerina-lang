@@ -26,7 +26,7 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -58,7 +58,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
                 structPackage = PROTOCOL_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
-                @Argument(name = "listenerService", type = TypeKind.TYPE)
+                @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -97,7 +97,7 @@ public class StreamingExecute extends AbstractExecute {
         }
         if (connectionStub instanceof GrpcNonBlockingStub) {
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            BTypeValue serviceType = (BTypeValue) context.getRefArgument(1);
+            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
             try {
@@ -129,7 +129,7 @@ public class StreamingExecute extends AbstractExecute {
         }
     }
 
-    private Value getTypeField(BTypeValue refField) {
+    private Value getTypeField(BTypeDescValue refField) {
         if (refField == null) {
             return null;
         }

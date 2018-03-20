@@ -25,7 +25,7 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -56,7 +56,7 @@ import static org.ballerinalang.net.grpc.MessageConstants.SERVICE_STUB_REF_INDEX
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
-                @Argument(name = "listenerService", type = TypeKind.TYPE)
+                @Argument(name = "listenerService", type = TypeKind.TYPEDESC)
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
@@ -97,7 +97,7 @@ public class NonBlockingExecute extends AbstractExecute {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
             GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
-            BTypeValue serviceType = (BTypeValue) context.getRefArgument(2);
+            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(2);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
             try {
@@ -124,7 +124,7 @@ public class NonBlockingExecute extends AbstractExecute {
                 "type not supported");
     }
 
-    private Value getTypeField(BTypeValue refField) {
+    private Value getTypeField(BTypeDescValue refField) {
         if (refField == null) {
             return null;
         }
