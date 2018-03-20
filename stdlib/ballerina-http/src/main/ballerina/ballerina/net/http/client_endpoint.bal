@@ -92,10 +92,10 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         ep.config = config;
         ep.httpClient = createCircuitBreakerClient(uri, config);
     } else if (config.algorithm != null && lengthof config.targets > 1) {
-        ep.httpClient = createLoadBalancer(config);
+        ep.httpClient = createLoadBalancerClient(config);
     } else if (config.failoverConfig != null) {
         ep.config = config;
-        ep.httpClient = createFailOverClient(uri, config);
+        ep.httpClient = createFailOverClient(config);
     } else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -127,26 +127,6 @@ public function <ClientEndpoint ep> stop() {
 }
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
-
-function createLoadBalancer (ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] lbClients = [];
-    int i = 0;
-
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        }
-        lbClients[i] = createHttpClient(uri, config);
-        lbClients[i].config = config;
-        i = i + 1;
-    }
-
-    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
-    var httpClient, e = (HttpClient)lb;
-    return httpClient;
-}
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -217,25 +197,21 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
     return httpClient;
 }
 
-public function createFailOverClient(string url, ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] clients = [];
-    int i=0;
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        }
-        clients[i] = createHttpClient(uri, config);
-        clients[i].config = config;
-        i = i+1;
-    }
-    Failover failover = {};
-    failover.config = config;
+function createLoadBalancerClient(ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] lbClients = createHttpClientArray(config);
+    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
+    var httpClient, e = (HttpClient)lb;
+    return httpClient;
+}
+
+function createFailOverClient(ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] clients = createHttpClientArray(config);
     boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
-    failover.failoverInferredConfig = {failoverClientsArray : clients,
+    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
                                           failoverCodesIndex : failoverCodes,
                                           failoverInterval : config.failoverConfig.interval};
-    var hc,_ = (HttpClient) failover;
-    return hc;
+
+    Failover failover = {serviceUri:config.targets[0].uri, config:config, failoverInferredConfig:failoverInferredConfig};
+    var httpClient, e = (HttpClient) failover;
+    return httpClient;
 }

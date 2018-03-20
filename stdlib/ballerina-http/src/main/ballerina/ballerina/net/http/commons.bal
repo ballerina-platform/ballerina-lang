@@ -89,3 +89,19 @@ function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
     }
     return result;
 }
+
+function createHttpClientArray (ClientEndpointConfiguration config) (HttpClient[]) {
+    HttpClient[] httpClients = [];
+    int i=0;
+    foreach target in config.targets {
+        string uri = target.uri;
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        httpClients[i] = createHttpClient(uri, config);
+        httpClients[i].config = config;
+        i = i+1;
+    }
+    return httpClients;
+}

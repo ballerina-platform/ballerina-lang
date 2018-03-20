@@ -18,7 +18,6 @@ package ballerina.net.http;
 
 import ballerina.mime;
 import ballerina.runtime;
-import ballerina.io;
 
 @Description {value:"Represents Failover connector retry configuration."}
 @Field {value:"failoverCodes: Array of http response status codes which required failover the requests."}
@@ -63,7 +62,6 @@ public struct Failover {
 @Return {value:"The Response struct"}
 @Return {value:"Error occurred during the function invocation, if any"}
 public function <Failover client> post(string path, Request request) (Response, HttpConnectorError) {
-    io:println("------------post----------------------");
     return performFailoverAction(path, request, null, HttpOperation.POST, client.failoverInferredConfig);
 }
 
@@ -211,13 +209,10 @@ function performFailoverAction (string path, Request outRequest, Request inReque
                                                                         (Response, HttpConnectorError) {
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
-    io:println("------------noOfEndpoints----------------------");
-    io:println(noOfEndpoints);
     int currentIndex = 0;
     int initialIndex = 0;
     int startIndex = -1;
     int failoverInterval = failoverInferredConfig.failoverInterval;
-    io:println(failoverInterval);
 
     FailoverConnectorError failoverConnectorError = {};
     HttpClient[] failoverClients = failoverInferredConfig.failoverClientsArray;
@@ -241,34 +236,24 @@ function performFailoverAction (string path, Request outRequest, Request inReque
         startIndex = initialIndex;
         currentIndex = currentIndex + 1;
         inResponse, httpConnectorError = invokeEndpoint(path, outRequest, inRequest, requestAction, failoverClient);
-        io:println("-------------httpConnectorError-----------------");
-        io:println(httpConnectorError);
-        io:println(path);
         if (inResponse == null && httpConnectorError != null) {
-            io:println("-------------inResponse == null && httpConnectorError != null-----------------");
             outRequest = {};
             if (requestEntity != null) {
-                io:println("-------------requestEntity != null-----------------");
                 outRequest.setEntity(requestEntity);
             }
 
             if (noOfEndpoints > currentIndex) {
-                io:println("-------------noOfEndpoints > currentIndex-----------------");
                 runtime:sleepCurrentWorker(failoverInterval);
                 failoverConnectorError.httpConnectorError[currentIndex - 1] = httpConnectorError;
                 failoverClient = failoverClients[currentIndex];
             } else {
-                io:println("-------------else-----------------");
                 return populateGenericFailoverConnectorError(failoverConnectorError, httpConnectorError, currentIndex - 1);
             }
         }
         if (inResponse != null) {
-            io:println("-------------inResponse != null-----------------");
             int httpStatusCode = inResponse.statusCode;
             if (failoverCodeIndex[httpStatusCode] == true) {
                 if (noOfEndpoints > currentIndex) {
-                    io:println("-------------if (failoverCodeIndex[httpStatusCode] == true) {
-                if (noOfEndpoints > currentIndex) {-----------------");
                     outRequest = {};
                     if (requestEntity != null) {
                         outRequest.setEntity(requestEntity);

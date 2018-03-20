@@ -71,9 +71,7 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String url = context.getStringArgument(0);
-        System.out.println("************inside createHttpclient**********");
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-        System.out.println("************connectionManager********** " + connectionManager );
         String scheme;
         if (url.startsWith("http://")) {
             scheme = HttpConstants.PROTOCOL_HTTP;
@@ -113,7 +111,6 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
                 HTTP_CLIENT, url, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
-        System.out.println("************last createHttpclient**********");
         context.setReturnValues(httpClient);
     }
 
