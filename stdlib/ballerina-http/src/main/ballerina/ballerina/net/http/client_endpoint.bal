@@ -200,10 +200,10 @@ public struct ConnectionThrottling {
     int waitTime = 60000;
 }
 
-function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ) {
+function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
     validateCircuitBreakerConfiguration(configuration.circuitBreaker);
-    boolean[] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
-    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {failureThreshold:configuration.circuitBreaker.failureThreshold,
+    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
                                                                     resetTimeout:configuration.circuitBreaker.resetTimeout,
                                                                     httpStatusCodes:httpStatusCodes
                                                                 };
@@ -213,7 +213,7 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                         httpClient:cbHttpClient,
                                         circuitHealth:{},
                                         currentCircuitState:CircuitState.CLOSED};
-    var httpClient, e = (HttpClient)cbClient;
+    var httpClient , e = (HttpClient) cbClient;
     return httpClient;
 }
 
