@@ -13,8 +13,7 @@ function main (string[] args) {
                        }
               };
     //Convert to XML with default attribute prefix and arrayEntryTag.
-    jsonOptions options1 = {};
-    xml x1 = j1.toXML(options1);
+    var x1 = j1.toXML({});
     io:println(x1);
 
     //Convert to XML with custom attribute prefix and custom array tag.
@@ -28,7 +27,6 @@ function main (string[] args) {
                            "codes":["4", "8"]
                        }
               };
-    jsonOptions options2 = {attributePrefix:"#", arrayEntryTag:"wrapper"};
-    xml x2 = j2.toXML(options2);
+    var x2 = j2.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
     io:println(x2);
 }
