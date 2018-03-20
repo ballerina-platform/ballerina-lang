@@ -58,7 +58,7 @@ public function invokeEndpoint (string path, Request outRequest, Request inReque
 }
 
 // Extracts HttpOperation from the Http verb passed in.
-function extractHttpOperation (string httpVerb) returns (HttpOperation connectorAction) {
+function extractHttpOperation (string httpVerb) returns HttpOperation {
     HttpOperation inferredConnectorAction;
     if (GET == httpVerb) {
         inferredConnectorAction = HttpOperation.GET;
@@ -82,7 +82,7 @@ function extractHttpOperation (string httpVerb) returns (HttpOperation connector
 
 // Populate boolean index array by looking at the configured Http status codes to get better performance
 // at runtime.
-function populateErrorCodeIndex (int[] errorCode) returns (boolean[] result) {
+function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     result = [];
     foreach i in errorCode {
         result[i] = true;
