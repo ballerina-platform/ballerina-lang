@@ -101,6 +101,13 @@ public function <Response res> removeAllHeaders () {
     entity.removeAllHeaders();
 }
 
+@Description {value:"Get all transport headers from the response. Manipulating the return map does not have any impact to the original copy"}
+@Param {value:"res: The response message"}
+public function <Response res> getCopyOfAllHeaders () (map) {
+    mime:Entity entity = res.getEntityWithoutBody();
+    return entity.getCopyOfAllHeaders();
+}
+
 @Description {value:"Gets the Content-Length header value from the response"}
 @Param {value:"response: The response message"}
 @Return {value:"length of the message"}

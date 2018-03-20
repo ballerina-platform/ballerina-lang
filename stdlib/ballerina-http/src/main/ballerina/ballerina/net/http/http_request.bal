@@ -119,6 +119,13 @@ public function <Request req> removeAllHeaders () {
     entity.removeAllHeaders();
 }
 
+@Description {value:"Get all transport headers from the request. Manipulating the return map does not have any impact to the original copy"}
+@Param {value:"req: The request message"}
+public function <Request req> getCopyOfAllHeaders () (map) {
+    mime:Entity entity = req.getEntityWithoutBody();
+    return entity.getCopyOfAllHeaders();
+}
+
 @Description {value:"Checks whether the client expects a 100-continue response."}
 @Param {value:"req: The request message"}
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
