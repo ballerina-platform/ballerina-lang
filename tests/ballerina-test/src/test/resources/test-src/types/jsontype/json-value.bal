@@ -334,7 +334,7 @@ function testJsonToJsonArrayInvalidCasting () returns (json[][][], error) {
 function testGetFromNull () returns (string) {
     json j2 = {age:43, name:null};
     string value;
-    value, _ = (string)j2.name.fname;å
+    value, _ = (string)j2.name.fname;
     return value;
 }
 
