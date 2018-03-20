@@ -1,149 +1,149 @@
-function stringTemplateWithText1 () (string) {
+function stringTemplateWithText1 () returns (string) {
     string s = string `\``;
     return s;
 }
 
-function stringTemplateWithText2 () (string) {
+function stringTemplateWithText2 () returns (string) {
     string s = string `\\`;
     return s;
 }
 
-function stringTemplateWithText3 () (string) {
+function stringTemplateWithText3 () returns (string) {
     string s = string `\{`;
     return s;
 }
 
-function stringTemplateWithText4 () (string) {
+function stringTemplateWithText4 () returns (string) {
     string s = string `\{{`;
     return s;
 }
 
-function stringTemplateWithText5 () (string) {
+function stringTemplateWithText5 () returns (string) {
     string s = string `{\{`;
     return s;
 }
 
-function stringTemplateWithText6 () (string) {
+function stringTemplateWithText6 () returns (string) {
     string s = string `}`;
     return s;
 }
 
-function stringTemplateWithText7 () (string) {
+function stringTemplateWithText7 () returns (string) {
     string s = string `}}`;
     return s;
 }
 
-function stringTemplateWithText8 () (string) {
+function stringTemplateWithText8 () returns (string) {
     string s = string `}}}`;
     return s;
 }
 
-function stringTemplateWithText9 () (string) {
+function stringTemplateWithText9 () returns (string) {
     string s = string `Hello`;
     return s;
 }
 
-function stringTemplateWithText10 () (string) {
+function stringTemplateWithText10 () returns (string) {
     string name = "Ballerina";
     string s = string `{{name}}`;
     return s;
 }
 
-function stringTemplateWithText11 () (string) {
+function stringTemplateWithText11 () returns (string) {
     string name = "Ballerina";
     string s = string `Hello {{name}}`;
     return s;
 }
 
-function stringTemplateWithText12 () (string) {
+function stringTemplateWithText12 () returns (string) {
     string name = "Ballerina";
     string s = string `{{name}} !!!`;
     return s;
 }
 
-function stringTemplateWithText13 () (string) {
+function stringTemplateWithText13 () returns (string) {
     string name = "Ballerina";
     string s = string `Hello {{name}} !!!`;
     return s;
 }
 
-function stringTemplateWithText14 () (string) {
+function stringTemplateWithText14 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
     string s = string `Hello {{lastName}}, {{firstName}}`;
     return s;
 }
 
-function stringTemplateWithText15 () (string) {
+function stringTemplateWithText15 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
     string s = string `Hello {{lastName}}, {{firstName}} !!!`;
     return s;
 }
 
-function stringTemplateWithText16 () (string) {
+function stringTemplateWithText16 () returns (string) {
     int count = 10;
     string s = string `Count = {{count}}`;
     return s;
 }
 
-function stringTemplateWithText17 () (string) {
+function stringTemplateWithText17 () returns (string) {
     string s = string `\{{count}}`;
     return s;
 }
 
-function stringTemplateWithText18 () (string) {
+function stringTemplateWithText18 () returns (string) {
     int count = 10;
     string s = string `\\{{count}}`;
     return s;
 }
 
-function stringTemplateWithText19 () (string) {
+function stringTemplateWithText19 () returns (string) {
     string path = "root";
     string s = string `Path = \\{{path}}`;
     return s;
 }
 
-function stringTemplateWithText20 () (string) {
+function stringTemplateWithText20 () returns (string) {
     string s = string `Path = \\`;
     return s;
 }
 
-function stringTemplateWithText21 () (string) {
+function stringTemplateWithText21 () returns (string) {
     string firstName = "John";
     string lastName = "Smith";
     string s = string `Hello {{firstName + " " + lastName}} !!!`;
     return s;
 }
 
-function stringTemplateWithText22 () (string) {
+function stringTemplateWithText22 () returns (string) {
     string s = string `Hello {{getFullName()}} !!!`;
     return s;
 }
 
-function stringTemplateWithText23 () (string) {
+function stringTemplateWithText23 () returns (string) {
     string s = string `Hello {{getFirstName() + " " + getLastName()}} !!!`;
     return s;
 }
 
-function getFullName () (string) {
+function getFullName () returns (string) {
     return getFirstName() + " " + getLastName();
 }
 
-function getFirstName () (string) {
+function getFirstName () returns (string) {
     return "John";
 }
 
-function getLastName () (string) {
+function getLastName () returns (string) {
     return "Smith";
 }
 
-function emptyStringTemplate () (string) {
+function emptyStringTemplate () returns (string) {
     string s = string ``;
     return s;
 }
 
-function concatStringTemplateExprs() (string) {
+function concatStringTemplateExprs() returns (string) {
     string s1 = "John";
     string s2 = "Doe";
     return string `FirstName: {{s1}}.` + string ` Second name: {{s2}}`;
