@@ -18,7 +18,7 @@ service<http:Service> headQuoteService {
         path:"/default"
     }
     resource defaultResource (http:ServerConnector conn, http:Request req) {
-        string method = req.method;
+        string method = untaint req.method;
         http:Request clientRequest = {};
         http:Response clientResponse = {};
         clientResponse, _ = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
@@ -49,7 +49,7 @@ service<http:Service> headQuoteService {
     resource commonResource (http:ServerConnector conn, http:Request req, string method) {
         http:Request clientRequest = {};
         http:Response clientResponse = {};
-        clientResponse, _ = endPoint -> execute(method, "/getQuote/stocks", clientRequest);
+        clientResponse, _ = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
         _ = conn -> forward(clientResponse);
     }
 }
