@@ -68,4 +68,6 @@ public native function <WebSocketClient h> getClient() (WebSocketConnector);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> stop();
+public function <WebSocketClient h> stop (){
+    h.getClient().closeConnection(1001, "The connection has been stopped");
+}
