@@ -29,6 +29,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.tracer.TraceUtil;
 import org.ballerinalang.util.tracer.Tracer;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -72,7 +73,7 @@ public class Head extends AbstractHTTPAction {
         HTTPCarbonMessage outboundReqMsg = super.createOutboundRequestMsg(context);
         outboundReqMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_HEAD);
 
-        Tracer tracer = context.getParentWorkerExecutionContext().getTracer();
+        Tracer tracer = TraceUtil.getParentTracer(context.getParentWorkerExecutionContext());
         HttpUtil.injectHeaders(outboundReqMsg, tracer.getProperties());
         tracer.addTags(HttpUtil.extractTraceTags(outboundReqMsg));
 

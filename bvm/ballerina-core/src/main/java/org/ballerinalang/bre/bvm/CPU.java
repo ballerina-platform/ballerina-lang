@@ -2803,8 +2803,8 @@ public class CPU {
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
 
         //TODO: find a way to only trace connectors
-        BLangVMUtils.initClientConnectorTrace(ctx, concreteFuncInfo.attachedToType.toString(),
-                concreteFuncInfo.getName());
+        // BLangVMUtils.initClientConnectorTrace(ctx, concreteFuncInfo.attachedToType.toString(),
+        //          concreteFuncInfo.getName());
 
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, async);
     }

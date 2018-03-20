@@ -79,7 +79,7 @@ public class TraceManagerWrapper {
         Long invocationId = Long.valueOf(aBTracer.getInvocationID());
 
         // get the parent spans' span context
-        rBTracer = (rBTracer != null) ? rBTracer : aBTracer;
+        rBTracer = (rBTracer.getInvocationID() != null) ? rBTracer : aBTracer;
         Map<String, String> spanHeaders = rBTracer.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         e -> String.valueOf(e.getValue())));

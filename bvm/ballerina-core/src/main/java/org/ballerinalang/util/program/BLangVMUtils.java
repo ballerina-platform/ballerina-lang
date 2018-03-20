@@ -427,7 +427,7 @@ public class BLangVMUtils {
         Tracer active = TraceManagerWrapper.newTracer(ctx, true);
         ctx.setTracer(active);
 
-        if (root == null) {
+        if (root.getInvocationID() == null) {
             active.generateInvocationID();
         } else {
             active.setInvocationID(root.getInvocationID());

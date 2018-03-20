@@ -62,6 +62,6 @@ public class TraceUtil {
                 return parent.getTracer();
             }
         }
-        return null;
+        return new NoOpTracer();
     }
 }
