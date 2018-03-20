@@ -39,6 +39,8 @@ import java.util.Map;
  */
 public class WorkerExecutionContext {
 
+    private static final String WORKER_NAME_NATIVE = "native";
+
     public WorkerExecutionContext parent;
     
     public WorkerState state = WorkerState.CREATED;
@@ -80,6 +82,11 @@ public class WorkerExecutionContext {
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
         setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
+    }
+    
+    public WorkerExecutionContext(BStruct error) {
+        this.error = error;
+        this.workerInfo = new WorkerInfo(0, WORKER_NAME_NATIVE);
     }
     
     public WorkerExecutionContext(WorkerExecutionContext parent, WorkerResponseContext respCtx, 

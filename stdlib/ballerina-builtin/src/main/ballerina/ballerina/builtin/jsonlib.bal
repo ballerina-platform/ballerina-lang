@@ -24,12 +24,12 @@ public native function <json j> remove (string key);
 @Description { value:"Converts a JSON object to a string representation"}
 @Param { value:"j: A JSON object" }
 @Return { value:"String value of the converted JSON" }
-public native function <json j> toString () (string);
+public native function <json j> toString () returns (string);
 
 @Description { value:"Returns an array of keys contained in the specified JSON."}
 @Param { value:"j: A JSON object" }
 @Return { value:"A string array of keys contained in the specified JSON" }
-public native function <json j> getKeys() (string[]);
+public native function <json j> getKeys() returns (string[]);
 
 @Description { value:"Converts a JSON object to a XML representation"}
 @Param { value:"j: A JSON object" }
@@ -38,4 +38,4 @@ public native function <json j> getKeys() (string[]);
 public native function <json j> toXML (struct {
                                            string attributePrefix = "@";
                                            string arrayEntryTag = "item";
-                                       } options) (xml, error);
+                                       } options) returns (xml, error);

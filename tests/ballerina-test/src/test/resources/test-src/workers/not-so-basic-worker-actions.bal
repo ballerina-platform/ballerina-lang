@@ -84,7 +84,7 @@ function chainedWorkerSendReceive() (map) {
     return m;
 }
 
-function forkJoinWithSomeSelectedJoin1() (map) {
+function forkJoinWithSomeSelectedJoin1() (int, int) {
     map m = {};
     m["x"] = 0;
     m["y"] = 0;
@@ -108,7 +108,11 @@ function forkJoinWithSomeSelectedJoin1() (map) {
 	     m["x"] = b;
 	   }
 	} join (some 1 w2, w3) (map results) {  io:println(results);  }
-	return m;
+	int j;
+	int k;
+	j, _ = (int) m["x"];
+	k, _ = (int) m["y"];
+	return j, k;
 }
 
 function forkJoinWithSomeSelectedJoin2() (map) {
@@ -169,7 +173,7 @@ function forkJoinWithSomeSelectedJoin3() (map) {
 	return m;
 }
 
-function forkJoinWithSomeSelectedJoin4() (map) {
+function forkJoinWithSomeSelectedJoin4() (int) {
     map m = {};
     m["x"] = 0;
     fork {
@@ -189,10 +193,12 @@ function forkJoinWithSomeSelectedJoin4() (map) {
 	     m["x"] = a * 2;
 	   }
 	} join (some 2 w1, w2, w3) (map results) {  io:println(results);  }
-	return m;
+	int x;
+	x, _ = (int) m["x"];
+	return x;
 }
 
-function forkJoinWithSomeSelectedJoin5() (map) {
+function forkJoinWithSomeSelectedJoin5() (int) {
     map m = {};
     m["x"] = 0;
     fork {
@@ -214,7 +220,9 @@ function forkJoinWithSomeSelectedJoin5() (map) {
 	     a -> w2;
 	   }
 	} join (some 2 w1, w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 555;  }
-	return m;
+	int x;
+	x, _ = (int) m["x"];
+	return x;
 }
 
 function forkJoinWithAllSelectedJoin1() (map) {
@@ -248,9 +256,8 @@ function forkJoinWithAllSelectedJoin1() (map) {
 	return m;
 }
 
-function forkJoinWithAllSelectedJoin2() (map) {
-    map m = {};
-    m["x"] = 0;
+function forkJoinWithAllSelectedJoin2() (int) {
+    int result;
     fork {
 	   worker w1 {
 	     int x = 10;
@@ -264,19 +271,23 @@ function forkJoinWithAllSelectedJoin2() (map) {
 	     a <- w1;
 	     (a * 2) -> w3;
 	     a <- w1;
-	     m["x"] = a;
+	     result = a;
 	     (a * 2) -> w3;
 	     runtime:sleepCurrentWorker(2000);
-	     m["x"] = 33;
+	     result = 33;
 	   }
 	   worker w3 {
 	     int a = 0;
 	     a <- w2;
 	     (a * 2) -> w1;
-	     m["x"] <- w2;
+	     result <- w2;
 	   }
-	} join (all w2, w3) (map results) { } timeout (1) (map results) {  m["x"] = 777;  }
-	return m;
+	} join (all w2, w3) (map results) { } timeout (1) (map results) {
+	     if (result != 33) {
+	         result = 777; 
+	     }  
+	}
+	return result;
 }
 
 function forkJoinWithMessagePassingTimeoutNotTriggered() (map) {

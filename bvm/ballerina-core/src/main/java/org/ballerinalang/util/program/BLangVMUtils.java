@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.Resource;
@@ -28,6 +30,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -40,6 +43,7 @@ import org.ballerinalang.util.tracer.Tracer;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * Utilities related to the Ballerina VM.
@@ -140,6 +144,8 @@ public class BLangVMUtils {
         wd.intRegs = new int[ci.getMaxIntRegs()];
         wd.byteRegs = new byte[ci.getMaxByteRegs()][];
         wd.refRegs = new BRefType[ci.getMaxRefRegs()];
+
+        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         return wd;
     }
 
@@ -168,7 +174,7 @@ public class BLangVMUtils {
                 break;
             case TypeTags.STRING_TAG:
                 if (vals[i] == null) {
-                    data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_NULL_VALUE;
+                    data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_EMPTY_VALUE;
                     break;
                 }
                 data.stringRegs[callersRetRegIndex] = vals[i].stringValue();
@@ -189,6 +195,61 @@ public class BLangVMUtils {
                 break;
             default:
                 data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
+            }
+        }
+    }
+    
+    @SuppressWarnings("rawtypes")
+    public static void populateWorkerResultWithValues(WorkerData result, BValue[] vals, BType[] types) {
+        if (vals == null) {
+            return;
+        }
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+        int byteRegCount = 0;
+        for (int i = 0; i < vals.length; i++) {
+            BType retType = types[i];
+            switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                if (vals[i] == null) {
+                    result.longRegs[longRegCount++] = 0;
+                    break;
+                }
+                result.longRegs[longRegCount++] = ((BInteger) vals[i]).intValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (vals[i] == null) {
+                    result.doubleRegs[doubleRegCount++] = 0;
+                    break;
+                }
+                result.doubleRegs[doubleRegCount++] = ((BFloat) vals[i]).floatValue();
+                break;
+            case TypeTags.STRING_TAG:
+                if (vals[i] == null) {
+                    result.stringRegs[stringRegCount++] = BLangConstants.STRING_NULL_VALUE;
+                    break;
+                }
+                result.stringRegs[stringRegCount++] = vals[i].stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (vals[i] == null) {
+                    result.intRegs[intRegCount++] = 0;
+                    break;
+                }
+                result.intRegs[intRegCount++] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
+                break;
+            case TypeTags.BLOB_TAG:
+                if (vals[i] == null) {
+                    result.byteRegs[byteRegCount++] = new byte[0];
+                    break;
+                }
+                result.byteRegs[byteRegCount++] = ((BBlob) vals[i]).blobValue();
+                break;
+            default:
+                result.refRegs[refRegCount++] = (BRefType) vals[i];
             }
         }
     }
@@ -304,6 +365,8 @@ public class BLangVMUtils {
         wd.intRegs = new int[wdi.intRegCount];
         wd.byteRegs = new byte[wdi.byteRegCount][];
         wd.refRegs = new BRefType[wdi.refRegCount];
+
+        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         return wd;
     }
     
@@ -315,6 +378,8 @@ public class BLangVMUtils {
         wd.intRegs = new int[wdi1.intRegCount + wdi2.intRegCount];
         wd.byteRegs = new byte[wdi1.byteRegCount + wdi2.byteRegCount][];
         wd.refRegs = new BRefType[wdi1.refRegCount + wdi2.refRegCount];
+
+        Arrays.fill(wd.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         return wd;
     }
     
@@ -372,6 +437,20 @@ public class BLangVMUtils {
         }
         for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
             targetData.refRegs[i] = sourceData.refRegs[i];
+        }
+    }
+    
+    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+        parentCtx.setError(error);
+        try {
+            CPU.handleError(parentCtx);
+            return parentCtx;
+        } catch (HandleErrorException e) {
+            if (e.ctx != null && !e.ctx.isRootContext()) {
+                return e.ctx;
+            } else {
+                return null;
+            }
         }
     }
     
