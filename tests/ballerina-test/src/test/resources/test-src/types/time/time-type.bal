@@ -35,12 +35,6 @@ function testCreateTimeWithNoZone () returns (int, string, int) {
     return (timeValue, zoneId, zoneoffset);
 }
 
-function testCreateTimeWithNullZone () returns (int) {
-    time:Time timeStruct = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
-    timeStruct.zone = null;
-    return timeStruct.year();
-}
-
 function testCreateDateTime () returns (string) {
     time:Time timeStruct = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
     return timeStruct.toString();
