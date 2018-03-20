@@ -72,7 +72,6 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String url = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-
         String scheme;
         if (url.startsWith("http://")) {
             scheme = HttpConstants.PROTOCOL_HTTP;

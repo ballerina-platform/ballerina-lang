@@ -57,6 +57,7 @@ public struct TargetService {
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 @Field {value:"algorithm: The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default."}
+@Field {value:"failoverConfig: Failover configuration"}
 public struct ClientEndpointConfiguration {
     CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
@@ -71,6 +72,7 @@ public struct ClientEndpointConfiguration {
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
     function (LoadBalancer, HttpClient[]) (HttpClient) algorithm;
+    FailoverConfig failoverConfig;
 }
 
 @Description {value:"Initializes the ClientEndpointConfiguration struct with default values."}
@@ -90,7 +92,10 @@ public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
         ep.config = config;
         ep.httpClient = createCircuitBreakerClient(uri, config);
     } else if (config.algorithm != null && lengthof config.targets > 1) {
-        ep.httpClient = createLoadBalancer(config);
+        ep.httpClient = createLoadBalancerClient(config);
+    } else if (config.failoverConfig != null) {
+        ep.config = config;
+        ep.httpClient = createFailOverClient(config);
     } else {
         if (uri.hasSuffix("/")) {
             int lastIndex = uri.length() - 1;
@@ -122,26 +127,6 @@ public function <ClientEndpoint ep> stop() {
 }
 
 public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
-
-function createLoadBalancer (ClientEndpointConfiguration config) (HttpClient) {
-    HttpClient[] lbClients = [];
-    int i = 0;
-
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-        }
-        lbClients[i] = createHttpClient(uri, config);
-        lbClients[i].config = config;
-        i = i + 1;
-    }
-
-    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
-    var httpClient, e = (HttpClient)lb;
-    return httpClient;
-}
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
@@ -209,5 +194,24 @@ function createCircuitBreakerClient (string uri, ClientEndpointConfiguration con
                                         circuitHealth:{},
                                         currentCircuitState:CircuitState.CLOSED};
     var httpClient , e = (HttpClient) cbClient;
+    return httpClient;
+}
+
+function createLoadBalancerClient(ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] lbClients = createHttpClientArray(config);
+    LoadBalancer lb = {serviceUri:config.targets[0].uri, config:config, loadBalanceClientsArray:lbClients, algorithm:config.algorithm};
+    var httpClient, e = (HttpClient)lb;
+    return httpClient;
+}
+
+function createFailOverClient(ClientEndpointConfiguration config) (HttpClient) {
+    HttpClient[] clients = createHttpClientArray(config);
+    boolean[] failoverCodes = populateErrorCodeIndex(config.failoverConfig.failoverCodes);
+    FailoverInferredConfig failoverInferredConfig = {failoverClientsArray : clients,
+                                          failoverCodesIndex : failoverCodes,
+                                          failoverInterval : config.failoverConfig.interval};
+
+    Failover failover = {serviceUri:config.targets[0].uri, config:config, failoverInferredConfig:failoverInferredConfig};
+    var httpClient, e = (HttpClient) failover;
     return httpClient;
 }
