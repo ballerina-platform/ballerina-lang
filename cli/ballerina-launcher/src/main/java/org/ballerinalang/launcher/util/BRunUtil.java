@@ -217,7 +217,7 @@ public class BRunUtil {
 
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response[0] instanceof BRefValueArray)) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {
             return response;
         }
 
@@ -250,7 +250,7 @@ public class BRunUtil {
      * @param initFuncInfo Function to invoke.
      * @param context invocation context.
      */
-    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo, 
+    public static void invoke(CompileResult compileResult, FunctionInfo initFuncInfo,
             WorkerExecutionContext context) {
         Debugger debugger = new Debugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);

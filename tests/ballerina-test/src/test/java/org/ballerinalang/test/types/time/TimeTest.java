@@ -67,13 +67,6 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
     }
 
-    @Test(description = "Test create time with no zone info provided.")
-    public void testCreateTimeWithNullZone() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testCreateTimeWithNullZone", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
-    }
-
     @Test(description = "Test parsing a given time string to time.")
     public void testParseTime() {
         BValue[] args = {};

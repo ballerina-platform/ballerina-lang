@@ -320,7 +320,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             BUnionType unionType = (BUnionType) this.resultType;
             unionType.memberTypes.add(symTable.nullType);
             unionType.setNullable(true);
-        } else if (typeNode.nullable && this.resultType.tag != TypeTags.JSON) {
+        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON) {
             Set<BType> memberTypes = new HashSet<BType>(2) {{
                 add(resultType);
                 add(symTable.nullType);

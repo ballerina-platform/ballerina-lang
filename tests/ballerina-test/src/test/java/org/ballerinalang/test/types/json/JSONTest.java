@@ -245,8 +245,6 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(((OMText) returnElement).getText(), "value");
-
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Convert a json object with boolean value only")
@@ -256,8 +254,6 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(((OMText) returnElement).getText(), "true");
-
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Convert json object with key value")
@@ -384,8 +380,6 @@ public class JSONTest {
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<info><address/><homeAddresses><item>a</item><item>b</item>"
                 + "</homeAddresses><phoneNumbers/></info>");
-
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Convert a simple json object with attributes")
@@ -397,8 +391,6 @@ public class JSONTest {
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<info id=\"100\"><name>John</name><age>30</age><car>honda</car>"
                 + "</info>");
-
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Convert a complex json object with attributes")
@@ -411,8 +403,6 @@ public class JSONTest {
         Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
                 + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
                 + "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
-
-        Assert.assertNull(returns[1]);
     }
 
     @Test(description = "Convert a complex json object with attributes and custom attribute prefix")
@@ -425,8 +415,6 @@ public class JSONTest {
         Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
                 + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
                 + "</address><codes><wrapper>4</wrapper><wrapper>8</wrapper><wrapper>9</wrapper></codes></bookStore>");
-
-        Assert.assertNull(returns[1]);
     }
 
     private String getJsonAsString(BValue bValue) {
@@ -459,9 +447,9 @@ public class JSONTest {
     public void testJSONToXMLWithUnsupportedChar() {
         BValue[] args = {new BJSON(jsonToXML13)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
-        Assert.assertNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BStruct) returns[1]).getStringField(0),
+
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
 

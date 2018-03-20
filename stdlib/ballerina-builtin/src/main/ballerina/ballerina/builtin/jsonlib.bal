@@ -38,4 +38,4 @@ public native function <json j> getKeys() returns (string[]);
 public native function <json j> toXML (struct {
                                            string attributePrefix = "@";
                                            string arrayEntryTag = "item";
-                                       } options) returns (xml, error);
+                                       } options) returns (xml| error);
