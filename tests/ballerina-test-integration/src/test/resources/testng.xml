@@ -35,7 +35,6 @@
         <classes>
             <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
         </classes>
     </test>
 
