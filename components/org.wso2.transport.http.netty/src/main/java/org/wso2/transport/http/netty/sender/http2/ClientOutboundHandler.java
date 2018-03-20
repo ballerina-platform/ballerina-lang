@@ -238,7 +238,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
     private void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) {
         encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
         http2ClientChannel.getDataEventListeners().
-                forEach(dataEventListener -> dataEventListener.onDataWrite(streamId, ctx, true));
+                forEach(dataEventListener -> dataEventListener.onStreamReset(streamId));
         ctx.flush();
     }
 }

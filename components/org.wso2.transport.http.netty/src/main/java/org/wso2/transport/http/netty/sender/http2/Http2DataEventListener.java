@@ -51,6 +51,13 @@ public interface Http2DataEventListener {
     void onDataWrite(int streamId, ChannelHandlerContext ctx, boolean endOfStream);
 
     /**
+     * Gets notified on  a stream reset.
+     *
+     * @param streamId the stream id
+     */
+    void onStreamReset(int streamId);
+
+    /**
      * Gets notified on a stream close.
      *
      * @param streamId the related stream id

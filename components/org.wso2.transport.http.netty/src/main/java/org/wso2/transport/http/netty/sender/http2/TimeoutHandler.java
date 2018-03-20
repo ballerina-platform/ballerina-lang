@@ -86,6 +86,12 @@ public class TimeoutHandler implements Http2DataEventListener {
         msgHolder.setLastReadWriteTime(ticksInNanos());
     }
 
+    @Override
+    public void onStreamReset(int streamId) {
+        onStreamClose(streamId);
+    }
+
+    @Override
     public void onStreamClose(int streamId) {
         ScheduledFuture timerTask = timerTasks.get(streamId);
         if (timerTask != null) {
