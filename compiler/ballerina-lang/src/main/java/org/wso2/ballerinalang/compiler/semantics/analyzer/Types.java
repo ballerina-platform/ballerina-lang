@@ -1208,7 +1208,7 @@ public class Types {
                 .map(s -> targetTypes
                         .stream()
                         .anyMatch(t -> isAssignable(s, t)))
-                .anyMatch(b -> !b);
+                .anyMatch(assignable -> !assignable);
 
         return !notAssignable;
     }
