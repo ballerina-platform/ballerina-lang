@@ -28,6 +28,7 @@ public struct TargetService {
 }
 
 @Description { value:"ClientEndpointConfiguration struct represents options to be used for HTTP client invocation" }
+@Field {value:"circuitBreaker: Circuit Breaker configuration"}
 @Field {value:"endpointTimeout: Endpoint timeout value in millisecond"}
 @Field {value:"keepAlive: Specifies whether to reuse a connection for multiple requests"}
 @Field {value:"transferEncoding: The types of encoding applied to the request"}
@@ -40,6 +41,7 @@ public struct TargetService {
 @Field {value:"connectionThrottling: Configurations for connection throttling"}
 @Field {value:"targets: Service(s) accessible through the endpoint. Multiple services can be specified here when using techniques such as load balancing and fail over."}
 public struct ClientEndpointConfiguration {
+    CircuitBreakerConfig circuitBreaker;
     int endpointTimeout = 60000;
     boolean keepAlive = true;
     TransferEncoding transferEncoding;
@@ -67,12 +69,17 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
 @Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
 public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
     string uri = config.targets[0].uri;
-    if (uri.hasSuffix("/")) {
-        int lastIndex = uri.length() - 1;
-        uri = uri.subString(0, lastIndex);
+    if (config.circuitBreaker != null) {
+        ep.config = config;
+        ep.httpClient = createCircuitBreakerClient(uri, config);
+    } else {
+        if (uri.hasSuffix("/")) {
+            int lastIndex = uri.length() - 1;
+            uri = uri.subString(0, lastIndex);
+        }
+        ep.config = config;
+        ep.httpClient = createHttpClient(uri, config);
     }
-    ep.config = config;
-    ep.httpClient = createHttpClient(uri, config);
 }
 
 public function <ClientEndpoint ep> register(typedesc serviceType) {
@@ -147,4 +154,29 @@ public struct Proxy {
 public struct ConnectionThrottling {
     int maxActiveConnections = -1;
     int waitTime = 60000;
+}
+
+function createCircuitBreakerClient (string uri, ClientEndpointConfiguration configuration) (HttpClient ){
+    validateCircuitBreakerConfiguration(configuration.circuitBreaker);
+    boolean [] httpStatusCodes = populateErrorCodeIndex(configuration.circuitBreaker.httpStatusCodes);
+    CircuitBreakerInferredConfig circuitBreakerInferredConfig = {   failureThreshold:configuration.circuitBreaker.failureThreshold,
+                                                                    resetTimeout:configuration.circuitBreaker.resetTimeout,
+                                                                    httpStatusCodes:httpStatusCodes
+                                                                };
+    HttpClient cbHttpClient = createHttpClient(uri, configuration);
+    CircuitBreakerClient cbClient = {serviceUri:uri, config:configuration,
+                                        circuitBreakerInferredConfig:circuitBreakerInferredConfig,
+                                        httpClient:cbHttpClient,
+                                        circuitHealth:{},
+                                        currentCircuitState:CircuitState.CLOSED};
+    var httpClient , e = (HttpClient) cbClient;
+    return httpClient;
+}
+
+function populateErrorCodeIndex (int[] errorCode) (boolean[] result) {
+    result = [];
+    foreach i in errorCode {
+        result[i] = true;
+    }
+    return result;
 }
