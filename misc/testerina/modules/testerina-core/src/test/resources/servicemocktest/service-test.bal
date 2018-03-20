@@ -11,6 +11,9 @@ endpoint http:ServiceEndpoint eventEP {
 
 string url1 = "http://0.0.0.0:9092/events";
 string url2 = "http://0.0.0.0:9090/portal";
+boolean isEventServiceStarted;
+boolean isPortalServiceStarted;
+boolean isNonExistingServiceStarted;
 
 @http:ServiceConfig {
     basePath: "/events"
@@ -30,11 +33,9 @@ service<http:Service> EventServiceMock bind eventEP {
 }
 
 function init() {
-    // TODO: url1 and url2 should be assigned to following. it's not working right now.
-    string x = test:startService("EventServiceMock");
-    // currently the url is hard coded; need to set url1 in to config api here
-    string y = test:startService("PortalService");
-    io:println(url2);
+    isEventServiceStarted = test:startServices("src.test.resources.servicemocktest");
+    isPortalServiceStarted = test:startServices("src.test.resources.servicemocktest2");
+    isNonExistingServiceStarted = test:startServices("src.test.resources.servicemocktestX");
 }
 
 @test:config{before: "init"}
@@ -44,6 +45,11 @@ function testService () {
             uri:url2
         }]
     };
+
+    test:assertTrue(isEventServiceStarted, msg = "Event service failed to start");
+    test:assertTrue(isPortalServiceStarted, msg = "Portal service failed to start");
+    test:assertFalse(isNonExistingServiceStarted);
+
     http:Request req = {};
     // Send a GET request to the specified endpoint
     http:Response resp = {};
@@ -57,6 +63,6 @@ function testService () {
     json expected = {"a":"b"};
     test:assertEquals(jsonRes, expected);
 
-    test:stopService("EventServiceMock");
-    test:stopService("PortalService");
+    test:stopServices("src.test.resources.servicemocktest");
+    test:stopServices("src.test.resources.servicemocktest2");
 }

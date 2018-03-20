@@ -1,9 +1,9 @@
 package ballerina.test;
 
-@Description { value:"Starts the service specified in the 'serviceName' argument" }
-@Param {value:"serviceName: Name of the service to be started"}
-public native function startService (string serviceName) (string);
+@Description { value:"Starts all the services defined in the package specified in the 'packageName' argument" }
+@Param {value:"packageName: Name of the package"}
+public native function startServices (string packageName) (boolean);
 
-@Description { value:"Stops the service specified in the 'serviceName' argument" }
-@Param {value:"serviceName: Name of the service to be stopped"}
-public native function stopService (string serviceName);
+@Description { value:"Stops all the services defined in the package specified in the 'packageName' argument" }
+@Param {value:"packageName: Name of the package"}
+public native function stopServices (string packageName);

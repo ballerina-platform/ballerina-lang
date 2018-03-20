@@ -24,7 +24,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -32,32 +31,29 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Native function ballerina.lang.test:stopService.
- * Stops a given ballerina service.
+ * Stops all the services in a ballerina package.
  *
- * @since 0.9.4
+ * @since 0.94.1
  */
 @BallerinaFunction(packageName = "ballerina.test",
-                   functionName = "stopService", args = {
-        @Argument(name = "serviceName", type = TypeKind.STRING)}, returnType = {
-        @ReturnType(type = TypeKind.STRING)}, isPublic = true)
-@BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value",
-                                               value = "Stops the service specified in the 'serviceName' argument") })
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "serviceName",
-                                               value = "Name of the service to be stopped") })
-public class StopService extends BlockingNativeCallableUnit {
+                   functionName = "stopServices", args = {
+        @Argument(name = "packageName", type = TypeKind.STRING)}, isPublic = true)
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value", value = "Stops all the " +
+        "services defined in the package specified in the 'packageName' argument")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "packageName", value = "Name of the " +
+        "package")})
+public class StopServices extends BlockingNativeCallableUnit {
 
     /**
-     * Stops the service specified in the 'serviceName' argument.
+     * Stops all the services defined in the package specified in the 'packageName' argument.
      */
     @Override
     public void execute(Context ctx) {
-        String serviceName = ctx.getStringArgument(0);
+        String packageName = ctx.getStringArgument(0);
 
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             // 1) First, we get the Service for the given serviceName from the original ProgramFile
-            ServiceInfo matchingService = programFile.getEntryPackage().getServiceInfo(serviceName);
+            ServiceInfo matchingService = programFile.getEntryPackage().getServiceInfo(packageName);
             if (matchingService != null) {
                 BLangFunctions.invokeVMUtilFunction(matchingService.getPackageInfo().getStopFunctionInfo());
                 break;
