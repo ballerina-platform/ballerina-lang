@@ -2473,20 +2473,20 @@ public class BLangPackageBuilder {
         setAssignmentNodeList.add(expr);
     }
 
-    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void startStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws, PackageID packageID) {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
         this.streamActionNodeStack.push(streamActionNode);
-        startBlock();
+        this.startLambdaFunctionDef(packageID);
     }
 
     public void endStreamActionNode(DiagnosticPos pos, Set<Whitespace> ws) {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
-        streamActionNode.setStreamingActionBody(this.blockNodeStack.pop());
-        streamActionNode.setStreamingActionArgument(this.varStack.pop());
+        this.addLambdaFunctionDef(pos, ws, true, false, false);
+        streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.peek());
     }
 
     public void startPatternStreamingEdgeInputNode(DiagnosticPos pos, Set<Whitespace> ws) {

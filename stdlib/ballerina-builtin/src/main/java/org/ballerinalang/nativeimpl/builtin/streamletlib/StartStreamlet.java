@@ -19,9 +19,7 @@ package org.ballerinalang.nativeimpl.builtin.streamletlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStreamlet;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -34,22 +32,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(packageName = "ballerina.builtin",
         functionName = "startStreamlet",
         args = {
-                @Argument(name = "streamletRef", type = TypeKind.STREAMLET),
+                @Argument(name = "streamQuery", type = TypeKind.STRING),
                 @Argument(name = "inStreamRef", type = TypeKind.ARRAY),
                 @Argument(name = "inTableRef", type = TypeKind.ARRAY),
                 @Argument(name = "outStreamRef", type = TypeKind.ARRAY),
-                @Argument(name = "outTableRefs", type = TypeKind.ARRAY)
+                @Argument(name = "outTableRefs", type = TypeKind.ARRAY),
+                @Argument(name = "funcPointers", type = TypeKind.ARRAY)
         },
-        returnType = {@ReturnType(type = TypeKind.STREAMLET)},
+        returnType = {@ReturnType(type = TypeKind.NONE)},
         isPublic = true)
 public class StartStreamlet extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStreamlet streamlet = (BStreamlet) context.getRefArgument(0);
-        StreamingRuntimeManager.getInstance().createSiddhiAppRuntime(streamlet);
-        StreamingRuntimeManager.getInstance().registerSubscriberForTopics(streamlet.getStreamSpecificInputHandlerMap(),
-                streamlet.getStreamIdsAsString());
-        context.setReturnValues(streamlet);
+        context.setReturnValues();
     }
 }

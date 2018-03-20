@@ -2222,7 +2222,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startStreamActionNode(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
     }
 
     @Override
@@ -2230,7 +2230,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
         this.pkgBuilder.endStreamActionNode(getCurrentPos(ctx), getWS(ctx));
     }
 

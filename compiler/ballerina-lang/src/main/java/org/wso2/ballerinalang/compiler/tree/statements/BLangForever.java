@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @since 0.95.0
  */
-public class BLangForever extends BLangStatement implements ForeverNode {
+public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private List<VariableNode> globalVariables = new ArrayList<>();

@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -289,7 +290,11 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangForever foreverStatement) {
         siddhiQueryBuilder.visit(foreverStatement);
-        result = foreverStatement;
+        BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        stmt.expr = createInvocationForForeverBlock(foreverStatement);
+        stmt.pos = foreverStatement.pos;
+        stmt.addWS(foreverStatement.getWS());
+        result = rewrite(stmt, env);
     }
 
     public void visit(BLangStreamlet streamletNode) {
@@ -773,16 +778,37 @@ public class Desugar extends BLangNodeVisitor {
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
+        return createInvocationNode(CREATE_STREAMLET, args, retTypes);
+    }
 
+    private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
+        List<BLangExpression> args = new ArrayList<>();
+        List<BType> retTypes = new ArrayList<>();
+        retTypes.add(symTable.noType);
+        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType, forever
+                .getSiddhiQuery());
+        args.add(streamingQueryLiteral);
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
+        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
+        addFunctionPointersToArgs(args, forever.gettreamingQueryStatements());
         return createInvocationNode(CREATE_STREAMLET, args, retTypes);
     }
 
     private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {
         BLangArrayLiteral localRefs = createArrayLiteralExprNode();
-        for (BLangExpression varRef : varRefs) {
-            localRefs.exprs.add(rewrite(varRef, env));
-        }
+        varRefs.forEach(varRef -> localRefs.exprs.add(rewrite(varRef, env)));
         args.add(localRefs);
+    }
+
+    private void addFunctionPointersToArgs(List<BLangExpression> args, List<StreamingQueryStatementNode>
+            streamingStmts) {
+        BLangArrayLiteral funcPointers = createArrayLiteralExprNode();
+        for (StreamingQueryStatementNode stmt : streamingStmts) {
+            funcPointers.exprs.add(rewrite((BLangExpression) stmt.getStreamingAction().getInvokableBody(), env));
+        }
+        args.add(funcPointers);
     }
 
     @Override

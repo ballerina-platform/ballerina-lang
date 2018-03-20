@@ -38,13 +38,20 @@ stream<Teacher> teacherStream = {};
 
 function testFilterQuery () (Employee []) {
 
+    printStatusCount();
+
     forever{
         from teacherStream
         where age > 30
         select name, age, status
         => (Employee [] emp) {
-            io:printlin("HELLLLLLO");
+            io:println("HELLLLLLO");
         }
     }
+
     return globalEmployeeArray;
+}
+
+function printStatusCount () {
+    io:println("GGGGGGGG");
 }

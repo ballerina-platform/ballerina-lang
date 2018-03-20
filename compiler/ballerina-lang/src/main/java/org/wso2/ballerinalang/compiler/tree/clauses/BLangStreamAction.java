@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
+import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -31,27 +32,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.965.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
-    private BlockNode streamActionBody;
-    private VariableNode streamActionArgument;
+    private LambdaFunctionNode lambdaFunction;
 
     @Override
-    public void setStreamingActionBody(BlockNode streamingActionBody) {
-        this.streamActionBody = streamingActionBody;
+    public void setInvokableBody(LambdaFunctionNode lambdaFunction) {
+        this.lambdaFunction = lambdaFunction;
     }
 
     @Override
-    public void setStreamingActionArgument(VariableNode arg) {
-        this.streamActionArgument = arg;
-    }
-
-    @Override
-    public VariableNode getStreamingActionArgument() {
-        return this.streamActionArgument;
-    }
-
-    @Override
-    public BlockNode getStreamingActionBody() {
-        return this.streamActionBody;
+    public LambdaFunctionNode getInvokableBody() {
+        return this.lambdaFunction;
     }
 
     @Override
@@ -66,6 +56,6 @@ public class BLangStreamAction extends BLangNode implements StreamActionNode {
      */
     @Override
     public NodeKind getKind() {
-        return null;
+        return NodeKind.STREAM_ACTION;
     }
 }

@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -1310,7 +1311,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamAction streamAction) {
-        // ignore
+        BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
+        typeChecker.checkExpr(function, env);
     }
 
     public void visit(BLangJoinStreamingInput joinStreamingInput) {

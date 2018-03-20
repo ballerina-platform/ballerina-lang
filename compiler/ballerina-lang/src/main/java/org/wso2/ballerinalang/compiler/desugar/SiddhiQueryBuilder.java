@@ -517,7 +517,8 @@ public class SiddhiQueryBuilder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamAction streamAction) {
-        // ignore
+        streamActionClause = new StringBuilder("insert into ");
+        streamActionClause.append(streamAction.getInvokableBody().getFunctionNode().getName().getValue());
     }
 
     @Override

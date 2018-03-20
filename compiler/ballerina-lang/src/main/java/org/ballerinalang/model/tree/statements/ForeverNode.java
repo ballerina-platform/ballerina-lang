@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @since 0.965.0
  */
-public interface ForeverNode extends StatementNode {
+public interface ForeverNode extends ExpressionStatementNode {
 
 
     void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);

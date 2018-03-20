@@ -783,7 +783,7 @@ havingClause
     ;
 
 streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 setClause

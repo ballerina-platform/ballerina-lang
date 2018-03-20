@@ -19,13 +19,12 @@
 package org.ballerinalang.model.tree.clauses;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 
 /**
  * The interface with the APIs to implement the straming action in ballerina streams/table SQLish syntax.
  * <pre>Grammar:
- *     EQUAL_GT LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+ *     EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS callableUnitBody
  *
  * E.g.
  *      from teacherStream where age > 18 window lengthBatch(3) select status, count(status) as totalCount
@@ -39,11 +38,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 
 public interface StreamActionNode extends Node {
 
-    void setStreamingActionBody(BlockNode streamingActionBody);
+    void setInvokableBody(LambdaFunctionNode lambdaFunction);
 
-    void setStreamingActionArgument(VariableNode arg);
-
-    VariableNode getStreamingActionArgument();
-
-    BlockNode getStreamingActionBody();
+    LambdaFunctionNode getInvokableBody();
 }
