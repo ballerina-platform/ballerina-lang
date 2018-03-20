@@ -360,12 +360,15 @@ public class DefinitionTreeVisitor extends NodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
-        if (endpointNode.configurationExpr != null) {
-            this.acceptNode(endpointNode.endpointTypeNode);
-        }
+        if (endpointNode.name.getValue()
+                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
+            if (endpointNode.configurationExpr != null) {
+                this.acceptNode(endpointNode.endpointTypeNode);
+            }
 
-        if (endpointNode.configurationExpr != null) {
-            this.acceptNode(endpointNode.configurationExpr);
+            if (endpointNode.configurationExpr != null) {
+                this.acceptNode(endpointNode.configurationExpr);
+            }
         }
     }
 

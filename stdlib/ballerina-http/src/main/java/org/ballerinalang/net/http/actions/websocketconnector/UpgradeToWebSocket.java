@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.net.http.actions.httpserverconnector;
+package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaAction;
-import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
@@ -36,23 +36,21 @@ import java.util.Set;
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaAction(
+@BallerinaFunction(
         packageName = "ballerina.net.http",
-        actionName = "upgradeToWebSocket",
-        connectorName = HttpConstants.SERVICE_ENDPOINT,
+        functionName = "upgradeToWebSocket",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType =  WebSocketConstants.WEBSOCKET_CONNECTOR,
+                             structPackage = "ballerina.net.http"),
         args = {
-                @Argument(name = "c", type = TypeKind.CONNECTOR),
                 @Argument(name = "headers", type = TypeKind.MAP)
         },
-        connectorArgs = {
-                @Argument(name = "attributes", type = TypeKind.MAP)
-        }
+        isPublic = true
 )
 public class UpgradeToWebSocket extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BConnector serverConnector = (BConnector) context.getRefArgument(0);
+        BStruct serverConnector = (BStruct) context.getRefArgument(0);
         WebSocketService webSocketService = (WebSocketService) serverConnector.getNativeData(
                 WebSocketConstants.WEBSOCKET_SERVICE);
         BMap<String, BString> queryParams =
