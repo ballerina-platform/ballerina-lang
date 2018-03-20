@@ -1467,7 +1467,8 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
             // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
             addTaintError(allParamsUntaintedRecord.taintError);
         } else {
-            returnTaintedStatus = new ArrayList<>(taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus);
+            returnTaintedStatus =
+                    new ArrayList<>(taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus);
         }
         if (invocationExpr.argExprs != null) {
             for (int argIndex = 0; argIndex < invocationExpr.argExprs.size(); argIndex++) {
