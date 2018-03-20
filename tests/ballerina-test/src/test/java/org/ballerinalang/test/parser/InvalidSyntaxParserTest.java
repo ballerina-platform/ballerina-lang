@@ -82,7 +82,7 @@ public class InvalidSyntaxParserTest {
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 10);
-        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '|', Identifier}", 3, 10);
+        BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 3, 10);
     }
 
     /**
@@ -99,7 +99,7 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseMainFuncWithoutParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 1, 15);
+        BAssertUtil.validateError(result, 0, "invalid token '{'", 1, 15);
     }
 
     @Test(enabled = false)

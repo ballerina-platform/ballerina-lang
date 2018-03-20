@@ -16,13 +16,13 @@ public struct PushPromise {
 @Param {value:"promise: A Push Promise"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
-public native function <PushPromise promise> getHeader (string headerName) (string);
+public native function <PushPromise promise> getHeader (string headerName) returns (string);
 
 @Description {value:"Gets transport headers from the Push Promise"}
 @Param {value:"promise: A inbound request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public native function <PushPromise promise> getHeaders (string headerName) (string[]);
+public native function <PushPromise promise> getHeaders (string headerName) returns (string[]);
 
 @Description {value:"Adds the specified key/value pair as an HTTP header to the Push Promise"}
 @Param {value:"promise: A Push Promise"}

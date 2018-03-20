@@ -185,14 +185,10 @@ public class VariableDefinitionTest {
     public void testArrayTypeConstant() {
         resultNegative = BCompileUtil
                 .compile("test-src/statements/variabledef/variable-def-array-constants-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0, "mismatched input '['. expecting Identifier", 1, 10);
-
-        BAssertUtil.validateError(resultNegative, 1, "mismatched input '='. expecting {'[', '|', Identifier}", 1, 15);
-
-        BAssertUtil.validateError(resultNegative, 2, "mismatched input '('. expecting ';'", 3, 14);
-
-        BAssertUtil.validateError(resultNegative, 3, "mismatched input ')'. expecting ';'", 3, 25);
+        BAssertUtil.validateError(resultNegative, 1,
+                "mismatched input '='. expecting {'[', '?', '|', Identifier}", 1, 15);
 
     }
 }

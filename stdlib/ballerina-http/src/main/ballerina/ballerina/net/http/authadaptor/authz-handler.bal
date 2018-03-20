@@ -40,7 +40,7 @@ public struct HttpAuthzHandler {
 @Param {value:"resourceName: name of the resource which is being accessed"}
 @Return {value:"boolean: true if authorization check is a success, else false"}
 public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
-                                                                    string scopeName, string resourceName) (boolean) {
+                                                                    string scopeName, string resourceName) returns (boolean) {
 
     // TODO: extracting username and passwords are not required once the Ballerina SecurityContext is available
     // extract the header value
@@ -91,7 +91,7 @@ public function <HttpAuthzHandler httpAuthzHandler> handle (http:Request req,
 @Description {value:"Checks if the provided request can be authorized"}
 @Param {value:"req: Request object"}
 @Return {value:"boolean: true if its possible authorize, else false"}
-public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) (boolean) {
+public function <HttpAuthzHandler httpAuthzHandler> canHandle (http:Request req) returns (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
     if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;
