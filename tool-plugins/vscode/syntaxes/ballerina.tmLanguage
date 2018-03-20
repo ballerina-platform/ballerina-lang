@@ -184,7 +184,7 @@
             <key>name</key>
             <string>entity.name.function.ballerina</string>
             <key>match</key>
-            <string>[a-zA-Z_][a-zA-Z0-9_]*</string>
+            <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
           </dict>
         </array>
       </dict>
@@ -196,7 +196,7 @@
             <key>name</key>
             <string>entity.name.function.ballerina</string>
             <key>match</key>
-            <string>[a-zA-Z_][a-zA-Z0-9_]*</string>
+            <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
           </dict>
         </array>
       </dict>
@@ -268,7 +268,7 @@
             <array>
               <dict>
                 <key>match</key>
-                <string>[a-zA-Z_][a-zA-Z0-9_]*</string>
+                <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
                 <key>name</key>
                 <string>variable.parameter.ballerina</string>
               </dict>
@@ -286,9 +286,9 @@
         <array>
           <dict>
             <key>begin</key>
-            <string>\b(([a-zA-Z_][a-zA-Z0-9_]*:)?[a-zA-Z_][a-zA-Z0-9_]*(\[\])?)</string>
+            <string>\b((([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"):)?([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")(\[\])?)</string>
             <key>end</key>
-            <string>(([a-zA-Z_][a-zA-Z0-9_]*)\b|(?=(&gt;|\))))</string>
+            <string>((([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b|(?=(&gt;|\))))</string>
             <key>beginCaptures</key>
             <dict>
               <key>1</key>
@@ -407,7 +407,7 @@
         <array>
           <dict>
             <key>begin</key>
-            <string>\b([a-zA-Z_][a-zA-Z0-9_]*)\b</string>
+            <string>\b(([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+"))\b</string>
             <key>beginCaptures</key>
             <dict>
               <key>1</key>
@@ -638,6 +638,18 @@
           </dict>
         </array>
       </dict>
+      <key>identifiers</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>match</key>
+            <string>([a-zA-Z_]([a-zA-Z0-9_])*)|(\^"([^|"\\\f\n\r\t]|\\\\[btnfr]|\\[|"\\/])+")</string>
+            <key>name</key>
+            <string>variable.other.ballerina</string>
+          </dict>
+        </array>
+      </dict>
       <key>strings</key>
       <dict>
         <key>patterns</key>
@@ -748,6 +760,10 @@
           <dict>
             <key>include</key>
             <string>#keywords</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#identifiers</string>
           </dict>
           <dict>
             <key>include</key>
