@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth;
+package ballerina.net.http.authadaptor;
 
 import ballerina.net.http;
 

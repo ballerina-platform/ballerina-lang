@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.basic;
+package ballerina.net.http.authadaptor;
 
 import ballerina.net.http;
+import ballerina.auth.basic;
 import ballerina.auth.utils;
 import ballerina.auth.userstore;
 import ballerina.security.crypto;
@@ -24,13 +25,9 @@ import ballerina.log;
 
 @Description {value:"Authentication cache name"}
 const string AUTH_CACHE = "basic_auth_cache";
-@Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
-@Description {value:"Basic authentication scheme"}
-const string AUTH_SCHEME = "Basic";
 
 @Description {value:"Basic authenticator instance"}
-BasicAuthenticator authenticator;
+basic:BasicAuthenticator basicAuthenticator;
 
 @Description {value:"Representation of Basic Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
@@ -44,31 +41,31 @@ public struct HttpBasicAuthnHandler {
 public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request req) (boolean) {
 
     // extract the header value
-    var basicAuthHeaderValue, err = utils:extractBasicAuthHeaderValue(req);
+    var basicAuthHeaderValue, err = extractBasicAuthHeaderValue(req);
     if (err != null) {
         log:printErrorCause("Error in extracting basic authentication header", err);
         return false;
     }
 
-    if (authenticator == null) {
+    if (basicAuthenticator == null) {
         userstore:FilebasedUserstore fileBasedUserstore = {};
-        authenticator = createAuthenticator((userstore:UserStore)fileBasedUserstore,
+        basicAuthenticator = basic:createAuthenticator((userstore:UserStore)fileBasedUserstore,
                                             utils:createCache(AUTH_CACHE));
     }
-    AuthenticationInfo authInfo;
+    basic:AuthenticationInfo authInfo;
     // check in the cache - cache key is the sha256 hash of the basic auth header value
     string basicAuthCacheKey = crypto:getHash(basicAuthHeaderValue, crypto:Algorithm.SHA256);
-    any cachedAuthResult = authenticator.getCachedAuthResult(basicAuthCacheKey);
+    any cachedAuthResult = basicAuthenticator.getCachedAuthResult(basicAuthCacheKey);
     if (cachedAuthResult != null) {
         // cache hit
-        var authInfo, typeCastErr = (AuthenticationInfo)cachedAuthResult;
+        var authInfo, typeCastErr = (basic:AuthenticationInfo)cachedAuthResult;
         if (typeCastErr == null) {
             // no type cast error, return cached result.
             log:printDebug("Auth cache hit");
             return authInfo.isAuthenticated;
         }
         // if a casting error occurs, clear the cache entry
-        authenticator.clearCachedAuthResult(basicAuthCacheKey);
+        basicAuthenticator.clearCachedAuthResult(basicAuthCacheKey);
     }
 
     var username, password, err = utils:extractBasicAuthCredentials(basicAuthHeaderValue);
@@ -78,9 +75,9 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
     }
     log:printDebug("Auth cache miss");
 
-    authInfo = createAuthenticationInfo(username, authenticator.authenticate(username, password));
+    authInfo = basic:createAuthenticationInfo(username, basicAuthenticator.authenticate(username, password));
     // cache result
-    authenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
+    basicAuthenticator.cacheAuthResult(basicAuthCacheKey, authInfo);
     if (authInfo.isAuthenticated) {
         log:printDebug("Successfully authenticated against the userstore");
     } else {
@@ -95,7 +92,7 @@ public function <HttpBasicAuthnHandler basicAuthnHandler> handle (http:Request r
 @Return {value:"boolean: true if its possible authenticate with basic auth, else false"}
 public function <HttpBasicAuthnHandler basicAuthnHandler> canHandle (http:Request req) (boolean) {
     string basicAuthHeader = req.getHeader(AUTH_HEADER);
-    if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME)) {
+    if (basicAuthHeader != null && basicAuthHeader.hasPrefix(AUTH_SCHEME_BASIC)) {
         return true;
     }
     return false;

@@ -12,8 +12,8 @@ function refTypeAccessTestTrivialEqualityPositiveCase() (int) {
 function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
     int temp_int = 2;
     int temp_int_1 = 5;
-    type temp_int_type = (typeof temp_int);
-    type temp_int_1_type = (typeof temp_int_1);
+    typedesc temp_int_type = (typeof temp_int);
+    typedesc temp_int_1_type = (typeof temp_int_1);
 
     if (temp_int_type == temp_int_1_type) {
         return 1;
@@ -232,7 +232,7 @@ function refTypeAccessTestTypeAsReturnValue() (int) {
     }
 }
 
-function getType(any variable)(type){
+function getType(any variable)(typedesc){
     return (typeof variable);
 }
 
@@ -297,32 +297,32 @@ function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
     }
 }
 
-function typeToAnyImplicitCast() (any, type) {
+function typeToAnyImplicitCast() (any, typedesc) {
     int i = 5;
-    type t = (typeof i);
+    typedesc t = (typeof i);
     any typeOfInt = t;
     return typeOfInt, t;
 }
 
-function typeToAnyExplicitCast() (any, type, any) {
+function typeToAnyExplicitCast() (any, typedesc, any) {
     int i = 5;
-    type t = (typeof i);
+    typedesc t = (typeof i);
     return (any)t, t, t;
 }
 
-function anyToTypeExplicitCast() (type, any) {
+function anyToTypeExplicitCast() (typedesc, any) {
     int i = 5;
     any typeOfInt = (typeof i);
-    var t, _ = (type)typeOfInt;
+    var t, _ = (typedesc)typeOfInt;
     return t, typeOfInt;
 }
 
-function getTypeStringValue()(type){
+function getTypeStringValue()(typedesc){
     int value = 4;
     return (typeof value);
 }
 
-function getStructTypeStringValue()(type){
+function getStructTypeStringValue()(typedesc){
     Person jack;
     jack = {name:"Jack", age:25};
     return (typeof jack);
@@ -339,8 +339,8 @@ function testTypeAccessExprValueType() (int) {
 
 function testTypeAccessExprValueTypeNegative() (int) {
     int intValue;
-    type int_t = typeof intValue;
-    type string_t = typeof string;
+    typedesc int_t = typeof intValue;
+    typedesc string_t = typeof string;
     if(int_t == string_t){
        return 1;
     } else {
@@ -402,7 +402,7 @@ function testTypeAccessExprSameStructType() (int) {
     }
 }
 
-function testTypeOfJson() (type, type, type, type, type, type){
+function testTypeOfJson() (typedesc, typedesc, typedesc, typedesc, typedesc, typedesc){
     json j1 = {"foo":"bar"}; // object type
     json j2 = [1, "foo", true];
     json j3 = "foo";
@@ -460,7 +460,7 @@ function testCheckTypeOfJson() (json, json[], string, int, float, boolean){
     return j, ja, s, a, f, b;
 }
 
-function testTypeOfStructArray() (type, type, type) {
+function testTypeOfStructArray() (typedesc, typedesc, typedesc) {
     Person[] p = [{}, {}];
     return typeof p, typeof Person[], typeof Person[][];
 }

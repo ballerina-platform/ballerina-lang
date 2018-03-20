@@ -14,18 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package ballerina.auth.jwtAuth;
+package ballerina.net.http.authadaptor;
 
 import ballerina.net.http;
 import ballerina.log;
-
-@Description {value:"Authentication header name"}
-const string AUTH_HEADER = "Authorization";
-@Description {value:"Bearer authentication scheme"}
-const string AUTH_SCHEME = "Bearer";
+import ballerina.auth.jwtAuth;
 
 @Description {value:"JWT authenticator instance"}
-JWTAuthenticator authenticator;
+jwtAuth:JWTAuthenticator jwtAuthenticator;
 
 @Description {value:"Representation of JWT Auth handler for HTTP traffic"}
 @Field {value:"name: Authentication handler name"}
@@ -38,7 +34,7 @@ public struct HttpJwtAuthnHandler {
 @Return {value:"boolean: true if authentication is a success, else false"}
 public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) (boolean) {
     string authHeader = req.getHeader(AUTH_HEADER);
-    if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME)) {
+    if (authHeader != null && authHeader.hasPrefix(AUTH_SCHEME_BEARER)) {
         string[] authHeaderComponents = authHeader.split(" ");
         if (lengthof authHeaderComponents == 2) {
             string[] jwtComponents = authHeaderComponents[1].split("\\.");
@@ -55,10 +51,10 @@ public function <HttpJwtAuthnHandler authnHandler> canHandle (http:Request req) 
 @Return {value:"boolean: true if its possible to authenticate with JWT auth, else false"}
 public function <HttpJwtAuthnHandler authnHandler> handle (http:Request req) (boolean) {
     string jwtToken = extractJWTToken(req);
-    if (authenticator == null) {
-        authenticator = createAuthenticator();
+    if (jwtAuthenticator == null) {
+        jwtAuthenticator = jwtAuth:createAuthenticator();
     }
-    var isAuthenticated, err = authenticator.authenticate(jwtToken);
+    var isAuthenticated, err = jwtAuthenticator.authenticate(jwtToken);
     if (isAuthenticated) {
         return true;
     } else {

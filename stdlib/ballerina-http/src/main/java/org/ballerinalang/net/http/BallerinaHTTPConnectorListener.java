@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeValue;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.serviceendpoint.FilterHolder;
 import org.ballerinalang.runtime.Constants;
@@ -100,7 +100,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, "FilterContext");
         filterCtxtStruct.setRefField(0,
-                new BTypeValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType()));
+                new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType()));
         filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
         filterCtxtStruct.setStringField(1, httpResource.getName());
         return filterCtxtStruct;
