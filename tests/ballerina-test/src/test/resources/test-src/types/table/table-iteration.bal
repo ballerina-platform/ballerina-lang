@@ -243,7 +243,7 @@ function testMinWithTable () returns (float) {
     };
 	
     table<Person> dt = testDB -> select("SELECT * from Person order by id", null, typeof Person);
-    avgSal = dt.map(getSalary).min();
+    float avgSal = dt.map(getSalary).min();
     testDB -> close();
     return avgSal;
 }

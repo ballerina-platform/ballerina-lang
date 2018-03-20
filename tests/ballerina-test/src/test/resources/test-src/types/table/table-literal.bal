@@ -82,7 +82,7 @@ function checkTableCount(string tablePrefix) returns (int) {
     } finally {
         testDB -> close();
     }
-    return;
+    return count;
 }
 
 function testEmptyTableCreateInvalid () {
@@ -115,7 +115,7 @@ function testAddData () returns (int, int, int, int[], int[], int[]) {
 
     int count3 = ct1.count();
     int[] ct1data = ct1.map(getCompanyId);
-    return (count1, count2, dt1data, dt2data);
+    return (count1, count2, count3, dt1data, dt2data, ct1data);
 }
 
 function testTableAddInvalid () {
@@ -280,19 +280,19 @@ function testTableWithBlobDataToXml () returns (xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct () returns (blob bData) {
+function testTableWithBlobDataToStruct () returns (blob) {
     string text = "Sample Text";
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = {id:1, blobData:content};
 
     table<BlobTypeTest> dt1 = {};
     dt1.add(t1);
-
+    blob bData;
     while (dt1.hasNext()) {
         var x, _ = (BlobTypeTest)dt1.getNext();
         bData = x.blobData;
     }
-    return;
+    return bData;
 }
 
 function testTableWithAnyDataToJson () returns (json) {
@@ -390,7 +390,7 @@ function testTableWithArrayDataToXml () returns (xml) {
     return x;
 }
 
-function testTableWithArrayDataToStruct () returns (int[] intArr, float[] floatArr, string[] stringArr, boolean[] boolArr) {
+function testTableWithArrayDataToStruct () returns (int[], float[], string[], boolean[]) {
     int[] intArray = [1, 2, 3];
     float[] floatArray = [11.1, 22.2, 33.3];
     string[] stringArray = ["Hello", "World"];
@@ -427,7 +427,7 @@ function testTableRemoveSuccess () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    json j, _ = <json>dt;
+    var j, _ = <json>dt;
     return(count, j);
 }
 
@@ -442,8 +442,8 @@ function testTableRemoveSuccessMultipleMatch () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isJohn);
-    json j, _ = <json>dt;
-    return;
+    var j, _ = <json>dt;
+    return (count, j);
 }
 
 function testTableRemoveFailed () returns (int, json) {
@@ -457,7 +457,7 @@ function testTableRemoveFailed () returns (int, json) {
     dt.add(p3);
 
     int count = dt.remove(isBellow35);
-    json j, _ = <json>dt;
+    var j, _ = <json>dt;
     return (count, j);
 }
 

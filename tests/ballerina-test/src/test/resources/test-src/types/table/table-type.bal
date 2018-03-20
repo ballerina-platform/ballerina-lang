@@ -483,7 +483,7 @@ function testGetComplexTypes () returns (string, string, string) {
         binary = binaryData.toString("UTF-8");
     }
     testDB -> close();
-    return (blobvalue, clob, binary);
+    return (blobValue, clob, binary);
 }
 
 function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
@@ -502,7 +502,7 @@ function testArrayData () returns (int[], int[], float[], string[], boolean[]) {
     int[] int_arr;
     int[] long_arr;
     float[] float_arr;
-    stirng[] string_arr;
+    string[] string_arr;
     boolean[] boolean_arr;
 
     while (dt.hasNext()) {
@@ -619,6 +619,15 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
         options: {maximumPoolSize:1}
     };
 
+    int dateInserted;
+    int dateRetrieved;
+    int timeInserted;
+    int timeRetrieved;
+    int timestampInserted;
+    int timestampRetrieved;
+    int datetimeInserted;
+    int datetimeRetrieved;
+
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
     time:Timezone zoneValue = {zoneId:"UTC"};
     time:Time timeStruct = {time:51323000, zone:zoneValue};
@@ -638,16 +647,6 @@ function testDateTimeAsTimeStruct () returns (int, int, int, int, int, int, int,
 
     _ = testDB -> update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
-
-    int dateInserted;
-    int dateRetrieved;
-    int timeInserted;
-    int timeRetrieved;
-
-    int timestampInserted;
-    int timestampRetrieved;
-    int datetimeInserted;
-    int datetimeRetrieved;
 
     table dt = testDB -> select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 31", null, typeof ResultDatesStruct);
@@ -819,7 +818,7 @@ function testTableAutoClose () returns (int, string) {
     table dt3 = testDB -> select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", null, null);
     testDB -> close();
-    return;
+    return (i, test);
 }
 
 function testTableManualClose () returns (int) {
@@ -910,8 +909,8 @@ function testMutltipleRows () returns (int, int) {
     };
 
     table dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
-    ResultPrimitiveInt rs1;
-    ResultPrimitiveInt rs2;
+    ResultPrimitiveInt rs1 = {INT_TYPE:-1};
+    ResultPrimitiveInt rs2 = {INT_TYPE:-1};
     int i = 0;
     while (dt.hasNext()) {
         if (i == 0) {
@@ -1306,8 +1305,8 @@ function testMutltipleRowsWithForEach () returns (int, int) {
     };
 
     table<ResultPrimitiveInt> dt = testDB -> select("SELECT int_type from DataTableRep", null, typeof ResultPrimitiveInt);
-    ResultPrimitiveInt rs1;
-    ResultPrimitiveInt rs2;
+    ResultPrimitiveInt rs1 = {INT_TYPE: -1};
+    ResultPrimitiveInt rs2 = {INT_TYPE: -1};
     int i = 0;
     foreach x in dt {
         if (i == 0) {
