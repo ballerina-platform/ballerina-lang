@@ -14,7 +14,7 @@ function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     stub.serviceStub = navStub;
 }
 
-function <helloWorldStub stub> lotsOfReplies (string req, type listener) (error) {
+function <helloWorldStub stub> lotsOfReplies (string req, typedesc listener) (error) {
     var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/lotsOfReplies", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};
@@ -23,7 +23,7 @@ function <helloWorldStub stub> lotsOfReplies (string req, type listener) (error)
     return null;
 }
 
-function <helloWorldStub stub> lotsOfByes (string req, type listener) (error) {
+function <helloWorldStub stub> lotsOfByes (string req, typedesc listener) (error) {
     var err1 = stub.serviceStub.nonBlockingExecute("helloWorld/lotsOfByes", req, listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};

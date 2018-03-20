@@ -14,7 +14,7 @@ function <helloWorldStub stub> initStub(grpc:Client clientEndpoint) {
     stub.serviceStub = navStub;
 }
 
-function <helloWorldStub stub> LotsOfGreetings (type listener) (grpc:Client, error)  {
+function <helloWorldStub stub> LotsOfGreetings (typedesc listener) (grpc:Client, error)  {
     var res, err1 = stub.serviceStub.streamingExecute("helloWorld/LotsOfGreetings", listener);
     if (err1 != null && err1.message != null) {
         error e = {message:err1.message};
