@@ -17,9 +17,15 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 0.965.0
  */
 public class BLangScheduler {
-
+    
     private static AtomicInteger workerCount = new AtomicInteger(0);
     
     private static Semaphore workersDoneSemaphore = new Semaphore(1);
@@ -156,6 +162,16 @@ public class BLangScheduler {
         }
     }
     
+    public static WorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
+            Context nativeCtx) {
+        CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
+        CallableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(
+                callableUnitInfo.getRetParamTypes(), 1);
+        NativeCallExecutor exec = new NativeCallExecutor(nativeCallable, nativeCtx, respCtx);
+        ThreadPoolFactory.getInstance().getWorkerExecutor().submit(exec);
+        return respCtx;
+    }
+    
     /**
      * This represents the thread used to execute a runnable worker.
      */
@@ -170,6 +186,48 @@ public class BLangScheduler {
         @Override
         public void run() {
             CPU.exec(this.ctx);
+        }
+        
+    }
+    
+    /**
+     * This represents the thread used to run a blocking native call in async mode.
+     */
+    private static class NativeCallExecutor implements Runnable {
+
+        private NativeCallableUnit nativeCallable;
+        
+        private Context nativeCtx;
+        
+        private WorkerResponseContext respCtx;
+        
+        public NativeCallExecutor(NativeCallableUnit nativeCallable, Context nativeCtx, 
+                WorkerResponseContext respCtx) {
+            this.nativeCallable = nativeCallable;
+            this.nativeCtx = nativeCtx;
+            this.respCtx = respCtx;
+        }
+        
+        @Override
+        public void run() {
+            WorkerExecutionContext runInCaller = null;
+            CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
+            WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
+            BType[] retTypes = cui.getRetParamTypes();
+            try {
+                this.nativeCallable.execute(this.nativeCtx, null);
+                BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
+                runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
+            } catch (BLangNullReferenceException e) {
+                BStruct error = BLangVMErrors.createNullRefException(this.nativeCtx.getCallableUnitInfo());
+                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
+                        SignalType.ERROR, result));
+            } catch (Throwable e) {
+                BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
+                runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
+                        SignalType.ERROR, result));
+            }
+            executeNow(runInCaller);
         }
         
     }

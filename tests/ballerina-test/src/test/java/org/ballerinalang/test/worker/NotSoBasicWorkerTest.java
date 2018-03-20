@@ -78,11 +78,11 @@ public class NotSoBasicWorkerTest {
     @Test
     public void forkJoinWithSomeSelectedJoin1() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 15);
-        Assert.assertEquals(map.get("y").intValue(), 5);
+        Assert.assertEquals(vals.length, 2);
+        BInteger x = (BInteger) vals[0];
+        BInteger y = (BInteger) vals[1];
+        Assert.assertEquals(x.intValue(), 15);
+        Assert.assertEquals(y.intValue(), 5);
     }
     
     @Test
@@ -107,18 +107,16 @@ public class NotSoBasicWorkerTest {
     public void forkJoinWithSomeSelectedJoin4() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin4", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 10);
+        BInteger x = (BInteger) vals[0];
+        Assert.assertEquals(x.intValue(), 10);
     }
     
     @Test
     public void forkJoinWithSomeSelectedJoin5() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeSelectedJoin5", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 555);
+        BInteger x = (BInteger) vals[0];
+        Assert.assertEquals(x.intValue(), 555);
     }
     
     @Test
@@ -134,9 +132,8 @@ public class NotSoBasicWorkerTest {
     public void forkJoinWithAllSelectedJoin2() {
         BValue[] vals = BRunUtil.invoke(result, "forkJoinWithAllSelectedJoin2", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        @SuppressWarnings("unchecked")
-        BMap<String, BInteger> map = (BMap<String, BInteger>) vals[0];
-        Assert.assertEquals(map.get("x").intValue(), 777);
+        BInteger result = (BInteger) vals[0];
+        Assert.assertEquals(result.intValue(), 777);
     }
     
     @Test
@@ -193,6 +190,6 @@ public class NotSoBasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
-        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 5);
+        Assert.assertEquals(result.getProgFile().getGlobalMemoryBlock().getIntField(0), 10);
     }
 }
