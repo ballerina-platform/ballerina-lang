@@ -20,7 +20,6 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -43,16 +42,15 @@ public class ProjectionTest {
 
     @Test(description = "Test projection streaming query")
     public void testProjectionQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "testProjectionQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "testProjectionQuery");
 
-        BRefValueArray outputEmployeeEvents = (BRefValueArray) returns[0];
         Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertEquals(outputEmployeeEvents.size(), 3, "Expected events are not received");
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
 
-        BStruct employee0 = (BStruct) outputEmployeeEvents.get(0);
-        BStruct employee1 = (BStruct) outputEmployeeEvents.get(1);
-        BStruct employee2 = (BStruct) outputEmployeeEvents.get(2);
+        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
+        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
+        BStruct employee2 = (BStruct) outputEmployeeEvents[2];
 
         Assert.assertEquals(employee0.getStringField(0), "Raja");
         Assert.assertEquals(employee1.getIntField(0), 33);
