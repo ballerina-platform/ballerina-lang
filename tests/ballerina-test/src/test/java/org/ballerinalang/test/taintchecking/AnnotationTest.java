@@ -85,11 +85,33 @@ public class AnnotationTest {
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
     }
 
+    @Test
+    public void testTaintedWithMultiReturn() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/tainted-with-multi-return.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 4);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 11, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 18, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 24, 20);
+    }
+
     // Test @untainted annotation.
 
     @Test
     public void testUntainted() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/annotations/untainted.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testUntaintedWithMultiReturn() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/annotations/untainted-with-multi-return.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 4);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 17, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 23, 20);
     }
 }

@@ -243,6 +243,21 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testMultiReturn() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/multi-return.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testMultiReturnNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/multi-return-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
+    }
+
+    @Test
     public void testStringTemplate() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/string-template.bal");

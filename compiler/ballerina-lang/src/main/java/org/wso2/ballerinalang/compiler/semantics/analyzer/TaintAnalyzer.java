@@ -601,11 +601,16 @@ public class TaintAnalyzer  extends BLangNodeVisitor {
     }
 
     public void visit(BLangMatch matchStmt) {
-        // TODO
+        matchStmt.expr.accept(this);
+        boolean observedTainedStatus = getObservedTaintedStatus();
+        matchStmt.patternClauses.forEach(clause -> {
+            clause.variable.symbol.tainted = observedTainedStatus;
+            clause.body.accept(this);
+        });
     }
 
     public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
-        // TODO
+        /* ignore */
     }
     
     public void visit(BLangForeach foreach) {
