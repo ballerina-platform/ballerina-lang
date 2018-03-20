@@ -59,7 +59,6 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class SSLHandlerFactory {
 
-    private String protocol = null;
     private final SSLContext sslContext;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
@@ -73,7 +72,7 @@ public class SSLHandlerFactory {
             algorithm = "SunX509";
         }
         needClientAuth = sslConfig.isNeedClientAuth();
-        protocol = sslConfig.getSSLProtocol();
+        String protocol = sslConfig.getSSLProtocol();
         try {
             KeyManager[] keyManagers = null;
             if (sslConfig.getKeyStore() != null) {
@@ -146,16 +145,14 @@ public class SSLHandlerFactory {
      * @param engine client/server ssl engine.
      * @return sslEngine
      */
-    public SSLEngine addCommonConfigs(SSLEngine engine) {
+    private SSLEngine addCommonConfigs(SSLEngine engine) {
         if (sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0) {
             engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
         }
         if (sslConfig.getEnableProtocols() != null && sslConfig.getEnableProtocols().length > 0) {
             engine.setEnabledProtocols(sslConfig.getEnableProtocols());
         }
-        if (sslConfig.isEnableSessionCreation()) {
-            engine.setEnableSessionCreation(true);
-        }
+        engine.setEnableSessionCreation(sslConfig.isEnableSessionCreation());
         return engine;
     }
 
@@ -203,11 +200,11 @@ public class SSLHandlerFactory {
                         ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).build();
     }
 
-    public KeyManagerFactory getKeyManagerFactory() {
+    private KeyManagerFactory getKeyManagerFactory() {
         return kmf;
     }
 
-    public TrustManagerFactory getTrustStoreFactory() {
+    private TrustManagerFactory getTrustStoreFactory() {
         return tmf;
     }
 
