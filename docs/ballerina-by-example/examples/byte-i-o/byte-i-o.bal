@@ -8,12 +8,12 @@ function getFileChannel (string filePath, string permission) (io:ByteChannel) {
 }
 
 @Description {value:"This function reads the specified number of bytes from the given channel."}
-function readBytes (io:ByteChannel channel, int numberOfBytes, int offset) (blob, int) {
+function readBytes (io:ByteChannel channel, int numberOfBytes) (blob, int) {
     blob bytes;
     int numberOfBytesRead;
     io:IOError readError;
     // Here is how the bytes are read from the channel.
-    bytes, numberOfBytesRead, readError = channel.read(numberOfBytes, offset);
+    bytes, numberOfBytesRead, readError = channel.read(numberOfBytes);
     if (readError != null) {
         throw readError.cause;
     }
@@ -21,11 +21,11 @@ function readBytes (io:ByteChannel channel, int numberOfBytes, int offset) (blob
 }
 
 @Description {value:"This function writes a byte content with the given offset to a channel."}
-function writeBytes (io:ByteChannel channel, blob content, int startOffset, int size) (int) {
+function writeBytes (io:ByteChannel channel, blob content, int startOffset = 0) (int) {
     int numberOfBytesWritten;
     io:IOError writeError;
     // Here is how the bytes are written to the channel.
-    numberOfBytesWritten, writeError = channel.write(content, startOffset, size);
+    numberOfBytesWritten, writeError = channel.write(content,startOffset);
     if (writeError != null) {
         throw writeError.cause;
     }
@@ -45,12 +45,12 @@ function copy (io:ByteChannel src, io:ByteChannel dst) {
         // Here is how to specify to read all the content from
         // the source and copy it to the destination.
         while (!done) {
-            readContent, readCount = readBytes(src, bytesChunk, offset);
+            readContent, readCount = readBytes(src,1000);
             if (readCount <= 0) {
                 //If no content is read we end the loop
                 done = true;
             }
-            numberOfBytesWritten = writeBytes(dst, readContent, offset, readCount);
+            numberOfBytesWritten = writeBytes(dst, readContent);
         }
     } catch (error err) {
         throw err;

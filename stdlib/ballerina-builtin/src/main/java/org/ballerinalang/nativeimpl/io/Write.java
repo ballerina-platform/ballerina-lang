@@ -43,8 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "write",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "startOffset", type = TypeKind.INT),
-                @Argument(name = "numberOfBytes", type = TypeKind.INT)},
+                @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
@@ -65,11 +64,6 @@ public class Write implements NativeCallableUnit {
      * Index which holds the start offset in ballerina.io#writeBytes.
      */
     private static final int START_OFFSET_INDEX = 0;
-
-    /*
-     * Index which holds the number of bytes which should be written.
-     */
-    private static final int NUMBER_OF_BYTES_INDEX = 1;
 
     /*
      * Function which will be notified on the response obtained after the async operation.
@@ -102,11 +96,10 @@ public class Write implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
         byte[] content = context.getBlobArgument(CONTENT_INDEX);
-        int numberOfBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
         int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.write(byteChannel, content, offset, numberOfBytes, eventContext, Write::writeResponse);
+        IOUtils.write(byteChannel, content, offset, eventContext, Write::writeResponse);
     }
 
     @Override
