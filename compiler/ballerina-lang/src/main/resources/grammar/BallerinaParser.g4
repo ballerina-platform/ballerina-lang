@@ -406,8 +406,8 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT statement
-    |   typeName Identifier EQUAL_GT statement
+    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
+    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement+ RIGHT_BRACE))
     ;
 
 foreachStatement
