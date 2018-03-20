@@ -48,6 +48,7 @@ class AbstractBindNode extends StatementNode {
     }
 
 
+
     setVariable(newValue, silent, title) {
         const oldValue = this.variable;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +73,7 @@ class AbstractBindNode extends StatementNode {
     getVariable() {
         return this.variable;
     }
+
 
 
 }

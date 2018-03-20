@@ -23,10 +23,12 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -34,6 +36,7 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -41,6 +44,8 @@ import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -52,10 +57,8 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Service",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ServiceEndpoint",
                              structPackage = "ballerina.net.http"),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -77,6 +80,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
+            // set filters
+            setFilters(serviceEndpointConfig, serviceEndpoint);
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
@@ -86,6 +91,36 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
     }
 
+    /**
+     * Extract and attach the ordered set of filters to the service endpoint.
+     * @param endpointConfig endpoint configuration
+     * @param serviceEndpoint service endpoint object
+     */
+    private void setFilters (Struct endpointConfig, Struct serviceEndpoint) {
+        Value[] filterValues = endpointConfig.getArrayField(HttpConstants.ENDPOINT_CONFIG_FILTERS);
+        if (filterValues == null) {
+            // no filters
+            return;
+        }
+        HashSet<FilterHolder> filterFunctionSet = new LinkedHashSet<>();
+        for (Value filterValue : filterValues) {
+            filterFunctionSet.add(new FilterHolder(extractFilterFunction(filterValue.getVMValue(), 0),
+                    extractFilterFunction(filterValue.getVMValue(), 1)));
+        }
+
+        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterFunctionSet);
+    }
+
+    private FunctionRefCPEntry extractFilterFunction(BValue functionValue, int refIndex) {
+        if (functionValue == null) {
+            return null;
+        }
+        BRefType bRefOnRequestFunction = ((BStruct) functionValue).getRefField(refIndex);
+        if (bRefOnRequestFunction == null) {
+            return null;
+        }
+        return ((BFunctionPointer) bRefOnRequestFunction).value();
+    }
 
     private ListenerConfiguration getListerConfig(Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
@@ -117,10 +152,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         listenerConfiguration.setChunkConfig(HttpUtil.getChunkConfig(chunking));
 
-        if (sslConfig != null) {
-            return setSslConfig(sslConfig, listenerConfiguration);
-        }
-
         // Set Request validation limits.
         if (requestLimits != null) {
             setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
@@ -130,6 +161,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (httpVersion != null) {
             listenerConfiguration.setVersion(httpVersion);
         }
+
+        if (sslConfig != null) {
+            return setSslConfig(sslConfig, listenerConfiguration);
+        }
+
         return listenerConfiguration;
     }
 
