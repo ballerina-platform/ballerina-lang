@@ -105,7 +105,7 @@ public class Equals extends BlockingNativeCallableUnit {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
-            case TypeTags.TYPE_TAG:
+            case TypeTags.TYPEDESC_TAG:
                 BRefType lhsRef = (BRefType) lhsValue;
                 BRefType rhsRef = (BRefType) rhsValue;
                 if (null == lhsRef.value() && null == rhsRef.value()) {

@@ -10,6 +10,7 @@ package ballerina.net.http;
 public struct ClientEndpoint {
     string epName;
     ClientEndpointConfiguration config;
+    HttpClient httpClient;
 }
 
 public enum Algorithm {
@@ -60,26 +61,21 @@ public function <ClientEndpointConfiguration config> ClientEndpointConfiguration
     config.transferEncoding = TransferEncoding.CHUNKING;
 }
 
-@Description { value:"Gets called when the endpoint is being initialized during the package initialization."}
-@Param { value:"ep: The endpoint to be initialized" }
-@Param { value:"epName: The endpoint name" }
-@Param { value:"config: The ClientEndpointConfiguration of the endpoint" }
-public function <ClientEndpoint ep> init (ClientEndpointConfiguration config) {
-    foreach target in config.targets {
-        string uri = target.uri;
-        if (uri.hasSuffix("/")) {
-            int lastIndex = uri.length() - 1;
-            uri = uri.subString(0, lastIndex);
-            target.uri = uri;
-        }
+@Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
+@Param {value:"ep: The endpoint to be initialized"}
+@Param {value:"epName: The endpoint name"}
+@Param {value:"config: The ClientEndpointConfiguration of the endpoint"}
+public function <ClientEndpoint ep> init(ClientEndpointConfiguration config) {
+    string uri = config.targets[0].uri;
+    if (uri.hasSuffix("/")) {
+        int lastIndex = uri.length() - 1;
+        uri = uri.subString(0, lastIndex);
     }
     ep.config = config;
-    ep.initEndpoint();
+    ep.httpClient = createHttpClient(uri, config);
 }
 
-public native function<ClientEndpoint ep> initEndpoint();
-
-public function <ClientEndpoint ep> register(type serviceType) {
+public function <ClientEndpoint ep> register(typedesc serviceType) {
 
 }
 
@@ -90,16 +86,16 @@ public function <ClientEndpoint ep> start() {
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 public function <ClientEndpoint ep> getClient() (HttpClient) {
-    return ep.getHttpClient();
+    return ep.httpClient;
 }
-
-public native function <ClientEndpoint ep> getHttpClient() (HttpClient);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }
 public function <ClientEndpoint ep> stop() {
 
 }
+
+public native function createHttpClient(string uri, ClientEndpointConfiguration config) (HttpClient);
 
 @Description { value:"Retry struct represents retry related options for HTTP client invocation" }
 @Field {value:"count: Number of retry attempts before giving up"}
