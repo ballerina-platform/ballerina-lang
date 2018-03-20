@@ -148,4 +148,4 @@ public native function <File file> list () returns (File[], AccessDeniedError, I
 @Param { value: "file: The file to which a channel needs to be opened"}
 @Param {value:"accessMode: Specifies whether the file should be opened for reading or writing (r/w)"}
 @Return{value:"ByteChannel which will allow to perform I/O operations"}
-public native function <File file>  openChannel (@sensitive string accessMode) returns (@tainted io:ByteChannel);
+public native function <File file>  openChannel (@sensitive string accessMode) returns (io:ByteChannel);
