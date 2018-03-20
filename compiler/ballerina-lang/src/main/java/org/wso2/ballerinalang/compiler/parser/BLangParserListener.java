@@ -2478,33 +2478,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.endStreamingQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
     }
 
-//    @Override
-//    public void enterQueryStatement(BallerinaParser.QueryStatementContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.startQueryStatementNode(getCurrentPos(ctx), getWS(ctx));
-//    }
-//
-//    @Override
-//    public void exitQueryStatement(BallerinaParser.QueryStatementContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.endQueryStatementNode(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
-//    }
-
-    @Override
-    public void exitStreamingQueryDeclaration(BallerinaParser.StreamingQueryDeclarationContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endStreamingQueryDeclarationNode(getCurrentPos(ctx), getWS(ctx));
-    }
-
     @Override
     public void enterStreamletBody(BallerinaParser.StreamletBodyContext ctx) {
         if (ctx.exception != null) {

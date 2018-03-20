@@ -2593,38 +2593,6 @@ public class BLangPackageBuilder {
         streamingQueryStatementNode.setStreamingAction(streamActionNodeStack.pop());
     }
 
-    public void startQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        QueryStatementNode queryStatementNode = TreeBuilder.createQueryStatementNode();
-        ((BLangQueryStatement) queryStatementNode).pos = pos;
-        queryStatementNode.addWS(ws);
-        this.queryStatementStack.push(queryStatementNode);
-    }
-
-    public void endQueryStatementNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-
-        QueryStatementNode queryStatementNode = this.queryStatementStack.peek();
-        ((BLangQueryStatement) queryStatementNode).pos = pos;
-        queryStatementNode.addWS(ws);
-
-        queryStatementNode.setIdentifier(identifier);
-        queryStatementNode.setStreamingQueryStatement(streamingQueryStatementStack.pop());
-    }
-
-    public void endStreamingQueryDeclarationNode(DiagnosticPos pos, Set<Whitespace> ws) {
-        BlockNode blocknode = this.blockNodeStack.peek();
-        if (!streamingQueryStatementStack.empty()) {
-            blocknode.addStatement(streamingQueryStatementStack.pop());
-        }
-
-        ((BLangBlockStmt) blocknode).pos = pos;
-        blocknode.addWS(ws);
-
-        Collections.reverse(queryStatementStack);
-        while (!queryStatementStack.empty()) {
-            blocknode.addStatement(queryStatementStack.pop());
-        }
-    }
-
     public void startOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws) {
         OutputRateLimitNode outputRateLimit = TreeBuilder.createOutputRateLimitNode();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
