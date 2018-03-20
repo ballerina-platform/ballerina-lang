@@ -7,11 +7,11 @@ public function secureFunction (@sensitive string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
-public function taintedNamedReturn () (@tainted{} string output) {
+public function taintedNamedReturn () (@tainted string output) {
     output = "staticValue";
     return;
 }
 
-public function taintedReturn () (@tainted{} string) {
+public function taintedReturn () (@tainted string) {
     return "staticValue";
 }

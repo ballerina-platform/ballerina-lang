@@ -1,18 +1,23 @@
 import ballerina.net.http;
 
+endpoint http:ServiceEndpoint helloWorldEP {
+port:9090
+};
+
 string globalLevelVariable = "";
-service<http> sample {
+service<http:Service> sample bind helloWorldEP {
     string serviceLevelVariable = "";
 
-    @http:resourceConfig {
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/path/{foo}"
     }
-    resource params (http:Connection conn, http:Request req, string foo) {
-        map params = req.getQueryParams();
-        var bar, _ = (string) params.bar;
+    params (endpoint outboundEP, http:Request req, string foo) {
+        map paramsMap = req.getQueryParams();
+        var bar, _ = (string) paramsMap.bar;
 
         serviceLevelVariable = "static";
         globalLevelVariable = "static";
     }
 }
+

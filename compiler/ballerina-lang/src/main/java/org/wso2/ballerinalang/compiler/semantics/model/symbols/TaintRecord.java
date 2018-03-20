@@ -29,11 +29,11 @@ import java.util.List;
  * @since 0.965.0
  */
 public class TaintRecord {
-    public List<Boolean> retParamTaintdStatus;
+    public List<Boolean> retParamTaintedStatus;
     public List<TaintError> taintError;
 
-    public TaintRecord(List<Boolean> retParamTaintdStatus, List<TaintError> taintError) {
-        this.retParamTaintdStatus = retParamTaintdStatus;
+    public TaintRecord(List<Boolean> retParamTaintedStatus, List<TaintError> taintError) {
+        this.retParamTaintedStatus = retParamTaintedStatus;
         this.taintError = taintError;
     }
 

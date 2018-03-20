@@ -10,7 +10,7 @@ public function main (string[] args) {
 }
 
 public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(string[] args) {
-    endpoint<sql:Client> testDBEP {
+    endpoint sql:Client testDB {
         database: sql:DB.MYSQL,
         host: "localhost",
         port: 3306,
@@ -18,8 +18,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturnNegative(strin
         username: "root",
         password: "root",
         options: {maximumPoolSize:5}
-    }
-    var testDB = testDBEP.getConnector();
+    };
 
     table dt = testDB -> select("SELECT  FirstName from Customers where registrationID = 1", null, null);
     while (dt.hasNext()) {
