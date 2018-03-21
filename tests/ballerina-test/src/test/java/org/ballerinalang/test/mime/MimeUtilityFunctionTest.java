@@ -20,7 +20,6 @@ package org.ballerinalang.test.mime;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -35,19 +34,11 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -55,9 +46,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.channels.ByteChannel;
-import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.mime.util.Constants.FILE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
@@ -75,10 +63,9 @@ import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
  */
 public class MimeUtilityFunctionTest {
     private static final Logger log = LoggerFactory.getLogger(MimeUtilityFunctionTest.class);
-
-    private CompileResult compileResult, serviceResult;
     private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
     private final String mediaTypeStruct = MEDIA_TYPE;
+    private CompileResult compileResult, serviceResult;
 
     @BeforeClass
     public void setup() {
@@ -171,7 +158,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
     }
 
-   @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
     public void testGetJsonMoreThanOnce() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
@@ -181,7 +168,7 @@ public class MimeUtilityFunctionTest {
                 "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
     }
 
-     @Test(description = "Set xml data to entity and get the content back from entity as xml")
+    @Test(description = "Set xml data to entity and get the content back from entity as xml")
     public void testGetAndSetXml() {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
@@ -209,7 +196,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
     }
 
-   @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
     public void testGetTextMoreThanOnce() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
@@ -219,7 +206,7 @@ public class MimeUtilityFunctionTest {
                 "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
     }
 
-     @Test(description = "Set blob data to entity and get the content back from entity as a blob")
+    @Test(description = "Set blob data to entity and get the content back from entity as a blob")
     public void testGetAndSetBlob() {
         String content = "ballerina";
         BBlob byteContent = new BBlob(content.getBytes());
@@ -305,7 +292,7 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-   @Test(description = "Set entity body as a byte channel get the content back as a string")
+    @Test(description = "Set entity body as a byte channel get the content back as a string")
     public void testSetEntityBodyMultipleTimes() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -347,8 +334,8 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-  /*  @Test(description = "When the payload exceeds 2MB check whether the response received back matches the original " +
-            "content length")
+  /*  @Test(description = "When the payload exceeds 2MB check whether the response received back matches the " +
+            " original content length")
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
@@ -372,7 +359,6 @@ public class MimeUtilityFunctionTest {
     }*/
 
 
-
     @Test(description = "An EntityError should be returned in case the byte channel is null")
     public void testGetByteChannelForNull() {
         BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
@@ -385,7 +371,7 @@ public class MimeUtilityFunctionTest {
                 "Byte channel is not available as payload");
     }
 
-   @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
+    @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
             "is in data source form")
     public void testByteChannelWhenPayloadInDataSource() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
