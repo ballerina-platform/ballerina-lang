@@ -1260,7 +1260,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
     
     public void visit(BLangAwaitExpr awaitExpr) {
-        //TODO
+        Operand valueRegIndex;
+        if (awaitExpr.type != null) {
+            valueRegIndex = calcAndGetExprRegIndex(awaitExpr);
+        } else {
+            valueRegIndex = this.getOperand(-1);
+        }
+        genNode(awaitExpr.expr, this.env);
+        Operand futureRegIndex = awaitExpr.expr.regIndex;
+        this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
     }
 
     public void visit(BLangTypeofExpr accessExpr) {
