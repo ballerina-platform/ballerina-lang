@@ -169,6 +169,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
@@ -376,6 +377,10 @@ public class TreeBuilder {
 
     public static TernaryExpressionNode createTernaryExpressionNode() {
         return new BLangTernaryExpr();
+    }
+    
+    public static BLangAwaitExpr createAwaitExpressionNode() {
+        return new BLangAwaitExpr();
     }
 
     public static BinaryExpressionNode createBinaryExpressionNode() {
