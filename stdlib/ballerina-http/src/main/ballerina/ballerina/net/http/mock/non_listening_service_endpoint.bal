@@ -3,13 +3,12 @@ package ballerina.net.http.mock;
 import ballerina.net.http;
 
 @Description {value:"Mock service endpoint which does not open a listening port."}
-public struct NonListeningService {
-    string epName;
+public struct NonListeningServiceEndpoint {
+    http:Connection conn;
     http:ServiceEndpointConfiguration config;
 }
 
-public function <NonListeningService ep> init (string epName, http:ServiceEndpointConfiguration config) {
-    ep.epName = epName;
+public function <NonListeningServiceEndpoint ep> init (http:ServiceEndpointConfiguration config) {
     ep.config = config;
     var err = ep.initEndpoint();
     if (err != null) {
@@ -17,12 +16,12 @@ public function <NonListeningService ep> init (string epName, http:ServiceEndpoi
     }
 }
 
-public native function <NonListeningService ep> initEndpoint () returns (error);
+public native function <NonListeningServiceEndpoint ep> initEndpoint () returns (error);
 
-public native function <NonListeningService ep> register (type serviceType);
+public native function <NonListeningServiceEndpoint ep> register (typedesc serviceType);
 
-public native function <NonListeningService ep> start ();
+public native function <NonListeningServiceEndpoint ep> start ();
 
-public native function <NonListeningService ep> getConnector () returns (http:ServerConnector);
+public native function <NonListeningServiceEndpoint ep> getClient() returns http:Connection;
 
-public native function <NonListeningService ep> stop ();
+public native function <NonListeningServiceEndpoint ep> stop ();
