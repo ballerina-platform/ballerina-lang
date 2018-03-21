@@ -161,7 +161,7 @@ public class BLangFunctions {
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse) {
         return invokeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, waitForResponse, false);
     }
-    
+
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             boolean async) {
@@ -185,8 +185,8 @@ public class BLangFunctions {
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
     }
-    
-    private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes, 
+
+    private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,
             int generalWorkersCount) {
         if (generalWorkersCount == 1) {
             return new CallableWorkerResponseContext(retParamTypes, generalWorkersCount);
@@ -268,16 +268,16 @@ public class BLangFunctions {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
                     wdi, initWorkerLocalData, initWorkerCAI, false);
         }
-        
+
         /* create the future encapsulating the worker response context, and set it as the return value
          * to the parent */
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
-                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) }, 
+                new BValue[] { new BFuture(callableUnitInfo.getName(), respCtx) },
                 new BType[] { BTypes.typeFuture });
         return;
     }
-    
-    private static WorkerExecutionContext invokeNativeCallable(CallableUnitInfo callableUnitInfo, 
+
+    private static WorkerExecutionContext invokeNativeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs) {
         WorkerData parentLocalData = parentCtx.workerLocal;
         BType[] retTypes = callableUnitInfo.getRetParamTypes();

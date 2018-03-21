@@ -77,8 +77,7 @@ public class ConfigRegistry {
                     cipherTool = new AESCipherTool(userSecretFile);
                 } else {
                     // Prompting should not happen when secret file is explicitly set by the user
-                    stderr.println("ballerina: encrypted values detected in configurations.");
-                    stderr.println("ballerina: enter the secret phrase for decryption to continue:");
+                    stderr.println("ballerina: enter secret for config value decryption:");
                     cipherTool = new AESCipherTool(new String(System.console().readPassword()));
                 }
             } catch (AESCipherToolException e) {
@@ -86,6 +85,8 @@ public class ConfigRegistry {
                 throw new RuntimeException(msg, e);
             }
         }
+
+        addConfiguration("ballerina.source.root", System.getProperty("ballerina.source.root"));
     }
 
     /**
