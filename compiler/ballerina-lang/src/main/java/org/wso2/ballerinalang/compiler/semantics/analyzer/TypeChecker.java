@@ -118,7 +118,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -540,10 +539,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAMLET:
                 checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE_COLLECTION:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
@@ -552,7 +547,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
             default:
-                // TODO Handle this condition
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                break;
         }
 
         // TODO other types of invocation expressions
