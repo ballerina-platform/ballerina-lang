@@ -1,10 +1,10 @@
-function testWorkerInVM () (int) {
+function testWorkerInVM () returns int {
     int q;
     q = testWorker();
     return q;
 }
 
-function testWorker () (int) {
+function testWorker () returns int {
 
     worker w1 {
         int result;
@@ -24,6 +24,6 @@ function testWorker () (int) {
 
 }
 
-function changeMessage (int i) (int) {
+function changeMessage (int i) returns int {
     return i + 10;
 }
