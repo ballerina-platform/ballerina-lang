@@ -9,7 +9,7 @@ function main(string[] args) {
     io:println("package init - " + cal);
 }
 
-function calculateExp5(int x, int y) (int) {
+function calculateExp5(int x, int y) returns (int) {
     int z;
     while(x >= y) {
         y = y + 1;
