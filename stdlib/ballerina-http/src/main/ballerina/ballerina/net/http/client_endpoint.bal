@@ -66,10 +66,10 @@ public struct ClientEndpointConfiguration {
     Chunking chunking;
     string httpVersion;
     string forwarded = "disable";
-    FollowRedirects followRedirects;
-    Retry retry;
+    FollowRedirects|null followRedirects;
+    Retry|null retry;
     Proxy|null proxy;
-    ConnectionThrottling connectionThrottling;
+    ConnectionThrottling|null connectionThrottling;
     TargetService[] targets;
     //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;
     //FailoverConfig failoverConfig;
@@ -80,6 +80,7 @@ public struct ClientEndpointConfiguration {
 public function <ClientEndpointConfiguration config> ClientEndpointConfiguration() {
     config.chunking = Chunking.AUTO;
     config.transferEncoding = TransferEncoding.CHUNKING;
+    config.httpVersion = "1.1";
 }
 
 @Description {value:"Gets called when the endpoint is being initialized during the package initialization."}
