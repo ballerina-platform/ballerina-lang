@@ -118,7 +118,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -540,10 +539,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAMLET:
                 checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE_COLLECTION:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
@@ -552,7 +547,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
             default:
-                // TODO Handle this condition
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                break;
         }
 
         // TODO other types of invocation expressions
@@ -1480,21 +1477,13 @@ public class TypeChecker extends BLangNodeVisitor {
         Name fieldName;
         BLangExpression keyExpr = key.expr;
 
-        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
-            // keys of the struct literal can only be string literals and identifiers
-            dlog.error(keyExpr.pos, DiagnosticCode.STRING_TEMPLATE_LIT_NOT_ALLOWED);
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.LITERAL) {
-            Object literalValue = ((BLangLiteral) keyExpr).value;
-            fieldName = names.fromString((String) literalValue);
-
-        } else {
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
+        } else {
+            // keys of the struct literal can only be a varRef (identifier)
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_STRUCT_LITERAL_KEY);
+            return symTable.errType;
         }
 
         // Check weather the struct field exists
@@ -1535,15 +1524,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {
-        // keys of the record literal can only be string literals, identifiers or string template literals
-        if (keyExpr.getKind() != NodeKind.LITERAL &&
-                keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                keyExpr.getKind() != NodeKind.STRING_TEMPLATE_LITERAL) {
-            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, recKind.value);
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.LITERAL ||
-                keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+        // If the key is not at identifier (i.e: varRef), check the expression
+        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
         }
 
