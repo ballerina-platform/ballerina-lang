@@ -8,36 +8,35 @@ public any glbVarAny = getAnyGlobalVar();
 
 public int glbVarInt = variable:getIntValue();
 
-function getGlobalVars() (int, string, float, any) {
-    return variable:glbVarInt, variable:glbVarString, variable:glbVarFloat, variable:glbVarAny;
+function getGlobalVars() returns (int, string, float, any) {
+    return (variable:glbVarInt, variable:glbVarString, variable:glbVarFloat, variable:glbVarAny);
 }
 
-
-function changeGlobalVar(int addVal) (float) {
+function changeGlobalVar(int addVal) returns (float) {
     variable:glbVarFloatChange = 77 + <float> addVal;
     float value = variable:glbVarFloatChange;
     return value;
 }
 
-function getGlobalFloatVar() (float) {
+function getGlobalFloatVar() returns (float) {
     _ = changeGlobalVar(3);
     return variable:glbVarFloatChange;
 }
 
-function getAssignedGlobalVarFloat()(float) {
+function getAssignedGlobalVarFloat() returns (float) {
     return glbVarFloat;
 }
 
-function getAnyGlobalVar() (any) {
+function getAnyGlobalVar() returns (any) {
     float val = 45545;
     return val;
 }
 
-function getGlobalVarAny()(any) {
+function getGlobalVarAny() returns (any) {
     return glbVarAny;
 }
 
-function getGlobalVarInt()(int) {
+function getGlobalVarInt() returns (int) {
     return glbVarInt;
 }
 

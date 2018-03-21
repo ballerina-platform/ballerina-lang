@@ -1,98 +1,51 @@
 {
   "position": {
-    "line": 7,
-    "character": 8
+    "line": 8,
+    "character": 9
   },
   "source": "resource/source/allVisibleSymbolsNonEmptyLine.bal",
   "items": [
     {
-      "label": "const2",
-      "kind": 9,
-      "detail": "string",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "const2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "const1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "const1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "var2",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "var2",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "var1",
-      "kind": 9,
-      "detail": "int",
-      "documentation": null,
-      "sortText": 7,
-      "insertText": "var1",
-      "data": {
-        "data": {
-          "type": {
-            "isArrayType": false,
-            "constraint": false,
-            "arrayType": null,
-            "pkgName": ".",
-            "constraintName": null,
-            "constraintPkgName": null
-          }
-        }
-      }
-    }, {
-      "label": "inRequest",
-      "kind": "Unit",
-      "detail": "ballerina.net.http:Request",
-      "sortText": "PRIORITY7",
-      "insertText": "inRequest"
-    }, {
-      "label": "conn",
-      "kind": "Unit",
-      "detail": "ballerina.net.http:Connection",
-      "sortText": "PRIORITY7",
-      "insertText": "conn"
+      "label":"const2",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"const2"
+    },
+    {
+      "label":"const1",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"const1"
+    },
+    {
+      "label":"var2",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"var2"
+    },
+    {
+      "label":"var1",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"var1"
+    },
+    {
+      "label":"request",
+      "kind":"Unit",
+      "detail":"ballerina.net.http:Request",
+      "sortText":"110",
+      "insertText":"request"
+    },
+    {
+      "label":"client",
+      "kind":"Unit",
+      "detail":"ballerina.net.http:ServiceEndpoint",
+      "sortText":"110",
+      "insertText":"client"
     }
   ]
 }

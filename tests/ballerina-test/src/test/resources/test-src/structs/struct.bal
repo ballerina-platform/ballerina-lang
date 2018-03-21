@@ -19,10 +19,9 @@ struct Family {
 }
 
 function testCreateStruct () returns (string, map, int) {
-    map address1;
     map address = {"country":"USA", "state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
-    return emp.name, emp.adrs, emp.age;
+    return (emp.name, emp.adrs, emp.age);
 }
 
 function testStructOfStruct () returns (string) {
@@ -81,14 +80,14 @@ function testStructExpressionAsIndex () returns (string) {
 
 function testDefaultVal () returns (string, string, int) {
     Person p = {};
-    return p.name, p.lname, p.age;
+    return (p.name, p.lname, p.age);
 }
 
 function testNestedFieldDefaultVal () returns (string, string, int) {
     Department dpt = {};
     dpt.employees = [];
     dpt.employees[0] = {lname:"Smith"};
-    return dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age;
+    return (dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age);
 }
 
 function testNestedStructInit () returns (Person) {
@@ -105,7 +104,7 @@ struct NegativeValTest {
 
 function getStructNegativeValues () returns (int, int, float, float) {
     NegativeValTest tmp = {};
-    return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
+    return (tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat);
 }
 
 function getStruct () returns (Person) {
@@ -114,8 +113,8 @@ function getStruct () returns (Person) {
 }
 
 function testGetNonInitAttribute () returns (string) {
-    Person emp1;
-    Person emp2;
+    Person emp1 = {};
+    Person emp2 = {};
     Person[] emps = [emp1, emp2];
     Department dpt = {dptName:"HR", employees:emps};
     return dpt.employees[0].family.children[0];
@@ -127,7 +126,7 @@ function testGetNonInitArrayAttribute () returns (string) {
 }
 
 function testGetNonInitLastAttribute () returns (Person) {
-    Department dpt;
+    Department dpt = {};
     return dpt.employees[0];
 }
 
@@ -137,6 +136,6 @@ function testSetFieldOfNonInitChildStruct () {
 }
 
 function testSetFieldOfNonInitStruct () {
-    Department dpt;
+    Department dpt = {};
     dpt.dptName = "HR";
 }

@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -117,7 +118,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -539,10 +539,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STREAMLET:
                 checkFunctionInvocationExpr(iExpr, symTable.streamletType);
                 break;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE_COLLECTION:
-                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
-                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
@@ -551,7 +547,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkFunctionInvocationExpr(iExpr, this.symTable.mapType);
                 break;
             default:
-                // TODO Handle this condition
+                dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                resultTypes = getListWithErrorTypes(expTypes.size());
+                break;
         }
 
         // TODO other types of invocation expressions
@@ -629,6 +627,20 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             resultTypes = expTypes;
         }
+    }
+    
+    public void visit(BLangAwaitExpr awaitExpr) {
+        BType expType = checkExpr(awaitExpr.expr, env, Lists.of(this.symTable.futureType)).get(0);
+        if (expType == symTable.errType) {
+            resultTypes = Lists.of(symTable.errType);
+        } else {
+            BType constraint = ((BFutureType) expType).constraint;
+            resultTypes = Lists.of(constraint);
+            if (constraint == symTable.noType) {
+                resultTypes.clear();
+            }
+        }
+        this.checkAsyncReturnTypes(awaitExpr, resultTypes);
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
@@ -1285,7 +1297,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol) {
         List<BType> retTypes = invocableSymbol.type.getReturnTypes();
         if (retTypes.isEmpty()) {
-            return new BFutureType(TypeTags.FUTURE, this.symTable.anyType, null);
+            return new BFutureType(TypeTags.FUTURE, this.symTable.noType, null);
         } else {
             return new BFutureType(TypeTags.FUTURE, retTypes.get(0), null);
         }
@@ -1393,6 +1405,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultTypes = types.checkTypes(iExpr, newActualTypes, newExpTypes);
     }
+    
+    private void checkAsyncReturnTypes(BLangAwaitExpr awaitExpr, List<BType> actualTypes) {
+        List<BType> newActualTypes = actualTypes;
+        List<BType> newExpTypes = this.expTypes;
+        int expected = this.expTypes.size();
+        int actual = actualTypes.size();
+        if (expected == 1 && actual > 1) {
+            dlog.error(awaitExpr.pos, DiagnosticCode.MULTI_VAL_IN_SINGLE_VAL_CONTEXT);
+            newActualTypes = getListWithErrorTypes(expected);
+        } else if (expected == 0) {
+            if (this.env.node.getKind() != NodeKind.EXPRESSION_STATEMENT) {
+                dlog.error(awaitExpr.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE);
+            }
+            newExpTypes = newActualTypes;
+        } else if (expected != actual) {
+            dlog.error(awaitExpr.pos, DiagnosticCode.ASSIGNMENT_COUNT_MISMATCH, expected, actual);
+            newActualTypes = getListWithErrorTypes(expected);
+        }
+
+        resultTypes = types.checkTypes(awaitExpr, newActualTypes, newExpTypes);
+    }
 
     private void checkConnectorInitTypes(BLangTypeInit iExpr, BType actualType, Name connName) {
         int expected = expTypes.size();
@@ -1444,21 +1477,13 @@ public class TypeChecker extends BLangNodeVisitor {
         Name fieldName;
         BLangExpression keyExpr = key.expr;
 
-        if (checkRecLiteralKeyExpr(keyExpr, recKind).tag != TypeTags.STRING) {
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
-            // keys of the struct literal can only be string literals and identifiers
-            dlog.error(keyExpr.pos, DiagnosticCode.STRING_TEMPLATE_LIT_NOT_ALLOWED);
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.LITERAL) {
-            Object literalValue = ((BLangLiteral) keyExpr).value;
-            fieldName = names.fromString((String) literalValue);
-
-        } else {
+        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
+        } else {
+            // keys of the struct literal can only be a varRef (identifier)
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_STRUCT_LITERAL_KEY);
+            return symTable.errType;
         }
 
         // Check weather the struct field exists
@@ -1499,15 +1524,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {
-        // keys of the record literal can only be string literals, identifiers or string template literals
-        if (keyExpr.getKind() != NodeKind.LITERAL &&
-                keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
-                keyExpr.getKind() != NodeKind.STRING_TEMPLATE_LITERAL) {
-            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, recKind.value);
-            return symTable.errType;
-
-        } else if (keyExpr.getKind() == NodeKind.LITERAL ||
-                keyExpr.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
+        // If the key is not at identifier (i.e: varRef), check the expression
+        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
         }
 
