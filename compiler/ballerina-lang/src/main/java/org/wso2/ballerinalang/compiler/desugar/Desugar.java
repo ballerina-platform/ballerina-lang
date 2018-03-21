@@ -691,7 +691,6 @@ public class Desugar extends BLangNodeVisitor {
         //      io:println("string value: " + s);
         //  }
 
-        matchStmt.expr = rewriteExpr(matchStmt.expr);
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
