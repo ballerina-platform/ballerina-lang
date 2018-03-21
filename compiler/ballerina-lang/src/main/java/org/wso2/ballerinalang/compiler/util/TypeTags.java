@@ -27,8 +27,8 @@ public class TypeTags {
     public static final int STRING = FLOAT + 1;
     public static final int BOOLEAN = STRING + 1;
     public static final int BLOB = BOOLEAN + 1;
-    public static final int TYPE = BLOB + 1;
-    public static final int JSON = TYPE + 1;
+    public static final int TYPEDESC = BLOB + 1;
+    public static final int JSON = TYPEDESC + 1;
     public static final int XML = JSON + 1;
     public static final int TABLE = XML + 1;
     public static final int STREAM = TABLE + 1;
@@ -51,7 +51,8 @@ public class TypeTags {
     public static final int XML_ATTRIBUTES = ANNOTATION + 1;
     public static final int ERROR = XML_ATTRIBUTES + 1;
     public static final int ITERATOR = ERROR + 1;
-    public static final int TUPLE_COLLECTION = ITERATOR + 1;
+    public static final int TUPLE = ITERATOR + 1;
+    public static final int TUPLE_COLLECTION = TUPLE + 1;
     public static final int FUTURE = TUPLE_COLLECTION + 1;
 
     private TypeTags() {

@@ -1,14 +1,14 @@
-import ballerina.auth;
+import ballerina.net.http.authadaptor;
 import ballerina.net.http;
 import ballerina.mime;
 
-function testCreateAuthnHandlerChain () (auth:AuthnHandlerChain) {
-    auth:AuthnHandlerChain authnHandlerChain = auth:createAuthnHandlerChain();
+function testCreateAuthnHandlerChain () returns (authadaptor:AuthnHandlerChain) {
+    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
     return authnHandlerChain;
 }
 
-function testAuthFailure () (boolean) {
-    auth:AuthnHandlerChain authnHandlerChain = auth:createAuthnHandlerChain();
+function testAuthFailure () returns (boolean) {
+    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "123Basic xxxxx";
@@ -18,8 +18,8 @@ function testAuthFailure () (boolean) {
     return authnHandlerChain.handle(inRequest);
 }
 
-function testAuthSuccess () (boolean) {
-    auth:AuthnHandlerChain authnHandlerChain = auth:createAuthnHandlerChain();
+function testAuthSuccess () returns (boolean) {
+    authadaptor:AuthnHandlerChain authnHandlerChain = authadaptor:createAuthnHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";

@@ -28,11 +28,11 @@ public enum Algorithm {
 @Param {value:"baseString: The string to be hashed"}
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
-public native function getHash (string baseString, Algorithm algorithm) (string);
+public native function getHash (string baseString, Algorithm algorithm) returns (string);
 
 @Description {value:"Returns the HMAC value of the provided base string."}
 @Param {value:"baseString: The string to be hashed"}
 @Param {value:"keyString: The key string "}
 @Param {value:"algorithm: The hashing algorithm to be used"}
 @Return {value:"The hashed string"}
-public native function getHmac (string baseString, string keyString, Algorithm algorithm) (string);
+public native function getHmac (string baseString, string keyString, Algorithm algorithm) returns (string);

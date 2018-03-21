@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackageDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -56,7 +57,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -107,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
@@ -523,6 +527,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangObject objectNode) {
+        /* ignore */
+    }
+
     public void visit(BLangEnum enumNode) {
         /* ignore */
     }
@@ -620,6 +628,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(assignNode);
         analyzeExprs(assignNode.varRefs);
         analyzeExpr(assignNode.expr);
+    }
+
+    @Override
+    public void visit(BLangTupleDestructure stmt) {
+        this.checkStatementExecutionValidity(stmt);
+        analyzeExprs(stmt.varRefs);
+        analyzeExpr(stmt.expr);
     }
 
     public void visit(BLangBind bindNode) {
@@ -742,6 +757,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
+        analyzeExpr(cIExpr.objectInitInvocation);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -749,10 +765,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(ternaryExpr.thenExpr);
         analyzeExpr(ternaryExpr.elseExpr);
     }
+    
+    public void visit(BLangAwaitExpr awaitExpr) {
+        analyzeExpr(awaitExpr.expr);
+    }
 
     public void visit(BLangBinaryExpr binaryExpr) {
         analyzeExpr(binaryExpr.lhsExpr);
         analyzeExpr(binaryExpr.rhsExpr);
+    }
+
+    @Override
+    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        analyzeExprs(bracedOrTupleExpr.expressions);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
@@ -1117,6 +1142,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         public void visit(BLangBinaryExpr binaryExpr) {
             binaryExpr.rhsExpr.accept(this);
             binaryExpr.lhsExpr.accept(this);
+        }
+
+        @Override
+        public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
         }
 
         @Override

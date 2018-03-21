@@ -1,14 +1,14 @@
-import ballerina.auth.authz;
+import ballerina.net.http.authadaptor;
 import ballerina.mime;
 import ballerina.net.http;
 
-function testCreateAuthzHandlerChain () (authz:AuthzHandlerChain) {
-    authz:AuthzHandlerChain authzHandlerChain = authz:createAuthzHandlerChain();
+function testCreateAuthzHandlerChain () (authadaptor:AuthzHandlerChain) {
+    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     return authzHandlerChain;
 }
 
 function testAuthzFailure () (boolean) {
-    authz:AuthzHandlerChain authzHandlerChain = authz:createAuthzHandlerChain();
+    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "123Basic xxxxx";
@@ -19,7 +19,7 @@ function testAuthzFailure () (boolean) {
 }
 
 function testAuthzFailureNonMatchingScope () (boolean) {
-    authz:AuthzHandlerChain authzHandlerChain = authz:createAuthzHandlerChain();
+    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXNoYXJhOmFiYw==";
@@ -30,7 +30,7 @@ function testAuthzFailureNonMatchingScope () (boolean) {
 }
 
 function testAuthzSucess () (boolean) {
-    authz:AuthzHandlerChain authzHandlerChain = authz:createAuthzHandlerChain();
+    authadaptor:AuthzHandlerChain authzHandlerChain = authadaptor:createAuthzHandlerChain();
     http:Request inRequest = {rawPath:"/helloWorld/sayHello", method:"GET", httpVersion:"1.1",
                                    userAgent:"curl/7.35.0", extraPathInfo:"null"};
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";

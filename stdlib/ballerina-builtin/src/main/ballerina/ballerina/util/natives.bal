@@ -26,24 +26,24 @@ public struct Locale {
 
 @Description {value:"Returns a random UUID string"}
 @Return {value:"The random string"}
-public native function uuid () (string);
+public native function uuid () returns (string);
 
 @Description {value:"Encodes a base10 encoded string to base64."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
-public native function base64Encode (string s) (string);
+public native function base64Encode (string s) returns (string);
 
 @Description {value:"Decodes a base64 encoded string to base10."}
 @Param {value:"s: string to be decoded"}
 @Return {value:"the decoded string."}
-public native function base64Decode (string s) (string);
+public native function base64Decode (string s) returns (string);
 
 @Description {value:"Encodes a base16 encoded string to base64 encoding."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
-public native function base16ToBase64Encode (string baseString) (string);
+public native function base16ToBase64Encode (string baseString) returns (string);
 
 @Description {value:"Encodes a base64 encoded string to base16 encoding."}
 @Param {value:"s: string to be encoded"}
 @Return {value:"the encoded string."}
-public native function base64ToBase16Encode (string baseString) (string);
+public native function base64ToBase16Encode (string baseString) returns (string);

@@ -36,6 +36,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     public List<BLangExpression> varRefs;
     public BLangExpression expr;
     public boolean declaredWithVar;
+    public boolean safeAssignment;
 
     public BLangAssignment() {
         this.varRefs = new ArrayList<>();

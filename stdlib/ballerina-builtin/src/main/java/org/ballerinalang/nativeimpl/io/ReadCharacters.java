@@ -73,8 +73,10 @@ public class ReadCharacters implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         if (null != error) {
             errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
+        } else {
+            context.setReturnValues(new BString(readChars));
         }
-        context.setReturnValues(new BString(readChars), errorStruct);
         callback.notifySuccess();
         return result;
     }

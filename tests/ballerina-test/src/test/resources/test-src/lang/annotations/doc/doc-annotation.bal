@@ -1,14 +1,21 @@
 package lang.annotations.doc;
 
-@Description{value:"Self annotating an annotation",
-                 paramValue:@Param{value:"some parameter value"},
-                 queryParamValue:[@QueryParam{
-                    name:"first query param name", 
-                    value:"first query param value"}],
-                 queryParamValue2:[@QueryParam{}],
-                 code:[7,8,9],
-                 args: @Args{}}
-public annotation Description attach service, resource, function, parameter, annotation, connector, action, struct, const, transformer {
+@Description{
+    value:"Self annotating an annotation",
+    paramValue:{
+        value:"some parameter value"
+    },
+    queryParamValue:[{
+        name:"first query param name",
+        value:"first query param value"
+    }],
+    queryParamValue2:[{}],
+    code:[7,8,9],
+    args: {}
+}
+public annotation <service, resource, function, streamlet, struct, annotation, enum, parameter, const, transformer, endpoint> Description Desc;
+
+struct Desc {
     string value = "Description of the service/function";
     int[] code;
     Param paramValue;
@@ -18,19 +25,19 @@ public annotation Description attach service, resource, function, parameter, ann
     Args args;
 }
 
-public annotation Param attach service, function, connector {
+public struct Param {
     string value = "Description of the input param";
 }
 
-public annotation QueryParam attach service {
+public struct QueryParam {
     string name = "default name";
     string value = "default value";
 }
 
-public annotation Doc attach service, function, connector {
-    Description des;
+public struct Doc {
+    Desc des;
 }
 
-public annotation Args attach parameter {
+public struct Args {
     string value = "default value for 'Args' annotation in doc package";
 }

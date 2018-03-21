@@ -15,8 +15,8 @@ public struct HttpServiceConfig {
     HttpServiceLifeTime lifetime;
     string basePath;
     Compression compression;
-    CorsConfig cors;
-    WebSocketUpgradeConfig webSocketUpgrade;
+    CorsConfig|null cors;
+    WebSocketUpgradeConfig|null webSocketUpgrade;
 }
 
 public function <HttpServiceConfig config> HttpServiceConfig() {
@@ -41,7 +41,7 @@ public struct CorsConfig {
 
 public struct WebSocketUpgradeConfig {
     string upgradePath;
-    type upgradeService;
+    typedesc upgradeService;
 }
 
 
@@ -75,7 +75,6 @@ public annotation <service> ServiceConfig HttpServiceConfig;
 
 @Description {value:"Configurations annotation for a WebSocket service"}
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
-
 
 ////////////////////////////
 /// Resource Annotations ///

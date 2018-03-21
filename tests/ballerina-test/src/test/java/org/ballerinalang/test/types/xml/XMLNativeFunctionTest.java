@@ -101,7 +101,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "element");
 
         Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertNull(returns[2].stringValue());
+        Assert.assertEquals(returns[2].stringValue(), "");
     }
 
     @Test

@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Set;
 import java.util.StringJoiner;
@@ -32,12 +33,14 @@ import java.util.StringJoiner;
  */
 public class BUnionType extends BType implements UnionType {
     private String stringRep;
+    private boolean nullable;
 
     public Set<BType> memberTypes;
 
-    public BUnionType(int tag, BTypeSymbol tsymbol, Set<BType> memberTypes) {
-        super(tag, tsymbol);
+    public BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
+        super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
+        this.nullable = nullable;
     }
 
     @Override
@@ -48,6 +51,11 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public TypeKind getKind() {
         return TypeKind.UNION;
+    }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
     }
 
     @Override
@@ -70,5 +78,9 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public String getDesc() {
         return TypeDescriptor.SIG_ANY;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 }

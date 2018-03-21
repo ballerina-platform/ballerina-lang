@@ -42,7 +42,7 @@ public class TypeConstants {
     public static final String TABLE_TNAME = "table";
     public static final String STREAM_TNAME = "stream";
     public static final String ANY_TNAME = "any";
-    public static final String TYPE_TNAME = "type";
+    public static final String TYPEDESC_TNAME = "typedesc";
     public static final String NULL_TNAME = "null";
     public static final String VOID_TNAME = "void";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";

@@ -406,6 +406,7 @@ workerReply
 variableReference
     :   nameReference                                                           # simpleVariableReference
     |   functionInvocation                                                      # functionInvocationReference
+    |   awaitExpression                                                         # awaitExpressionReference
     |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
@@ -504,7 +505,11 @@ expression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   AWAIT expression                                                    # awaitExpression    
+    |   awaitExpression                                                     # awaitExprExpression    
+    ;
+    
+awaitExpression
+    :   AWAIT expression                                                    # awaitExpr
     ;
 
 simpleExpression
