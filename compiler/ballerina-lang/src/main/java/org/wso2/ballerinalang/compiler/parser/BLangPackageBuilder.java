@@ -458,7 +458,6 @@ public class BLangPackageBuilder {
     }
 
     public void addConstraintType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
-        // TODO : Fix map<int> format.
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType constraintType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         constraintType.pos = pos;
@@ -509,15 +508,15 @@ public class BLangPackageBuilder {
     }
 
     public void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail, boolean paramsTypeOnly,
-                                boolean retParamsAvail, boolean retParamTypeOnly, boolean returnsKeywordExists) {
+                                boolean retParamsAvail) {
         // TODO : Fix function main ()(boolean , function(string x)(float, int)){} issue
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = pos;
-        functionTypeNode.returnsKeywordExists = returnsKeywordExists;
+        functionTypeNode.returnsKeywordExists = true;
 
         if (retParamsAvail) {
-            functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.returnParamTypeNodes.add(v.getTypeNode()));
+//            functionTypeNode.addWS(commaWsStack.pop());
+            functionTypeNode.returnParamTypeNodes.add(this.varStack.pop().getTypeNode());
         }
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
@@ -605,16 +604,27 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    public BLangVariable addReturnParam(DiagnosticPos pos,
+                                Set<Whitespace> ws,
+                                String identifier,
+                                boolean exprAvailable,
+                                int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+        attachAnnotations(var, annotCount);
+        var.pos = pos;
+        this.varStack.push(var);
+        return var;
+    }
+
     public void endCallableUnitSignature(Set<Whitespace> ws, String identifier, boolean paramsAvail,
                                          boolean retParamsAvail, boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         invNode.setName(this.createIdentifier(identifier));
         invNode.addWS(ws);
         if (retParamsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.RETURN;
-                invNode.addReturnParameter(variableNode);
-            });
+            BLangVariable variableNode = (BLangVariable) this.varStack.pop();
+            variableNode.docTag = DocTag.RETURN;
+            invNode.addReturnParameter(variableNode);
         }
 
         if (paramsAvail) {
@@ -1659,7 +1669,8 @@ public class BLangPackageBuilder {
         annotAttachmentStack.push(annotAttachmentNode);
     }
 
-    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr, DiagnosticPos currentPos) {
+    public void setAnnotationAttachmentName(Set<Whitespace> ws, boolean hasExpr, DiagnosticPos currentPos,
+                                            boolean popAnnAttachment) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangAnnotationAttachment bLangAnnotationAttachment = (BLangAnnotationAttachment) annotAttachmentStack.peek();
         bLangAnnotationAttachment.pos = currentPos;
@@ -1669,6 +1680,9 @@ public class BLangPackageBuilder {
         bLangAnnotationAttachment.setPackageAlias(nameReference.pkgAlias);
         if (hasExpr) {
             bLangAnnotationAttachment.setExpression(exprNodeStack.pop());
+        }
+        if (popAnnAttachment) {
+            annotAttachmentStack.pop();
         }
     }
 

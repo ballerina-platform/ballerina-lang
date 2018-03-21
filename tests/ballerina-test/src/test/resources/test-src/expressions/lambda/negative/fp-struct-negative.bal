@@ -4,17 +4,17 @@ struct Person {
     function (string, string) returns (string) getName;
 }
 
-function getFullName (string f, string l) returns (string r){
+function getFullName (string f, string l) returns (string){
     return l + ", " + f;
 }
 
-function test1()(string x, string y){
-    Person bob = {fname:"bob", lname:"white", getName: function (string fname, string lname) returns (string result){
+function test1() returns (string, string){
+    Person bob = {fname:"bob", lname:"white", getName: function (string fname, string lname) returns (string){
                                                               return fname + " " + lname;
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    x = bob.getFullName(bob.fname, bob.lname );
-    y = tom.getName(tom.fname, tom.lname );
-    return;
+    string x = bob.getFullName(bob.fname, bob.lname );
+    string y = tom.getName(tom.fname, tom.lname );
+    return (x, y);
 }

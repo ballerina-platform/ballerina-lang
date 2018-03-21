@@ -61,7 +61,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -180,6 +182,7 @@ public class Types {
      * 2) there exists an implicit cast symbol from source to target.
      * 3) both types are JSON and the target constraint is no type.
      * 4) both types are array type and both array types are assignable.
+     * 5) both types are MAP and the target constraint is any type or constraints are structurally equivalent.
      *
      * @param source type.
      * @param target type.
@@ -230,6 +233,19 @@ public class Types {
                 return true;
             }
             return isAssignable(((BFutureType) source).constraint, ((BFutureType) target).constraint);
+        }
+
+        if (target.tag == TypeTags.MAP && source.tag == TypeTags.MAP) {
+            // Here source condition is added for prevent assigning map union constrained
+            // to map any constrained.
+            if (((BMapType) target).constraint.tag == TypeTags.ANY &&
+                    ((BMapType) source).constraint.tag != TypeTags.UNION) {
+                return true;
+            }
+            if (checkStructEquivalency(((BMapType) source).constraint,
+                    ((BMapType) target).constraint)) {
+                return true;
+            }
         }
 
         if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
@@ -679,11 +695,37 @@ public class Types {
                 return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
             }
 
+            // Here condition is added for prevent explicit cast assigning map union constrained
+            // to map any constrained.
+            if (s.tag == TypeTags.MAP &&
+                    ((BMapType) s).constraint.tag == TypeTags.UNION) {
+                return symTable.notFoundSymbol;
+            }
+
             return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
         }
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            if (isSameType(s, t)) {
+                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.MAP) {
+                if (t.constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else if (((BMapType) s).constraint.tag == TypeTags.ANY) {
+                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+                } else if (checkStructEquivalency(((BMapType) s).constraint,
+                        t.constraint)) {
+                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
+                } else {
+                    return symTable.notFoundSymbol;
+                }
+            } else if (t.constraint.tag != TypeTags.ANY) {
+                // Semantically fail rest of the casts for Constrained Maps.
+                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
+                return symTable.notFoundSymbol;
+            }
+
             return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
         }
 
@@ -829,6 +871,12 @@ public class Types {
 
         @Override
         public BSymbol visit(BMapType t, BType s) {
+            // Semantically fail all conversions for Constrained Maps.
+            // Eg:- T2MAP, XMLATTRS2MAP
+            if (t.constraint.tag != TypeTags.ANY) {
+                return symTable.notFoundSymbol;
+            }
+
             if (s.tag == TypeTags.STRUCT) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
             }
@@ -941,7 +989,13 @@ public class Types {
 
         @Override
         public Boolean visit(BMapType t, BType s) {
-            return t == s;
+            if (s.tag != TypeTags.MAP) {
+                return false;
+            }
+            // At this point both source and target types are of map types. Inorder to be equal in type as whole
+            // constraints should be in equal type.
+            BMapType sType = ((BMapType) s);
+            return isSameType(sType.constraint, t.constraint);
         }
         
         @Override
@@ -993,6 +1047,9 @@ public class Types {
                 return false;
             }
             for (int i = 0; i < source.tupleTypes.size(); i++) {
+                if (t.getTupleTypes().get(i) == symTable.noType) {
+                    continue;
+                }
                 if (!isSameType(source.getTupleTypes().get(i), t.tupleTypes.get(i))) {
                     return false;
                 }
@@ -1028,7 +1085,7 @@ public class Types {
 
         @Override
         public Boolean visit(BUnionType t, BType s) {
-            return false;
+            return t == s;
         }
 
         @Override
@@ -1136,18 +1193,49 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BUnionType target) {
+        Set<BType> sourceTypes = new HashSet<>();
+
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
-            // Check whether source is a subset of target
-            return target.memberTypes.containsAll(sourceUnionType.memberTypes);
+            sourceTypes = sourceUnionType.memberTypes;
+        } else {
+            sourceTypes.add(source);
         }
 
-        for (BType memberType : target.memberTypes) {
-            boolean assignable = isAssignable(source, memberType);
-            if (assignable) {
-                return true;
+        boolean notAssignable = sourceTypes
+                .stream()
+                .map(s -> target.memberTypes
+                        .stream()
+                        .anyMatch(t -> isAssignable(s, t)))
+                .anyMatch(assignable -> !assignable);
+
+        return !notAssignable;
+    }
+
+    /**
+     * Check whether a given type has a default value.
+     * i.e: A variable of the given type can be initialized without a rhs expression.
+     * eg: foo x;
+     * 
+     * @param type Type to check the existence if a default value
+     * @return Flag indicating whether the given type has a default value
+     */
+    public boolean defaultValueExists(BType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.STRUCT || type.tag == TypeTags.INVOKABLE) {
+            return false;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (defaultValueExists(memberType)) {
+                    return true;
+                }
             }
         }
-        return false;
+        return true;
     }
 }

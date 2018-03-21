@@ -68,21 +68,23 @@ public class ReturnStmtNegativeTest {
     public void testTooManyArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multi-valued 'split()' in single-value context", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,string)'", 2, 12);
     }
 
     @Test(description = "Test type mismatch")
     public void testInputTypeMismatch1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 12);
+        BAssertUtil.validateError(result,
+                0, "incompatible types: expected '(string,int,string)', found '(string,string,string)'",
+                2, 12);
     }
 
     @Test(description = "Test type mismatch")
     public void testInputTypeMismatch2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 25);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 26);
     }
 
     @Test(description = "Test missing return")

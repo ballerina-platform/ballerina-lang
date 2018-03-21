@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.CompilationUnitNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
@@ -127,7 +126,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), null, false, ctx.annotationAttachment().size());
+        //TODO setting annotation count 0 as parameters won't adding annotations to parameters.
+        this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), null, false, 0);
     }
 
     @Override
@@ -365,7 +365,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
-                ctx.returnParameters() != null,
+                ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
@@ -379,7 +379,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
-                ctx.formalParameterList() != null, ctx.returnParameters() != null,
+                ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
@@ -665,7 +665,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endCallableUnitSignature(getWS(ctx), ctx.Identifier().getText(),
-                ctx.formalParameterList() != null, ctx.returnParameters() != null,
+                ctx.formalParameterList() != null, ctx.returnParameter() != null,
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
@@ -952,8 +952,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String typeName = ctx.getChild(0).getText();
         if (ctx.nameReference() != null) {
             this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
-        } else if (ctx.typeName() != null && typeName.equals(TypeKind.FUTURE.typeName())) { 
-            // for the moment, only future is supported, this should later support map as well 
+        } else if (ctx.typeName() != null) {
             this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
         } else {
             this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);
@@ -966,8 +965,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean paramsAvail = false, paramsTypeOnly = false, retParamsAvail = false, retParamTypeOnly = false,
-                returnsKeywordExists = false;
+        boolean paramsAvail = false, paramsTypeOnly = false, retParamAvail = false;
         if (ctx.parameterList() != null) {
             paramsAvail = ctx.parameterList().parameter().size() > 0;
         } else if (ctx.parameterTypeNameList() != null) {
@@ -975,19 +973,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             paramsTypeOnly = true;
         }
 
-        if (ctx.returnParameters() != null) {
-            BallerinaParser.ReturnParametersContext returnCtx = ctx.returnParameters();
-            returnsKeywordExists = "returns".equals(returnCtx.getChild(0).getText());
-            if (returnCtx.parameterList() != null) {
-                retParamsAvail = returnCtx.parameterList().parameter().size() > 0;
-            } else if (returnCtx.parameterTypeNameList() != null) {
-                retParamsAvail = returnCtx.parameterTypeNameList().parameterTypeName().size() > 0;
-                retParamTypeOnly = true;
-            }
+        if (ctx.returnParameter() != null) {
+            retParamAvail = true;
         }
 
-        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, paramsTypeOnly, retParamsAvail,
-                retParamTypeOnly, returnsKeywordExists);
+        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, paramsTypeOnly, retParamAvail);
     }
 
     /**
@@ -1011,7 +1001,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null, getCurrentPos(ctx));
+        //TODO popping annotation attachments from type nodes temporarily, fix later.
+        boolean popAnnAttachmnt = ctx.getParent() instanceof BallerinaParser.AnnotatedTypeNameContext;
+        this.pkgBuilder.setAnnotationAttachmentName(getWS(ctx), ctx.recordLiteral() != null,
+                getCurrentPos(ctx), popAnnAttachmnt);
     }
 
 
@@ -2003,6 +1996,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        //TODO setting annotation count 0 as parameters won't adding annotations to parameters.
+        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), null, false, 0);
+    }
+
     @Override
     public void enterParameterTypeNameList(BallerinaParser.ParameterTypeNameListContext ctx) {
         if (ctx.exception != null) {
@@ -2024,7 +2032,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // This attaches WS of the commas to the def.
         ParserRuleContext parent = ctx.getParent();
         boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
-                parent instanceof BallerinaParser.ReturnParametersContext &&
+                parent instanceof BallerinaParser.ReturnParameterContext &&
                         parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
         if (inFuncTypeSig) {
             this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
@@ -2045,7 +2053,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         // This attaches WS of the commas to the def.
         ParserRuleContext parent = ctx.getParent();
         boolean inFuncTypeSig = parent instanceof BallerinaParser.FunctionTypeNameContext ||
-                parent instanceof BallerinaParser.ReturnParametersContext &&
+                parent instanceof BallerinaParser.ReturnParameterContext &&
                         parent.parent instanceof BallerinaParser.FunctionTypeNameContext;
         if (inFuncTypeSig) {
             this.pkgBuilder.endFuncTypeParamList(getWS(ctx));
