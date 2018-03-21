@@ -802,7 +802,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && !keyExpr.isBracedExpr) {
+            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
             } else {

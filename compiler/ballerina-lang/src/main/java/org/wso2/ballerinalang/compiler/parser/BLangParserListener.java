@@ -1868,15 +1868,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
-    @Override
-    public void exitBracedExpression(BallerinaParser.BracedExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createBracedExpr();
-    }
-
     /**
      * {@inheritDoc}
      */

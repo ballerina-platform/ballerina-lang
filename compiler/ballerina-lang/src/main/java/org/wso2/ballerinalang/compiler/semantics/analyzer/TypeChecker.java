@@ -1449,8 +1449,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldName = names.fromIdNode(varRef.variableName);
         } else {
             // keys of the struct literal can only be a varRef (identifier)
-            // TODO: fix error message
-            dlog.error(keyExpr.pos, DiagnosticCode.STRING_TEMPLATE_LIT_NOT_ALLOWED);
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_STRUCT_LITERAL_KEY);
             return symTable.errType;
         }
 
@@ -1493,7 +1492,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr, RecordKind recKind) {
         // If the key is not at identifier (i.e: varRef), check the expression
-        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF || keyExpr.isBracedExpr) {
+        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return checkExpr(keyExpr, this.env, Lists.of(symTable.stringType)).get(0);
         }
 

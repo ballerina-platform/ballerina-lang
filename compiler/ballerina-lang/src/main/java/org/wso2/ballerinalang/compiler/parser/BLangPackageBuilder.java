@@ -2977,8 +2977,4 @@ public class BLangPackageBuilder {
         ((BLangExpression) this.exprNodeStack.peek()).await = true;
     }
 
-    public void createBracedExpr() {
-        ((BLangExpression) this.exprNodeStack.peek()).isBracedExpr = true;
-    }
-
 }
