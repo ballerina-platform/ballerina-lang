@@ -7,7 +7,7 @@ public struct TrxError {
 const int RETRYCOUNT = 4;
 const int RETRYCOUNT_2 = -4;
 
-function testTransactionStmt (int i) returns (string) {
+function testTransactionStmt (int i) (string) {
     string a = "start";
     try {
         transaction {
@@ -38,7 +38,7 @@ function testTransactionStmt (int i) returns (string) {
     return a;
 }
 
-function testAbortStatement () returns (string) {
+function testAbortStatement () (string) {
     string str = "BeforeTR ";
     int i = 0;
     transaction {
@@ -54,7 +54,7 @@ function testAbortStatement () returns (string) {
 }
 
 
-function testOptionalFailed (int i) returns (string) {
+function testOptionalFailed (int i) (string) {
     string a = "start";
     try {
         transaction {
@@ -82,7 +82,7 @@ function testOptionalFailed (int i) returns (string) {
     return a;
 }
 
-function testNestedTransaction (int i) returns (string) {
+function testNestedTransaction (int i) (string) {
     string a = "start";
     try {
         transaction {
@@ -115,7 +115,7 @@ function testNestedTransaction (int i) returns (string) {
     return a;
 }
 
-function testNestedTransactionWithFailed (int i) returns (string) {
+function testNestedTransactionWithFailed (int i) (string) {
     string a = "start";
     try {
         transaction with retries(3) {
@@ -152,7 +152,7 @@ function testNestedTransactionWithFailed (int i) returns (string) {
     return a;
 }
 
-function testTransactionStmtWithFailedAndNonDefaultRetries (int i) returns (string) {
+function testTransactionStmtWithFailedAndNonDefaultRetries (int i) (string) {
     string a = "start";
     try {
         transaction with retries(4) {
@@ -184,7 +184,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries (int i) returns (stri
     return a;
 }
 
-function testTransactionStmtWithRetryOff (int i) returns (string) {
+function testTransactionStmtWithRetryOff (int i) (string) {
     string a = "start";
     try {
         transaction with retries(0) {
@@ -208,7 +208,7 @@ function testTransactionStmtWithRetryOff (int i) returns (string) {
     return a;
 }
 
-function testTransactionStmtWithConstRetryFailed () returns (string) {
+function testTransactionStmtWithConstRetryFailed () (string) {
     string a = "start";
     try {
         transaction with retries(RETRYCOUNT) {
@@ -225,7 +225,7 @@ function testTransactionStmtWithConstRetryFailed () returns (string) {
     return a;
 }
 
-function testTransactionStmtWithConstRetryFailed2 () returns (string) {
+function testTransactionStmtWithConstRetryFailed2 () (string) {
     string a = "start ";
     try {
         transaction with retries(RETRYCOUNT_2) {
@@ -242,7 +242,7 @@ function testTransactionStmtWithConstRetryFailed2 () returns (string) {
     return a;
 }
 
-function testTransactionStmtWithConstRetrySuccess () returns (string) {
+function testTransactionStmtWithConstRetrySuccess () (string) {
     string a = "start";
     try {
         transaction with retries(RETRYCOUNT) {
@@ -257,7 +257,7 @@ function testTransactionStmtWithConstRetrySuccess () returns (string) {
     return a;
 }
 
-function testMultipleTransactionStmtSuccess () returns (string) {
+function testMultipleTransactionStmtSuccess () (string) {
     string a = "start";
     try {
         transaction {
@@ -279,7 +279,7 @@ function testMultipleTransactionStmtSuccess () returns (string) {
     return a;
 }
 
-function testMultipleTransactionStmtFailed1 () returns (string) {
+function testMultipleTransactionStmtFailed1 () (string) {
     string a = "start";
     try {
         transaction with retries(2) {
@@ -301,7 +301,7 @@ function testMultipleTransactionStmtFailed1 () returns (string) {
     return a;
 }
 
-function testMultipleTransactionStmtFailed2 () returns (string) {
+function testMultipleTransactionStmtFailed2 () (string) {
     string a = "start";
     try {
         transaction with retries(2) {
@@ -324,7 +324,7 @@ function testMultipleTransactionStmtFailed2 () returns (string) {
     return a;
 }
 
-function testAbort () returns (string) {
+function testAbort () (string) {
     string i = "st";
     transaction {
         i = i + " inOuterTrx";
@@ -338,7 +338,7 @@ function testAbort () returns (string) {
     return i;
 }
 
-function transactionWithBreak () returns (string) {
+function transactionWithBreak () (string) {
     int i = 0;
     transaction {
         while (i < 5) {
@@ -351,7 +351,7 @@ function transactionWithBreak () returns (string) {
     return "done";
 }
 
-function transactionWithNext () returns (string) {
+function transactionWithNext () (string) {
     int i = 0;
     transaction {
         while (i < 5) {
