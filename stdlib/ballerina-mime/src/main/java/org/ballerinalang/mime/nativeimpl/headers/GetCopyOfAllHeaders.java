@@ -50,15 +50,15 @@ public class GetCopyOfAllHeaders extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BMap<String, BValue> headerMap = new BMap<>();
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues();
+            context.setReturnValues(headerMap);
             return;
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && !httpHeaders.isEmpty()) {
             context.setReturnValues(HeaderUtil.getAllHeadersAsBMap(httpHeaders));
         } else {
-            BMap<String, BValue> headerMap = new BMap<>();
             context.setReturnValues(headerMap);
         }
     }

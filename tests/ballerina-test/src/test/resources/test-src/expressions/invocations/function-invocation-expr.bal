@@ -44,7 +44,7 @@ function sum (int a) (@untainted int) {
     return a;
 }
 
-function getPowerOfN (float a, float n) returns (float v) {
-    v = math:pow(a, n);
-    return;
+function getPowerOfN (float a, float n) returns (float) {
+    float v = math:pow(a, n);
+    return v;
 }

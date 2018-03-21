@@ -117,7 +117,7 @@ public native function <Entity entity> getByteChannel () returns io:ByteChannel 
 @Param {value:"entity: Represent a MIME entity"}
 @Return {value:"Return an array of entities which represent its body parts"}
 @Return {value:"EntityError will get thrown in case of errors during data-source extraction from entity"}
-public native function <Entity entity> getBodyParts () returns Entity[] | null| EntityError;
+public native function <Entity entity> getBodyParts () returns Entity[] | EntityError;
 
 @Description {value:"Set body parts to entity"}
 @Param {value:"entity: Represent a MIME entity"}

@@ -30,13 +30,13 @@ public native function <Request req> setEntity (mime:Entity entity);
 @Description {value:"Gets the query parameters from the HTTP request as a map"}
 @Param {value:"req: The request message"}
 @Return {value:"The map of query params"}
-public native function <Request req> getQueryParams () returns map;
+public native function <Request req> getQueryParams () returns (map);
 
 @Description {value:"Retrieves the named property from the request"}
 @Param {value:"req: The request message"}
 @Param {value:"propertyName: The name of the property"}
 @Return {value:"The property value"}
-public native function <Request req> getProperty (string propertyName) returns string;
+public native function <Request req> getProperty (string propertyName) returns (string);
 
 @Description {value:"Sets a request property"}
 @Param {value:"req: The request message"}
@@ -48,18 +48,18 @@ public native function <Request req> setProperty (string propertyName, string pr
 @Param {value:"req: The request message"}
 @Param {value:"path: Path to the location of matrix parameters"}
 @Return {value:"A map of matrix paramters which can be found for a given path"}
-public native function <Request req> getMatrixParams (string path) returns map;
+public native function <Request req> getMatrixParams (string path) returns (map);
 
 @Description {value:"Get the entity from the request"}
 @Param {value:"req: The request message"}
 @Return {value:"Entity of the request"}
 @Return {value:"EntityError will might get thrown during entity construction in case of errors"}
-public native function <Request req> getEntity () returns mime:Entity | mime:EntityError;
+public native function <Request req> getEntity () returns (mime:Entity | mime:EntityError);
 
 @Description {value:"Get the entity from the request without the body. This function is to be used only internally"}
 @Param {value:"req: The request message"}
 @Return {value:"Entity of the request"}
-native function <Request req> getEntityWithoutBody () returns mime:Entity;
+native function <Request req> getEntityWithoutBody () returns (mime:Entity);
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -72,7 +72,7 @@ const string HEADER_KEY_EXPECT = "Expect";
 @Param {value:"req: The request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The first header value for the provided header name. Returns null if the header does not exist."}
-public function <Request req> getHeader (string headerName) returns string | null {
+public function <Request req> getHeader (string headerName) returns (string | null) {
     mime:Entity entity = req.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
@@ -81,7 +81,7 @@ public function <Request req> getHeader (string headerName) returns string | nul
 @Param {value:"req: The request message"}
 @Param {value:"headerName: The header name"}
 @Return {value:"The header values struct array for a given header name"}
-public function <Request req> getHeaders (string headerName) returns string[] | null {
+public function <Request req> getHeaders (string headerName) returns (string[] | null) {
     mime:Entity entity = req.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
@@ -121,7 +121,7 @@ public function <Request req> removeAllHeaders () {
 
 @Description {value:"Get all transport headers from the request. Manipulating the return map does not have any impact to the original copy"}
 @Param {value:"req: The request message"}
-public function <Request req> getCopyOfAllHeaders () returns map {
+public function <Request req> getCopyOfAllHeaders () returns (map) {
     mime:Entity entity = req.getEntityWithoutBody();
     return entity.getCopyOfAllHeaders();
 }
@@ -129,61 +129,63 @@ public function <Request req> getCopyOfAllHeaders () returns map {
 @Description {value:"Checks whether the client expects a 100-continue response."}
 @Param {value:"req: The request message"}
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
-public function <Request req> expects100Continue () returns boolean {
-    match req.getHeader(HEADER_KEY_EXPECT) {
+public function <Request req> expects100Continue () returns (boolean) {
+    var headerValue = req.getHeader(HEADER_KEY_EXPECT);
+    match headerValue {
         string header => return header ==  HEADER_VAL_100_CONTINUE;
         any | null => return false;
     }
 }
 
-@Description {value:"Gets the Content-Length header from the request"}
-@Param {value:"req: The request message"}
-@Return {value:"length of the message"}
-public function <Request request> getContentLength () returns int {
-    match request.getHeader(CONTENT_LENGTH) {
-        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
-        any | null => return -1;
-    }
-}
+//@Description {value:"Gets the Content-Length header from the request"}
+//@Param {value:"req: The request message"}
+//@Return {value:"length of the message"}
+//public function <Request request> getContentLength () returns (int) {
+//    match request.getHeader(CONTENT_LENGTH) {
+//        string contentLengthVal => return getContentLengthIntValue(contentLengthVal);
+//        any | null => return -1;
+//    }
+//}
 
 @Description {value:"Gets the request payload in JSON format"}
 @Param {value:"request: The request message"}
 @Return {value:"The JSON reresentation of the message payload"}
-public function <Request request> getJsonPayload () returns json | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getJsonPayload () returns (json | mime:EntityError) {
+    var mimeEntity = request.getEntity();
+    match mimeEntity {
         mime:Entity entity => return entity.getJson();
         mime:EntityError err => return err;
-        //any | null => return null;
     }
 }
 
 @Description {value:"Gets the request payload in XML format"}
 @Param {value:"request: The request message"}
 @Return {value:"The XML representation of the message payload"}
-public function <Request request> getXmlPayload () returns xml | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getXmlPayload () returns (xml | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:Entity entity => return entity.getXml();
         mime:EntityError err => return err;
-        //any | null => return null;
     }
 }
 
 @Description {value:"Gets the request payload as a string"}
 @Param {value:"request: request message"}
 @Return {value:"The string representation of the message payload"}
-public function <Request request> getStringPayload () returns string | null | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getStringPayload () returns (string | null | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:Entity entity => return entity.getText();
         mime:EntityError err => return err;
-        //any | null => return null;
     }
 }
 
 @Description {value:"Gets the request payload in blob format"}
 @Param {value:"request: The request message"}
 @Return {value:"The blob representation of the message payload"}
-public function <Request request> getBinaryPayload () returns blob | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getBinaryPayload () returns (blob | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:Entity entity => return entity.getBlob();
         mime:EntityError err => return err;
     }
@@ -193,8 +195,9 @@ public function <Request request> getBinaryPayload () returns blob | mime:Entity
 please use 'getMultiparts()' instead."}
 @Param {value:"request: The request message"}
 @Return {value:"A byte channel as the message payload"}
-public function <Request request> getByteChannel () returns io:ByteChannel | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getByteChannel () returns (io:ByteChannel | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:Entity entity => return entity.getByteChannel();
         mime:EntityError err => return err;
     }
@@ -203,13 +206,15 @@ public function <Request request> getByteChannel () returns io:ByteChannel | mim
 @Description {value:"Gets the form parameters from the HTTP request as a map"}
 @Param {value:"req: The request message"}
 @Return {value:"The map of form params"}
-public function <Request request> getFormParams () returns map | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getFormParams () returns (map | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:EntityError err => return err;
         mime:Entity entity => {
 
             map parameters = {};
-            match entity.getText() {
+            var entityText = entity.getText();
+            match entityText {
                 mime:EntityError txtErr => return txtErr; // TODO: Check if this is ok
 
                 string formData => {
@@ -236,44 +241,16 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
             return parameters;
         }
     }
-    //var entity, entityError = request.getEntity();
-    //if (entityError != null) {
-    //    return null, entityError;
-    //}
-    //var formData, entityErr = entity.getText();
-    //map parameters = {};
-    //if (entityErr != null) {
-    //    return parameters, entityErr;
-    //}
-    //if (formData != null && formData != "") {
-    //    string[] entries = formData.split("&");
-    //    int entryIndex = 0;
-    //    while (entryIndex < lengthof entries) {
-    //        int index = entries[entryIndex].indexOf("=");
-    //        if (index != -1) {
-    //            string name = entries[entryIndex].subString(0, index).trim();
-    //            int size = entries[entryIndex].length();
-    //            string value = entries[entryIndex].subString(index + 1, size).trim();
-    //            if (value != "") {
-    //                parameters[name] = value;
-    //            }
-    //        }
-    //        entryIndex = entryIndex + 1;
-    //    }
-    //}
-    //return parameters, null;
-    
-    //return parameters;
 }
 
 @Description {value:"Get multiparts from request"}
 @Param {value:"req: The request message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Request request> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
-    match request.getEntity() {
+public function <Request request> getMultiparts () returns (mime:Entity[] | mime:EntityError) {
+    var mimeEntity = request.getEntity();     
+    match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;
-        //any | null => return null;
     }
 }
 
@@ -357,9 +334,10 @@ public function <Request request> setByteChannel (io:ByteChannel payload) {
 @Param {value:"request: The outbound request message"}
 @Param {value:"defaultContentType: Default content-type to be used in case the content-type header doesn't contain any value"}
 @Return {value:"Return 'MediaType' struct"}
-function getMediaTypeFromRequest (Request request, string defaultContentType) returns mime:MediaType {
+function getMediaTypeFromRequest (Request request, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    match request.getHeader(mime:CONTENT_TYPE) {
+    var contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
+    match contentTypeValue {
         string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
         any | null => return {};
     }
