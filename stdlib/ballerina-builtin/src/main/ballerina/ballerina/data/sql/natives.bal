@@ -212,14 +212,14 @@ public struct ClientConnector {
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set(s) for the given query"}
 public native function <ClientConnector client> call (@sensitive string sqlQuery, (Parameter[] | null) parameters,
-													  (typedesc | null) structType) returns (@tainted table[]);
+(typedesc | null) structType) returns (@tainted table[]);
 
 @Description {value:"The select action implementation for SQL connector to select data from tables."}
 @Param {value:"sqlQuery: SQL query to execute"}
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Result set for the given query"}
 public native function <ClientConnector client> select (@sensitive string sqlQuery, (Parameter[] | null) parameters,
-														(typedesc | null) structType) returns (@tainted table);
+(typedesc | null) structType) returns (@tainted table);
 
 @Description {value:"The close action implementation for SQL connector to shutdown the connection pool."}
 public native function <ClientConnector client> close ();
@@ -236,7 +236,7 @@ returns (int);
 @Param {value:"parameters: Parameter array used with the SQL query"}
 @Return {value:"Array of update counts"}
 public native function <ClientConnector client> batchUpdate (@sensitive string sqlQuery, (Parameter[][]|null)
-																						 parameters) returns (int[]);
+parameters) returns (int[]);
 
 @Description {value:"The updateWithGeneratedKeys action implementation for SQL connector which returns the auto
 generated keys during the update action."}
