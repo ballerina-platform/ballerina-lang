@@ -1,4 +1,4 @@
-import ballerina.runtime;
+import ballerina/runtime;
 
 function testGetCallStack () returns (runtime:CallStackElement[]) {
     return level1Function();

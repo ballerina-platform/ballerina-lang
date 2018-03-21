@@ -1,5 +1,5 @@
-import ballerina.net.http;
-import ballerina.log;
+import ballerina/net.http;
+import ballerina/log;
 
 // Filter1
 

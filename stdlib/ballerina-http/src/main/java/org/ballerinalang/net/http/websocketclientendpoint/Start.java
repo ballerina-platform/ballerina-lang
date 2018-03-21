@@ -48,7 +48,7 @@ import javax.websocket.Session;
  */
 
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
+        orgName = "ballerina", packageName = "net.http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
                              structPackage = "ballerina.net.http"),

@@ -37,7 +37,7 @@ import java.nio.file.Paths;
  * @since 0.94.1
  */
 @BallerinaFunction(
-        packageName = "ballerina.file",
+        orgName = "ballerina", packageName = "file",
         functionName = "isReadable",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = "File", structPackage = "ballerina.file"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},

@@ -31,7 +31,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Native function ballerina.model.arrays:subString(string, int, int).
  */
 @BallerinaFunction(
-        packageName = "ballerina.builtin",
+        orgName = "ballerina", packageName = "builtin",
         functionName = "string.subString",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "beginIndex", type = TypeKind.INT),

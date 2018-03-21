@@ -1,6 +1,6 @@
 package ballerina.data.sql;
 
-import ballerina.doc;
+import ballerina/doc;
 
 connector ClientConnector (map options) {
     map sharedMap = {};

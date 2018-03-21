@@ -1,5 +1,5 @@
-import ballerina.io;
-import ballerina.task;
+import ballerina/io;
+import ballerina/task;
 
 int w1Count;
 error errorW1;

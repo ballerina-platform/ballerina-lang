@@ -77,6 +77,7 @@ public class Parser {
                 .forEach(e -> pkgNode.addCompilationUnit(generateCompilationUnit(e)));
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgSource.getPackageId(),
                 pkgSource.getName()), 1, 1, 1, 1);
+        pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
 
@@ -101,9 +102,9 @@ public class Parser {
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
             parser.compilationUnit();
 
-            if (dlog.errorCount > prevErrCount) {
-                throw new BLangParserException("syntax errors in: " + entryName);
-            }
+//            if (dlog.errorCount > prevErrCount) {
+//                throw new BLangParserException("syntax errors in: " + entryName);
+//            }
 
             return compUnit;
         } catch (IOException e) {

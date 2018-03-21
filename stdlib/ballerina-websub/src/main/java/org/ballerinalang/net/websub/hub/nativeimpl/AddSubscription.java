@@ -32,7 +32,7 @@ import org.ballerinalang.net.websub.hub.Hub;
  * @since 0.965.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.websub.hub",
+        orgName = "ballerina", packageName = "net.websub.hub",
         functionName = "addSubscription",
         args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)}
 )

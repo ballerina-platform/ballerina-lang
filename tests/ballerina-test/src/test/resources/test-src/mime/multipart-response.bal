@@ -1,7 +1,7 @@
-import ballerina.net.http;
-import ballerina.net.http.mock;
-import ballerina.mime;
-import ballerina.file;
+import ballerina/net.http;
+import ballerina/net.http.mock;
+import ballerina/mime;
+import ballerina/file;
 
 endpoint<mock:NonListeningService> mockEP {
     port:9090

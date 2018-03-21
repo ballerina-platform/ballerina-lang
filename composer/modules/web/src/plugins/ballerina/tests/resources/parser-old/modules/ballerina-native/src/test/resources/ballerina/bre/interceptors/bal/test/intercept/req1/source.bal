@@ -1,7 +1,7 @@
 package bal.test.intercept.req1;
 
-import ballerina.lang.messages;
-import ballerina.lang.system;
+import ballerina/lang.messages;
+import ballerina/lang.system;
 
 function requestInterceptor (message msg) (boolean, message) {
     string header = "req1";

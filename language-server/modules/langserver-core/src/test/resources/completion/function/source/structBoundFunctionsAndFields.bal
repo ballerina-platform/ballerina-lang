@@ -1,4 +1,4 @@
-import ballerina.file;
+import ballerina/file;
 
 function main (string[] args) {
     TestStruct ts = {};
