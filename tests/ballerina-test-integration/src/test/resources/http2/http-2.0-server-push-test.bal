@@ -31,8 +31,12 @@ service<http:Service> frontendHttpService bind frontendEP {
         // Submit a request
         var submissionResult = backendClientEP -> submit("GET", "/backend/main", serviceReq);
         match submissionResult {
-            http:HttpConnectorError err1 => {
+            http:HttpConnectorError err => {
                 io:println("Error occurred while submitting a request");
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while submitting a request"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
                 return;
             }
             http:HttpHandle resultantHandle => {
@@ -52,8 +56,12 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:PushPromise resultantPushPromise => {
                     pushPromise = resultantPushPromise;
                 }
-                http:HttpConnectorError err2 => {
-                    io:println("Error occurred while fetching push promise");
+                http:HttpConnectorError err => {
+                    io:println("Error occurred while fetching a push promise");
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"error occurred while fetching a push promise"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
                     return;
                 }
             }
@@ -81,14 +89,17 @@ service<http:Service> frontendHttpService bind frontendEP {
             http:Response resultantResponse => {
                 res = resultantResponse;
             }
-            http:HttpConnectorError err3 => {
+            http:HttpConnectorError err => {
                 io:println("Error occurred while fetching response");
+                http:Response errorResponse = {};
+                json errMsg = {"error":"error occurred while fetching response"};
+                errorResponse.setJsonPayload(errMsg);
+                _ = client -> respond(errorResponse);
                 return;
             }
         }
 
         var responsePayload = res.getJsonPayload();
-
         json responseJsonPayload = {};
         match responsePayload {
             json resultantJsonPayload => {
@@ -120,8 +131,12 @@ service<http:Service> frontendHttpService bind frontendEP {
                 http:Response resultantPromisedResponse => {
                     promisedResponse = resultantPromisedResponse;
                 }
-                http:HttpConnectorError err4 => {
+                http:HttpConnectorError err => {
                     io:println("Error occurred while fetching promised response");
+                    http:Response errorResponse = {};
+                    json errMsg = {"error":"error occurred while fetching promised response"};
+                    errorResponse.setJsonPayload(errMsg);
+                    _ = client -> respond(errorResponse);
                     return;
                 }
             }
