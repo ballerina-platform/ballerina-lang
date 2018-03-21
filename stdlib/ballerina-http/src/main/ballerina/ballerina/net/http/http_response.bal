@@ -268,7 +268,8 @@ public function <Response response> setByteChannel (io:ByteChannel payload) {
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromResponse (Response response, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    match response.getHeader(mime:CONTENT_TYPE) {
+    var contentTypeValue = response.getHeader(mime:CONTENT_TYPE);
+    match contentTypeValue {
         string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
         any | null => return {};
     }

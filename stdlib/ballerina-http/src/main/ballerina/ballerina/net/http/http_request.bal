@@ -130,7 +130,8 @@ public function <Request req> getCopyOfAllHeaders () returns (map) {
 @Param {value:"req: The request message"}
 @Return {value:"Returns true if the client expects a 100-continue response. If not, returns false."}
 public function <Request req> expects100Continue () returns (boolean) {
-    match req.getHeader(HEADER_KEY_EXPECT) {
+    var headerValue = req.getHeader(HEADER_KEY_EXPECT);
+    match headerValue {
         string header => return header ==  HEADER_VAL_100_CONTINUE;
         any | null => return false;
     }
@@ -335,7 +336,8 @@ public function <Request request> setByteChannel (io:ByteChannel payload) {
 @Return {value:"Return 'MediaType' struct"}
 function getMediaTypeFromRequest (Request request, string defaultContentType) returns (mime:MediaType) {
     mime:MediaType mediaType = mime:getMediaType(defaultContentType);
-    match request.getHeader(mime:CONTENT_TYPE) {
+    var contentTypeValue = request.getHeader(mime:CONTENT_TYPE);
+    match contentTypeValue {
         string contentType => return contentType != "" ? mime:getMediaType(contentType) : mediaType;
         any | null => return {};
     }
