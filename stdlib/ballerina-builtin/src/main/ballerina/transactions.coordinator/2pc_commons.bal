@@ -213,18 +213,17 @@ function prepareParticipants (TwoPhaseCommitTransaction txn, string protocol) re
 }
 
 function getParticipant2pcClientEP(string participantURL) returns Participant2pcClientEP {
-    var participantEP, cacheErr = (Participant2pcClientEP)httpClientCache.get(participantURL);
-    if (cacheErr != null) {
-        throw cacheErr; // We can't continue due to a programmer error
-    }
-    if (participantEP == null) {
-        participantEP = {};
+    if(httpClientCache.hasKey(participantURL)) {
+        var participantEP =? (Participant2pcClientEP)httpClientCache.get(participantURL);
+        return participantEP;
+    } else {
+        Participant2pcClientEP participantEP = {};
         Participant2pcClientConfig config = {participantURL: participantURL,
                                                 endpointTimeout:120000, retryConfig:{count:5, interval:5000}};
         participantEP.init(config);
         httpClientCache.put(participantURL, participantEP);
+        return participantEP;
     }
-    return participantEP;
 }
 
 function prepareRemoteParticipant (TwoPhaseCommitTransaction txn,
@@ -327,7 +326,7 @@ function notifyRemoteParticipant (TwoPhaseCommitTransaction txn,
     foreach protocol in participant.participantProtocols {
         string protoURL = protocol.url;
         participantEP = getParticipant2pcClientEP(protoURL);
-        var notificationStatus, err = participantEP -> notify(transactionId, message);
+        var result = participantEP -> notify(transactionId, message);
         match result {
             error err => {
                 log:printErrorCause("Remote participant: " + participantId + " replied with an error", participantErr);

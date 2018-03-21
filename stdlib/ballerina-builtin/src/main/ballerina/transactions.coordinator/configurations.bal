@@ -31,19 +31,28 @@ const int coordinatorPort = getCoordinatorPort();
 
 function getCoordinatorHost () returns string {
     io:println("###### getCoordinatorHost");
-    string host = config:getInstanceValue("http", "coordinator.host");
-    if (host == null || host == "") {
-        host = getHostAddress();
+    string host;
+    var result = config:getInstanceValue("http", "coordinator.host");
+    match result {
+        string h => host = h;
+        any x => host = getHostAddress(); //TODO: change this to null
     }
     return host;
 }
 
 function getCoordinatorPort () returns int {
     io:println("###### getCoordinatorPort");
-    var port, e = <int>config:getInstanceValue("http", "coordinator.port");
+    int port;
+    var result = config:getInstanceValue("http", "coordinator.port")
     match result {
-        error e => port = getAvailablePort();
-        int p => port = p;
+        string p => {
+            var result2 = <int>p;
+            match result2 {
+                error e => port = getAvailablePort();
+                int p => port = p;   
+            }
+        }
+        any x => port = getAvailablePort(); //TODO: change this to null
     }
     return port;
 }
