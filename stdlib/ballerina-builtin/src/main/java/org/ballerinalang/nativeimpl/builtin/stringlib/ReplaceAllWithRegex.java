@@ -60,7 +60,7 @@ public class ReplaceAllWithRegex extends AbstractRegexFunction {
             String replacedString = matcher.replaceAll(replaceWith);
             context.setReturnValues(new BString(replacedString));
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(new BString(""), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
         }
     }
 }

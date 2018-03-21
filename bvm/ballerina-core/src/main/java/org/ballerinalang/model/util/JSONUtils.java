@@ -113,7 +113,7 @@ public class JSONUtils {
                     jsonNode.set(key, ((BFloat) bvalue).floatValue());
                 } else if (bvalue.getType() == BTypes.typeBoolean) {
                     jsonNode.set(key, ((BBoolean) bvalue).booleanValue());
-                } else if (bvalue.getType() == BTypes.typeMap) {
+                } else if (bvalue.getType().getTag() == TypeTags.MAP_TAG) {
                     jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) bvalue).value());
                 } else if (bvalue.getType() == BTypes.typeJSON) {
                     jsonNode.set(key, ((BJSON) bvalue).value());
@@ -233,7 +233,7 @@ public class JSONUtils {
             BRefType value = refValueArray.get(i);
             if (value == null) {
                 arrayNode.add(new BJSON(NULL).value());
-            } else if (value.getType() == BTypes.typeMap) {
+            } else if (value.getType().getTag() == TypeTags.MAP_TAG) {
                 arrayNode.add(convertMapToJSON((BMap<String, BValue>) value).value());
             } else if (value instanceof BJSON) {
                 arrayNode.add(((BJSON) value).value());
@@ -290,7 +290,7 @@ public class JSONUtils {
                         BValue value = struct.getRefField(++refRegIndex);
                         if (value == null) {
                             jsonNode.set(key, new BJSON(NULL).value());
-                        } else if (value.getType() == BTypes.typeMap) {
+                        } else if (value.getType().getTag() == TypeTags.MAP_TAG) {
                             jsonNode.set(key, convertMapToJSON((BMap<String, BValue>) value).value());
                         } else if (value instanceof BJSON) {
                             jsonNode.set(key, ((BJSON) value).value());
@@ -645,11 +645,12 @@ public class JSONUtils {
      * Convert a JSON node to a map.
      *
      * @param jsonNode JSON to convert
+     * @param mapType MapType which the JSON is converted to.
      * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
      */
-    private static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode) {
-        BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
+    private static BMap<String, ?> jsonNodeToBMap(JsonNode jsonNode, BMapType mapType) {
+        BMap<String, BValue> map = new BMap<>(mapType);
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                     getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
@@ -658,7 +659,14 @@ public class JSONUtils {
         Iterator<Entry<String, JsonNode>> fields = jsonNode.fields();
         while (fields.hasNext()) {
             Entry<String, JsonNode> field = fields.next();
-            map.put(field.getKey(), getBValue(field.getValue()));
+            BValue bValue = getBValue(field.getValue());
+            if (mapType.getConstrainedType() == BTypes.typeAny ||
+                    mapType.getConstrainedType().equals(bValue.getType())) {
+                map.put(field.getKey(), bValue);
+            } else {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                        mapType.getConstrainedType(), getTypeName(field.getValue()));
+            }
         }
         return map;
     }
@@ -732,7 +740,7 @@ public class JSONUtils {
                         } else if (fieldType instanceof BJSONType || fieldType instanceof BAnyType) {
                             bStruct.setRefField(refRegIndex, new BJSON(jsonValue));
                         } else if (fieldType instanceof BMapType) {
-                            bStruct.setRefField(refRegIndex, jsonNodeToBMap(jsonValue));
+                            bStruct.setRefField(refRegIndex, jsonNodeToBMap(jsonValue, (BMapType) fieldType));
                         } else if (fieldType instanceof BStructType) {
                             bStruct.setRefField(refRegIndex,
                                     convertJSONNodeToStruct(jsonValue, (BStructType) fieldType));
@@ -831,8 +839,8 @@ public class JSONUtils {
                 refValueArray = new BRefValueArray(elementType);
                 for (int i = 0; i < arrayNode.size(); i++) {
                     JsonNode element = arrayNode.get(i);
-                    if (elementType == BTypes.typeMap) {
-                        refValueArray.add(i, jsonNodeToBMap(element));
+                    if (elementType.getTag() == TypeTags.MAP_TAG) {
+                        refValueArray.add(i, jsonNodeToBMap(element, (BMapType) elementType));
                     } else if (elementType instanceof BStructType) {
                         refValueArray.add(i, convertJSONNodeToStruct(element, (BStructType) elementType));
                     } else if (elementType instanceof BArrayType) {

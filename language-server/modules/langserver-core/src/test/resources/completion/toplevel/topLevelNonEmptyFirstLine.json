@@ -6,71 +6,76 @@
   "source": "completions/toplevel/source/topLevelNonEmptyFirstLine.bal",
   "items": [
     {
-      "label": "import",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "import "
-    }, {
-      "label": "package",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "package "
-    }, {
-      "label": "const",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "const "
-    }, {
-      "label": "function",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "function ${1:name} (${2}) {\n\t${3}\n}"
-    }, {
-      "label": "service",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "service<${1:http}> ${2:serviceName}{\n\tresource ${3:resourceName} (http:Connection conn, http:Request req) {\n\t}\n}"
-    }, {
-      "label": "transformer",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "transformer<${1:Source} ${2:a},${3:Target} ${4:b}>{\n\t${5}\n}"
-    }, {
-      "label": "connector",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "connector ${1:name} (${2}) {\n\t${3}\n}"
-    }, {
-      "label": "struct",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "struct ${1:name}{\n\t${2}\n}"
-    }, {
-      "label": "annotation",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "annotation ${1:name}{\n\t${2 }\n}"
-    }, {
-      "label": "xmlns",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "xmlns \"${1}\" as ${2:ns};"
-    }, {
-      "label": "enum",
-      "kind": 0,
-      "detail": "Snippet",
-      "sortText": 7,
-      "insertText": "enum ${1:name} {\n\t\n}"
+      "label":"import",
+      "detail":"Snippet",
+      "insertText":"import ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"package",
+      "detail":"Snippet",
+      "insertText":"package ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"const",
+      "detail":"Snippet",
+      "insertText":"const ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "detail":"Snippet",
+      "insertText":"function ${1:name} (${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"main function",
+      "detail":"Snippet",
+      "insertText":"function main (string[] args) {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"enum",
+      "detail":"Snippet",
+      "insertText":"enum ${1:name} {\n\t\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service",
+      "detail":"Snippet",
+      "insertText":"service\u003c${1:ServiceType}\u003e ${2:serviceName}{\n\t${3:newResource} () {\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"transformer",
+      "detail":"Snippet",
+      "insertText":"transformer\u003c${1:Source} ${2:a},${3:Target} ${4:b}\u003e{\n\t${5}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"connector",
+      "detail":"Snippet",
+      "insertText":"connector ${1:name} (${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"struct",
+      "detail":"Snippet",
+      "insertText":"struct ${1:name}{\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"annotation",
+      "detail":"Snippet",
+      "insertText":"annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xmlns",
+      "detail":"Snippet",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

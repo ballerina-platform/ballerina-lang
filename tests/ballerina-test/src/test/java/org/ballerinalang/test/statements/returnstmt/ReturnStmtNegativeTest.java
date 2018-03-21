@@ -39,22 +39,21 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multi value return is expected", 2, 5);
+        BAssertUtil.validateError(result, 0, "not enough return values", 2, 5);
     }
 
-    //TODO fix issue #3481
     @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "assignment count mismatch: expected 2 values, but found 1", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '(string,string)', found 'string'", 2, 12);
     }
 
     @Test(description = "Test not enough arguments to return")
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "not enough return values", 2, 5);
+        BAssertUtil.validateError(result, 0, "single value return is expected", 2, 5);
     }
 
     @Test(description = "Test too many arguments to return")
@@ -68,21 +67,23 @@ public class ReturnStmtNegativeTest {
     public void testTooManyArgsToReturn2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "multi-valued 'split()' in single-value context", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found '(string,string)'", 2, 12);
     }
 
     @Test(description = "Test type mismatch")
     public void testInputTypeMismatch1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int', found 'string'", 2, 12);
+        BAssertUtil.validateError(result,
+                0, "incompatible types: expected '(string,int,string)', found '(string,string,string)'",
+                2, 12);
     }
 
     @Test(description = "Test type mismatch")
     public void testInputTypeMismatch2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-type-mismatch-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 25);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'boolean', found 'int'", 2, 26);
     }
 
     @Test(description = "Test missing return")

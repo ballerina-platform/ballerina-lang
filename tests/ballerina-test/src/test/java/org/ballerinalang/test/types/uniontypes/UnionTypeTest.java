@@ -56,4 +56,18 @@ public class UnionTypeTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "union types", "Invalid string value returned.");
     }
+
+    @Test(description = "Test basics of union types")
+    public void testNullableTypeBasics1() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullableTypeBasics1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test(description = "Test basics of union types")
+    public void testNullableTypeBasics2() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
+    }
 }

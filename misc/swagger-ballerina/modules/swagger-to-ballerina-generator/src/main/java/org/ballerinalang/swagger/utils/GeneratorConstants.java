@@ -23,6 +23,7 @@ import java.io.File;
  */
 public class GeneratorConstants {
 
+
     /**
      * Enum to select the code generation mode.
      * Ballerina service, mock and connector generation is available
@@ -45,6 +46,8 @@ public class GeneratorConstants {
     public static final String SKELETON_TEMPLATE_NAME = "skeleton";
     public static final String CONNECTOR_TEMPLATE_NAME = "connector";
     public static final String MOCK_TEMPLATE_NAME = "mock";
+    public static final String MODELS_TEMPLATE_NAME = "models";
+    public static final String MODELS_FILE_NAME = "models.bal";
 
     public static final String TEMPLATES_SUFFIX = ".mustache";
     public static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";

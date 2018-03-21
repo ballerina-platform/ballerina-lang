@@ -1,7 +1,7 @@
-function testInputTypeMismatch(string s) (string, int, string){
+function testInputTypeMismatch(string s) returns (string, int, string){
     return split(s);
 }
 
-function split(string s) (string, string, string) {
-    return s, "", s;
+function split(string s) returns (string, string, string) {
+    return (s, "", s);
 }

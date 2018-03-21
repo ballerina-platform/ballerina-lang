@@ -1,4 +1,4 @@
-function valueAssignmentAndRetrieval() (int) {
+function valueAssignmentAndRetrieval() returns (int) {
     int[] x = [3];
     int[] y = [4, 5];
 
@@ -6,7 +6,7 @@ function valueAssignmentAndRetrieval() (int) {
     return xx[0][0];
 }
 
-function arrayInitializationAndRetrieval() (int) {
+function arrayInitializationAndRetrieval() returns (int) {
     int[][] x = [];
     x[0] = [];
     x[0][0] = 1;
@@ -14,7 +14,7 @@ function arrayInitializationAndRetrieval() (int) {
     return x[0][0];
 }
 
-function arrayToArrayAssignment() (int) {
+function arrayToArrayAssignment() returns (int) {
     int[] x;
     x = [9];
 
@@ -24,7 +24,7 @@ function arrayToArrayAssignment() (int) {
     return xx[0][0];
 }
 
-function threeDarray() (int) {
+function threeDarray() returns (int) {
     int[] x = [1, 2];
     int[] y = [3, 4];
 
@@ -35,7 +35,7 @@ function threeDarray() (int) {
     return xxx[0][0][1];
 }
 
-function threeDarrayValueAccess() (int) {
+function threeDarrayValueAccess() returns (int) {
     int[][][] xxx;
     xxx = [];
 
@@ -46,7 +46,7 @@ function threeDarrayValueAccess() (int) {
     return xxx[0][0][0];
 }
 
-function threeDarrayStringValueAccess() (string) {
+function threeDarrayStringValueAccess() returns (string) {
     string[][][] xxx;
     xxx = [];
 
@@ -57,7 +57,7 @@ function threeDarrayStringValueAccess() (string) {
     return xxx[0][0][0];
 }
 
-function twoDarrayFunctionCalltest() (int) {
+function twoDarrayFunctionCalltest() returns (int) {
     int[][] xx = [];
     xx[0] = [];
     xx[0][1] = 4;
@@ -65,7 +65,7 @@ function twoDarrayFunctionCalltest() (int) {
     return arrayTest(xx);
 }
 
-function arrayTest(int[][] yy) (int) {
+function arrayTest(int[][] yy) returns (int) {
     return yy[0][1];
 }
 
@@ -73,7 +73,7 @@ struct B {
     int x;
 }
 
-function twoDarrayStructTest() (int) {
+function twoDarrayStructTest() returns (int) {
     B b1 = {x:1};
     B b2 = {x:2};
 
@@ -86,7 +86,7 @@ function twoDarrayStructTest() (int) {
     return b3.x;
 }
 
-function nestedArrayInit() (int, int) {
+function nestedArrayInit() returns (int, int) {
     int[][][] a = [[[100, 200, 3], [2, 5, 6]], [[100, 200, 3], [2, 5, 6], [12, 15, 16]]];
-    return a[1][2][0], a[0][1][2];
+    return (a[1][2][0], a[0][1][2]);
 }

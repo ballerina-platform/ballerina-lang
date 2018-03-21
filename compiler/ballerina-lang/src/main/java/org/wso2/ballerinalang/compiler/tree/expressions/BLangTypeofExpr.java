@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.TypeofExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -51,4 +52,8 @@ public class BLangTypeofExpr extends BLangExpression implements TypeofExpression
         visitor.visit(this);
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(OperatorKind.TYPEOF) + " " + resolvedType;
+    }
 }

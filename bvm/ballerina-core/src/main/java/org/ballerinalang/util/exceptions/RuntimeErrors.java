@@ -44,7 +44,8 @@ public enum RuntimeErrors {
     UNKNOWN_FIELD_JSON_STURCT("unknown.field.in.json.struct", "RUNTIME_0019"),
     INVALID_RETRY_COUNT("invalid.retry.count", "RUNTIME_0020"),
     NOT_ENOUGH_FORMAT_ARGUMENTS("not.enough.format.arguments", "RUNTIME_0021"),
-    INVALID_FORMAT_SPECIFIER("invalid.format.specifier", "RUNTIME_0022");
+    INVALID_FORMAT_SPECIFIER("invalid.format.specifier", "RUNTIME_0022"),
+    INVALID_MAP_INSERTION("invalid.map.insertion", "RUNTIME_0023");
     
     private String errorMsgKey;
     private String errorCode;

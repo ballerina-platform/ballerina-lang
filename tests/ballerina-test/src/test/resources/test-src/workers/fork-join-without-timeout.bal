@@ -1,4 +1,4 @@
-function testForkJoinWithoutTimeoutExpression()(int, float) {
+function testForkJoinWithoutTimeoutExpression() returns (int, float) {
     int x;
     float y;
     fork {
@@ -16,5 +16,5 @@ function testForkJoinWithoutTimeoutExpression()(int, float) {
         x, _ = (int) w1[0];
         y, _ = (float) w2[0];
     }
-    return x, y;
+    return (x, y);
 }

@@ -64,7 +64,7 @@ public native function <WebSocketClient h> start();
 @Description { value:"Returns the connector that client code uses"}
 @Return { value:"The connector that client code uses" }
 @Return { value:"Error occured during registration" }
-public native function <WebSocketClient h> getClient() (WebSocketConnector);
+public native function <WebSocketClient h> getClient() returns (WebSocketConnector);
 
 @Description { value:"Stops the registered service"}
 @Return { value:"Error occured during registration" }

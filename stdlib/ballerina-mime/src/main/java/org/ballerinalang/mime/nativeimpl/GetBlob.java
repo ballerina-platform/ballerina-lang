@@ -63,9 +63,9 @@ public class GetBlob extends BlockingNativeCallableUnit {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
         } catch (Throwable e) {
-            context.setReturnValues(null, MimeUtil.createEntityError
+            context.setReturnValues(MimeUtil.createEntityError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
-        context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]), null);
+        context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));
     }
 }

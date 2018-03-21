@@ -79,7 +79,7 @@ public class TestErrorReturn {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "FOO:10.5");
         Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[1].stringValue(), "QUX:-1.0");
+        Assert.assertEquals(returns[1].stringValue(), "QUX:ERROR");
         Assert.assertNotNull(returns[2]);
         Assert.assertEquals(returns[2].stringValue(), "BAZ:0.0");
         Assert.assertNotNull(returns[3]);
