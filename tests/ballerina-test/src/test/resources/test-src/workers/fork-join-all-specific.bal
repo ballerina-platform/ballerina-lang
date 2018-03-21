@@ -1,4 +1,4 @@
-function testForkJoinAllOfSpecific() returns (string[]) {
+function testForkJoinAllOfSpecific() returns string[] {
 
         string[] results = [];
         fork {
