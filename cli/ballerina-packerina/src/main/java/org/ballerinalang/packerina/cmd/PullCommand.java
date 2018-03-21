@@ -22,7 +22,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.NetworkUtils;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -74,7 +73,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         String resourceName = argList.get(0);
-        NetworkUtils.pullPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
+//        NetworkUtils.pullPackages(resourceName, BALLERINA_CENTRAL_REPO_URL);
 
     }
 
