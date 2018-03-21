@@ -22,15 +22,15 @@ function testAssertJsonEquals (json a, json b) {
     test:assertEquals(a, b);
 }
 
-function intAdd (int a, int b) (int) {
+function intAdd (int a, int b) returns (int) {
     return a + b;
 }
 
-function floatAdd (float a, float b) (float) {
+function floatAdd (float a, float b) returns (float) {
     return a + b;
 }
 
-function stringConcat (string a, string b) (string) {
+function stringConcat (string a, string b) returns (string) {
     return a + b;
 }
 

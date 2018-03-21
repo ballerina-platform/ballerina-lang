@@ -13,7 +13,7 @@ function testFunc1 (string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
-function dataGen()(string[][]) {
+function dataGen() returns (string[][]) {
     return [["1", "2", "3"], ["10", "20", "30"], ["5", "6", "11"]];
 }
 
@@ -41,10 +41,10 @@ function testFunc3 (json fValue, json sValue, json result) {
     test:assertEquals(result, c, msg = "json data provider failed");
 }
 
-function dataGen2()(string[][]) {
+function dataGen2() returns (string[][]) {
     return [["1", "2", "3"]];
 }
 
-function dataGen3()(json[][]) {
+function dataGen3() returns (json[][]) {
     return [[{"a": "a"}, {"b": "b"}, {"c": "c"}]];
 }

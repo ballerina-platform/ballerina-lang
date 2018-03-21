@@ -345,6 +345,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String dataProvider = test.getDataProvider();
                 test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
                 )).findFirst().map(func -> {
+                    // TODO these validations are not working properly with the latest refactoring
                     if (func.getbFunction().getRetParamTypes().length == 1) {
                         BType bType = func.getbFunction().getRetParamTypes()[0];
                         if (bType.getTag() == TypeTags.ARRAY_TAG) {

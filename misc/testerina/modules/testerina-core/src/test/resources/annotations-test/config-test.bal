@@ -71,5 +71,3 @@ function test4 () {
 function testDependsOn1 () {
     test:assertTrue(j == 3, msg = "Expected j to be 3, but j = " +j);
 }
-
-

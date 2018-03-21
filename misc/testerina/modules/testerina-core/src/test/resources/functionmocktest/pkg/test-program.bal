@@ -2,13 +2,15 @@ package src.test.resources.functionmocktest.pkg;
 
 import ballerina.test;
 import ballerina.io;
+import ballerina.mime;
+import ballerina.file;
 
 @test:mock {
     packageName : "src.test.resources.functionmocktest2.pkg" ,
     functionName : "intAdd"
 }
-public function mockIntAdd (int a, int b) (int c) {
-    return a-b;
+public function mockIntAdd (int a, int b) returns (int) {
+    return (a-b);
 }
 
 @test:config{}

@@ -13,6 +13,6 @@ function testFunc2 (string fValue, string sValue, string result) {
     test:assertEquals(value1 + value2, result1, msg = "The sum is not correct");
 }
 
-function invalidDataGen()(string[]) {
+function invalidDataGen() returns (string[]) {
     return ["1", "2", "3"];
 }

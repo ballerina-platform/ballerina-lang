@@ -52,16 +52,16 @@ function testService () {
 
     http:Request req = {};
     // Send a GET request to the specified endpoint
-    http:Response resp = {};
-    http:HttpConnectorError err;
-    resp, err = httpEndpoint -> get("/events", req);
-    if (err != null) {
-        test:assertFail(msg = "Failed to call the endpoint: "+url2);
-    }
     io:println("GET request:");
-    var jsonRes, _ = resp.getJsonPayload();
-    json expected = {"a":"b"};
-    test:assertEquals(jsonRes, expected);
+    var response = httpEndpoint -> get("/events", req);
+    match response {
+               http:Response resp => {
+                    var jsonRes = resp.getJsonPayload();
+                    json expected = {"a":"b"};
+                    test:assertEquals(jsonRes, expected);
+               }
+               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
+    }
 
     test:stopServices("src.test.resources.servicemocktest");
     test:stopServices("src.test.resources.servicemocktest2");
