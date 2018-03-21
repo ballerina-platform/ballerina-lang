@@ -65,7 +65,7 @@ function<InitiatorClient client> register (string transactionId,
         error err => {
             return err;
         }
-        Response res => {
+        http:Response res => {
             int statusCode = res.statusCode;
             if(statusCode != 200) {
                 error err = {message: "Registration for transaction: " + transactionId + " failed"};
@@ -77,7 +77,7 @@ function<InitiatorClient client> register (string transactionId,
                 json payload => {
                     return <RegistrationResponse, jsonToRegResponse()>(payload);
                 }
-                null => {
+                any x => { //TODO: change this to null
                     error err = {message:"Invalid response received for registration request"};
                     throw err;
                 }
