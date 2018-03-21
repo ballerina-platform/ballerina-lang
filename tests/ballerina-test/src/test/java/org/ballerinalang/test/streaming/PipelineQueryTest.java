@@ -42,7 +42,7 @@ public class PipelineQueryTest {
 
     @Test(description = "Test streaming pipeline query.")
     public void testPipelineQuery() {
-        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "testPipelineQuery");
+        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startPipelineQuery");
 
         Assert.assertNotNull(outputStatusCountArray);
 
