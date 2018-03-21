@@ -69,7 +69,7 @@ public class IOTest {
         return pathValue;
     }
 
-    @Test(description = "Test 'readBytes' function in ballerina.io package")
+   // @Test(description = "Test 'readBytes' function in ballerina.io package")
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
