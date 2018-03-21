@@ -14,6 +14,3 @@ function undefinedCasting() {
   int i = (int)val;
 }
 
-function main (string[] args) {
-
-}
