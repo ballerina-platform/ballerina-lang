@@ -1741,15 +1741,14 @@ public class BLangPackageBuilder {
     public void addAssignmentStatement(DiagnosticPos pos, Set<Whitespace> ws,
                                        boolean isVarDeclaration, boolean safeAssignment) {
         ExpressionNode rExprNode = exprNodeStack.pop();
-        List<ExpressionNode> lExprList = exprNodeListStack.pop();
+        ExpressionNode lExprNode = exprNodeStack.pop();
         BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentNode.setExpression(rExprNode);
         assignmentNode.setDeclaredWithVar(isVarDeclaration);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
-        assignmentNode.addWS(commaWsStack.pop());
         assignmentNode.safeAssignment = safeAssignment;
-        lExprList.forEach(expressionNode -> assignmentNode.addVariable((BLangVariableReference) expressionNode));
+        assignmentNode.addVariable((BLangVariableReference) lExprNode);
         addStmtToCurrentBlock(assignmentNode);
     }
 
