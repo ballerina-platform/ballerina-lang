@@ -269,7 +269,7 @@ public function <Request request> getFormParams () returns map | mime:EntityErro
 @Description {value:"Get multiparts from request"}
 @Param {value:"req: The request message"}
 @Return {value:"Returns the body parts as an array of entities"}
-public function <Request request> getMultiparts () returns mime:Entity[] | null | mime:EntityError {
+public function <Request request> getMultiparts () returns mime:Entity[] | mime:EntityError {
     match request.getEntity() {
         mime:Entity entity => return entity.getBodyParts();
         mime:EntityError err => return err;

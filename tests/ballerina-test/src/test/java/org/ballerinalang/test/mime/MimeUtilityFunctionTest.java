@@ -72,7 +72,7 @@ public class MimeUtilityFunctionTest {
     public void setup() {
         String sourceFilePath = "test-src/mime/mime-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-//        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
+       // serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina.mime package")
@@ -159,7 +159,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
     }
 
-   @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
     public void testGetJsonMoreThanOnce() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
@@ -169,7 +169,7 @@ public class MimeUtilityFunctionTest {
                 "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
     }
 
-     @Test(description = "Set xml data to entity and get the content back from entity as xml")
+    @Test(description = "Set xml data to entity and get the content back from entity as xml")
     public void testGetAndSetXml() {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
@@ -197,7 +197,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !");
     }
 
-   @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
+    @Test(description = "Test whether the text content can be retrieved properly when it is called multiple times")
     public void testGetTextMoreThanOnce() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
@@ -207,7 +207,7 @@ public class MimeUtilityFunctionTest {
                 "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
     }
 
-     @Test(description = "Set blob data to entity and get the content back from entity as a blob")
+    @Test(description = "Set blob data to entity and get the content back from entity as a blob")
     public void testGetAndSetBlob() {
         String content = "ballerina";
         BBlob byteContent = new BBlob(content.getBytes());
@@ -293,7 +293,7 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-   @Test(description = "Set entity body as a byte channel get the content back as a string")
+    @Test(description = "Set entity body as a byte channel get the content back as a string")
     public void testSetEntityBodyMultipleTimes() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -335,8 +335,8 @@ public class MimeUtilityFunctionTest {
         }
     }
 
-/*  @Test(description = "When the payload exceeds 2MB check whether the response received back matches the original " +
-            "content length")
+   /* @Test(description = "When the payload exceeds 2MB check whether the response received back matches the original " +
+            "content length", enabled = false)
     public void testLargePayload() {
         String path = "/test/largepayload";
         try {
@@ -360,7 +360,6 @@ public class MimeUtilityFunctionTest {
     }*/
 
 
-
     @Test(description = "An EntityError should be returned in case the byte channel is null")
     public void testGetByteChannelForNull() {
         BStruct byteChannelStruct = Util.getByteChannelStruct(compileResult);
@@ -373,7 +372,7 @@ public class MimeUtilityFunctionTest {
                 "Byte channel is not available as payload");
     }
 
-   @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
+    @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
             "is in data source form")
     public void testByteChannelWhenPayloadInDataSource() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
@@ -385,7 +384,7 @@ public class MimeUtilityFunctionTest {
                 "can be obtain either as xml, json, string or blob type");
     }
 
-   /* @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
+  /*  @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
     public void testGetTextDataSource() throws IOException {
         try {

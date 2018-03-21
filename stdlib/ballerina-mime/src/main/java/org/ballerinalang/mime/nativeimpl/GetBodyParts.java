@@ -49,7 +49,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BRefValueArray partsArray = null;
+        BRefValueArray partsArray = new BRefValueArray();
         try {
             BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
             //Get the body parts from entity's multipart data field, if they've been already been decoded
