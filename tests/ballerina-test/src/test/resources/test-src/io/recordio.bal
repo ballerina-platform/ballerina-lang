@@ -10,7 +10,6 @@ io:DelimitedRecordChannel|null delimitedRecordChannel;
 
 function initFileChannel (string filePath, string permission, string encoding, string rs, string fs) {
     io:ByteChannel channel = io:openFile(filePath, permission);
-    //io:CharacterChannel characterChannel = [];
     var characterChannelResult = io:createCharacterChannel(channel, encoding);
     match characterChannelResult {
         io:CharacterChannel charChannel => {
@@ -32,25 +31,25 @@ function initFileChannel (string filePath, string permission, string encoding, s
 }
 
 function nextRecord () returns (string[]) {
-    string[] empty = [];
-    match delimitedRecordChannel {
-        io:DelimitedRecordChannel delimChannel => {
-            var result = delimChannel.nextTextRecord();
-            match result {
-                string[] fields => {
-                    return fields;
-                }
-                io:IOError err => {
-                    throw err;
-                }
-            }
-            return empty;
-        }
-        (any|null) => {
-            return empty;
-        }
-
-    }
+    //string[] empty = [];
+    //match delimitedRecordChannel {
+    //    io:DelimitedRecordChannel delimChannel => {
+    //        var result = delimChannel.nextTextRecord();
+    //        match result {
+    //            string[] fields => {
+    //                return fields;
+    //            }
+    //            io:IOError err => {
+    //                throw err;
+    //            }
+    //        }
+    //        return empty;
+    //    }
+    //    (any|null) => {
+    //        return empty;
+    //    }
+    //
+    //}
 }
 
 function writeRecord (string[] fields) {

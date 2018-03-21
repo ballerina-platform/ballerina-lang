@@ -21,6 +21,8 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
@@ -68,8 +70,8 @@ public class Read implements NativeCallableUnit {
      * @return Once the callback is processed we further return back the result.
      */
     private static EventResult readResponse(EventResult<Integer, EventContext> result) {
-        BStruct errorStruct = null;
-        BRefValueArray contentTuple = new BRefValueArray();
+        BStruct errorStruct;
+        BRefValueArray contentTuple = new BRefValueArray(new BArrayType(BTypes.typeAny));
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
