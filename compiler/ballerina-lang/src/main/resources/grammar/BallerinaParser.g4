@@ -258,7 +258,7 @@ statement
     |   abortStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   foreverStatement
+    |   wheneverStatement
     |   streamingQueryStatement
     ;
 
@@ -736,8 +736,8 @@ queryStatement
     :   QUERY Identifier LEFT_BRACE streamingQueryStatement RIGHT_BRACE
     ;
 
-foreverStatement
-    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
+wheneverStatement
+    :   WHENEVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
     ;
 
 streamingQueryStatement

@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @since 0.965.0
  */
-public interface ForeverNode extends ExpressionStatementNode {
+public interface WheneverNode extends ExpressionStatementNode {
 
 
     void addStreamingQueryStatement(StreamingQueryStatementNode streamingQueryStatementNode);

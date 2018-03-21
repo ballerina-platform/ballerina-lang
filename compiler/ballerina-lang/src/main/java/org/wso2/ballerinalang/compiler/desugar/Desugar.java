@@ -123,7 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhenever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -170,7 +170,7 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
-    private static final String CREATE_STREAMLET = "startStreamlet";
+    private static final String CREATE_WHENEVER = "startWhenever";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -288,12 +288,12 @@ public class Desugar extends BLangNodeVisitor {
         result = serviceNode;
     }
 
-    public void visit(BLangForever foreverStatement) {
-        siddhiQueryBuilder.visit(foreverStatement);
+    public void visit(BLangWhenever wheneverStatement) {
+        siddhiQueryBuilder.visit(wheneverStatement);
         BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        stmt.expr = createInvocationForForeverBlock(foreverStatement);
-        stmt.pos = foreverStatement.pos;
-        stmt.addWS(foreverStatement.getWS());
+        stmt.expr = createInvocationForWheneverBlock(wheneverStatement);
+        stmt.pos = wheneverStatement.pos;
+        stmt.addWS(wheneverStatement.getWS());
         result = rewrite(stmt, env);
     }
 
@@ -778,22 +778,22 @@ public class Desugar extends BLangNodeVisitor {
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        return createInvocationNode(CREATE_STREAMLET, args, retTypes);
+        return createInvocationNode(CREATE_WHENEVER, args, retTypes);
     }
 
-    private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
+    private BLangInvocation createInvocationForWheneverBlock(BLangWhenever whenever) {
         List<BLangExpression> args = new ArrayList<>();
         List<BType> retTypes = new ArrayList<>();
         retTypes.add(symTable.noType);
-        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType, forever
+        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(whenever.pos, symTable.stringType, whenever
                 .getSiddhiQuery());
         args.add(streamingQueryLiteral);
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
         addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        addFunctionPointersToArgs(args, forever.gettreamingQueryStatements());
-        return createInvocationNode(CREATE_STREAMLET, args, retTypes);
+        addFunctionPointersToArgs(args, whenever.gettreamingQueryStatements());
+        return createInvocationNode(CREATE_WHENEVER, args, retTypes);
     }
 
     private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {

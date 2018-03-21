@@ -34,12 +34,15 @@ struct Teacher {
 Employee[] globalEmployeeArray = [];
 stream<Teacher> teacherStream = {};
 
+function printStatusCount () {
+    io:println("GGGGGGGG");
+}
 
 function testFilterQuery () {
 
     printStatusCount();
 
-    forever{
+    whenever{
         from teacherStream
         where age > 30
         select name, age, status
@@ -50,11 +53,9 @@ function testFilterQuery () {
 
 }
 
-function printStatusCount () {
-    io:println("GGGGGGGG");
-}
 
-function startMain( ) {
+
+function startFilterQuery( ) {
 
     testFilterQuery();
 

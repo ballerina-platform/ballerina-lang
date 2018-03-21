@@ -40,7 +40,7 @@ public class FilterTest {
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] returns = BRunUtil.invoke(result, "startMain");
+        BValue[] returns = BRunUtil.invoke(result, "startFilterQuery");
 
 //        BRefValueArray outputEmployeeEvents = (BRefValueArray) returns[0];
 //        Assert.assertNotNull(outputEmployeeEvents);
