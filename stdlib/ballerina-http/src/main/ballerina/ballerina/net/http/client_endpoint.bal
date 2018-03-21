@@ -68,7 +68,7 @@ public struct ClientEndpointConfiguration {
     string forwarded = "disable";
     FollowRedirects followRedirects;
     Retry retry;
-    Proxy proxy;
+    Proxy|null proxy;
     ConnectionThrottling connectionThrottling;
     TargetService[] targets;
     //function (LoadBalancer, HttpClient[]) returns (HttpClient) algorithm;

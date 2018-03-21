@@ -2863,8 +2863,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     /**
      * {@inheritDoc}
      */
-    @Override public void exitAwaitExpression(BallerinaParser.AwaitExpressionContext ctx) { 
-        this.pkgBuilder.markLastExpressionAsAwait();
+    @Override
+    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) { 
+        this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
