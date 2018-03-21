@@ -15,7 +15,7 @@ service<http:Service> echo bind echoEP {
     }
     echo (endpoint outboundEP, http:Request req) {
         http:Response resp = {};
-        var payload, _ = req.getStringPayload();
+        var payload =? req.getStringPayload();
         resp.setStringPayload(payload);
         _ = outboundEP -> respond(resp);
     }
