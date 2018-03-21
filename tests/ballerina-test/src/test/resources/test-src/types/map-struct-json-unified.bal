@@ -1,3 +1,5 @@
+import ballerina.io;
+
 struct Person {
     string name;
     int age;
@@ -30,10 +32,20 @@ function testAccessJsonInStruct () returns (string, string, string) {
     string status1;
     string status2;
     string status3;
-    status1, _ = (string)p1.parent.info.status;
-    status2, _ = (string)p1["parent"]["info"]["status"];
-    status3, _ = (string)p1["parent"].info["status"];
-    return (status1, status2, status3);
+
+    match p1.parent {
+     Person p2  => status1,_ = (string)p2.info.status;
+     any | null => io:println("Person is null");
+   }
+
+    match p1["parent"] {
+     Person p2 => {
+                    status2, _ = (string) p2["info"]["status"];
+                    status3, _ = (string)p2.info["status"];
+     }
+     any | null => io:println("Person is null");
+    }
+    return ( status1, status2, status3);
 }
 
 function testAccessMapInStruct () returns (any, any, any, string) {
@@ -48,8 +60,17 @@ function testAccessMapInStruct () returns (any, any, any, string) {
                 };
     string cityKey = "city";
     string city;
-    city, _ = (string)p1["parent"].address[cityKey];
-    return (p1.parent.address.city, p1["parent"]["address"]["city"], p1["parent"].address["city"], city);
+
+    match p1["parent"] {
+        Person p2 =>{
+                city, _ = (string)p2.address[cityKey];
+                return (p2.address.city, p2["address"]["city"], p2.address["city"], city);
+         }
+        any | null => {
+                io:println("Person is null");
+                return (null, null, null, city);
+        }
+    }
 }
 
 function testSetValueToJsonInStruct () returns (json) {
@@ -62,10 +83,18 @@ function testSetValueToJsonInStruct () returns (json) {
                            },
                     info:{status:"single"}
                 };
-    p1.parent.info.status = "widowed";
-    p1["parent"]["info"]["retired"] = true;
 
-    return p1["parent"].info;
+    match p1.parent {
+         Person p2 => {
+         p2.info.status = "widowed";
+         p2["info"]["retired"] = true;
+         return p2.info;
+        }
+    any | null => {
+         io:println("Person is null");
+         return null;
+         }
+    }
 }
 
 function testAccessArrayInStruct () returns (int, int) {
