@@ -6,7 +6,7 @@ struct Employee {
     float salary;
 }
 
-io:DelimitedRecordChannel| null delimitedRecordChannel;
+io:DelimitedRecordChannel|null delimitedRecordChannel;
 
 function initFileChannel (string filePath, string permission, string encoding, string rs, string fs) {
     io:ByteChannel channel = io:openFile(filePath, permission);
@@ -34,21 +34,22 @@ function initFileChannel (string filePath, string permission, string encoding, s
 function nextRecord () returns (string[]) {
     string[] empty = [];
     match delimitedRecordChannel {
-      io:DelimitedRecordChannel delimChannel => {
-          var result = delimChannel.nextTextRecord();
-          match result {
-              string[] fields => {
-                  return fields;
-              }
-              io:IOError err => {
-                  throw err;
-              }
-          }
-          return empty;
-      }
-      null => {
-          return empty;
-      }
+        io:DelimitedRecordChannel delimChannel => {
+            var result = delimChannel.nextTextRecord();
+            match result {
+                string[] fields => {
+                    return fields;
+                }
+                io:IOError err => {
+                    throw err;
+                }
+            }
+            return empty;
+        }
+        (any|null) => {
+            return empty;
+        }
+
     }
 }
 
